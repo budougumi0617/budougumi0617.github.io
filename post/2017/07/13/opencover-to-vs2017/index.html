@@ -16,7 +16,7 @@
     <script>hljs.initHighlightingOnLoad();</script>
     
     <link rel="stylesheet" type="text/css" href="/css/style.css">
-    <title>このブログについて | My External Storage</title>
+    <title>OpenCoverでVS2017でビルドした.NETプロジェクトのカバレッジを測る | My External Storage</title>
   </head>
   <body>
     <div id="wrap">
@@ -32,19 +32,23 @@
 <div class="article">
   <header>
     <div class="article-header">
-      <h1>このブログについて</h1>
+      <h1>OpenCoverでVS2017でビルドした.NETプロジェクトのカバレッジを測る</h1>
       <div class="article-meta">
-        <span class="posttime">2017/07/11</span>
+        <span class="posttime">2017/07/13</span>
         
 <div class="tags">
   <ul>
     
     <li>
-        <a href="/tags/other">other</a>
+        <a href="/tags/openover">OpenOver</a>
     </li>
     
     <li>
-        <a href="/tags/about">about</a>
+        <a href="/tags/devops">DevOps</a>
+    </li>
+    
+    <li>
+        <a href="/tags/vs2017">VS2017</a>
     </li>
     
   </ul>
@@ -65,13 +69,13 @@
     
     
     <li>
-      <iframe src="https://www.facebook.com/plugins/share_button.php?href=https://budougumi0617.github.io/post/2017/07/11/about-this-site/&layout=button_count&mobile_iframe=true&appId=budougumi&width=89&height=20" width="89" height="20" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true"></iframe>
+      <iframe src="https://www.facebook.com/plugins/share_button.php?href=https://budougumi0617.github.io/post/2017/07/13/opencover-to-vs2017/&layout=button_count&mobile_iframe=true&appId=budougumi&width=89&height=20" width="89" height="20" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true"></iframe>
     </li>
     
     
     
     <li>
-      <a href="http://b.hatena.ne.jp/entry/https://budougumi0617.github.io/post/2017/07/11/about-this-site//" class="hatena-bookmark-button" data-hatena-bookmark-title="このブログについて" data-hatena-bookmark-layout="standard-balloon" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+      <a href="http://b.hatena.ne.jp/entry/https://budougumi0617.github.io/post/2017/07/13/opencover-to-vs2017//" class="hatena-bookmark-button" data-hatena-bookmark-title="OpenCoverでVS2017でビルドした.NETプロジェクトのカバレッジを測る" data-hatena-bookmark-layout="standard-balloon" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
     </li>
     
     
@@ -94,29 +98,60 @@
   <div class="content">
     
 
-<p><code>C#</code>とか<code>Golang</code>など、いろいろと手を出している筆者がハマったところを書いていきます。
-今までは<a href="http://qiita.com/budougumi0617">Qiita</a>に書いていましたが、個人ブログで書くことにしました。</p>
+<h1 id="tl-dr">TL;DR</h1>
 
-<h1 id="about-me">About Me</h1>
+<p>OpenCoverでVisual Studio2017でビルドした<code>.NET Core/Standard</code>のプロジェクトのコードカバレッジを計測したいときは、<code>.csproj</code>ファイルに<code>DebugType</code>を<code>full</code>で追加すること。</p>
 
-<ul>
-<li>1986/06/17</li>
-<li>ソフトウェアエンジニア@五反田</li>
-<li><a href="https://github.com/budougumi0617">GitHub</a></li>
-<li><a href="https://twitter.com/budougumi0617">Twitter</a></li>
-<li><a href="http://qiita.com/budougumi0617">Qiita</a></li>
-</ul>
+<pre><code class="language-xml">&lt;Project Sdk=&quot;Microsoft.NET.Sdk&quot;&gt;
 
-<h1 id="coreskill">CoreSkill</h1>
+  &lt;PropertyGroup&gt;
+    &lt;TargetFramework&gt;netstandard1.6&lt;/TargetFramework&gt;
+    &lt;DebugType&gt;full&lt;/DebugType&gt;
+  &lt;/PropertyGroup&gt;
 
-<ul>
-<li><code>C#</code></li>
-<li><code>UWP</code></li>
-<li>.NET Standard</li>
-<li><code>Golang</code></li>
-</ul>
+&lt;/Project&gt;
+</code></pre>
 
-<p><code>Ruby</code>や<code>Elixir</code>などもやってます。</p>
+<h1 id="opencoverでカバレッジが計測できない">OpenCoverでカバレッジが計測できない。</h1>
+
+<p>Visual Studio2017から.NET Core, .NET Standardのプロジェクトの構成ファイル(<code>.csproj</code>)の形式が変更になっています。</p>
+
+<p><a href="http://ufcpp.net/blog/2017/5/newcsproj/">++C++; // 未確認飛行 C  - 新しい csproj 形式</a></p>
+
+<p>これに合わせてか、ビルド時に生成されるPDBファイル(<code>.pdb</code>)の情報ファイルの内容も変更になっているようです。
+そのため、通常従来の形式を期待して<code>.pdb</code>ファイルを解析する<code>OpenCover</code>をそのまま使ってもカバレッジは計測できません。</p>
+
+<pre><code>ProcessModel: Default    DomainUsage: Single
+Execution Runtime: net-3.5
+.Cannot instrument C:\projects\testable\Testable.Tests\bin\Debug\Testable.dll as no PDB/MDB could be loaded
+.
+Tests run: 2, Errors: 0, Failures: 0, Inconclusive: 0, Time: 1.4310438 seconds
+  Not run: 0, Invalid: 0, Ignored: 0, Skipped: 0
+Committing...
+
+</code></pre>
+
+<h1 id="解決方法">解決方法</h1>
+
+<p>これを解消するには、<code>.pdb</code>ファイルの情報を従来形式にしてビルドする必要があります。カバレッジを計測したいプロジェクトの<code>.csproj</code>ファイル内で該当属性を<code>full</code>にすることで<code>OpenCover</code>でもカバレッジを計測できるようになります。</p>
+
+<pre><code class="language-xml">&lt;Project Sdk=&quot;Microsoft.NET.Sdk&quot;&gt;
+
+  &lt;PropertyGroup&gt;
+    &lt;TargetFramework&gt;netstandard1.6&lt;/TargetFramework&gt;
+    &lt;DebugType Condition=&quot;'$(Configuration)'=='DEBUG'&quot;&gt;full&lt;/DebugType&gt;
+  &lt;/PropertyGroup&gt;
+
+&lt;/Project&gt;
+</code></pre>
+
+<p>上記例は<a href="http://ufcpp.net/blog/2017/5/newcsproj/">前述の未確認飛行さんの記事</a>を参考に、Debugビルド時のみに制限した設定にしています。</p>
+
+<h1 id="参考文献">参考文献</h1>
+
+<p><a href="http://ufcpp.net/blog/2017/5/newcsproj/">++C++; // 未確認飛行 C  - 新しい csproj 形式</a></p>
+
+<p><a href="https://msdn.microsoft.com/ja-jp/library/s5c8athz.aspx">Csc タスク</a></p>
 
   </div>
   <footer>
@@ -126,11 +161,15 @@
   <ul>
     
     <li>
-        <a href="/tags/other">other</a>
+        <a href="/tags/openover">OpenOver</a>
     </li>
     
     <li>
-        <a href="/tags/about">about</a>
+        <a href="/tags/devops">DevOps</a>
+    </li>
+    
+    <li>
+        <a href="/tags/vs2017">VS2017</a>
     </li>
     
   </ul>
@@ -150,13 +189,13 @@
     
     
     <li>
-      <iframe src="https://www.facebook.com/plugins/share_button.php?href=https://budougumi0617.github.io/post/2017/07/11/about-this-site/&layout=button_count&mobile_iframe=true&appId=budougumi&width=89&height=20" width="89" height="20" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true"></iframe>
+      <iframe src="https://www.facebook.com/plugins/share_button.php?href=https://budougumi0617.github.io/post/2017/07/13/opencover-to-vs2017/&layout=button_count&mobile_iframe=true&appId=budougumi&width=89&height=20" width="89" height="20" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true"></iframe>
     </li>
     
     
     
     <li>
-      <a href="http://b.hatena.ne.jp/entry/https://budougumi0617.github.io/post/2017/07/11/about-this-site//" class="hatena-bookmark-button" data-hatena-bookmark-title="このブログについて" data-hatena-bookmark-layout="standard-balloon" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+      <a href="http://b.hatena.ne.jp/entry/https://budougumi0617.github.io/post/2017/07/13/opencover-to-vs2017//" class="hatena-bookmark-button" data-hatena-bookmark-title="OpenCoverでVS2017でビルドした.NETプロジェクトのカバレッジを測る" data-hatena-bookmark-layout="standard-balloon" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
     </li>
     
     
@@ -178,9 +217,9 @@
       <div id="disqus_thread"></div>
 <script type="text/javascript">
     var disqus_shortname = 'http-budougumi0617-github-io';
-    var disqus_identifier = 'https:\/\/budougumi0617.github.io\/post\/2017\/07\/11\/about-this-site\/';
-    var disqus_title = 'このブログについて';
-    var disqus_url = 'https:\/\/budougumi0617.github.io\/post\/2017\/07\/11\/about-this-site\/';
+    var disqus_identifier = 'https:\/\/budougumi0617.github.io\/post\/2017\/07\/13\/opencover-to-vs2017\/';
+    var disqus_title = 'OpenCoverでVS2017でビルドした.NETプロジェクトのカバレッジを測る';
+    var disqus_url = 'https:\/\/budougumi0617.github.io\/post\/2017\/07\/13\/opencover-to-vs2017\/';
 
     (function() {
         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
@@ -195,14 +234,9 @@
         
         <div id="pagenavigation-next">
           <span class="pagenav-label">Previous</span>
-          <a href="https://budougumi0617.github.io/post/2017/06/hello-hugo/">Hello Hugo</a>
+          <a href="https://budougumi0617.github.io/post/2017/07/11/about-this-site/">このブログについて</a>
         </div>
         
-        
-        <div id="pagenavigation-prev">
-          <span class="pagenav-label">Next</span>
-          <a href="https://budougumi0617.github.io/post/2017/07/13/opencover-to-vs2017/">OpenCoverでVS2017でビルドした.NETプロジェクトのカバレッジを測る</a>
-        </div>
         
       </div>
       
