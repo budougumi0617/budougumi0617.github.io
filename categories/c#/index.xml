@@ -15,11 +15,11 @@
       <pubDate>Mon, 17 Jul 2017 23:41:03 +0900</pubDate>
       
       <guid>https://budougumi0617.github.io/post/2017/07/17/cannot-execute-xunit/</guid>
-      <description>TL;DR Visual Studio for MacからXUnitプロジェクトのテストが実行できないときは、コンソールからdotnet testコマンドを実行してみて出力を確認してみます。
-XUnit(.NET Core1.1)が実行できない Visual Studio for Macの「単体テスト」ウインドウの「テストの実行」操作から、別PCで作成した.NET Core1.1プロジェクトのXUnitを動かそうとしたのですが、実行が終わらない、「テスト結果」ウインドウの「出力」にも何も表示されない状態になりました。
-解決方法 2017/07/17時点のVisual Studio for Macは、.NET Core1.1形式のXUnitプロジェクトの実行にdotnet testコマンドを利用しています。ターミナルから左記のコマンドを実行することで、Visual Studio for Macのバックグラウンドで何が起きているか、原因を探ることができます。
+      <description>TL;DR Visual Studio for MacからXUnitプロジェクトのテストが実行できないときは、コンソールからdotnet testコマンドを実行してみて出力を確認してみます。
+XUnit(.NET Core1.1)が実行できない Visual Studio for Macの「単体テスト」ウインドウの「テストの実行」操作から、別PCで作成した.NET Core1.1`プロジェクトのXUnitを動かそうとしたのですが、実行が終わらない、「テスト結果」ウインドウの「出力」にも何も表示されない状態になりました。
+解決方法 2017/07/17時点のVisual Studio for Macは、.NET Core1.1形式のXUnitプロジェクトの実行にdotnet test`コマンドを利用しています。ターミナルから左記のコマンドを実行することで、Visual Studio for Macのバックグラウンドで何が起きているか、原因を探ることができます。
 dotnet-test
-コマンドを実行した結果、私の場合は、.NET Core1.1.2がインストールされていないことが原因でした(.NET Core1.1.1だと動かなかった)。
+コマンドを実行した結果、私の場合は、.NET Core1.1.2がインストールされていないことが原因でした(.NET Core1.1.1だと動かなかった)。
 $ dotnet test TestProject/TestProject.csproj ... The specified framework &#39;Microsoft.NETCore.App&#39;, version &#39;1.1.2&#39; was not found. - Check application dependencies and target a framework version installed at: /opt/dotnet/shared/Microsoft.NETCore.App - The following versions are installed: 1.1.1 - Alternatively, install the framework version &#39;1.1.2&#39;.  .NET Coreは2.</description>
     </item>
     
@@ -29,11 +29,11 @@ $ dotnet test TestProject/TestProject.csproj ... The specified framework &#39;Mi
       <pubDate>Thu, 13 Jul 2017 09:25:36 +0900</pubDate>
       
       <guid>https://budougumi0617.github.io/post/2017/07/13/opencover-to-vs2017/</guid>
-      <description>TL;DR OpenCoverでVisual Studio2017でビルドした.NET Core/Standardのプロジェクトのコードカバレッジを計測したいときは、.csprojファイルにDebugTypeをfullで追加すること。
-&amp;lt;Project Sdk=&amp;quot;Microsoft.NET.Sdk&amp;quot;&amp;gt; &amp;lt;PropertyGroup&amp;gt; &amp;lt;TargetFramework&amp;gt;netstandard1.6&amp;lt;/TargetFramework&amp;gt; &amp;lt;DebugType&amp;gt;full&amp;lt;/DebugType&amp;gt; &amp;lt;/PropertyGroup&amp;gt; &amp;lt;/Project&amp;gt;  OpenCoverでカバレッジが計測できない。 Visual Studio2017から.NET Core, .NET Standardのプロジェクトの構成ファイル(.csproj)の形式が変更になっています。
+      <description>TL;DR OpenCoverでVisual Studio2017でビルドした.NET Core/Standardのプロジェクトのコードカバレッジを計測したいときは、.csprojファイルにDebugTypeをfullで追加すること。
+&amp;lt;Project Sdk=&amp;quot;Microsoft.NET.Sdk&amp;quot;&amp;gt; &amp;lt;PropertyGroup&amp;gt; &amp;lt;TargetFramework&amp;gt;netstandard1.6&amp;lt;/TargetFramework&amp;gt; &amp;lt;DebugType&amp;gt;full&amp;lt;/DebugType&amp;gt; &amp;lt;/PropertyGroup&amp;gt; &amp;lt;/Project&amp;gt;  OpenCoverでカバレッジが計測できない。 Visual Studio2017から.NET Core, .NET Standardのプロジェクトの構成ファイル(.csproj)の形式が変更になっています。
 ++C++; // 未確認飛行 C - 新しい csproj 形式
-これに合わせてか、ビルド時に生成されるPDBファイル(.pdb)の情報ファイルの内容も変更になっているようです。 そのため、通常従来の形式を期待して.pdbファイルを解析するOpenCoverをそのまま使ってもカバレッジは計測できません。
-ProcessModel: Default DomainUsage: Single Execution Runtime: net-3.5 .Cannot instrument C:\projects\testable\Testable.Tests\bin\Debug\Testable.dll as no PDB/MDB could be loaded . Tests run: 2, Errors: 0, Failures: 0, Inconclusive: 0, Time: 1.4310438 seconds Not run: 0, Invalid: 0, Ignored: 0, Skipped: 0 Committing...  解決方法 これを解消するには、.</description>
+これに合わせてか、ビルド時に生成されるPDBファイル(.pdb)の情報ファイルの内容も変更になっているようです。 そのため、通常従来の形式を期待して.pdbファイルを解析するOpenCoverをそのまま使ってもカバレッジは計測できません。
+ProcessModel: Default DomainUsage: Single Execution Runtime: net-3.5 .Cannot instrument C:\projects\testable\Testable.Tests\bin\Debug\Testable.dll as no PDB/MDB could be loaded . Tests run: 2, Errors: 0, Failures: 0, Inconclusive: 0, Time: 1.4310438 seconds Not run: 0, Invalid: 0, Ignored: 0, Skipped: 0 Committing...  解決方法 これを解消するには、.</description>
     </item>
     
   </channel>
