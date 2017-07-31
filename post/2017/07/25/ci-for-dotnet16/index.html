@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ja-JP">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="generator" content="Hugo 0.24.1" />
+    <link rel="shortcut icon" href="/images/favicon.ico">
+    <link href="https://budougumi0617.github.io/index.xml" rel="alternate" type="application/rss+xml" title="My External Storage" />
+    
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
+    
+    <script src="https://apis.google.com/js/platform.js" async defer>{lang: 'ja'}</script>
+    
+    <link rel="stylesheet" href="https://yandex.st/highlightjs/8.0/styles/default.min.css">
+    <script src="https://yandex.st/highlightjs/8.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+    <title>.NET Standard1.6プロジェクトのCI環境を構築する。 | My External Storage</title>
+  </head>
+  <body>
+    <div id="wrap">
+      
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-43042615-4', 'auto');
+ga('send', 'pageview');
+</script>
+
+      <header class="site-header">
+        <div class="site-header-left">
+          <a class="site-header-title" href="https://budougumi0617.github.io/">My External Storage</a>
+        </div>
+      </header>
+      <div class="container">
+        <div id="main">
+
+<div class="article">
+  <header>
+    <div class="article-header">
+      <h1>.NET Standard1.6プロジェクトのCI環境を構築する。</h1>
+      <div class="article-meta">
+        <span class="posttime">2017/07/25</span>
+        
+<div class="tags">
+  <ul>
+    
+    <li>
+        <a href="/tags/appveyor">AppVeyor</a>
+    </li>
+    
+    <li>
+        <a href="/tags/coveralls">Coveralls</a>
+    </li>
+    
+    <li>
+        <a href="/tags/opencover">OpenCover</a>
+    </li>
+    
+    <li>
+        <a href="/tags/xunit">XUnit</a>
+    </li>
+    
+  </ul>
+</div>
+
+
+      </div>
+    </div>
+    
+<div id="share-buttons">
+  <ul>
+    
+    <li>
+      <a href="https://twitter.com/share" class="twitter-share-button" data-via="budougumi0617">Tweet</a>
+      <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+    </li>
+    
+    
+    
+    <li>
+      <iframe src="https://www.facebook.com/plugins/share_button.php?href=https://budougumi0617.github.io/post/2017/07/25/ci-for-dotnet16/&layout=button_count&mobile_iframe=true&appId=budougumi&width=89&height=20" width="89" height="20" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true"></iframe>
+    </li>
+    
+    
+    
+    <li>
+      <a href="http://b.hatena.ne.jp/entry/https://budougumi0617.github.io/post/2017/07/25/ci-for-dotnet16//" class="hatena-bookmark-button" data-hatena-bookmark-title=".NET Standard1.6プロジェクトのCI環境を構築する。" data-hatena-bookmark-layout="standard-balloon" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+    </li>
+    
+    
+    <li>
+      <div class="g-plusone" data-size="medium"></div>
+    </li>
+    
+    
+    <li>
+      <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+      <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+    </li>
+    
+    
+  </ul>
+</div>
+
+
+  </header>
+  <div class="content">
+    
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<p><code>.NET Standard1.6</code>ベースで<code>Nuget</code>パッケージを作っています。開発で利用しているCI環境の構築方法です。実際に利用しているリポジトリは以下になります。</p>
+
+<p><a href="https://ci.appveyor.com/project/budougumi0617/testable"><img src="https://ci.appveyor.com/api/projects/status/nv8feqr5attxrx5j?svg=true" alt="Build status" /></a>
+<a href="https://codecov.io/gh/budougumi0617/Testable"><img src="https://codecov.io/gh/budougumi0617/Testable/branch/master/graph/badge.svg" alt="codecov" /></a></p>
+
+<p><a href="https://github.com/budougumi0617/Testable">https://github.com/budougumi0617/Testable</a></p>
+
+<p>現状出来ているのは以下です。<code>git tag</code>で自動パッケージリリースなども追って対応していきたいなと思っています。</p>
+
+<ul>
+<li><code>GitHub</code>のリポジトリが更新されたとき、自動でビルドが実施される。</li>
+<li>ビルド時にリポジトリに同梱されているテストプロジェクトが自動で実行される。</li>
+<li>テストのカバレッジを計測し、<code>Codecov</code>で結果を可視化する。</li>
+<li>バッジでビルド結果とカバレッジ率がわかる。</li>
+</ul>
+
+<p><code>.NET Standard1.6(VS2017)</code>環境で構築したプロジェクト向けの記事なので、その他の環境の場合はまず公式サイトなどを参考にしてください。</p>
+
+<p><a href="https://www.appveyor.com/blog/2017/03/17/codecov/">CodeCov Test Coverage Integration</a></p>
+
+<p><a href="https://yoshinorin.net/2016/09/21/appveyor-codecov-csharp/">AppVeyorとCodecovを使ってC#のコードカバレッジを計測する</a></p>
+
+<h1 id="構築手順">構築手順</h1>
+
+<h2 id="利用ツール-サービス">利用ツール/サービス</h2>
+
+<p>基本的に無料のツールで構築していきます。</p>
+
+<table>
+<thead>
+<tr>
+<th>用途</th>
+<th>ツール名</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>IDE</td>
+<td><code>Visual Studio2017</code>/<code>Visual Studio for Mac</code></td>
+</tr>
+
+<tr>
+<td>テスト</td>
+<td><code>XUnit</code>/<code>OpenCover</code></td>
+</tr>
+
+<tr>
+<td>構成管理</td>
+<td><code>GitHub</code></td>
+</tr>
+
+<tr>
+<td>CI</td>
+<td><code>AppVeyor</code>/<code>Coveralls</code></td>
+</tr>
+</tbody>
+</table>
+
+<p>以降では、GitHubリポジトリに<code>.NET1.6</code>プロジェクトが入った状態のあとの説明です。</p>
+
+<h2 id="xunit-プロジェクトを作成する"><code>XUnit</code>プロジェクトを作成する。</h2>
+
+<p>まず、以下の記事を参考に、テストプロジェクトを作成してください。</p>
+
+<p><a href="http://www.nuits.jp/entry/2017/06/11/132339">.NET StandardプロジェクトをxUnitでテストする方法</a></p>
+
+<p><code>VS for Mac</code>の場合は、「新しいプロジェクトの追加」から、「<code>xUnit Test Project</code>」を選択することで同等のプロジェクトを作成することができます。<code>.NET1.6</code>プロジェクトを参照するテストプロジェクトを作成する場合は<code>.NET Core</code>プロジェクトで作るのが無難です。</p>
+
+<p>その後、カバレッジ計測に必要な、<code>xunit.runner.console</code>と<code>OpenCover</code>も<code>Nuget</code>からテストプロジェクトに追加しておいてください。全てを行うと、テストプロジェクトの<code>.csproj</code>ファイルには以下のパッケージが追加されているはずです。</p>
+
+<pre><code class="language-xml">  &lt;ItemGroup&gt;
+    &lt;PackageReference Include=&quot;Microsoft.NET.Test.Sdk&quot; Version=&quot;15.0.0&quot; /&gt;
+    &lt;PackageReference Include=&quot;xunit&quot; Version=&quot;2.2.0&quot; /&gt;
+    &lt;PackageReference Include=&quot;xunit.runner.visualstudio&quot; Version=&quot;2.2.0&quot; /&gt;
+    &lt;PackageReference Include=&quot;xunit.runner.console&quot; Version=&quot;2.2.0&quot; /&gt;
+    &lt;PackageReference Include=&quot;OpenCover&quot; Version=&quot;4.6.519&quot; /&gt;
+  &lt;/ItemGroup&gt;
+</code></pre>
+
+<h2 id="テスト対象のプロジェクトに-debugtype-属性を追加する">テスト対象のプロジェクトに<code>DebugType</code>属性を追加する。</h2>
+
+<p><code>VS2017</code>以降で作成した<code>.NET Standard</code>プロジェクトのカバレッジを、<code>OpenCover</code>で測るためには、テスト対象のプロジェクトの<code>.csproj</code>ファイルの<code>PropertyGroup</code>に<code>&lt;DebugType&gt;full&lt;/DebugType&gt;</code>を追加する必要があります。</p>
+
+<pre><code class="language-xml">  &lt;PropertyGroup&gt;
+    &lt;TargetFramework&gt;netstandard1.6&lt;/TargetFramework&gt;
+    &lt;DebugType&gt;full&lt;/DebugType&gt;
+  &lt;/PropertyGroup&gt;
+</code></pre>
+
+<p>詳細については、以下を参照してください。</p>
+
+<p><a href="https://budougumi0617.github.io/post/2017/07/13/opencover-to-vs2017/">OpenCoverでVS2017でビルドした.NETプロジェクトのカバレッジを測る</a></p>
+
+<h2 id="codecov-の設定ファイルの作成"><code>Codecov</code>の設定ファイルの作成</h2>
+
+<p><a href="https://codecov.io/">Codecov</a></p>
+
+<p>Codecovはカバレッジの結果を可視化してくれるオンラインサービスです。GitHubへの通知なども行えるので、例えば「PRのカバレッジが、コード変更前よりX%下がったとき失敗通知をGitHubへ送る」などと言った設定もできます。
+リポジトリのルートディレクトリに<code>.codecov.yml</code>を配置しておくことで、諸々のしきい値などを設定できます。私はいつもテンプレを使っています。</p>
+
+<p><a href="https://github.com/budougumi0617/Testable/blob/master/.codecov.yml">Testable/.codecov.yml</a></p>
+
+<p>各パラメータの詳細は以下のWikiを参照してください。</p>
+
+<p><a href="https://github.com/codecov/support/wiki/Codecov-Yaml">Codecov Yaml</a></p>
+
+<h2 id="appveyor-の設定"><code>Appveyor</code>の設定</h2>
+
+<p><a href="https://ci.appveyor.com/">Appveyor</a></p>
+
+<p>AppveyorはWindowsコンテナで実行できるCIツールです。
+リポジトリのルートディレクトリに、以下の<code>appveyor.yml</code>ファイルを配置します。</p>
+
+<p><a href="https://github.com/budougumi0617/Testable/blob/master/appveyor.yml">Testable/appveyor.yml</a></p>
+
+<pre><code class="language-yml">version: 0.0.{build}
+pull_requests:
+  do_not_increment_build_number: true
+image: Visual Studio 2017
+configuration: Debug
+platform: Any CPU
+before_build:
+- cmd: &gt;-
+    git submodule init
+    git submodule update --init --recursive
+    dotnet restore Testable.sln
+build:
+  project: Testable.sln
+  verbosity: minimal
+
+# Set OpenCover setting according to below URL
+# https://github.com/OpenCover/opencover/wiki/Usage
+
+test_script:
+- ps: &gt;-
+    $opencover = (Resolve-Path &quot;~\.nuget\packages\OpenCover\4.6.519\tools\OpenCover.Console.exe&quot;).ToString()
+
+    $filter = &quot;+[Testable*]* -[*.Tests*]*&quot;
+
+    regsvr32 x86\OpenCover.Profiler.dll
+
+    regsvr32 x64\OpenCover.Profiler.dll
+
+    &amp; $opencover -target:&quot;c:\Program Files\dotnet\dotnet.exe&quot; `
+    -targetargs:&quot;test -f netcoreapp1.1 -c Debug Testable.Tests/Testable.Tests.csproj&quot; `
+    -mergeoutput `
+    -hideskipped:File `
+    -output:opencoverCoverage.xml `
+    -oldStyle `
+    -filter:$filter `
+    -searchdirs:Testable.Tests/bin/Debug/netcoreapp1.1 `
+    -register:user
+    
+    $env:Path = &quot;C:\Python34;C:\Python34\Scripts;$env:Path&quot;
+
+    python -m pip install --upgrade pip
+
+    pip install codecov
+
+    &amp;{codecov -f &quot;opencoverCoverage.xml&quot;}
+
+notifications:
+- provider: GitHubPullRequest
+  on_build_success: true
+  on_build_failure: true
+  on_build_status_changed: true
+</code></pre>
+
+<p>主要なところを解説しておきます。<code>filter</code>やプロジェクト名の置き換えは<a href="https://github.com/OpenCover/opencover/wiki/Usage">OpenCoverのWiki</a>を参考に行ってください。</p>
+
+<table>
+<thead>
+<tr>
+<th><code>yml</code>の記載</th>
+<th>解説</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>image: Visual Studio 2017</code></td>
+<td><code>VS2017</code>が入っているイメージコンテナを使います。</td>
+</tr>
+
+<tr>
+<td><code>dotnet restore Testable.sln</code></td>
+<td>Nugetの復元は<code>dotnet</code>コマンドで出来ます。</td>
+</tr>
+
+<tr>
+<td><code>- ps: &gt;-</code></td>
+<td>ここから下が<code>Powershell</code>スクリプトです。 <strong>処理と処理の間に空行を入れないと正しく実行されないので注意してください。</strong></td>
+</tr>
+
+<tr>
+<td><code>$runner = &quot;dotnet test&quot;</code></td>
+<td>テストも<code>dotnet</code>コマンドで実行します。</td>
+</tr>
+
+<tr>
+<td><code>pip install codecov</code></td>
+<td>おまじないです。<code>Appveyor</code>/<code>Codecov</code>連携の詳細は<a href="https://www.appveyor.com/blog/2017/03/17/codecov/">この辺</a>を参考に。</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="バッジを貼る">バッジを貼る</h2>
+
+<p>あとは各種サービスにログインして、リポジトリに対してサービスをONにしてください。バッジの貼り方など、このへんは既存のやり方と変わらないので省略します。以下の記事などを参考にどうぞ。</p>
+
+<p><a href="https://www.appveyor.com/blog/2017/03/17/codecov/">CodeCov Test Coverage Integration</a>
+<a href="https://yoshinorin.net/2016/09/21/appveyor-codecov-csharp/">AppVeyorとCodecovを使ってC#のコードカバレッジを計測する</a></p>
+
+<h1 id="おしまい">おしまい</h1>
+
+<p>以上で設定はおしまいです。エラーが出ていないのにカバレッジが取れないときは、</p>
+
+<ul>
+<li>テスト対象のプロジェクトに<code>DebugType</code>属性をつけるのを忘れていないか</li>
+<li><code>OpenCover</code>の<code>filter</code>の設定がおかしくなっていないか</li>
+</ul>
+
+<p>などを確認してください。とくに<code>DebugType</code>属性が今までと違うところでハマりました。。。</p>
+
+<hr />
+
+<h3 id="ツールなどの選定についての補足">ツールなどの選定についての補足</h3>
+
+<p>各サービス、フレームワークを選んだ(選べなかった)理由を解説しておきます。</p>
+
+<h2 id="appveyor-or-visual-studio-team-services-teeam-foundation-server"><code>Appveyor</code> or <code>Visual Studio Team Services/Teeam Foundation Server</code></h2>
+
+<p><code>VSTS</code>で<code>GitHub</code>に貼れるテストカバレッジのバッチを作る方法がなかったので、<code>Appveyor</code>となりました。
+<code>.NET Standard</code>なのでLinuxコンテナのCIサービスでもビルドは出来るのですが、<code>dotnet</code>コマンドなどが標準のコンテナで使える<code>Appveyor</code>を使います。</p>
+
+<h2 id="mstest-or-xunit-or-nunit"><code>MSTest</code> or <code>XUnit</code> or <code>NUnit</code></h2>
+
+<p><code>MSTest</code>は<code>Visual Studio for Mac</code>では使えません。なので選べません。<code>NUnit</code>の場合、<code>.NET1.6</code>プロジェクトで利用するには<code>NUnit3</code>である必要があります。が、<code>OpenCover</code>が<code>NUnit3</code>をフルサポートしていないようなので<code>XUnit</code>にしました。</p>
+
+<h2 id="coveralls-or-codedev"><code>Coveralls</code>or <code>Codedev</code></h2>
+
+<p>Coverallsですと<code>C#</code>向けにプラグインがあるので連携が簡単です。ただ、<code>Codecov</code>でも流用できるのと、UIが好みなので<code>Codecov</code>使ってます。</p>
+
+  </div>
+  <footer>
+    <div class="article-footer">
+      
+<div class="tags">
+  <ul>
+    
+    <li>
+        <a href="/tags/appveyor">AppVeyor</a>
+    </li>
+    
+    <li>
+        <a href="/tags/coveralls">Coveralls</a>
+    </li>
+    
+    <li>
+        <a href="/tags/opencover">OpenCover</a>
+    </li>
+    
+    <li>
+        <a href="/tags/xunit">XUnit</a>
+    </li>
+    
+  </ul>
+</div>
+
+
+      
+      
+<div id="share-buttons">
+  <ul>
+    
+    <li>
+      <a href="https://twitter.com/share" class="twitter-share-button" data-via="budougumi0617">Tweet</a>
+      <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+    </li>
+    
+    
+    
+    <li>
+      <iframe src="https://www.facebook.com/plugins/share_button.php?href=https://budougumi0617.github.io/post/2017/07/25/ci-for-dotnet16/&layout=button_count&mobile_iframe=true&appId=budougumi&width=89&height=20" width="89" height="20" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true"></iframe>
+    </li>
+    
+    
+    
+    <li>
+      <a href="http://b.hatena.ne.jp/entry/https://budougumi0617.github.io/post/2017/07/25/ci-for-dotnet16//" class="hatena-bookmark-button" data-hatena-bookmark-title=".NET Standard1.6プロジェクトのCI環境を構築する。" data-hatena-bookmark-layout="standard-balloon" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+    </li>
+    
+    
+    <li>
+      <div class="g-plusone" data-size="medium"></div>
+    </li>
+    
+    
+    <li>
+      <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+      <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+    </li>
+    
+    
+  </ul>
+</div>
+
+
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    var disqus_identifier = 'https:\/\/budougumi0617.github.io\/post\/2017\/07\/25\/ci-for-dotnet16\/';
+    var disqus_title = '.NET Standard1.6プロジェクトのCI環境を構築する。';
+    var disqus_url = 'https:\/\/budougumi0617.github.io\/post\/2017\/07\/25\/ci-for-dotnet16\/';
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      <div id="pagenavigation-next-prev">
+        
+        <div id="pagenavigation-next">
+          <span class="pagenav-label">Previous</span>
+          <a href="https://budougumi0617.github.io/post/2017/07/17/cannot-execute-xunit/">VS for MacのテストエクスプローラーからXUnit(.NET Core1.1)が実行できない</a>
+        </div>
+        
+        
+        <div id="pagenavigation-prev">
+          <span class="pagenav-label">Next</span>
+          <a href="https://budougumi0617.github.io/post/2017/07/26/xamarin-mmp/">Xamarin.Macプロジェクトのオプションにある「追加のmmp引数」に指定できる値</a>
+        </div>
+        
+      </div>
+      
+    </div>
+  </footer>
+</div>
+        </div>
+        <div class="sidebar">
+  
+  
+  <div class="sidebar-content">
+    <div class="sidebar-header">
+      <span>Author</span>
+    </div>
+    <div id="author">
+      <span>budougumi0617</span>
+      <div>
+        
+        <a href="https://twitter.com/budougumi0617"><i class="fa fa-twitter-square fa-2x" aria-hidden="true"></i></a>
+        
+        
+        <a href="https://github.com/budougumi0617"><i class="fa fa-github-square fa-2x" aria-hidden="true"></i></a>
+        
+        
+        <a href="https://www.linkedin.com/in/yoichiro-shimizu-19579976"><i class="fa fa-linkedin-square fa-2x" aria-hidden="true"></i></a>
+        
+        
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="sidebar-content">
+    <div class="sidebar-header">
+      <span>Categories</span>
+    </div>
+    <div class="categories">
+      <ul>
+        
+        <li>
+          <a href="/categories/about"><span></span>about (1)</a>
+        </li>
+        
+        <li>
+          <a href="/categories/c-sharp"><span></span>c-sharp (4)</a>
+        </li>
+        
+        <li>
+          <a href="/categories/devops"><span></span>devops (1)</a>
+        </li>
+        
+        <li>
+          <a href="/categories/dot-net"><span></span>dot-net (3)</a>
+        </li>
+        
+        <li>
+          <a href="/categories/visualstudio"><span></span>visualstudio (1)</a>
+        </li>
+        
+        <li>
+          <a href="/categories/xamarin.mac"><span></span>xamarin.mac (1)</a>
+        </li>
+        
+      </ul>
+    </div>
+  </div>
+  
+  <div class="sidebar-content">
+    <div class="sidebar-header">
+      <span>RSS</span>
+    </div>
+    <div id="rss">
+      <a href="https://budougumi0617.github.io/index.xml" type="application/rss+xml" target="_blank">
+        <i class="fa fa-rss-square fa-2x" aria-hidden="true"></i>
+      </a>
+    </div>
+  </div>
+</div>
+
+      </div>
+      <footer>
+        <div id="site-footer-wrap">
+          <div id="site-footer">
+            <span>Powered by <a href="https://gohugo.io/">Hugo</a>.</span>
+            <span>
+              
+              Copyright (c) 2017, <a href="https://budougumi0617.github.io/">My External Storage</a>
+              
+            </span>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
+
