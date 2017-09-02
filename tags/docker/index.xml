@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Docker on My External Storage</title>
+    <link>https://budougumi0617.github.io/tags/docker/</link>
+    <description>Recent content in Docker on My External Storage</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>ja-JP</language>
+    <lastBuildDate>Sat, 02 Sep 2017 12:16:06 +0900</lastBuildDate>
+    <atom:link href="/tags/docker/" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>docker-compose上のRailsのデバッグを行う</title>
+      <link>https://budougumi0617.github.io/post/2017/09/02/debug-rails-on-docker/</link>
+      <pubDate>Sat, 02 Sep 2017 12:16:06 +0900</pubDate>
+      
+      <guid>https://budougumi0617.github.io/post/2017/09/02/debug-rails-on-docker/</guid>
+      <description>Rails本の写経をdocer-composeで行なったときのTips。
+TL;DR docke-composeで作ったRubyOnRailsコンテナでbinding.pryによるデバッグを行えるようにする。
+前提 doker-composeでRails、Spring用のコンテナなど、複数コンテナを起動する形のRails環境を構築した。基本構成は以下の記事に習っている。
+高速に開発できる Docker + Rails開発環境のテンプレートを作った
+事前準備 Railsをデバッグ実行するために必要な設定ファイルの準備をする。
+コンテナの標準入出力にアタッチするために、Dockerの設定をしておく。
+docker-compose.yml
+services: rails: &amp;amp;app_base tty: true stdin_open: true  ブレークポイントを貼るためのbinding.pryをするためのGemを追加する。 Gemfileはpry-railsの他にpry-byebugも追加しておくとステップ実行が出来る。
+Gemfile
+group :development, :test do gem &#39;pry-rails&#39; gem &#39;pry-byebug&#39; end  Railsプロジェクトのrootディレクトリに.pryrcファイルを配置しておけばデバッグ中に利用できるエイリアスが貼れる。（他のも色の設定とか出来るらしい）
+.pryrc
+if defined?(PryByebug) Pry.commands.alias_command &#39;c&#39;, &#39;continue&#39; Pry.commands.alias_command &#39;s&#39;, &#39;step&#39; Pry.commands.alias_command &#39;n&#39;, &#39;next&#39; Pry.commands.alias_command &#39;f&#39;, &#39;finish&#39; end  デバッグしたいメソッドにbinding.pryの記載をして、docker-compose upコマンドでRailsを起動して、該当メソッドが実行される操作を行う。 出力がこんな状態になればpryでデバッグが開始できる状態になっている。
+rails_1 | From: /app/app/controllers/staff/customers_controller.rb @ line 4 Staff::CustomersController#index: rails_1 | rails_1 | 2: def index rails_1 | 3: binding.</description>
+    </item>
+    
+  </channel>
+</rss>
