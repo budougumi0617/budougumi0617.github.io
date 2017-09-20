@@ -16,7 +16,7 @@
     <script>hljs.initHighlightingOnLoad();</script>
     
     <link rel="stylesheet" type="text/css" href="/css/style.css">
-    <title>VS for MacのテストエクスプローラーからXUnit(.NET Core1.1)が実行できない | My External Storage</title>
+    <title>Rspec内でテスト対象のControllerのメソッドの戻り値をスタブする | My External Storage</title>
   </head>
   <body>
     <div id="wrap">
@@ -42,19 +42,23 @@ ga('send', 'pageview');
 <div class="article">
   <header>
     <div class="article-header">
-      <h1>VS for MacのテストエクスプローラーからXUnit(.NET Core1.1)が実行できない</h1>
+      <h1>Rspec内でテスト対象のControllerのメソッドの戻り値をスタブする</h1>
       <div class="article-meta">
-        <span class="posttime">2017/07/17</span>
+        <span class="posttime">2017/09/20</span>
         
 <div class="tags">
   <ul>
     
     <li>
-        <a href="/tags/vs4mac">VS4Mac</a>
+        <a href="/tags/rubyonrails">RubyOnRails</a>
     </li>
     
     <li>
-        <a href="/tags/xunit">XUnit</a>
+        <a href="/tags/test">Test</a>
+    </li>
+    
+    <li>
+        <a href="/tags/rspec">RSpec</a>
     </li>
     
   </ul>
@@ -75,13 +79,13 @@ ga('send', 'pageview');
     
     
     <li>
-      <iframe src="https://www.facebook.com/plugins/share_button.php?href=https://budougumi0617.github.io/post/2017/07/17/cannot-execute-xunit/&layout=button_count&mobile_iframe=true&appId=budougumi&width=89&height=20" width="89" height="20" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true"></iframe>
+      <iframe src="https://www.facebook.com/plugins/share_button.php?href=https://budougumi0617.github.io/post/2017/09/20/rspec-access-controller/&layout=button_count&mobile_iframe=true&appId=budougumi&width=89&height=20" width="89" height="20" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true"></iframe>
     </li>
     
     
     
     <li>
-      <a href="http://b.hatena.ne.jp/entry/https://budougumi0617.github.io/post/2017/07/17/cannot-execute-xunit//" class="hatena-bookmark-button" data-hatena-bookmark-title="VS for MacのテストエクスプローラーからXUnit(.NET Core1.1)が実行できない" data-hatena-bookmark-layout="standard-balloon" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+      <a href="http://b.hatena.ne.jp/entry/https://budougumi0617.github.io/post/2017/09/20/rspec-access-controller//" class="hatena-bookmark-button" data-hatena-bookmark-title="Rspec内でテスト対象のControllerのメソッドの戻り値をスタブする" data-hatena-bookmark-layout="standard-balloon" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
     </li>
     
     
@@ -104,43 +108,54 @@ ga('send', 'pageview');
   <div class="content">
     
 
+<p><code>C#</code>では対象インスタンスのメソッドの挙動を変えることは出来ないので、別の手段を探していたのだが、<code>ruby</code>では出来た。</p>
+
 <h1 id="tl-dr">TL;DR</h1>
 
-<p>Visual Studio for Macから<code>XUnit</code>プロジェクトのテストが実行できないときは、コンソールから<code>dotnet test</code>コマンドを実行してみて出力を確認してみます。</p>
+<ul>
+<li>RSpec書いたControllerSpecの中でテスト対象のコントローラのメソッドの戻り値をモックオブジェクトに変えたかった。</li>
+<li><code>ControllerExampleGroup</code>で定義されている<code>controller</code>からテスト中のコントローラインスタンスを操作することが可能</li>
+</ul>
 
-<h1 id="xunit-net-core1-1-が実行できない">XUnit(.NET Core1.1)が実行できない</h1>
+<p><a href="http://www.rubydoc.info/gems/rspec-rails/RSpec/Rails/ControllerExampleGroup#controller-instance_method">Module: RSpec::Rails::ControllerExampleGroup#controller</a></p>
 
-<p>Visual Studio for Macの「単体テスト」ウインドウの「テストの実行」操作から、別PCで作成した.NET Core1.1`プロジェクトのXUnitを動かそうとしたのですが、実行が終わらない、「テスト結果」ウインドウの「出力」にも何も表示されない状態になりました。</p>
+<h1 id="前提">前提</h1>
 
-<h1 id="解決方法">解決方法</h1>
+<p><code>rspec-rails (~&gt; 3.0.0.beta2)</code>で確認。</p>
 
-<p>2017/07/17時点のVisual Studio for Macは、.NET Core1.1<code>形式のXUnitプロジェクトの実行に</code>dotnet test`コマンドを利用しています。ターミナルから左記のコマンドを実行することで、Visual Studio for Macのバックグラウンドで何が起きているか、原因を探ることができます。</p>
+<p>テスト対象のコントローラはこんな感じ。</p>
 
-<p><a href="https://docs.microsoft.com/ja-jp/dotnet/core/tools/dotnet-test">dotnet-test</a></p>
-
-<p>コマンドを実行した結果、私の場合は、<code>.NET Core1.1.2</code>がインストールされていないことが原因でした(<code>.NET Core1.1.1</code>だと動かなかった)。</p>
-
-<pre><code class="language-shell">$ dotnet test TestProject/TestProject.csproj
-
-...
-
-The specified framework 'Microsoft.NETCore.App', version '1.1.2' was not found.
-  - Check application dependencies and target a framework version installed at:
-      /opt/dotnet/shared/Microsoft.NETCore.App
-  - The following versions are installed:
-      1.1.1
-  - Alternatively, install the framework version '1.1.2'.
+<pre><code class="language-ruby">class MyController &lt; ApplicationController
+  def my_client
+    MyClient.new
+  end
+end
 </code></pre>
 
-<p><code>.NET Core</code>は<a href="https://www.microsoft.com/net/core/preview#macos">2.0のプレビュー版がすでに公開</a>されていたりして、近いうちにまた更新忘れのエラーに遭いそうな感じです。同じ目に合ったときのため、備忘録として書いておきます。</p>
+<h1 id="controller-と-allow-でメソッドの戻り値をすげ替える"><code>controller</code>と<code>allow</code>でメソッドの戻り値をすげ替える</h1>
 
-<h1 id="参考文献">参考文献</h1>
+<p><code>allow</code>を使えばメソッドの挙動をすげ替えることが出来る。<code>Rails</code>の場合は<code>controller</code>を使えばテスト対象のコントローラのインスタンスを得られるので、テストを実行する前に下記の操作をしておくことで、テスト対象のメソッドの挙動も変更しておくことができる。下記の例は、<code>double</code>で作成したダミーオブジェクトで、<code>MyController#my_client</code>の挙動を変更する例。例外を出す例も記載している。</p>
 
-<p><a href="https://docs.microsoft.com/ja-jp/dotnet/core/tools/dotnet-test">dotnet-test</a></p>
+<pre><code class="language-ruby"># MyControllerのRSpecのdescribe内
 
-<p><a href="https://www.microsoft.com/net/download/core">Download .NET Core</a></p>
+# ダミーオブジェクト作成
+my_client_mock = double('Dummy Client')
+# メソッドの振る舞いを設定しておく。
+allow(my_client_mock).to receive(:my_method).and_return(&quot;foo&quot;)
 
-<p><a href="https://www.microsoft.com/net/core/preview#macos">Install for macOS 10.12 or higher (64 bit)</a></p>
+# テスト対象のコントローラのメソッドにダミーオブジェクトを設定
+allow(controller).to receive(:my_client).and_return(my_client_mock) 
+# 例外を出す場合
+allow(controller).to receive(:my_client).and_raise(MyError.new('bar')) 
+</code></pre>
+
+<h1 id="参考">参考</h1>
+
+<p><a href="http://www.rubydoc.info/gems/rspec-rails/RSpec/Rails/ControllerExampleGroup#controller-instance_method">Module: RSpec::Rails::ControllerExampleGroup#controller</a></p>
+
+<p><a href="http://jangajan.com/blog/2014/12/08/expect-and-allow-in-rspec/">Rspec3のexpectとallowの違い</a></p>
+
+<p><a href="http://web-k.github.io/blog/2012/10/02/rspec-mock/">RSpecまとめ(2)～Mock(double/stub/mock)～</a></p>
 
   </div>
   <footer>
@@ -150,11 +165,15 @@ The specified framework 'Microsoft.NETCore.App', version '1.1.2' was not found.
   <ul>
     
     <li>
-        <a href="/tags/vs4mac">VS4Mac</a>
+        <a href="/tags/rubyonrails">RubyOnRails</a>
     </li>
     
     <li>
-        <a href="/tags/xunit">XUnit</a>
+        <a href="/tags/test">Test</a>
+    </li>
+    
+    <li>
+        <a href="/tags/rspec">RSpec</a>
     </li>
     
   </ul>
@@ -174,13 +193,13 @@ The specified framework 'Microsoft.NETCore.App', version '1.1.2' was not found.
     
     
     <li>
-      <iframe src="https://www.facebook.com/plugins/share_button.php?href=https://budougumi0617.github.io/post/2017/07/17/cannot-execute-xunit/&layout=button_count&mobile_iframe=true&appId=budougumi&width=89&height=20" width="89" height="20" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true"></iframe>
+      <iframe src="https://www.facebook.com/plugins/share_button.php?href=https://budougumi0617.github.io/post/2017/09/20/rspec-access-controller/&layout=button_count&mobile_iframe=true&appId=budougumi&width=89&height=20" width="89" height="20" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true"></iframe>
     </li>
     
     
     
     <li>
-      <a href="http://b.hatena.ne.jp/entry/https://budougumi0617.github.io/post/2017/07/17/cannot-execute-xunit//" class="hatena-bookmark-button" data-hatena-bookmark-title="VS for MacのテストエクスプローラーからXUnit(.NET Core1.1)が実行できない" data-hatena-bookmark-layout="standard-balloon" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+      <a href="http://b.hatena.ne.jp/entry/https://budougumi0617.github.io/post/2017/09/20/rspec-access-controller//" class="hatena-bookmark-button" data-hatena-bookmark-title="Rspec内でテスト対象のControllerのメソッドの戻り値をスタブする" data-hatena-bookmark-layout="standard-balloon" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
     </li>
     
     
@@ -202,9 +221,9 @@ The specified framework 'Microsoft.NETCore.App', version '1.1.2' was not found.
       <div id="disqus_thread"></div>
 <script type="text/javascript">
     var disqus_shortname = 'http-budougumi0617-github-io';
-    var disqus_identifier = 'https:\/\/budougumi0617.github.io\/post\/2017\/07\/17\/cannot-execute-xunit\/';
-    var disqus_title = 'VS for MacのテストエクスプローラーからXUnit(.NET Core1.1)が実行できない';
-    var disqus_url = 'https:\/\/budougumi0617.github.io\/post\/2017\/07\/17\/cannot-execute-xunit\/';
+    var disqus_identifier = 'https:\/\/budougumi0617.github.io\/post\/2017\/09\/20\/rspec-access-controller\/';
+    var disqus_title = 'Rspec内でテスト対象のControllerのメソッドの戻り値をスタブする';
+    var disqus_url = 'https:\/\/budougumi0617.github.io\/post\/2017\/09\/20\/rspec-access-controller\/';
 
     (function() {
         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
@@ -219,14 +238,9 @@ The specified framework 'Microsoft.NETCore.App', version '1.1.2' was not found.
         
         <div id="pagenavigation-next">
           <span class="pagenav-label">Previous</span>
-          <a href="https://budougumi0617.github.io/post/2017/07/13/opencover-to-vs2017/">OpenCoverでVS2017でビルドした.NETプロジェクトのカバレッジを測る</a>
+          <a href="https://budougumi0617.github.io/post/2017/09/02/debug-rails-on-docker/">docker-compose上のRailsのデバッグを行う</a>
         </div>
         
-        
-        <div id="pagenavigation-prev">
-          <span class="pagenav-label">Next</span>
-          <a href="https://budougumi0617.github.io/post/2017/07/25/ci-for-dotnet16/">.NET Standard1.6プロジェクトのCI環境を構築する。</a>
-        </div>
         
       </div>
       
