@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>GitHubのタグに連動して、.NETStandard1.6のNugetパッケージを自動リリースする。  &middot; My External Storage</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="Appveyor, nuget.org, devops, ">
+
+
+<meta property="og:title" content="GitHubのタグに連動して、.NETStandard1.6のNugetパッケージを自動リリースする。  &middot; My External Storage ">
+<meta property="og:site_name" content="My External Storage"/>
+<meta property="og:url" content="https://budougumi0617.github.io/2017/10/13/publish-nupkg-by-appveyor/" />
+<meta property="og:locale" content="ja-jp">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="2017-10-13T17:06:29&#43;09:00" />
+<meta property="og:article:modified_time" content="2017-10-13T17:06:29&#43;09:00" />
+
+  
+    
+<meta property="og:article:tag" content="Appveyor">
+    
+<meta property="og:article:tag" content="nuget.org">
+    
+<meta property="og:article:tag" content="devops">
+    
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@budougumi0617" />
+<meta name="twitter:creator" content="@budougumi0617" />
+<meta name="twitter:title" content="GitHubのタグに連動して、.NETStandard1.6のNugetパッケージを自動リリースする。" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="https://budougumi0617.github.io/2017/10/13/publish-nupkg-by-appveyor/" />
+<meta name="twitter:domain" content="https://budougumi0617.github.io/">
+  
+
+  
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "GitHubのタグに連動して、.NETStandard1.6のNugetパッケージを自動リリースする。",
+    "author": {
+      "@type": "Person",
+      "name": "http://profiles.google.com/+?rel=author"
+    },
+    "datePublished": "2017-10-13",
+    "description": "",
+    "wordCount": 1356
+  }
+</script>
+  
+
+
+
+<link rel="canonical" href="https://budougumi0617.github.io/2017/10/13/publish-nupkg-by-appveyor/" />
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/touch-icon-144-precomposed.png">
+<link rel="icon" href="/favicon.png">
+<meta name="generator" content="Hugo 0.24.1" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+
+
+    <link rel="stylesheet" href="https://budougumi0617.github.io/css/bootswatch/flatly/bootstrap.min.css">
+
+
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/style.css">
+
+
+
+
+  <link rel="stylesheet" href="https://budougumi0617.github.io/css/highlight/default.css">
+
+
+</head>
+<body class="map[name:flatly]" data-ng-app="myapp" data-ng-controller="MyController" data-ng-mouseleave="MouseLeave($event)">
+    <header id="main-header">
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        
+          
+          <a class="navbar-brand-img" href="/">
+            <img alt="My External Storage" src="/logo.png">
+            
+          </a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav navbar-right">
+            
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/" >
+                <i class='fa fa-home'></i>
+                Home
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/post/" >
+                <i class='fa fa-archive'></i>
+                Archives
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" >
+                <i class='fa fa-info-circle'></i>
+                About
+              </a>
+            </li>
+            
+            
+              
+          </ul>
+        </div>
+        
+      </div>
+    </nav>
+  </header>
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-9">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  <div class="text-center">
+
+    <h1>GitHubのタグに連動して、.NETStandard1.6のNugetパッケージを自動リリースする。
+</h1>
+
+    <div class="metas">
+<small>
+  <i class="fa fa-calendar"></i>
+  <time datetime="2017-10-13">13 Oct, 2017</time>
+</small>
+
+
+  <small>
+    &middot; by budougumi0617
+  
+  &middot; Read in about 3 min
+  &middot; (1356 words)
+  &middot; 
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f10%2f13%2fpublish-nupkg-by-appveyor%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=GitHub%e3%81%ae%e3%82%bf%e3%82%b0%e3%81%ab%e9%80%a3%e5%8b%95%e3%81%97%e3%81%a6%e3%80%81.NETStandard1.6%e3%81%aeNuget%e3%83%91%e3%83%83%e3%82%b1%e3%83%bc%e3%82%b8%e3%82%92%e8%87%aa%e5%8b%95%e3%83%aa%e3%83%aa%e3%83%bc%e3%82%b9%e3%81%99%e3%82%8b%e3%80%82&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f10%2f13%2fpublish-nupkg-by-appveyor%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f10%2f13%2fpublish-nupkg-by-appveyor%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f10%2f13%2fpublish-nupkg-by-appveyor%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f10%2f13%2fpublish-nupkg-by-appveyor%2f&amp;title=GitHub%e3%81%ae%e3%82%bf%e3%82%b0%e3%81%ab%e9%80%a3%e5%8b%95%e3%81%97%e3%81%a6%e3%80%81.NETStandard1.6%e3%81%aeNuget%e3%83%91%e3%83%83%e3%82%b1%e3%83%bc%e3%82%b8%e3%82%92%e8%87%aa%e5%8b%95%e3%83%aa%e3%83%aa%e3%83%bc%e3%82%b9%e3%81%99%e3%82%8b%e3%80%82" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=GitHub%e3%81%ae%e3%82%bf%e3%82%b0%e3%81%ab%e9%80%a3%e5%8b%95%e3%81%97%e3%81%a6%e3%80%81.NETStandard1.6%e3%81%aeNuget%e3%83%91%e3%83%83%e3%82%b1%e3%83%bc%e3%82%b8%e3%82%92%e8%87%aa%e5%8b%95%e3%83%aa%e3%83%aa%e3%83%bc%e3%82%b9%e3%81%99%e3%82%8b%e3%80%82&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2017%2f10%2f13%2fpublish-nupkg-by-appveyor%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  </small>
+
+<div class="margin-10">
+  <i class="fa fa-tags"></i>
+  
+  <a href="https://budougumi0617.github.io/tags/appveyor" class="label label-primary">Appveyor</a>
+  
+  <a href="https://budougumi0617.github.io/tags/nuget.org" class="label label-primary">nuget.org</a>
+  
+  <a href="https://budougumi0617.github.io/tags/devops" class="label label-primary">devops</a>
+  
+
+
+</div>
+
+<br>
+</div>
+
+  </div>
+</div>
+
+      <div class="content">
+  
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<p><code>.NET Standard1.6</code>ベースでNugetパッケージを作っています。<code>GitHub</code>でリリースしたとき(<code>git tag</code>をプッシュしたとき)、自動的に<a href="https://www.nuget.org/.">nuget.org</a>上のパッケージが更新されるようにしました。</p>
+
+<p><a href="https://ci.appveyor.com/project/budougumi0617/testable/build/0.0.74">https://ci.appveyor.com/project/budougumi0617/testable/build/0.0.74</a></p>
+
+<pre><code>---------------------------PRや通常のプッシュをトリガーにビルドしたとき
+Uploading artifacts...
+[1/1] Budougumi0617.Testable.0.0.5.nupkg (5,100 bytes)...100%
+&quot;NuGet&quot; deployment has been skipped as environment variable has not matched (&quot;appveyor_repo_tag&quot; is &quot;false&quot;, should be &quot;true&quot;)
+Build success
+
+---------------------------タグをトリガーにビルドしたとき
+Uploading artifacts...
+[1/1] Budougumi0617.Testable.0.0.5.nupkg (5,101 bytes)...100%
+Deploying using NuGet provider
+Publishing Budougumi0617.Testable.0.0.5.nupkg to https://www.nuget.org/api/v2/package...OK
+Total packages published: 1
+Build success
+</code></pre>
+
+<p>実際に利用しているリポジトリは以下になります。</p>
+
+<h3 id="budougumi0617-testable">budougumi0617.Testable</h3>
+
+<p><a href="https://badge.fury.io/nu/budougumi0617.Testable"><img src="https://badge.fury.io/nu/budougumi0617.Testable.svg" alt="NuGet version" /></a>
+<a href="https://ci.appveyor.com/project/budougumi0617/testable"><img src="https://ci.appveyor.com/api/projects/status/nv8feqr5attxrx5j?svg=true" alt="Build status" /></a>
+<a href="https://codecov.io/gh/budougumi0617/Testable"><img src="https://codecov.io/gh/budougumi0617/Testable/branch/master/graph/badge.svg" alt="codecov" /></a></p>
+
+<p><a href="https://github.com/budougumi0617/Testable">https://github.com/budougumi0617/Testable</a></p>
+
+<h1 id="関連ツールや対象プロジェクトについて">関連ツールや対象プロジェクトについて</h1>
+
+<table>
+<thead>
+<tr>
+<th>用途</th>
+<th>ツール名</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>構成管理</td>
+<td><code>GitHub</code></td>
+</tr>
+
+<tr>
+<td>自動ビルド/自動デプロイ</td>
+<td><code>AppVeyor</code></td>
+</tr>
+
+<tr>
+<td>リリース対象の<code>nupkg</code></td>
+<td><code>.NET Standard1.6</code>プロジェクト</td>
+</tr>
+</tbody>
+</table>
+
+<h1 id="構築手順">構築手順</h1>
+
+<p>継続的インテグレーション（自動ビルド、自動テスト）までは別途構築済みとします。
+詳細は以下を参考にしてください。</p>
+
+<p><a href="/post/2017/07/25/ci-for-dotnet16/">.NET Standard1.6プロジェクトのCI環境を構築する。</a></p>
+
+<h1 id="リリースに関する設定">リリースに関する設定</h1>
+
+<p>AppveyorはWindowsコンテナで実行できるCIツールです。
+<code>.NET</code>系の開発で使うツールや設定はプリセッティング/標準サポートされています。</p>
+
+<p>Nugetの公開も基本的に公式の手順の通りにやればOKです。</p>
+
+<p><a href="https://www.appveyor.com/docs/deployment/nuget/">AppVeyor | Publishing to NuGet feed</a></p>
+
+<p>リポジトリのルートディレクトリに、<code>appveyor.yml</code>ファイルを配置します。
+以下はリリースに関わる関連設定の抜粋です。</p>
+
+<p><a href="https://github.com/budougumi0617/Testable/blob/master/appveyor.yml">Testable/appveyor.yml</a></p>
+
+<pre><code class="language-yml">image: Visual Studio 2017
+configuration: Debug
+# platform: Any CPU
+build:
+  publish_nuget: true
+  project: Testable.sln
+  verbosity: minimal
+
+deploy:
+- provider: NuGet
+  api_key:
+    # Use encrypt tool
+    # https://ci.appveyor.com/tools/encrypt
+    secure: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  artifact: /.*\.nupkg/
+  on:
+    appveyor_repo_tag: true
+</code></pre>
+
+<p>.NET Standard1.6プロジェクトの場合はビルドにVisual Studio2017を使う必要があります。<code>platform: Any CPU</code>を設定すると、成果物のパスの解決に失敗してしまうため、<code>configuration</code>のみ設定しています。</p>
+
+<h2 id="リリースする-nupkg-ファイルをビルドする">リリースする<code>nupkg</code>ファイルをビルドする。</h2>
+
+<p>ビルドの設定の中で<code>publish_nuget: true</code>としておくと、自動的に<code>nuget.org</code>にアップロードする<code>nupkg</code>ファイルが生成されます。</p>
+
+<h2 id="リリース時の認証に使うapiキーを設定する">リリース時の認証に使うAPIキーを設定する。</h2>
+
+<p><code>nuget.org</code>にアカウントを作成済みならば、以下のページからAPIキーを作成できます。</p>
+
+<p><a href="https://www.nuget.org/account/ApiKeys">Nuget Gallery| API Keys</a></p>
+
+<p>リポジトリの<code>yml</code>に直接記載する場合は、Appveyor提供の暗号化ツールで暗号化してから使います。</p>
+
+<p><a href="https://ci.appveyor.com/tools/encrypt">AppVeyor | Encrypt configuration data</a></p>
+
+<p>AppVeyorのGUI画面から環境変数として登録しておき、、<code>env:NUGET_KEY</code>などのように呼んでも良いです。</p>
+
+<h2 id="tag-がプッシュされたときだけリリースする"><code>tag</code>がプッシュされたときだけリリースする。</h2>
+
+<p><code>tag</code>がプッシュされたときだけ<code>deploy</code>を実行するには<code>appveyor_repo_tag: true</code>を設定します。公式の説明は以下です。</p>
+
+<p><a href="https://www.appveyor.com/docs/branches/#build-on-tags-github-gitlab-and-bitbucket-only">AppVeyor | Build on tags (GitHub, GitLab and BitBucket only)</a></p>
+
+<p>以上で<code>GitHub</code>にタグがプッシュされたときだけ、<code>nuget.org</code>にパッケージがリリースされるようになりました。</p>
+
+<p><a href="https://ci.appveyor.com/project/budougumi0617/testable/build/0.0.74">https://ci.appveyor.com/project/budougumi0617/testable/build/0.0.74</a></p>
+
+<pre><code>---------------------------PRや通常のプッシュをトリガーにビルドしたとき
+Uploading artifacts...
+[1/1] Budougumi0617.Testable.0.0.5.nupkg (5,100 bytes)...100%
+&quot;NuGet&quot; deployment has been skipped as environment variable has not matched (&quot;appveyor_repo_tag&quot; is &quot;false&quot;, should be &quot;true&quot;)
+Build success
+
+---------------------------タグをトリガーにビルドしたとき
+Uploading artifacts...
+[1/1] Budougumi0617.Testable.0.0.5.nupkg (5,101 bytes)...100%
+Deploying using NuGet provider
+Publishing Budougumi0617.Testable.0.0.5.nupkg to https://www.nuget.org/api/v2/package...OK
+Total packages published: 1
+Build success
+</code></pre>
+
+<h1 id="参考文献">参考文献</h1>
+
+<p><a href="http://tech.tanaka733.net/entry/cicd-in-appveyor-for-dotnetcore1x-2017">2017年 .NET Core 1.x (Visual Studio 2017) プロジェクト向け AppVeyor での自動ビルドの設定</a></p>
+
+<p><a href="https://www.appveyor.com/docs/build-configuration/#build-pipeline">AppVeyor | Build pipeline</a></p>
+
+<p><a href="https://www.appveyor.com/docs/deployment/nuget/">AppVeyor | Publishing to NuGet feed</a></p>
+
+<p><a href="https://www.appveyor.com/docs/branches/#build-on-tags-github-gitlab-and-bitbucket-only">AppVeyor | Build on tags (GitHub, GitLab and BitBucket only)</a></p>
+
+</div>
+
+
+      <footer>
+  
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f10%2f13%2fpublish-nupkg-by-appveyor%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=GitHub%e3%81%ae%e3%82%bf%e3%82%b0%e3%81%ab%e9%80%a3%e5%8b%95%e3%81%97%e3%81%a6%e3%80%81.NETStandard1.6%e3%81%aeNuget%e3%83%91%e3%83%83%e3%82%b1%e3%83%bc%e3%82%b8%e3%82%92%e8%87%aa%e5%8b%95%e3%83%aa%e3%83%aa%e3%83%bc%e3%82%b9%e3%81%99%e3%82%8b%e3%80%82&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f10%2f13%2fpublish-nupkg-by-appveyor%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f10%2f13%2fpublish-nupkg-by-appveyor%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f10%2f13%2fpublish-nupkg-by-appveyor%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f10%2f13%2fpublish-nupkg-by-appveyor%2f&amp;title=GitHub%e3%81%ae%e3%82%bf%e3%82%b0%e3%81%ab%e9%80%a3%e5%8b%95%e3%81%97%e3%81%a6%e3%80%81.NETStandard1.6%e3%81%aeNuget%e3%83%91%e3%83%83%e3%82%b1%e3%83%bc%e3%82%b8%e3%82%92%e8%87%aa%e5%8b%95%e3%83%aa%e3%83%aa%e3%83%bc%e3%82%b9%e3%81%99%e3%82%8b%e3%80%82" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=GitHub%e3%81%ae%e3%82%bf%e3%82%b0%e3%81%ab%e9%80%a3%e5%8b%95%e3%81%97%e3%81%a6%e3%80%81.NETStandard1.6%e3%81%aeNuget%e3%83%91%e3%83%83%e3%82%b1%e3%83%bc%e3%82%b8%e3%82%92%e8%87%aa%e5%8b%95%e3%83%aa%e3%83%aa%e3%83%bc%e3%82%b9%e3%81%99%e3%82%8b%e3%80%82&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2017%2f10%2f13%2fpublish-nupkg-by-appveyor%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      
+  
+    <nav><ul class="pager">
+    
+        <li class="previous">
+          <a href="https://budougumi0617.github.io/2017/10/12/go-web-programing/" title="[書評]Goプログラミング実践入門　標準ライブラリでゼロからWebアプリを作る">
+            <span aria-hidden="true">&larr;</span>Previous
+          </a>
+        </li>
+    
+
+    
+      <li class="next">
+        <a href="https://budougumi0617.github.io/2017/11/09/gocon2017-autumn/" title="Go Conference 2017 Autumn参加メモ #gocon">
+            Next <span aria-hidden="true">&rarr;</span>
+        </a>
+      </li>
+    
+    </ul> </nav>
+  
+
+
+</div>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+    
+    
+    if (window.location.hostname == "localhost")
+      return;
+
+    var dsq = document.createElement('script'); dsq.async = true; dsq.type = 'text/javascript';
+    dsq.src = '//http-budougumi0617-github-io.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
+</footer>
+
+    </div>
+    
+      <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+        <div>
+  
+
+    <div class="section">
+      <header><div class="title"><b>Latest Posts</b></div></header>
+      <div class="content">
+        <ul>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2017/11/09/gocon2017-autumn/">Go Conference 2017 Autumn参加メモ #gocon</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2017/10/13/publish-nupkg-by-appveyor/">GitHubのタグに連動して、.NETStandard1.6のNugetパッケージを自動リリースする。</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2017/10/12/go-web-programing/">[書評]Goプログラミング実践入門　標準ライブラリでゼロからWebアプリを作る</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2017/09/20/rspec-access-controller/">Rspec内でテスト対象のControllerのメソッドの戻り値をスタブする</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2017/09/02/debug-rails-on-docker/">docker-compose上のRailsのデバッグを行う</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2017/08/04/xamarin-link-flags/">Xmarin.Macアプリでネイティブメソッドの動的ロードを含むビルドを行う</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2017/07/26/xamarin-mmp/">Xamarin.Macプロジェクトのオプションにある「追加のmmp引数」に指定できる値</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2017/07/25/ci-for-dotnet16/">.NET Standard1.6プロジェクトのCI環境を構築する。</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2017/07/17/cannot-execute-xunit/">VS for MacのテストエクスプローラーからXUnit(.NET Core1.1)が実行できない</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2017/07/13/opencover-to-vs2017/">OpenCoverでVS2017でビルドした.NETプロジェクトのカバレッジを測る</a>
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>tag</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/tags/appveyor">appveyor</a></li><li><a href="/tags/devops">devops</a></li><li><a href="/tags/golang">golang</a></li><li><a href="/tags/mmp">mmp</a></li><li><a href="/tags/rubyonrails">rubyonrails</a></li><li><a href="/tags/xamarin">xamarin</a></li><li><a href="/tags/xunit">xunit</a></li><li><a href="/tags/about">about</a></li><li><a href="/tags/book">book</a></li><li><a href="/tags/codecov">codecov</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+    
+
+</div>
+
+      </div>
+    
+  </div>
+</div>
+    
+<footer class="footer hidden-print">
+  <div class="container">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+           <div class="pull-left">
+  <a class="toplink" href="javascript:" id="return-to-top">back to top</a>
+</div>
+<div class="pull-right">
+
+</div>
+
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+              
+    
+<div class="container footline">
+    <small>
+  Copyright&copy; <a href='/2017/07/11/about-this-site/'>budougumi0617</a>
+
+</small>
+</div>
+
+
+    
+
+
+        </div>
+    </div>
+  </div>
+</footer>
+
+    
+
+<script src="//s3.amazonaws.com/mailmunch/static/site.js" id="mailmunch-script" data-mailmunch-site-id="" async="async"></script>
+
+
+
+<script src="//load.sumome.com/" data-sumo-site-id="" async="async"></script>
+
+<script src="https://budougumi0617.github.io/js/jquery.min.js"></script>
+<script src="https://budougumi0617.github.io/js/bootstrap.min.js"></script>
+
+
+<script src="https://budougumi0617.github.io/js/highlight.pack.js"></script>
+<script src="https://budougumi0617.github.io/js/site.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+<script>
+var ENABLE_POPOVER = "", 
+EXPIRE_COOKIE = "", 
+SHOW_MODAL_TIMEOUT = "", 
+MOUSE_LEAVE = "", 
+MODAL_SIZE = "", 
+POST_URL = "", 
+SIGNUP_HEADER = "",
+HEADER_IMAGE = "",
+IMG_DESCRIPTION = "",
+SIGNUP_TEXT = "",
+INPUT_PLACEHOLDER = "",
+SUBMIT_BUTTON = "",
+SUCCESS_MESSAGE = "",
+ERROR_MESSAGE = "",
+OPTIN = "",
+COOKIE_NAME = "",
+CONTENTLANGUAGE = ""; 
+</script>
+
+
+
+
+
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//MathJax.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//config/TeX-AMS-MML_HTMLorMML.js"></script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\[','\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    for(var all in MathJax.Hub.getAllJax()) {
+        all.SourceElement().parentNode.className += ' has-jax';
+
+    }
+});
+</script>
+
+
+
+
+
+
+  </body>
+</html>
+
