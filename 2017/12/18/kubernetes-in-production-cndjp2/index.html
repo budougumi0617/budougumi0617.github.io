@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>[k8s]Cloud Native Developers JP 第2回勉強会 参加メモ #cndjp2  &middot; My External Storage</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="kubernetes, k8s, cndjp, ">
+
+
+<meta property="og:title" content="[k8s]Cloud Native Developers JP 第2回勉強会 参加メモ #cndjp2  &middot; My External Storage ">
+<meta property="og:site_name" content="My External Storage"/>
+<meta property="og:url" content="https://budougumi0617.github.io/2017/12/18/kubernetes-in-production-cndjp2/" />
+<meta property="og:locale" content="ja-jp">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="2017-12-18T09:00:00&#43;09:00" />
+<meta property="og:article:modified_time" content="2017-12-18T09:00:00&#43;09:00" />
+
+  
+    
+<meta property="og:article:tag" content="kubernetes">
+    
+<meta property="og:article:tag" content="k8s">
+    
+<meta property="og:article:tag" content="cndjp">
+    
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@budougumi0617" />
+<meta name="twitter:creator" content="@budougumi0617" />
+<meta name="twitter:title" content="[k8s]Cloud Native Developers JP 第2回勉強会 参加メモ #cndjp2" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="https://budougumi0617.github.io/2017/12/18/kubernetes-in-production-cndjp2/" />
+<meta name="twitter:domain" content="https://budougumi0617.github.io/">
+  
+
+  
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "[k8s]Cloud Native Developers JP 第2回勉強会 参加メモ #cndjp2",
+    "author": {
+      "@type": "Person",
+      "name": "http://profiles.google.com/+?rel=author"
+    },
+    "datePublished": "2017-12-18",
+    "description": "",
+    "wordCount": 3730
+  }
+</script>
+  
+
+
+
+<link rel="canonical" href="https://budougumi0617.github.io/2017/12/18/kubernetes-in-production-cndjp2/" />
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/touch-icon-144-precomposed.png">
+<link rel="icon" href="/favicon.png">
+<meta name="generator" content="Hugo 0.24.1" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+
+
+    <link rel="stylesheet" href="https://budougumi0617.github.io/css/bootswatch/flatly/bootstrap.min.css">
+
+
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/style.css">
+
+
+
+
+  <link rel="stylesheet" href="https://budougumi0617.github.io/css/highlight/default.css">
+
+
+</head>
+<body class="map[name:flatly]" data-ng-app="myapp" data-ng-controller="MyController" data-ng-mouseleave="MouseLeave($event)">
+    <header id="main-header">
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        
+          
+          <a class="navbar-brand-img" href="/">
+            <img alt="My External Storage" src="/logo.png">
+            
+          </a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav navbar-right">
+            
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/" >
+                <i class='fa fa-home'></i>
+                Home
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/post/" >
+                <i class='fa fa-archive'></i>
+                Archives
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" >
+                <i class='fa fa-info-circle'></i>
+                About
+              </a>
+            </li>
+            
+            
+              
+          </ul>
+        </div>
+        
+      </div>
+    </nav>
+  </header>
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-9">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  <div class="text-center">
+
+    <h1>[k8s]Cloud Native Developers JP 第2回勉強会 参加メモ #cndjp2
+</h1>
+
+    <div class="metas">
+<small>
+  <i class="fa fa-calendar"></i>
+  <time datetime="2017-12-18">18 Dec, 2017</time>
+</small>
+
+
+  <small>
+    &middot; by budougumi0617
+  
+  &middot; Read in about 8 min
+  &middot; (3730 words)
+  &middot; 
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f12%2f18%2fkubernetes-in-production-cndjp2%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=%5bk8s%5dCloud%20Native%20Developers%20JP%20%e7%ac%ac2%e5%9b%9e%e5%8b%89%e5%bc%b7%e4%bc%9a%20%e5%8f%82%e5%8a%a0%e3%83%a1%e3%83%a2%20%23cndjp2&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f12%2f18%2fkubernetes-in-production-cndjp2%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f12%2f18%2fkubernetes-in-production-cndjp2%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f12%2f18%2fkubernetes-in-production-cndjp2%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f12%2f18%2fkubernetes-in-production-cndjp2%2f&amp;title=%5bk8s%5dCloud%20Native%20Developers%20JP%20%e7%ac%ac2%e5%9b%9e%e5%8b%89%e5%bc%b7%e4%bc%9a%20%e5%8f%82%e5%8a%a0%e3%83%a1%e3%83%a2%20%23cndjp2" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=%5bk8s%5dCloud%20Native%20Developers%20JP%20%e7%ac%ac2%e5%9b%9e%e5%8b%89%e5%bc%b7%e4%bc%9a%20%e5%8f%82%e5%8a%a0%e3%83%a1%e3%83%a2%20%23cndjp2&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2017%2f12%2f18%2fkubernetes-in-production-cndjp2%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  </small>
+
+<div class="margin-10">
+  <i class="fa fa-tags"></i>
+  
+  <a href="https://budougumi0617.github.io/tags/kubernetes" class="label label-primary">kubernetes</a>
+  
+  <a href="https://budougumi0617.github.io/tags/k8s" class="label label-primary">k8s</a>
+  
+  <a href="https://budougumi0617.github.io/tags/cndjp" class="label label-primary">cndjp</a>
+  
+
+
+</div>
+
+<br>
+</div>
+
+  </div>
+</div>
+
+      <div class="content">
+  
+
+<p>第2回Cloud Native Developers JP(cndjp)のハンズオンに参加し、<code>Kubernetes</code>(以下k8s)について勉強してきた。<br />
+第1回は最初ということもあり、基本的な用語と、ローカルのk8sクラスター環境でポッドを起動し、スケールさせてみるレベルの内容だった。<br />
+<a href="https://budougumi0617.github.io/2017/11/23/cndjp1/">Cloud Native Developers JP 第1回勉強会 参加メモ #cndjp1</a></p>
+
+<p>が、今回はYAMLに定義された<code>PersistentVolume</code>オブジェクトを使ったアプリケーション構築など、内容が濃かった。<br />
+自分はコンテナ周りの知識がほとんどない（動かせるがゼロから構築は出来ない）ので、どこから学んでいくべきか、後日改めて動かせる成果物と掘り下げるきっかけを得られた非常によい勉強会だった。<br />
+ハンズオンの内容を動かすだけ動かせたが、それぞれの概念や挙動の理解は追いつかなかったので、調べながら当日の内容をまとめる。</p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>URL</td>
+<td><a href="https://cnd.connpass.com/event/73694/">https://cnd.connpass.com/event/73694/</a></td>
+</tr>
+
+<tr>
+<td>会場</td>
+<td>日本オラクル青山センター</td>
+</tr>
+
+<tr>
+<td>日時</td>
+<td>2017/12/18(月) 19:00 〜 22:00</td>
+</tr>
+
+<tr>
+<td>資料1</td>
+<td><a href="https://www.slideshare.net/charlier-shoe/kubernetes-in-cndjp2">https://www.slideshare.net/charlier-shoe/kubernetes-in-cndjp2</a></td>
+</tr>
+
+<tr>
+<td>資料2</td>
+<td><a href="https://github.com/oracle-japan/cndjp2">https://github.com/oracle-japan/cndjp2</a></td>
+</tr>
+
+<tr>
+<td>ハッシュタグ</td>
+<td><a href="https://twitter.com/search?q=%23cndjp2">#cndjp2</a></td>
+</tr>
+</tbody>
+</table>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>前回の復習。ノード、ポッドなどのk8s用語の再確認。</li>
+<li>ロギングのアーキテクチャ</li>
+<li>ハンズオン1: マニフェストファイルを利用して作成する複数サイドカーを用いたロギングサンプル
+
+<ul>
+<li><a href="https://github.com/oracle-japan/cndjp2/blob/master/handson1.md">https://github.com/oracle-japan/cndjp2/blob/master/handson1.md</a></li>
+</ul></li>
+<li><code>PersistentVolume</code>/<code>PersistentVolumeClaim</code>を利用した永続化機能の使い方</li>
+<li>コンテナのアップデート手法の紹介</li>
+<li>k8s運用時に行うべきセキュリティの設定方法</li>
+<li>ハンズオン2: PersistentVolumeを利用した<code>Node.js</code>/<code>MySQOL</code>アプリケーションを<code>Ingress</code>でクラスタ外部に公開する
+
+<ul>
+<li><a href="https://github.com/oracle-japan/cndjp2/blob/master/handson2.md">https://github.com/oracle-japan/cndjp2/blob/master/handson2.md</a></li>
+</ul></li>
+</ul>
+
+<h1 id="前回の復習">前回の復習</h1>
+
+<p>最初は<code>Node</code>や<code>Pod</code>、<code>Deployment</code>など、k8sの基本的な用語の確認だった。スライド資料の説明(P11-P19)や前回メモがあるので割愛。<br />
+<a href="https://www.slideshare.net/charlier-shoe/kubernetes-in-cndjp2">https://www.slideshare.net/charlier-shoe/kubernetes-in-cndjp2</a><br />
+<a href="https://budougumi0617.github.io/2017/11/23/cndjp1/">Cloud Native Developers JP 第1回勉強会 参加メモ #cndjp1</a></p>
+
+<h1 id="ロギングのアーキテクチャ">ロギングのアーキテクチャ</h1>
+
+<p><a href="https://kubernetes.io/docs/concepts/cluster-administration/logging/">https://kubernetes.io/docs/concepts/cluster-administration/logging/</a></p>
+
+<p><a href="https://docs.docker.com/engine/admin/logging/overview/">Container Engine(Docker)のlogging driver</a>がファイルとして出力している。<a href="https://linux.die.net/man/8/logrotate">logrotate</a>でローテートされている。そのログをagentがbackendに転送する。GKEの場合はbackendにstackdriverが動いていて、よしなに出来る。</p>
+
+<p><strong>Logging Using Stackdriver</strong><br />
+<a href="https://kubernetes.io/docs/tasks/debug-application-cluster/logging-stackdriver/">https://kubernetes.io/docs/tasks/debug-application-cluster/logging-stackdriver/</a></p>
+
+<p>GKE以外の環境では、agentに<code>fluentd</code>、backendに<code>Elasticsearch</code>が挙げられている。</p>
+
+<p><strong>Cluster-level logging architectures</strong><br />
+<a href="https://kubernetes.io/docs/concepts/cluster-administration/logging/#cluster-level-logging-architectures">https://kubernetes.io/docs/concepts/cluster-administration/logging/#cluster-level-logging-architectures</a></p>
+
+<h1 id="ハンズオン1-マニフェストファイルを利用して作成する複数サイドカーを用いたロギングサンプル">ハンズオン1: マニフェストファイルを利用して作成する複数サイドカーを用いたロギングサンプル</h1>
+
+<p><a href="https://github.com/oracle-japan/cndjp2/blob/master/handson1.md">https://github.com/oracle-japan/cndjp2/blob/master/handson1.md</a></p>
+
+<p>以下のような構成のPodのマニフェストファイルを作成し、実際にローカルのクラスター上で動かしてみる。</p>
+
+<pre><code>Pod
+┣━二種類のログを出力しつづけるcounterコンテナ
+┣━ログを取るsidecarコンテナ1
+┣━ログを取るsidecarコンテナ2
+┗━3つのコンテナにマウントされる仮想ボリューム
+</code></pre>
+
+<h2 id="manifest-file">Manifest File</h2>
+
+<p><a href="https://kubernetes.io/docs/concepts/configuration/overview/">https://kubernetes.io/docs/concepts/configuration/overview/</a><br />
+k8sでPodを作成する時の設定ファイルは、マニフェストファイルと呼ばれ、YAMLで作成する。(JSONでも可能なことは可能らしい)</p>
+
+<h2 id="sidecar">sidecar</h2>
+
+<p><a href="https://docs.microsoft.com/ja-jp/azure/architecture/patterns/sidecar">https://docs.microsoft.com/ja-jp/azure/architecture/patterns/sidecar</a><br />
+sidecarはクラウドデザインパターンのひとつで、アプリケーションのコンポーネントを別のコンテナに分離して、カプセル化を行うこと。</p>
+
+<h1 id="persistentvolume-persistentvolumeclaimを利用した永続化機能の使い方">PersistentVolume/PersistentVolumeClaimを利用した永続化機能の使い方</h1>
+
+<p><a href="https://kubernetes.io/docs/concepts/storage/persistent-volumes/">https://kubernetes.io/docs/concepts/storage/persistent-volumes/</a></p>
+
+<p>k8sでは<code>PersistentVolume</code>/<code>PersistentVolumeClaim</code>を利用して、コンテナ内で利用できるボリュームを多様に用意できる。ハンズオン1では仮想ボリュームを作成し、3つのコンテナで共有させていた。</p>
+
+<h2 id="volume">Volume</h2>
+
+<p><a href="https://kubernetes.io/docs/concepts/storage/volumes/">https://kubernetes.io/docs/concepts/storage/volumes/</a></p>
+
+<p>Podにマウント可能なボリュームを定義する情報。
+次に説明する<code>PersistentVolume</code>/<code>PersistentVolumeClaim</code>を利用すれば、動的に永続ストレージを用いる事もできる。
+downloadAPI。コンテナ内のアプリケーションが自分のラベル情報とかを参照できる。configMapは一般的な設定情報。secretsは機密性の高い情報。などなど。</p>
+
+<h2 id="persistentvolume">PersistentVolume</h2>
+
+<p><a href="https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes">https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes</a></p>
+
+<p>k8s上の永続ストレージのオブジェクト。ストレージの種類、権限や容量などの情報を定義する。</p>
+
+<h2 id="persistentvolumeclaim">PersistentVolumeClaim</h2>
+
+<p><a href="https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims">https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims</a></p>
+
+<p>そのPodが求めるPersistentVolumeの要件を定義する。この要件を満たすPersistentVolumeが自動的に選択される。これでコンテナと永続化層が疎に定義できる。</p>
+
+<p>Podのvolumesに<code>hostpath</code>などのVolumeではなく、PersistentVolumeClaimを指定する。<br />
+別にPersistentVolumeClaimを定義し、Claimの要件を満たすPersitentVolumeを作成しておく。そうすると、自動的にそのVolumeがPodに選択される。</p>
+
+<p><strong>kubernetes: pod(コンテナ)のディスク(volume)とパス(path)の指定方法</strong><br />
+<a href="https://qiita.com/suzukihi724/items/9003b453ddfb1acd202a">https://qiita.com/suzukihi724/items/9003b453ddfb1acd202a</a></p>
+
+<p><strong>kubernetesでPersistent Volumesを使ってみる</strong><br />
+<a href="https://ishiis.net/2017/01/08/kubernetes-storage/">https://ishiis.net/2017/01/08/kubernetes-storage/</a></p>
+
+<p><strong>第6章 KUBERNETES におけるストレージのプロビジョニング</strong><br />
+<a href="https://access.redhat.com/documentation/ja-jp/red_hat_enterprise_linux_atomic_host/7/html/getting_started_with_containers/get_started_provisioning_storage_in_kubernetes">https://access.redhat.com/documentation/ja-jp/red_hat_enterprise_linux_atomic_host/7/html/getting_started_with_containers/get_started_provisioning_storage_in_kubernetes</a></p>
+
+<h1 id="コンテナのアップデート手法の紹介">コンテナのアップデート手法の紹介</h1>
+
+<p>k8s上で動いているコンテナを更新する方法がいくつかある。</p>
+
+<h2 id="ローリングアップデート">ローリングアップデート</h2>
+
+<p>Podをひとつずつアップデートすることで、無停止アップデートを行う手法。Deploymentオブジェクトをりようすると自動的にアップデート管理をしてくれる。</p>
+
+<p><strong>Performing a Rolling Update</strong><br />
+<a href="https://kubernetes.io/docs/tutorials/kubernetes-basics/update-intro/">https://kubernetes.io/docs/tutorials/kubernetes-basics/update-intro/</a></p>
+
+<p><strong>Run a Stateless Application Using a Deployment</strong><br />
+<a href="https://kubernetes.io/docs/tasks/run-application/run-stateless-application-deployment/">https://kubernetes.io/docs/tasks/run-application/run-stateless-application-deployment/</a></p>
+
+<p>Replicationコントローラを使う方法もあるらしいが、公式でもDeploymentの利用を促している。</p>
+
+<p><strong>Perform Rolling Update Using a Replication Controller</strong><br />
+<a href="https://kubernetes.io/docs/tasks/run-application/rolling-update-replication-controller/">https://kubernetes.io/docs/tasks/run-application/rolling-update-replication-controller/</a></p>
+
+<h2 id="カナリーアップデート-カナリアリリース">カナリーアップデート（カナリアリリース）</h2>
+
+<p>カナリーアップデートは物理サーバに依存しないいかにもクラウドなアップデート方法。現行バージョン稼働中の裏で新バージョンのコンテナを起動し、順次新バージョンに切り替えていく。２つのバージョンを同時稼働しながらアップデートを行うので、ロールバックが簡単。k8sでやる場合はLabelとLabelSelectorをうまく使う。</p>
+
+<p><strong>Canary deployments</strong><br />
+<a href="https://kubernetes.io/docs/concepts/cluster-administration/manage-deployment/#canary-deployments">https://kubernetes.io/docs/concepts/cluster-administration/manage-deployment/#canary-deployments</a></p>
+
+<p><strong>Canary Release with Kubernetes</strong><br />
+<a href="https://hackernoon.com/canary-release-with-kubernetes-1b732f2832ac">https://hackernoon.com/canary-release-with-kubernetes-1b732f2832ac</a></p>
+
+<h1 id="k8s運用時に行うべきセキュリティの設定方法">k8s運用時に行うべきセキュリティの設定方法</h1>
+
+<p>コンテナレジストリ、SSHアクセス、各コンテナに対する権限付与など、いくつかセキュリティについて考えるところがある。基本的には外部とのやりとりをするところ。</p>
+
+<ul>
+<li>apiserver API(Kubernetesのリソースを管理するAPIサーバー)の認証/許可機能を利用する
+
+<ul>
+<li><a href="https://kubernetes.io/docs/admin/authorization/">https://kubernetes.io/docs/admin/authorization/</a></li>
+</ul></li>
+<li>kubelet API(  Podを起動し管理するエージェント)の認証/許可機能を利用する
+
+<ul>
+<li><a href="https://kubernetes.io/docs/admin/kubelet-authentication-authorization/">https://kubernetes.io/docs/admin/kubelet-authentication-authorization/</a></li>
+</ul></li>
+<li>ノードへのSSHアクセスを制限する。</li>
+<li>コンテナレジストリのクレデンシャルをSecretオブジェクトで保持し、Podに生で置かない</li>
+<li>コンテナに制限をかけておく
+
+<ul>
+<li>利用可能リソース</li>
+<li>ネットワークアクセス</li>
+<li>実行権限</li>
+<li>ノード制限</li>
+</ul></li>
+<li>k8sに対する操作の監査ログを有効にしておく</li>
+<li>etc&hellip;</li>
+</ul>
+
+<p><strong>authorization</strong><br />
+<a href="https://kubernetes.io/docs/admin/authorization/">https://kubernetes.io/docs/admin/authorization/</a></p>
+
+<p><strong>Kubelet authentication/authorization</strong><br />
+<a href="https://kubernetes.io/docs/admin/kubelet-authentication-authorization/">https://kubernetes.io/docs/admin/kubelet-authentication-authorization/</a></p>
+
+<p><strong>Kubernetes: 構成コンポーネント一覧</strong><br />
+<a href="https://qiita.com/tkusumi/items/c2a92cd52bfdb9edd613">https://qiita.com/tkusumi/items/c2a92cd52bfdb9edd613</a></p>
+
+<h1 id="ハンズオン2-persistentvolumeを利用したnode-js-mysqolアプリケーションをingressでクラスタ外部に公開する">ハンズオン2: PersistentVolumeを利用したNode.js/MySQOLアプリケーションをIngressでクラスタ外部に公開する</h1>
+
+<p><a href="https://github.com/oracle-japan/cndjp2/blob/master/handson2.md">https://github.com/oracle-japan/cndjp2/blob/master/handson2.md</a></p>
+
+<p>マニフェストファイルから以下のような構成を実際にローカルのクラスター上で動かしてみる。</p>
+
+<pre><code>┣━データベースコンテナ
+┃  ┣━ MySQLのデータ領域のPersistentVolumeオブジェクト
+┃  ┗━ ユーザー情報保存場所のSecretオブジェクト
+┣━Node.jsで構成されたアプリケーションコンテナのDeploymentオブジェクト
+┣━Node.jsで構成されたアプリケーションコンテナを外部に公開するためのServiceオブジェクト
+┣━デフォルトバックエンドになるnginxの単一レプリカのReplicationControllerオブジェクト
+┣━Ingressの実体となるNginx Ingress ControllerのReplicationControllerオブジェクト
+┗━外部アクセスをロードバランスするIngressオブジェクト
+</code></pre>
+
+<ol>
+<li>MySQLのデータ領域用に、hostPath(ノードのローカルボリューム)のPersistentVolumeを作成する
+
+<ol>
+<li><a href="https://github.com/oracle-japan/cndjp2/blob/master/koa-sample/deployment/db-pv-hostpath.yaml">deployment/db-pv-hostpath.yaml</a></li>
+</ol></li>
+<li>データベースのユーザー情報保存場所として、Secretを作成する
+
+<ol>
+<li><a href="https://github.com/oracle-japan/cndjp2/blob/master/koa-sample/deployment/db-secret.yaml">deployment/db-secret.yaml</a></li>
+</ol></li>
+<li>上記を利用するDBコンテナを起動する
+
+<ol>
+<li><a href="https://github.com/oracle-japan/cndjp2/blob/master/koa-sample/deployment/db-deployment.yaml">deployment/db-deployment.yaml</a></li>
+</ol></li>
+<li>Node.jsコンテナのServiceオブジェクト、Deploymentオブジェクトを作成する
+
+<ol>
+<li><a href="https://github.com/oracle-japan/cndjp2/blob/master/koa-sample/deployment/ap-deployment.yaml">deployment/ap-deployment.yaml</a></li>
+</ol></li>
+<li>ルーティングが見つからなかった時用のデフォルトのバックエンドを構成する
+
+<ol>
+<li><a href="https://github.com/oracle-japan/cndjp2/blob/master/koa-sample/deployment/web-default-backend.yaml">deployment/web-default-backend.yaml</a></li>
+</ol></li>
+<li>NodeにLabelを設定(<code>kubectl label nodes 172.17.8.102 role=front</code>)して、デプロイ先を固定してから<code>NGINX Ingress Controller</code>をデプロイする
+
+<ol>
+<li><a href="https://github.com/oracle-japan/cndjp2/blob/master/koa-sample/deployment/web-rc-default.yaml">deployment/web-rc-default.yaml</a></li>
+</ol></li>
+<li>Ingressオブジェクトを構成する。
+
+<ol>
+<li><a href="https://github.com/oracle-japan/cndjp2/blob/master/koa-sample/deployment/web-ingress.yaml">deployment/web-ingress.yaml</a></li>
+</ol></li>
+</ol>
+
+<p>Ingressや外部への公開部分がよくわかっていないのと、ハンズオンのマニフェストファイルの中身はちゃんと読めていないので、まだ別に調べてまとめたい。</p>
+
+<p><strong>Ingress</strong><br />
+<a href="https://kubernetes.io/docs/concepts/services-networking/ingress/">https://kubernetes.io/docs/concepts/services-networking/ingress/</a></p>
+
+<p><strong>Ingress での HTTP 負荷分散の設定</strong><br />
+<a href="https://cloud.google.com/kubernetes-engine/docs/tutorials/http-balancer?hl=ja">https://cloud.google.com/kubernetes-engine/docs/tutorials/http-balancer?hl=ja</a></p>
+
+<h1 id="参考文献">参考文献</h1>
+
+<p><strong>ハンズオン資料</strong><br />
+<a href="https://github.com/oracle-japan/cndjp2">https://github.com/oracle-japan/cndjp2</a></p>
+
+<p><strong>Logging Architecture</strong><br />
+<a href="https://kubernetes.io/docs/concepts/cluster-administration/logging/">https://kubernetes.io/docs/concepts/cluster-administration/logging/</a></p>
+
+<p><strong>Configure logging drivers</strong><br />
+<a href="https://docs.docker.com/engine/admin/logging/overview/">https://docs.docker.com/engine/admin/logging/overview/</a></p>
+
+<p><strong>Logging Using Stackdriver</strong><br />
+<a href="https://kubernetes.io/docs/tasks/debug-application-cluster/logging-stackdriver/">https://kubernetes.io/docs/tasks/debug-application-cluster/logging-stackdriver/</a></p>
+
+<p><strong>Cluster-level logging architectures</strong><br />
+<a href="https://kubernetes.io/docs/concepts/cluster-administration/logging/#cluster-level-logging-architectures">https://kubernetes.io/docs/concepts/cluster-administration/logging/#cluster-level-logging-architectures</a></p>
+
+<p><strong>Manifest File</strong><br />
+<a href="https://kubernetes.io/docs/concepts/configuration/overview/">https://kubernetes.io/docs/concepts/configuration/overview/</a></p>
+
+<p><strong>sidecar</strong><br />
+<a href="https://docs.microsoft.com/ja-jp/azure/architecture/patterns/sidecar">https://docs.microsoft.com/ja-jp/azure/architecture/patterns/sidecar</a></p>
+
+<p><strong>PersistentVolume/PersistentVolumeClaimを利用した永続化機能の使い方</strong><br />
+<a href="https://kubernetes.io/docs/concepts/storage/persistent-volumes/">https://kubernetes.io/docs/concepts/storage/persistent-volumes/</a></p>
+
+<p><strong>Volume</strong><br />
+<a href="https://kubernetes.io/docs/concepts/storage/volumes/">https://kubernetes.io/docs/concepts/storage/volumes/</a></p>
+
+<p><strong>Persistent Volumes</strong><br />
+<a href="https://kubernetes.io/docs/concepts/storage/persistent-volumes/">https://kubernetes.io/docs/concepts/storage/persistent-volumes/</a></p>
+
+<p><strong>kubernetes: pod(コンテナ)のディスク(volume)とパス(path)の指定方法</strong><br />
+<a href="https://qiita.com/suzukihi724/items/9003b453ddfb1acd202a">https://qiita.com/suzukihi724/items/9003b453ddfb1acd202a</a></p>
+
+<p><strong>kubernetesでPersistent Volumesを使ってみる</strong><br />
+<a href="https://ishiis.net/2017/01/08/kubernetes-storage/">https://ishiis.net/2017/01/08/kubernetes-storage/</a></p>
+
+<p><strong>第6章 KUBERNETES におけるストレージのプロビジョニング</strong><br />
+<a href="https://access.redhat.com/documentation/ja-jp/red_hat_enterprise_linux_atomic_host/7/html/getting_started_with_containers/get_started_provisioning_storage_in_kubernetes">https://access.redhat.com/documentation/ja-jp/red_hat_enterprise_linux_atomic_host/7/html/getting_started_with_containers/get_started_provisioning_storage_in_kubernetes</a></p>
+
+<p><strong>Performing a Rolling Update</strong><br />
+<a href="https://kubernetes.io/docs/tutorials/kubernetes-basics/update-intro/">https://kubernetes.io/docs/tutorials/kubernetes-basics/update-intro/</a></p>
+
+<p><strong>Run a Stateless Application Using a Deployment</strong><br />
+<a href="https://kubernetes.io/docs/tasks/run-application/run-stateless-application-deployment/">https://kubernetes.io/docs/tasks/run-application/run-stateless-application-deployment/</a></p>
+
+<p><strong>Perform Rolling Update Using a Replication Controller</strong><br />
+<a href="https://kubernetes.io/docs/tasks/run-application/rolling-update-replication-controller/">https://kubernetes.io/docs/tasks/run-application/rolling-update-replication-controller/</a></p>
+
+<p><strong>Canary deployments</strong><br />
+<a href="https://kubernetes.io/docs/concepts/cluster-administration/manage-deployment/#canary-deployments">https://kubernetes.io/docs/concepts/cluster-administration/manage-deployment/#canary-deployments</a></p>
+
+<p><strong>Canary Release with Kubernetes</strong><br />
+<a href="https://hackernoon.com/canary-release-with-kubernetes-1b732f2832ac">https://hackernoon.com/canary-release-with-kubernetes-1b732f2832ac</a></p>
+
+<p><strong>authorization</strong><br />
+<a href="https://kubernetes.io/docs/admin/authorization/">https://kubernetes.io/docs/admin/authorization/</a></p>
+
+<p><strong>Kubelet authentication/authorization</strong><br />
+<a href="https://kubernetes.io/docs/admin/kubelet-authentication-authorization/">https://kubernetes.io/docs/admin/kubelet-authentication-authorization/</a></p>
+
+<p><strong>Kubernetes: 構成コンポーネント一覧</strong><br />
+<a href="https://qiita.com/tkusumi/items/c2a92cd52bfdb9edd613">https://qiita.com/tkusumi/items/c2a92cd52bfdb9edd613</a></p>
+
+<p><strong>Ingress</strong><br />
+<a href="https://kubernetes.io/docs/concepts/services-networking/ingress/">https://kubernetes.io/docs/concepts/services-networking/ingress/</a></p>
+
+<p><strong>Ingress での HTTP 負荷分散の設定</strong><br />
+<a href="https://cloud.google.com/kubernetes-engine/docs/tutorials/http-balancer?hl=ja">https://cloud.google.com/kubernetes-engine/docs/tutorials/http-balancer?hl=ja</a></p>
+
+</div>
+
+
+      <footer>
+  
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f12%2f18%2fkubernetes-in-production-cndjp2%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=%5bk8s%5dCloud%20Native%20Developers%20JP%20%e7%ac%ac2%e5%9b%9e%e5%8b%89%e5%bc%b7%e4%bc%9a%20%e5%8f%82%e5%8a%a0%e3%83%a1%e3%83%a2%20%23cndjp2&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f12%2f18%2fkubernetes-in-production-cndjp2%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f12%2f18%2fkubernetes-in-production-cndjp2%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f12%2f18%2fkubernetes-in-production-cndjp2%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f12%2f18%2fkubernetes-in-production-cndjp2%2f&amp;title=%5bk8s%5dCloud%20Native%20Developers%20JP%20%e7%ac%ac2%e5%9b%9e%e5%8b%89%e5%bc%b7%e4%bc%9a%20%e5%8f%82%e5%8a%a0%e3%83%a1%e3%83%a2%20%23cndjp2" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=%5bk8s%5dCloud%20Native%20Developers%20JP%20%e7%ac%ac2%e5%9b%9e%e5%8b%89%e5%bc%b7%e4%bc%9a%20%e5%8f%82%e5%8a%a0%e3%83%a1%e3%83%a2%20%23cndjp2&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2017%2f12%2f18%2fkubernetes-in-production-cndjp2%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      
+  
+    <nav><ul class="pager">
+    
+        <li class="previous">
+          <a href="https://budougumi0617.github.io/2017/12/12/golangtokyo-11/" title="[Go]golang.tokyo #11 参加メモ #golangtokyo">
+            <span aria-hidden="true">&larr;</span>Previous
+          </a>
+        </li>
+    
+
+    
+    </ul> </nav>
+  
+
+
+</div>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+    
+    
+    if (window.location.hostname == "localhost")
+      return;
+
+    var dsq = document.createElement('script'); dsq.async = true; dsq.type = 'text/javascript';
+    dsq.src = '//http-budougumi0617-github-io.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
+</footer>
+
+    </div>
+    
+      <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+        <div>
+  
+
+    <div class="section">
+      <header><div class="title"><b>Latest Posts</b></div></header>
+      <div class="content">
+        <ul>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2017/12/18/kubernetes-in-production-cndjp2/">[k8s]Cloud Native Developers JP 第2回勉強会 参加メモ #cndjp2</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2017/12/12/golangtokyo-11/">[Go]golang.tokyo #11 参加メモ #golangtokyo</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2017/12/10/setup-study-go-learning-environment/">[Go]CircleCI2.0&#43;Codecovで作るGo学習環境</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2017/11/24/xamarin-nstextfield-delegate/">[Xamarin.Mac]NStextFieldにテキストが入力されるたびに変更を検出する</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2017/11/23/cndjp1/">Cloud Native Developers JP 第1回勉強会 参加メモ #cndjp1</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2017/11/09/gocon2017-autumn/">Go Conference 2017 Autumn参加メモ #gocon</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2017/10/13/publish-nupkg-by-appveyor/">GitHubのタグに連動して、.NETStandard1.6のNugetパッケージを自動リリースする。</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2017/10/12/go-web-programing/">[書評]Goプログラミング実践入門　標準ライブラリでゼロからWebアプリを作る</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2017/09/20/rspec-access-controller/">Rspec内でテスト対象のControllerのメソッドの戻り値をスタブする</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2017/09/02/debug-rails-on-docker/">docker-compose上のRailsのデバッグを行う</a>
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>category</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/categories/c-sharp">c-sharp</a></li><li><a href="/categories/dot-net">dot-net</a></li><li><a href="/categories/go">go</a></li><li><a href="/categories/report">report</a></li><li><a href="/categories/xamarin.mac">xamarin.mac</a></li><li><a href="/categories/devops">devops</a></li><li><a href="/categories/kubernetes">kubernetes</a></li><li><a href="/categories/rubyonrails">rubyonrails</a></li><li><a href="/categories/visualstudio">visualstudio</a></li><li><a href="/categories/about">about</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>tag</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/tags/golang">golang</a></li><li><a href="/tags/xamarin">xamarin</a></li><li><a href="/tags/appveyor">appveyor</a></li><li><a href="/tags/cndjp">cndjp</a></li><li><a href="/tags/codecov">codecov</a></li><li><a href="/tags/devops">devops</a></li><li><a href="/tags/k8s">k8s</a></li><li><a href="/tags/kubernetes">kubernetes</a></li><li><a href="/tags/mmp">mmp</a></li><li><a href="/tags/rubyonrails">rubyonrails</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+    
+
+</div>
+
+      </div>
+    
+  </div>
+</div>
+    
+<footer class="footer hidden-print">
+  <div class="container">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+           <div class="pull-left">
+  <a class="toplink" href="javascript:" id="return-to-top">back to top</a>
+</div>
+<div class="pull-right">
+
+</div>
+
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+              
+    
+<div class="container footline">
+    <small>
+  Copyright&copy; <a href='/2017/07/11/about-this-site/'>budougumi0617</a>
+
+</small>
+</div>
+
+
+    
+
+
+        </div>
+    </div>
+  </div>
+</footer>
+
+    
+
+<script src="//s3.amazonaws.com/mailmunch/static/site.js" id="mailmunch-script" data-mailmunch-site-id="" async="async"></script>
+
+
+
+<script src="//load.sumome.com/" data-sumo-site-id="" async="async"></script>
+
+<script src="https://budougumi0617.github.io/js/jquery.min.js"></script>
+<script src="https://budougumi0617.github.io/js/bootstrap.min.js"></script>
+
+
+<script src="https://budougumi0617.github.io/js/highlight.pack.js"></script>
+<script src="https://budougumi0617.github.io/js/site.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+<script>
+var ENABLE_POPOVER = "", 
+EXPIRE_COOKIE = "", 
+SHOW_MODAL_TIMEOUT = "", 
+MOUSE_LEAVE = "", 
+MODAL_SIZE = "", 
+POST_URL = "", 
+SIGNUP_HEADER = "",
+HEADER_IMAGE = "",
+IMG_DESCRIPTION = "",
+SIGNUP_TEXT = "",
+INPUT_PLACEHOLDER = "",
+SUBMIT_BUTTON = "",
+SUCCESS_MESSAGE = "",
+ERROR_MESSAGE = "",
+OPTIN = "",
+COOKIE_NAME = "",
+CONTENTLANGUAGE = ""; 
+</script>
+
+
+
+
+
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//MathJax.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//config/TeX-AMS-MML_HTMLorMML.js"></script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\[','\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    for(var all in MathJax.Hub.getAllJax()) {
+        all.SourceElement().parentNode.className += ' has-jax';
+
+    }
+});
+</script>
+
+
+
+
+
+
+  </body>
+</html>
+
