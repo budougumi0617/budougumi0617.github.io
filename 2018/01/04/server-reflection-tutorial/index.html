@@ -5,7 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
 <head>
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <title>[書評]Goプログラミング実践入門　標準ライブラリでゼロからWebアプリを作る  &middot; My External Storage</title>
+  <title>[Go][gRPC]Server Reflection Tutorialをやってみた  &middot; My External Storage</title>
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="HandheldFriendly" content="True">
 <meta name="MobileOptimized" content="320">
@@ -14,27 +14,25 @@
 
 <meta name="description" content="" />
 
-<meta name="keywords" content="golang, book, web, ">
+<meta name="keywords" content="golang, grpc, ">
 
 
-<meta property="og:title" content="[書評]Goプログラミング実践入門　標準ライブラリでゼロからWebアプリを作る  &middot; My External Storage ">
+<meta property="og:title" content="[Go][gRPC]Server Reflection Tutorialをやってみた  &middot; My External Storage ">
 <meta property="og:site_name" content="My External Storage"/>
-<meta property="og:url" content="https://budougumi0617.github.io/2017/10/12/go-web-programing/" />
+<meta property="og:url" content="https://budougumi0617.github.io/2018/01/04/server-reflection-tutorial/" />
 <meta property="og:locale" content="ja-jp">
 
 
 <meta property="og:type" content="article" />
 <meta property="og:description" content=""/>
-<meta property="og:article:published_time" content="2017-10-12T08:37:20&#43;09:00" />
-<meta property="og:article:modified_time" content="2017-10-12T08:37:20&#43;09:00" />
+<meta property="og:article:published_time" content="2018-01-04T08:54:30&#43;09:00" />
+<meta property="og:article:modified_time" content="2018-01-04T08:54:30&#43;09:00" />
 
   
     
 <meta property="og:article:tag" content="golang">
     
-<meta property="og:article:tag" content="book">
-    
-<meta property="og:article:tag" content="web">
+<meta property="og:article:tag" content="grpc">
     
   
 
@@ -42,9 +40,9 @@
 <meta name="twitter:card" content="summary" />
 <meta name="twitter:site" content="@budougumi0617" />
 <meta name="twitter:creator" content="@budougumi0617" />
-<meta name="twitter:title" content="[書評]Goプログラミング実践入門　標準ライブラリでゼロからWebアプリを作る" />
+<meta name="twitter:title" content="[Go][gRPC]Server Reflection Tutorialをやってみた" />
 <meta name="twitter:description" content="" />
-<meta name="twitter:url" content="https://budougumi0617.github.io/2017/10/12/go-web-programing/" />
+<meta name="twitter:url" content="https://budougumi0617.github.io/2018/01/04/server-reflection-tutorial/" />
 <meta name="twitter:domain" content="https://budougumi0617.github.io/">
   
 
@@ -53,21 +51,21 @@
   {
     "@context": "http://schema.org",
     "@type": "Article",
-    "headline": "[書評]Goプログラミング実践入門　標準ライブラリでゼロからWebアプリを作る",
+    "headline": "[Go][gRPC]Server Reflection Tutorialをやってみた",
     "author": {
       "@type": "Person",
       "name": "http://profiles.google.com/+?rel=author"
     },
-    "datePublished": "2017-10-12",
+    "datePublished": "2018-01-04",
     "description": "",
-    "wordCount": 631
+    "wordCount": 1489
   }
 </script>
   
 
 
 
-<link rel="canonical" href="https://budougumi0617.github.io/2017/10/12/go-web-programing/" />
+<link rel="canonical" href="https://budougumi0617.github.io/2018/01/04/server-reflection-tutorial/" />
 <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/touch-icon-144-precomposed.png">
 <link rel="icon" href="/favicon.png">
 <meta name="generator" content="Hugo 0.24.1" />
@@ -154,39 +152,39 @@
       <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
   <div class="text-center">
 
-    <h1>[書評]Goプログラミング実践入門　標準ライブラリでゼロからWebアプリを作る
+    <h1>[Go][gRPC]Server Reflection Tutorialをやってみた
 </h1>
 
     <div class="metas">
 <small>
   <i class="fa fa-calendar"></i>
-  <time datetime="2017-10-12">12 Oct, 2017</time>
+  <time datetime="2018-01-04">4 Jan, 2018</time>
 </small>
 
 
   <small>
     &middot; by budougumi0617
   
-  &middot; Read in about 2 min
-  &middot; (631 words)
+  &middot; Read in about 3 min
+  &middot; (1489 words)
   &middot; 
 <span class="share-box">Share this on:
-    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f10%2f12%2fgo-web-programing%2f" onclick="window.open(this.href, 'mywin',
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f04%2fserver-reflection-tutorial%2f" onclick="window.open(this.href, 'mywin',
 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
 
-    <a href="https://twitter.com/intent/tweet?text=%5b%e6%9b%b8%e8%a9%95%5dGo%e3%83%97%e3%83%ad%e3%82%b0%e3%83%a9%e3%83%9f%e3%83%b3%e3%82%b0%e5%ae%9f%e8%b7%b5%e5%85%a5%e9%96%80%e3%80%80%e6%a8%99%e6%ba%96%e3%83%a9%e3%82%a4%e3%83%96%e3%83%a9%e3%83%aa%e3%81%a7%e3%82%bc%e3%83%ad%e3%81%8b%e3%82%89Web%e3%82%a2%e3%83%97%e3%83%aa%e3%82%92%e4%bd%9c%e3%82%8b&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f10%2f12%2fgo-web-programing%2f" onclick="window.open(this.href, 'mywin',
+    <a href="https://twitter.com/intent/tweet?text=%5bGo%5d%5bgRPC%5dServer%20Reflection%20Tutorial%e3%82%92%e3%82%84%e3%81%a3%e3%81%a6%e3%81%bf%e3%81%9f&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f04%2fserver-reflection-tutorial%2f" onclick="window.open(this.href, 'mywin',
 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
 
-    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f10%2f12%2fgo-web-programing%2f" onclick="window.open(this.href, 'mywin',
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f04%2fserver-reflection-tutorial%2f" onclick="window.open(this.href, 'mywin',
 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
 
-    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f10%2f12%2fgo-web-programing%2f" onclick="window.open(this.href, 'mywin',
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f04%2fserver-reflection-tutorial%2f" onclick="window.open(this.href, 'mywin',
 'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
 
-    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f10%2f12%2fgo-web-programing%2f&amp;title=%5b%e6%9b%b8%e8%a9%95%5dGo%e3%83%97%e3%83%ad%e3%82%b0%e3%83%a9%e3%83%9f%e3%83%b3%e3%82%b0%e5%ae%9f%e8%b7%b5%e5%85%a5%e9%96%80%e3%80%80%e6%a8%99%e6%ba%96%e3%83%a9%e3%82%a4%e3%83%96%e3%83%a9%e3%83%aa%e3%81%a7%e3%82%bc%e3%83%ad%e3%81%8b%e3%82%89Web%e3%82%a2%e3%83%97%e3%83%aa%e3%82%92%e4%bd%9c%e3%82%8b" onclick="window.open(this.href, 'mywin',
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f04%2fserver-reflection-tutorial%2f&amp;title=%5bGo%5d%5bgRPC%5dServer%20Reflection%20Tutorial%e3%82%92%e3%82%84%e3%81%a3%e3%81%a6%e3%81%bf%e3%81%9f" onclick="window.open(this.href, 'mywin',
 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
 
-    <a href="mailto:?subject=%5b%e6%9b%b8%e8%a9%95%5dGo%e3%83%97%e3%83%ad%e3%82%b0%e3%83%a9%e3%83%9f%e3%83%b3%e3%82%b0%e5%ae%9f%e8%b7%b5%e5%85%a5%e9%96%80%e3%80%80%e6%a8%99%e6%ba%96%e3%83%a9%e3%82%a4%e3%83%96%e3%83%a9%e3%83%aa%e3%81%a7%e3%82%bc%e3%83%ad%e3%81%8b%e3%82%89Web%e3%82%a2%e3%83%97%e3%83%aa%e3%82%92%e4%bd%9c%e3%82%8b&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2017%2f10%2f12%2fgo-web-programing%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+    <a href="mailto:?subject=%5bGo%5d%5bgRPC%5dServer%20Reflection%20Tutorial%e3%82%92%e3%82%84%e3%81%a3%e3%81%a6%e3%81%bf%e3%81%9f&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f04%2fserver-reflection-tutorial%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
   </span>
 
   </small>
@@ -196,9 +194,7 @@
   
   <a href="https://budougumi0617.github.io/tags/golang" class="label label-primary">golang</a>
   
-  <a href="https://budougumi0617.github.io/tags/book" class="label label-primary">book</a>
-  
-  <a href="https://budougumi0617.github.io/tags/web" class="label label-primary">web</a>
+  <a href="https://budougumi0617.github.io/tags/grpc" class="label label-primary">grpc</a>
   
 
 
@@ -213,38 +209,140 @@
       <div class="content">
   
 
-<p>表題の本を読み終わった。</p>
+<p><a href="https://budougumi0617.github.io/2018/01/01/hello-grpc-go/">前回</a>のgRPCのクイックスタートをやったときにサーバーリフレクションのことがよくわからなかった。サーバーリフレクションにもチュートリアルがあったのでやってみた。</p>
 
-<p><a href="http://amzn.to/2g2Op1E">Goプログラミング実践入門　標準ライブラリでゼロからWebアプリを作る</a></p>
-
-<h1 id="前提">前提</h1>
-
-<p>自分の<code>Go</code>の経験は以下の通り。</p>
+<h1 id="tl-dr">TL;DR</h1>
 
 <ul>
-<li><a href="http://amzn.to/2ycX1uH">プログラミング言語Go</a>は通読。</li>
-<li><code>Go</code>のプログラミング経験はプログラミング言語Goの練習問題くらい（9割くらいは解いた）</li>
-<li><a href="https://github.com/budougumi0617/gopl/tree/master/ch04/ex14"><code>Go</code>で<code>REST</code>叩いてWebページ表示したり<code>JSON/XML</code>パースしたり</a>はやった。</li>
-<li>上記の本が<code>1.6</code>くらいまでの内容なので、<code>context</code>とかはまだわかっていない。</li>
-<li><code>1.7</code>以降はみんGoやブログで補完している。</li>
+<li>サーバーリフレクションを使うと実行中のサーバからプロトコルバッファーの定義を取得したり、実行出来るようになる。</li>
+<li>Goで利用するには、<code>grpc.NewServer()</code>のあとで通常のプロトコルバッファーの<code>Register</code>をした後<code>reflection.Register</code>メソッドを呼ぶだけ</li>
+<li><a href="https://github.com/grpc/grpc-go/blob/master/Documentation/server-reflection-tutorial.md">チュートリアル</a>の手順通りに行うとc++のクライアントからサーバのプロトコルバッファーを確認することができる。</li>
 </ul>
 
-<h1 id="感想">感想</h1>
+<h1 id="server-reflectionとは">Server Reflectionとは</h1>
 
-<p>Goを使ったRESTの書き方と、必要最低限のデータの取扱方法が載っているので、GoのWebプログラミングの取っ掛かりとしてはよかった。</p>
+<p><strong>GRPC Server Reflection Protocol</strong><br />
+<a href="https://github.com/grpc/grpc/blob/master/doc/server-reflection.md">https://github.com/grpc/grpc/blob/master/doc/server-reflection.md</a></p>
+
+<p>サーバーリフレクションはクライアントのコマンドラインからgRPCの定義の取得あるいは実行を可能にするgRPCサーバの拡張機能。サーバーリフレクションによって<code>curl</code>ライクなことがgRPCサーバでも実現できる。</p>
+
+<h1 id="server-reflection-tutorial">Server Reflection Tutorial</h1>
+
+<p><strong>gRPC Server Reflection Tutorial</strong><br />
+<a href="https://github.com/grpc/grpc-go/blob/master/Documentation/server-reflection-tutorial.md">https://github.com/grpc/grpc-go/blob/master/Documentation/server-reflection-tutorial.md</a></p>
+
+<h2 id="grpc-cliのビルド">grpc_cliのビルド</h2>
+
+<p>サーバ側の<code>Server Reflection</code>情報を確認するためのクライアントツールを用意する。実装は<code>c++</code>のみ提供されているようだ。<code>grpc/grpc</code>リポジトリを取得してクライアントツールをビルドする。</p>
+
+<pre><code class="language-bash">$ git clone https://github.com/grpc/grpc
+$ cd grpc
+$ make grpc_cli
+</code></pre>
+
+<p>サーバーリフレクションのチュートリアルにはこれしか書かれていないが、依存ライブラリがあるのでそちらのインストールもする。<br />
+自分の場合はMacOSなので以下を行ったあとビルドできた。</p>
+
+<pre><code class="language-bash">$ git submodule update --init
+$ brew install autoconf automake libtool shtool
+$ brew install gflags
+</code></pre>
+
+<p>もし動かなかったり、他のOS環境の場合は、<code>make run_dep_checks</code>コマンドでビルド環境が整っているか確認する。または、以下のページで他に依存しているものが無いか確認する。</p>
+
+<p><a href="https://github.com/grpc/grpc/blob/master/INSTALL.md">https://github.com/grpc/grpc/blob/master/INSTALL.md</a></p>
+
+<h2 id="サーバーに対してgprc-cliを使ってみる">サーバーに対してgprc_cliを使ってみる</h2>
+
+<p><code>grpc_cli</code>のビルドが終わったり<code>google.golang.org/grpc</code>リポジトリで、サンプルのhelloworldサーバーを立ち上げておく。</p>
+
+<pre><code class="language-bash">$ go run examples/helloworld/greeter_server/main.go
+</code></pre>
+
+<p>helloworldサーバーは<code>git clone</code>した直後でも、<code>reflection.Register</code>が既に呼ばれている。（以下の実行結果はクイックスタートのチュートリアルを行ったあとのサーバのコードなので、<code>SayHelloAgain</code>メソッドが追加されている)</p>
+
+<pre><code class="language-go">s := grpc.NewServer()
+pb.RegisterGreeterServer(s, &amp;server{})
+// Register reflection service on gRPC server.
+reflection.Register(s)
+</code></pre>
+
+<p>あとは立ち上げたサーバーに向けて<code>grpc_cli ls</code>コマンドを実行すると、プロトコルバッファーが取得できる。</p>
+
+<pre><code class="language-bash">./bins/opt/grpc_cli ls localhost:50051 -l
+filename: helloworld.proto
+package: helloworld;
+service Greeter {
+  rpc SayHello(helloworld.HelloRequest) returns (helloworld.HelloReply) {}
+  rpc SayHelloAgain(helloworld.HelloRequest) returns (helloworld.HelloReply) {}
+}
+
+filename: grpc_reflection_v1alpha/reflection.proto
+package: grpc.reflection.v1alpha;
+service ServerReflection {
+  rpc ServerReflectionInfo(stream grpc.reflection.v1alpha.ServerReflectionRequest) returns (stream grpc.reflection.v1alpha.ServerReflectionResponse) {}
+}
+</code></pre>
+
+<p><code>call</code>オプションでメソッドを実行させることもできた。</p>
+
+<pre><code>$ ./bins/opt/grpc_cli call localhost:50051 SayHelloAgain &quot;name: 'gRPC CLI'&quot;
+connecting to localhost:50051
+message: &quot;Hello again gRPC CLI&quot;
+
+Rpc succeeded with OK status
+</code></pre>
+
+<h2 id="チュートリアルを終えて">チュートリアルを終えて</h2>
+
+<p>reflectionパッケージにはRegisterメソッドしかない。</p>
+
+<p><a href="https://godoc.org/google.golang.org/grpc/reflection">https://godoc.org/google.golang.org/grpc/reflection</a></p>
+
+<p>現状<code>Go</code>のコードで直接リフレクションデータを取得できるようにはなっていないっぽいが、<code>grpc_reflection_v1alpha</code>にリフレクション結果の構造体定義がもろもろされている（<code>grpc_cli ls</code>コマンドの結果にも含まれている）。後々<code>Go</code>のコードからでも扱えるようになるのかな？</p>
+
+<p><a href="https://godoc.org/google.golang.org/grpc/reflection/grpc_reflection_v1alpha">https://godoc.org/google.golang.org/grpc/reflection/grpc_reflection_v1alpha</a></p>
+
+<p><code>grpc_cli</code>のコマンドのusageでオプションを見ると、もろもろの認証情報も付加できるようなので、本番用に構築したgRPCサーバでも利用できそう。</p>
+
+<pre><code class="language-bash">./bins/opt/grpc_cli ls
+
+Wrong number of arguments for ls
+
+List services
+  grpc_cli ls &lt;address&gt; [&lt;service&gt;[/&lt;method&gt;]]
+    &lt;address&gt;                ; host:port
+    &lt;service&gt;                ; Exported service name
+    &lt;method&gt;                 ; Method name
+    --l                      ; Use a long listing format
+    --outfile                ; Output filename (defaults to stdout)
+    --enable_ssl             ; Set whether to use tls
+    --use_auth               ; Set whether to create default google credentials
+    --access_token           ; Set the access token in metadata, overrides --use_auth
+</code></pre>
+
+<h1 id="参考url">参考URL</h1>
+
+<p><strong>GRPC Server Reflection Protocol</strong><br />
+<a href="https://github.com/grpc/grpc/blob/master/doc/server-reflection.md">https://github.com/grpc/grpc/blob/master/doc/server-reflection.md</a></p>
+
+<p><strong>gRPC Server Reflection Tutorial</strong><br />
+<a href="https://github.com/grpc/grpc-go/blob/master/Documentation/server-reflection-tutorial.md">https://github.com/grpc/grpc-go/blob/master/Documentation/server-reflection-tutorial.md</a></p>
+
+<p><strong>GoDoc:google.golang.org/grpc/reflection</strong><br />
+<a href="https://godoc.org/google.golang.org/grpc/reflection">https://godoc.org/google.golang.org/grpc/reflection</a></p>
+
+<p><strong>GoDoc:google.golang.org/grpc/reflection/grpc_reflection_v1alpha</strong><br />
+<a href="https://godoc.org/google.golang.org/grpc/reflection/grpc_reflection_v1alpha">https://godoc.org/google.golang.org/grpc/reflection/grpc_reflection_v1alpha</a></p>
+
+<p><strong>gRPC Service discovery with Server Reflection and gRPC CLI in Go</strong><br />
+<a href="https://www.goheroe.org/2017/08/19/grpc-service-discovery-with-server-reflection-and-grpc-cli-in-go/">https://www.goheroe.org/2017/08/19/grpc-service-discovery-with-server-reflection-and-grpc-cli-in-go/</a></p>
+
+<h1 id="grpc関連の記事">gRPC関連の記事</h1>
 
 <ul>
-<li>httptestを使ったテストの書き方が載っている</li>
-<li>FormつかったPOSTやDBのCRUD/JSON/XMLの扱い方が一通り載ってる</li>
-<li>1.6ベースなので、<code>context</code>周りは別途学習する必要がある</li>
-<li>ピュアGoな内容なので、実践するにはフロントエンドの組み込み方を別途学習する必要がある（これは邦題に期待しすぎたかも）</li>
-<li>リポジトリが公開されているが、紙面のコードだけだと結構断片的</li>
-<li>インプレス社の本なので、結構Kindleで半額になる（2017/10/12現在、半額）</li>
+<li><a href="https://budougumi0617.github.io/2018/01/01/hello-grpc-go/">[Go]gRPCのGo Quick Startをやってみた。</a></li>
 </ul>
-
-<p><a href="http://amzn.to/2ycX1uH">プログラミング言語Go</a>でGoの基礎、この本でGoを使ったWebプログラミングの基礎、<a href="http://amzn.to/2yeoPyW">Real World HTTP</a>でHTTPとGoの幅広い知識を得る、と渡り歩くと良いかもしれない。</p>
-
-<p><a href="http://amzn.to/2g2Op1E">Goプログラミング実践入門　標準ライブラリでゼロからWebアプリを作る</a></p>
 
 </div>
 
@@ -252,22 +350,22 @@
       <footer>
   
 <span class="share-box">Share this on:
-    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f10%2f12%2fgo-web-programing%2f" onclick="window.open(this.href, 'mywin',
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f04%2fserver-reflection-tutorial%2f" onclick="window.open(this.href, 'mywin',
 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
 
-    <a href="https://twitter.com/intent/tweet?text=%5b%e6%9b%b8%e8%a9%95%5dGo%e3%83%97%e3%83%ad%e3%82%b0%e3%83%a9%e3%83%9f%e3%83%b3%e3%82%b0%e5%ae%9f%e8%b7%b5%e5%85%a5%e9%96%80%e3%80%80%e6%a8%99%e6%ba%96%e3%83%a9%e3%82%a4%e3%83%96%e3%83%a9%e3%83%aa%e3%81%a7%e3%82%bc%e3%83%ad%e3%81%8b%e3%82%89Web%e3%82%a2%e3%83%97%e3%83%aa%e3%82%92%e4%bd%9c%e3%82%8b&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f10%2f12%2fgo-web-programing%2f" onclick="window.open(this.href, 'mywin',
+    <a href="https://twitter.com/intent/tweet?text=%5bGo%5d%5bgRPC%5dServer%20Reflection%20Tutorial%e3%82%92%e3%82%84%e3%81%a3%e3%81%a6%e3%81%bf%e3%81%9f&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f04%2fserver-reflection-tutorial%2f" onclick="window.open(this.href, 'mywin',
 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
 
-    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f10%2f12%2fgo-web-programing%2f" onclick="window.open(this.href, 'mywin',
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f04%2fserver-reflection-tutorial%2f" onclick="window.open(this.href, 'mywin',
 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
 
-    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f10%2f12%2fgo-web-programing%2f" onclick="window.open(this.href, 'mywin',
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f04%2fserver-reflection-tutorial%2f" onclick="window.open(this.href, 'mywin',
 'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
 
-    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2017%2f10%2f12%2fgo-web-programing%2f&amp;title=%5b%e6%9b%b8%e8%a9%95%5dGo%e3%83%97%e3%83%ad%e3%82%b0%e3%83%a9%e3%83%9f%e3%83%b3%e3%82%b0%e5%ae%9f%e8%b7%b5%e5%85%a5%e9%96%80%e3%80%80%e6%a8%99%e6%ba%96%e3%83%a9%e3%82%a4%e3%83%96%e3%83%a9%e3%83%aa%e3%81%a7%e3%82%bc%e3%83%ad%e3%81%8b%e3%82%89Web%e3%82%a2%e3%83%97%e3%83%aa%e3%82%92%e4%bd%9c%e3%82%8b" onclick="window.open(this.href, 'mywin',
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f04%2fserver-reflection-tutorial%2f&amp;title=%5bGo%5d%5bgRPC%5dServer%20Reflection%20Tutorial%e3%82%92%e3%82%84%e3%81%a3%e3%81%a6%e3%81%bf%e3%81%9f" onclick="window.open(this.href, 'mywin',
 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
 
-    <a href="mailto:?subject=%5b%e6%9b%b8%e8%a9%95%5dGo%e3%83%97%e3%83%ad%e3%82%b0%e3%83%a9%e3%83%9f%e3%83%b3%e3%82%b0%e5%ae%9f%e8%b7%b5%e5%85%a5%e9%96%80%e3%80%80%e6%a8%99%e6%ba%96%e3%83%a9%e3%82%a4%e3%83%96%e3%83%a9%e3%83%aa%e3%81%a7%e3%82%bc%e3%83%ad%e3%81%8b%e3%82%89Web%e3%82%a2%e3%83%97%e3%83%aa%e3%82%92%e4%bd%9c%e3%82%8b&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2017%2f10%2f12%2fgo-web-programing%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+    <a href="mailto:?subject=%5bGo%5d%5bgRPC%5dServer%20Reflection%20Tutorial%e3%82%92%e3%82%84%e3%81%a3%e3%81%a6%e3%81%bf%e3%81%9f&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f04%2fserver-reflection-tutorial%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
   </span>
 
   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -276,18 +374,12 @@
     <nav><ul class="pager">
     
         <li class="previous">
-          <a href="https://budougumi0617.github.io/2017/09/20/rspec-access-controller/" title="Rspec内でテスト対象のControllerのメソッドの戻り値をスタブする">
+          <a href="https://budougumi0617.github.io/2018/01/03/review-soft-skills/" title="[書評]SOFT SKILLSを読んだ">
             <span aria-hidden="true">&larr;</span>Previous
           </a>
         </li>
     
 
-    
-      <li class="next">
-        <a href="https://budougumi0617.github.io/2017/10/13/publish-nupkg-by-appveyor/" title="GitHubのタグに連動して、.NETStandard1.6のNugetパッケージを自動リリースする。">
-            Next <span aria-hidden="true">&rarr;</span>
-        </a>
-      </li>
     
     </ul> </nav>
   
