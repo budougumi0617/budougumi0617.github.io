@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>AWS Lambda Go早めぐり(LambdaContext, Logging, Error...)  &middot; My External Storage</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="golang, aws, lambda, serverless, ">
+
+
+<meta property="og:title" content="AWS Lambda Go早めぐり(LambdaContext, Logging, Error...)  &middot; My External Storage ">
+<meta property="og:site_name" content="My External Storage"/>
+<meta property="og:url" content="https://budougumi0617.github.io/2018/01/17/hello-aws-lambda-go/" />
+<meta property="og:locale" content="ja-jp">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="2018-01-17T07:33:10&#43;09:00" />
+<meta property="og:article:modified_time" content="2018-01-17T07:33:10&#43;09:00" />
+
+  
+    
+<meta property="og:article:tag" content="golang">
+    
+<meta property="og:article:tag" content="aws">
+    
+<meta property="og:article:tag" content="lambda">
+    
+<meta property="og:article:tag" content="serverless">
+    
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@budougumi0617" />
+<meta name="twitter:creator" content="@budougumi0617" />
+<meta name="twitter:title" content="AWS Lambda Go早めぐり(LambdaContext, Logging, Error...)" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="https://budougumi0617.github.io/2018/01/17/hello-aws-lambda-go/" />
+<meta name="twitter:domain" content="https://budougumi0617.github.io/">
+  
+
+  
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "AWS Lambda Go早めぐり(LambdaContext, Logging, Error...)",
+    "author": {
+      "@type": "Person",
+      "name": "http://profiles.google.com/+?rel=author"
+    },
+    "datePublished": "2018-01-17",
+    "description": "",
+    "wordCount": 2228
+  }
+</script>
+  
+
+
+
+<link rel="canonical" href="https://budougumi0617.github.io/2018/01/17/hello-aws-lambda-go/" />
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/touch-icon-144-precomposed.png">
+<link rel="icon" href="/favicon.png">
+<meta name="generator" content="Hugo 0.24.1" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+
+
+    <link rel="stylesheet" href="https://budougumi0617.github.io/css/bootswatch/flatly/bootstrap.min.css">
+
+
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/style.css">
+
+
+
+
+  <link rel="stylesheet" href="https://budougumi0617.github.io/css/highlight/default.css">
+
+
+</head>
+<body class="map[name:flatly]" data-ng-app="myapp" data-ng-controller="MyController" data-ng-mouseleave="MouseLeave($event)">
+    <header id="main-header">
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        
+          
+          <a class="navbar-brand-img" href="/">
+            <img alt="My External Storage" src="/logo.png">
+            
+          </a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav navbar-right">
+            
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/" >
+                <i class='fa fa-home'></i>
+                Home
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/post/" >
+                <i class='fa fa-archive'></i>
+                Archives
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" >
+                <i class='fa fa-info-circle'></i>
+                About
+              </a>
+            </li>
+            
+            
+              
+          </ul>
+        </div>
+        
+      </div>
+    </nav>
+  </header>
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-9">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  <div class="text-center">
+
+    <h1>AWS Lambda Go早めぐり(LambdaContext, Logging, Error...)
+</h1>
+
+    <div class="metas">
+<small>
+  <i class="fa fa-calendar"></i>
+  <time datetime="2018-01-17">17 Jan, 2018</time>
+</small>
+
+
+  <small>
+    &middot; by budougumi0617
+  
+  &middot; Read in about 5 min
+  &middot; (2228 words)
+  &middot; 
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f17%2fhello-aws-lambda-go%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=AWS%20Lambda%20Go%e6%97%a9%e3%82%81%e3%81%90%e3%82%8a%28LambdaContext%2c%20Logging%2c%20Error...%29&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f17%2fhello-aws-lambda-go%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f17%2fhello-aws-lambda-go%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f17%2fhello-aws-lambda-go%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f17%2fhello-aws-lambda-go%2f&amp;title=AWS%20Lambda%20Go%e6%97%a9%e3%82%81%e3%81%90%e3%82%8a%28LambdaContext%2c%20Logging%2c%20Error...%29" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=AWS%20Lambda%20Go%e6%97%a9%e3%82%81%e3%81%90%e3%82%8a%28LambdaContext%2c%20Logging%2c%20Error...%29&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f17%2fhello-aws-lambda-go%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  </small>
+
+<div class="margin-10">
+  <i class="fa fa-tags"></i>
+  
+  <a href="https://budougumi0617.github.io/tags/golang" class="label label-primary">golang</a>
+  
+  <a href="https://budougumi0617.github.io/tags/aws" class="label label-primary">aws</a>
+  
+  <a href="https://budougumi0617.github.io/tags/lambda" class="label label-primary">lambda</a>
+  
+  <a href="https://budougumi0617.github.io/tags/serverless" class="label label-primary">serverless</a>
+  
+
+
+</div>
+
+<br>
+</div>
+
+  </div>
+</div>
+
+      <div class="content">
+  
+
+<p>AWS LambdaでGoが正式にサポートされた！！</p>
+
+<p><strong>AWS Lambda Supports Go</strong><br />
+<a href="https://aws.amazon.com/jp/about-aws/whats-new/2018/01/aws-lambda-supports-go/">https://aws.amazon.com/jp/about-aws/whats-new/2018/01/aws-lambda-supports-go/</a></p>
+
+<p><strong>aws/aws-lambda-go</strong><br />
+<a href="https://github.com/aws/aws-lambda-go">https://github.com/aws/aws-lambda-go</a></p>
+
+<p>2018/01/17現在、日本語版はまだだが、英語のDocsは公開されているので、それを基にGoでLambdaを動かす。</p>
+
+<p><strong>Programming Model for Authoring Lambda Functions in Go</strong><br />
+<a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model.html">https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model.html</a></p>
+
+<p><strong>Announcing Go Support for AWS Lambda</strong><br />
+<a href="https://aws.amazon.com/jp/blogs/compute/announcing-go-support-for-aws-lambda/">https://aws.amazon.com/jp/blogs/compute/announcing-go-support-for-aws-lambda/</a></p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>基本的にコードファイルひとつで実行バイナリまで作れる</li>
+<li>ハンドラ定義は5パターンのみ（<code>TIn</code>, <code>TOut</code>は<code>encoding/json</code>が使える構造体）</li>
+<li>渡される<code>Context</code>の中には<code>LambdaContext</code>が入っている</li>
+<li>ログは<code>fmt</code>や<code>log</code>を使っていればよしなにしてくれる</li>
+<li>エラー処理は<code>error</code>や<code>panic</code>など標準のものが使える</li>
+<li><code>os.Getenv</code>で環境変数の確認ができる</li>
+</ul>
+
+<p>実装したコードは以下<br />
+<a href="https://github.com/budougumi0617/sandbox-aws-lambda-go/blob/master/hello-lambda/main.go">https://github.com/budougumi0617/sandbox-aws-lambda-go/blob/master/hello-lambda/main.go</a></p>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;context&quot;
+	&quot;errors&quot;
+	&quot;fmt&quot;
+	&quot;log&quot;
+	&quot;os&quot;
+
+	&quot;github.com/aws/aws-lambda-go/events&quot;
+	&quot;github.com/aws/aws-lambda-go/lambda&quot;
+	&quot;github.com/aws/aws-lambda-go/lambdacontext&quot;
+)
+
+func HelloLambdaHandler(ctx context.Context, config events.ConfigEvent) (string, error) {
+	lc, ok := lambdacontext.FromContext(ctx)
+	if !ok {
+		return &quot;&quot;, errors.New(&quot;Cannot find LambdaContext&quot;)
+	}
+
+	log.Printf(&quot;log:InvokedFunctionArn = %s\n&quot;, lc.InvokedFunctionArn)
+	fmt.Printf(&quot;fmt:InvokedFunctionArn = %s\n&quot;, lc.InvokedFunctionArn)
+	log.Printf(&quot;config version is %v\n&quot;, config.Version)
+	log.Printf(&quot;\&quot;%s\&quot; executes on \&quot;%s\&quot;.\n&quot;, os.Getenv(&quot;LAMBDA_TASK_ROOT&quot;), os.Getenv(&quot;AWS_EXECUTION_ENV&quot;))
+
+	return &quot;function finished&quot;, nil
+}
+
+func main() {
+	lambda.Start(HelloLambdaHandler)
+}
+</code></pre>
+
+<h1 id="前提-準備">前提・準備</h1>
+
+<p>とりあえず動かすだけなのでzipでLambdaにコードをアップしてテストイベントで実行してみる。
+事前に空のLambda関数を作っておく。自分の設定は以下。</p>
+
+<ul>
+<li>コードエントリタイプ
+
+<ul>
+<li>.ZIPファイルをアップロード</li>
+</ul></li>
+<li>ランタイム
+
+<ul>
+<li>Go 1.x</li>
+</ul></li>
+<li>ハンドラ
+
+<ul>
+<li>main</li>
+</ul></li>
+<li>実行ロール
+
+<ul>
+<li><a href="https://console.aws.amazon.com/iam/home?region=ap-northeast-1#/roles">IAM</a>で空のロールを作っておきそれを使う</li>
+</ul></li>
+<li>テストイベント
+
+<ul>
+<li>イベントテンプレートの<code>AWS Config Change Triggered Rule</code>の値を少し変えたものを用意した。</li>
+</ul></li>
+</ul>
+
+<pre><code class="language-json">{
+  &quot;configRuleId&quot;: &quot;config-rule-0123456&quot;,
+  &quot;version&quot;: &quot;6.17&quot;,
+  &quot;configRuleName&quot;: ...
+}
+</code></pre>
+
+<p>もろもろのGoの開発環境は済んでいると想定する。</p>
+
+<h1 id="ハンドラ定義は5パターンのみ-tin-tout-は-encoding-json-が使える構造体">ハンドラ定義は5パターンのみ（<code>TIn</code>, <code>TOut</code>は<code>encoding/json</code>が使える構造体）</h1>
+
+<p><strong>Lambda Function Handler (Go)</strong><br />
+<a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-handler-types.html">https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-handler-types.html</a></p>
+
+<p>ハンドラには<code>context.Context</code>やイベント情報が渡される。定義出来るパターンは以下。</p>
+
+<ul>
+<li><code>func ()</code></li>
+<li><code>func () error</code></li>
+<li><code>func (TIn), error</code></li>
+<li><code>func () (TOut, error)</code></li>
+<li><code>func (context.Context) error</code></li>
+<li><code>func (context.Context, TIn) error</code></li>
+<li><code>func (context.Context) (TOut, error)</code></li>
+<li><code>func (context.Context, TIn) (TOut, error)</code></li>
+</ul>
+
+<p>引数は0〜2個まで。引数を指定するときは<code>context.Context</code>を第一引数にするのが必須。<br />
+戻り値も0〜2個。最終戻り値は<code>error</code>になる形。<br />
+<code>TIn</code>と<code>TOut</code>は<code>encoding/json</code>で<code>Unmarshal</code>できる必要がある。<br />
+AWS内のイベントは既に構造体が定義されているので、それをつかえる。</p>
+
+<p><a href="https://godoc.org/github.com/aws/aws-lambda-go/events">https://godoc.org/github.com/aws/aws-lambda-go/events</a></p>
+
+<p>今回は<code>events.ConfigEvent</code>を使ってみた。</p>
+
+<pre><code class="language-go">package events
+
+// ConfigEvent contains data from an event sent from AWS Config
+type ConfigEvent struct {
+  ...
+  Version          string `json:&quot;version&quot;`
+}
+</code></pre>
+
+<h1 id="渡される-context-の中には-lambdacontext-が入っている">渡される<code>Context</code>の中には<code>LambdaContext</code>が入っている</h1>
+
+<p><strong>The Context Object (Go)</strong><br />
+<a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-context.html">https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-context.html</a></p>
+
+<p><a href="https://godoc.org/github.com/aws/aws-lambda-go/lambdacontext">https://godoc.org/github.com/aws/aws-lambda-go/lambdacontext</a></p>
+
+<p>ハンドラに渡される<code>context.Context</code>の中には、<code>LambdaContext</code>が入っていて、AWSの情報がよしなに入っている。</p>
+
+<pre><code class="language-go">	lc, ok := lambdacontext.FromContext(ctx)
+	if !ok {
+		return &quot;&quot;, errors.New(&quot;Cannot find LambdaContext&quot;)
+	}
+	fmt.Printf(&quot;InvokedFunctionArn = %s\n&quot;, lc.InvokedFunctionArn) // InvokedFunctionArn = arn:aws:lambda:ap-no...
+
+</code></pre>
+
+<p><a href="https://godoc.org/github.com/aws/aws-lambda-go/lambdacontext#NewContext">lambdacontext.NewContext</a>を使って
+自分で<code>Context</code>の中に<code>LambdaContext</code>を入れることも出来る(ハンドラ内でgoroutine回したりする時用？)</p>
+
+<h1 id="ログは-fmt-や-log-を使っていればよしなにしてくれる">ログは<code>fmt</code>や<code>log</code>を使っていればよしなにしてくれる</h1>
+
+<p><strong>Logging (Go）</strong><br />
+<a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-logging.html">https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-logging.html</a></p>
+
+<p>ログは他の言語で実装したとき同様標準出力に出力すれば<code>CloudWatch</code>に保存される。<code>log</code>を使えばタイムスタンプを付与しておく事もできる。</p>
+
+<pre><code class="language-go">log.Printf(&quot;log:InvokedFunctionArn = %s\n&quot;, lc.InvokedFunctionArn) // 2018/01/16 23:07:46 log:Invoked...
+fmt.Printf(&quot;fmt:InvokedFunctionArn = %s\n&quot;, lc.InvokedFunctionArn) // fmt:Invoked...
+
+</code></pre>
+
+<h1 id="エラー処理は-erro-や-panic-など標準のものが使える">エラー処理は<code>erro</code>や<code>panic</code>など標準のものが使える</h1>
+
+<p><strong>Function Errors (Go)</strong><br />
+<a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-errors.html">https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-errors.html</a></p>
+
+<p>エラー処理は普通のGoとあまり変わらないようだ。ちゃんと試せてはいない。
+<code>panic</code>を仕込むとStackTraceなども取れるらしい？</p>
+
+<p>以下、上記公式の内容を引用。</p>
+
+<pre><code class="language-json">{
+    &quot;errorMessage&quot;: &quot;Something went wrong&quot;,
+       &quot;errorType&quot;: &quot;errorString&quot;,
+    &quot;stackTrace&quot;: [
+            {
+            &quot;path&quot;: &quot;github.com/aws/aws-lambda-go/lambda/function.go&quot;,
+            &quot;line&quot;: 27,
+            &quot;label&quot;: &quot;(*Function).Invoke.function&quot;
+        },
+ ...
+
+    ]
+}
+</code></pre>
+
+<h1 id="os-getenv-で環境変数の確認ができる"><code>os.Getenv</code>で環境変数の確認ができる</h1>
+
+<p><strong>Using Environment Variables (Go)</strong><br />
+<a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-env-variables.html">https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-env-variables.html</a></p>
+
+<p>他の言語と同様、<code>os.Getenv</code>で環境変数を取得できる。</p>
+
+<pre><code class="language-go">fmt.Printf(&quot;\&quot;%s\&quot; executes on \&quot;%s\&quot;.\n&quot;, os.Getenv(&quot;LAMBDA_TASK_ROOT&quot;), os.Getenv(&quot;AWS_EXECUTION_ENV&quot;))  // &quot;/var/task&quot; executes on &quot;&quot;.
+</code></pre>
+
+<p>ちなみに<code>AWS_EXECUTION_ENV</code>がどうなるか書いてなかったので、興味本位で見ようと思ったら本当に設定されてなかった（？）</p>
+
+<p><strong>Environment Variables Available to Lambda Functions</strong><br />
+<a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/current-supported-versions.html#lambda-environment-variables">https://docs.aws.amazon.com/en_us/lambda/latest/dg/current-supported-versions.html#lambda-environment-variables</a></p>
+
+<p>2018/01/17現在、用意されている内容はこれくらい。</p>
+
+<h1 id="デプロイ-動作確認">デプロイ・動作確認</h1>
+
+<p>上記内容を全て実装したのが、冒頭に記載した以下のリンク先のコード<br />
+<a href="https://github.com/budougumi0617/sandbox-aws-lambda-go/blob/master/hello-lambda/main.go">https://github.com/budougumi0617/sandbox-aws-lambda-go/blob/master/hello-lambda/main.go</a></p>
+
+<p>これをAWS Lambda上で動かしてみる。Goの(一番簡単な方法をする)場合はビルドしてzipに入れてアップするだけ。
+Linux用にビルドするのと、「前提・準備」で設定した「ハンドラ」と同じ名前のバイナリをするところだけ注意する。
+これをLambdaのWebコンソールからアップロードすれば実行できる</p>
+
+<pre><code>$ GOOS=linux go build -o main
+$ zip deployment.zip main
+</code></pre>
+
+<p>作成したテストイベントで実行した結果がこちら。</p>
+
+<pre><code>START RequestId: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXX Version: $LATEST
+2018/01/16 23:07:46 log:InvokedFunctionArn = arn:aws:lambda:ap-northeast-1:XXXXXXXXXXXXXX:function:myFirstLambda
+fmt:InvokedFunctionArn = arn:aws:lambda:ap-northeast-1:XXXXXXXXXXXX:function:myFirstLambda
+2018/01/16 23:14:26 config version is 6.17
+2018/01/16 23:14:26 &quot;/var/task&quot; executes on &quot;&quot;.
+END RequestId: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXX
+REPORT RequestId: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXX	Duration: 0.59 ms	Billed Duration: 100 ms 	Memory Size: 128 MB	Max Memory Used: 27 MB
+</code></pre>
+
+<p><img src="/2018/01/result-my_first_lambda.png" alt="Lambdaの実行結果" /></p>
+
+<p>動いた！<code>LambdaContext</code>の中身も確認できている。</p>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>この発表を聞いて初めてAWSの無料枠に入ったレベルだったので、今回はひとつのLambda内に閉じた実装だけ確かめた。
+Goでの実装はコードひとつだけでビルドできるので、非常に簡単だった。
+(正直コーディングの時間より<a href="https://aws.amazon.com/jp/register-flow/">初回登録</a>時の電話認証のほうが時間かかっている。)<br />
+自分はあまりクラウドに詳しくないのだが、これくらい小さく始められるのは嬉しい。CloudWatchにログ流したり、別のサービスのイベント拾ったり、少しずつ視野を広げられそう。<br />
+設定ファイルを置けばAWS CodePipelineなどを使って自動デプロイなども出来るらしいので、後日確かめてみたい。
+(冒頭の<a href="https://aws.amazon.com/jp/blogs/compute/announcing-go-support-for-aws-lambda/">ブログ</a>に詳しく書かれている。)</p>
+
+<p><strong>Creating a Deployment Package (Go）</strong><br />
+<a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/lambda-go-how-to-create-deployment-package.html">https://docs.aws.amazon.com/en_us/lambda/latest/dg/lambda-go-how-to-create-deployment-package.html</a></p>
+
+<h1 id="参考">参考</h1>
+
+<p><strong>aws/aws-lambda-go</strong><br />
+<a href="https://github.com/aws/aws-lambda-go">https://github.com/aws/aws-lambda-go</a></p>
+
+<p><strong>GoDoc:aws/aws-lambda-go</strong><br />
+<a href="https://godoc.org/github.com/aws/aws-lambda-go">https://godoc.org/github.com/aws/aws-lambda-go</a></p>
+
+<p><strong>AWS Lambda Supports Go</strong><br />
+<a href="https://aws.amazon.com/jp/about-aws/whats-new/2018/01/aws-lambda-supports-go/">https://aws.amazon.com/jp/about-aws/whats-new/2018/01/aws-lambda-supports-go/</a></p>
+
+<p><strong>Announcing Go Support for AWS Lambda</strong><br />
+<a href="https://aws.amazon.com/jp/blogs/compute/announcing-go-support-for-aws-lambda/">https://aws.amazon.com/jp/blogs/compute/announcing-go-support-for-aws-lambda/</a></p>
+
+<p><strong>Programming Model for Authoring Lambda Functions in Go</strong><br />
+<a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model.html">https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model.html</a></p>
+
+<p><strong>Creating a Deployment Package (Go）</strong><br />
+<a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/lambda-go-how-to-create-deployment-package.html">https://docs.aws.amazon.com/en_us/lambda/latest/dg/lambda-go-how-to-create-deployment-package.html</a></p>
+
+<p><strong>AWS SAMを利用してGolangなLambdaをデプロイする</strong><br />
+<a href="https://qiita.com/ikeisuke/items/3c0c422888ae8ae09831">https://qiita.com/ikeisuke/items/3c0c422888ae8ae09831</a></p>
+
+<p><strong>awsのlamdaがGo言語対応したので雑にsampleを動かしてみる</strong><br />
+<a href="https://qiita.com/ieee0824/items/5bf3f9649f2378c6f2e5">https://qiita.com/ieee0824/items/5bf3f9649f2378c6f2e5</a></p>
+
+<p><strong>budougumi0617/sandbox-aws-lambda-go</strong><br />
+<a href="https://github.com/budougumi0617/sandbox-aws-lambda-go">https://github.com/budougumi0617/sandbox-aws-lambda-go</a></p>
+
+</div>
+
+
+      <footer>
+  
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f17%2fhello-aws-lambda-go%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=AWS%20Lambda%20Go%e6%97%a9%e3%82%81%e3%81%90%e3%82%8a%28LambdaContext%2c%20Logging%2c%20Error...%29&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f17%2fhello-aws-lambda-go%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f17%2fhello-aws-lambda-go%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f17%2fhello-aws-lambda-go%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f17%2fhello-aws-lambda-go%2f&amp;title=AWS%20Lambda%20Go%e6%97%a9%e3%82%81%e3%81%90%e3%82%8a%28LambdaContext%2c%20Logging%2c%20Error...%29" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=AWS%20Lambda%20Go%e6%97%a9%e3%82%81%e3%81%90%e3%82%8a%28LambdaContext%2c%20Logging%2c%20Error...%29&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f17%2fhello-aws-lambda-go%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      
+  
+    <nav><ul class="pager">
+    
+        <li class="previous">
+          <a href="https://budougumi0617.github.io/2018/01/16/review-the-best-way-to-rest/" title="[書評]世界のエリートがやっている 最高の休息法を読んだ">
+            <span aria-hidden="true">&larr;</span>Previous
+          </a>
+        </li>
+    
+
+    
+    </ul> </nav>
+  
+
+
+</div>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+    
+    
+    if (window.location.hostname == "localhost")
+      return;
+
+    var dsq = document.createElement('script'); dsq.async = true; dsq.type = 'text/javascript';
+    dsq.src = '//http-budougumi0617-github-io.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
+</footer>
+
+    </div>
+    
+      <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+        <div>
+  
+
+    <div class="section">
+      <header><div class="title"><b>Latest Posts</b></div></header>
+      <div class="content">
+        <ul>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/17/hello-aws-lambda-go/">AWS Lambda Go早めぐり(LambdaContext, Logging, Error...)</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/16/review-the-best-way-to-rest/">[書評]世界のエリートがやっている 最高の休息法を読んだ</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/14/grpc-basics-go/">[Go]gRPC Basics: GoからgRPCのストリーミングRPCを理解する</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/10/review-sleep-revolution/">[書評]スリープレボリューションを読んだ</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/05/redirect-url-by-aliases-in-hugo/">Hugo内で古いURLから新しいURLにリダイレクトさせる</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/04/server-reflection-tutorial/">[Go][gRPC]Server Reflection Tutorialをやってみた</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/03/review-soft-skills/">[書評]SOFT SKILLSを読んだ</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/01/hello-grpc-go/">[Go]gRPCのGo Quick Startをやってみた。</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2017/12/30/retrospective-2017/">2017年振り返り</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2017/12/27/retrospective-on-github/">2017年振り返り(GitHub編)</a>
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>category</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/categories/go">go</a></li><li><a href="/categories/c-sharp">c-sharp</a></li><li><a href="/categories/dot-net">dot-net</a></li><li><a href="/categories/report">report</a></li><li><a href="/categories/review">review</a></li><li><a href="/categories/grpc">grpc</a></li><li><a href="/categories/xamarin.mac">xamarin.mac</a></li><li><a href="/categories/devops">devops</a></li><li><a href="/categories/kubernetes">kubernetes</a></li><li><a href="/categories/poem">poem</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>tag</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/tags/golang">golang</a></li><li><a href="/tags/book">book</a></li><li><a href="/tags/grpc">grpc</a></li><li><a href="/tags/xamarin">xamarin</a></li><li><a href="/tags/appveyor">appveyor</a></li><li><a href="/tags/cndjp">cndjp</a></li><li><a href="/tags/codecov">codecov</a></li><li><a href="/tags/debug">debug</a></li><li><a href="/tags/devops">devops</a></li><li><a href="/tags/k8s">k8s</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+    
+
+</div>
+
+      </div>
+    
+  </div>
+</div>
+    
+<footer class="footer hidden-print">
+  <div class="container">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+           <div class="pull-left">
+  <a class="toplink" href="javascript:" id="return-to-top">back to top</a>
+</div>
+<div class="pull-right">
+
+</div>
+
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+              
+    
+<div class="container footline">
+    <small>
+  Copyright&copy; <a href='/2017/07/11/about-this-site/'>budougumi0617</a>
+
+</small>
+</div>
+
+
+    
+
+
+        </div>
+    </div>
+  </div>
+</footer>
+
+    
+
+<script src="//s3.amazonaws.com/mailmunch/static/site.js" id="mailmunch-script" data-mailmunch-site-id="" async="async"></script>
+
+
+
+<script src="//load.sumome.com/" data-sumo-site-id="" async="async"></script>
+
+<script src="https://budougumi0617.github.io/js/jquery.min.js"></script>
+<script src="https://budougumi0617.github.io/js/bootstrap.min.js"></script>
+
+
+<script src="https://budougumi0617.github.io/js/highlight.pack.js"></script>
+<script src="https://budougumi0617.github.io/js/site.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+<script>
+var ENABLE_POPOVER = "", 
+EXPIRE_COOKIE = "", 
+SHOW_MODAL_TIMEOUT = "", 
+MOUSE_LEAVE = "", 
+MODAL_SIZE = "", 
+POST_URL = "", 
+SIGNUP_HEADER = "",
+HEADER_IMAGE = "",
+IMG_DESCRIPTION = "",
+SIGNUP_TEXT = "",
+INPUT_PLACEHOLDER = "",
+SUBMIT_BUTTON = "",
+SUCCESS_MESSAGE = "",
+ERROR_MESSAGE = "",
+OPTIN = "",
+COOKIE_NAME = "",
+CONTENTLANGUAGE = ""; 
+</script>
+
+
+
+
+
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//MathJax.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//config/TeX-AMS-MML_HTMLorMML.js"></script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\[','\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    for(var all in MathJax.Hub.getAllJax()) {
+        all.SourceElement().parentNode.className += ' has-jax';
+
+    }
+});
+</script>
+
+
+
+
+
+
+  </body>
+</html>
+
