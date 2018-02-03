@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>[Go]gRPC GatewayでgRPCに対するREST APIを自動生成する  &middot; My External Storage</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="golang, grpc, grpc-gateway, ">
+
+
+<meta property="og:title" content="[Go]gRPC GatewayでgRPCに対するREST APIを自動生成する  &middot; My External Storage ">
+<meta property="og:site_name" content="My External Storage"/>
+<meta property="og:url" content="https://budougumi0617.github.io/2018/02/03/grpc-gateway-for-rest-api/" />
+<meta property="og:locale" content="ja-jp">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="2018-02-03T14:52:19&#43;09:00" />
+<meta property="og:article:modified_time" content="2018-02-03T14:52:19&#43;09:00" />
+
+  
+    
+<meta property="og:article:tag" content="golang">
+    
+<meta property="og:article:tag" content="grpc">
+    
+<meta property="og:article:tag" content="grpc-gateway">
+    
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@budougumi0617" />
+<meta name="twitter:creator" content="@budougumi0617" />
+<meta name="twitter:title" content="[Go]gRPC GatewayでgRPCに対するREST APIを自動生成する" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="https://budougumi0617.github.io/2018/02/03/grpc-gateway-for-rest-api/" />
+<meta name="twitter:domain" content="https://budougumi0617.github.io/">
+  
+
+  
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "[Go]gRPC GatewayでgRPCに対するREST APIを自動生成する",
+    "author": {
+      "@type": "Person",
+      "name": "http://profiles.google.com/+?rel=author"
+    },
+    "datePublished": "2018-02-03",
+    "description": "",
+    "wordCount":  2162 
+  }
+</script>
+  
+
+
+
+<link rel="canonical" href="https://budougumi0617.github.io/2018/02/03/grpc-gateway-for-rest-api/" />
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/touch-icon-144-precomposed.png">
+<link rel="icon" href="/favicon.png">
+<meta name="generator" content="Hugo 0.25-DEV" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+
+
+    <link rel="stylesheet" href="https://budougumi0617.github.io/css/bootswatch/flatly/bootstrap.min.css">
+
+
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/style.css">
+
+
+
+
+  <link rel="stylesheet" href="https://budougumi0617.github.io/css/highlight/default.css">
+
+
+</head>
+<body class="map[name:flatly]" data-ng-app="myapp" data-ng-controller="MyController" data-ng-mouseleave="MouseLeave($event)">
+    <header id="main-header">
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        
+          
+          <a class="navbar-brand-img" href="/">
+            <img alt="My External Storage" src="/logo.png">
+            
+          </a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav navbar-right">
+            
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/" >
+                <i class='fa fa-home'></i>
+                Home
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/post/" >
+                <i class='fa fa-archive'></i>
+                Archives
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" >
+                <i class='fa fa-info-circle'></i>
+                About
+              </a>
+            </li>
+            
+            
+              
+          </ul>
+        </div>
+        
+      </div>
+    </nav>
+  </header>
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-9">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  <div class="text-center">
+
+    <h1>[Go]gRPC GatewayでgRPCに対するREST APIを自動生成する
+</h1>
+
+    <div class="metas">
+<small>
+  <i class="fa fa-calendar"></i>
+  <time datetime="2018-02-03">3 Feb, 2018</time>
+</small>
+
+
+  <small>
+    &middot; by budougumi0617
+  
+  &middot; Read in about 5 min
+  &middot; (2162 words)
+  &middot; 
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f03%2fgrpc-gateway-for-rest-api%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=%5bGo%5dgRPC%20Gateway%e3%81%a7gRPC%e3%81%ab%e5%af%be%e3%81%99%e3%82%8bREST%20API%e3%82%92%e8%87%aa%e5%8b%95%e7%94%9f%e6%88%90%e3%81%99%e3%82%8b&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f03%2fgrpc-gateway-for-rest-api%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f03%2fgrpc-gateway-for-rest-api%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f03%2fgrpc-gateway-for-rest-api%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f03%2fgrpc-gateway-for-rest-api%2f&amp;title=%5bGo%5dgRPC%20Gateway%e3%81%a7gRPC%e3%81%ab%e5%af%be%e3%81%99%e3%82%8bREST%20API%e3%82%92%e8%87%aa%e5%8b%95%e7%94%9f%e6%88%90%e3%81%99%e3%82%8b" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=%5bGo%5dgRPC%20Gateway%e3%81%a7gRPC%e3%81%ab%e5%af%be%e3%81%99%e3%82%8bREST%20API%e3%82%92%e8%87%aa%e5%8b%95%e7%94%9f%e6%88%90%e3%81%99%e3%82%8b&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f03%2fgrpc-gateway-for-rest-api%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  </small>
+
+<div class="margin-10">
+  <i class="fa fa-tags"></i>
+  
+  <a href="https://budougumi0617.github.io/tags/golang" class="label label-primary">golang</a>
+  
+  <a href="https://budougumi0617.github.io/tags/grpc" class="label label-primary">grpc</a>
+  
+  <a href="https://budougumi0617.github.io/tags/grpc-gateway" class="label label-primary">grpc-gateway</a>
+  
+
+
+</div>
+
+<br>
+</div>
+
+  </div>
+</div>
+
+      <div class="content">
+  
+
+<p>gRPCで作ったAPIは通常REST APIからコールできない。<br />
+<code>grpc-ecosystem/grpc-gateway</code>を使うとgRPC APIに対するREST APIのリバースプロクシサーバのコードが自動生成出来る。
+Protocol BufferにREST用の定義を追加して<code>grpc-ecosystem/grpc-gateway</code>を試してみた。</p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li><code>grpc-ecosystem/grpc-gateway</code>はProtocol BufferからRESTのproxyサーバを自動生成できる</li>
+<li>認証やロギングを無視すればそのままリバースプロクシサーバを立ち上げられる。</li>
+<li><code>curl</code>コマンドを使ってgRPC APIを実行することができた。</li>
+</ul>
+
+<p>今回作ったサンプルコードは以下にある。</p>
+
+<p><a href="https://github.com/budougumi0617/sandbox-grpc/tree/master/tasklist-gateway">https://github.com/budougumi0617/sandbox-grpc/tree/master/tasklist-gateway</a></p>
+
+<h1 id="grpc-ecosystem-grpc-gatewayを使ったrest-proxyサーバの構築">grpc-ecosystem/grpc-gatewayを使ったREST proxyサーバの構築</h1>
+
+<p>Protocol Bufferの定義に<code>protoc</code>を使ってGoのコードを作成し、gRPCサーバ/クライアントの作成が一通り出来る環境は出来ているとする。</p>
+
+<p>まずは<code>grpc-gateway</code>関連のライブラリを取得する。</p>
+
+<pre><code class="language-bash">$ go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
+$ go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
+$ go get -u github.com/golang/protobuf/protoc-gen-go
+</code></pre>
+
+<h2 id="rest-api定義をprotoファイルに追加する">REST API定義をprotoファイルに追加する</h2>
+
+<p>以下のページに文法が載っているので、gRPCとRPCの対比を見ながら<code>.proto</code>ファイルにオプションをつけていく。</p>
+
+<p><a href="https://cloud.google.com/service-management/reference/rpc/google.api#http">https://cloud.google.com/service-management/reference/rpc/google.api#http</a></p>
+
+<pre><code class="language-diff"> // For define null request
+ import &quot;google/protobuf/empty.proto&quot;;
+
++// For grpc gateway
++import &quot;google/api/annotations.proto&quot;;
++
+ service TaskManager {
+-  rpc GetTask (GetTaskRequest) returns (Task) {}
+-  rpc ListTasks (google.protobuf.Empty) returns (stream Task) {}
++  rpc GetTask (GetTaskRequest) returns (Task) {
++    option (google.api.http) = {
++       get: &quot;/v1/tasklist-gateway/task/{id}&quot; // &quot;id&quot; is defined in GetTaskRequest
++    };
++  }
++  rpc ListTasks (google.protobuf.Empty) returns (stream Task) {
++    option (google.api.http) = {
++       get: &quot;/v1/tasklist-gateway/task&quot;
++    };
++  }
+ }
+</code></pre>
+
+<h2 id="protoc-gen-grpc-gateway-によるproxyサーバ用apiコードの自動生成"><code>protoc-gen-grpc-gateway</code>によるProxyサーバ用APIコードの自動生成</h2>
+
+<p>まずは普通の<code>protoc</code>コマンドでコンパイルする。<code>import</code>を増やしているので、<code>include</code>ディレクトリを増やす必要がある。<code>README</code>はもう少し<code>-I</code>オプションが多いが、自分はこれだけでOKだった。</p>
+
+<pre><code>protoc -I. \
+  -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+  --go_out=plugins=grpc:. proto/task_list.proto
+</code></pre>
+
+<p>次に、Gateway用のコンパイルを行う。</p>
+
+<pre><code class="language-bash">protoc -I/usr/local/include -I. -I$GOPATH/src \
+  -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+  --grpc-gateway_out=logtostderr=true:. proto/task_list.proto
+</code></pre>
+
+<p><code>grpc-gateway</code>で使えるオプションは2018/01/28の時点では以下の通りだった。<code>protoc</code>を実行するときに<code>--grpc-gateway_out=logtostderr=true</code>にカンマ区切りでオプションを追加できる。</p>
+
+<pre><code>go run $GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway/main.go -h
+Usage of /var/folders/sy/ls4cfp216x774g54brzl67yw0000gn/T/go-build442506345/command-line-arguments/_obj/exe/main:
+  -allow_delete_body
+    	unless set, HTTP DELETE methods may not have a body
+  -alsologtostderr
+    	log to standard error as well as files
+  -import_path string
+    	used as the package if no input files declare go_package. If it contains slashes, everything up to the rightmost slash is ignored.
+  -import_prefix string
+    	prefix to be added to go package paths for imported proto files
+  -log_backtrace_at value
+    	when logging hits line file:N, emit a stack trace
+  -log_dir string
+    	If non-empty, write log files in this directory
+  -logtostderr
+    	log to standard error instead of files
+  -request_context
+    	determine whether to use http.Request's context or not (default true)
+  -stderrthreshold value
+    	logs at or above this threshold go to stderr
+  -v value
+    	log level for V logs
+  -vmodule value
+    	comma-separated list of pattern=N settings for file-filtered logging
+</code></pre>
+
+<p>例えば、こんな感じ。</p>
+
+<pre><code class="language-bash">protoc -I/usr/local/include -I. -I$GOPATH/src \
+  -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+  --grpc-gateway_out=logtostderr=true,request_context=false,allow_delete_body=true:. \
+  proto/task_list.proto
+</code></pre>
+
+<p><code>swagger.json</code>も生成できる。</p>
+
+<pre><code class="language-bash">protoc -I/usr/local/include -I. -I$GOPATH/src \
+  -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+  --swagger_out=logtostderr=true:. proto/task_list.proto
+</code></pre>
+
+<p><code>swagger</code>生成用のオプションは<code>go run $GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/main.go -h</code>で知ることができる。</p>
+
+<h2 id="サーバコードの実装">サーバコードの実装</h2>
+
+<p>もろもろのコードを自動生成できたので、あとはサーバーのコードを実装する。</p>
+
+<p>gRPCサーバは適当なデータを返すように実装しておく。</p>
+
+<pre><code class="language-go">// sandbox-grpc/tasklist-gateway/server/main.go
+
+// It implements the route guide service whose definition can be found in proto/task_list.proto
+package main
+
+import (
+	&quot;context&quot;
+	&quot;errors&quot;
+	&quot;log&quot;
+	&quot;net&quot;
+
+	tlpb &quot;github.com/budougumi0617/sandbox-grpc/tasklist-gateway/proto&quot;
+	google_protobuf &quot;github.com/golang/protobuf/ptypes/empty&quot;
+	&quot;google.golang.org/grpc&quot;
+	&quot;google.golang.org/grpc/reflection&quot;
+)
+
+const (
+	port = &quot;:50051&quot;
+)
+
+// server is used to implement sa
+type server struct{}
+
+func (s *server) GetTask(ctx context.Context, req *tlpb.GetTaskRequest) (*tlpb.Task, error) {
+	log.Println(&quot;GetTask in gPRC server&quot;)
+	var task = &amp;tlpb.Task{
+		Id:     10,
+		Title:  &quot;Implement gRPC server&quot;,
+		Detail: &quot;Implement interface&quot;,
+	}
+	if req.Id == task.Id {
+		return task, nil
+	}
+	return nil, errors.New(&quot;Not find Task&quot;)
+}
+func (s *server) ListTasks(_ *google_protobuf.Empty, stream tlpb.TaskManager_ListTasksServer) error {
+	log.Println(&quot;ListTasks in gPRC server&quot;)
+	tasks := []*tlpb.Task{
+		&amp;tlpb.Task{
+			Id:     20,
+			Title:  &quot;List Tasks 1&quot;,
+			Detail: &quot;Implement interface&quot;,
+		},
+		&amp;tlpb.Task{
+			Id:     21,
+			Title:  &quot;List Tasks 2&quot;,
+			Detail: &quot;Implement interface&quot;,
+		},
+		&amp;tlpb.Task{
+			Id:     22,
+			Title:  &quot;List Tasks 3&quot;,
+			Detail: &quot;Implement interface&quot;,
+		},
+	}
+	for _, task := range tasks {
+		if err := stream.Send(task); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func main() {
+	lis, err := net.Listen(&quot;tcp&quot;, port)
+	if err != nil {
+		log.Fatalf(&quot;failed to listen: %v&quot;, err)
+	}
+	s := grpc.NewServer()
+	tlpb.RegisterTaskManagerServer(s, &amp;server{})
+	// Register reflection service on gRPC server.
+	reflection.Register(s)
+	log.Printf(&quot;gRPC Server started: localhost%s\n&quot;, port)
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf(&quot;failed to serve: %v&quot;, err)
+	}
+}
+</code></pre>
+
+<p>Proxyサーバはサンプルコードの<code>import</code>を変えるだけで良かった。</p>
+
+<pre><code class="language-go">// sandbox-grpc/tasklist-gateway/gateway/main.go
+
+package main
+
+import (
+	&quot;flag&quot;
+	&quot;net/http&quot;
+
+	gw &quot;github.com/budougumi0617/sandbox-grpc/tasklist-gateway/proto&quot;
+	&quot;github.com/golang/glog&quot;
+	&quot;github.com/grpc-ecosystem/grpc-gateway/runtime&quot;
+	&quot;golang.org/x/net/context&quot;
+	&quot;google.golang.org/grpc&quot;
+)
+
+var (
+	tasklistEndpoint = flag.String(&quot;tasklist_endpoint&quot;, &quot;localhost:50051&quot;, &quot;endpoint of YourService&quot;)
+)
+
+func run() error {
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	mux := runtime.NewServeMux()
+	opts := []grpc.DialOption{grpc.WithInsecure()}
+	err := gw.RegisterTaskManagerHandlerFromEndpoint(ctx, mux, *tasklistEndpoint, opts)
+	if err != nil {
+		return err
+	}
+
+	return http.ListenAndServe(&quot;:8080&quot;, mux)
+}
+
+func main() {
+	flag.Parse()
+	defer glog.Flush()
+
+	if err := run(); err != nil {
+		glog.Fatal(err)
+	}
+}
+</code></pre>
+
+<h2 id="動作確認">動作確認</h2>
+
+<p>それぞれのサーバーを起動する。</p>
+
+<pre><code class="language-bash">$ go run ./gateway/main.go
+</code></pre>
+
+<pre><code class="language-bash">$ go run ./server/main.go
+</code></pre>
+
+<p><code>curl</code>コマンドでREST APIを実行してみた。
+期待通りにデータが取得できている。</p>
+
+<pre><code class="language-bash">$ curl -D - -X GET http://localhost:8080/v1/tasklist-gateway/task
+HTTP/1.1 200 OK
+Content-Type: application/json
+Grpc-Metadata-Content-Type: application/grpc
+Date: Sun, 28 Jan 2018 04:03:14 GMT
+Transfer-Encoding: chunked
+
+{&quot;result&quot;:{&quot;id&quot;:20,&quot;title&quot;:&quot;List Tasks 1&quot;,&quot;detail&quot;:&quot;Implement interface&quot;}}
+{&quot;result&quot;:{&quot;id&quot;:21,&quot;title&quot;:&quot;List Tasks 2&quot;,&quot;detail&quot;:&quot;Implement interface&quot;}}
+{&quot;result&quot;:{&quot;id&quot;:22,&quot;title&quot;:&quot;List Tasks 3&quot;,&quot;detail&quot;:&quot;Implement interface&quot;}}
+
+$ curl -D - -X GET http://localhost:8080/v1/tasklist-gateway/task/11
+HTTP/1.1 500 Internal Server Error
+Content-Type: application/json
+Trailer: Grpc-Trailer-Content-Type
+Date: Sun, 28 Jan 2018 04:03:29 GMT
+Transfer-Encoding: chunked
+
+{&quot;error&quot;:&quot;Not find Task&quot;,&quot;code&quot;:2}Grpc-Trailer-Content-Type: application/grpc
+
+$ curl -D - -X GET http://localhost:8080/v1/tasklist-gateway/task/10
+HTTP/1.1 200 OK
+Content-Type: application/json
+Grpc-Metadata-Content-Type: application/grpc
+Date: Sun, 28 Jan 2018 04:03:33 GMT
+Content-Length: 72
+
+{&quot;id&quot;:10,&quot;title&quot;:&quot;Implement gRPC server&quot;,&quot;detail&quot;:&quot;Implement interface&quot;}%
+</code></pre>
+
+<p>当然だが、gRPC API内に仕込んでおいた実行ログも確認できた。</p>
+
+<pre><code class="language-bash">go run ./server/main.go
+2018/01/28 13:00:48 gRPC Server started: localhost:50051
+2018/01/28 13:03:14 ListTasks in gPRC server
+2018/01/28 13:03:29 GetTask in gPRC server
+2018/01/28 13:03:33 GetTask in gPRC server
+</code></pre>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>gRPCサーバに対応するRESTのリバースプロクシサーバを自動生成した。リバースプロクシサーバに関してはほぼ自分で実装していない。<br />
+（本当は認証とかログのミドルウェア噛ませないといけないというところ？）<br />
+これでgRPCサーバの実装を<code>curl</code>コマンドで確認することができた。</p>
+
+<h1 id="余談">余談</h1>
+
+<p>一連の流れを触っている中で、<code>GET</code>メソッドなのにBODYの宣言をつけて<code>protoc</code>したら変なエラーメッセージが出ていた。<br />
+IssueをたててPR作ったらマージされた。今まではREADMEなどへのPRしかしてことがなかったので<code>go get -u</code>したら結果が自分で変更した内容になったのでちょっと感動した。（今回も文言の修正なので、似たようなものだけど）</p>
+
+<ul>
+<li><a href="https://github.com/grpc-ecosystem/grpc-gateway/issues/531">https://github.com/grpc-ecosystem/grpc-gateway/issues/531</a></li>
+<li><a href="https://github.com/grpc-ecosystem/grpc-gateway/pull/532">https://github.com/grpc-ecosystem/grpc-gateway/pull/532</a></li>
+</ul>
+
+<h1 id="grpc関連の記事">gRPC関連の記事</h1>
+
+<ul>
+<li><a href="/2018/01/01/hello-grpc-go/">[Go]gRPCのGo Quick Startをやってみた。</a></li>
+<li><a href="/2018/01/04/server-reflection-tutorial/">[Go][gRPC]Server Reflection Tutorialをやってみた</a></li>
+<li><a href="/2018/01/14/grpc-basics-go/">[Go]gRPC Basics: GoからgRPCのストリーミングRPCを理解する</a></li>
+<li><a href="/2018/01/21/try-gomock-on-grpc-go/">[Go]gomockを使ったgRPCのテスト</a></li>
+</ul>
+
+</div>
+
+
+      <footer>
+  
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f03%2fgrpc-gateway-for-rest-api%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=%5bGo%5dgRPC%20Gateway%e3%81%a7gRPC%e3%81%ab%e5%af%be%e3%81%99%e3%82%8bREST%20API%e3%82%92%e8%87%aa%e5%8b%95%e7%94%9f%e6%88%90%e3%81%99%e3%82%8b&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f03%2fgrpc-gateway-for-rest-api%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f03%2fgrpc-gateway-for-rest-api%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f03%2fgrpc-gateway-for-rest-api%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f03%2fgrpc-gateway-for-rest-api%2f&amp;title=%5bGo%5dgRPC%20Gateway%e3%81%a7gRPC%e3%81%ab%e5%af%be%e3%81%99%e3%82%8bREST%20API%e3%82%92%e8%87%aa%e5%8b%95%e7%94%9f%e6%88%90%e3%81%99%e3%82%8b" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=%5bGo%5dgRPC%20Gateway%e3%81%a7gRPC%e3%81%ab%e5%af%be%e3%81%99%e3%82%8bREST%20API%e3%82%92%e8%87%aa%e5%8b%95%e7%94%9f%e6%88%90%e3%81%99%e3%82%8b&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f03%2fgrpc-gateway-for-rest-api%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      
+  
+    <nav><ul class="pager">
+    
+        <li class="previous">
+          <a href="https://budougumi0617.github.io/2018/02/03/kubernetes-with-availability-cndjp3/" title="[k8s]Cloud Native Developers JP 第3回勉強会 #cndjp3 参加メモ">
+            <span aria-hidden="true">&larr;</span>Previous
+          </a>
+        </li>
+    
+
+    
+    </ul> </nav>
+  
+
+
+</div>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+    
+    
+    if (window.location.hostname == "localhost")
+      return;
+
+    var dsq = document.createElement('script'); dsq.async = true; dsq.type = 'text/javascript';
+    dsq.src = '//http-budougumi0617-github-io.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
+</footer>
+
+    </div>
+    
+      <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+        <div>
+  
+
+    <div class="section">
+      <header><div class="title"><b>Latest Posts</b></div></header>
+      <div class="content">
+        <ul>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/03/grpc-gateway-for-rest-api/">[Go]gRPC GatewayでgRPCに対するREST APIを自動生成する</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/03/kubernetes-with-availability-cndjp3/">[k8s]Cloud Native Developers JP 第3回勉強会 #cndjp3 参加メモ</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/31/redashmeetup-hands-on/">Redash Meetup #0.1 - Redash 初心者向けハンズオン #redashmeetup</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/31/golangtokyo-12/">[Go]golang.tokyo #12 参加メモ #golangtokyo</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/21/try-gomock-on-grpc-go/">[Go]gomockを使ったgRPCのテスト</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/17/hello-aws-lambda-go/">AWS Lambda Go早めぐり(LambdaContext, Logging, Error...)</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/16/review-the-best-way-to-rest/">[書評]世界のエリートがやっている 最高の休息法を読んだ</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/14/grpc-basics-go/">[Go]gRPC Basics: GoからgRPCのストリーミングRPCを理解する</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/10/review-sleep-revolution/">[書評]スリープレボリューションを読んだ</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/05/redirect-url-by-aliases-in-hugo/">Hugo内で古いURLから新しいURLにリダイレクトさせる</a>
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>category</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/categories/go">go</a></li><li><a href="/categories/report">report</a></li><li><a href="/categories/c-sharp">c-sharp</a></li><li><a href="/categories/grpc">grpc</a></li><li><a href="/categories/dot-net">dot-net</a></li><li><a href="/categories/review">review</a></li><li><a href="/categories/xamarin.mac">xamarin.mac</a></li><li><a href="/categories/devops">devops</a></li><li><a href="/categories/kubernetes">kubernetes</a></li><li><a href="/categories/poem">poem</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>tag</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/tags/golang">golang</a></li><li><a href="/tags/grpc">grpc</a></li><li><a href="/tags/book">book</a></li><li><a href="/tags/k8s">k8s</a></li><li><a href="/tags/cndjp">cndjp</a></li><li><a href="/tags/xamarin">xamarin</a></li><li><a href="/tags/appveyor">appveyor</a></li><li><a href="/tags/codecov">codecov</a></li><li><a href="/tags/debug">debug</a></li><li><a href="/tags/devops">devops</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+    
+
+</div>
+
+      </div>
+    
+  </div>
+</div>
+    
+<footer class="footer hidden-print">
+  <div class="container">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+           <div class="pull-left">
+  <a class="toplink" href="javascript:" id="return-to-top">back to top</a>
+</div>
+<div class="pull-right">
+
+</div>
+
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+              
+    
+<div class="container footline">
+    <small>
+  Copyright&copy; <a href='/2017/07/11/about-this-site/'>budougumi0617</a>
+
+</small>
+</div>
+
+
+    
+
+
+        </div>
+    </div>
+  </div>
+</footer>
+
+    
+
+<script src="//s3.amazonaws.com/mailmunch/static/site.js" id="mailmunch-script" data-mailmunch-site-id="" async="async"></script>
+
+
+
+<script src="//load.sumome.com/" data-sumo-site-id="" async="async"></script>
+
+<script src="https://budougumi0617.github.io/js/jquery.min.js"></script>
+<script src="https://budougumi0617.github.io/js/bootstrap.min.js"></script>
+
+
+<script src="https://budougumi0617.github.io/js/highlight.pack.js"></script>
+<script src="https://budougumi0617.github.io/js/site.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+<script>
+var ENABLE_POPOVER = "", 
+EXPIRE_COOKIE = "", 
+SHOW_MODAL_TIMEOUT = "", 
+MOUSE_LEAVE = "", 
+MODAL_SIZE = "", 
+POST_URL = "", 
+SIGNUP_HEADER = "",
+HEADER_IMAGE = "",
+IMG_DESCRIPTION = "",
+SIGNUP_TEXT = "",
+INPUT_PLACEHOLDER = "",
+SUBMIT_BUTTON = "",
+SUCCESS_MESSAGE = "",
+ERROR_MESSAGE = "",
+OPTIN = "",
+COOKIE_NAME = "",
+CONTENTLANGUAGE = ""; 
+</script>
+
+
+
+
+
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//MathJax.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//config/TeX-AMS-MML_HTMLorMML.js"></script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\[','\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    for(var all in MathJax.Hub.getAllJax()) {
+        all.SourceElement().parentNode.className += ' has-jax';
+
+    }
+});
+</script>
+
+
+
+
+
+
+  </body>
+</html>
+
