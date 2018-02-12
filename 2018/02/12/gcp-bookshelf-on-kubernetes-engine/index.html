@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>[Go]Google Kubernetes Engineのチュートリアルをやるときに注意すること  &middot; My External Storage</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="gke, k8s, gcp, ">
+
+
+<meta property="og:title" content="[Go]Google Kubernetes Engineのチュートリアルをやるときに注意すること  &middot; My External Storage ">
+<meta property="og:site_name" content="My External Storage"/>
+<meta property="og:url" content="https://budougumi0617.github.io/2018/02/12/gcp-bookshelf-on-kubernetes-engine/" />
+<meta property="og:locale" content="ja-jp">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="2018-02-12T08:04:35&#43;09:00" />
+<meta property="og:article:modified_time" content="2018-02-12T08:04:35&#43;09:00" />
+
+  
+    
+<meta property="og:article:tag" content="gke">
+    
+<meta property="og:article:tag" content="k8s">
+    
+<meta property="og:article:tag" content="gcp">
+    
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@budougumi0617" />
+<meta name="twitter:creator" content="@budougumi0617" />
+<meta name="twitter:title" content="[Go]Google Kubernetes Engineのチュートリアルをやるときに注意すること" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="https://budougumi0617.github.io/2018/02/12/gcp-bookshelf-on-kubernetes-engine/" />
+<meta name="twitter:domain" content="https://budougumi0617.github.io/">
+  
+
+  
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "[Go]Google Kubernetes Engineのチュートリアルをやるときに注意すること",
+    "author": {
+      "@type": "Person",
+      "name": "http://profiles.google.com/+?rel=author"
+    },
+    "datePublished": "2018-02-12",
+    "description": "",
+    "wordCount":  1464 
+  }
+</script>
+  
+
+
+
+<link rel="canonical" href="https://budougumi0617.github.io/2018/02/12/gcp-bookshelf-on-kubernetes-engine/" />
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/touch-icon-144-precomposed.png">
+<link rel="icon" href="/favicon.png">
+<meta name="generator" content="Hugo 0.25-DEV" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+
+
+    <link rel="stylesheet" href="https://budougumi0617.github.io/css/bootswatch/flatly/bootstrap.min.css">
+
+
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/style.css">
+
+
+
+
+  <link rel="stylesheet" href="https://budougumi0617.github.io/css/highlight/default.css">
+
+
+</head>
+<body class="map[name:flatly]" data-ng-app="myapp" data-ng-controller="MyController" data-ng-mouseleave="MouseLeave($event)">
+    <header id="main-header">
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        
+          
+          <a class="navbar-brand-img" href="/">
+            <img alt="My External Storage" src="/logo.png">
+            
+          </a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav navbar-right">
+            
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/" >
+                <i class='fa fa-home'></i>
+                Home
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/post/" >
+                <i class='fa fa-archive'></i>
+                Archives
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" >
+                <i class='fa fa-info-circle'></i>
+                About
+              </a>
+            </li>
+            
+            
+              
+          </ul>
+        </div>
+        
+      </div>
+    </nav>
+  </header>
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-9">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  <div class="text-center">
+
+    <h1>[Go]Google Kubernetes Engineのチュートリアルをやるときに注意すること
+</h1>
+
+    <div class="metas">
+<small>
+  <i class="fa fa-calendar"></i>
+  <time datetime="2018-02-12">12 Feb, 2018</time>
+</small>
+
+
+  <small>
+    &middot; by budougumi0617
+  
+  &middot; Read in about 3 min
+  &middot; (1464 words)
+  &middot; 
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f12%2fgcp-bookshelf-on-kubernetes-engine%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=%5bGo%5dGoogle%20Kubernetes%20Engine%e3%81%ae%e3%83%81%e3%83%a5%e3%83%bc%e3%83%88%e3%83%aa%e3%82%a2%e3%83%ab%e3%82%92%e3%82%84%e3%82%8b%e3%81%a8%e3%81%8d%e3%81%ab%e6%b3%a8%e6%84%8f%e3%81%99%e3%82%8b%e3%81%93%e3%81%a8&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f12%2fgcp-bookshelf-on-kubernetes-engine%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f12%2fgcp-bookshelf-on-kubernetes-engine%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f12%2fgcp-bookshelf-on-kubernetes-engine%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f12%2fgcp-bookshelf-on-kubernetes-engine%2f&amp;title=%5bGo%5dGoogle%20Kubernetes%20Engine%e3%81%ae%e3%83%81%e3%83%a5%e3%83%bc%e3%83%88%e3%83%aa%e3%82%a2%e3%83%ab%e3%82%92%e3%82%84%e3%82%8b%e3%81%a8%e3%81%8d%e3%81%ab%e6%b3%a8%e6%84%8f%e3%81%99%e3%82%8b%e3%81%93%e3%81%a8" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=%5bGo%5dGoogle%20Kubernetes%20Engine%e3%81%ae%e3%83%81%e3%83%a5%e3%83%bc%e3%83%88%e3%83%aa%e3%82%a2%e3%83%ab%e3%82%92%e3%82%84%e3%82%8b%e3%81%a8%e3%81%8d%e3%81%ab%e6%b3%a8%e6%84%8f%e3%81%99%e3%82%8b%e3%81%93%e3%81%a8&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f12%2fgcp-bookshelf-on-kubernetes-engine%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  </small>
+
+<div class="margin-10">
+  <i class="fa fa-tags"></i>
+  
+  <a href="https://budougumi0617.github.io/tags/gke" class="label label-primary">gke</a>
+  
+  <a href="https://budougumi0617.github.io/tags/k8s" class="label label-primary">k8s</a>
+  
+  <a href="https://budougumi0617.github.io/tags/gcp" class="label label-primary">gcp</a>
+  
+
+
+</div>
+
+<br>
+</div>
+
+  </div>
+</div>
+
+      <div class="content">
+  
+
+<p>Google Cloud Platform(GCP)のKubernetes Engine(GKE)でKubernetes(k8s)を動かしたいと以下のチュートリアルを始めた。</p>
+
+<p><strong>Container Engine での Go Bookshelf の実行</strong><br />
+<a href="https://cloud.google.com/go/tutorials/bookshelf-on-container-engine?hl=ja">https://cloud.google.com/go/tutorials/bookshelf-on-container-engine?hl=ja</a></p>
+
+<p><strong>GoogleCloudPlatform/golang-samples</strong><br />
+<a href="https://github.com/GoogleCloudPlatform/golang-samples">https://github.com/GoogleCloudPlatform/golang-samples</a></p>
+
+<p>2018/02/12時点で以下の点に注意することがあったので、メモしておく。</p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>日本語版の<code>gcloud</code>のインストールページは最新ではない</li>
+<li><code>dep</code>コマンドなどは使わず、<code>go get -u ./...</code>で依存パッケージを取得する</li>
+<li>クラスターを作成するときは<code>--cluster-version</code>でk8sのバージョンを最新にしておく</li>
+</ul>
+
+<h1 id="日本語版の-gcloud-のインストールページは最新ではない">日本語版の<code>gcloud</code>のインストールページは最新ではない</h1>
+
+<p>チュートリアルの「始める前に」の途中にリンクしてあるgcloudのインストールページは最新版の<code>gcloud</code>へのリンクではない。<br />
+（<code>180.0.0</code>のtarが書いてあるが、2018/02/12時点で最新は<code>188.0.0</code>）<br />
+以下のコマンドで最新版の<code>gcloud</code>コマンドが取得できる。</p>
+
+<pre><code class="language-bash">$ curl https://sdk.cloud.google.com | bash
+</code></pre>
+
+<h1 id="dep-コマンドなどは使わず-go-get-u-で依存パッケージを取得する"><code>dep</code>コマンドなどは使わず、<code>go get -u ./...</code>で依存パッケージを取得する</h1>
+
+<p>チュートリアル用の<code>golang-samples</code>リポジトリは<code>glide</code>や<code>dep</code>のような依存管理ツールの設定がされていない。<br />
+逆にいうと、常に最新の依存ライブラリに依存している。<br />
+2018/02/12現在<code>dep</code>コマンドで依存関係を解決すると、<code>satori/go.uuid</code>リポジトリなどの破壊的変更が取り込めないので、<br />
+ビルドエラーになってしまう。(Dockerでビルドしてもvendorディレクトリが取り込まれてしまうためエラーになる）<br />
+ローカルで依存関係を解決したいときは<code>go get</code>コマンドで行うこと。</p>
+
+<pre><code class="language-bash">$ cd $GOPATH/src/github.com/GoogleCloudPlatform/golang-samples/getting-started/bookshelf
+$ go get -u ./...
+</code></pre>
+
+<h1 id="クラスターを作成するときは-cluster-version-でk8sのバージョンを最新にしておく">クラスターを作成するときは<code>--cluster-version</code>でk8sのバージョンを最新にしておく</h1>
+
+<p>以下のコマンドで利用できるk8sのバージョンとデフォルトが確認できる。</p>
+
+<pre><code class="language-bash">$ gcloud container get-server-config
+</code></pre>
+
+<p>もしここで<code>defaultClusterVersion: 1.7.XX-gke.1</code>と表示されたなら、変更するほうがよい。<br />
+2018/02/12現在以下の問題があり、1.7.X系はStackDriver周りでエラーが出るので変更しておく必要がある。</p>
+
+<p><strong>Error while sending request to Stackdriver &hellip; unsupported protocol scheme</strong><br />
+<a href="https://github.com/GoogleCloudPlatform/k8s-stackdriver/issues/92">https://github.com/GoogleCloudPlatform/k8s-stackdriver/issues/92</a></p>
+
+<p>チュートリアルの「Container Engine クラスタの作成」に書いてある<code>gcloud container clusters create</code>コマンドに<br />
+クラスターバージョンを指定するオプションをつけてクラスターを作成する。</p>
+
+<pre><code class="language-bash">$ gcloud container clusters create bookshelf \
+  --scopes &quot;cloud-platform&quot; \
+  --num-nodes 2 \
+  --cluster-version 1.9.2-gke.1
+</code></pre>
+
+<p>指定できるバージョンは<code>gcloud container get-server-config</code>コマンドでも確認できたが、ドキュメント的には以下に記載してある。</p>
+
+<p><strong>Versioning and Upgrades</strong><br />
+<a href="https://cloud.google.com/kubernetes-engine/versioning-and-upgrades">https://cloud.google.com/kubernetes-engine/versioning-and-upgrades</a></p>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>サンプルリポジトリである<a href="https://github.com/GoogleCloudPlatform/golang-samples">GoogleCloudPlatform/golang-samples</a>自体も
+定期的に更新されているので、何か問題があったら一度pullするだけで解決するかもしれない。<br />
+実際最初PubSub周りの疎通が出来ていなかったのだが、サンプルリポジトリをpullして<code>go get -u ./...</code>することで解決した。</p>
+
+<p>最初、<code>dep</code>コマンドで依存関係を解決したため、ビルドエラーを出していた。<br />
+PRチャンスかと思ってPRを出し、CIの結果を見て自分が間違えていることに気づいた。<br />
+自分が間違えていたのですぐPRは閉じたのだが、メンテナーの方が優しくコメントしてくださってすごいありがたい気持ち。</p>
+
+<p><a href="https://github.com/GoogleCloudPlatform/golang-samples/pull/390#issuecomment-364297421">https://github.com/GoogleCloudPlatform/golang-samples/pull/390#issuecomment-364297421</a></p>
+
+<p>GKE自体は動かせたので、次はgRPCをGKEで動かしてみる。</p>
+
+<h1 id="参考">参考</h1>
+
+<p><strong>Container Engine での Go Bookshelf の実行</strong><br />
+<a href="https://cloud.google.com/go/tutorials/bookshelf-on-container-engine?hl=ja">https://cloud.google.com/go/tutorials/bookshelf-on-container-engine?hl=ja</a></p>
+
+<p><strong>GoogleCloudPlatform/golang-samples</strong><br />
+<a href="https://github.com/GoogleCloudPlatform/golang-samples">https://github.com/GoogleCloudPlatform/golang-samples</a></p>
+
+<p><strong>GCPのgcloudコマンドをインストールする</strong><br />
+<a href="https://qiita.com/kentarosasaki/items/2232113b44b016a56adc">https://qiita.com/kentarosasaki/items/2232113b44b016a56adc</a></p>
+
+<p><strong>Error while sending request to Stackdriver &hellip; unsupported protocol scheme</strong><br />
+<a href="https://github.com/GoogleCloudPlatform/k8s-stackdriver/issues/92">https://github.com/GoogleCloudPlatform/k8s-stackdriver/issues/92</a></p>
+
+<p><strong>Versioning and Upgrades</strong><br />
+<a href="https://cloud.google.com/kubernetes-engine/versioning-and-upgrades">https://cloud.google.com/kubernetes-engine/versioning-and-upgrades</a></p>
+
+</div>
+
+
+      <footer>
+  
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f12%2fgcp-bookshelf-on-kubernetes-engine%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=%5bGo%5dGoogle%20Kubernetes%20Engine%e3%81%ae%e3%83%81%e3%83%a5%e3%83%bc%e3%83%88%e3%83%aa%e3%82%a2%e3%83%ab%e3%82%92%e3%82%84%e3%82%8b%e3%81%a8%e3%81%8d%e3%81%ab%e6%b3%a8%e6%84%8f%e3%81%99%e3%82%8b%e3%81%93%e3%81%a8&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f12%2fgcp-bookshelf-on-kubernetes-engine%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f12%2fgcp-bookshelf-on-kubernetes-engine%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f12%2fgcp-bookshelf-on-kubernetes-engine%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f12%2fgcp-bookshelf-on-kubernetes-engine%2f&amp;title=%5bGo%5dGoogle%20Kubernetes%20Engine%e3%81%ae%e3%83%81%e3%83%a5%e3%83%bc%e3%83%88%e3%83%aa%e3%82%a2%e3%83%ab%e3%82%92%e3%82%84%e3%82%8b%e3%81%a8%e3%81%8d%e3%81%ab%e6%b3%a8%e6%84%8f%e3%81%99%e3%82%8b%e3%81%93%e3%81%a8" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=%5bGo%5dGoogle%20Kubernetes%20Engine%e3%81%ae%e3%83%81%e3%83%a5%e3%83%bc%e3%83%88%e3%83%aa%e3%82%a2%e3%83%ab%e3%82%92%e3%82%84%e3%82%8b%e3%81%a8%e3%81%8d%e3%81%ab%e6%b3%a8%e6%84%8f%e3%81%99%e3%82%8b%e3%81%93%e3%81%a8&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f12%2fgcp-bookshelf-on-kubernetes-engine%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      
+  
+    <nav><ul class="pager">
+    
+        <li class="previous">
+          <a href="https://budougumi0617.github.io/2018/02/05/gcpug-container-builder-day/" title="GCPUG Tokyo Container Builder Day February 2018 #gcpug 参加メモ">
+            <span aria-hidden="true">&larr;</span>Previous
+          </a>
+        </li>
+    
+
+    
+    </ul> </nav>
+  
+
+
+</div>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+    
+    
+    if (window.location.hostname == "localhost")
+      return;
+
+    var dsq = document.createElement('script'); dsq.async = true; dsq.type = 'text/javascript';
+    dsq.src = '//http-budougumi0617-github-io.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
+</footer>
+
+    </div>
+    
+      <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+        <div>
+  
+
+    <div class="section">
+      <header><div class="title"><b>Latest Posts</b></div></header>
+      <div class="content">
+        <ul>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/12/gcp-bookshelf-on-kubernetes-engine/">[Go]Google Kubernetes Engineのチュートリアルをやるときに注意すること</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/05/gcpug-container-builder-day/">GCPUG Tokyo Container Builder Day February 2018 #gcpug 参加メモ</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/03/grpc-gateway-for-rest-api/">[Go]gRPC GatewayでgRPCに対するREST APIを自動生成する</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/03/kubernetes-with-availability-cndjp3/">[k8s]Cloud Native Developers JP 第3回勉強会 #cndjp3 参加メモ</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/31/redashmeetup-hands-on/">Redash Meetup #0.1 - Redash 初心者向けハンズオン #redashmeetup</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/31/golangtokyo-12/">[Go]golang.tokyo #12 参加メモ #golangtokyo</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/21/try-gomock-on-grpc-go/">[Go]gomockを使ったgRPCのテスト</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/17/hello-aws-lambda-go/">AWS Lambda Go早めぐり(LambdaContext, Logging, Error...)</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/16/review-the-best-way-to-rest/">[書評]世界のエリートがやっている 最高の休息法を読んだ</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/14/grpc-basics-go/">[Go]gRPC Basics: GoからgRPCのストリーミングRPCを理解する</a>
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>category</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/categories/go">go</a></li><li><a href="/categories/report">report</a></li><li><a href="/categories/c-sharp">c-sharp</a></li><li><a href="/categories/grpc">grpc</a></li><li><a href="/categories/dot-net">dot-net</a></li><li><a href="/categories/review">review</a></li><li><a href="/categories/xamarin.mac">xamarin.mac</a></li><li><a href="/categories/devops">devops</a></li><li><a href="/categories/gcp">gcp</a></li><li><a href="/categories/kubernetes">kubernetes</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>tag</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/tags/golang">golang</a></li><li><a href="/tags/grpc">grpc</a></li><li><a href="/tags/k8s">k8s</a></li><li><a href="/tags/book">book</a></li><li><a href="/tags/cndjp">cndjp</a></li><li><a href="/tags/xamarin">xamarin</a></li><li><a href="/tags/appveyor">appveyor</a></li><li><a href="/tags/codecov">codecov</a></li><li><a href="/tags/debug">debug</a></li><li><a href="/tags/devops">devops</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+    
+
+</div>
+
+      </div>
+    
+  </div>
+</div>
+    
+<footer class="footer hidden-print">
+  <div class="container">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+           <div class="pull-left">
+  <a class="toplink" href="javascript:" id="return-to-top">back to top</a>
+</div>
+<div class="pull-right">
+
+</div>
+
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+              
+    
+<div class="container footline">
+    <small>
+  Copyright&copy; <a href='/2017/07/11/about-this-site/'>budougumi0617</a>
+
+</small>
+</div>
+
+
+    
+
+
+        </div>
+    </div>
+  </div>
+</footer>
+
+    
+
+<script src="//s3.amazonaws.com/mailmunch/static/site.js" id="mailmunch-script" data-mailmunch-site-id="" async="async"></script>
+
+
+
+<script src="//load.sumome.com/" data-sumo-site-id="" async="async"></script>
+
+<script src="https://budougumi0617.github.io/js/jquery.min.js"></script>
+<script src="https://budougumi0617.github.io/js/bootstrap.min.js"></script>
+
+
+<script src="https://budougumi0617.github.io/js/highlight.pack.js"></script>
+<script src="https://budougumi0617.github.io/js/site.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+<script>
+var ENABLE_POPOVER = "", 
+EXPIRE_COOKIE = "", 
+SHOW_MODAL_TIMEOUT = "", 
+MOUSE_LEAVE = "", 
+MODAL_SIZE = "", 
+POST_URL = "", 
+SIGNUP_HEADER = "",
+HEADER_IMAGE = "",
+IMG_DESCRIPTION = "",
+SIGNUP_TEXT = "",
+INPUT_PLACEHOLDER = "",
+SUBMIT_BUTTON = "",
+SUCCESS_MESSAGE = "",
+ERROR_MESSAGE = "",
+OPTIN = "",
+COOKIE_NAME = "",
+CONTENTLANGUAGE = ""; 
+</script>
+
+
+
+
+
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//MathJax.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//config/TeX-AMS-MML_HTMLorMML.js"></script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\[','\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    for(var all in MathJax.Hub.getAllJax()) {
+        all.SourceElement().parentNode.className += ' has-jax';
+
+    }
+});
+</script>
+
+
+
+
+
+
+  </body>
+</html>
+
