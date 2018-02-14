@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>[Goならわかるシステムプログラミング]libcontainerで実装したLinuxコンテナを起動するためのDockerfile  &middot; My External Storage</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="golang, docker, libcontainer, ">
+
+
+<meta property="og:title" content="[Goならわかるシステムプログラミング]libcontainerで実装したLinuxコンテナを起動するためのDockerfile  &middot; My External Storage ">
+<meta property="og:site_name" content="My External Storage"/>
+<meta property="og:url" content="https://budougumi0617.github.io/2018/02/15/dockerfile-for-libcontainer/" />
+<meta property="og:locale" content="ja-jp">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="2018-02-15T08:33:14&#43;09:00" />
+<meta property="og:article:modified_time" content="2018-02-15T08:33:14&#43;09:00" />
+
+  
+    
+<meta property="og:article:tag" content="golang">
+    
+<meta property="og:article:tag" content="docker">
+    
+<meta property="og:article:tag" content="libcontainer">
+    
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@budougumi0617" />
+<meta name="twitter:creator" content="@budougumi0617" />
+<meta name="twitter:title" content="[Goならわかるシステムプログラミング]libcontainerで実装したLinuxコンテナを起動するためのDockerfile" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="https://budougumi0617.github.io/2018/02/15/dockerfile-for-libcontainer/" />
+<meta name="twitter:domain" content="https://budougumi0617.github.io/">
+  
+
+  
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "[Goならわかるシステムプログラミング]libcontainerで実装したLinuxコンテナを起動するためのDockerfile",
+    "author": {
+      "@type": "Person",
+      "name": "http://profiles.google.com/+?rel=author"
+    },
+    "datePublished": "2018-02-15",
+    "description": "",
+    "wordCount": 1692
+  }
+</script>
+  
+
+
+
+<link rel="canonical" href="https://budougumi0617.github.io/2018/02/15/dockerfile-for-libcontainer/" />
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/touch-icon-144-precomposed.png">
+<link rel="icon" href="/favicon.png">
+<meta name="generator" content="Hugo 0.24.1" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+
+
+    <link rel="stylesheet" href="https://budougumi0617.github.io/css/bootswatch/flatly/bootstrap.min.css">
+
+
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/style.css">
+
+
+
+
+  <link rel="stylesheet" href="https://budougumi0617.github.io/css/highlight/default.css">
+
+
+</head>
+<body class="map[name:flatly]" data-ng-app="myapp" data-ng-controller="MyController" data-ng-mouseleave="MouseLeave($event)">
+    <header id="main-header">
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        
+          
+          <a class="navbar-brand-img" href="/">
+            <img alt="My External Storage" src="/logo.png">
+            
+          </a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav navbar-right">
+            
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/" >
+                <i class='fa fa-home'></i>
+                Home
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/post/" >
+                <i class='fa fa-archive'></i>
+                Archives
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" >
+                <i class='fa fa-info-circle'></i>
+                About
+              </a>
+            </li>
+            
+            
+              
+          </ul>
+        </div>
+        
+      </div>
+    </nav>
+  </header>
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-9">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  <div class="text-center">
+
+    <h1>[Goならわかるシステムプログラミング]libcontainerで実装したLinuxコンテナを起動するためのDockerfile
+</h1>
+
+    <div class="metas">
+<small>
+  <i class="fa fa-calendar"></i>
+  <time datetime="2018-02-15">15 Feb, 2018</time>
+</small>
+
+
+  <small>
+    &middot; by budougumi0617
+  
+  &middot; Read in about 4 min
+  &middot; (1692 words)
+  &middot; 
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f15%2fdockerfile-for-libcontainer%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=%5bGo%e3%81%aa%e3%82%89%e3%82%8f%e3%81%8b%e3%82%8b%e3%82%b7%e3%82%b9%e3%83%86%e3%83%a0%e3%83%97%e3%83%ad%e3%82%b0%e3%83%a9%e3%83%9f%e3%83%b3%e3%82%b0%5dlibcontainer%e3%81%a7%e5%ae%9f%e8%a3%85%e3%81%97%e3%81%9fLinux%e3%82%b3%e3%83%b3%e3%83%86%e3%83%8a%e3%82%92%e8%b5%b7%e5%8b%95%e3%81%99%e3%82%8b%e3%81%9f%e3%82%81%e3%81%aeDockerfile&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f15%2fdockerfile-for-libcontainer%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f15%2fdockerfile-for-libcontainer%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f15%2fdockerfile-for-libcontainer%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f15%2fdockerfile-for-libcontainer%2f&amp;title=%5bGo%e3%81%aa%e3%82%89%e3%82%8f%e3%81%8b%e3%82%8b%e3%82%b7%e3%82%b9%e3%83%86%e3%83%a0%e3%83%97%e3%83%ad%e3%82%b0%e3%83%a9%e3%83%9f%e3%83%b3%e3%82%b0%5dlibcontainer%e3%81%a7%e5%ae%9f%e8%a3%85%e3%81%97%e3%81%9fLinux%e3%82%b3%e3%83%b3%e3%83%86%e3%83%8a%e3%82%92%e8%b5%b7%e5%8b%95%e3%81%99%e3%82%8b%e3%81%9f%e3%82%81%e3%81%aeDockerfile" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=%5bGo%e3%81%aa%e3%82%89%e3%82%8f%e3%81%8b%e3%82%8b%e3%82%b7%e3%82%b9%e3%83%86%e3%83%a0%e3%83%97%e3%83%ad%e3%82%b0%e3%83%a9%e3%83%9f%e3%83%b3%e3%82%b0%5dlibcontainer%e3%81%a7%e5%ae%9f%e8%a3%85%e3%81%97%e3%81%9fLinux%e3%82%b3%e3%83%b3%e3%83%86%e3%83%8a%e3%82%92%e8%b5%b7%e5%8b%95%e3%81%99%e3%82%8b%e3%81%9f%e3%82%81%e3%81%aeDockerfile&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f15%2fdockerfile-for-libcontainer%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  </small>
+
+<div class="margin-10">
+  <i class="fa fa-tags"></i>
+  
+  <a href="https://budougumi0617.github.io/tags/golang" class="label label-primary">golang</a>
+  
+  <a href="https://budougumi0617.github.io/tags/docker" class="label label-primary">docker</a>
+  
+  <a href="https://budougumi0617.github.io/tags/libcontainer" class="label label-primary">libcontainer</a>
+  
+
+
+</div>
+
+<br>
+</div>
+
+  </div>
+</div>
+
+      <div class="content">
+  
+
+<p><strong>Goならわかるシステムプログラミング ― 第20回 Go言語とコンテナ</strong><br />
+<a href="http://ascii.jp/elem/000/001/502/1502967/">http://ascii.jp/elem/000/001/502/1502967/</a></p>
+
+<p>Goならわかるシステムプログラミングの中で、GoとlibcontainerライブラリでLinuxコンテナを実装する回があるのだが、
+実装したコンテナはLinux上でしか<code>go build</code>できないし、起動もできなかった。VirtualBoxなどでも良いが、Dockerで環境を用意するようにした。</p>
+
+<p>今回作成したDockerfileなどは以下にある。</p>
+
+<p><strong>budougumi0617/gsp/ch17/container</strong><br />
+<a href="https://github.com/budougumi0617/gsp/tree/master/ch17/container">https://github.com/budougumi0617/gsp/tree/master/ch17/container</a></p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>「Goならわかるシステムプログラミング Go言語とコンテナ」のサンプルコードをmacOSやWindowsでも動かせるようにDockerfileを作成した
+
+<ul>
+<li><a href="https://github.com/budougumi0617/gsp/blob/master/ch17/container/Dockerfile">https://github.com/budougumi0617/gsp/blob/master/ch17/container/Dockerfile</a></li>
+</ul></li>
+<li>起動したAlpineコンテナの中でlibcontainerで実装した自作（写経）コンテナを起動できた</li>
+<li><code>docker run</code>するときに<code>--privileged</code>オプションをつけておくこと</li>
+</ul>
+
+<h1 id="背景">背景</h1>
+
+<p><a href="https://amazon.jp/dp/4908686033">Goならわかるシステムプログラミング</a>の「第17章 Go言語とコンテナ」では
+libcontainerライブラリを使ってGoでコンテナを実装し起動する。</p>
+
+<p><strong>Goならわかるシステムプログラミング</strong><br />
+<a href="https://amazon.jp/dp/4908686033">https://amazon.jp/dp/4908686033</a></p>
+
+<p><strong>opencontainers/runc/libcontainer</strong><br />
+<a href="https://github.com/opencontainers/runc/tree/master/libcontainer">https://github.com/opencontainers/runc/tree/master/libcontainer</a></p>
+
+<p>Web上の連載で言うと第20回になる。</p>
+
+<p><strong>Goならわかるシステムプログラミング ― 第20回 Go言語とコンテナ</strong><br />
+<a href="http://ascii.jp/elem/000/001/502/1502967/">http://ascii.jp/elem/000/001/502/1502967/</a></p>
+
+<p>ただし、Linux上でしか起動しないコンテナなのでmacOS(Windows)上では<code>go build</code>すらできない。</p>
+
+<h1 id="本中のサンプルコードを実装する">本中のサンプルコードを実装する</h1>
+
+<p>Dockerfileをそのまま利用する場合は本（連載）の中のコードを<code>_main.go</code>という名前で写経する。</p>
+
+<p><a href="https://github.com/budougumi0617/gsp/blob/master/ch17/container/_main.go">https://github.com/budougumi0617/gsp/blob/master/ch17/container/_main.go</a></p>
+
+<p>Linux上でそれなりに準備しておかないとビルドに失敗するので、<code>_</code>付きの名前で後で作成するコンテナ内でしかビルドしないようにしておいたほうが良い。<br />
+<code>build constraints</code>で<code>// +build linux</code>もつけているのだが、自分の<code>Circle CI</code>のビルドだとLinux上でのビルドのはずなのに失敗した。</p>
+
+<h1 id="dockerfileを作成する">Dockerfileを作成する</h1>
+
+<p>Dockerfileの内容は以下。alpineベースのコンテナに<code>go build</code>するときに要求されるライブラリを入れた後、ビルドするだけの単純な構成。</p>
+
+<pre><code class="language-dockerfile">FROM golang:1.9.4-alpine3.7
+
+RUN apk add --update openssl-dev pcre-dev git gcc musl-dev linux-headers sudo
+
+WORKDIR /go/src/github.com/budougumi0617/gsp/ch17/container/
+ADD _main.go ./main.go
+ADD rootfs ./rootfs/
+RUN go get -v .
+RUN go build main.go
+CMD echo &quot;test&quot;
+</code></pre>
+
+<p><code>alpine</code>コンテナだとインクルードファイルなどが入っていないのでもろもろ<code>apk add</code>しておく。<br />
+また、コンテナに入って自作コンテナでいろいろコマンドを実行するのが目的のためエントリはただの<code>echo</code>にしてある。</p>
+
+<p>本（連載）に記載されている<code>rootfs</code>ディレクトリにalpineコンテナから抽出したもろもろのファイルを入れる作業は
+Dockerfile外で行う必要があるので注意。</p>
+
+<pre><code class="language-bash">$ docker pull alpine
+$ docker run --name alpine alpine
+$ docker export alpine &gt; alpine.tar
+$ docker rm alpine
+$ mkdir rootfs
+$ tar -C rootfs -xvf alpine.tar
+</code></pre>
+
+<p>これで自作（写経）コンテナを実行してみる準備ができた。</p>
+
+<h1 id="docker-runするときは-privilegedオプションをつけること">docker runするときは&ndash;privilegedオプションをつけること</h1>
+
+<p><code>docker build</code>の中で<code>go build</code>するので、あとはコンテナに入って実際に起動してみる。<br />
+ここでオプションをつけずにそのまま<code>docker run</code>をすると以下のようなエラーで終了してしまう。</p>
+
+<pre><code class="language-bash">$ docker build -t build-container .
+$ docker run -it build-container /bin/ash
+/go/src/github.com/budougumi0617/gsp/ch17/container # sudo ./main
+WARN[0000] signal: killed
+2018/02/14 00:43:37 container_linux.go:348: starting container process caused &quot;process_linux.go:279: applying cgroup configuration for process caused \&quot;mkdir /sys/fs/cgroup/cpuset/system: read-only file system\&quot;&quot;
+</code></pre>
+
+<p><code>syscall</code>する権限が不足しているのが原因らしいので、<code>--privileged</code>をつけて<code>docker run</code>する。</p>
+
+<pre><code class="language-bash">$ docker build -t build-container . --no-cache=true
+$ docker run --privileged -it build-container /bin/ash
+/go/src/github.com/budougumi0617/gsp/ch17/container # ./main
+/bin/sh: can't access tty; job control turned off
+/ # /bin/hostname
+testing
+/ # exit
+/go/src/github.com/budougumi0617/gsp/ch17/container # exit
+</code></pre>
+
+<p>ちょっとTTYの設定は出来ていないが、ちゃんと実行することができた。</p>
+
+<h1 id="おわりに">おわりに</h1>
+
+<p>alpine linuxベースのコンテナを実行させるためにalpine linuxコンテナを作るというやや本末転倒気味のことしているのはご愛嬌。<br />
+頑張れば作業工程の<code>alpine.tar</code>を作る工程は削除できそうなのだが、目的は達成したのでここまでにしておく。<br />
+去年の今頃Dockerの本一冊読んだのだが、Dockerfileの書き方をすっかり忘れていた。やはり日頃の継続と反復が大事である。</p>
+
+<h1 id="参考">参考</h1>
+
+<p><strong>Goならわかるシステムプログラミング</strong><br />
+<a href="https://amazon.jp/dp/4908686033">https://amazon.jp/dp/4908686033</a></p>
+
+<p><strong>Goならわかるシステムプログラミング ― 第20回 Go言語とコンテナ</strong><br />
+<a href="http://ascii.jp/elem/000/001/502/1502967/">http://ascii.jp/elem/000/001/502/1502967/</a></p>
+
+<p><strong>budougumi0617/gsp/ch17/container</strong><br />
+<a href="https://github.com/budougumi0617/gsp/tree/master/ch17/container">https://github.com/budougumi0617/gsp/tree/master/ch17/container</a></p>
+
+<p><strong>opencontainers/runc/libcontainer</strong><br />
+<a href="https://github.com/opencontainers/runc/tree/master/libcontainer">https://github.com/opencontainers/runc/tree/master/libcontainer</a></p>
+
+<p><strong>GoのBuild Constraintsに関するメモ</strong><br />
+<a href="https://qiita.com/hnw/items/7dd4d10e837158d6156a">https://qiita.com/hnw/items/7dd4d10e837158d6156a</a></p>
+
+<p><strong>Docker privileged オプションについて</strong><br />
+<a href="https://qiita.com/muddydixon/items/d2982ab0846002bf3ea8">https://qiita.com/muddydixon/items/d2982ab0846002bf3ea8</a></p>
+
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4908686033&linkId=5b2bafbf1cb17ffa1d3a6d19e3e12e23"></iframe>
+
+</div>
+
+
+      <footer>
+  
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f15%2fdockerfile-for-libcontainer%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=%5bGo%e3%81%aa%e3%82%89%e3%82%8f%e3%81%8b%e3%82%8b%e3%82%b7%e3%82%b9%e3%83%86%e3%83%a0%e3%83%97%e3%83%ad%e3%82%b0%e3%83%a9%e3%83%9f%e3%83%b3%e3%82%b0%5dlibcontainer%e3%81%a7%e5%ae%9f%e8%a3%85%e3%81%97%e3%81%9fLinux%e3%82%b3%e3%83%b3%e3%83%86%e3%83%8a%e3%82%92%e8%b5%b7%e5%8b%95%e3%81%99%e3%82%8b%e3%81%9f%e3%82%81%e3%81%aeDockerfile&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f15%2fdockerfile-for-libcontainer%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f15%2fdockerfile-for-libcontainer%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f15%2fdockerfile-for-libcontainer%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f15%2fdockerfile-for-libcontainer%2f&amp;title=%5bGo%e3%81%aa%e3%82%89%e3%82%8f%e3%81%8b%e3%82%8b%e3%82%b7%e3%82%b9%e3%83%86%e3%83%a0%e3%83%97%e3%83%ad%e3%82%b0%e3%83%a9%e3%83%9f%e3%83%b3%e3%82%b0%5dlibcontainer%e3%81%a7%e5%ae%9f%e8%a3%85%e3%81%97%e3%81%9fLinux%e3%82%b3%e3%83%b3%e3%83%86%e3%83%8a%e3%82%92%e8%b5%b7%e5%8b%95%e3%81%99%e3%82%8b%e3%81%9f%e3%82%81%e3%81%aeDockerfile" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=%5bGo%e3%81%aa%e3%82%89%e3%82%8f%e3%81%8b%e3%82%8b%e3%82%b7%e3%82%b9%e3%83%86%e3%83%a0%e3%83%97%e3%83%ad%e3%82%b0%e3%83%a9%e3%83%9f%e3%83%b3%e3%82%b0%5dlibcontainer%e3%81%a7%e5%ae%9f%e8%a3%85%e3%81%97%e3%81%9fLinux%e3%82%b3%e3%83%b3%e3%83%86%e3%83%8a%e3%82%92%e8%b5%b7%e5%8b%95%e3%81%99%e3%82%8b%e3%81%9f%e3%82%81%e3%81%aeDockerfile&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f15%2fdockerfile-for-libcontainer%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      
+  
+    <nav><ul class="pager">
+    
+        <li class="previous">
+          <a href="https://budougumi0617.github.io/2018/02/12/gcp-bookshelf-on-kubernetes-engine/" title="[Go]Google Kubernetes Engineのチュートリアルをやるときに注意すること">
+            <span aria-hidden="true">&larr;</span>Previous
+          </a>
+        </li>
+    
+
+    
+    </ul> </nav>
+  
+
+
+</div>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+    
+    
+    if (window.location.hostname == "localhost")
+      return;
+
+    var dsq = document.createElement('script'); dsq.async = true; dsq.type = 'text/javascript';
+    dsq.src = '//http-budougumi0617-github-io.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
+</footer>
+
+    </div>
+    
+      <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+        <div>
+  
+
+    <div class="section">
+      <header><div class="title"><b>Latest Posts</b></div></header>
+      <div class="content">
+        <ul>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/15/dockerfile-for-libcontainer/">[Goならわかるシステムプログラミング]libcontainerで実装したLinuxコンテナを起動するためのDockerfile</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/12/gcp-bookshelf-on-kubernetes-engine/">[Go]Google Kubernetes Engineのチュートリアルをやるときに注意すること</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/05/gcpug-container-builder-day/">GCPUG Tokyo Container Builder Day February 2018 #gcpug 参加メモ</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/03/grpc-gateway-for-rest-api/">[Go]gRPC GatewayでgRPCに対するREST APIを自動生成する</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/03/kubernetes-with-availability-cndjp3/">[k8s]Cloud Native Developers JP 第3回勉強会 #cndjp3 参加メモ</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/31/redashmeetup-hands-on/">Redash Meetup #0.1 - Redash 初心者向けハンズオン #redashmeetup</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/31/golangtokyo-12/">[Go]golang.tokyo #12 参加メモ #golangtokyo</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/21/try-gomock-on-grpc-go/">[Go]gomockを使ったgRPCのテスト</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/17/hello-aws-lambda-go/">AWS Lambda Go早めぐり(LambdaContext, Logging, Error...)</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/16/review-the-best-way-to-rest/">[書評]世界のエリートがやっている 最高の休息法を読んだ</a>
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>category</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/categories/go">go</a></li><li><a href="/categories/report">report</a></li><li><a href="/categories/c-sharp">c-sharp</a></li><li><a href="/categories/grpc">grpc</a></li><li><a href="/categories/dot-net">dot-net</a></li><li><a href="/categories/review">review</a></li><li><a href="/categories/xamarin.mac">xamarin.mac</a></li><li><a href="/categories/devops">devops</a></li><li><a href="/categories/gcp">gcp</a></li><li><a href="/categories/kubernetes">kubernetes</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>tag</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/tags/golang">golang</a></li><li><a href="/tags/grpc">grpc</a></li><li><a href="/tags/k8s">k8s</a></li><li><a href="/tags/book">book</a></li><li><a href="/tags/cndjp">cndjp</a></li><li><a href="/tags/xamarin">xamarin</a></li><li><a href="/tags/appveyor">appveyor</a></li><li><a href="/tags/codecov">codecov</a></li><li><a href="/tags/debug">debug</a></li><li><a href="/tags/devops">devops</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+    
+
+</div>
+
+      </div>
+    
+  </div>
+</div>
+    
+<footer class="footer hidden-print">
+  <div class="container">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+           <div class="pull-left">
+  <a class="toplink" href="javascript:" id="return-to-top">back to top</a>
+</div>
+<div class="pull-right">
+
+</div>
+
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+              
+    
+<div class="container footline">
+    <small>
+  Copyright&copy; <a href='/2017/07/11/about-this-site/'>budougumi0617</a>
+
+</small>
+</div>
+
+
+    
+
+
+        </div>
+    </div>
+  </div>
+</footer>
+
+    
+
+<script src="//s3.amazonaws.com/mailmunch/static/site.js" id="mailmunch-script" data-mailmunch-site-id="" async="async"></script>
+
+
+
+<script src="//load.sumome.com/" data-sumo-site-id="" async="async"></script>
+
+<script src="https://budougumi0617.github.io/js/jquery.min.js"></script>
+<script src="https://budougumi0617.github.io/js/bootstrap.min.js"></script>
+
+
+<script src="https://budougumi0617.github.io/js/highlight.pack.js"></script>
+<script src="https://budougumi0617.github.io/js/site.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+<script>
+var ENABLE_POPOVER = "", 
+EXPIRE_COOKIE = "", 
+SHOW_MODAL_TIMEOUT = "", 
+MOUSE_LEAVE = "", 
+MODAL_SIZE = "", 
+POST_URL = "", 
+SIGNUP_HEADER = "",
+HEADER_IMAGE = "",
+IMG_DESCRIPTION = "",
+SIGNUP_TEXT = "",
+INPUT_PLACEHOLDER = "",
+SUBMIT_BUTTON = "",
+SUCCESS_MESSAGE = "",
+ERROR_MESSAGE = "",
+OPTIN = "",
+COOKIE_NAME = "",
+CONTENTLANGUAGE = ""; 
+</script>
+
+
+
+
+
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//MathJax.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//config/TeX-AMS-MML_HTMLorMML.js"></script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\[','\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    for(var all in MathJax.Hub.getAllJax()) {
+        all.SourceElement().parentNode.className += ' has-jax';
+
+    }
+});
+</script>
+
+
+
+
+
+
+  </body>
+</html>
+
