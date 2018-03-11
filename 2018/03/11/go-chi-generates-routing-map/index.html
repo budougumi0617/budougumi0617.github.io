@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>[Go]go-chiで作ったREST APIの定義からMarkdownやJSONを動的に出力する  &middot; My External Storage</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="go-chi, golang, REST, ">
+
+
+<meta property="og:title" content="[Go]go-chiで作ったREST APIの定義からMarkdownやJSONを動的に出力する  &middot; My External Storage ">
+<meta property="og:site_name" content="My External Storage"/>
+<meta property="og:url" content="https://budougumi0617.github.io/2018/03/11/go-chi-generates-routing-map/" />
+<meta property="og:locale" content="ja-jp">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="2018-03-11T19:37:16&#43;09:00" />
+<meta property="og:article:modified_time" content="2018-03-11T19:37:16&#43;09:00" />
+
+  
+    
+<meta property="og:article:tag" content="go-chi">
+    
+<meta property="og:article:tag" content="golang">
+    
+<meta property="og:article:tag" content="REST">
+    
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@budougumi0617" />
+<meta name="twitter:creator" content="@budougumi0617" />
+<meta name="twitter:title" content="[Go]go-chiで作ったREST APIの定義からMarkdownやJSONを動的に出力する" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="https://budougumi0617.github.io/2018/03/11/go-chi-generates-routing-map/" />
+<meta name="twitter:domain" content="https://budougumi0617.github.io/">
+  
+
+  
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "[Go]go-chiで作ったREST APIの定義からMarkdownやJSONを動的に出力する",
+    "author": {
+      "@type": "Person",
+      "name": "http://profiles.google.com/+?rel=author"
+    },
+    "datePublished": "2018-03-11",
+    "description": "",
+    "wordCount":  1392 
+  }
+</script>
+  
+
+
+
+<link rel="canonical" href="https://budougumi0617.github.io/2018/03/11/go-chi-generates-routing-map/" />
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/touch-icon-144-precomposed.png">
+<link rel="icon" href="/favicon.png">
+<meta name="generator" content="Hugo 0.25-DEV" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+
+
+    <link rel="stylesheet" href="https://budougumi0617.github.io/css/bootswatch/flatly/bootstrap.min.css">
+
+
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/style.css">
+
+
+
+
+  <link rel="stylesheet" href="https://budougumi0617.github.io/css/highlight/default.css">
+
+
+</head>
+<body class="map[name:flatly]" data-ng-app="myapp" data-ng-controller="MyController" data-ng-mouseleave="MouseLeave($event)">
+    <header id="main-header">
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        
+          
+          <a class="navbar-brand-img" href="/">
+            <img alt="My External Storage" src="/logo.png">
+            
+          </a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav navbar-right">
+            
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/" >
+                <i class='fa fa-home'></i>
+                Home
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/post/" >
+                <i class='fa fa-archive'></i>
+                Archives
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" >
+                <i class='fa fa-info-circle'></i>
+                About
+              </a>
+            </li>
+            
+            
+              
+          </ul>
+        </div>
+        
+      </div>
+    </nav>
+  </header>
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-9">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  <div class="text-center">
+
+    <h1>[Go]go-chiで作ったREST APIの定義からMarkdownやJSONを動的に出力する
+</h1>
+
+    <div class="metas">
+<small>
+  <i class="fa fa-calendar"></i>
+  <time datetime="2018-03-11">11 Mar, 2018</time>
+</small>
+
+
+  <small>
+    &middot; by budougumi0617
+  
+  &middot; Read in about 3 min
+  &middot; (1392 words)
+  &middot; 
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f03%2f11%2fgo-chi-generates-routing-map%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=%5bGo%5dgo-chi%e3%81%a7%e4%bd%9c%e3%81%a3%e3%81%9fREST%20API%e3%81%ae%e5%ae%9a%e7%be%a9%e3%81%8b%e3%82%89Markdown%e3%82%84JSON%e3%82%92%e5%8b%95%e7%9a%84%e3%81%ab%e5%87%ba%e5%8a%9b%e3%81%99%e3%82%8b&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f03%2f11%2fgo-chi-generates-routing-map%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f03%2f11%2fgo-chi-generates-routing-map%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f03%2f11%2fgo-chi-generates-routing-map%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f03%2f11%2fgo-chi-generates-routing-map%2f&amp;title=%5bGo%5dgo-chi%e3%81%a7%e4%bd%9c%e3%81%a3%e3%81%9fREST%20API%e3%81%ae%e5%ae%9a%e7%be%a9%e3%81%8b%e3%82%89Markdown%e3%82%84JSON%e3%82%92%e5%8b%95%e7%9a%84%e3%81%ab%e5%87%ba%e5%8a%9b%e3%81%99%e3%82%8b" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=%5bGo%5dgo-chi%e3%81%a7%e4%bd%9c%e3%81%a3%e3%81%9fREST%20API%e3%81%ae%e5%ae%9a%e7%be%a9%e3%81%8b%e3%82%89Markdown%e3%82%84JSON%e3%82%92%e5%8b%95%e7%9a%84%e3%81%ab%e5%87%ba%e5%8a%9b%e3%81%99%e3%82%8b&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f03%2f11%2fgo-chi-generates-routing-map%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  </small>
+
+<div class="margin-10">
+  <i class="fa fa-tags"></i>
+  
+  <a href="https://budougumi0617.github.io/tags/go-chi" class="label label-primary">go-chi</a>
+  
+  <a href="https://budougumi0617.github.io/tags/golang" class="label label-primary">golang</a>
+  
+  <a href="https://budougumi0617.github.io/tags/rest" class="label label-primary">REST</a>
+  
+
+
+</div>
+
+<br>
+</div>
+
+  </div>
+</div>
+
+      <div class="content">
+  
+
+<p><a href="https://github.com/go-chi/chi">https://github.com/go-chi/chi</a></p>
+
+<p><code>go-chi/chi</code>はGolangのWebサーバを作成するときに使うシンプルなHTTPルータ。<br />
+Swagger定義ではないが、ルーティングの設定をMarkdownやJSONで動的に出力することができたのでそのメモ。</p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li><code>go-chi/chi</code>でHTTPルーティングを設定した<code>chi.Router</code>を作成する。</li>
+<li>Routerの設定からMarkdownを生成すると、READMEなどに貼れるルーティングのMarkdownを生成できる。
+
+<ul>
+<li><code>docgen.MarkdownRoutesDoc(router, newMarkdownOpts())</code></li>
+</ul></li>
+<li>Routerの設定からJSON文字列を生成することもできる。
+
+<ul>
+<li><code>docgen.JSONRoutesDoc(router)</code></li>
+</ul></li>
+<li>Markdownの場合はリンクを作成する際のURL設定などいくつかのオプションが必要</li>
+<li>正直<code>goa</code>のswagger定義の自動生成などと比べるとあまり活用できる気がしないのでおまけ程度の機能…？</li>
+</ul>
+
+<p>今回試したHTTPのルーティングの定義は以下。<br />
+<a href="https://github.com/budougumi0617/simple-json-api-by-chi/blob/master/router.go">https://github.com/budougumi0617/simple-json-api-by-chi/blob/master/router.go</a></p>
+
+<p>実際に出力したMarkdownは以下にある。<br />
+<a href="https://github.com/budougumi0617/simple-json-api-by-chi#docgen-result-formated-by-markdown">https://github.com/budougumi0617/simple-json-api-by-chi#docgen-result-formated-by-markdown</a></p>
+
+<p>また、JSON文字列として出力した結果は以下。<br />
+<a href="https://github.com/budougumi0617/simple-json-api-by-chi#docgen-result-formated-by-json">https://github.com/budougumi0617/simple-json-api-by-chi#docgen-result-formated-by-json</a></p>
+
+<h1 id="自動生成のやり方">自動生成のやり方</h1>
+
+<h2 id="go-chi-chi-でhttpルーティングを設定した-chi-router-を作成する"><code>go-chi/chi</code>でHTTPルーティングを設定した<code>chi.Router</code>を作成する。</h2>
+
+<p>HTTPルーティングの設定（<code>chi.Router</code>にハンドラなどを定義していく）に特に追加で行う設定はない。</p>
+
+<pre><code class="language-go">func GetTodoRouter() chi.Router {
+	router := chi.NewRouter()
+	// Set output for logging.
+	middleware.DefaultLogger = middleware.RequestLogger(
+		&amp;middleware.DefaultLogFormatter{
+			Logger: newLogger(),
+		},
+	)
+	router.Use(middleware.Logger)
+	router.HandleFunc(&quot;/*&quot;, Index) // WildCard.
+	router.HandleFunc(&quot;/todos&quot;, TodoIndex)
+	router.HandleFunc(&quot;/todos/{todoID}&quot;, TodoShow)
+	router.Post(&quot;/todos&quot;, TodoCreate)
+	return router
+}
+</code></pre>
+
+<h2 id="routerからmarkdownを生成する">RouterからMarkdownを生成する</h2>
+
+<p>Markdownを生成する場合はオプションを指定しておく必要がある。<br />
+<a href="https://github.com/go-chi/docgen/blob/ac43d9a63f3b58b1e82922411d2de365d896ee72/markdown.go#L22-L37">https://github.com/go-chi/docgen/blob/ac43d9a63f3b58b1e82922411d2de365d896ee72/markdown.go#L22-L37</a></p>
+
+<pre><code>type MarkdownOpts struct {
+	// ProjectPath is the base Go import path of the project
+	ProjectPath string
+
+	// Intro text included at the top of the generated markdown file.
+	Intro string
+
+	// ForceRelativeLinks to be relative even if they're not on github
+	ForceRelativeLinks bool
+
+	// URLMap allows specifying a map of package import paths to their link sources
+	// Used for mapping vendored dependencies to their upstream sources
+	// For example:
+	// map[string]string{&quot;github.com/my/package/vendor/go-chi/chi/&quot;: &quot;https://github.com/go-chi/chi/blob/master/&quot;}
+	URLMap map[string]string
+}
+</code></pre>
+
+<p><code>MarkdownOpts</code>を生成したあとは<code>docgen.MarkdownRoutesDoc(r chi.Router, opts docgen.MarkdownOpts) string</code>を呼ぶだけだ。
+以下のようなMarkdown文字列が得られる</p>
+
+<pre><code class="language-markdown"># github.com/budougumi0617/simple-json-api-by-chi
+
+Sample JSON API server by go-chi.
+
+## Routes
+
+&lt;details&gt;
+&lt;summary&gt;`/*`&lt;/summary&gt;
+
+- [Logger](https://github.com/go-chi/chi/blob/master/middleware/logger.go#L30)
+- **/***
+	- _*_
+		- [main.Index](/handler.go#L16)
+...
+</code></pre>
+
+<p>実際に使うと以下のようになる。</p>
+
+<hr />
+
+<h1 id="github-com-budougumi0617-simple-json-api-by-chi">github.com/budougumi0617/simple-json-api-by-chi</h1>
+
+<p>Sample JSON API server by go-chi.</p>
+
+<h2 id="routes">Routes</h2>
+
+<p><details>
+<summary><code>/*</code></summary></p>
+
+<ul>
+<li><a href="https://github.com/go-chi/chi/blob/master/middleware/logger.go#L30">Logger</a></li>
+<li><strong>/</strong>*
+
+<ul>
+<li><em>*</em>
+
+<ul>
+<li><a href="/handler.go#L16">main.Index</a></li>
+</ul></li>
+</ul></li>
+</ul>
+
+<p></details>
+<details>
+<summary><code>/todos</code></summary></p>
+
+<ul>
+<li><a href="https://github.com/go-chi/chi/blob/master/middleware/logger.go#L30">Logger</a></li>
+<li><strong>/todos</strong>
+
+<ul>
+<li><em>POST</em>
+
+<ul>
+<li><a href="/handler.go#L36">main.TodoCreate</a></li>
+</ul></li>
+<li><em>*</em>
+
+<ul>
+<li><a href="/handler.go#L21">main.TodoIndex</a></li>
+</ul></li>
+</ul></li>
+</ul>
+
+<p></details>
+<details>
+<summary><code>/todos/{todoID}</code></summary></p>
+
+<ul>
+<li><a href="https://github.com/go-chi/chi/blob/master/middleware/logger.go#L30">Logger</a></li>
+<li><strong>/todos/{todoID}</strong>
+
+<ul>
+<li><em>*</em>
+
+<ul>
+<li><a href="/handler.go#L30">main.TodoShow</a></li>
+</ul></li>
+</ul></li>
+</ul>
+
+<p></details></p>
+
+<p>Total # of routes: 3</p>
+
+<hr />
+
+<p>謎技術？でMarkdownなのに折りたたみなどを生成できる。GitHubのREADMEとしてもちゃんと認識できていた。<br />
+要素が意味する説明は生成されないので、予めコンテキストを共有している人同士じゃないと意味が無いかも。<br />
+GitHubのREADMEなどに貼ると、各ハンドラ定義の実装へのリンクがちゃんと貼れるのは良い感じ。(<code>main.TodoShow</code>など)</p>
+
+<h1 id="routerからjsonを生成する">RouterからJSONを生成する</h1>
+
+<p>JSONの場合は<code>docgen.JSONRoutesDoc(r chi.Router) string</code>を呼ぶだけで以下のようなJSON文字列が出力される。</p>
+
+<pre><code class="language-json">  &quot;router&quot;: {
+    &quot;middlewares&quot;: [
+      {
+        &quot;pkg&quot;: &quot;github.com/budougumi0617/simple-json-api-by-chi/vendor/github.com/go-chi/chi/middleware&quot;,
+        &quot;func&quot;: &quot;Logger&quot;,
+        &quot;comment&quot;: &quot;Logger is a mi...ware pkg.\n&quot;,
+        &quot;file&quot;: &quot;github.com/budougumi0617/simple-json-api-by-chi/vendor/github.com/go-chi/chi/middleware/logger.go&quot;,
+        &quot;line&quot;: 30
+      }
+    ],
+    &quot;routes&quot;: {
+      &quot;/*&quot;: {
+        &quot;handlers&quot;: {
+          &quot;*&quot;: {
+            &quot;middlewares&quot;: [],
+            &quot;method&quot;: &quot;*&quot;,
+            &quot;pkg&quot;: &quot;&quot;,
+            &quot;func&quot;: &quot;main.Index&quot;,
+            &quot;comment&quot;: &quot;Index returns simple response.\n&quot;,
+            &quot;file&quot;: &quot;github.com/budougumi0617/simple-json-api-by-chi/handler.go&quot;,
+            &quot;line&quot;: 16
+          }
+        }
+      },
+      &quot;/todos&quot;: {
+        ...
+</code></pre>
+
+<p>vendorディレクトリに入っているmiddlewareを使った場合、pkgがそのままvendorのPATHになってしまっている。<br />
+（Markdownの場合はオプションでマッピングすることができる。）</p>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>今回のサンプルコードは以下のリポジトリにある。</p>
+
+<p><a href="https://github.com/budougumi0617/simple-json-api-by-chi">https://github.com/budougumi0617/simple-json-api-by-chi</a></p>
+
+<p>MarkdownでRESTマッピングを生成してもメモレベルかもしれないが、自動生成したかったら<code>goa</code>なのかなーと思っていたので、ありがたい。<br />
+ドキュメントを作るためにはまず<code>chi.Router</code>を構築しなければいけないのはご愛嬌…。<br />
+もっとちゃんと使いたかったら自分でJSONからHTMLなどに変換するコンバータを作ったほうがよいのかな？</p>
+
+</div>
+
+
+      <footer>
+  
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f03%2f11%2fgo-chi-generates-routing-map%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=%5bGo%5dgo-chi%e3%81%a7%e4%bd%9c%e3%81%a3%e3%81%9fREST%20API%e3%81%ae%e5%ae%9a%e7%be%a9%e3%81%8b%e3%82%89Markdown%e3%82%84JSON%e3%82%92%e5%8b%95%e7%9a%84%e3%81%ab%e5%87%ba%e5%8a%9b%e3%81%99%e3%82%8b&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f03%2f11%2fgo-chi-generates-routing-map%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f03%2f11%2fgo-chi-generates-routing-map%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f03%2f11%2fgo-chi-generates-routing-map%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f03%2f11%2fgo-chi-generates-routing-map%2f&amp;title=%5bGo%5dgo-chi%e3%81%a7%e4%bd%9c%e3%81%a3%e3%81%9fREST%20API%e3%81%ae%e5%ae%9a%e7%be%a9%e3%81%8b%e3%82%89Markdown%e3%82%84JSON%e3%82%92%e5%8b%95%e7%9a%84%e3%81%ab%e5%87%ba%e5%8a%9b%e3%81%99%e3%82%8b" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=%5bGo%5dgo-chi%e3%81%a7%e4%bd%9c%e3%81%a3%e3%81%9fREST%20API%e3%81%ae%e5%ae%9a%e7%be%a9%e3%81%8b%e3%82%89Markdown%e3%82%84JSON%e3%82%92%e5%8b%95%e7%9a%84%e3%81%ab%e5%87%ba%e5%8a%9b%e3%81%99%e3%82%8b&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f03%2f11%2fgo-chi-generates-routing-map%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      
+  
+    <nav><ul class="pager">
+    
+        <li class="previous">
+          <a href="https://budougumi0617.github.io/2018/03/05/gcp-cloud-study-jam/" title="GCPハンズオン( #CloudStudyJam )に参加した">
+            <span aria-hidden="true">&larr;</span>Previous
+          </a>
+        </li>
+    
+
+    
+    </ul> </nav>
+  
+
+
+</div>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+    
+    
+    if (window.location.hostname == "localhost")
+      return;
+
+    var dsq = document.createElement('script'); dsq.async = true; dsq.type = 'text/javascript';
+    dsq.src = '//http-budougumi0617-github-io.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
+</footer>
+
+    </div>
+    
+      <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+        <div>
+  
+
+    <div class="section">
+      <header><div class="title"><b>Latest Posts</b></div></header>
+      <div class="content">
+        <ul>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/03/11/go-chi-generates-routing-map/">[Go]go-chiで作ったREST APIの定義からMarkdownやJSONを動的に出力する</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/03/05/gcp-cloud-study-jam/">GCPハンズオン( #CloudStudyJam )に参加した</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/26/review-go-system-programming/">[書評]Goならわかるシステムプログラミングを読んだ</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/22/go110party/">Go 1.10 Release Party in Tokyo参加メモ #go110party</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/15/dockerfile-for-libcontainer/">[Goならわかるシステムプログラミング]libcontainerで実装したLinuxコンテナを起動するためのDockerfile</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/12/gcp-bookshelf-on-kubernetes-engine/">[Go]Google Kubernetes Engineのチュートリアルをやるときに注意すること</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/05/gcpug-container-builder-day/">GCPUG Tokyo Container Builder Day February 2018 #gcpug 参加メモ</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/03/grpc-gateway-for-rest-api/">[Go]gRPC GatewayでgRPCに対するREST APIを自動生成する</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/03/kubernetes-with-availability-cndjp3/">[k8s]Cloud Native Developers JP 第3回勉強会 #cndjp3 参加メモ</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/01/31/redashmeetup-hands-on/">Redash Meetup #0.1 - Redash 初心者向けハンズオン #redashmeetup</a>
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>category</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/categories/go">go</a></li><li><a href="/categories/report">report</a></li><li><a href="/categories/c-sharp">c-sharp</a></li><li><a href="/categories/grpc">grpc</a></li><li><a href="/categories/review">review</a></li><li><a href="/categories/dot-net">dot-net</a></li><li><a href="/categories/gcp">gcp</a></li><li><a href="/categories/xamarin.mac">xamarin.mac</a></li><li><a href="/categories/devops">devops</a></li><li><a href="/categories/kubernetes">kubernetes</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>tag</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/tags/golang">golang</a></li><li><a href="/tags/grpc">grpc</a></li><li><a href="/tags/book">book</a></li><li><a href="/tags/k8s">k8s</a></li><li><a href="/tags/cndjp">cndjp</a></li><li><a href="/tags/gcp">gcp</a></li><li><a href="/tags/xamarin">xamarin</a></li><li><a href="/tags/appveyor">appveyor</a></li><li><a href="/tags/codecov">codecov</a></li><li><a href="/tags/debug">debug</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+    
+
+</div>
+
+      </div>
+    
+  </div>
+</div>
+    
+<footer class="footer hidden-print">
+  <div class="container">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+           <div class="pull-left">
+  <a class="toplink" href="javascript:" id="return-to-top">back to top</a>
+</div>
+<div class="pull-right">
+
+</div>
+
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+              
+    
+<div class="container footline">
+    <small>
+  Copyright&copy; <a href='/2017/07/11/about-this-site/'>budougumi0617</a>
+
+</small>
+</div>
+
+
+    
+
+
+        </div>
+    </div>
+  </div>
+</footer>
+
+    
+
+<script src="//s3.amazonaws.com/mailmunch/static/site.js" id="mailmunch-script" data-mailmunch-site-id="" async="async"></script>
+
+
+
+<script src="//load.sumome.com/" data-sumo-site-id="" async="async"></script>
+
+<script src="https://budougumi0617.github.io/js/jquery.min.js"></script>
+<script src="https://budougumi0617.github.io/js/bootstrap.min.js"></script>
+
+
+<script src="https://budougumi0617.github.io/js/highlight.pack.js"></script>
+<script src="https://budougumi0617.github.io/js/site.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+<script>
+var ENABLE_POPOVER = "", 
+EXPIRE_COOKIE = "", 
+SHOW_MODAL_TIMEOUT = "", 
+MOUSE_LEAVE = "", 
+MODAL_SIZE = "", 
+POST_URL = "", 
+SIGNUP_HEADER = "",
+HEADER_IMAGE = "",
+IMG_DESCRIPTION = "",
+SIGNUP_TEXT = "",
+INPUT_PLACEHOLDER = "",
+SUBMIT_BUTTON = "",
+SUCCESS_MESSAGE = "",
+ERROR_MESSAGE = "",
+OPTIN = "",
+COOKIE_NAME = "",
+CONTENTLANGUAGE = ""; 
+</script>
+
+
+
+
+
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//MathJax.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//config/TeX-AMS-MML_HTMLorMML.js"></script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\[','\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    for(var all in MathJax.Hub.getAllJax()) {
+        all.SourceElement().parentNode.className += ' has-jax';
+
+    }
+});
+</script>
+
+
+
+
+
+
+  </body>
+</html>
+
