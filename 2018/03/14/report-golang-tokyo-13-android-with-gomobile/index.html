@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>[Go]golang.tokyo #13 - Macでハンズオンアプリを動かすまでに必要だったこと #golangtokyo  &middot; My External Storage</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="golang, gomobile, android, golangtokyo, ">
+
+
+<meta property="og:title" content="[Go]golang.tokyo #13 - Macでハンズオンアプリを動かすまでに必要だったこと #golangtokyo  &middot; My External Storage ">
+<meta property="og:site_name" content="My External Storage"/>
+<meta property="og:url" content="https://budougumi0617.github.io/2018/03/14/report-golang-tokyo-13-android-with-gomobile/" />
+<meta property="og:locale" content="ja-jp">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="2018-03-14T09:46:52&#43;09:00" />
+<meta property="og:article:modified_time" content="2018-03-14T09:46:52&#43;09:00" />
+
+  
+    
+<meta property="og:article:tag" content="golang">
+    
+<meta property="og:article:tag" content="gomobile">
+    
+<meta property="og:article:tag" content="android">
+    
+<meta property="og:article:tag" content="golangtokyo">
+    
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@budougumi0617" />
+<meta name="twitter:creator" content="@budougumi0617" />
+<meta name="twitter:title" content="[Go]golang.tokyo #13 - Macでハンズオンアプリを動かすまでに必要だったこと #golangtokyo" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="https://budougumi0617.github.io/2018/03/14/report-golang-tokyo-13-android-with-gomobile/" />
+<meta name="twitter:domain" content="https://budougumi0617.github.io/">
+  
+
+  
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "[Go]golang.tokyo #13 - Macでハンズオンアプリを動かすまでに必要だったこと #golangtokyo",
+    "author": {
+      "@type": "Person",
+      "name": "http://profiles.google.com/+?rel=author"
+    },
+    "datePublished": "2018-03-14",
+    "description": "",
+    "wordCount": 2311
+  }
+</script>
+  
+
+
+
+<link rel="canonical" href="https://budougumi0617.github.io/2018/03/14/report-golang-tokyo-13-android-with-gomobile/" />
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/touch-icon-144-precomposed.png">
+<link rel="icon" href="/favicon.png">
+<meta name="generator" content="Hugo 0.24.1" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+
+
+    <link rel="stylesheet" href="https://budougumi0617.github.io/css/bootswatch/flatly/bootstrap.min.css">
+
+
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/style.css">
+
+
+
+
+  <link rel="stylesheet" href="https://budougumi0617.github.io/css/highlight/default.css">
+
+
+</head>
+<body class="map[name:flatly]" data-ng-app="myapp" data-ng-controller="MyController" data-ng-mouseleave="MouseLeave($event)">
+    <header id="main-header">
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        
+          
+          <a class="navbar-brand-img" href="/">
+            <img alt="My External Storage" src="/logo.png">
+            
+          </a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav navbar-right">
+            
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/" >
+                <i class='fa fa-home'></i>
+                Home
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/post/" >
+                <i class='fa fa-archive'></i>
+                Archives
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" >
+                <i class='fa fa-info-circle'></i>
+                About
+              </a>
+            </li>
+            
+            
+              
+          </ul>
+        </div>
+        
+      </div>
+    </nav>
+  </header>
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-9">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  <div class="text-center">
+
+    <h1>[Go]golang.tokyo #13 - Macでハンズオンアプリを動かすまでに必要だったこと #golangtokyo
+</h1>
+
+    <div class="metas">
+<small>
+  <i class="fa fa-calendar"></i>
+  <time datetime="2018-03-14">14 Mar, 2018</time>
+</small>
+
+
+  <small>
+    &middot; by budougumi0617
+  
+  &middot; Read in about 5 min
+  &middot; (2311 words)
+  &middot; 
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f03%2f14%2freport-golang-tokyo-13-android-with-gomobile%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=%5bGo%5dgolang.tokyo%20%2313%20-%20Mac%e3%81%a7%e3%83%8f%e3%83%b3%e3%82%ba%e3%82%aa%e3%83%b3%e3%82%a2%e3%83%97%e3%83%aa%e3%82%92%e5%8b%95%e3%81%8b%e3%81%99%e3%81%be%e3%81%a7%e3%81%ab%e5%bf%85%e8%a6%81%e3%81%a0%e3%81%a3%e3%81%9f%e3%81%93%e3%81%a8%20%23golangtokyo&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f03%2f14%2freport-golang-tokyo-13-android-with-gomobile%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f03%2f14%2freport-golang-tokyo-13-android-with-gomobile%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f03%2f14%2freport-golang-tokyo-13-android-with-gomobile%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f03%2f14%2freport-golang-tokyo-13-android-with-gomobile%2f&amp;title=%5bGo%5dgolang.tokyo%20%2313%20-%20Mac%e3%81%a7%e3%83%8f%e3%83%b3%e3%82%ba%e3%82%aa%e3%83%b3%e3%82%a2%e3%83%97%e3%83%aa%e3%82%92%e5%8b%95%e3%81%8b%e3%81%99%e3%81%be%e3%81%a7%e3%81%ab%e5%bf%85%e8%a6%81%e3%81%a0%e3%81%a3%e3%81%9f%e3%81%93%e3%81%a8%20%23golangtokyo" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=%5bGo%5dgolang.tokyo%20%2313%20-%20Mac%e3%81%a7%e3%83%8f%e3%83%b3%e3%82%ba%e3%82%aa%e3%83%b3%e3%82%a2%e3%83%97%e3%83%aa%e3%82%92%e5%8b%95%e3%81%8b%e3%81%99%e3%81%be%e3%81%a7%e3%81%ab%e5%bf%85%e8%a6%81%e3%81%a0%e3%81%a3%e3%81%9f%e3%81%93%e3%81%a8%20%23golangtokyo&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f03%2f14%2freport-golang-tokyo-13-android-with-gomobile%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  </small>
+
+<div class="margin-10">
+  <i class="fa fa-tags"></i>
+  
+  <a href="https://budougumi0617.github.io/tags/golang" class="label label-primary">golang</a>
+  
+  <a href="https://budougumi0617.github.io/tags/gomobile" class="label label-primary">gomobile</a>
+  
+  <a href="https://budougumi0617.github.io/tags/android" class="label label-primary">android</a>
+  
+  <a href="https://budougumi0617.github.io/tags/golangtokyo" class="label label-primary">golangtokyo</a>
+  
+
+
+</div>
+
+<br>
+</div>
+
+  </div>
+</div>
+
+      <div class="content">
+  
+
+<p>golang.tokyo #13の参加メモ。今回のgolang.tokyoはgomobileハンズオンだった。
+自分は今回半分運営お手伝いとして参加していて、前半にあった技術の説明は聴けていないので、ハンズオンでデモアプリを動かすまでに必要だったことをメモしておく。</p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>URL</td>
+<td><a href="https://golangtokyo.connpass.com/event/79039/">https://golangtokyo.connpass.com/event/79039/</a></td>
+</tr>
+
+<tr>
+<td>会場</td>
+<td>株式会社Gunosy(六本木ヒルズ森タワー25階)</td>
+</tr>
+
+<tr>
+<td>日時</td>
+<td>2018/03/09(金)19:10 〜 22:00</td>
+</tr>
+
+<tr>
+<td>資料</td>
+<td><a href="https://docs.google.com/presentation/d/1rHwNMweNlqohkAsUlAwWEZx5wxcRm10KR1p5UxTPaaA/edit#slide=id.p">gomobileハンズオン</a></td>
+</tr>
+</tbody>
+</table>
+
+<h1 id="gomobileとは">gomobileとは</h1>
+
+<p><a href="https://github.com/golang/go/wiki/Mobile">https://github.com/golang/go/wiki/Mobile</a></p>
+
+<p>gomobileはGoのコードをAndroid(Java)/iOS(Obje-C/Swift)向けのライブラリとしてビルドするツール。</p>
+
+<h1 id="ハンズオンの内容">ハンズオンの内容</h1>
+
+<p><a href="https://github.com/golangtokyo/gomopost">https://github.com/golangtokyo/gomopost</a></p>
+
+<p>今回はGoで書かれたチャットクライアントAPIライブラリをAndroidから呼ぶハンズオン内容だった。
+基本的にコードは全て用意されていて、Android Studioでデバッグ実行すればよいだけなのだが、
+Androidのデバッグ環境を整えるまでがだいぶ難関だった（といってもGoは慣れているだけだったかもしれない。</p>
+
+<h1 id="前提">前提</h1>
+
+<p>自分は以下の状態のMacで臨んだ。</p>
+
+<ul>
+<li>GoのもろもろGOPATHなりPATH通しなりの環境構築は済んでいる</li>
+<li>Android関係の環境構築は当日まで一切やってない</li>
+<li>諸々の事情でMacのJavaの環境はだいぶ汚れている</li>
+</ul>
+
+<p>また、今回のハンズオンで使う<code>golangtokyo/gomopost</code>で指定されているAndroidのSDK versionは26。<br />
+<a href="https://github.com/golangtokyo/gomopost/blob/2d55f51ad3c9e30b1841452354303a053672254f/android/app/build.gradle#L3-L12">https://github.com/golangtokyo/gomopost/blob/2d55f51ad3c9e30b1841452354303a053672254f/android/app/build.gradle#L3-L12</a></p>
+
+<pre><code>android {
+    compileSdkVersion 26
+    defaultConfig {
+        applicationId &quot;io.golangtokyo.gomopost&quot;
+        minSdkVersion 22
+        targetSdkVersion 26
+        versionCode 1
+        versionName &quot;1.0&quot;
+        testInstrumentationRunner &quot;android.support.test.runner.AndroidJUnitRunner&quot;
+    }
+    ...
+</code></pre>
+
+<h1 id="android側の準備">Android側の準備</h1>
+
+<p>まずAndroid Studioの環境構築を行っておく。</p>
+
+<h2 id="android-studioのインストール">Android Studioのインストール</h2>
+
+<p>Android Studioのインストールページは以下。<br />
+<a href="https://developer.android.com/studio/install.html">https://developer.android.com/studio/install.html</a></p>
+
+<p>Install中にSDKのバージョンを選択できる場合は26(Android 8.0(Oreo))を選択しておく（自分はここで27をインストールしてしまった）。<br />
+インストールが終わったらAndroid Studioを起動してアップデートを走らせておく</p>
+
+<h2 id="android-sdk-ndkのインストール">Android SDK/NDKのインストール</h2>
+
+<p>Android Studio(Intelli J)は「Cmd+Shift+A」でいろいろ検索ができる。<br />
+起動しているAndroid Studioで「Cmd+Shift+A」を実行して検索ウインドウをだしたら「SDK Location」を検索する。<br />
+こうすると「Preference」ウインドウ内の「Android SDK」項目が開く。ここで以下を実施する</p>
+
+<ul>
+<li>あとで使うので、「SDK Location」を覚えておく（Macは「/Users/${USER}/Library/Android/sdk」みたいな感じだと思う）</li>
+<li>「SDK Platform」タブ内の「Android 8.0(Oreo)」がインストールされていなかった場合はインストールする</li>
+<li>「SDK Tools」タブ内の「NDK」をチェックしてインストールしておく</li>
+</ul>
+
+<h2 id="android-homeの設定">$ANDROID_HOMEの設定</h2>
+
+<p>$ANDROID_HOMEという環境変数が設定されている必要がある。これは前述の「SDK Location」と同じでよいので、そこに書いてあったPATHを指定しておく。</p>
+
+<pre><code class="language-bash">export ANDROID_HOME=/Users/budougumi0617/Library/Android/sdk
+</code></pre>
+
+<h2 id="エミュレーターの準備">エミュレーターの準備</h2>
+
+<p>次にデバッグ用のAndroidエミュレータを作っておく。</p>
+
+<ul>
+<li>起動しているAndroid Studioで「Cmd+Shift+A」を実行して検索ウインドウを出す</li>
+<li>「AVD Manager」を検索して「Andorid Virtual Device Manager」ウインドウを表示する</li>
+<li>「Create Virtual Device&hellip;」ボタンをクリックして、API 26のエミュレータを作成する</li>
+</ul>
+
+<p>エミュレータにはそこそこマシンスペックが必要になるので、自分は「Nexus 5X」で作った。</p>
+
+<h2 id="javaのライブラリの状態をキレイにしておく">Javaのライブラリの状態をキレイにしておく。</h2>
+
+<p>後々<code>gomobile bind</code>コマンドをするときに自分の汚れた環境だとハマった。もろもろのJARファイルを裏でごにょごにょしているらしく、
+ローカルに入っているJARファイルの権限をキレイにしておく必要がある。自分のPCでは以下を行った。</p>
+
+<pre><code class="language-bash">$ echo $USER
+budougumi0617
+$ sudo chown budougumi0617 /Library/Java/Extensions/*.jar
+</code></pre>
+
+<h2 id="goの準備">Goの準備</h2>
+
+<p>ここまでくればあとは資料とgomopostのREADME通りにやれば大丈夫。</p>
+
+<ul>
+<li><a href="https://docs.google.com/presentation/d/1rHwNMweNlqohkAsUlAwWEZx5wxcRm10KR1p5UxTPaaA/edit#slide=id.p">gomobileハンズオン</a></li>
+<li><a href="https://github.com/golangtokyo/gomopost">https://github.com/golangtokyo/gomopost</a></li>
+</ul>
+
+<pre><code class="language-bash"># gomobileをダウンロードしてくる
+$ go get -u golang.org/x/mobile/cmd/gomobile
+
+# 初期化する。$ANDROID_SDKは前述した$ANDROID_HOMEと同じなので、
+# /Users/budougumi0617/Library/Android/sdk/nkd-bundleのようになる。
+$ gomobile init -v -ndk=$ANDROID_SDK/ndk-bundle
+
+# サンプルコードをgo getしてディレクトリを移動する
+$ go get -u github.com/golangtokyo/gomopost
+$ cd $GOPATH/src/github.com/golangtokyo/gomopost
+
+# Android用のAARファイルが出来るか確認
+$ gomobile bind -v github.com/golangtokyo/gomopost
+</code></pre>
+
+<p>これでうまくいくならば、あとは以下でOK</p>
+
+<ul>
+<li><code>golangtokyo/gomopost</code>ディレクトリで<code>make</code>コマンドを実行する</li>
+<li>Android Studioを開いて、「File」メニューから「Open」で<code>golangtokyo/gomopost/android</code>ディレクトリを開く</li>
+<li>Android Studio上で右上の緑色の三角ボタンをクリック or 「Ctrl+R」を実行する</li>
+<li>作成したAPI 26のエミュレータを選んでデバッグを開始する</li>
+</ul>
+
+<p>そうすると、チャットアプリが起動するはずだ
+（チャットの動作確認にはチャットサーバが必要）</p>
+
+<h2 id="終わりに">終わりに</h2>
+
+<p>Androidはほとんど触ったことなかったので、だいぶ手間取った。
+当日はSDKまではダウンロードしていたのだが、NDK、適切なAPIレベルのSDKを再インストールでハンズオンの時間をほとんど使ってしまった。事前準備何事も大事。</p>
+
+<p>とはいえGo側の準備はそれほどめんどくさく無いはずなので、モバイルアプリ作成者がGoのライブラリを取り入れるのはそれほどハードルが高くなさそう。サーバーサイドでよく話題になるGoだが、モバイルにも活躍の場が広がっていくとおもしろいなあ</p>
+
+</div>
+
+
+      <footer>
+  
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f03%2f14%2freport-golang-tokyo-13-android-with-gomobile%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=%5bGo%5dgolang.tokyo%20%2313%20-%20Mac%e3%81%a7%e3%83%8f%e3%83%b3%e3%82%ba%e3%82%aa%e3%83%b3%e3%82%a2%e3%83%97%e3%83%aa%e3%82%92%e5%8b%95%e3%81%8b%e3%81%99%e3%81%be%e3%81%a7%e3%81%ab%e5%bf%85%e8%a6%81%e3%81%a0%e3%81%a3%e3%81%9f%e3%81%93%e3%81%a8%20%23golangtokyo&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f03%2f14%2freport-golang-tokyo-13-android-with-gomobile%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f03%2f14%2freport-golang-tokyo-13-android-with-gomobile%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f03%2f14%2freport-golang-tokyo-13-android-with-gomobile%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f03%2f14%2freport-golang-tokyo-13-android-with-gomobile%2f&amp;title=%5bGo%5dgolang.tokyo%20%2313%20-%20Mac%e3%81%a7%e3%83%8f%e3%83%b3%e3%82%ba%e3%82%aa%e3%83%b3%e3%82%a2%e3%83%97%e3%83%aa%e3%82%92%e5%8b%95%e3%81%8b%e3%81%99%e3%81%be%e3%81%a7%e3%81%ab%e5%bf%85%e8%a6%81%e3%81%a0%e3%81%a3%e3%81%9f%e3%81%93%e3%81%a8%20%23golangtokyo" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=%5bGo%5dgolang.tokyo%20%2313%20-%20Mac%e3%81%a7%e3%83%8f%e3%83%b3%e3%82%ba%e3%82%aa%e3%83%b3%e3%82%a2%e3%83%97%e3%83%aa%e3%82%92%e5%8b%95%e3%81%8b%e3%81%99%e3%81%be%e3%81%a7%e3%81%ab%e5%bf%85%e8%a6%81%e3%81%a0%e3%81%a3%e3%81%9f%e3%81%93%e3%81%a8%20%23golangtokyo&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f03%2f14%2freport-golang-tokyo-13-android-with-gomobile%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      
+  
+    <nav><ul class="pager">
+    
+        <li class="previous">
+          <a href="https://budougumi0617.github.io/2018/03/11/go-chi-generates-routing-map/" title="[Go]go-chiで作ったREST APIの定義からMarkdownやJSONを動的に出力する">
+            <span aria-hidden="true">&larr;</span>Previous
+          </a>
+        </li>
+    
+
+    
+    </ul> </nav>
+  
+
+
+</div>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+    
+    
+    if (window.location.hostname == "localhost")
+      return;
+
+    var dsq = document.createElement('script'); dsq.async = true; dsq.type = 'text/javascript';
+    dsq.src = '//http-budougumi0617-github-io.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
+</footer>
+
+    </div>
+    
+      <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+        <div>
+  
+
+    <div class="section">
+      <header><div class="title"><b>Latest Posts</b></div></header>
+      <div class="content">
+        <ul>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/03/14/report-golang-tokyo-13-android-with-gomobile/">[Go]golang.tokyo #13 - Macでハンズオンアプリを動かすまでに必要だったこと #golangtokyo</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/03/11/go-chi-generates-routing-map/">[Go]go-chiで作ったREST APIの定義からMarkdownやJSONを動的に出力する</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/03/05/gcp-cloud-study-jam/">GCPハンズオン( #CloudStudyJam )に参加した</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/26/review-go-system-programming/">[書評]Goならわかるシステムプログラミングを読んだ</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/22/go110party/">Go 1.10 Release Party in Tokyo参加メモ #go110party</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/15/dockerfile-for-libcontainer/">[Goならわかるシステムプログラミング]libcontainerで実装したLinuxコンテナを起動するためのDockerfile</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/12/gcp-bookshelf-on-kubernetes-engine/">[Go]Google Kubernetes Engineのチュートリアルをやるときに注意すること</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/05/gcpug-container-builder-day/">GCPUG Tokyo Container Builder Day February 2018 #gcpug 参加メモ</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/03/grpc-gateway-for-rest-api/">[Go]gRPC GatewayでgRPCに対するREST APIを自動生成する</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/03/kubernetes-with-availability-cndjp3/">[k8s]Cloud Native Developers JP 第3回勉強会 #cndjp3 参加メモ</a>
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>category</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/categories/go">go</a></li><li><a href="/categories/report">report</a></li><li><a href="/categories/c-sharp">c-sharp</a></li><li><a href="/categories/grpc">grpc</a></li><li><a href="/categories/review">review</a></li><li><a href="/categories/dot-net">dot-net</a></li><li><a href="/categories/gcp">gcp</a></li><li><a href="/categories/xamarin.mac">xamarin.mac</a></li><li><a href="/categories/devops">devops</a></li><li><a href="/categories/kubernetes">kubernetes</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>tag</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/tags/golang">golang</a></li><li><a href="/tags/grpc">grpc</a></li><li><a href="/tags/book">book</a></li><li><a href="/tags/k8s">k8s</a></li><li><a href="/tags/cndjp">cndjp</a></li><li><a href="/tags/gcp">gcp</a></li><li><a href="/tags/golangtokyo">golangtokyo</a></li><li><a href="/tags/xamarin">xamarin</a></li><li><a href="/tags/appveyor">appveyor</a></li><li><a href="/tags/codecov">codecov</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+    
+
+</div>
+
+      </div>
+    
+  </div>
+</div>
+    
+<footer class="footer hidden-print">
+  <div class="container">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+           <div class="pull-left">
+  <a class="toplink" href="javascript:" id="return-to-top">back to top</a>
+</div>
+<div class="pull-right">
+
+</div>
+
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+              
+    
+<div class="container footline">
+    <small>
+  Copyright&copy; <a href='/2017/07/11/about-this-site/'>budougumi0617</a>
+
+</small>
+</div>
+
+
+    
+
+
+        </div>
+    </div>
+  </div>
+</footer>
+
+    
+
+<script src="//s3.amazonaws.com/mailmunch/static/site.js" id="mailmunch-script" data-mailmunch-site-id="" async="async"></script>
+
+
+
+<script src="//load.sumome.com/" data-sumo-site-id="" async="async"></script>
+
+<script src="https://budougumi0617.github.io/js/jquery.min.js"></script>
+<script src="https://budougumi0617.github.io/js/bootstrap.min.js"></script>
+
+
+<script src="https://budougumi0617.github.io/js/highlight.pack.js"></script>
+<script src="https://budougumi0617.github.io/js/site.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+<script>
+var ENABLE_POPOVER = "", 
+EXPIRE_COOKIE = "", 
+SHOW_MODAL_TIMEOUT = "", 
+MOUSE_LEAVE = "", 
+MODAL_SIZE = "", 
+POST_URL = "", 
+SIGNUP_HEADER = "",
+HEADER_IMAGE = "",
+IMG_DESCRIPTION = "",
+SIGNUP_TEXT = "",
+INPUT_PLACEHOLDER = "",
+SUBMIT_BUTTON = "",
+SUCCESS_MESSAGE = "",
+ERROR_MESSAGE = "",
+OPTIN = "",
+COOKIE_NAME = "",
+CONTENTLANGUAGE = ""; 
+</script>
+
+
+
+
+
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//MathJax.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//config/TeX-AMS-MML_HTMLorMML.js"></script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\[','\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    for(var all in MathJax.Hub.getAllJax()) {
+        all.SourceElement().parentNode.className += ' has-jax';
+
+    }
+});
+</script>
+
+
+
+
+
+
+  </body>
+</html>
+
