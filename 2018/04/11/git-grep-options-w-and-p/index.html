@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>git grepでマッチしたワードを含んだ関数名を表示する/関数スコープ全体を表示する #git  &middot; My External Storage</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="git, grep, ">
+
+
+<meta property="og:title" content="git grepでマッチしたワードを含んだ関数名を表示する/関数スコープ全体を表示する #git  &middot; My External Storage ">
+<meta property="og:site_name" content="My External Storage"/>
+<meta property="og:url" content="https://budougumi0617.github.io/2018/04/11/git-grep-options-w-and-p/" />
+<meta property="og:locale" content="ja-jp">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="2018-04-11T08:22:22&#43;09:00" />
+<meta property="og:article:modified_time" content="2018-04-11T08:22:22&#43;09:00" />
+
+  
+    
+<meta property="og:article:tag" content="git">
+    
+<meta property="og:article:tag" content="grep">
+    
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@budougumi0617" />
+<meta name="twitter:creator" content="@budougumi0617" />
+<meta name="twitter:title" content="git grepでマッチしたワードを含んだ関数名を表示する/関数スコープ全体を表示する #git" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="https://budougumi0617.github.io/2018/04/11/git-grep-options-w-and-p/" />
+<meta name="twitter:domain" content="https://budougumi0617.github.io/">
+  
+
+  
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "git grepでマッチしたワードを含んだ関数名を表示する/関数スコープ全体を表示する #git",
+    "author": {
+      "@type": "Person",
+      "name": "http://profiles.google.com/+?rel=author"
+    },
+    "datePublished": "2018-04-11",
+    "description": "",
+    "wordCount": 1340
+  }
+</script>
+  
+
+
+
+<link rel="canonical" href="https://budougumi0617.github.io/2018/04/11/git-grep-options-w-and-p/" />
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/touch-icon-144-precomposed.png">
+<link rel="icon" href="/favicon.png">
+<meta name="generator" content="Hugo 0.24.1" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+
+
+    <link rel="stylesheet" href="https://budougumi0617.github.io/css/bootswatch/flatly/bootstrap.min.css">
+
+
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/style.css">
+
+
+
+
+  <link rel="stylesheet" href="https://budougumi0617.github.io/css/highlight/default.css">
+
+
+</head>
+<body class="map[name:flatly]" data-ng-app="myapp" data-ng-controller="MyController" data-ng-mouseleave="MouseLeave($event)">
+    <header id="main-header">
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        
+          
+          <a class="navbar-brand-img" href="/">
+            <img alt="My External Storage" src="/logo.png">
+            
+          </a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav navbar-right">
+            
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/" >
+                <i class='fa fa-home'></i>
+                Home
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/post/" >
+                <i class='fa fa-archive'></i>
+                Archives
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" >
+                <i class='fa fa-info-circle'></i>
+                About
+              </a>
+            </li>
+            
+            
+              
+          </ul>
+        </div>
+        
+      </div>
+    </nav>
+  </header>
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-9">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  <div class="text-center">
+
+    <h1>git grepでマッチしたワードを含んだ関数名を表示する/関数スコープ全体を表示する #git
+</h1>
+
+    <div class="metas">
+<small>
+  <i class="fa fa-calendar"></i>
+  <time datetime="2018-04-11">11 Apr, 2018</time>
+</small>
+
+
+  <small>
+    &middot; by budougumi0617
+  
+  &middot; Read in about 3 min
+  &middot; (1340 words)
+  &middot; 
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f04%2f11%2fgit-grep-options-w-and-p%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=git%20grep%e3%81%a7%e3%83%9e%e3%83%83%e3%83%81%e3%81%97%e3%81%9f%e3%83%af%e3%83%bc%e3%83%89%e3%82%92%e5%90%ab%e3%82%93%e3%81%a0%e9%96%a2%e6%95%b0%e5%90%8d%e3%82%92%e8%a1%a8%e7%a4%ba%e3%81%99%e3%82%8b%2f%e9%96%a2%e6%95%b0%e3%82%b9%e3%82%b3%e3%83%bc%e3%83%97%e5%85%a8%e4%bd%93%e3%82%92%e8%a1%a8%e7%a4%ba%e3%81%99%e3%82%8b%20%23git&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f04%2f11%2fgit-grep-options-w-and-p%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f04%2f11%2fgit-grep-options-w-and-p%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f04%2f11%2fgit-grep-options-w-and-p%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f04%2f11%2fgit-grep-options-w-and-p%2f&amp;title=git%20grep%e3%81%a7%e3%83%9e%e3%83%83%e3%83%81%e3%81%97%e3%81%9f%e3%83%af%e3%83%bc%e3%83%89%e3%82%92%e5%90%ab%e3%82%93%e3%81%a0%e9%96%a2%e6%95%b0%e5%90%8d%e3%82%92%e8%a1%a8%e7%a4%ba%e3%81%99%e3%82%8b%2f%e9%96%a2%e6%95%b0%e3%82%b9%e3%82%b3%e3%83%bc%e3%83%97%e5%85%a8%e4%bd%93%e3%82%92%e8%a1%a8%e7%a4%ba%e3%81%99%e3%82%8b%20%23git" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=git%20grep%e3%81%a7%e3%83%9e%e3%83%83%e3%83%81%e3%81%97%e3%81%9f%e3%83%af%e3%83%bc%e3%83%89%e3%82%92%e5%90%ab%e3%82%93%e3%81%a0%e9%96%a2%e6%95%b0%e5%90%8d%e3%82%92%e8%a1%a8%e7%a4%ba%e3%81%99%e3%82%8b%2f%e9%96%a2%e6%95%b0%e3%82%b9%e3%82%b3%e3%83%bc%e3%83%97%e5%85%a8%e4%bd%93%e3%82%92%e8%a1%a8%e7%a4%ba%e3%81%99%e3%82%8b%20%23git&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f04%2f11%2fgit-grep-options-w-and-p%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  </small>
+
+<div class="margin-10">
+  <i class="fa fa-tags"></i>
+  
+  <a href="https://budougumi0617.github.io/tags/git" class="label label-primary">git</a>
+  
+  <a href="https://budougumi0617.github.io/tags/grep" class="label label-primary">grep</a>
+  
+
+
+</div>
+
+<br>
+</div>
+
+  </div>
+</div>
+
+      <div class="content">
+  
+
+<p>git 2.17にすると使える(？)<code>-W</code>オプション(とついでに<code>-p</code>)が便利すぎたのでメモ。<br />
+2018/04/11現在、Macならば<code>brew upgrade git</code>で2.1.7に更新できる。</p>
+
+<p><strong>Git 2.17 is now available</strong><br />
+<a href="https://blog.github.com/2018-04-05-git-217-released/">https://blog.github.com/2018-04-05-git-217-released/</a></p>
+
+<p>（？なのは <a href="https://git-scm.com/docs/git-grep/">https://git-scm.com/docs/git-grep/</a> を見ると2.15とかでも使えそうな気配がするから）</p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li><code>git grep -W</code>で検索結果にマッチしたワードを含む関数スコープを全て表示してくれる</li>
+<li><code>git grep -p</code>で検索結果にマッチしたワードを含んだ関数の名前を表示してくれる</li>
+</ul>
+
+<h1 id="git-grep"><code>git grep</code></h1>
+
+<p><a href="https://git-scm.com/docs/git-grep/">https://git-scm.com/docs/git-grep/</a></p>
+
+<p><code>git grep</code>サブコマンドを使うと<code>git</code>リポジトリで管理しているファイルを対象にgrepを実行してくれる。
+(<code>git</code>で管理されない)<code>vendor</code>ディレクトリや<code>node_modules</code>ディレクトリは無視してくれるので便利。</p>
+
+<h1 id="git-grep-w-で検索結果にマッチしたワードを含む関数スコープ全体を表示する"><code>git grep -W</code>で検索結果にマッチしたワードを含む関数スコープ全体を表示する</h1>
+
+<p><code>-W</code>(<code>--function-context</code>)オプションをつかうとマッチしたワードが含まれる関数スコープを表示してくれる。</p>
+
+<pre><code>    -W, --function-context
+                          show the surrounding function
+</code></pre>
+
+<p>試した感じGoとReactはいい感じで関数を表示してくれた。</p>
+
+<p>普通にgrepするとマッチした行だけしかわからないが、</p>
+
+<pre><code>$ git grep -i hello front/src/*.js
+front/src/app.js:      &lt;h1&gt;Hello, React-golang!&lt;/h1&gt;
+</code></pre>
+
+<p><code>-W</code>オプションを使うと関数全体を表示してくれる。</p>
+
+<pre><code class="language-bash">git grep -i -W hello front/src/*.js
+front/src/app.js=class App extends React.Component {
+front/src/app.js-  render() {
+front/src/app.js-    return (
+front/src/app.js:      &lt;h1&gt;Hello, React-golang!&lt;/h1&gt;
+front/src/app.js-    );
+front/src/app.js-  }
+front/src/app.js-}
+</code></pre>
+
+<p>Goでもこんな感じ。</p>
+
+<pre><code class="language-bash">$ git grep -i -W hello backend/**/*.go
+backend/main.go=func handler(w http.ResponseWriter, r *http.Request) {
+backend/main.go-        dump, err := httputil.DumpRequest(r, true)
+backend/main.go-        if err != nil {
+backend/main.go-                http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+backend/main.go-                return
+backend/main.go-        }
+backend/main.go-        fmt.Println(string(dump))
+backend/main.go:        fmt.Fprintf(w, &quot;&lt;html&gt;&lt;body&gt;hello&lt;/body&gt;&lt;/html&gt;\n&quot;)
+backend/main.go-}
+</code></pre>
+
+<h1 id="git-grep-p-で検索結果にマッチしたワードを含む関数の名前を表示する"><code>git grep -p</code>で検索結果にマッチしたワードを含む関数の名前を表示する</h1>
+
+<p><code>-p</code>(<code>--show-function</code>)オプションを使うと関数名を表示してくれる。
+IDEがあれば関数名だけわかれば十分だし、リファクタリング対象や呼び出し元(呼び出し先)を探すときなどはこちらが便利かも。</p>
+
+<pre><code>    -p, --show-function   show a line with the function name before matches
+</code></pre>
+
+<pre><code class="language-bash">$ git grep -i -p hello front/src/*.js
+front/src/app.js=class App extends React.Component {
+front/src/app.js:      &lt;h1&gt;Hello, React-golang!&lt;/h1&gt;
+</code></pre>
+
+<p>Goでやってもこんな感じ。</p>
+
+<pre><code class="language-bash">$ git grep -i -p hello backend/**/*.go
+backend/main.go=func handler(w http.ResponseWriter, r *http.Request) {
+backend/main.go:        fmt.Fprintf(w, &quot;&lt;html&gt;&lt;body&gt;hello&lt;/body&gt;&lt;/html&gt;\n&quot;)
+</code></pre>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>@deeetさんのTweeetをみて調べてみたら今回の便利なオプションを見つけてしまった。</p>
+
+<p><blockquote class="twitter-tweet" data-partner="tweetdeck"><p lang="en" dir="ltr">Grepping with function context looks nice! / “Git 2.17 is now available | The GitHub Blog” <a href="https://t.co/OfE1RyJKNB">https://t.co/OfE1RyJKNB</a></p>&mdash; Taichi Nakashima (@deeeet) <a href="https://twitter.com/deeeet/status/982782674002571264?ref_src=twsrc%5Etfw">April 8, 2018</a></blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
+
+<p>冒頭にも書いたとおり、<code>git grep</code>コマンドはgit管理のファイルのみを検索ターゲットとしてくれる。
+逆に言うとそれくらいしかあまりメリットを感じていなかったので結局<code>egrep</code>コマンドを多用していた。
+(<code>grep</code>でも<code>--exclude-dir=&quot;.git&quot; --exclude-dir=&quot;vendor&quot;</code>とかつければ変わらない。実行履歴からコマンド引き回せばタイプもしなくて済むし)
+前後の行を見たくて今まで<code>-A</code>とか<code>-B</code>を微調整しながらgrepしていたので<code>-W</code>で一気に見れたり、関数名が拾えるのはすごい便利だ。
+関数スコープがでかいコードが混ざると<code>-W</code>がうざったくなるので、関数を小さく作るいい癖もつきそう。</p>
+
+<p>何気なく使っているツールを少し調べるだけでも生産性は上げられるなと改めて痛感。</p>
+
+<h2 id="発展途上なところ">発展途上なところ</h2>
+
+<p>とは言え、言語最適化されていないためグローバルなスコープでワードがマッチすると期待した結果とは異なる表示になる。</p>
+
+<p>たとえば、<code>-W</code>オプションを使っている時にGoのファイルの関数コメントとマッチしたときはファイル冒頭の<code>import</code>文まで結果が表示された。</p>
+
+<pre><code class="language-bash">git grep -W TODO backend/**/*.go
+backend/mysql/mysql.go=import (
+backend/mysql/mysql.go- &quot;log&quot;
+backend/mysql/mysql.go- &quot;strconv&quot;
+backend/mysql/mysql.go- &quot;time&quot;
+backend/mysql/mysql.go-
+backend/mysql/mysql.go- &quot;github.com/jinzhu/gorm&quot;
+backend/mysql/mysql.go- // database connector
+backend/mysql/mysql.go- _ &quot;github.com/jinzhu/gorm/dialects/mysql&quot;
+backend/mysql/mysql.go-)
+backend/mysql/mysql.go-
+backend/mysql/mysql.go:// Task TODO
+backend/mysql/mysql.go-// http://doc.gorm.io/models.html
+</code></pre>
+
+</div>
+
+
+      <footer>
+  
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f04%2f11%2fgit-grep-options-w-and-p%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=git%20grep%e3%81%a7%e3%83%9e%e3%83%83%e3%83%81%e3%81%97%e3%81%9f%e3%83%af%e3%83%bc%e3%83%89%e3%82%92%e5%90%ab%e3%82%93%e3%81%a0%e9%96%a2%e6%95%b0%e5%90%8d%e3%82%92%e8%a1%a8%e7%a4%ba%e3%81%99%e3%82%8b%2f%e9%96%a2%e6%95%b0%e3%82%b9%e3%82%b3%e3%83%bc%e3%83%97%e5%85%a8%e4%bd%93%e3%82%92%e8%a1%a8%e7%a4%ba%e3%81%99%e3%82%8b%20%23git&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f04%2f11%2fgit-grep-options-w-and-p%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f04%2f11%2fgit-grep-options-w-and-p%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f04%2f11%2fgit-grep-options-w-and-p%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f04%2f11%2fgit-grep-options-w-and-p%2f&amp;title=git%20grep%e3%81%a7%e3%83%9e%e3%83%83%e3%83%81%e3%81%97%e3%81%9f%e3%83%af%e3%83%bc%e3%83%89%e3%82%92%e5%90%ab%e3%82%93%e3%81%a0%e9%96%a2%e6%95%b0%e5%90%8d%e3%82%92%e8%a1%a8%e7%a4%ba%e3%81%99%e3%82%8b%2f%e9%96%a2%e6%95%b0%e3%82%b9%e3%82%b3%e3%83%bc%e3%83%97%e5%85%a8%e4%bd%93%e3%82%92%e8%a1%a8%e7%a4%ba%e3%81%99%e3%82%8b%20%23git" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=git%20grep%e3%81%a7%e3%83%9e%e3%83%83%e3%83%81%e3%81%97%e3%81%9f%e3%83%af%e3%83%bc%e3%83%89%e3%82%92%e5%90%ab%e3%82%93%e3%81%a0%e9%96%a2%e6%95%b0%e5%90%8d%e3%82%92%e8%a1%a8%e7%a4%ba%e3%81%99%e3%82%8b%2f%e9%96%a2%e6%95%b0%e3%82%b9%e3%82%b3%e3%83%bc%e3%83%97%e5%85%a8%e4%bd%93%e3%82%92%e8%a1%a8%e7%a4%ba%e3%81%99%e3%82%8b%20%23git&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f04%2f11%2fgit-grep-options-w-and-p%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      
+  
+    <nav><ul class="pager">
+    
+        <li class="previous">
+          <a href="https://budougumi0617.github.io/2018/04/08/debug-by-delve/" title="Goのデバッガ(Delve)のいろいろな起動のしかた(引数を渡して起動、起動中のプロセスにアタッチして起動 etc...)">
+            <span aria-hidden="true">&larr;</span>Previous
+          </a>
+        </li>
+    
+
+    
+    </ul> </nav>
+  
+
+
+</div>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+    
+    
+    if (window.location.hostname == "localhost")
+      return;
+
+    var dsq = document.createElement('script'); dsq.async = true; dsq.type = 'text/javascript';
+    dsq.src = '//http-budougumi0617-github-io.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
+</footer>
+
+    </div>
+    
+      <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+        <div>
+  
+
+    <div class="section">
+      <header><div class="title"><b>Latest Posts</b></div></header>
+      <div class="content">
+        <ul>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/04/11/git-grep-options-w-and-p/">git grepでマッチしたワードを含んだ関数名を表示する/関数スコープ全体を表示する #git</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/04/08/debug-by-delve/">Goのデバッガ(Delve)のいろいろな起動のしかた(引数を渡して起動、起動中のプロセスにアタッチして起動 etc...)</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/04/04/fail-node-sass-on-docker/">Dockerでnode-SASSを使うとNode Sass could not find a binding for your current environment: Linux 64-bit with Node.js X.X...</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/04/01/kubernetes-network-deep-dive-cndjp4/">Kubernetes Network Deep Dive!（Istioもあるよ） cndjp第四回参加メモ #cndjp4</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/03/21/set-to-use-local-gem-code/">[Ruby]ローカルで修正したgemのコードをbundle installする</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/03/14/report-golang-tokyo-13-android-with-gomobile/">[Go]golang.tokyo #13 - Macでハンズオンアプリを動かすまでに必要だったこと #golangtokyo</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/03/11/go-chi-generates-routing-map/">[Go]go-chiで作ったREST APIの定義からMarkdownやJSONを動的に出力する</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/03/05/gcp-cloud-study-jam/">GCPハンズオン( #CloudStudyJam )に参加した</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/26/review-go-system-programming/">[書評]Goならわかるシステムプログラミングを読んだ</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/02/22/go110party/">Go 1.10 Release Party in Tokyo参加メモ #go110party</a>
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>category</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/categories/go">go</a></li><li><a href="/categories/report">report</a></li><li><a href="/categories/c-sharp">c-sharp</a></li><li><a href="/categories/grpc">grpc</a></li><li><a href="/categories/review">review</a></li><li><a href="/categories/dot-net">dot-net</a></li><li><a href="/categories/gcp">gcp</a></li><li><a href="/categories/rubyonrails">rubyonrails</a></li><li><a href="/categories/xamarin.mac">xamarin.mac</a></li><li><a href="/categories/devops">devops</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>tag</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/tags/golang">golang</a></li><li><a href="/tags/grpc">grpc</a></li><li><a href="/tags/k8s">k8s</a></li><li><a href="/tags/book">book</a></li><li><a href="/tags/cndjp">cndjp</a></li><li><a href="/tags/debug">debug</a></li><li><a href="/tags/docker">docker</a></li><li><a href="/tags/gcp">gcp</a></li><li><a href="/tags/golangtokyo">golangtokyo</a></li><li><a href="/tags/rubyonrails">rubyonrails</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+    
+
+</div>
+
+      </div>
+    
+  </div>
+</div>
+    
+<footer class="footer hidden-print">
+  <div class="container">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+           <div class="pull-left">
+  <a class="toplink" href="javascript:" id="return-to-top">back to top</a>
+</div>
+<div class="pull-right">
+
+</div>
+
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+              
+    
+<div class="container footline">
+    <small>
+  Copyright&copy; <a href='/2017/07/11/about-this-site/'>budougumi0617</a>
+
+</small>
+</div>
+
+
+    
+
+
+        </div>
+    </div>
+  </div>
+</footer>
+
+    
+
+<script src="//s3.amazonaws.com/mailmunch/static/site.js" id="mailmunch-script" data-mailmunch-site-id="" async="async"></script>
+
+
+
+<script src="//load.sumome.com/" data-sumo-site-id="" async="async"></script>
+
+<script src="https://budougumi0617.github.io/js/jquery.min.js"></script>
+<script src="https://budougumi0617.github.io/js/bootstrap.min.js"></script>
+
+
+<script src="https://budougumi0617.github.io/js/highlight.pack.js"></script>
+<script src="https://budougumi0617.github.io/js/site.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+<script>
+var ENABLE_POPOVER = "", 
+EXPIRE_COOKIE = "", 
+SHOW_MODAL_TIMEOUT = "", 
+MOUSE_LEAVE = "", 
+MODAL_SIZE = "", 
+POST_URL = "", 
+SIGNUP_HEADER = "",
+HEADER_IMAGE = "",
+IMG_DESCRIPTION = "",
+SIGNUP_TEXT = "",
+INPUT_PLACEHOLDER = "",
+SUBMIT_BUTTON = "",
+SUCCESS_MESSAGE = "",
+ERROR_MESSAGE = "",
+OPTIN = "",
+COOKIE_NAME = "",
+CONTENTLANGUAGE = ""; 
+</script>
+
+
+
+
+
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//MathJax.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//config/TeX-AMS-MML_HTMLorMML.js"></script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\[','\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    for(var all in MathJax.Hub.getAllJax()) {
+        all.SourceElement().parentNode.className += ' has-jax';
+
+    }
+});
+</script>
+
+
+
+
+
+
+  </body>
+</html>
+
