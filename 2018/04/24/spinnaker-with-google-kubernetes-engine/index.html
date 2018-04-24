@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>GKEでSpinnakerを使ったKubernetesの継続的デリバリーを試してみた  &middot; My External Storage</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="Spinnaker, CD, k8s, gke, ">
+
+
+<meta property="og:title" content="GKEでSpinnakerを使ったKubernetesの継続的デリバリーを試してみた  &middot; My External Storage ">
+<meta property="og:site_name" content="My External Storage"/>
+<meta property="og:url" content="https://budougumi0617.github.io/2018/04/24/spinnaker-with-google-kubernetes-engine/" />
+<meta property="og:locale" content="ja-jp">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="2018-04-24T21:01:54&#43;09:00" />
+<meta property="og:article:modified_time" content="2018-04-24T21:01:54&#43;09:00" />
+
+  
+    
+<meta property="og:article:tag" content="Spinnaker">
+    
+<meta property="og:article:tag" content="CD">
+    
+<meta property="og:article:tag" content="k8s">
+    
+<meta property="og:article:tag" content="gke">
+    
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@budougumi0617" />
+<meta name="twitter:creator" content="@budougumi0617" />
+<meta name="twitter:title" content="GKEでSpinnakerを使ったKubernetesの継続的デリバリーを試してみた" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="https://budougumi0617.github.io/2018/04/24/spinnaker-with-google-kubernetes-engine/" />
+<meta name="twitter:domain" content="https://budougumi0617.github.io/">
+  
+
+  
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "GKEでSpinnakerを使ったKubernetesの継続的デリバリーを試してみた",
+    "author": {
+      "@type": "Person",
+      "name": "http://profiles.google.com/+?rel=author"
+    },
+    "datePublished": "2018-04-24",
+    "description": "",
+    "wordCount": 1373
+  }
+</script>
+  
+
+
+
+<link rel="canonical" href="https://budougumi0617.github.io/2018/04/24/spinnaker-with-google-kubernetes-engine/" />
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/touch-icon-144-precomposed.png">
+<link rel="icon" href="/favicon.png">
+<meta name="generator" content="Hugo 0.24.1" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+
+
+    <link rel="stylesheet" href="https://budougumi0617.github.io/css/bootswatch/flatly/bootstrap.min.css">
+
+
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/style.css">
+
+
+
+
+  <link rel="stylesheet" href="https://budougumi0617.github.io/css/highlight/default.css">
+
+
+</head>
+<body class="map[name:flatly]" data-ng-app="myapp" data-ng-controller="MyController" data-ng-mouseleave="MouseLeave($event)">
+    <header id="main-header">
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        
+          
+          <a class="navbar-brand-img" href="/">
+            <img alt="My External Storage" src="/logo.png">
+            
+          </a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav navbar-right">
+            
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/" >
+                <i class='fa fa-home'></i>
+                Home
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/post/" >
+                <i class='fa fa-archive'></i>
+                Archives
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" >
+                <i class='fa fa-info-circle'></i>
+                About
+              </a>
+            </li>
+            
+            
+              
+          </ul>
+        </div>
+        
+      </div>
+    </nav>
+  </header>
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-9">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  <div class="text-center">
+
+    <h1>GKEでSpinnakerを使ったKubernetesの継続的デリバリーを試してみた
+</h1>
+
+    <div class="metas">
+<small>
+  <i class="fa fa-calendar"></i>
+  <time datetime="2018-04-24">24 Apr, 2018</time>
+</small>
+
+
+  <small>
+    &middot; by budougumi0617
+  
+  &middot; Read in about 3 min
+  &middot; (1373 words)
+  &middot; 
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f04%2f24%2fspinnaker-with-google-kubernetes-engine%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=GKE%e3%81%a7Spinnaker%e3%82%92%e4%bd%bf%e3%81%a3%e3%81%9fKubernetes%e3%81%ae%e7%b6%99%e7%b6%9a%e7%9a%84%e3%83%87%e3%83%aa%e3%83%90%e3%83%aa%e3%83%bc%e3%82%92%e8%a9%a6%e3%81%97%e3%81%a6%e3%81%bf%e3%81%9f&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f04%2f24%2fspinnaker-with-google-kubernetes-engine%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f04%2f24%2fspinnaker-with-google-kubernetes-engine%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f04%2f24%2fspinnaker-with-google-kubernetes-engine%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f04%2f24%2fspinnaker-with-google-kubernetes-engine%2f&amp;title=GKE%e3%81%a7Spinnaker%e3%82%92%e4%bd%bf%e3%81%a3%e3%81%9fKubernetes%e3%81%ae%e7%b6%99%e7%b6%9a%e7%9a%84%e3%83%87%e3%83%aa%e3%83%90%e3%83%aa%e3%83%bc%e3%82%92%e8%a9%a6%e3%81%97%e3%81%a6%e3%81%bf%e3%81%9f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=GKE%e3%81%a7Spinnaker%e3%82%92%e4%bd%bf%e3%81%a3%e3%81%9fKubernetes%e3%81%ae%e7%b6%99%e7%b6%9a%e7%9a%84%e3%83%87%e3%83%aa%e3%83%90%e3%83%aa%e3%83%bc%e3%82%92%e8%a9%a6%e3%81%97%e3%81%a6%e3%81%bf%e3%81%9f&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f04%2f24%2fspinnaker-with-google-kubernetes-engine%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  </small>
+
+<div class="margin-10">
+  <i class="fa fa-tags"></i>
+  
+  <a href="https://budougumi0617.github.io/tags/spinnaker" class="label label-primary">Spinnaker</a>
+  
+  <a href="https://budougumi0617.github.io/tags/cd" class="label label-primary">CD</a>
+  
+  <a href="https://budougumi0617.github.io/tags/k8s" class="label label-primary">k8s</a>
+  
+  <a href="https://budougumi0617.github.io/tags/gke" class="label label-primary">gke</a>
+  
+
+
+</div>
+
+<br>
+</div>
+
+  </div>
+</div>
+
+      <div class="content">
+  
+
+<p>Google Kubernetes EngineとSpinakerを使ったkubernetesの継続的デリバリーを試してみた。</p>
+
+<p>Spinnakerを始めるにあたってまずGCPでサンプルの継続的デリバリーを試してみた。<br />
+一通りのコピペでGoogle Kubernetes Engine(GKE)に対するSpinnakerを使った継続的デリバリーを試せる。</p>
+
+<p><strong>Continuous Delivery Pipelines with Spinnaker and Kubernetes Engine</strong><br />
+<a href="https://cloud.google.com/solutions/continuous-delivery-spinnaker-kubernetes-engine">https://cloud.google.com/solutions/continuous-delivery-spinnaker-kubernetes-engine</a></p>
+
+<p><img src="/2018/04/spinnaker-pipeline.png" alt="Spinnakerのパイプライン" /></p>
+
+<p>なお、日本語のページの手順と英語のページで手順に差分があるので、基本英語のページで見たほうが良さそう。</p>
+
+<p><strong>Spinnaker と Container Engine を使用した継続的デリバリー パイプライン</strong><br />
+<a href="https://cloud.google.com/solutions/continuous-delivery-spinnaker-container-engine?hl=ja">https://cloud.google.com/solutions/continuous-delivery-spinnaker-container-engine?hl=ja</a></p>
+
+<p>日本語版の手順は<code>clusterrolebinding</code>などの設定が抜けているので、
+GKEに1.8系のk8sクラスターを立てているとRBACで疎通できない気がする。</p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>GCPのハンズオンを使ってSpinnaker + GKEを試した
+
+<ul>
+<li><a href="https://cloud.google.com/solutions/continuous-delivery-spinnaker-container-engine">https://cloud.google.com/solutions/continuous-delivery-spinnaker-container-engine</a></li>
+<li>Spinnakerによる継続的デリバリー環境の構築作業</li>
+<li>GKE上にk8sクラスターを作成</li>
+<li>Helmを使ってk8sクラスタ上にSpinnakerをインストール</li>
+<li>JSONベースでパイプラインを設定する</li>
+<li>Google Container Builder(GCB)でビルドトリガーを設定しておく</li>
+</ul></li>
+<li>構築した継続的デリバリー(Pipeline)の内容
+
+<ul>
+<li>コンテナがGCBでビルドされるたびにSpinnakerのDeploy pipelineが実行される</li>
+<li>カナリーリリースが行われ、パイプラインが手動承認のステージで停止する</li>
+<li>カナリーリリースされたコンテナにアクセスして動作確認することが出来る</li>
+<li>動作確認後、手動承認を行うとパイプライン処理が再開し、プロダクションにデプロイされる</li>
+</ul></li>
+</ul>
+
+<h1 id="ハンズオンで構築する環境について">ハンズオンで構築する環境について</h1>
+
+<p>ハンズオンは簡単に言うと以下の構築を行う</p>
+
+<ul>
+<li>GKE上にk8sクラスターを作成</li>
+<li>Helmを使ってk8sクラスタ上にSpinnakerをインストール</li>
+<li>JSONベースでパイプラインを設定する</li>
+<li>Google Source Resistory(GSR)にデプロイ対象のリポジトリを用意する</li>
+<li>Google Container Builder(GCB)でビルドトリガーを設定しておく</li>
+</ul>
+
+<p>Spinnakerのインストール方法はいくつか方法があるが、このハンズオンではHelmによるインストールを行っている。
+また、パイプラインの定義自体はJSONで定義した既定の設定を用いる。</p>
+
+<h1 id="ハンズオンで試せる内容">ハンズオンで試せる内容</h1>
+
+<p>ハンズオンで構築したパイプラインを使うと、
+Google Source Repositoryで<code>git tag</code>したコードがGoogle Container Builderのトリガーで自動的にビルドされる。
+その後、Spinnakerによって自動カナリーリリースが始まる。</p>
+
+<p><img src="/2018/04/spinnaker-deploy.png" alt="Spinnkaerによるデプロイ" /></p>
+
+<p>カナリリリースが終わると、デプロイパイプラインは「承認確認フェーズ」で一度停止する。</p>
+
+<p><img src="/2018/04/spinnaker-canary.png" alt="Spinnkaerによってデプロイされたカナリーコンテナ" /></p>
+
+<p>カナリーデプロイされたコンテナにアクセスして正しく動いているか確認できる。</p>
+
+<p><img src="/2018/04/spinnaker-pipeline.png" alt="Spinnakerのパイプライン" /></p>
+
+<p>動作確認後、パイプライン上から承認をすると、全てのプロダクションコンテナへ更新が反映される。</p>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>ざっくりだがGKE上のSpinnakerのハンズオンを試してみた。
+継続的デリバリーツールについては実際になにか運用してみないとメリットがわかりにくいので、
+一連の継続的デリバリーまで体験できるのは非常によかった。
+ただ、この構成だとどうやって<code>Kayenta</code>を有効にするのかわからないので、できたら<code>hal</code>コマンドで構築してみたい。</p>
+
+<p>なお、ご自分のGCPアカウントで行った場合はもろもろをクリーンアップしないと課金がされ続けるので注意する。</p>
+
+<p><a href="https://cloud.google.com/solutions/continuous-delivery-spinnaker-container-engine#clean-up">https://cloud.google.com/solutions/continuous-delivery-spinnaker-container-engine#clean-up</a></p>
+
+<h1 id="関連">関連</h1>
+
+<p><a href="/2018/04/22/how-to-start-spinnaker/">Spinnakerの始め方いろいろ</a></p>
+
+</div>
+
+
+      <footer>
+  
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f04%2f24%2fspinnaker-with-google-kubernetes-engine%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=GKE%e3%81%a7Spinnaker%e3%82%92%e4%bd%bf%e3%81%a3%e3%81%9fKubernetes%e3%81%ae%e7%b6%99%e7%b6%9a%e7%9a%84%e3%83%87%e3%83%aa%e3%83%90%e3%83%aa%e3%83%bc%e3%82%92%e8%a9%a6%e3%81%97%e3%81%a6%e3%81%bf%e3%81%9f&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f04%2f24%2fspinnaker-with-google-kubernetes-engine%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f04%2f24%2fspinnaker-with-google-kubernetes-engine%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f04%2f24%2fspinnaker-with-google-kubernetes-engine%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f04%2f24%2fspinnaker-with-google-kubernetes-engine%2f&amp;title=GKE%e3%81%a7Spinnaker%e3%82%92%e4%bd%bf%e3%81%a3%e3%81%9fKubernetes%e3%81%ae%e7%b6%99%e7%b6%9a%e7%9a%84%e3%83%87%e3%83%aa%e3%83%90%e3%83%aa%e3%83%bc%e3%82%92%e8%a9%a6%e3%81%97%e3%81%a6%e3%81%bf%e3%81%9f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=GKE%e3%81%a7Spinnaker%e3%82%92%e4%bd%bf%e3%81%a3%e3%81%9fKubernetes%e3%81%ae%e7%b6%99%e7%b6%9a%e7%9a%84%e3%83%87%e3%83%aa%e3%83%90%e3%83%aa%e3%83%bc%e3%82%92%e8%a9%a6%e3%81%97%e3%81%a6%e3%81%bf%e3%81%9f&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f04%2f24%2fspinnaker-with-google-kubernetes-engine%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      
+  
+    <nav><ul class="pager">
+    
+        <li class="previous">
+          <a href="https://budougumi0617.github.io/2018/04/22/how-to-start-spinnaker/" title="Spinnakerの始め方いろいろ">
+            <span aria-hidden="true">&larr;</span>Previous
+          </a>
+        </li>
+    
+
+    
+    </ul> </nav>
+  
+
+
+</div>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+    
+    
+    if (window.location.hostname == "localhost")
+      return;
+
+    var dsq = document.createElement('script'); dsq.async = true; dsq.type = 'text/javascript';
+    dsq.src = '//http-budougumi0617-github-io.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
+</footer>
+
+    </div>
+    
+      <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+        <div>
+  
+
+    <div class="section">
+      <header><div class="title"><b>Latest Posts</b></div></header>
+      <div class="content">
+        <ul>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/04/24/spinnaker-with-google-kubernetes-engine/">GKEでSpinnakerを使ったKubernetesの継続的デリバリーを試してみた</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/04/22/how-to-start-spinnaker/">Spinnakerの始め方いろいろ</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/04/19/golangtokyo-14-goroutine/">golang.tokyo #14 ゴールーチンとチャネルによる並行処理 参加メモ #golangtokyo</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/04/17/go-conference-2018-spring/">Go Conference 2018 Spring 参加メモ #gocon</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/04/11/git-grep-options-w-and-p/">git grepでマッチしたワードを含んだ関数名を表示する/関数スコープ全体を表示する #git</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/04/08/debug-by-delve/">Goのデバッガ(Delve)のいろいろな起動のしかた(引数を渡して起動、起動中のプロセスにアタッチして起動 etc...)</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/04/04/fail-node-sass-on-docker/">Dockerでnode-SASSを使うとNode Sass could not find a binding for your current environment: Linux 64-bit with Node.js X.X...</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/04/01/kubernetes-network-deep-dive-cndjp4/">Kubernetes Network Deep Dive!（Istioもあるよ） cndjp第四回参加メモ #cndjp4</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/03/21/set-to-use-local-gem-code/">[Ruby]ローカルで修正したgemのコードをbundle installする</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/03/14/report-golang-tokyo-13-android-with-gomobile/">[Go]golang.tokyo #13 - Macでハンズオンアプリを動かすまでに必要だったこと #golangtokyo</a>
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>category</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/categories/go">go</a></li><li><a href="/categories/report">report</a></li><li><a href="/categories/c-sharp">c-sharp</a></li><li><a href="/categories/grpc">grpc</a></li><li><a href="/categories/review">review</a></li><li><a href="/categories/dot-net">dot-net</a></li><li><a href="/categories/gcp">gcp</a></li><li><a href="/categories/kubernetes">kubernetes</a></li><li><a href="/categories/rubyonrails">rubyonrails</a></li><li><a href="/categories/xamarin.mac">xamarin.mac</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>tag</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/tags/golang">golang</a></li><li><a href="/tags/k8s">k8s</a></li><li><a href="/tags/grpc">grpc</a></li><li><a href="/tags/book">book</a></li><li><a href="/tags/cndjp">cndjp</a></li><li><a href="/tags/golangtokyo">golangtokyo</a></li><li><a href="/tags/debug">debug</a></li><li><a href="/tags/docker">docker</a></li><li><a href="/tags/gcp">gcp</a></li><li><a href="/tags/rubyonrails">rubyonrails</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+    
+
+</div>
+
+      </div>
+    
+  </div>
+</div>
+    
+<footer class="footer hidden-print">
+  <div class="container">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+           <div class="pull-left">
+  <a class="toplink" href="javascript:" id="return-to-top">back to top</a>
+</div>
+<div class="pull-right">
+
+</div>
+
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+              
+    
+<div class="container footline">
+    <small>
+  Copyright&copy; <a href='/2017/07/11/about-this-site/'>budougumi0617</a>
+
+</small>
+</div>
+
+
+    
+
+
+        </div>
+    </div>
+  </div>
+</footer>
+
+    
+
+<script src="//s3.amazonaws.com/mailmunch/static/site.js" id="mailmunch-script" data-mailmunch-site-id="" async="async"></script>
+
+
+
+<script src="//load.sumome.com/" data-sumo-site-id="" async="async"></script>
+
+<script src="https://budougumi0617.github.io/js/jquery.min.js"></script>
+<script src="https://budougumi0617.github.io/js/bootstrap.min.js"></script>
+
+
+<script src="https://budougumi0617.github.io/js/highlight.pack.js"></script>
+<script src="https://budougumi0617.github.io/js/site.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+<script>
+var ENABLE_POPOVER = "", 
+EXPIRE_COOKIE = "", 
+SHOW_MODAL_TIMEOUT = "", 
+MOUSE_LEAVE = "", 
+MODAL_SIZE = "", 
+POST_URL = "", 
+SIGNUP_HEADER = "",
+HEADER_IMAGE = "",
+IMG_DESCRIPTION = "",
+SIGNUP_TEXT = "",
+INPUT_PLACEHOLDER = "",
+SUBMIT_BUTTON = "",
+SUCCESS_MESSAGE = "",
+ERROR_MESSAGE = "",
+OPTIN = "",
+COOKIE_NAME = "",
+CONTENTLANGUAGE = ""; 
+</script>
+
+
+
+
+
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//MathJax.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//config/TeX-AMS-MML_HTMLorMML.js"></script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\[','\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    for(var all in MathJax.Hub.getAllJax()) {
+        all.SourceElement().parentNode.className += ' has-jax';
+
+    }
+});
+</script>
+
+
+
+
+
+
+  </body>
+</html>
+
