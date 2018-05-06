@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>[vim-go]GoFillStructで構造体のフィールド初期化文を自動生成する  &middot; My External Storage</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="golang, vim, vim-go, ">
+
+
+<meta property="og:title" content="[vim-go]GoFillStructで構造体のフィールド初期化文を自動生成する  &middot; My External Storage ">
+<meta property="og:site_name" content="My External Storage"/>
+<meta property="og:url" content="https://budougumi0617.github.io/2018/05/06/vim-go-gofillstruct/" />
+<meta property="og:locale" content="ja-jp">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="2018-05-06T16:25:33&#43;09:00" />
+<meta property="og:article:modified_time" content="2018-05-06T16:25:33&#43;09:00" />
+
+  
+    
+<meta property="og:article:tag" content="golang">
+    
+<meta property="og:article:tag" content="vim">
+    
+<meta property="og:article:tag" content="vim-go">
+    
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@budougumi0617" />
+<meta name="twitter:creator" content="@budougumi0617" />
+<meta name="twitter:title" content="[vim-go]GoFillStructで構造体のフィールド初期化文を自動生成する" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="https://budougumi0617.github.io/2018/05/06/vim-go-gofillstruct/" />
+<meta name="twitter:domain" content="https://budougumi0617.github.io/">
+  
+
+  
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "[vim-go]GoFillStructで構造体のフィールド初期化文を自動生成する",
+    "author": {
+      "@type": "Person",
+      "name": "http://profiles.google.com/+?rel=author"
+    },
+    "datePublished": "2018-05-06",
+    "description": "",
+    "wordCount": 909
+  }
+</script>
+  
+
+
+
+<link rel="canonical" href="https://budougumi0617.github.io/2018/05/06/vim-go-gofillstruct/" />
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/touch-icon-144-precomposed.png">
+<link rel="icon" href="/favicon.png">
+<meta name="generator" content="Hugo 0.24.1" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+
+
+    <link rel="stylesheet" href="https://budougumi0617.github.io/css/bootswatch/flatly/bootstrap.min.css">
+
+
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/style.css">
+
+
+
+
+  <link rel="stylesheet" href="https://budougumi0617.github.io/css/highlight/default.css">
+
+
+</head>
+<body class="map[name:flatly]" data-ng-app="myapp" data-ng-controller="MyController" data-ng-mouseleave="MouseLeave($event)">
+    <header id="main-header">
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        
+          
+          <a class="navbar-brand-img" href="/">
+            <img alt="My External Storage" src="/logo.png">
+            
+          </a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav navbar-right">
+            
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/" >
+                <i class='fa fa-home'></i>
+                Home
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/post/" >
+                <i class='fa fa-archive'></i>
+                Archives
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" >
+                <i class='fa fa-info-circle'></i>
+                About
+              </a>
+            </li>
+            
+            
+              
+          </ul>
+        </div>
+        
+      </div>
+    </nav>
+  </header>
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-9">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  <div class="text-center">
+
+    <h1>[vim-go]GoFillStructで構造体のフィールド初期化文を自動生成する
+</h1>
+
+    <div class="metas">
+<small>
+  <i class="fa fa-calendar"></i>
+  <time datetime="2018-05-06">6 May, 2018</time>
+</small>
+
+
+  <small>
+    &middot; by budougumi0617
+  
+  &middot; Read in about 2 min
+  &middot; (909 words)
+  &middot; 
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f05%2f06%2fvim-go-gofillstruct%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=%5bvim-go%5dGoFillStruct%e3%81%a7%e6%a7%8b%e9%80%a0%e4%bd%93%e3%81%ae%e3%83%95%e3%82%a3%e3%83%bc%e3%83%ab%e3%83%89%e5%88%9d%e6%9c%9f%e5%8c%96%e6%96%87%e3%82%92%e8%87%aa%e5%8b%95%e7%94%9f%e6%88%90%e3%81%99%e3%82%8b&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f05%2f06%2fvim-go-gofillstruct%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f05%2f06%2fvim-go-gofillstruct%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f05%2f06%2fvim-go-gofillstruct%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f05%2f06%2fvim-go-gofillstruct%2f&amp;title=%5bvim-go%5dGoFillStruct%e3%81%a7%e6%a7%8b%e9%80%a0%e4%bd%93%e3%81%ae%e3%83%95%e3%82%a3%e3%83%bc%e3%83%ab%e3%83%89%e5%88%9d%e6%9c%9f%e5%8c%96%e6%96%87%e3%82%92%e8%87%aa%e5%8b%95%e7%94%9f%e6%88%90%e3%81%99%e3%82%8b" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=%5bvim-go%5dGoFillStruct%e3%81%a7%e6%a7%8b%e9%80%a0%e4%bd%93%e3%81%ae%e3%83%95%e3%82%a3%e3%83%bc%e3%83%ab%e3%83%89%e5%88%9d%e6%9c%9f%e5%8c%96%e6%96%87%e3%82%92%e8%87%aa%e5%8b%95%e7%94%9f%e6%88%90%e3%81%99%e3%82%8b&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f05%2f06%2fvim-go-gofillstruct%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  </small>
+
+<div class="margin-10">
+  <i class="fa fa-tags"></i>
+  
+  <a href="https://budougumi0617.github.io/tags/golang" class="label label-primary">golang</a>
+  
+  <a href="https://budougumi0617.github.io/tags/vim" class="label label-primary">vim</a>
+  
+  <a href="https://budougumi0617.github.io/tags/vim-go" class="label label-primary">vim-go</a>
+  
+
+
+</div>
+
+<br>
+</div>
+
+  </div>
+</div>
+
+      <div class="content">
+  
+
+<p>Goで構造体の初期化をするときに「フィールド名なんだっけ？」となることがある。
+また、フィールド名を手打ちしてタイポすることもあるだろう。<br />
+vim-goを使っている場合、<code>:GoFillStruct</code>コマンドで構造体のフィールド初期化を簡単に行うことができる。</p>
+
+<p><img src="/2018/05/fillstruct.gif" alt="フィールドを初期化する" /></p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>vim-goの<code>:GoFillStruct</code>コマンドを使うと、構造体のフィールド初期化を簡単にできる</li>
+<li><code>vim-go</code>のバージョンを1.15以上にする</li>
+<li>構造体の初期化宣言の上にカーソルを合わせて<code>:GoFillStruct</code>コマンドを実行する</li>
+</ul>
+
+<h1 id="vim-go-のバージョンを1-15以上にする"><code>vim-go</code>のバージョンを1.15以上にする</h1>
+
+<p>まず<code>GoFillStruct</code>コマンドを使うにはvim-goのバージョンが1.15以上である必要がある。</p>
+
+<p><a href="https://github.com/fatih/vim-go/blob/7491209072ed4aa746e6fe7894f976ecd251801e/CHANGELOG.md#115---october-3-2017">https://github.com/fatih/vim-go/blob/7491209072ed4aa746e6fe7894f976ecd251801e/CHANGELOG.md#115---october-3-2017</a></p>
+
+<pre><code>FEATURES:
+Add :GoFillStruct to fill a struct with all fields; uses fillstruct [GH-1443].
+</code></pre>
+
+<p>2017/10以前にvim-goをインストールしたままの場合はプラグインのアップデートを行う。<br />
+自分の場合は<code>dein.vim</code>を使っているので、以下のコマンドでプラグインのアップデートを行なった。</p>
+
+<pre><code>:call dein#update()
+</code></pre>
+
+<h1 id="構造体の初期化宣言の上にカーソルを合わせて-gofillstruct-コマンドを実行する">構造体の初期化宣言の上にカーソルを合わせて<code>:GoFillStruct</code>コマンドを実行する</h1>
+
+<p><a href="https://github.com/fatih/vim-go/blob/af32090927dd9ab92ba150f9b43a694338606200/doc/vim-go.txt#L837-L855">https://github.com/fatih/vim-go/blob/af32090927dd9ab92ba150f9b43a694338606200/doc/vim-go.txt#L837-L855</a></p>
+
+<pre><code> :GoFillStruct
+    Use `fillstruct` to fill a struct literal with default values. Existing
+    values (if any) are preserved. The cursor must be on the struct you wish
+    to fill.
+</code></pre>
+
+<p>vim-goのバージョンが問題ないならば、あとはそのまま利用することができる。<br />
+適当に初期化宣言を書いたあとにvimをノーマルモードにして<code>GoFillStruct</code>コマンドを実行する。<br />
+カーソルの位置がだいたい構造体の初期化宣言部分に合っていれば全てのフィールドの初期化文がデフォルト値で生成される。<br />
+既に一部フィールドの初期化宣言を記載済みでも利用することができる。</p>
+
+<p>実際の動きをキャプチャしたものが以下になる。
+<code>Foo</code>構造体と<code>http.Client</code>構造体のフィールド初期化を<code>GoFillStruct</code>コマンドで行なった。</p>
+
+<p><img src="/2018/05/fillstruct.gif" alt="フィールドを初期化する" /></p>
+
+<pre><code class="language-go">// Foo has two fields.
+type Foo struct {
+    StringField string
+    IntField    int
+}
+
+// Before
+func main() {
+    foo := &amp;Foo{StringField: &quot;test&quot;}
+    c := &amp;http.Client{}
+}
+
+// After GoFillStruct
+func main() {
+    foo := &amp;Foo{
+        StringField: &quot;test&quot;,
+        IntField:    0,
+    }
+    c := &amp;http.Client{
+        Transport:     nil,
+        CheckRedirect: nil,
+        Jar:           nil,
+        Timeout:       0,
+    }
+}
+</code></pre>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>vim-goで出来る機能はだいたいvim-go Tutorialを読めばわかる。</p>
+
+<p><a href="https://github.com/fatih/vim-go-tutorial">https://github.com/fatih/vim-go-tutorial</a></p>
+
+<p><code>GoFillStruct</code>コマンドはTutorialでフォローされていないので今回記事にした。
+標準パッケージの構造体でこのコマンドを使うと「あ、これもフィールドで指定できたんだ」と気づくこともあり、一度覚えたあとはかなり多用している。</p>
+
+</div>
+
+
+      <footer>
+  
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f05%2f06%2fvim-go-gofillstruct%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=%5bvim-go%5dGoFillStruct%e3%81%a7%e6%a7%8b%e9%80%a0%e4%bd%93%e3%81%ae%e3%83%95%e3%82%a3%e3%83%bc%e3%83%ab%e3%83%89%e5%88%9d%e6%9c%9f%e5%8c%96%e6%96%87%e3%82%92%e8%87%aa%e5%8b%95%e7%94%9f%e6%88%90%e3%81%99%e3%82%8b&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f05%2f06%2fvim-go-gofillstruct%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f05%2f06%2fvim-go-gofillstruct%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f05%2f06%2fvim-go-gofillstruct%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f05%2f06%2fvim-go-gofillstruct%2f&amp;title=%5bvim-go%5dGoFillStruct%e3%81%a7%e6%a7%8b%e9%80%a0%e4%bd%93%e3%81%ae%e3%83%95%e3%82%a3%e3%83%bc%e3%83%ab%e3%83%89%e5%88%9d%e6%9c%9f%e5%8c%96%e6%96%87%e3%82%92%e8%87%aa%e5%8b%95%e7%94%9f%e6%88%90%e3%81%99%e3%82%8b" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=%5bvim-go%5dGoFillStruct%e3%81%a7%e6%a7%8b%e9%80%a0%e4%bd%93%e3%81%ae%e3%83%95%e3%82%a3%e3%83%bc%e3%83%ab%e3%83%89%e5%88%9d%e6%9c%9f%e5%8c%96%e6%96%87%e3%82%92%e8%87%aa%e5%8b%95%e7%94%9f%e6%88%90%e3%81%99%e3%82%8b&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f05%2f06%2fvim-go-gofillstruct%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      
+  
+    <nav><ul class="pager">
+    
+        <li class="previous">
+          <a href="https://budougumi0617.github.io/2018/05/02/cndjp5-cicd-tools/" title="[k8s]あつまれ！ CI/CDツール大集合！ - cndjp第5回 参加メモ #cndjp5">
+            <span aria-hidden="true">&larr;</span>Previous
+          </a>
+        </li>
+    
+
+    
+    </ul> </nav>
+  
+
+
+</div>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+    
+    
+    if (window.location.hostname == "localhost")
+      return;
+
+    var dsq = document.createElement('script'); dsq.async = true; dsq.type = 'text/javascript';
+    dsq.src = '//http-budougumi0617-github-io.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
+</footer>
+
+    </div>
+    
+      <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+        <div>
+  
+
+    <div class="section">
+      <header><div class="title"><b>Latest Posts</b></div></header>
+      <div class="content">
+        <ul>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/05/06/vim-go-gofillstruct/">[vim-go]GoFillStructで構造体のフィールド初期化文を自動生成する</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/05/02/cndjp5-cicd-tools/">[k8s]あつまれ！ CI/CDツール大集合！ - cndjp第5回 参加メモ #cndjp5</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/04/28/gcpug-tokyo-kubernetes-engine-day-april-2018/">[k8s]GCPUG Tokyo Kubernetes Engine Day April 2018参加メモ #gcpug</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/04/27/spinnaker-introduction/">[発表資料]Spinnaker入門 #cndjp5</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/04/24/spinnaker-with-google-kubernetes-engine/">GKEでSpinnakerを使ったKubernetesの継続的デリバリーを試してみた</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/04/22/how-to-start-spinnaker/">Spinnakerの始め方いろいろ</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/04/19/golangtokyo-14-goroutine/">golang.tokyo #14 ゴールーチンとチャネルによる並行処理 参加メモ #golangtokyo</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/04/17/go-conference-2018-spring/">Go Conference 2018 Spring 参加メモ #gocon</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/04/11/git-grep-options-w-and-p/">git grepでマッチしたワードを含んだ関数名を表示する/関数スコープ全体を表示する #git</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/04/08/debug-by-delve/">Goのデバッガ(Delve)のいろいろな起動のしかた(引数を渡して起動、起動中のプロセスにアタッチして起動 etc...)</a>
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>category</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/categories/go">go</a></li><li><a href="/categories/report">report</a></li><li><a href="/categories/c-sharp">c-sharp</a></li><li><a href="/categories/kubernetes">kubernetes</a></li><li><a href="/categories/grpc">grpc</a></li><li><a href="/categories/review">review</a></li><li><a href="/categories/dot-net">dot-net</a></li><li><a href="/categories/gcp">gcp</a></li><li><a href="/categories/spinnaker">spinnaker</a></li><li><a href="/categories/rubyonrails">rubyonrails</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>tag</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/tags/golang">golang</a></li><li><a href="/tags/k8s">k8s</a></li><li><a href="/tags/cndjp">cndjp</a></li><li><a href="/tags/grpc">grpc</a></li><li><a href="/tags/book">book</a></li><li><a href="/tags/spinnaker">spinnaker</a></li><li><a href="/tags/docker">docker</a></li><li><a href="/tags/gcp">gcp</a></li><li><a href="/tags/golangtokyo">golangtokyo</a></li><li><a href="/tags/debug">debug</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+    
+
+</div>
+
+      </div>
+    
+  </div>
+</div>
+    
+<footer class="footer hidden-print">
+  <div class="container">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+           <div class="pull-left">
+  <a class="toplink" href="javascript:" id="return-to-top">back to top</a>
+</div>
+<div class="pull-right">
+
+</div>
+
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+              
+    
+<div class="container footline">
+    <small>
+  Copyright&copy; <a href='/2017/07/11/about-this-site/'>budougumi0617</a>
+
+</small>
+</div>
+
+
+    
+
+
+        </div>
+    </div>
+  </div>
+</footer>
+
+    
+
+<script src="//s3.amazonaws.com/mailmunch/static/site.js" id="mailmunch-script" data-mailmunch-site-id="" async="async"></script>
+
+
+
+<script src="//load.sumome.com/" data-sumo-site-id="" async="async"></script>
+
+<script src="https://budougumi0617.github.io/js/jquery.min.js"></script>
+<script src="https://budougumi0617.github.io/js/bootstrap.min.js"></script>
+
+
+<script src="https://budougumi0617.github.io/js/highlight.pack.js"></script>
+<script src="https://budougumi0617.github.io/js/site.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+<script>
+var ENABLE_POPOVER = "", 
+EXPIRE_COOKIE = "", 
+SHOW_MODAL_TIMEOUT = "", 
+MOUSE_LEAVE = "", 
+MODAL_SIZE = "", 
+POST_URL = "", 
+SIGNUP_HEADER = "",
+HEADER_IMAGE = "",
+IMG_DESCRIPTION = "",
+SIGNUP_TEXT = "",
+INPUT_PLACEHOLDER = "",
+SUBMIT_BUTTON = "",
+SUCCESS_MESSAGE = "",
+ERROR_MESSAGE = "",
+OPTIN = "",
+COOKIE_NAME = "",
+CONTENTLANGUAGE = ""; 
+</script>
+
+
+
+
+
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//MathJax.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//config/TeX-AMS-MML_HTMLorMML.js"></script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\[','\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    for(var all in MathJax.Hub.getAllJax()) {
+        all.SourceElement().parentNode.className += ' has-jax';
+
+    }
+});
+</script>
+
+
+
+
+
+
+  </body>
+</html>
+
