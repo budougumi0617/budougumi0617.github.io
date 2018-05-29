@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>[Go]vim-goとDelveでVim上からGoのデバッグを行う #vim #golang  &middot; My External Storage</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="golang, vim, delve, ">
+
+
+<meta property="og:title" content="[Go]vim-goとDelveでVim上からGoのデバッグを行う #vim #golang  &middot; My External Storage ">
+<meta property="og:site_name" content="My External Storage"/>
+<meta property="og:url" content="https://budougumi0617.github.io/2018/05/30/debug-go-by-vim-go-and-delve/" />
+<meta property="og:locale" content="ja-jp">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="2018-05-30T08:00:00&#43;09:00" />
+<meta property="og:article:modified_time" content="2018-05-30T08:00:00&#43;09:00" />
+
+  
+    
+<meta property="og:article:tag" content="golang">
+    
+<meta property="og:article:tag" content="vim">
+    
+<meta property="og:article:tag" content="delve">
+    
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@budougumi0617" />
+<meta name="twitter:creator" content="@budougumi0617" />
+<meta name="twitter:title" content="[Go]vim-goとDelveでVim上からGoのデバッグを行う #vim #golang" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="https://budougumi0617.github.io/2018/05/30/debug-go-by-vim-go-and-delve/" />
+<meta name="twitter:domain" content="https://budougumi0617.github.io/">
+  
+
+  
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "[Go]vim-goとDelveでVim上からGoのデバッグを行う #vim #golang",
+    "author": {
+      "@type": "Person",
+      "name": "http://profiles.google.com/+?rel=author"
+    },
+    "datePublished": "2018-05-30",
+    "description": "",
+    "wordCount":  2394 
+  }
+</script>
+  
+
+
+
+<link rel="canonical" href="https://budougumi0617.github.io/2018/05/30/debug-go-by-vim-go-and-delve/" />
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/touch-icon-144-precomposed.png">
+<link rel="icon" href="/favicon.png">
+<meta name="generator" content="Hugo 0.25-DEV" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+
+
+    <link rel="stylesheet" href="https://budougumi0617.github.io/css/bootswatch/flatly/bootstrap.min.css">
+
+
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/style.css">
+
+
+
+
+  <link rel="stylesheet" href="https://budougumi0617.github.io/css/highlight/default.css">
+
+
+</head>
+<body class="map[name:flatly]" data-ng-app="myapp" data-ng-controller="MyController" data-ng-mouseleave="MouseLeave($event)">
+    <header id="main-header">
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        
+          
+          <a class="navbar-brand-img" href="/">
+            <img alt="My External Storage" src="/logo.png">
+            
+          </a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav navbar-right">
+            
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/" >
+                <i class='fa fa-home'></i>
+                Home
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/post/" >
+                <i class='fa fa-archive'></i>
+                Archives
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" >
+                <i class='fa fa-info-circle'></i>
+                About
+              </a>
+            </li>
+            
+            
+              
+          </ul>
+        </div>
+        
+      </div>
+    </nav>
+  </header>
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-9">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  <div class="text-center">
+
+    <h1>[Go]vim-goとDelveでVim上からGoのデバッグを行う #vim #golang
+</h1>
+
+    <div class="metas">
+<small>
+  <i class="fa fa-calendar"></i>
+  <time datetime="2018-05-30">30 May, 2018</time>
+</small>
+
+
+  <small>
+    &middot; by budougumi0617
+  
+  &middot; Read in about 5 min
+  &middot; (2394 words)
+  &middot; 
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f05%2f30%2fdebug-go-by-vim-go-and-delve%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=%5bGo%5dvim-go%e3%81%a8Delve%e3%81%a7Vim%e4%b8%8a%e3%81%8b%e3%82%89Go%e3%81%ae%e3%83%87%e3%83%90%e3%83%83%e3%82%b0%e3%82%92%e8%a1%8c%e3%81%86%20%23vim%20%23golang&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f05%2f30%2fdebug-go-by-vim-go-and-delve%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f05%2f30%2fdebug-go-by-vim-go-and-delve%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f05%2f30%2fdebug-go-by-vim-go-and-delve%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f05%2f30%2fdebug-go-by-vim-go-and-delve%2f&amp;title=%5bGo%5dvim-go%e3%81%a8Delve%e3%81%a7Vim%e4%b8%8a%e3%81%8b%e3%82%89Go%e3%81%ae%e3%83%87%e3%83%90%e3%83%83%e3%82%b0%e3%82%92%e8%a1%8c%e3%81%86%20%23vim%20%23golang" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=%5bGo%5dvim-go%e3%81%a8Delve%e3%81%a7Vim%e4%b8%8a%e3%81%8b%e3%82%89Go%e3%81%ae%e3%83%87%e3%83%90%e3%83%83%e3%82%b0%e3%82%92%e8%a1%8c%e3%81%86%20%23vim%20%23golang&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f05%2f30%2fdebug-go-by-vim-go-and-delve%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  </small>
+
+<div class="margin-10">
+  <i class="fa fa-tags"></i>
+  
+  <a href="https://budougumi0617.github.io/tags/golang" class="label label-primary">golang</a>
+  
+  <a href="https://budougumi0617.github.io/tags/vim" class="label label-primary">vim</a>
+  
+  <a href="https://budougumi0617.github.io/tags/delve" class="label label-primary">delve</a>
+  
+
+
+</div>
+
+<br>
+</div>
+
+  </div>
+</div>
+
+      <div class="content">
+  
+
+<p>VimでGoを使う人は大半の人が<code>vim-go</code>プラグインをインストールしているだろう。</p>
+
+<p><strong>fatih/vim-go</strong><br />
+<a href="https://github.com/fatih/vim-go">https://github.com/fatih/vim-go</a></p>
+
+<p>今年の3月、ついに<code>vim-go</code>が<code>delve</code>をサポートした（他のVimプラグインを使えばすでにVimから使えたようだが）。<br />
+VimからGoのプログラムをデバッグする方法をまとめる。</p>
+
+<p><a href="https://github.com/fatih/vim-go/blob/master/CHANGELOG.md#117---march-27-2018">https://github.com/fatih/vim-go/blob/master/CHANGELOG.md#117---march-27-2018</a></p>
+
+<pre><code>1.17 - (March 27, 2018)
+FEATURES:
+Debugger support! Add integrated support for the delve debugger. Use :GoInstallBinaries to install dlv, and see :help go-debug to get started. [GH-1390]
+</code></pre>
+
+<p>なお、<code>vim-go</code>はチュートリアルを読めば大半の機能を理解することが出来るが、最近追加された機能まではチュートリアルに載っていない。</p>
+
+<p><strong>fatih/vim-go-tutorial</strong><br />
+<a href="https://github.com/fatih/vim-go-tutorial">https://github.com/fatih/vim-go-tutorial</a></p>
+
+<p><a href="https://twitter.com/hnakamur2">@hnakamur2</a>さんが日本語翻訳版も公開してくれている。</p>
+
+<p><strong>hnakamur/vim-go-tutorial-ja</strong><br />
+<a href="https://github.com/hnakamur/vim-go-tutorial-ja">https://github.com/hnakamur/vim-go-tutorial-ja</a></p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li><code>vim-go</code>のデバッグ機能をヘルプからまとめた</li>
+</ul>
+
+<p>ほぼヘルプのコマンドを動かした通りなので、英語に抵抗がないならば、Vimを開いて<code>:h go-debug</code>とすれば良い。<br />
+見つからない場合は<code>vim-go</code>が古い状態になっている。</p>
+
+<p><a href="https://github.com/fatih/vim-go/blob/7ac1e62fa30d84946e93a3820bb6cf6a431186ed/doc/vim-go.txt#L1872">https://github.com/fatih/vim-go/blob/7ac1e62fa30d84946e93a3820bb6cf6a431186ed/doc/vim-go.txt#L1872</a></p>
+
+<p>なお、今回基本的なデバッグ用語(ブレークポイント、ステップインなど)の説明は省略する。<br />
+以下のgif動画は以下の操作を行った際の画面を記録したものである。</p>
+
+<ul>
+<li><code>Vim</code>を起動</li>
+<li>デバッグモードを開始</li>
+<li>ブレークポイントを設置</li>
+<li>コンテニューでデバッグを開始</li>
+<li>スタックを確認</li>
+<li>ローカル変数配列を展開</li>
+<li>実行中の変数の中身をデバッグプリント</li>
+<li>デバッグモードを終了</li>
+</ul>
+
+<p><img src="/2018/05/delve.gif" alt="vim-debug-demo" /></p>
+
+<h1 id="事前準備">事前準備</h1>
+
+<p>まずは最新版のvim-goに更新しておく。<code>vim-go</code>の<code>delve</code>周りに5月に一度更新が入っているので最新版を取得しておいたほうがよい。<br />
+dein.vimでpluginをアップデートするときは<code>vim</code>を起動して以下のコマンドを実行する。</p>
+
+<pre><code class="language-vim">:call dein#update()
+</code></pre>
+
+<p><code>:h go-debug</code>と入力して<code>DEBUGGER</code>のヘルプが表示されたならば<code>vim-go</code>でデバッグが出来るようになっている。</p>
+
+<p><code>delve</code>が動くことも確認しておこう。ターミナルで一通り動くことを確認しておいたほうが良い。<br />
+自分の場合、Macで使うとdelveの起動は出来てもデバッグの開始に失敗することがあった。</p>
+
+<ul>
+<li><a href="/2017/12/24/activate-delve-on-mac/">[Go]MacのVSCodeでGoのデバッグを試すと&rdquo;unexpected fault address&hellip;&ldquo;エラーになる</a></li>
+</ul>
+
+<h1 id="vim上でのデバッグ">Vim上でのデバッグ</h1>
+
+<p>今回のデバッグ対象のサンプルとして次のコードを利用した。</p>
+
+<p><a href="https://github.com/budougumi0617/gopl/blob/master/ch01/ex02/echo.go">https://github.com/budougumi0617/gopl/blob/master/ch01/ex02/echo.go</a></p>
+
+<pre><code>package main
+
+import (
+	&quot;fmt&quot;
+	&quot;io&quot;
+	&quot;os&quot;
+	&quot;strconv&quot;
+)
+
+var out io.Writer = os.Stdout // modified during testing
+
+func main() {
+	for index, arg := range os.Args {
+		s := &quot;[&quot; + strconv.Itoa(index) + &quot;] &quot; + arg // Convert integert to string
+		fmt.Fprintln(out, s)
+	}
+}
+</code></pre>
+
+<p>ローカルにある上記のコードをリポジトリルート上をカレントディレクトリとして<code>vim</code>で開いた。</p>
+
+<pre><code class="language-bash">$ cd $GOPATH/src/github.com/budougumi0617/gopl/
+$ vim ch01/ex02/echo.go
+</code></pre>
+
+<h1 id="godebugstart-デバッグを開始する"><code>:GoDebugStart</code> デバッグを開始する</h1>
+
+<p>まず、デバッグモードの起動の仕方だ。
+デバッグを開始するときは以下のように<code>:GoDebugStart</code>を実行する。(testをデバッグする場合は<code>:GoDebugTest</code>)</p>
+
+<pre><code>:GoDebugStart [pkg] [program-args]
+</code></pre>
+
+<p>たとえば、今回の例の場合はデバッグ対象のパッケージがカレントディレクトリではないので、以下のようになる。</p>
+
+<pre><code>:GoDebugStart ./ch01/ex02 test test2
+</code></pre>
+
+<p>デバッグ実行時にプログラムへ引数やフラグを渡すときはパッケージ名のあとに指定する。<br />
+ブレークポイントを指定していた場合、そこでプログラムが止まった状態でデバッグモードに移行しているはずだ。</p>
+
+<p><img src="/2018/05/go-debug-start.png" alt="GoDebugStart" />
+また、もしここでデバッグモードの起動に失敗する場合、<code>:messages</code>を実行することで起動時のログを確認することができる。</p>
+
+<h1 id="godebugbreakpoint-ブレークポイントを設定する"><code>:GoDebugBreakpoint</code> | ブレークポイントを設定する</h1>
+
+<p>次に、ブレークポイントを設定する。なお、ブレークポイントの設置はデバッグモードに入る前に実施することも出来る。
+ブレークポイントを設定したい行の上にカーソルを移動して<code>:GoDebugBreakpoint</code>を実行するか、
+ブレークポイントを設定した<code>LINE_NUM</code>行目を引数にして<code>:GoDebugBreakpoint $LINE_NUM</code>と実行する。
+成功すると、左端に<code>&gt;</code>とマーキングがされる。
+ブレークポイントを解除したい場合はやはりカーソルを該当行に置くか、引数で指定して<code>:GoDebugBreakpoint</code>を実行する。</p>
+
+<h1 id="デバッガで挙動を確認する">デバッガで挙動を確認する</h1>
+
+<p>デバッグモード起動後は一般的なデバッグのようにステップ実行することが出来る。それぞれのコマンドにはデフォルトでキーバインドも設定されている。</p>
+
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>キーバインド</th>
+<th>説明</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>:GoDebugContinue</code></td>
+<td>F5</td>
+<td>ブレークポイントまでプログラムを実行する</td>
+</tr>
+
+<tr>
+<td><code>:GoDebugNext</code></td>
+<td>F10</td>
+<td>ステップオーバー実行。プログラム未開始時は<code>:GoDebugContinue</code>相当</td>
+</tr>
+
+<tr>
+<td><code>:GoDebugStep</code></td>
+<td>F11</td>
+<td>ステップイン実行。プログラム未開始時は<code>:GoDebugContinue</code>相当</td>
+</tr>
+
+<tr>
+<td><code>:GoDebugStepOut</code></td>
+<td>なし</td>
+<td>ステップアウト実行</td>
+</tr>
+
+<tr>
+<td><code>:GoDebugSet</code></td>
+<td>なし</td>
+<td><code>delve</code>がサポートしている一部のプリミティブ型に値をセットできる</td>
+</tr>
+
+<tr>
+<td><code>:GoDebugPrint</code></td>
+<td>F6</td>
+<td>引数に指定された変数もしくはカーソル下の変数の値を確認できる</td>
+</tr>
+</tbody>
+</table>
+
+<p>デバッグ中は右下のウインドウでログや出力情報を確認することができる。</p>
+
+<p><img src="/2018/05/go-debug-print.png" alt="GoDebugPrint" /></p>
+
+<h1 id="変数の情報を確認する">変数の情報を確認する</h1>
+
+<p>左下のウインドウに変数情報が表示されている。配列情報はその変数にカーソルを合わせてエンターを押下すれば情報を展開することも出来る。</p>
+
+<h1 id="スタック情報を確認する">スタック情報を確認する</h1>
+
+<p>左のウインドウはスタック情報であり、変数名と同様に、確認したいスタック名でエンターをクリックすれば、呼び出し元の情報を確認することも可能。</p>
+
+<h1 id="godebugrestart-デバッグを再開始する"><code>:GoDebugRestart</code> | デバッグを再開始する</h1>
+
+<p>ブレークポイントなどを不用意に通過してしまった場合はリスタートすることもできる。</p>
+
+<h1 id="godebugstop-デバッグを終了する"><code>:GoDebugStop</code> | デバッグを終了する</h1>
+
+<p>デバッグを終了する場合は<code>:GoDebugStop</code>を実行する。
+デバッグ用のウインドウやブレークポイント情報がすべて取り除かれ、通常表示のVimに戻るはずだ。</p>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>以上で<code>Vim-go</code>と<code>delve</code>でデバッグする方法をまとめた。
+UIに関しては<code>delve</code>をそのまま使うより、圧倒的にvim-goのほうがリッチだった気がする。
+ますますVimでGoを書くのが楽しくなった。</p>
+
+<h1 id="関連">関連</h1>
+
+<ul>
+<li><a href="/2017/12/24/activate-delve-on-mac/">[Go]MacのVSCodeでGoのデバッグを試すと&rdquo;unexpected fault address&hellip;&ldquo;エラーになる</a></li>
+<li><a href="/2018/04/08/debug-by-delve/">Goのデバッガ(Delve)のいろいろな起動のしかた(引数を渡して起動、起動中のプロセスにアタッチして起動 etc&hellip;)</a></li>
+</ul>
+
+</div>
+
+
+      <footer>
+  
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f05%2f30%2fdebug-go-by-vim-go-and-delve%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=%5bGo%5dvim-go%e3%81%a8Delve%e3%81%a7Vim%e4%b8%8a%e3%81%8b%e3%82%89Go%e3%81%ae%e3%83%87%e3%83%90%e3%83%83%e3%82%b0%e3%82%92%e8%a1%8c%e3%81%86%20%23vim%20%23golang&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f05%2f30%2fdebug-go-by-vim-go-and-delve%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f05%2f30%2fdebug-go-by-vim-go-and-delve%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f05%2f30%2fdebug-go-by-vim-go-and-delve%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f05%2f30%2fdebug-go-by-vim-go-and-delve%2f&amp;title=%5bGo%5dvim-go%e3%81%a8Delve%e3%81%a7Vim%e4%b8%8a%e3%81%8b%e3%82%89Go%e3%81%ae%e3%83%87%e3%83%90%e3%83%83%e3%82%b0%e3%82%92%e8%a1%8c%e3%81%86%20%23vim%20%23golang" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=%5bGo%5dvim-go%e3%81%a8Delve%e3%81%a7Vim%e4%b8%8a%e3%81%8b%e3%82%89Go%e3%81%ae%e3%83%87%e3%83%90%e3%83%83%e3%82%b0%e3%82%92%e8%a1%8c%e3%81%86%20%23vim%20%23golang&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f05%2f30%2fdebug-go-by-vim-go-and-delve%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      
+  
+    <nav><ul class="pager">
+    
+        <li class="previous">
+          <a href="https://budougumi0617.github.io/2018/05/24/inject-io-writer-to-zap-logger/" title="[Go]go.uber.org/zap.loggerの出力をbytes.Bufferに変更する #golang">
+            <span aria-hidden="true">&larr;</span>Previous
+          </a>
+        </li>
+    
+
+    
+    </ul> </nav>
+  
+
+
+</div>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+    
+    
+    if (window.location.hostname == "localhost")
+      return;
+
+    var dsq = document.createElement('script'); dsq.async = true; dsq.type = 'text/javascript';
+    dsq.src = '//http-budougumi0617-github-io.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
+</footer>
+
+    </div>
+    
+      <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+        <div>
+  
+
+    <div class="section">
+      <header><div class="title"><b>Latest Posts</b></div></header>
+      <div class="content">
+        <ul>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/05/30/debug-go-by-vim-go-and-delve/">[Go]vim-goとDelveでVim上からGoのデバッグを行う #vim #golang</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/05/24/inject-io-writer-to-zap-logger/">[Go]go.uber.org/zap.loggerの出力をbytes.Bufferに変更する #golang</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/05/23/review-sql-study-database-operation-from-zero/">[書評]SQL 第2版 ゼロからはじめるデータベース操作 を読んだ</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/05/20/create-instant-mysql-by-docker/">Dockerで使い捨てのMySQL環境を用意する。事前データを投入して起動する。</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/05/18/make-presentation-on-google-slide/">Googleスライドで「いい感じ」に背景画像を設定する</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/05/10/go-get-from-go1-tag-or-branch/">go getで取得されるコードはmasterブランチ(HEAD)がデフォルトではない #golang</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/05/06/vim-go-gofillstruct/">[vim-go]GoFillStructで構造体のフィールド初期化文を自動生成する</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/05/02/cndjp5-cicd-tools/">[k8s]あつまれ！ CI/CDツール大集合！ - cndjp第5回 参加メモ #cndjp5</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/04/28/gcpug-tokyo-kubernetes-engine-day-april-2018/">[k8s]GCPUG Tokyo Kubernetes Engine Day April 2018参加メモ #gcpug</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/04/27/spinnaker-introduction/">[発表資料]Spinnaker入門 #cndjp5</a>
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>category</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/categories/go">go</a></li><li><a href="/categories/report">report</a></li><li><a href="/categories/c-sharp">c-sharp</a></li><li><a href="/categories/kubernetes">kubernetes</a></li><li><a href="/categories/review">review</a></li><li><a href="/categories/grpc">grpc</a></li><li><a href="/categories/dot-net">dot-net</a></li><li><a href="/categories/gcp">gcp</a></li><li><a href="/categories/spinnaker">spinnaker</a></li><li><a href="/categories/docker">docker</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>tag</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/tags/golang">golang</a></li><li><a href="/tags/k8s">k8s</a></li><li><a href="/tags/book">book</a></li><li><a href="/tags/cndjp">cndjp</a></li><li><a href="/tags/grpc">grpc</a></li><li><a href="/tags/docker">docker</a></li><li><a href="/tags/spinnaker">spinnaker</a></li><li><a href="/tags/gcp">gcp</a></li><li><a href="/tags/golangtokyo">golangtokyo</a></li><li><a href="/tags/debug">debug</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+    
+
+</div>
+
+      </div>
+    
+  </div>
+</div>
+    
+<footer class="footer hidden-print">
+  <div class="container">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+           <div class="pull-left">
+  <a class="toplink" href="javascript:" id="return-to-top">back to top</a>
+</div>
+<div class="pull-right">
+
+</div>
+
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+              
+    
+<div class="container footline">
+    <small>
+  Copyright&copy; <a href='/2017/07/11/about-this-site/'>budougumi0617</a>
+
+</small>
+</div>
+
+
+    
+
+
+        </div>
+    </div>
+  </div>
+</footer>
+
+    
+
+<script src="//s3.amazonaws.com/mailmunch/static/site.js" id="mailmunch-script" data-mailmunch-site-id="" async="async"></script>
+
+
+
+<script src="//load.sumome.com/" data-sumo-site-id="" async="async"></script>
+
+<script src="https://budougumi0617.github.io/js/jquery.min.js"></script>
+<script src="https://budougumi0617.github.io/js/bootstrap.min.js"></script>
+
+
+<script src="https://budougumi0617.github.io/js/highlight.pack.js"></script>
+<script src="https://budougumi0617.github.io/js/site.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+<script>
+var ENABLE_POPOVER = "", 
+EXPIRE_COOKIE = "", 
+SHOW_MODAL_TIMEOUT = "", 
+MOUSE_LEAVE = "", 
+MODAL_SIZE = "", 
+POST_URL = "", 
+SIGNUP_HEADER = "",
+HEADER_IMAGE = "",
+IMG_DESCRIPTION = "",
+SIGNUP_TEXT = "",
+INPUT_PLACEHOLDER = "",
+SUBMIT_BUTTON = "",
+SUCCESS_MESSAGE = "",
+ERROR_MESSAGE = "",
+OPTIN = "",
+COOKIE_NAME = "",
+CONTENTLANGUAGE = ""; 
+</script>
+
+
+
+
+
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//MathJax.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//config/TeX-AMS-MML_HTMLorMML.js"></script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\[','\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    for(var all in MathJax.Hub.getAllJax()) {
+        all.SourceElement().parentNode.className += ' has-jax';
+
+    }
+});
+</script>
+
+
+
+
+
+
+  </body>
+</html>
+
