@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>Continuous Delivery With Spinnakerでマイクロサービスの継続的デリバリーの課題と解決手法を学ぶ  &middot; My External Storage</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="spinnaker, book, microservices, k8s, ">
+
+
+<meta property="og:title" content="Continuous Delivery With Spinnakerでマイクロサービスの継続的デリバリーの課題と解決手法を学ぶ  &middot; My External Storage ">
+<meta property="og:site_name" content="My External Storage"/>
+<meta property="og:url" content="https://budougumi0617.github.io/2018/06/14/review-continuous-delivery-with-spinnaker/" />
+<meta property="og:locale" content="ja-jp">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="2018-06-14T08:55:40&#43;09:00" />
+<meta property="og:article:modified_time" content="2018-06-14T08:55:40&#43;09:00" />
+
+  
+    
+<meta property="og:article:tag" content="spinnaker">
+    
+<meta property="og:article:tag" content="book">
+    
+<meta property="og:article:tag" content="microservices">
+    
+<meta property="og:article:tag" content="k8s">
+    
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@budougumi0617" />
+<meta name="twitter:creator" content="@budougumi0617" />
+<meta name="twitter:title" content="Continuous Delivery With Spinnakerでマイクロサービスの継続的デリバリーの課題と解決手法を学ぶ" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="https://budougumi0617.github.io/2018/06/14/review-continuous-delivery-with-spinnaker/" />
+<meta name="twitter:domain" content="https://budougumi0617.github.io/">
+  
+
+  
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "Continuous Delivery With Spinnakerでマイクロサービスの継続的デリバリーの課題と解決手法を学ぶ",
+    "author": {
+      "@type": "Person",
+      "name": "http://profiles.google.com/+?rel=author"
+    },
+    "datePublished": "2018-06-14",
+    "description": "",
+    "wordCount":  3339 
+  }
+</script>
+  
+
+
+
+<link rel="canonical" href="https://budougumi0617.github.io/2018/06/14/review-continuous-delivery-with-spinnaker/" />
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/touch-icon-144-precomposed.png">
+<link rel="icon" href="/favicon.png">
+<meta name="generator" content="Hugo 0.25-DEV" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+
+
+    <link rel="stylesheet" href="https://budougumi0617.github.io/css/bootswatch/flatly/bootstrap.min.css">
+
+
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/style.css">
+
+
+
+
+  <link rel="stylesheet" href="https://budougumi0617.github.io/css/highlight/default.css">
+
+
+</head>
+<body class="map[name:flatly]" data-ng-app="myapp" data-ng-controller="MyController" data-ng-mouseleave="MouseLeave($event)">
+    <header id="main-header">
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        
+          
+          <a class="navbar-brand-img" href="/">
+            <img alt="My External Storage" src="/logo.png">
+            
+          </a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav navbar-right">
+            
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/" >
+                <i class='fa fa-home'></i>
+                Home
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/post/" >
+                <i class='fa fa-archive'></i>
+                Archives
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" >
+                <i class='fa fa-info-circle'></i>
+                About
+              </a>
+            </li>
+            
+            
+              
+          </ul>
+        </div>
+        
+      </div>
+    </nav>
+  </header>
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-9">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  <div class="text-center">
+
+    <h1>Continuous Delivery With Spinnakerでマイクロサービスの継続的デリバリーの課題と解決手法を学ぶ
+</h1>
+
+    <div class="metas">
+<small>
+  <i class="fa fa-calendar"></i>
+  <time datetime="2018-06-14">14 Jun, 2018</time>
+</small>
+
+
+  <small>
+    &middot; by budougumi0617
+  
+  &middot; Read in about 7 min
+  &middot; (3339 words)
+  &middot; 
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f06%2f14%2freview-continuous-delivery-with-spinnaker%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=Continuous%20Delivery%20With%20Spinnaker%e3%81%a7%e3%83%9e%e3%82%a4%e3%82%af%e3%83%ad%e3%82%b5%e3%83%bc%e3%83%93%e3%82%b9%e3%81%ae%e7%b6%99%e7%b6%9a%e7%9a%84%e3%83%87%e3%83%aa%e3%83%90%e3%83%aa%e3%83%bc%e3%81%ae%e8%aa%b2%e9%a1%8c%e3%81%a8%e8%a7%a3%e6%b1%ba%e6%89%8b%e6%b3%95%e3%82%92%e5%ad%a6%e3%81%b6&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f06%2f14%2freview-continuous-delivery-with-spinnaker%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f06%2f14%2freview-continuous-delivery-with-spinnaker%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f06%2f14%2freview-continuous-delivery-with-spinnaker%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f06%2f14%2freview-continuous-delivery-with-spinnaker%2f&amp;title=Continuous%20Delivery%20With%20Spinnaker%e3%81%a7%e3%83%9e%e3%82%a4%e3%82%af%e3%83%ad%e3%82%b5%e3%83%bc%e3%83%93%e3%82%b9%e3%81%ae%e7%b6%99%e7%b6%9a%e7%9a%84%e3%83%87%e3%83%aa%e3%83%90%e3%83%aa%e3%83%bc%e3%81%ae%e8%aa%b2%e9%a1%8c%e3%81%a8%e8%a7%a3%e6%b1%ba%e6%89%8b%e6%b3%95%e3%82%92%e5%ad%a6%e3%81%b6" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=Continuous%20Delivery%20With%20Spinnaker%e3%81%a7%e3%83%9e%e3%82%a4%e3%82%af%e3%83%ad%e3%82%b5%e3%83%bc%e3%83%93%e3%82%b9%e3%81%ae%e7%b6%99%e7%b6%9a%e7%9a%84%e3%83%87%e3%83%aa%e3%83%90%e3%83%aa%e3%83%bc%e3%81%ae%e8%aa%b2%e9%a1%8c%e3%81%a8%e8%a7%a3%e6%b1%ba%e6%89%8b%e6%b3%95%e3%82%92%e5%ad%a6%e3%81%b6&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f06%2f14%2freview-continuous-delivery-with-spinnaker%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  </small>
+
+<div class="margin-10">
+  <i class="fa fa-tags"></i>
+  
+  <a href="https://budougumi0617.github.io/tags/spinnaker" class="label label-primary">spinnaker</a>
+  
+  <a href="https://budougumi0617.github.io/tags/book" class="label label-primary">book</a>
+  
+  <a href="https://budougumi0617.github.io/tags/microservices" class="label label-primary">microservices</a>
+  
+  <a href="https://budougumi0617.github.io/tags/k8s" class="label label-primary">k8s</a>
+  
+
+
+</div>
+
+<br>
+</div>
+
+  </div>
+</div>
+
+      <div class="content">
+  
+
+<p>Netflixが公開している無料の電子書籍をざっと読んだので紹介。<br />
+マイクロサービスにおける継続的デリバリーのプラクティスと、継続的デリバリーのためのOSSツールであるSpinnakerの紹介がまとまっている。</p>
+
+<p><strong>Continuous Delivery With Spinnaker</strong><br />
+<a href="https://www.spinnaker.io/ebook/#continuous-delivery-with-spinnaker">https://www.spinnaker.io/ebook/#continuous-delivery-with-spinnaker</a></p>
+
+<p><a href="https://www.spinnaker.io/ebook/#continuous-delivery-with-spinnaker"><img src="/2018/06/spinnaker-ebook.png" alt="book-cover" /></a></p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>英語が得意な人ならば半日もあれば読める程度のボリューム</li>
+<li>マルチクラウドに展開するマイクロサービスが直面する課題やリスクが知ることができる</li>
+<li>Netflixが取っているアプローチやソリューションを知ることができる。</li>
+<li>Spinnakerというツールを使うとどのように解決できるかを知ることができる</li>
+</ul>
+
+<h1 id="本の概要">本の概要</h1>
+
+<p>Netflixは&rdquo;<a href="http://amazon.jp/dp/4873117607">マイクロサービスアーキテクチャ</a>&ldquo;でもAmazonなどと並んで言及されている、クラウドでマイクロサービスでサービスを展開している会社として有名だ。</p>
+
+<p><strong>Netflix Technology Blog</strong><br />
+<a href="https://medium.com/@NetflixTechBlog">https://medium.com/@NetflixTechBlog</a></p>
+
+<p>そのNetflixが考えるマルチクラウドへの継続的デリバリーのアプローチ・プラクティスと社内で利用されてる<a href="https://www.spinnaker.io/">Spinnaker</a>の利用方法がまとまっている。</p>
+
+<p><strong>Multi-Cloud Continuous Delivery with Spinnaker report now available.</strong><br />
+<a href="https://medium.com/netflix-techblog/multi-cloud-continuous-delivery-with-spinnaker-report-now-available-6040ba83b765">https://medium.com/netflix-techblog/multi-cloud-continuous-delivery-with-spinnaker-report-now-available-6040ba83b765</a></p>
+
+<p>電子書籍自体は無料で公開されており、英語が得意な人ならば半日もあれば読める程度のボリュームだ（自分は英語が苦手なのでKindle for MacでGoogle翻訳にコピペしながら読んでいる）。<br />
+対象読者は以下の通りで、Spinnakerに興味がなくてもマイクサービスの継続的デリバリーを行うときの考え方を知るに大いに参考になると思う。</p>
+
+<ul>
+<li>なぜ継続的デリバリーを行う必要があるのか知りたい</li>
+<li>クラウドサービスの継続的デリバリーの手法を知りたい</li>
+<li>Spinnakerを使ったアプローチ</li>
+</ul>
+
+<p>マルチクラウドサービスへの展開をする前に直面する課題やリスク、対するソリューションを先駆者から知ることができる。</p>
+
+<h1 id="各章の簡単なまとめ">各章の簡単なまとめ</h1>
+
+<p>電子書籍は11章で構成されている。各章の概要を簡単にまとめておく。</p>
+
+<h2 id="1-why-continuous-delivery">1. Why Continuous Delivery</h2>
+
+<p>なぜ継続的デリバリーが組織にとって有益なのか。</p>
+
+<ul>
+<li>継続的デリバリーのメリット
+
+<ul>
+<li>新機能・機能変更・バグ修正の迅速な市場投入が保証できる</li>
+<li>システム化されたデプロイによって特定の時間やターゲットに対して変更を徐々に展開することができる</li>
+<li>システム化されたデプロイプロセスによって障害発生時の影響範囲を抑えることができる</li>
+<li>コミットとデプロイまでの時間の短縮で開発者はバグに対する解析や対応を迅速に行うことができる</li>
+</ul></li>
+</ul>
+
+<p>安定して迅速な継続的デリバリーを実現するためには自動化を積極的に行う必要がある。</p>
+
+<ul>
+<li>プラクティス
+
+<ul>
+<li>エンジニア自身がリリースとサポートを担当できるようにすることでエンジニア自身が自分たちが作成したサービスに対して向き合うことができる。</li>
+<li>複雑なクラウド上のリソースの扱いを簡略化し、サービスの開発フォーカスすることができる。</li>
+<li>ツールを統一することでひとつのチームのカイゼンを全チームが享受することができる</li>
+</ul></li>
+</ul>
+
+<h2 id="2-cloud-deployment-considerations">2. Cloud Deployment Considerations</h2>
+
+<p>クラウドに正常にデプロイするためには何に気をつければ良いか。それに対してNetflixはどのような解決策・Spinnakerを用いているのか。</p>
+
+<ul>
+<li>ソフトウェアのデプロイ方法やアーキテクチャはアプリケーションのスケーラビリティ（トラフィック/エンジニア/サービスの規模全てのおいての）に影響する
+
+<ul>
+<li>クラウドの認証情報</li>
+<li>リージョンやクラウドプロパイダをまたいだトラフィック制御・ゾーン隔離</li>
+<li>オートスケーリング</li>
+<li>Immutable Infrastructureとデータの永続性・一貫性</li>
+<li>サービスデリバリー</li>
+<li>マルチクラウド</li>
+<li>クラウドへのオペレーションの抽象化・簡略化</li>
+</ul></li>
+<li>Netflixはこれらの課題を解決するためにSpinnakerを導入している。</li>
+</ul>
+
+<h2 id="3-managing-cloud-infrastructure">3. Managing Cloud Infrastructure</h2>
+
+<p>マルチクラウドに対するデプロイで発生する課題を命名規則による抽象化で解決するアプローチの紹介</p>
+
+<ul>
+<li>Netflixのクラウドアーキテクチャへのアプローチはサーバグループへの命名規則、Immutable Artifacts、サーバグループによって構成される。</li>
+<li>Netflixはred/black(blue/green)デプロイを基本としてアプリケーションを中心においたクラウドリソースの管理を行う</li>
+<li>マルチクラウド上の大量のリソースをインフラチームが中央集権的に管理することより、個々のアプリ開発チームによるメンテを容易にするようにしている</li>
+</ul>
+
+<h2 id="4-structuring-deployments-as-pipelines">4. Structuring Deployments as Pipelines</h2>
+
+<p>Spinnakerというツール自体に興味があって、その概要について知りたい場合はこの章から読むと良い。</p>
+
+<ul>
+<li>Spinnakerによるパイプラインの構造化の概要</li>
+<li>Spinnakerのパイプラインは通知、展開、検証、Jenkinsのジョブなど様々なステージを組み合わせて構成することができる</li>
+<li>開発チームはそれぞれでデプロイフローを最適化できるし、Spinnakerに追加される新たなステージや通知、トリガーを取り込んで継続的にデプロイフローを改善ができる。</li>
+</ul>
+
+<h2 id="5-working-with-cloud-vms-aws-ec2">5. Working with Cloud VMs: AWS EC2</h2>
+
+<ul>
+<li>SpinnakerによってAWS EC2上にアプリケーションを展開するときの具体例</li>
+<li>ヘルスチェックや負荷具合をトリガーに既存のサーバーグループをオートスケーリングをする例も示されている</li>
+</ul>
+
+<h2 id="6-kubernetes">6. Kubernetes</h2>
+
+<p>Kubernetes(k8s)上にアプリケーションを展開する上で考慮すべきこととSpinnakerがどのように課題解決に役立つのか</p>
+
+<ul>
+<li>k8sのデフォルトでは実現できないConfigMap(設定情報のリソース)も含めたDockerイメージのバージョン管理</li>
+<li><code>kubectl</code>からの操作では成しえないデプロイ・配置の”完了”の保証と別クラスターへの再デプロイ</li>
+</ul>
+
+<h2 id="7-making-deployments-safer">7. Making Deployments Safer</h2>
+
+<p>安全のために速度を犠牲にしないデプロイをするためのプラクティスや手法。</p>
+
+<ul>
+<li>Blue/Green, Rollingアップデートやロールバックの基本的なデプロイ手法</li>
+<li>Spinnakerを利用することで実現するトラフィック制御やカナリーリリースおよびカナリーリリースの自動検証</li>
+</ul>
+
+<h1 id="8-automated-canary-analysis">8. Automated Canary Analysis</h1>
+
+<p>Kayentaを利用した自動カナリーリリース解析について。</p>
+
+<p><strong>Automated Canary Analysis at Netflix with Kayenta</strong><br />
+<a href="https://medium.com/netflix-techblog/automated-canary-analysis-at-netflix-with-kayenta-3260bc7acc69">https://medium.com/netflix-techblog/automated-canary-analysis-at-netflix-with-kayenta-3260bc7acc69</a></p>
+
+<ul>
+<li>Spinnakerを利用したカナリーリリースの自動解析</li>
+<li>Spinnakerを使うことで、カナリーリリースした成果物の任意のメトリクスの計測、スコア化を自動で行い、予め決めた合格点を満たすか自動判定できる</li>
+<li>マニュアル、アドホックな分析を減らすことで大規模・継続的なリリースを迅速かつ安全に行うことができる。</li>
+</ul>
+
+<h1 id="9-declarative-continuous-delivery">9. Declarative Continuous Delivery</h1>
+
+<p>Spinnakerで宣言的にデリバリーパイプラインを記述するをアプローチ。
+GUIではなくコードでパイプラインを表現するのはは2018/06/14時点でもまだGAされていないSpinnakerの新たな取り組みだ。</p>
+
+<p><strong>Codifying your Spinnaker Pipelines</strong><br />
+<a href="https://blog.spinnaker.io/codifying-your-spinnaker-pipelines-ea8e9164998f">https://blog.spinnaker.io/codifying-your-spinnaker-pipelines-ea8e9164998f</a></p>
+
+<ul>
+<li>宣言的に継続的デリバリーを行う試み</li>
+<li>GUIによるインタラクティブなデプロイ設定が特徴的なSpinnakerでも宣言的なデプロイをサポートする動きはすでに始まっている</li>
+<li>大規模な組織であるほど宣言的なアプローチは強力なソリューションになりうる</li>
+</ul>
+
+<h2 id="10-extending-spinnaker">10. Extending Spinnaker</h2>
+
+<p>Spinnakerの拡張性について。（この章は継続的デリバリー一般への言及ではなくSpinnakerに特化したトピック）</p>
+
+<ul>
+<li>Spinnakerの機能だけでは対応できないエッジケースのために、Spinnakerを拡張することもできる</li>
+<li>例えばパイプライン中にカスタムステージを作成したり、UIに独自のリンクやボタンを追加するなど。</li>
+<li>Typescript/Reactの知識があればフロントエンドの拡張を、Java(JVM)の知識があればバックエンドの拡張を行うことが可能</li>
+</ul>
+
+<h2 id="11-adopting-spinnaker">11. Adopting Spinnaker</h2>
+
+<p>Netflix内でSpinnakerがどのように広まったのか。</p>
+
+<ul>
+<li>Spinnakerを効果的にエンジニアリングチームへオンボーディングさせるか</li>
+<li>NetfilixでSpinnakerを採用することになった決め手
+
+<ul>
+<li>ベストプラクティスを簡単に利用できる</li>
+<li>セキュアなデフォルト構成</li>
+<li>マルチクラウドを標準化できる</li>
+<li>デプロイフロー(既存のJenkinsジョブなど)の再利用性</li>
+<li>(先駆者による)迅速なサポート体制</li>
+</ul></li>
+</ul>
+
+<h1 id="最後に">最後に</h1>
+
+<p>大規模サービスを展開するとき・展開したときの課題をその前に想像したり、あるいはアプローチ・解決手段を考えるのは難しい。<br />
+そのような内容をNetflixのような先駆者が無料書籍にして公開してくれるのは感謝しかない。<br />
+そしてそれをちゃんと読めない自分はもっと英語を学ばなければならない。まだ流し読みしかできていないので、改めてちゃんと読んでおく。</p>
+
+<p><strong>Continuous Delivery With Spinnaker</strong><br />
+<a href="https://www.spinnaker.io/ebook/#continuous-delivery-with-spinnaker">https://www.spinnaker.io/ebook/#continuous-delivery-with-spinnaker</a></p>
+
+<p><a href="https://www.spinnaker.io/ebook/#continuous-delivery-with-spinnaker"><img src="/2018/06/spinnaker-ebook.png" alt="book-cover" /></a></p>
+
+</div>
+
+
+      <footer>
+  
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f06%2f14%2freview-continuous-delivery-with-spinnaker%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=Continuous%20Delivery%20With%20Spinnaker%e3%81%a7%e3%83%9e%e3%82%a4%e3%82%af%e3%83%ad%e3%82%b5%e3%83%bc%e3%83%93%e3%82%b9%e3%81%ae%e7%b6%99%e7%b6%9a%e7%9a%84%e3%83%87%e3%83%aa%e3%83%90%e3%83%aa%e3%83%bc%e3%81%ae%e8%aa%b2%e9%a1%8c%e3%81%a8%e8%a7%a3%e6%b1%ba%e6%89%8b%e6%b3%95%e3%82%92%e5%ad%a6%e3%81%b6&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f06%2f14%2freview-continuous-delivery-with-spinnaker%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f06%2f14%2freview-continuous-delivery-with-spinnaker%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f06%2f14%2freview-continuous-delivery-with-spinnaker%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f06%2f14%2freview-continuous-delivery-with-spinnaker%2f&amp;title=Continuous%20Delivery%20With%20Spinnaker%e3%81%a7%e3%83%9e%e3%82%a4%e3%82%af%e3%83%ad%e3%82%b5%e3%83%bc%e3%83%93%e3%82%b9%e3%81%ae%e7%b6%99%e7%b6%9a%e7%9a%84%e3%83%87%e3%83%aa%e3%83%90%e3%83%aa%e3%83%bc%e3%81%ae%e8%aa%b2%e9%a1%8c%e3%81%a8%e8%a7%a3%e6%b1%ba%e6%89%8b%e6%b3%95%e3%82%92%e5%ad%a6%e3%81%b6" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=Continuous%20Delivery%20With%20Spinnaker%e3%81%a7%e3%83%9e%e3%82%a4%e3%82%af%e3%83%ad%e3%82%b5%e3%83%bc%e3%83%93%e3%82%b9%e3%81%ae%e7%b6%99%e7%b6%9a%e7%9a%84%e3%83%87%e3%83%aa%e3%83%90%e3%83%aa%e3%83%bc%e3%81%ae%e8%aa%b2%e9%a1%8c%e3%81%a8%e8%a7%a3%e6%b1%ba%e6%89%8b%e6%b3%95%e3%82%92%e5%ad%a6%e3%81%b6&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f06%2f14%2freview-continuous-delivery-with-spinnaker%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      
+  
+    <nav><ul class="pager">
+    
+        <li class="previous">
+          <a href="https://budougumi0617.github.io/2018/06/13/403-error-when-add-google-account-for-kayenta/" title="hal config canary google account addすると&#34;Required &#39;compute.projects.get&#39; permission for...&#34;で403エラー #spinnaker #kayenta">
+            <span aria-hidden="true">&larr;</span>Previous
+          </a>
+        </li>
+    
+
+    
+    </ul> </nav>
+  
+
+
+</div>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+    
+    
+    if (window.location.hostname == "localhost")
+      return;
+
+    var dsq = document.createElement('script'); dsq.async = true; dsq.type = 'text/javascript';
+    dsq.src = '//http-budougumi0617-github-io.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
+</footer>
+
+    </div>
+    
+      <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+        <div>
+  
+
+    <div class="section">
+      <header><div class="title"><b>Latest Posts</b></div></header>
+      <div class="content">
+        <ul>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/06/14/review-continuous-delivery-with-spinnaker/">Continuous Delivery With Spinnakerでマイクロサービスの継続的デリバリーの課題と解決手法を学ぶ</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/06/13/403-error-when-add-google-account-for-kayenta/">hal config canary google account addすると&#34;Required &#39;compute.projects.get&#39; permission for...&#34;で403エラー #spinnaker #kayenta</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/06/10/katacoda-introduction/">コンテナ技術の学習するなら圧倒的にKatacodaがおすすめ #k8s #kubernetes</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/05/30/go-introduction/">[発表資料]Go入門</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/05/30/debug-go-by-vim-go-and-delve/">[Go]vim-goとDelveでVim上からGoのデバッグを行う #vim #golang</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/05/24/inject-io-writer-to-zap-logger/">[Go]go.uber.org/zap.loggerの出力をbytes.Bufferに変更する #golang</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/05/23/review-sql-study-database-operation-from-zero/">[書評]SQL 第2版 ゼロからはじめるデータベース操作 を読んだ</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/05/20/create-instant-mysql-by-docker/">Dockerで使い捨てのMySQL環境を用意する。事前データを投入して起動する。</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/05/18/make-presentation-on-google-slide/">Googleスライドで「いい感じ」に背景画像を設定する</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/05/10/go-get-from-go1-tag-or-branch/">go getで取得されるコードはmasterブランチ(HEAD)がデフォルトではない #golang</a>
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>category</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/categories/go">go</a></li><li><a href="/categories/report">report</a></li><li><a href="/categories/kubernetes">kubernetes</a></li><li><a href="/categories/review">review</a></li><li><a href="/categories/c-sharp">c-sharp</a></li><li><a href="/categories/spinnaker">spinnaker</a></li><li><a href="/categories/gcp">gcp</a></li><li><a href="/categories/grpc">grpc</a></li><li><a href="/categories/docker">docker</a></li><li><a href="/categories/dot-net">dot-net</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>tag</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/tags/golang">golang</a></li><li><a href="/tags/k8s">k8s</a></li><li><a href="/tags/book">book</a></li><li><a href="/tags/spinnaker">spinnaker</a></li><li><a href="/tags/cndjp">cndjp</a></li><li><a href="/tags/docker">docker</a></li><li><a href="/tags/grpc">grpc</a></li><li><a href="/tags/gcp">gcp</a></li><li><a href="/tags/golangtokyo">golangtokyo</a></li><li><a href="/tags/debug">debug</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+    
+
+</div>
+
+      </div>
+    
+  </div>
+</div>
+    
+<footer class="footer hidden-print">
+  <div class="container">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+           <div class="pull-left">
+  <a class="toplink" href="javascript:" id="return-to-top">back to top</a>
+</div>
+<div class="pull-right">
+
+</div>
+
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+              
+    
+<div class="container footline">
+    <small>
+  Copyright&copy; <a href='/2017/07/11/about-this-site/'>budougumi0617</a>
+
+</small>
+</div>
+
+
+    
+
+
+        </div>
+    </div>
+  </div>
+</footer>
+
+    
+
+<script src="//s3.amazonaws.com/mailmunch/static/site.js" id="mailmunch-script" data-mailmunch-site-id="" async="async"></script>
+
+
+
+<script src="//load.sumome.com/" data-sumo-site-id="" async="async"></script>
+
+<script src="https://budougumi0617.github.io/js/jquery.min.js"></script>
+<script src="https://budougumi0617.github.io/js/bootstrap.min.js"></script>
+
+
+<script src="https://budougumi0617.github.io/js/highlight.pack.js"></script>
+<script src="https://budougumi0617.github.io/js/site.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+<script>
+var ENABLE_POPOVER = "", 
+EXPIRE_COOKIE = "", 
+SHOW_MODAL_TIMEOUT = "", 
+MOUSE_LEAVE = "", 
+MODAL_SIZE = "", 
+POST_URL = "", 
+SIGNUP_HEADER = "",
+HEADER_IMAGE = "",
+IMG_DESCRIPTION = "",
+SIGNUP_TEXT = "",
+INPUT_PLACEHOLDER = "",
+SUBMIT_BUTTON = "",
+SUCCESS_MESSAGE = "",
+ERROR_MESSAGE = "",
+OPTIN = "",
+COOKIE_NAME = "",
+CONTENTLANGUAGE = ""; 
+</script>
+
+
+
+
+
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//MathJax.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//config/TeX-AMS-MML_HTMLorMML.js"></script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\[','\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    for(var all in MathJax.Hub.getAllJax()) {
+        all.SourceElement().parentNode.className += ' has-jax';
+
+    }
+});
+</script>
+
+
+
+
+
+
+  </body>
+</html>
+
