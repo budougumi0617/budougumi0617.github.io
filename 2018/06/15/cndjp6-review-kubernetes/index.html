@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>[k8s]隅からスミまでKubernetes総復習 - cndjpシーズン1まとめ参加メモ #cndjp #k8s  &middot; My External Storage</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="k8s, cndjp, ">
+
+
+<meta property="og:title" content="[k8s]隅からスミまでKubernetes総復習 - cndjpシーズン1まとめ参加メモ #cndjp #k8s  &middot; My External Storage ">
+<meta property="og:site_name" content="My External Storage"/>
+<meta property="og:url" content="https://budougumi0617.github.io/2018/06/15/cndjp6-review-kubernetes/" />
+<meta property="og:locale" content="ja-jp">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="2018-06-15T22:12:45&#43;09:00" />
+<meta property="og:article:modified_time" content="2018-06-15T22:12:45&#43;09:00" />
+
+  
+    
+<meta property="og:article:tag" content="k8s">
+    
+<meta property="og:article:tag" content="cndjp">
+    
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@budougumi0617" />
+<meta name="twitter:creator" content="@budougumi0617" />
+<meta name="twitter:title" content="[k8s]隅からスミまでKubernetes総復習 - cndjpシーズン1まとめ参加メモ #cndjp #k8s" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="https://budougumi0617.github.io/2018/06/15/cndjp6-review-kubernetes/" />
+<meta name="twitter:domain" content="https://budougumi0617.github.io/">
+  
+
+  
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "[k8s]隅からスミまでKubernetes総復習 - cndjpシーズン1まとめ参加メモ #cndjp #k8s",
+    "author": {
+      "@type": "Person",
+      "name": "http://profiles.google.com/+?rel=author"
+    },
+    "datePublished": "2018-06-15",
+    "description": "",
+    "wordCount":  3780 
+  }
+</script>
+  
+
+
+
+<link rel="canonical" href="https://budougumi0617.github.io/2018/06/15/cndjp6-review-kubernetes/" />
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/touch-icon-144-precomposed.png">
+<link rel="icon" href="/favicon.png">
+<meta name="generator" content="Hugo 0.25-DEV" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+
+
+    <link rel="stylesheet" href="https://budougumi0617.github.io/css/bootswatch/flatly/bootstrap.min.css">
+
+
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://budougumi0617.github.io/css/style.css">
+
+
+
+
+  <link rel="stylesheet" href="https://budougumi0617.github.io/css/highlight/default.css">
+
+
+</head>
+<body class="map[name:flatly]" data-ng-app="myapp" data-ng-controller="MyController" data-ng-mouseleave="MouseLeave($event)">
+    <header id="main-header">
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        
+          
+          <a class="navbar-brand-img" href="/">
+            <img alt="My External Storage" src="/logo.png">
+            
+          </a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav navbar-right">
+            
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/" >
+                <i class='fa fa-home'></i>
+                Home
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/post/" >
+                <i class='fa fa-archive'></i>
+                Archives
+              </a>
+            </li>
+            
+            <li class="">
+
+              <a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" >
+                <i class='fa fa-info-circle'></i>
+                About
+              </a>
+            </li>
+            
+            
+              
+          </ul>
+        </div>
+        
+      </div>
+    </nav>
+  </header>
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-9">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  <div class="text-center">
+
+    <h1>[k8s]隅からスミまでKubernetes総復習 - cndjpシーズン1まとめ参加メモ #cndjp #k8s
+</h1>
+
+    <div class="metas">
+<small>
+  <i class="fa fa-calendar"></i>
+  <time datetime="2018-06-15">15 Jun, 2018</time>
+</small>
+
+
+  <small>
+    &middot; by budougumi0617
+  
+  &middot; Read in about 8 min
+  &middot; (3780 words)
+  &middot; 
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f06%2f15%2fcndjp6-review-kubernetes%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=%5bk8s%5d%e9%9a%85%e3%81%8b%e3%82%89%e3%82%b9%e3%83%9f%e3%81%be%e3%81%a7Kubernetes%e7%b7%8f%e5%be%a9%e7%bf%92%20-%20cndjp%e3%82%b7%e3%83%bc%e3%82%ba%e3%83%b31%e3%81%be%e3%81%a8%e3%82%81%e5%8f%82%e5%8a%a0%e3%83%a1%e3%83%a2%20%23cndjp%20%23k8s&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f06%2f15%2fcndjp6-review-kubernetes%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f06%2f15%2fcndjp6-review-kubernetes%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f06%2f15%2fcndjp6-review-kubernetes%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f06%2f15%2fcndjp6-review-kubernetes%2f&amp;title=%5bk8s%5d%e9%9a%85%e3%81%8b%e3%82%89%e3%82%b9%e3%83%9f%e3%81%be%e3%81%a7Kubernetes%e7%b7%8f%e5%be%a9%e7%bf%92%20-%20cndjp%e3%82%b7%e3%83%bc%e3%82%ba%e3%83%b31%e3%81%be%e3%81%a8%e3%82%81%e5%8f%82%e5%8a%a0%e3%83%a1%e3%83%a2%20%23cndjp%20%23k8s" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=%5bk8s%5d%e9%9a%85%e3%81%8b%e3%82%89%e3%82%b9%e3%83%9f%e3%81%be%e3%81%a7Kubernetes%e7%b7%8f%e5%be%a9%e7%bf%92%20-%20cndjp%e3%82%b7%e3%83%bc%e3%82%ba%e3%83%b31%e3%81%be%e3%81%a8%e3%82%81%e5%8f%82%e5%8a%a0%e3%83%a1%e3%83%a2%20%23cndjp%20%23k8s&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f06%2f15%2fcndjp6-review-kubernetes%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  </small>
+
+<div class="margin-10">
+  <i class="fa fa-tags"></i>
+  
+  <a href="https://budougumi0617.github.io/tags/k8s" class="label label-primary">k8s</a>
+  
+  <a href="https://budougumi0617.github.io/tags/cndjp" class="label label-primary">cndjp</a>
+  
+
+
+</div>
+
+<br>
+</div>
+
+  </div>
+</div>
+
+      <div class="content">
+  
+
+<p>Cloud Native Developers JP(cndjp) の第6回目に参加してきたので、自分メモ。</p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>URL</td>
+<td><a href="https://cnd.connpass.com/event/89854/">https://cnd.connpass.com/event/89854/</a></td>
+</tr>
+
+<tr>
+<td>会場</td>
+<td>オラクル青山センター 13F セミナールーム</td>
+</tr>
+
+<tr>
+<td>日時</td>
+<td>2018/06/14(木) 18:30 〜 21:30</td>
+</tr>
+
+<tr>
+<td>資料1</td>
+<td><a href="https://speakerdeck.com/hhiroshell/kubernetesying-yong">Kubernetes応用</a></td>
+</tr>
+
+<tr>
+<td>資料2</td>
+<td><a href="https://speakerdeck.com/hhiroshell/kubernetesmaniatuku">Kubernetesマニアック</a></td>
+</tr>
+
+<tr>
+<td>ハッシュタグ</td>
+<td><a href="https://twitter.com/hashtag/cndjp">#cndjp</a></td>
+</tr>
+</tbody>
+</table>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<p>知っていると便利あるいはハマらないKubernetes(k8s)の細かい設定を学ぶことができた。</p>
+
+<ul>
+<li>Podの起動時と終了時に行われる・行える処理
+
+<ul>
+<li>InitContainerによる初期化処理を指定できる</li>
+<li>Container Lifecycle Hooksによる終了時と開始時にフック処理</li>
+<li>Liveness/Readiness Probesによる稼働監視</li>
+</ul></li>
+<li>Podに対する制限の付与
+
+<ul>
+<li>Resource Limit/Request リソースに対するコンテナの要件や制限を指定</li>
+<li>Resource Quota namespace単位でリソース使用量の制限</li>
+<li>Pod Security Policy セキュリティ関係の制約</li>
+<li>Network Policy 他のエンドポイントに通信を行うときのポリシー</li>
+</ul></li>
+<li>Podの配置先の制御
+
+<ul>
+<li>nodeSelector Nodeに貼ったLablelで配置先を制御</li>
+<li>Node Affinity nodeSelectorより条件の表現力が高い</li>
+<li>Pod Affinity 他のPodの稼働状況で新たなPodの配置先を制御</li>
+<li>Taint/Toleration Nodeに条件を設定して特定の条件を満たしたPodだけスケジューリング</li>
+</ul></li>
+<li>Kubernetesの拡張
+
+<ul>
+<li>独自Objectを定義・利用することができる</li>
+<li>プラグインを利用することでNetwork、DeviceやStorageの拡張ができる</li>
+</ul></li>
+</ul>
+
+<h1 id="所感">所感</h1>
+
+<p>終了後「入門k8s」を一通り眺め直したが、どれも書いていないことばかりだったので「こういう事ができる」と知れることができて良かった。<br />
+Pod起動時に前処理を挟むのは環境変数などの設定などで絶対使いたくなる気がする。<br />
+また、ポリシーの付与は組織として多種なサービスをKubernetes上で構築するときに必要になるのかなと思った。<br />
+プラグインなどの仕組みがあるおかげでk8sはOSSとして複数のベンダー、デバイス上で動かすことができるのだろう。</p>
+
+<p>以下、概要と関連リンクのメモ</p>
+
+<h1 id="podの起動時と終了時に行われる-行える処理">Podの起動時と終了時に行われる・行える処理</h1>
+
+<h2 id="pod-phase">Pod Phase</h2>
+
+<p><a href="https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-phase">https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-phase</a></p>
+
+<ul>
+<li>Podの状態を示す<code>PodStatus</code>には<code>phase</code>フィールドがある</li>
+<li><code>phase</code>には起動前の<code>Pending</code>フェーズと起動したことを示す<code>Running</code>フェーズが存在する</li>
+<li><code>Pending</code>フェーズでPodの作成やNodeへの配置が行われる</li>
+<li><code>Running</code>フェーズでコンテナのENTRY POINTなどの起動が始まる</li>
+</ul>
+
+<h2 id="pending-フェーズでできること"><code>Pending</code>フェーズでできること</h2>
+
+<p><code>Pending</code>フェーズでInitContainersという前処理用のコンテナが起動している。</p>
+
+<h3 id="init-containers">Init Containers</h3>
+
+<p><a href="https://kubernetes.io/docs/concepts/workloads/pods/init-containers/">https://kubernetes.io/docs/concepts/workloads/pods/init-containers/</a></p>
+
+<ul>
+<li>InitContainerはユーザーが用意しなくても動いているものもある</li>
+<li>InitContainerは複数使うこともできる。その場合はシーケンシャルに実行される</li>
+<li>IPアドレスの収集や外部サービスとの接続を待機するなどの処理を行う</li>
+</ul>
+
+<h2 id="running-フェーズでできること"><code>Running</code>フェーズでできること</h2>
+
+<p>Container Lifecycle Hookを使うとコンテナの生成、破棄をフックして特定の処理が実行できる。</p>
+
+<h3 id="container-lifecycle-hooks">Container Lifecycle Hooks</h3>
+
+<p><a href="https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/">https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/</a></p>
+
+<ul>
+<li><code>PostStart hook</code>でコンテナ生成時の処理を定義できる</li>
+<li><code>PreStop hook</code>でコンテナ終了前の処理を定義できる
+
+<ul>
+<li>それぞれスクリプトを動かす<code>Exec</code>と特定のリクエストを発行する<code>HTTP</code>の2種類を指定できる</li>
+</ul></li>
+</ul>
+
+<h3 id="container-probes">Container Probes</h3>
+
+<p><a href="https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes">https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes</a><br />
+<a href="https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/">https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/</a></p>
+
+<p>コンテナの起動が成功したのか、コンテナが正しく動いているかの監視定義を決められる。</p>
+
+<ul>
+<li><code>Readiness probe</code> コンテナがトラフィックを受け入れられる状態になったかの判定する
+
+<ul>
+<li>コンテナの起動 = サービスレディではないため</li>
+</ul></li>
+<li><code>Liveness probe</code> コンテナが&rdquo;生きている&rdquo;か確認するための条件
+
+<ul>
+<li>コンテナインスタンスがあってもサービスが稼働しているかはわからない</li>
+</ul></li>
+<li>それぞれ<code>Manifest</code>に条件を指定することができる
+
+<ul>
+<li><code>ExecAction</code> 指定したコマンドが終了コード0で終わるか</li>
+<li><code>HTTPGetAction</code> 指定のエンドポイントが200ステータスを返すか</li>
+<li><code>TCPSocketAction</code> TCPソケットのコネクションを張れるか</li>
+</ul></li>
+</ul>
+
+<h3 id="廃棄のときに行える処理">廃棄のときに行える処理</h3>
+
+<p><strong>Kubernetes: 詳解 Pods の終了</strong><br />
+<a href="https://qiita.com/superbrothers/items/3ac78daba3560ea406b2">https://qiita.com/superbrothers/items/3ac78daba3560ea406b2</a></p>
+
+<ul>
+<li>Podの終了イベントが起きたとき
+
+<ul>
+<li><code>Service</code>の<code>Endpoint</code>リストから除外され、Trafficが送られなくなる</li>
+<li><code>Prestop hook</code>が起動される。</li>
+</ul></li>
+<li><code>PreStop hook</code>が終わらないときはSIGTERM or SIGKILLで強制終了になってしまうこともある。
+
+<ul>
+<li>どちらのシグナルで終了するかは<code>gracePeriodSecconds</code>で決まる</li>
+<li>決め打ちでシグナルを実装しないこと</li>
+<li><code>Manifest</code>で指定したり<code>kubectl</code>から指定可能</li>
+</ul></li>
+</ul>
+
+<h1 id="ポリシーによる制御">ポリシーによる制御</h1>
+
+<p>Podに適用できるポリシーは主に4つ</p>
+
+<h2 id="resource-limits-resource-requests">Resource limits/ Resource requests</h2>
+
+<p><a href="https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#resource-requests-and-limits-of-pod-and-container">https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#resource-requests-and-limits-of-pod-and-container</a></p>
+
+<ul>
+<li>消費リソースの上限/下限を設定できる
+
+<ul>
+<li>CPU</li>
+</ul></li>
+<li>配置前
+
+<ul>
+<li>内包するコンテナ群のRsource requestの合計をまかなえる余剰がないNodeにはPodがスケジューリングされない</li>
+</ul></li>
+<li>配置後
+
+<ul>
+<li>limitを超えないように設定することができる</li>
+</ul></li>
+</ul>
+
+<h2 id="local-ephemeral-storage">Local Ephemeral Storage</h2>
+
+<p><a href="https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#local-ephemeral-storage">https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#local-ephemeral-storage</a></p>
+
+<ul>
+<li>Nodeのrootパーティションの利用量に対してLimit/requestを設定できる</li>
+</ul>
+
+<h2 id="extended-resource">Extended Resource</h2>
+
+<p><a href="https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#extended-resources">https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#extended-resources</a></p>
+
+<ul>
+<li>k8sが未サポートの独自管理したいリソースを追加できる。
+
+<ul>
+<li>GPUとか。</li>
+<li>Nodeごとに指定することもできる</li>
+</ul></li>
+</ul>
+
+<h2 id="resource-quota">Resource Quota</h2>
+
+<p><a href="https://kubernetes.io/docs/concepts/policy/resource-quotas/">https://kubernetes.io/docs/concepts/policy/resource-quotas/</a></p>
+
+<ul>
+<li><code>namespace</code>単位で設定可能なリソース使用量の制限</li>
+</ul>
+
+<h2 id="pod-security-policy">Pod Security Policy</h2>
+
+<p><a href="https://kubernetes.io/docs/concepts/policy/pod-security-policy/">https://kubernetes.io/docs/concepts/policy/pod-security-policy/</a></p>
+
+<ul>
+<li>コンテナ内にいろいろポリシーを制限することができる</li>
+<li>チームでクラスターを共有する運用でユーザーごとにできることを制限したいとき</li>
+<li><code>plivileged</code>なコンテナを作成する操作はクラスター管理者のみに許可(監視系のコンテナを各Nodeにするなど）</li>
+</ul>
+
+<h2 id="network-policies">Network Policies</h2>
+
+<p><a href="https://kubernetes.io/docs/concepts/services-networking/network-policies/">https://kubernetes.io/docs/concepts/services-networking/network-policies/</a></p>
+
+<ul>
+<li>Podが他のエンドポイントに通信を行うときのポリシーを設定</li>
+<li>Network Policyリソースを作成することで有効化する</li>
+<li>Network Policyはそれをサポートするnetwork providerを利用する必要がある</li>
+<li>例えば<code>flannel</code>単体では使えず、Calicoと組みあわせる必要がある。</li>
+<li><code>Istio</code>を使っているとそのまま使うことができる。</li>
+</ul>
+
+<h1 id="podの配置の制御">Podの配置の制御</h1>
+
+<p><a href="https://kubernetes.io/docs/concepts/configuration/assign-pod-node/">https://kubernetes.io/docs/concepts/configuration/assign-pod-node/</a></p>
+
+<h2 id="nodeselector">nodeSelector</h2>
+
+<p><a href="https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector">https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector</a></p>
+
+<ul>
+<li>Nodeにあらかじめ指定されたラベルにマッチするNodeからPodが配置される</li>
+<li>暗黙的にNodeに設定されているLabelもある。マネージドサービスを使っていると特に。</li>
+</ul>
+
+<h2 id="node-affinity-anti-affinity">Node Affinity/anti-Affinity</h2>
+
+<p><a href="https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity">https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity</a></p>
+
+<ul>
+<li>妥協的に配置したり、PodのLabelを条件に使える</li>
+<li>あるLabelがついているPodと同じNodeには載せないとか。</li>
+<li>required/preferredの条件がある。</li>
+<li>preferredにはweightを指定することができて、weightの合計値が大きいほどそのNodeに配置されやすい。</li>
+</ul>
+
+<h2 id="pod-affinity">Pod Affinity</h2>
+
+<ul>
+<li>すでに稼働しているPodに基づいて新しいPodを配置する条件にできる
+
+<ul>
+<li>例えば、Redisクラスターを分散配置したり、クライアントアプリをredisコンテナと同じ場所に乗せたり。</li>
+</ul></li>
+</ul>
+
+<h2 id="taintとtoleration">TaintとToleration</h2>
+
+<p><a href="https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/">https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/</a></p>
+
+<ul>
+<li>TaintsはNodeに設定される値。TolerationsはPodに指定する値</li>
+<li>それぞれの条件がマッチするPodだけNodeに乗る。</li>
+<li>例えば、特定のユーザーだけにNodeを使わせたいケース</li>
+<li>例えば、特殊なHWを必要なPodだけに使わせるケース</li>
+</ul>
+
+<h1 id="kubernetesの拡張">Kubernetesの拡張</h1>
+
+<ul>
+<li>ほとんどのケースでは、<code>Deployment</code>などの<code>Controller</code>オブジェクトを作成することにより、結果的にPodが作成される。</li>
+<li>各オブジェクトに対応する<code>Controller</code>がある。</li>
+<li>目的にユースケースに合わせて、Podをよしなに制御してくれるのが標準Controller</li>
+<li><code>Deployment</code>, <code>ReplicaSet</code>などの標準Controllerを動かしているデーモンプロセスがcontroller-manager
+
+<ul>
+<li>Custom Controllerを作れば独自オブエジェクトが作れる</li>
+</ul></li>
+</ul>
+
+<h2 id="custom-resourceとkubernetes-apiの拡張">Custom ResourceとKubernetes APIの拡張</h2>
+
+<p><a href="https://kubernetes.io/docs/tasks/access-kubernetes-api/extend-api-custom-resource-definitions/">https://kubernetes.io/docs/tasks/access-kubernetes-api/extend-api-custom-resource-definitions/</a><br />
+<a href="https://www.ianlewis.org/jp/extending-kubernetes-ja">https://www.ianlewis.org/jp/extending-kubernetes-ja</a></p>
+
+<ul>
+<li>kubernetesに独自のリソースを追加して利用することができる。
+
+<ul>
+<li>Kubernetes APIの拡張</li>
+<li>Custom Objectの作成</li>
+<li>Custom Controllerの拡張</li>
+</ul></li>
+<li>Kubernetes APIの拡張には二通りの方法がある
+
+<ul>
+<li>CustomResourceDefiinition(CRD)</li>
+<li>独自のリソースタイプをAPI Serverに登録することCustom Objectを取り扱えるようになる</li>
+<li>Aggregation Layerの追加</li>
+<li>標準API serverと独立した独自のAPI機能をクラスターに追加できる</li>
+</ul></li>
+<li>Custom Objectの作成
+
+<ul>
+<li><code>Manifest</code>を定義する</li>
+</ul></li>
+<li>Custom Controllerの拡張
+
+<ul>
+<li>コードジェネレータを使えばCustom Controllerで利用するクライアントライブラリの一部を自動生成できる</li>
+<li><a href="https://github.com/kubernetes/code-generator">https://github.com/kubernetes/code-generator</a></li>
+</ul></li>
+</ul>
+
+<p><strong>KubernetesのCRD(Custom Resource Definition)とカスタムコントローラーの作成</strong><br />
+<a href="https://qiita.com/__Attsun__/items/785008ef970ad82c679c">https://qiita.com/__Attsun__/items/785008ef970ad82c679c</a></p>
+
+<h2 id="インフラの拡張">インフラの拡張</h2>
+
+<p><a href="https://kubernetes.io/docs/concepts/extend-kubernetes/extend-cluster/">https://kubernetes.io/docs/concepts/extend-kubernetes/extend-cluster/</a></p>
+
+<ul>
+<li>特殊なデバイスを利用するための拡張ができる</li>
+<li>Device PluginやNetwork Pluginとか</li>
+<li>デバイスプラグイン本体の準備（デバイスベンダーからの情報に従う）</li>
+<li>k8sのDevice Pluginを有効化</li>
+<li>Podからデバイスの利用を宣言</li>
+<li>Network Plugin(CNI)
+
+<ul>
+<li>CNCFのプロジェクトとして仕様策定が進んでいる</li>
+<li><a href="https://www.cncf.io/blog/2017/05/23/cncf-hosts-container-networkinpg-interface-cni/">https://www.cncf.io/blog/2017/05/23/cncf-hosts-container-networkinpg-interface-cni/</a></li>
+</ul></li>
+<li>Network Plugin(kubenet)
+
+<ul>
+<li><a href="https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins/">https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins/</a></li>
+<li>GKEなどでクラスターを生成すると自動で構成される</li>
+</ul></li>
+</ul>
+
+<h1 id="container-runtime-interface-cri">Container Runtime Interface(CRI)</h1>
+
+<p><a href="https://github.com/kubernetes/kubernetes/blob/242a97307b34076d5d8f5bbeb154fa4d97c9ef1d/docs/devel/container-runtime-interface.md">https://github.com/kubernetes/kubernetes/blob/242a97307b34076d5d8f5bbeb154fa4d97c9ef1d/docs/devel/container-runtime-interface.md</a></p>
+
+<ul>
+<li>kubeletからPod及びContainerを操作するための共通インターフェース</li>
+<li>cri-oはOCI標準に準拠したランタイムを実行する仕組み</li>
+</ul>
+
+<h1 id="その他の拡張">その他の拡張</h1>
+
+<ul>
+<li>スケジューリングの制御周り
+
+<ul>
+<li>Configure Multiple Schedulers</li>
+<li><a href="https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/">https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/</a></li>
+</ul></li>
+<li>オートスケーリングやストレージのプラグインもできる。
+
+<ul>
+<li>Horizontal Pod Autoscaler</li>
+<li><a href="https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/">https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/</a></li>
+<li>Introducing Container Storage Interface (CSI) Alpha for Kubernetes</li>
+<li><a href="https://kubernetes.io/blog/2018/01/introducing-container-storage-interface/">https://kubernetes.io/blog/2018/01/introducing-container-storage-interface/</a></li>
+</ul></li>
+</ul>
+
+<h1 id="関連">関連</h1>
+
+<ul>
+<li><a href="/2018/04/27/spinnaker-introduction/">[発表資料]Spinnaker入門 #cndjp5</a></li>
+<li><a href="/2017/11/23/cndjp1/">Cloud Native Developers JP 第1回勉強会 参加メモ #cndjp1</a></li>
+<li><a href="/2017/12/18/kubernetes-in-production-cndjp2/">[k8s]Cloud Native Developers JP 第2回勉強会 参加メモ #cndjp2</a></li>
+<li><a href="/2018/02/03/kubernetes-with-availability-cndjp3/">[k8s]Cloud Native Developers JP 第3回勉強会 #cndjp3 参加メモ</a></li>
+<li><a href="/2018/04/01/kubernetes-network-deep-dive-cndjp4/">Kubernetes Network Deep Dive!（Istioもあるよ） cndjp第四回参加メモ #cndjp4</a></li>
+<li><a href="/2018/05/02/cndjp5-cicd-tools/">[k8s]あつまれ！ CI/CDツール大集合！ - cndjp第5回 参加メモ #cndjp5</a></li>
+</ul>
+
+</div>
+
+
+      <footer>
+  
+<span class="share-box">Share this on:
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f06%2f15%2fcndjp6-review-kubernetes%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
+
+    <a href="https://twitter.com/intent/tweet?text=%5bk8s%5d%e9%9a%85%e3%81%8b%e3%82%89%e3%82%b9%e3%83%9f%e3%81%be%e3%81%a7Kubernetes%e7%b7%8f%e5%be%a9%e7%bf%92%20-%20cndjp%e3%82%b7%e3%83%bc%e3%82%ba%e3%83%b31%e3%81%be%e3%81%a8%e3%82%81%e5%8f%82%e5%8a%a0%e3%83%a1%e3%83%a2%20%23cndjp%20%23k8s&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f06%2f15%2fcndjp6-review-kubernetes%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
+
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f06%2f15%2fcndjp6-review-kubernetes%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
+
+    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f06%2f15%2fcndjp6-review-kubernetes%2f" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
+
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f06%2f15%2fcndjp6-review-kubernetes%2f&amp;title=%5bk8s%5d%e9%9a%85%e3%81%8b%e3%82%89%e3%82%b9%e3%83%9f%e3%81%be%e3%81%a7Kubernetes%e7%b7%8f%e5%be%a9%e7%bf%92%20-%20cndjp%e3%82%b7%e3%83%bc%e3%82%ba%e3%83%b31%e3%81%be%e3%81%a8%e3%82%81%e5%8f%82%e5%8a%a0%e3%83%a1%e3%83%a2%20%23cndjp%20%23k8s" onclick="window.open(this.href, 'mywin',
+'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
+
+    <a href="mailto:?subject=%5bk8s%5d%e9%9a%85%e3%81%8b%e3%82%89%e3%82%b9%e3%83%9f%e3%81%be%e3%81%a7Kubernetes%e7%b7%8f%e5%be%a9%e7%bf%92%20-%20cndjp%e3%82%b7%e3%83%bc%e3%82%ba%e3%83%b31%e3%81%be%e3%81%a8%e3%82%81%e5%8f%82%e5%8a%a0%e3%83%a1%e3%83%a2%20%23cndjp%20%23k8s&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f06%2f15%2fcndjp6-review-kubernetes%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
+  </span>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      
+  
+    <nav><ul class="pager">
+    
+        <li class="previous">
+          <a href="https://budougumi0617.github.io/2018/06/14/review-continuous-delivery-with-spinnaker/" title="Continuous Delivery With Spinnakerでマイクロサービスの継続的デリバリーの課題と解決手法を学ぶ">
+            <span aria-hidden="true">&larr;</span>Previous
+          </a>
+        </li>
+    
+
+    
+    </ul> </nav>
+  
+
+
+</div>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+    
+    
+    if (window.location.hostname == "localhost")
+      return;
+
+    var dsq = document.createElement('script'); dsq.async = true; dsq.type = 'text/javascript';
+    dsq.src = '//http-budougumi0617-github-io.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
+</footer>
+
+    </div>
+    
+      <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+        <div>
+  
+
+    <div class="section">
+      <header><div class="title"><b>Latest Posts</b></div></header>
+      <div class="content">
+        <ul>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/06/15/cndjp6-review-kubernetes/">[k8s]隅からスミまでKubernetes総復習 - cndjpシーズン1まとめ参加メモ #cndjp #k8s</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/06/14/review-continuous-delivery-with-spinnaker/">Continuous Delivery With Spinnakerでマイクロサービスの継続的デリバリーの課題と解決手法を学ぶ</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/06/13/403-error-when-add-google-account-for-kayenta/">hal config canary google account addすると&#34;Required &#39;compute.projects.get&#39; permission for...&#34;で403エラー #spinnaker #kayenta</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/06/10/katacoda-introduction/">コンテナ技術の学習するなら圧倒的にKatacodaがおすすめ #k8s #kubernetes</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/05/30/go-introduction/">[発表資料]Go入門</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/05/30/debug-go-by-vim-go-and-delve/">[Go]vim-goとDelveでVim上からGoのデバッグを行う #vim #golang</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/05/24/inject-io-writer-to-zap-logger/">[Go]go.uber.org/zap.loggerの出力をbytes.Bufferに変更する #golang</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/05/23/review-sql-study-database-operation-from-zero/">[書評]SQL 第2版 ゼロからはじめるデータベース操作 を読んだ</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/05/20/create-instant-mysql-by-docker/">Dockerで使い捨てのMySQL環境を用意する。事前データを投入して起動する。</a>
+          </li>
+        
+          <li>
+          <a href="https://budougumi0617.github.io/2018/05/18/make-presentation-on-google-slide/">Googleスライドで「いい感じ」に背景画像を設定する</a>
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>category</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/categories/go">go</a></li><li><a href="/categories/report">report</a></li><li><a href="/categories/kubernetes">kubernetes</a></li><li><a href="/categories/review">review</a></li><li><a href="/categories/c-sharp">c-sharp</a></li><li><a href="/categories/spinnaker">spinnaker</a></li><li><a href="/categories/gcp">gcp</a></li><li><a href="/categories/grpc">grpc</a></li><li><a href="/categories/docker">docker</a></li><li><a href="/categories/dot-net">dot-net</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+      <div class="section taxonomies">
+        <header><div class="title"><b>tag</b></div></header>
+
+        <div class="content">
+          <ul>
+            <li><a href="/tags/golang">golang</a></li><li><a href="/tags/k8s">k8s</a></li><li><a href="/tags/book">book</a></li><li><a href="/tags/cndjp">cndjp</a></li><li><a href="/tags/spinnaker">spinnaker</a></li><li><a href="/tags/docker">docker</a></li><li><a href="/tags/grpc">grpc</a></li><li><a href="/tags/gcp">gcp</a></li><li><a href="/tags/golangtokyo">golangtokyo</a></li><li><a href="/tags/debug">debug</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      
+      
+    
+
+</div>
+
+      </div>
+    
+  </div>
+</div>
+    
+<footer class="footer hidden-print">
+  <div class="container">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+           <div class="pull-left">
+  <a class="toplink" href="javascript:" id="return-to-top">back to top</a>
+</div>
+<div class="pull-right">
+
+</div>
+
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+              
+    
+<div class="container footline">
+    <small>
+  Copyright&copy; <a href='/2017/07/11/about-this-site/'>budougumi0617</a>
+
+</small>
+</div>
+
+
+    
+
+
+        </div>
+    </div>
+  </div>
+</footer>
+
+    
+
+<script src="//s3.amazonaws.com/mailmunch/static/site.js" id="mailmunch-script" data-mailmunch-site-id="" async="async"></script>
+
+
+
+<script src="//load.sumome.com/" data-sumo-site-id="" async="async"></script>
+
+<script src="https://budougumi0617.github.io/js/jquery.min.js"></script>
+<script src="https://budougumi0617.github.io/js/bootstrap.min.js"></script>
+
+
+<script src="https://budougumi0617.github.io/js/highlight.pack.js"></script>
+<script src="https://budougumi0617.github.io/js/site.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+<script>
+var ENABLE_POPOVER = "", 
+EXPIRE_COOKIE = "", 
+SHOW_MODAL_TIMEOUT = "", 
+MOUSE_LEAVE = "", 
+MODAL_SIZE = "", 
+POST_URL = "", 
+SIGNUP_HEADER = "",
+HEADER_IMAGE = "",
+IMG_DESCRIPTION = "",
+SIGNUP_TEXT = "",
+INPUT_PLACEHOLDER = "",
+SUBMIT_BUTTON = "",
+SUCCESS_MESSAGE = "",
+ERROR_MESSAGE = "",
+OPTIN = "",
+COOKIE_NAME = "",
+CONTENTLANGUAGE = ""; 
+</script>
+
+
+
+
+
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//MathJax.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//config/TeX-AMS-MML_HTMLorMML.js"></script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\[','\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    for(var all in MathJax.Hub.getAllJax()) {
+        all.SourceElement().parentNode.className += ' has-jax';
+
+    }
+});
+</script>
+
+
+
+
+
+
+  </body>
+</html>
+
