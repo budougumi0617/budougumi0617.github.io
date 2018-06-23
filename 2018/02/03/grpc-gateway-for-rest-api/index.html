@@ -1,217 +1,161 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <title>[Go]gRPC GatewayでgRPCに対するREST APIを自動生成する  &middot; My External Storage</title>
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="HandheldFriendly" content="True">
-<meta name="MobileOptimized" content="320">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 
-
-<meta name="description" content="" />
-
-<meta name="keywords" content="golang, grpc, grpc-gateway, ">
-
-
-<meta property="og:title" content="[Go]gRPC GatewayでgRPCに対するREST APIを自動生成する  &middot; My External Storage ">
-<meta property="og:site_name" content="My External Storage"/>
-<meta property="og:url" content="https://budougumi0617.github.io/2018/02/03/grpc-gateway-for-rest-api/" />
-<meta property="og:locale" content="ja-jp">
-
-
-<meta property="og:type" content="article" />
-<meta property="og:description" content=""/>
-<meta property="og:article:published_time" content="2018-02-03T14:52:19&#43;09:00" />
-<meta property="og:article:modified_time" content="2018-02-03T14:52:19&#43;09:00" />
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
 
   
     
-<meta property="og:article:tag" content="golang">
     
-<meta property="og:article:tag" content="grpc">
-    
-<meta property="og:article:tag" content="grpc-gateway">
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
     
   
 
   
-<meta name="twitter:card" content="summary" />
-<meta name="twitter:site" content="@budougumi0617" />
-<meta name="twitter:creator" content="@budougumi0617" />
-<meta name="twitter:title" content="[Go]gRPC GatewayでgRPCに対するREST APIを自動生成する" />
-<meta name="twitter:description" content="" />
-<meta name="twitter:url" content="https://budougumi0617.github.io/2018/02/03/grpc-gateway-for-rest-api/" />
-<meta name="twitter:domain" content="https://budougumi0617.github.io/">
+  <title>[Go]gRPC GatewayでgRPCに対するREST APIを自動生成する</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
   
 
   
-<script type="application/ld+json">
-  {
-    "@context": "http://schema.org",
-    "@type": "Article",
-    "headline": "[Go]gRPC GatewayでgRPCに対するREST APIを自動生成する",
-    "author": {
-      "@type": "Person",
-      "name": "http://profiles.google.com/+?rel=author"
-    },
-    "datePublished": "2018-02-03",
-    "description": "",
-    "wordCount":  2162 
-  }
-</script>
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
   
 
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
 
+  
+  
+  
 
-<link rel="canonical" href="https://budougumi0617.github.io/2018/02/03/grpc-gateway-for-rest-api/" />
-<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/touch-icon-144-precomposed.png">
-<link rel="icon" href="/favicon.png">
-<meta name="generator" content="Hugo 0.25-DEV" />
+  
 
-  <!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
-<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-<![endif]-->
+  <meta name="description" content="">
+  <meta name="keywords" content="">
 
+  <meta name="author" content="">
 
+  
+  <meta name="generator" content="Hugo 0.42.1" />
 
-    <link rel="stylesheet" href="https://budougumi0617.github.io/css/bootswatch/flatly/bootstrap.min.css">
+  
+  
 
+  
+  
+    
 
-<link rel="stylesheet" href="https://budougumi0617.github.io/css/font-awesome.min.css">
-<link rel="stylesheet" href="https://budougumi0617.github.io/css/style.css">
+  
+    <meta name="twitter:card" content="summary"/>
+  
+  
+  <meta name="twitter:title" content="[Go]gRPC GatewayでgRPCに対するREST APIを自動生成する"/>
+  <meta name="twitter:description" content="gRPCで作ったAPIは通常REST APIからコールできない。 grpc-ecosystem/grpc-gatewayを使うとgRPC APIに"/>
+  
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
 
-
-
-
-  <link rel="stylesheet" href="https://budougumi0617.github.io/css/highlight/default.css">
-
+  
 
 </head>
-<body class="map[name:flatly]" data-ng-app="myapp" data-ng-controller="MyController" data-ng-mouseleave="MouseLeave($event)">
-    <header id="main-header">
-  <nav class="navbar navbar-default navbar-fixed-top">
-    <div class="container">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
         
+        
+
+<header>
+    <p class="meta">Feb 3, 2018
+         - 5 minute read 
+         - <a href="https://budougumi0617.github.io/2018/02/03/grpc-gateway-for-rest-api/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/go/">Go </a><a class="label" href="https://budougumi0617.github.io/categories/grpc/">gRPC </a>
+        
+    </p>
+    <h1 class="entry-title">
+         [Go]gRPC GatewayでgRPCに対するREST APIを自動生成する 
+    </h1>
+</header>
+
+
+        <div class="entry-content">
           
-          <a class="navbar-brand-img" href="/">
-            <img alt="My External Storage" src="/logo.png">
-            
-          </a>
-        </div>
-        <div id="navbar" class="collapse navbar-collapse">
-          <ul class="nav navbar-nav navbar-right">
-            
-            
-            <li class="">
-
-              <a href="https://budougumi0617.github.io/" >
-                <i class='fa fa-home'></i>
-                Home
-              </a>
-            </li>
-            
-            <li class="">
-
-              <a href="https://budougumi0617.github.io/post/" >
-                <i class='fa fa-archive'></i>
-                Archives
-              </a>
-            </li>
-            
-            <li class="">
-
-              <a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" >
-                <i class='fa fa-info-circle'></i>
-                About
-              </a>
-            </li>
-            
-            
-              
-          </ul>
-        </div>
-        
-      </div>
-    </nav>
-  </header>
-
-
-<div class="container">
-  <div class="row">
-    <div class="col-sm-9">
-      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-  <div class="text-center">
-
-    <h1>[Go]gRPC GatewayでgRPCに対するREST APIを自動生成する
-</h1>
-
-    <div class="metas">
-<small>
-  <i class="fa fa-calendar"></i>
-  <time datetime="2018-02-03">3 Feb, 2018</time>
-</small>
-
-
-  <small>
-    &middot; by budougumi0617
-  
-  &middot; Read in about 5 min
-  &middot; (2162 words)
-  &middot; 
-<span class="share-box">Share this on:
-    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f03%2fgrpc-gateway-for-rest-api%2f" onclick="window.open(this.href, 'mywin',
-'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
-
-    <a href="https://twitter.com/intent/tweet?text=%5bGo%5dgRPC%20Gateway%e3%81%a7gRPC%e3%81%ab%e5%af%be%e3%81%99%e3%82%8bREST%20API%e3%82%92%e8%87%aa%e5%8b%95%e7%94%9f%e6%88%90%e3%81%99%e3%82%8b&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f03%2fgrpc-gateway-for-rest-api%2f" onclick="window.open(this.href, 'mywin',
-'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
-
-    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f03%2fgrpc-gateway-for-rest-api%2f" onclick="window.open(this.href, 'mywin',
-'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
-
-    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f03%2fgrpc-gateway-for-rest-api%2f" onclick="window.open(this.href, 'mywin',
-'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
-
-    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f03%2fgrpc-gateway-for-rest-api%2f&amp;title=%5bGo%5dgRPC%20Gateway%e3%81%a7gRPC%e3%81%ab%e5%af%be%e3%81%99%e3%82%8bREST%20API%e3%82%92%e8%87%aa%e5%8b%95%e7%94%9f%e6%88%90%e3%81%99%e3%82%8b" onclick="window.open(this.href, 'mywin',
-'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
-
-    <a href="mailto:?subject=%5bGo%5dgRPC%20Gateway%e3%81%a7gRPC%e3%81%ab%e5%af%be%e3%81%99%e3%82%8bREST%20API%e3%82%92%e8%87%aa%e5%8b%95%e7%94%9f%e6%88%90%e3%81%99%e3%82%8b&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f03%2fgrpc-gateway-for-rest-api%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
-  </span>
-
-  </small>
-
-<div class="margin-10">
-  <i class="fa fa-tags"></i>
-  
-  <a href="https://budougumi0617.github.io/tags/golang" class="label label-primary">golang</a>
-  
-  <a href="https://budougumi0617.github.io/tags/grpc" class="label label-primary">grpc</a>
-  
-  <a href="https://budougumi0617.github.io/tags/grpc-gateway" class="label label-primary">grpc-gateway</a>
-  
-
-
-</div>
-
-<br>
-</div>
-
-  </div>
-</div>
-
-      <div class="content">
-  
+          
+          
+          
+          
 
 <p>gRPCで作ったAPIは通常REST APIからコールできない。<br />
 <code>grpc-ecosystem/grpc-gateway</code>を使うとgRPC APIに対するREST APIのリバースプロクシサーバのコードが自動生成出来る。
@@ -234,40 +178,71 @@ Protocol BufferにREST用の定義を追加して<code>grpc-ecosystem/grpc-gatew
 <p>Protocol Bufferの定義に<code>protoc</code>を使ってGoのコードを作成し、gRPCサーバ/クライアントの作成が一通り出来る環境は出来ているとする。</p>
 
 <p>まずは<code>grpc-gateway</code>関連のライブラリを取得する。</p>
-
-<pre><code class="language-bash">$ go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
 $ go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
-$ go get -u github.com/golang/protobuf/protoc-gen-go
-</code></pre>
-
+$ go get -u github.com/golang/protobuf/protoc-gen-go</code></pre></td></tr></table>
+</div>
+</div>
 <h2 id="rest-api定義をprotoファイルに追加する">REST API定義をprotoファイルに追加する</h2>
 
 <p>以下のページに文法が載っているので、gRPCとRPCの対比を見ながら<code>.proto</code>ファイルにオプションをつけていく。</p>
 
 <p><a href="https://cloud.google.com/service-management/reference/rpc/google.api#http">https://cloud.google.com/service-management/reference/rpc/google.api#http</a></p>
-
-<pre><code class="language-diff"> // For define null request
- import &quot;google/protobuf/empty.proto&quot;;
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">21
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"> // For define null request
+ import &#34;google/protobuf/empty.proto&#34;;
 
 +// For grpc gateway
-+import &quot;google/api/annotations.proto&quot;;
++import &#34;google/api/annotations.proto&#34;;
 +
  service TaskManager {
 -  rpc GetTask (GetTaskRequest) returns (Task) {}
 -  rpc ListTasks (google.protobuf.Empty) returns (stream Task) {}
 +  rpc GetTask (GetTaskRequest) returns (Task) {
 +    option (google.api.http) = {
-+       get: &quot;/v1/tasklist-gateway/task/{id}&quot; // &quot;id&quot; is defined in GetTaskRequest
++       get: &#34;/v1/tasklist-gateway/task/{id}&#34; // &#34;id&#34; is defined in GetTaskRequest
 +    };
 +  }
 +  rpc ListTasks (google.protobuf.Empty) returns (stream Task) {
 +    option (google.api.http) = {
-+       get: &quot;/v1/tasklist-gateway/task&quot;
++       get: &#34;/v1/tasklist-gateway/task&#34;
 +    };
 +  }
  }
-</code></pre>
-
+</code></pre></td></tr></table>
+</div>
+</div>
 <h2 id="protoc-gen-grpc-gateway-によるproxyサーバ用apiコードの自動生成"><code>protoc-gen-grpc-gateway</code>によるProxyサーバ用APIコードの自動生成</h2>
 
 <p>まずは普通の<code>protoc</code>コマンドでコンパイルする。<code>import</code>を増やしているので、<code>include</code>ディレクトリを増やす必要がある。<code>README</code>はもう少し<code>-I</code>オプションが多いが、自分はこれだけでOKだった。</p>
@@ -278,12 +253,18 @@ $ go get -u github.com/golang/protobuf/protoc-gen-go
 </code></pre>
 
 <p>次に、Gateway用のコンパイルを行う。</p>
-
-<pre><code class="language-bash">protoc -I/usr/local/include -I. -I$GOPATH/src \
-  -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
-  --grpc-gateway_out=logtostderr=true:. proto/task_list.proto
-</code></pre>
-
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">protoc -I/usr/local/include -I. -I$GOPATH/src <span style="color:#0ff;font-weight:bold">\
+</span><span style="color:#0ff;font-weight:bold"></span>  -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis <span style="color:#0ff;font-weight:bold">\
+</span><span style="color:#0ff;font-weight:bold"></span>  --grpc-gateway_out=logtostderr=true:. proto/task_list.proto</code></pre></td></tr></table>
+</div>
+</div>
 <p><code>grpc-gateway</code>で使えるオプションは2018/01/28の時点では以下の通りだった。<code>protoc</code>を実行するときに<code>--grpc-gateway_out=logtostderr=true</code>にカンマ区切りでオプションを追加できる。</p>
 
 <pre><code>go run $GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway/main.go -h
@@ -313,20 +294,33 @@ Usage of /var/folders/sy/ls4cfp216x774g54brzl67yw0000gn/T/go-build442506345/comm
 </code></pre>
 
 <p>例えば、こんな感じ。</p>
-
-<pre><code class="language-bash">protoc -I/usr/local/include -I. -I$GOPATH/src \
-  -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
-  --grpc-gateway_out=logtostderr=true,request_context=false,allow_delete_body=true:. \
-  proto/task_list.proto
-</code></pre>
-
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">protoc -I/usr/local/include -I. -I$GOPATH/src <span style="color:#0ff;font-weight:bold">\
+</span><span style="color:#0ff;font-weight:bold"></span>  -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis <span style="color:#0ff;font-weight:bold">\
+</span><span style="color:#0ff;font-weight:bold"></span>  --grpc-gateway_out=logtostderr=true,request_context=false,allow_delete_body=true:. <span style="color:#0ff;font-weight:bold">\
+</span><span style="color:#0ff;font-weight:bold"></span>  proto/task_list.proto</code></pre></td></tr></table>
+</div>
+</div>
 <p><code>swagger.json</code>も生成できる。</p>
-
-<pre><code class="language-bash">protoc -I/usr/local/include -I. -I$GOPATH/src \
-  -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
-  --swagger_out=logtostderr=true:. proto/task_list.proto
-</code></pre>
-
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">protoc -I/usr/local/include -I. -I$GOPATH/src <span style="color:#0ff;font-weight:bold">\
+</span><span style="color:#0ff;font-weight:bold"></span>  -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis <span style="color:#0ff;font-weight:bold">\
+</span><span style="color:#0ff;font-weight:bold"></span>  --swagger_out=logtostderr=true:. proto/task_list.proto</code></pre></td></tr></table>
+</div>
+</div>
 <p><code>swagger</code>生成用のオプションは<code>go run $GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/main.go -h</code>で知ることができる。</p>
 
 <h2 id="サーバコードの実装">サーバコードの実装</h2>
@@ -334,184 +328,356 @@ Usage of /var/folders/sy/ls4cfp216x774g54brzl67yw0000gn/T/go-build442506345/comm
 <p>もろもろのコードを自動生成できたので、あとはサーバーのコードを実装する。</p>
 
 <p>gRPCサーバは適当なデータを返すように実装しておく。</p>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">41
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">42
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">43
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">44
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">45
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">46
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">47
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">48
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">49
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">50
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">51
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">52
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">53
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">54
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">55
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">56
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">57
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">58
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">59
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">60
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">61
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">62
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">63
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">64
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">65
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">66
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">67
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">68
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">69
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">70
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">71
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">72
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">73
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">74
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">75
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">76
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">77
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#007f7f">// sandbox-grpc/tasklist-gateway/server/main.go
+</span><span style="color:#007f7f"></span>
+<span style="color:#007f7f">// It implements the route guide service whose definition can be found in proto/task_list.proto
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">package</span> main
 
-<pre><code class="language-go">// sandbox-grpc/tasklist-gateway/server/main.go
+<span style="color:#fff;font-weight:bold">import</span> (
+	<span style="color:#0ff;font-weight:bold">&#34;context&#34;</span>
+	<span style="color:#0ff;font-weight:bold">&#34;errors&#34;</span>
+	<span style="color:#0ff;font-weight:bold">&#34;log&#34;</span>
+	<span style="color:#0ff;font-weight:bold">&#34;net&#34;</span>
 
-// It implements the route guide service whose definition can be found in proto/task_list.proto
-package main
-
-import (
-	&quot;context&quot;
-	&quot;errors&quot;
-	&quot;log&quot;
-	&quot;net&quot;
-
-	tlpb &quot;github.com/budougumi0617/sandbox-grpc/tasklist-gateway/proto&quot;
-	google_protobuf &quot;github.com/golang/protobuf/ptypes/empty&quot;
-	&quot;google.golang.org/grpc&quot;
-	&quot;google.golang.org/grpc/reflection&quot;
+	tlpb <span style="color:#0ff;font-weight:bold">&#34;github.com/budougumi0617/sandbox-grpc/tasklist-gateway/proto&#34;</span>
+	google_protobuf <span style="color:#0ff;font-weight:bold">&#34;github.com/golang/protobuf/ptypes/empty&#34;</span>
+	<span style="color:#0ff;font-weight:bold">&#34;google.golang.org/grpc&#34;</span>
+	<span style="color:#0ff;font-weight:bold">&#34;google.golang.org/grpc/reflection&#34;</span>
 )
 
-const (
-	port = &quot;:50051&quot;
+<span style="color:#fff;font-weight:bold">const</span> (
+	port = <span style="color:#0ff;font-weight:bold">&#34;:50051&#34;</span>
 )
 
-// server is used to implement sa
-type server struct{}
+<span style="color:#007f7f">// server is used to implement sa
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">type</span> server <span style="color:#fff;font-weight:bold">struct</span>{}
 
-func (s *server) GetTask(ctx context.Context, req *tlpb.GetTaskRequest) (*tlpb.Task, error) {
-	log.Println(&quot;GetTask in gPRC server&quot;)
-	var task = &amp;tlpb.Task{
-		Id:     10,
-		Title:  &quot;Implement gRPC server&quot;,
-		Detail: &quot;Implement interface&quot;,
+<span style="color:#fff;font-weight:bold">func</span> (s *server) GetTask(ctx context.Context, req *tlpb.GetTaskRequest) (*tlpb.Task, <span style="color:#fff;font-weight:bold">error</span>) {
+	log.Println(<span style="color:#0ff;font-weight:bold">&#34;GetTask in gPRC server&#34;</span>)
+	<span style="color:#fff;font-weight:bold">var</span> task = &amp;tlpb.Task{
+		Id:     <span style="color:#ff0;font-weight:bold">10</span>,
+		Title:  <span style="color:#0ff;font-weight:bold">&#34;Implement gRPC server&#34;</span>,
+		Detail: <span style="color:#0ff;font-weight:bold">&#34;Implement interface&#34;</span>,
 	}
-	if req.Id == task.Id {
-		return task, nil
+	<span style="color:#fff;font-weight:bold">if</span> req.Id == task.Id {
+		<span style="color:#fff;font-weight:bold">return</span> task, <span style="color:#fff;font-weight:bold">nil</span>
 	}
-	return nil, errors.New(&quot;Not find Task&quot;)
+	<span style="color:#fff;font-weight:bold">return</span> <span style="color:#fff;font-weight:bold">nil</span>, errors.New(<span style="color:#0ff;font-weight:bold">&#34;Not find Task&#34;</span>)
 }
-func (s *server) ListTasks(_ *google_protobuf.Empty, stream tlpb.TaskManager_ListTasksServer) error {
-	log.Println(&quot;ListTasks in gPRC server&quot;)
+<span style="color:#fff;font-weight:bold">func</span> (s *server) ListTasks(_ *google_protobuf.Empty, stream tlpb.TaskManager_ListTasksServer) <span style="color:#fff;font-weight:bold">error</span> {
+	log.Println(<span style="color:#0ff;font-weight:bold">&#34;ListTasks in gPRC server&#34;</span>)
 	tasks := []*tlpb.Task{
 		&amp;tlpb.Task{
-			Id:     20,
-			Title:  &quot;List Tasks 1&quot;,
-			Detail: &quot;Implement interface&quot;,
+			Id:     <span style="color:#ff0;font-weight:bold">20</span>,
+			Title:  <span style="color:#0ff;font-weight:bold">&#34;List Tasks 1&#34;</span>,
+			Detail: <span style="color:#0ff;font-weight:bold">&#34;Implement interface&#34;</span>,
 		},
 		&amp;tlpb.Task{
-			Id:     21,
-			Title:  &quot;List Tasks 2&quot;,
-			Detail: &quot;Implement interface&quot;,
+			Id:     <span style="color:#ff0;font-weight:bold">21</span>,
+			Title:  <span style="color:#0ff;font-weight:bold">&#34;List Tasks 2&#34;</span>,
+			Detail: <span style="color:#0ff;font-weight:bold">&#34;Implement interface&#34;</span>,
 		},
 		&amp;tlpb.Task{
-			Id:     22,
-			Title:  &quot;List Tasks 3&quot;,
-			Detail: &quot;Implement interface&quot;,
+			Id:     <span style="color:#ff0;font-weight:bold">22</span>,
+			Title:  <span style="color:#0ff;font-weight:bold">&#34;List Tasks 3&#34;</span>,
+			Detail: <span style="color:#0ff;font-weight:bold">&#34;Implement interface&#34;</span>,
 		},
 	}
-	for _, task := range tasks {
-		if err := stream.Send(task); err != nil {
-			return err
+	<span style="color:#fff;font-weight:bold">for</span> _, task := <span style="color:#fff;font-weight:bold">range</span> tasks {
+		<span style="color:#fff;font-weight:bold">if</span> err := stream.Send(task); err != <span style="color:#fff;font-weight:bold">nil</span> {
+			<span style="color:#fff;font-weight:bold">return</span> err
 		}
 	}
-	return nil
+	<span style="color:#fff;font-weight:bold">return</span> <span style="color:#fff;font-weight:bold">nil</span>
 }
 
-func main() {
-	lis, err := net.Listen(&quot;tcp&quot;, port)
-	if err != nil {
-		log.Fatalf(&quot;failed to listen: %v&quot;, err)
+<span style="color:#fff;font-weight:bold">func</span> main() {
+	lis, err := net.Listen(<span style="color:#0ff;font-weight:bold">&#34;tcp&#34;</span>, port)
+	<span style="color:#fff;font-weight:bold">if</span> err != <span style="color:#fff;font-weight:bold">nil</span> {
+		log.Fatalf(<span style="color:#0ff;font-weight:bold">&#34;failed to listen: %v&#34;</span>, err)
 	}
 	s := grpc.NewServer()
 	tlpb.RegisterTaskManagerServer(s, &amp;server{})
-	// Register reflection service on gRPC server.
-	reflection.Register(s)
-	log.Printf(&quot;gRPC Server started: localhost%s\n&quot;, port)
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf(&quot;failed to serve: %v&quot;, err)
+	<span style="color:#007f7f">// Register reflection service on gRPC server.
+</span><span style="color:#007f7f"></span>	reflection.Register(s)
+	log.Printf(<span style="color:#0ff;font-weight:bold">&#34;gRPC Server started: localhost%s\n&#34;</span>, port)
+	<span style="color:#fff;font-weight:bold">if</span> err := s.Serve(lis); err != <span style="color:#fff;font-weight:bold">nil</span> {
+		log.Fatalf(<span style="color:#0ff;font-weight:bold">&#34;failed to serve: %v&#34;</span>, err)
 	}
-}
-</code></pre>
-
+}</code></pre></td></tr></table>
+</div>
+</div>
 <p>Proxyサーバはサンプルコードの<code>import</code>を変えるだけで良かった。</p>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">41
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">42
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#007f7f">// sandbox-grpc/tasklist-gateway/gateway/main.go
+</span><span style="color:#007f7f"></span>
+<span style="color:#fff;font-weight:bold">package</span> main
 
-<pre><code class="language-go">// sandbox-grpc/tasklist-gateway/gateway/main.go
+<span style="color:#fff;font-weight:bold">import</span> (
+	<span style="color:#0ff;font-weight:bold">&#34;flag&#34;</span>
+	<span style="color:#0ff;font-weight:bold">&#34;net/http&#34;</span>
 
-package main
-
-import (
-	&quot;flag&quot;
-	&quot;net/http&quot;
-
-	gw &quot;github.com/budougumi0617/sandbox-grpc/tasklist-gateway/proto&quot;
-	&quot;github.com/golang/glog&quot;
-	&quot;github.com/grpc-ecosystem/grpc-gateway/runtime&quot;
-	&quot;golang.org/x/net/context&quot;
-	&quot;google.golang.org/grpc&quot;
+	gw <span style="color:#0ff;font-weight:bold">&#34;github.com/budougumi0617/sandbox-grpc/tasklist-gateway/proto&#34;</span>
+	<span style="color:#0ff;font-weight:bold">&#34;github.com/golang/glog&#34;</span>
+	<span style="color:#0ff;font-weight:bold">&#34;github.com/grpc-ecosystem/grpc-gateway/runtime&#34;</span>
+	<span style="color:#0ff;font-weight:bold">&#34;golang.org/x/net/context&#34;</span>
+	<span style="color:#0ff;font-weight:bold">&#34;google.golang.org/grpc&#34;</span>
 )
 
-var (
-	tasklistEndpoint = flag.String(&quot;tasklist_endpoint&quot;, &quot;localhost:50051&quot;, &quot;endpoint of YourService&quot;)
+<span style="color:#fff;font-weight:bold">var</span> (
+	tasklistEndpoint = flag.String(<span style="color:#0ff;font-weight:bold">&#34;tasklist_endpoint&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;localhost:50051&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;endpoint of YourService&#34;</span>)
 )
 
-func run() error {
+<span style="color:#fff;font-weight:bold">func</span> run() <span style="color:#fff;font-weight:bold">error</span> {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
+	<span style="color:#fff;font-weight:bold">defer</span> cancel()
 
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithInsecure()}
 	err := gw.RegisterTaskManagerHandlerFromEndpoint(ctx, mux, *tasklistEndpoint, opts)
-	if err != nil {
-		return err
+	<span style="color:#fff;font-weight:bold">if</span> err != <span style="color:#fff;font-weight:bold">nil</span> {
+		<span style="color:#fff;font-weight:bold">return</span> err
 	}
 
-	return http.ListenAndServe(&quot;:8080&quot;, mux)
+	<span style="color:#fff;font-weight:bold">return</span> http.ListenAndServe(<span style="color:#0ff;font-weight:bold">&#34;:8080&#34;</span>, mux)
 }
 
-func main() {
+<span style="color:#fff;font-weight:bold">func</span> main() {
 	flag.Parse()
-	defer glog.Flush()
+	<span style="color:#fff;font-weight:bold">defer</span> glog.Flush()
 
-	if err := run(); err != nil {
+	<span style="color:#fff;font-weight:bold">if</span> err := run(); err != <span style="color:#fff;font-weight:bold">nil</span> {
 		glog.Fatal(err)
 	}
-}
-</code></pre>
-
+}</code></pre></td></tr></table>
+</div>
+</div>
 <h2 id="動作確認">動作確認</h2>
 
 <p>それぞれのサーバーを起動する。</p>
-
-<pre><code class="language-bash">$ go run ./gateway/main.go
-</code></pre>
-
-<pre><code class="language-bash">$ go run ./server/main.go
-</code></pre>
-
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run ./gateway/main.go</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run ./server/main.go</code></pre></td></tr></table>
+</div>
+</div>
 <p><code>curl</code>コマンドでREST APIを実行してみた。
 期待通りにデータが取得できている。</p>
-
-<pre><code class="language-bash">$ curl -D - -X GET http://localhost:8080/v1/tasklist-gateway/task
-HTTP/1.1 200 OK
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">28
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ curl -D - -X GET http://localhost:8080/v1/tasklist-gateway/task
+HTTP/1.1 <span style="color:#ff0;font-weight:bold">200</span> OK
 Content-Type: application/json
 Grpc-Metadata-Content-Type: application/grpc
-Date: Sun, 28 Jan 2018 04:03:14 GMT
+Date: Sun, <span style="color:#ff0;font-weight:bold">28</span> Jan <span style="color:#ff0;font-weight:bold">2018</span> <span style="color:#ff0;font-weight:bold">04</span>:03:14 GMT
 Transfer-Encoding: chunked
 
-{&quot;result&quot;:{&quot;id&quot;:20,&quot;title&quot;:&quot;List Tasks 1&quot;,&quot;detail&quot;:&quot;Implement interface&quot;}}
-{&quot;result&quot;:{&quot;id&quot;:21,&quot;title&quot;:&quot;List Tasks 2&quot;,&quot;detail&quot;:&quot;Implement interface&quot;}}
-{&quot;result&quot;:{&quot;id&quot;:22,&quot;title&quot;:&quot;List Tasks 3&quot;,&quot;detail&quot;:&quot;Implement interface&quot;}}
+{<span style="color:#0ff;font-weight:bold">&#34;result&#34;</span>:{<span style="color:#0ff;font-weight:bold">&#34;id&#34;</span>:20,<span style="color:#0ff;font-weight:bold">&#34;title&#34;</span>:<span style="color:#0ff;font-weight:bold">&#34;List Tasks 1&#34;</span>,<span style="color:#0ff;font-weight:bold">&#34;detail&#34;</span>:<span style="color:#0ff;font-weight:bold">&#34;Implement interface&#34;</span>}}
+{<span style="color:#0ff;font-weight:bold">&#34;result&#34;</span>:{<span style="color:#0ff;font-weight:bold">&#34;id&#34;</span>:21,<span style="color:#0ff;font-weight:bold">&#34;title&#34;</span>:<span style="color:#0ff;font-weight:bold">&#34;List Tasks 2&#34;</span>,<span style="color:#0ff;font-weight:bold">&#34;detail&#34;</span>:<span style="color:#0ff;font-weight:bold">&#34;Implement interface&#34;</span>}}
+{<span style="color:#0ff;font-weight:bold">&#34;result&#34;</span>:{<span style="color:#0ff;font-weight:bold">&#34;id&#34;</span>:22,<span style="color:#0ff;font-weight:bold">&#34;title&#34;</span>:<span style="color:#0ff;font-weight:bold">&#34;List Tasks 3&#34;</span>,<span style="color:#0ff;font-weight:bold">&#34;detail&#34;</span>:<span style="color:#0ff;font-weight:bold">&#34;Implement interface&#34;</span>}}
 
 $ curl -D - -X GET http://localhost:8080/v1/tasklist-gateway/task/11
-HTTP/1.1 500 Internal Server Error
+HTTP/1.1 <span style="color:#ff0;font-weight:bold">500</span> Internal Server Error
 Content-Type: application/json
 Trailer: Grpc-Trailer-Content-Type
-Date: Sun, 28 Jan 2018 04:03:29 GMT
+Date: Sun, <span style="color:#ff0;font-weight:bold">28</span> Jan <span style="color:#ff0;font-weight:bold">2018</span> <span style="color:#ff0;font-weight:bold">04</span>:03:29 GMT
 Transfer-Encoding: chunked
 
-{&quot;error&quot;:&quot;Not find Task&quot;,&quot;code&quot;:2}Grpc-Trailer-Content-Type: application/grpc
+{<span style="color:#0ff;font-weight:bold">&#34;error&#34;</span>:<span style="color:#0ff;font-weight:bold">&#34;Not find Task&#34;</span>,<span style="color:#0ff;font-weight:bold">&#34;code&#34;</span>:2}Grpc-Trailer-Content-Type: application/grpc
 
 $ curl -D - -X GET http://localhost:8080/v1/tasklist-gateway/task/10
-HTTP/1.1 200 OK
+HTTP/1.1 <span style="color:#ff0;font-weight:bold">200</span> OK
 Content-Type: application/json
 Grpc-Metadata-Content-Type: application/grpc
-Date: Sun, 28 Jan 2018 04:03:33 GMT
-Content-Length: 72
+Date: Sun, <span style="color:#ff0;font-weight:bold">28</span> Jan <span style="color:#ff0;font-weight:bold">2018</span> <span style="color:#ff0;font-weight:bold">04</span>:03:33 GMT
+Content-Length: <span style="color:#ff0;font-weight:bold">72</span>
 
-{&quot;id&quot;:10,&quot;title&quot;:&quot;Implement gRPC server&quot;,&quot;detail&quot;:&quot;Implement interface&quot;}%
-</code></pre>
-
+{<span style="color:#0ff;font-weight:bold">&#34;id&#34;</span>:10,<span style="color:#0ff;font-weight:bold">&#34;title&#34;</span>:<span style="color:#0ff;font-weight:bold">&#34;Implement gRPC server&#34;</span>,<span style="color:#0ff;font-weight:bold">&#34;detail&#34;</span>:<span style="color:#0ff;font-weight:bold">&#34;Implement interface&#34;</span>}%</code></pre></td></tr></table>
+</div>
+</div>
 <p>当然だが、gRPC API内に仕込んでおいた実行ログも確認できた。</p>
-
-<pre><code class="language-bash">go run ./server/main.go
-2018/01/28 13:00:48 gRPC Server started: localhost:50051
-2018/01/28 13:03:14 ListTasks in gPRC server
-2018/01/28 13:03:29 GetTask in gPRC server
-2018/01/28 13:03:33 GetTask in gPRC server
-</code></pre>
-
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">go run ./server/main.go
+<span style="color:#ff0;font-weight:bold">2018</span>/01/28 <span style="color:#ff0;font-weight:bold">13</span>:00:48 gRPC Server started: localhost:50051
+<span style="color:#ff0;font-weight:bold">2018</span>/01/28 <span style="color:#ff0;font-weight:bold">13</span>:03:14 ListTasks in gPRC server
+<span style="color:#ff0;font-weight:bold">2018</span>/01/28 <span style="color:#ff0;font-weight:bold">13</span>:03:29 GetTask in gPRC server
+<span style="color:#ff0;font-weight:bold">2018</span>/01/28 <span style="color:#ff0;font-weight:bold">13</span>:03:33 GetTask in gPRC server</code></pre></td></tr></table>
+</div>
+</div>
 <h1 id="終わりに">終わりに</h1>
 
 <p>gRPCサーバに対応するRESTのリバースプロクシサーバを自動生成した。リバースプロクシサーバに関してはほぼ自分で実装していない。<br />
@@ -537,282 +703,182 @@ IssueをたててPR作ったらマージされた。今まではREADMEなどへ�
 <li><a href="/2018/01/21/try-gomock-on-grpc-go/">[Go]gomockを使ったgRPCのテスト</a></li>
 </ul>
 
-</div>
+        </div>
+        
 
-
-      <footer>
-  
-<span class="share-box">Share this on:
-    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f03%2fgrpc-gateway-for-rest-api%2f" onclick="window.open(this.href, 'mywin',
-'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
-
-    <a href="https://twitter.com/intent/tweet?text=%5bGo%5dgRPC%20Gateway%e3%81%a7gRPC%e3%81%ab%e5%af%be%e3%81%99%e3%82%8bREST%20API%e3%82%92%e8%87%aa%e5%8b%95%e7%94%9f%e6%88%90%e3%81%99%e3%82%8b&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f03%2fgrpc-gateway-for-rest-api%2f" onclick="window.open(this.href, 'mywin',
-'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
-
-    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f03%2fgrpc-gateway-for-rest-api%2f" onclick="window.open(this.href, 'mywin',
-'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
-
-    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f03%2fgrpc-gateway-for-rest-api%2f" onclick="window.open(this.href, 'mywin',
-'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
-
-    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f03%2fgrpc-gateway-for-rest-api%2f&amp;title=%5bGo%5dgRPC%20Gateway%e3%81%a7gRPC%e3%81%ab%e5%af%be%e3%81%99%e3%82%8bREST%20API%e3%82%92%e8%87%aa%e5%8b%95%e7%94%9f%e6%88%90%e3%81%99%e3%82%8b" onclick="window.open(this.href, 'mywin',
-'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
-
-    <a href="mailto:?subject=%5bGo%5dgRPC%20Gateway%e3%81%a7gRPC%e3%81%ab%e5%af%be%e3%81%99%e3%82%8bREST%20API%e3%82%92%e8%87%aa%e5%8b%95%e7%94%9f%e6%88%90%e3%81%99%e3%82%8b&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f02%2f03%2fgrpc-gateway-for-rest-api%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
-  </span>
-
-  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-      
-  
-    <nav><ul class="pager">
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
     
-        <li class="previous">
-          <a href="https://budougumi0617.github.io/2018/02/03/kubernetes-with-availability-cndjp3/" title="[k8s]Cloud Native Developers JP 第3回勉強会 #cndjp3 参加メモ">
-            <span aria-hidden="true">&larr;</span>Previous
-          </a>
-        </li>
+    <time>Feb 3, 2018</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/grpc">grpc</a>  <a class="category" href="https://budougumi0617.github.io/tags/grpc-gateway">grpc-gateway</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2018/02/03/kubernetes-with-availability-cndjp3/" title="[k8s]Cloud Native Developers JP 第3回勉強会 #cndjp3 参加メモ">[k8s]Cloud Native Developers JP 第3回勉強会 #cndjp3 参加メモ</a>
     
 
     
-      <li class="next">
-        <a href="https://budougumi0617.github.io/2018/02/05/gcpug-container-builder-day/" title="GCPUG Tokyo Container Builder Day February 2018 #gcpug 参加メモ">
-            Next <span aria-hidden="true">&rarr;</span>
-        </a>
-      </li>
+      <a class="basic-alignment right" href="https://budougumi0617.github.io/2018/02/05/gcpug-container-builder-day/" title="GCPUG Tokyo Container Builder Day February 2018 #gcpug 参加メモ">GCPUG Tokyo Container Builder Day February 2018 #gcpug 参加メモ</a>
     
-    </ul> </nav>
+  </p>
   
-
-
-</div>
-
-  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-  
-<div id="disqus_thread"></div>
+    
+      <div id="disqus_thread"></div>
 <script type="text/javascript">
-  (function() {
+
+(function() {
+    
     
     
     if (window.location.hostname == "localhost")
-      return;
+        return;
 
-    var dsq = document.createElement('script'); dsq.async = true; dsq.type = 'text/javascript';
-    dsq.src = '//http-budougumi0617-github-io.disqus.com/embed.js';
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-  })();
+})();
 </script>
 <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 
-
-</div>
-
+    
+  
 </footer>
 
+      </article>
     </div>
     
-      <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
-        <div>
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+
+    <p>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
   
 
-    <div class="section">
-      <header><div class="title"><b>Latest Posts</b></div></header>
-      <div class="content">
-        <ul>
+  
+    
+      <section class="odd">
+        
+          <h1>Archives</h1>
+        
         
           <li>
-          <a href="https://budougumi0617.github.io/2018/06/20/setting-vim-gitgutter-column-shows-always/">未修正ファイルでもvim-gitgutter列を表示して差分表示で画面をガタガタさせない #vim #git</a>
+            <a href="https://budougumi0617.github.io/categories" title="Categories" >Categories</a>
           </li>
         
           <li>
-          <a href="https://budougumi0617.github.io/2018/06/16/spinnaker-failing-with-stackdrivermetricsservice/">[Spinnaker]GKE上でhal deploy applyするとkayenta failed http://localhost:8090/spectator/metrics with &lt;urlopen error [Errno 111] Connection refused&gt; #spinnaker #kayenta</a>
+            <a href="https://budougumi0617.github.io/tags" title="Tags" >Tags</a>
           </li>
         
-          <li>
-          <a href="https://budougumi0617.github.io/2018/06/15/cndjp6-review-kubernetes/">[k8s]隅からスミまでKubernetes総復習 - cndjpシーズン1まとめ参加メモ #cndjp #k8s</a>
-          </li>
-        
-          <li>
-          <a href="https://budougumi0617.github.io/2018/06/14/review-continuous-delivery-with-spinnaker/">Continuous Delivery With Spinnakerでマイクロサービスの継続的デリバリーの課題と解決手法を学ぶ</a>
-          </li>
-        
-          <li>
-          <a href="https://budougumi0617.github.io/2018/06/13/403-error-when-add-google-account-for-kayenta/">hal config canary google account addすると&#34;Required &#39;compute.projects.get&#39; permission for...&#34;で403エラー #spinnaker #kayenta</a>
-          </li>
-        
-          <li>
-          <a href="https://budougumi0617.github.io/2018/06/10/katacoda-introduction/">コンテナ技術の学習するなら圧倒的にKatacodaがおすすめ #k8s #kubernetes</a>
-          </li>
-        
-          <li>
-          <a href="https://budougumi0617.github.io/2018/05/30/go-introduction/">[発表資料]Go入門</a>
-          </li>
-        
-          <li>
-          <a href="https://budougumi0617.github.io/2018/05/30/debug-go-by-vim-go-and-delve/">[Go]vim-goとDelveでVim上からGoのデバッグを行う #vim #golang</a>
-          </li>
-        
-          <li>
-          <a href="https://budougumi0617.github.io/2018/05/24/inject-io-writer-to-zap-logger/">[Go]go.uber.org/zap.loggerの出力をbytes.Bufferに変更する #golang</a>
-          </li>
-        
-          <li>
-          <a href="https://budougumi0617.github.io/2018/05/23/review-sql-study-database-operation-from-zero/">[書評]SQL 第2版 ゼロからはじめるデータベース操作 を読んだ</a>
-          </li>
-        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2018/06/23/how-to-start-auto-canary-analysis/">GKE上でStackdriverと連携したSpinnaker/Kayenta環境を構築する #spinnaker #kayenta</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/06/20/setting-vim-gitgutter-column-shows-always/">未修正ファイルでもvim-gitgutter列を表示して差分表示で画面をガタガタさせない #vim #git</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/06/16/spinnaker-failing-with-stackdrivermetricsservice/">[Spinnaker]GKE上でhal deploy applyするとkayenta failed http://localhost:8090/spectator/metrics with &lt;urlopen error [Errno 111] Connection refused&gt; #spinnaker #kayenta</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/06/15/cndjp6-review-kubernetes/">[k8s]隅からスミまでKubernetes総復習 - cndjpシーズン1まとめ参加メモ #cndjp #k8s</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/06/14/review-continuous-delivery-with-spinnaker/">Continuous Delivery With Spinnakerでマイクロサービスの継続的デリバリーの課題と解決手法を学ぶ</a>
+              </li>
+            
+          
         </ul>
-      </div>
-    </div>
-
+      </section>
     
-      
-      
-      <div class="section taxonomies">
-        <header><div class="title"><b>category</b></div></header>
+  
+</aside>
 
-        <div class="content">
-          <ul>
-            <li><a href="/categories/go">go</a></li><li><a href="/categories/report">report</a></li><li><a href="/categories/kubernetes">kubernetes</a></li><li><a href="/categories/review">review</a></li><li><a href="/categories/spinnaker">spinnaker</a></li><li><a href="/categories/c-sharp">c-sharp</a></li><li><a href="/categories/gcp">gcp</a></li><li><a href="/categories/grpc">grpc</a></li><li><a href="/categories/docker">docker</a></li><li><a href="/categories/dot-net">dot-net</a></li>
-          </ul>
-        </div>
-      </div>
-      
-    
-      
-      
-      <div class="section taxonomies">
-        <header><div class="title"><b>tag</b></div></header>
-
-        <div class="content">
-          <ul>
-            <li><a href="/tags/golang">golang</a></li><li><a href="/tags/k8s">k8s</a></li><li><a href="/tags/spinnaker">spinnaker</a></li><li><a href="/tags/book">book</a></li><li><a href="/tags/cndjp">cndjp</a></li><li><a href="/tags/docker">docker</a></li><li><a href="/tags/grpc">grpc</a></li><li><a href="/tags/gcp">gcp</a></li><li><a href="/tags/golangtokyo">golangtokyo</a></li><li><a href="/tags/debug">debug</a></li>
-          </ul>
-        </div>
-      </div>
-      
-    
-      
-      
-    
-
-</div>
-
-      </div>
-    
   </div>
 </div>
-    
-<footer class="footer hidden-print">
-  <div class="container">
-    <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-           <div class="pull-left">
-  <a class="toplink" href="javascript:" id="return-to-top">back to top</a>
-</div>
-<div class="pull-right">
 
-</div>
+<footer role="contentinfo">
+  <p>Copyright &copy; 2018  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
 
-        </div>
-        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
-              
-    
-<div class="container footline">
-    <small>
-  Copyright&copy; <a href='/2017/07/11/about-this-site/'>budougumi0617</a>
-
-</small>
-</div>
-
-
-    
-
-
-        </div>
-    </div>
-  </div>
 </footer>
 
-    
-
-<script src="//s3.amazonaws.com/mailmunch/static/site.js" id="mailmunch-script" data-mailmunch-site-id="" async="async"></script>
-
-
-
-<script src="//load.sumome.com/" data-sumo-site-id="" async="async"></script>
-
-<script src="https://budougumi0617.github.io/js/jquery.min.js"></script>
-<script src="https://budougumi0617.github.io/js/bootstrap.min.js"></script>
-
-
-<script src="https://budougumi0617.github.io/js/highlight.pack.js"></script>
-<script src="https://budougumi0617.github.io/js/site.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
-
-
-<script>
-  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
-  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-  s.parentNode.insertBefore(g,s)}(document,'script'));
-</script>
-
-<script>
-var ENABLE_POPOVER = "", 
-EXPIRE_COOKIE = "", 
-SHOW_MODAL_TIMEOUT = "", 
-MOUSE_LEAVE = "", 
-MODAL_SIZE = "", 
-POST_URL = "", 
-SIGNUP_HEADER = "",
-HEADER_IMAGE = "",
-IMG_DESCRIPTION = "",
-SIGNUP_TEXT = "",
-INPUT_PLACEHOLDER = "",
-SUBMIT_BUTTON = "",
-SUCCESS_MESSAGE = "",
-ERROR_MESSAGE = "",
-OPTIN = "",
-COOKIE_NAME = "",
-CONTENTLANGUAGE = ""; 
-</script>
 
 
 
 
 
-<script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//MathJax.js"></script>
-<script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//config/TeX-AMS-MML_HTMLorMML.js"></script>
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-  tex2jax: {
-    inlineMath: [['$','$'], ['\\(','\\)']],
-    displayMath: [['$$','$$'], ['\[','\]']],
-    processEscapes: true,
-    processEnvironments: true,
-    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
-    TeX: { equationNumbers: { autoNumber: "AMS" },
-         extensions: ["AMSmath.js", "AMSsymbols.js"] }
-  }
-});
-</script>
-
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Queue(function() {
-    for(var all in MathJax.Hub.getAllJax()) {
-        all.SourceElement().parentNode.className += ' has-jax';
-
-    }
-});
-</script>
-
-
-
-
-
-
-  </body>
+</body>
 </html>
 

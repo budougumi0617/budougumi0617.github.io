@@ -1,213 +1,161 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <title>[Go]gRPCのGo Quick Startをやってみた。  &middot; My External Storage</title>
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="HandheldFriendly" content="True">
-<meta name="MobileOptimized" content="320">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 
-
-<meta name="description" content="" />
-
-<meta name="keywords" content="golang, grpc, ">
-
-
-<meta property="og:title" content="[Go]gRPCのGo Quick Startをやってみた。  &middot; My External Storage ">
-<meta property="og:site_name" content="My External Storage"/>
-<meta property="og:url" content="https://budougumi0617.github.io/2018/01/01/hello-grpc-go/" />
-<meta property="og:locale" content="ja-jp">
-
-
-<meta property="og:type" content="article" />
-<meta property="og:description" content=""/>
-<meta property="og:article:published_time" content="2018-01-01T17:30:50&#43;09:00" />
-<meta property="og:article:modified_time" content="2018-01-01T17:30:50&#43;09:00" />
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
 
   
     
-<meta property="og:article:tag" content="golang">
     
-<meta property="og:article:tag" content="grpc">
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
     
   
 
   
-<meta name="twitter:card" content="summary" />
-<meta name="twitter:site" content="@budougumi0617" />
-<meta name="twitter:creator" content="@budougumi0617" />
-<meta name="twitter:title" content="[Go]gRPCのGo Quick Startをやってみた。" />
-<meta name="twitter:description" content="" />
-<meta name="twitter:url" content="https://budougumi0617.github.io/2018/01/01/hello-grpc-go/" />
-<meta name="twitter:domain" content="https://budougumi0617.github.io/">
+  <title>[Go]gRPCのGo Quick Startをやってみた。</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
   
 
   
-<script type="application/ld+json">
-  {
-    "@context": "http://schema.org",
-    "@type": "Article",
-    "headline": "[Go]gRPCのGo Quick Startをやってみた。",
-    "author": {
-      "@type": "Person",
-      "name": "http://profiles.google.com/+?rel=author"
-    },
-    "datePublished": "2018-01-01",
-    "description": "",
-    "wordCount":  2154 
-  }
-</script>
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
   
 
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
 
+  
+  
+  
 
-<link rel="canonical" href="https://budougumi0617.github.io/2018/01/01/hello-grpc-go/" />
-<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/touch-icon-144-precomposed.png">
-<link rel="icon" href="/favicon.png">
-<meta name="generator" content="Hugo 0.25-DEV" />
+  
 
-  <!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
-<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-<![endif]-->
+  <meta name="description" content="">
+  <meta name="keywords" content="">
 
+  <meta name="author" content="">
 
+  
+  <meta name="generator" content="Hugo 0.42.1" />
 
-    <link rel="stylesheet" href="https://budougumi0617.github.io/css/bootswatch/flatly/bootstrap.min.css">
+  
+  
 
+  
+  
+    
 
-<link rel="stylesheet" href="https://budougumi0617.github.io/css/font-awesome.min.css">
-<link rel="stylesheet" href="https://budougumi0617.github.io/css/style.css">
+  
+    <meta name="twitter:card" content="summary"/>
+  
+  
+  <meta name="twitter:title" content="[Go]gRPCのGo Quick Startをやってみた。"/>
+  <meta name="twitter:description" content="gRPCについて理解を始めるため、gRPCのクイックスタートをやったのでメモしておく。 Go Quick Start https://grpc.io/docs/quickstart/go.html ちなみに今回行ったのは、Goのクイックスタート"/>
+  
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
 
-
-
-
-  <link rel="stylesheet" href="https://budougumi0617.github.io/css/highlight/default.css">
-
+  
 
 </head>
-<body class="map[name:flatly]" data-ng-app="myapp" data-ng-controller="MyController" data-ng-mouseleave="MouseLeave($event)">
-    <header id="main-header">
-  <nav class="navbar navbar-default navbar-fixed-top">
-    <div class="container">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
         
+        
+
+<header>
+    <p class="meta">Jan 1, 2018
+         - 5 minute read 
+         - <a href="https://budougumi0617.github.io/2018/01/01/hello-grpc-go/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/go/">Go </a><a class="label" href="https://budougumi0617.github.io/categories/grpc/">gRPC </a>
+        
+    </p>
+    <h1 class="entry-title">
+         [Go]gRPCのGo Quick Startをやってみた。 
+    </h1>
+</header>
+
+
+        <div class="entry-content">
           
-          <a class="navbar-brand-img" href="/">
-            <img alt="My External Storage" src="/logo.png">
-            
-          </a>
-        </div>
-        <div id="navbar" class="collapse navbar-collapse">
-          <ul class="nav navbar-nav navbar-right">
-            
-            
-            <li class="">
-
-              <a href="https://budougumi0617.github.io/" >
-                <i class='fa fa-home'></i>
-                Home
-              </a>
-            </li>
-            
-            <li class="">
-
-              <a href="https://budougumi0617.github.io/post/" >
-                <i class='fa fa-archive'></i>
-                Archives
-              </a>
-            </li>
-            
-            <li class="">
-
-              <a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" >
-                <i class='fa fa-info-circle'></i>
-                About
-              </a>
-            </li>
-            
-            
-              
-          </ul>
-        </div>
-        
-      </div>
-    </nav>
-  </header>
-
-
-<div class="container">
-  <div class="row">
-    <div class="col-sm-9">
-      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-  <div class="text-center">
-
-    <h1>[Go]gRPCのGo Quick Startをやってみた。
-</h1>
-
-    <div class="metas">
-<small>
-  <i class="fa fa-calendar"></i>
-  <time datetime="2018-01-01">1 Jan, 2018</time>
-</small>
-
-
-  <small>
-    &middot; by budougumi0617
-  
-  &middot; Read in about 5 min
-  &middot; (2154 words)
-  &middot; 
-<span class="share-box">Share this on:
-    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f01%2fhello-grpc-go%2f" onclick="window.open(this.href, 'mywin',
-'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
-
-    <a href="https://twitter.com/intent/tweet?text=%5bGo%5dgRPC%e3%81%aeGo%20Quick%20Start%e3%82%92%e3%82%84%e3%81%a3%e3%81%a6%e3%81%bf%e3%81%9f%e3%80%82&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f01%2fhello-grpc-go%2f" onclick="window.open(this.href, 'mywin',
-'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
-
-    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f01%2fhello-grpc-go%2f" onclick="window.open(this.href, 'mywin',
-'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
-
-    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f01%2fhello-grpc-go%2f" onclick="window.open(this.href, 'mywin',
-'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
-
-    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f01%2fhello-grpc-go%2f&amp;title=%5bGo%5dgRPC%e3%81%aeGo%20Quick%20Start%e3%82%92%e3%82%84%e3%81%a3%e3%81%a6%e3%81%bf%e3%81%9f%e3%80%82" onclick="window.open(this.href, 'mywin',
-'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
-
-    <a href="mailto:?subject=%5bGo%5dgRPC%e3%81%aeGo%20Quick%20Start%e3%82%92%e3%82%84%e3%81%a3%e3%81%a6%e3%81%bf%e3%81%9f%e3%80%82&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f01%2fhello-grpc-go%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
-  </span>
-
-  </small>
-
-<div class="margin-10">
-  <i class="fa fa-tags"></i>
-  
-  <a href="https://budougumi0617.github.io/tags/golang" class="label label-primary">golang</a>
-  
-  <a href="https://budougumi0617.github.io/tags/grpc" class="label label-primary">grpc</a>
-  
-
-
-</div>
-
-<br>
-</div>
-
-  </div>
-</div>
-
-      <div class="content">
-  
+          
+          
+          
+          
 
 <p>gRPCについて理解を始めるため、gRPCのクイックスタートをやったのでメモしておく。</p>
 
@@ -261,12 +209,18 @@
 <h1 id="grpcを利用するための準備">gRPCを利用するための準備。</h1>
 
 <p>Macの場合、<code>protobuf</code>は<code>brew</code>経由でインストールできる。</p>
-
-<pre><code class="language-bash">$ go get -u google.golang.org/grpc
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get -u google.golang.org/grpc
 $ brew install protobuf
-$ go get -u github.com/golang/protobuf/protoc-gen-go
-</code></pre>
-
+$ go get -u github.com/golang/protobuf/protoc-gen-go</code></pre></td></tr></table>
+</div>
+</div>
 <p><code>GOPATH</code>に<code>PATH</code>を通していない場合は、<code>$ export PATH=$PATH:$GOPATH/bin</code>もしておく。</p>
 
 <p><code>google.golang.org/grpc</code>の中にサンプルコードがあるのでカレントディレクトリを移動する。サンプルコードの構成は以下。</p>
@@ -307,42 +261,89 @@ $ go run greeter_client/main.go
 <h1 id="プロトコルバッファーの更新">プロトコルバッファーの更新</h1>
 
 <p><code>.proto</code>ファイルに新しいプロトコルをひとつ追加する。</p>
-
-<pre><code class="language-diff">diff --git a/examples/helloworld/helloworld/helloworld.proto b/examples/helloworld/helloworld/helloworld.proto
-index d79a6a0..becd915 100644
---- a/examples/helloworld/helloworld/helloworld.proto
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="font-weight:bold">diff --git a/examples/helloworld/helloworld/helloworld.proto b/examples/helloworld/helloworld/helloworld.proto
+</span><span style="font-weight:bold">index d79a6a0..becd915 100644
+</span><span style="font-weight:bold"></span>--- a/examples/helloworld/helloworld/helloworld.proto
 +++ b/examples/helloworld/helloworld/helloworld.proto
-@@ -24,6 +24,8 @@ package helloworld;
- service Greeter {
+<span style="font-weight:bold">@@ -24,6 +24,8 @@ package helloworld;
+</span><span style="font-weight:bold"></span> service Greeter {
    // Sends a greeting
    rpc SayHello (HelloRequest) returns (HelloReply) {}
 +  // Sends another greeting
 +  rpc SayHelloAgain (HelloRequest) returns (HelloReply) {}
  }
 
- // The request message containing the user's name.
-</code></pre>
-
+ // The request message containing the user&#39;s name.
+</code></pre></td></tr></table>
+</div>
+</div>
 <p>その後、<code>protoc</code>コマンドで再コンパイルをする。</p>
-
-<pre><code class="language-bash">$ protoc -I helloworld/ helloworld/helloworld.proto --go_out=plugins=grpc:helloworld
-</code></pre>
-
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ protoc -I helloworld/ helloworld/helloworld.proto --go_out=plugins=grpc:helloworld</code></pre></td></tr></table>
+</div>
+</div>
 <p>そうすると、<code>.pb.go</code>ファイルが更新され、新しいコードが自動生成される。</p>
-
-<pre><code class="language-diff">        SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">22
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff">        SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
 +       // Sends another greeting
 +       SayHelloAgain(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
  }
 
  type greeterClient struct {
-@@ -104,11 +106,22 @@ func (c *greeterClient) SayHello(ctx context.Context, in *HelloRequest, opts ...
-        return out, nil
+<span style="font-weight:bold">@@ -104,11 +106,22 @@ func (c *greeterClient) SayHello(ctx context.Context, in *HelloRequest, opts ...
+</span><span style="font-weight:bold"></span>        return out, nil
  }
 
 +func (c *greeterClient) SayHelloAgain(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error) {
 +       out := new(HelloReply)
-+       err := grpc.Invoke(ctx, &quot;/helloworld.Greeter/SayHelloAgain&quot;, in, out, c.cc, opts...)
++       err := grpc.Invoke(ctx, &#34;/helloworld.Greeter/SayHelloAgain&#34;, in, out, c.cc, opts...)
 +       if err != nil {
 +               return nil, err
 +       }
@@ -351,15 +352,22 @@ index d79a6a0..becd915 100644
 +
  // Server API for Greeter service
 ...
-</code></pre>
-
+</code></pre></td></tr></table>
+</div>
+</div>
 <p><code>greeter_server/main.go</code>と<code>greeter_client/main.go</code>にチュートリアル通りの実装を追加して、実行すると、追加した定義を使った通信ができた。</p>
-
-<pre><code class="language-bash">$ go run greeter_client/main.go
-2017/12/31 16:35:46 Greeting: Hello world
-2017/12/31 16:35:46 Greeting: Hello again world
-</code></pre>
-
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run greeter_client/main.go
+<span style="color:#ff0;font-weight:bold">2017</span>/12/31 <span style="color:#ff0;font-weight:bold">16</span>:35:46 Greeting: Hello world
+<span style="color:#ff0;font-weight:bold">2017</span>/12/31 <span style="color:#ff0;font-weight:bold">16</span>:35:46 Greeting: Hello again world</code></pre></td></tr></table>
+</div>
+</div>
 <h1 id="サンプルコードの実装">サンプルコードの実装</h1>
 
 <p>動作確認だけではなく、実装についても確認した。</p>
@@ -447,282 +455,182 @@ index d79a6a0..becd915 100644
 <li><a href="/2018/02/03/grpc-gateway-for-rest-api">[Go]gRPC GatewayでgRPCに対するREST APIを自動生成する</a></li>
 </ul>
 
-</div>
+        </div>
+        
 
-
-      <footer>
-  
-<span class="share-box">Share this on:
-    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f01%2fhello-grpc-go%2f" onclick="window.open(this.href, 'mywin',
-'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-facebook-official "></i></a>
-
-    <a href="https://twitter.com/intent/tweet?text=%5bGo%5dgRPC%e3%81%aeGo%20Quick%20Start%e3%82%92%e3%82%84%e3%81%a3%e3%81%a6%e3%81%bf%e3%81%9f%e3%80%82&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f01%2fhello-grpc-go%2f" onclick="window.open(this.href, 'mywin',
-'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-twitter"></i></a>
-
-    <a href="https://plus.google.com/share?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f01%2fhello-grpc-go%2f" onclick="window.open(this.href, 'mywin',
-'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-google-plus"></i></a>
-
-    <a href="http://www.reddit.com/submit?url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f01%2fhello-grpc-go%2f" onclick="window.open(this.href, 'mywin',
-'left=20,top=20,width=900,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-reddit"></i></a>
-
-    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f01%2fhello-grpc-go%2f&amp;title=%5bGo%5dgRPC%e3%81%aeGo%20Quick%20Start%e3%82%92%e3%82%84%e3%81%a3%e3%81%a6%e3%81%bf%e3%81%9f%e3%80%82" onclick="window.open(this.href, 'mywin',
-'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-linkedin"></i></a>
-
-    <a href="mailto:?subject=%5bGo%5dgRPC%e3%81%aeGo%20Quick%20Start%e3%82%92%e3%82%84%e3%81%a3%e3%81%a6%e3%81%bf%e3%81%9f%e3%80%82&amp;body=Check out this site https%3a%2f%2fbudougumi0617.github.io%2f2018%2f01%2f01%2fhello-grpc-go%2f" data-proofer-ignore=""><i class="fa fa-envelope"></i></a>
-  </span>
-
-  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-      
-  
-    <nav><ul class="pager">
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
     
-        <li class="previous">
-          <a href="https://budougumi0617.github.io/2017/12/30/retrospective-2017/" title="2017年振り返り">
-            <span aria-hidden="true">&larr;</span>Previous
-          </a>
-        </li>
+    <time>Jan 1, 2018</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/grpc">grpc</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2017/12/30/retrospective-2017/" title="2017年振り返り">2017年振り返り</a>
     
 
     
-      <li class="next">
-        <a href="https://budougumi0617.github.io/2018/01/03/review-soft-skills/" title="[書評]SOFT SKILLSを読んだ">
-            Next <span aria-hidden="true">&rarr;</span>
-        </a>
-      </li>
+      <a class="basic-alignment right" href="https://budougumi0617.github.io/2018/01/03/review-soft-skills/" title="[書評]SOFT SKILLSを読んだ">[書評]SOFT SKILLSを読んだ</a>
     
-    </ul> </nav>
+  </p>
   
-
-
-</div>
-
-  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-  
-<div id="disqus_thread"></div>
+    
+      <div id="disqus_thread"></div>
 <script type="text/javascript">
-  (function() {
+
+(function() {
+    
     
     
     if (window.location.hostname == "localhost")
-      return;
+        return;
 
-    var dsq = document.createElement('script'); dsq.async = true; dsq.type = 'text/javascript';
-    dsq.src = '//http-budougumi0617-github-io.disqus.com/embed.js';
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-  })();
+})();
 </script>
 <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 
-
-</div>
-
+    
+  
 </footer>
 
+      </article>
     </div>
     
-      <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
-        <div>
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+
+    <p>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
   
 
-    <div class="section">
-      <header><div class="title"><b>Latest Posts</b></div></header>
-      <div class="content">
-        <ul>
+  
+    
+      <section class="odd">
+        
+          <h1>Archives</h1>
+        
         
           <li>
-          <a href="https://budougumi0617.github.io/2018/06/20/setting-vim-gitgutter-column-shows-always/">未修正ファイルでもvim-gitgutter列を表示して差分表示で画面をガタガタさせない #vim #git</a>
+            <a href="https://budougumi0617.github.io/categories" title="Categories" >Categories</a>
           </li>
         
           <li>
-          <a href="https://budougumi0617.github.io/2018/06/16/spinnaker-failing-with-stackdrivermetricsservice/">[Spinnaker]GKE上でhal deploy applyするとkayenta failed http://localhost:8090/spectator/metrics with &lt;urlopen error [Errno 111] Connection refused&gt; #spinnaker #kayenta</a>
+            <a href="https://budougumi0617.github.io/tags" title="Tags" >Tags</a>
           </li>
         
-          <li>
-          <a href="https://budougumi0617.github.io/2018/06/15/cndjp6-review-kubernetes/">[k8s]隅からスミまでKubernetes総復習 - cndjpシーズン1まとめ参加メモ #cndjp #k8s</a>
-          </li>
-        
-          <li>
-          <a href="https://budougumi0617.github.io/2018/06/14/review-continuous-delivery-with-spinnaker/">Continuous Delivery With Spinnakerでマイクロサービスの継続的デリバリーの課題と解決手法を学ぶ</a>
-          </li>
-        
-          <li>
-          <a href="https://budougumi0617.github.io/2018/06/13/403-error-when-add-google-account-for-kayenta/">hal config canary google account addすると&#34;Required &#39;compute.projects.get&#39; permission for...&#34;で403エラー #spinnaker #kayenta</a>
-          </li>
-        
-          <li>
-          <a href="https://budougumi0617.github.io/2018/06/10/katacoda-introduction/">コンテナ技術の学習するなら圧倒的にKatacodaがおすすめ #k8s #kubernetes</a>
-          </li>
-        
-          <li>
-          <a href="https://budougumi0617.github.io/2018/05/30/go-introduction/">[発表資料]Go入門</a>
-          </li>
-        
-          <li>
-          <a href="https://budougumi0617.github.io/2018/05/30/debug-go-by-vim-go-and-delve/">[Go]vim-goとDelveでVim上からGoのデバッグを行う #vim #golang</a>
-          </li>
-        
-          <li>
-          <a href="https://budougumi0617.github.io/2018/05/24/inject-io-writer-to-zap-logger/">[Go]go.uber.org/zap.loggerの出力をbytes.Bufferに変更する #golang</a>
-          </li>
-        
-          <li>
-          <a href="https://budougumi0617.github.io/2018/05/23/review-sql-study-database-operation-from-zero/">[書評]SQL 第2版 ゼロからはじめるデータベース操作 を読んだ</a>
-          </li>
-        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2018/06/23/how-to-start-auto-canary-analysis/">GKE上でStackdriverと連携したSpinnaker/Kayenta環境を構築する #spinnaker #kayenta</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/06/20/setting-vim-gitgutter-column-shows-always/">未修正ファイルでもvim-gitgutter列を表示して差分表示で画面をガタガタさせない #vim #git</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/06/16/spinnaker-failing-with-stackdrivermetricsservice/">[Spinnaker]GKE上でhal deploy applyするとkayenta failed http://localhost:8090/spectator/metrics with &lt;urlopen error [Errno 111] Connection refused&gt; #spinnaker #kayenta</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/06/15/cndjp6-review-kubernetes/">[k8s]隅からスミまでKubernetes総復習 - cndjpシーズン1まとめ参加メモ #cndjp #k8s</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/06/14/review-continuous-delivery-with-spinnaker/">Continuous Delivery With Spinnakerでマイクロサービスの継続的デリバリーの課題と解決手法を学ぶ</a>
+              </li>
+            
+          
         </ul>
-      </div>
-    </div>
-
+      </section>
     
-      
-      
-      <div class="section taxonomies">
-        <header><div class="title"><b>category</b></div></header>
+  
+</aside>
 
-        <div class="content">
-          <ul>
-            <li><a href="/categories/go">go</a></li><li><a href="/categories/report">report</a></li><li><a href="/categories/kubernetes">kubernetes</a></li><li><a href="/categories/review">review</a></li><li><a href="/categories/spinnaker">spinnaker</a></li><li><a href="/categories/c-sharp">c-sharp</a></li><li><a href="/categories/gcp">gcp</a></li><li><a href="/categories/grpc">grpc</a></li><li><a href="/categories/docker">docker</a></li><li><a href="/categories/dot-net">dot-net</a></li>
-          </ul>
-        </div>
-      </div>
-      
-    
-      
-      
-      <div class="section taxonomies">
-        <header><div class="title"><b>tag</b></div></header>
-
-        <div class="content">
-          <ul>
-            <li><a href="/tags/golang">golang</a></li><li><a href="/tags/k8s">k8s</a></li><li><a href="/tags/spinnaker">spinnaker</a></li><li><a href="/tags/book">book</a></li><li><a href="/tags/cndjp">cndjp</a></li><li><a href="/tags/docker">docker</a></li><li><a href="/tags/grpc">grpc</a></li><li><a href="/tags/gcp">gcp</a></li><li><a href="/tags/golangtokyo">golangtokyo</a></li><li><a href="/tags/debug">debug</a></li>
-          </ul>
-        </div>
-      </div>
-      
-    
-      
-      
-    
-
-</div>
-
-      </div>
-    
   </div>
 </div>
-    
-<footer class="footer hidden-print">
-  <div class="container">
-    <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-           <div class="pull-left">
-  <a class="toplink" href="javascript:" id="return-to-top">back to top</a>
-</div>
-<div class="pull-right">
 
-</div>
+<footer role="contentinfo">
+  <p>Copyright &copy; 2018  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
 
-        </div>
-        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
-              
-    
-<div class="container footline">
-    <small>
-  Copyright&copy; <a href='/2017/07/11/about-this-site/'>budougumi0617</a>
-
-</small>
-</div>
-
-
-    
-
-
-        </div>
-    </div>
-  </div>
 </footer>
 
-    
-
-<script src="//s3.amazonaws.com/mailmunch/static/site.js" id="mailmunch-script" data-mailmunch-site-id="" async="async"></script>
-
-
-
-<script src="//load.sumome.com/" data-sumo-site-id="" async="async"></script>
-
-<script src="https://budougumi0617.github.io/js/jquery.min.js"></script>
-<script src="https://budougumi0617.github.io/js/bootstrap.min.js"></script>
-
-
-<script src="https://budougumi0617.github.io/js/highlight.pack.js"></script>
-<script src="https://budougumi0617.github.io/js/site.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
-
-
-<script>
-  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
-  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-  s.parentNode.insertBefore(g,s)}(document,'script'));
-</script>
-
-<script>
-var ENABLE_POPOVER = "", 
-EXPIRE_COOKIE = "", 
-SHOW_MODAL_TIMEOUT = "", 
-MOUSE_LEAVE = "", 
-MODAL_SIZE = "", 
-POST_URL = "", 
-SIGNUP_HEADER = "",
-HEADER_IMAGE = "",
-IMG_DESCRIPTION = "",
-SIGNUP_TEXT = "",
-INPUT_PLACEHOLDER = "",
-SUBMIT_BUTTON = "",
-SUCCESS_MESSAGE = "",
-ERROR_MESSAGE = "",
-OPTIN = "",
-COOKIE_NAME = "",
-CONTENTLANGUAGE = ""; 
-</script>
 
 
 
 
 
-<script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//MathJax.js"></script>
-<script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax//config/TeX-AMS-MML_HTMLorMML.js"></script>
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-  tex2jax: {
-    inlineMath: [['$','$'], ['\\(','\\)']],
-    displayMath: [['$$','$$'], ['\[','\]']],
-    processEscapes: true,
-    processEnvironments: true,
-    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
-    TeX: { equationNumbers: { autoNumber: "AMS" },
-         extensions: ["AMSmath.js", "AMSsymbols.js"] }
-  }
-});
-</script>
-
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Queue(function() {
-    for(var all in MathJax.Hub.getAllJax()) {
-        all.SourceElement().parentNode.className += ' has-jax';
-
-    }
-});
-</script>
-
-
-
-
-
-
-  </body>
+</body>
 </html>
 

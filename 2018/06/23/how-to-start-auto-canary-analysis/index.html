@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>GKE上でStackdriverと連携したSpinnaker/Kayenta環境を構築する #spinnaker #kayenta</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.42.1" />
+
+  
+  
+
+  
+  
+    
+
+  
+    <meta name="twitter:card" content="summary"/>
+  
+  
+  <meta name="twitter:title" content="GKE上でStackdriverと連携したSpinnaker/Kayenta環境を構築する #spinnaker #kayenta"/>
+  <meta name="twitter:description" content="SpinnakerとKayentaを組み合わせ自動カナリー分析を行うための環境構築を行う。 今回の構築ではGKE上にSpinnakerを構築し"/>
+  
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+  
+
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Jun 23, 2018
+         - 3 minute read 
+         - <a href="https://budougumi0617.github.io/2018/06/23/how-to-start-auto-canary-analysis/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/spinnaker/">spinnaker </a><a class="label" href="https://budougumi0617.github.io/categories/kubernetes/">kubernetes </a>
+        
+    </p>
+    <h1 class="entry-title">
+         GKE上でStackdriverと連携したSpinnaker/Kayenta環境を構築する #spinnaker #kayenta 
+    </h1>
+</header>
+
+
+        <div class="entry-content">
+          
+          
+          
+          
+          
+
+<p>SpinnakerとKayentaを組み合わせ自動カナリー分析を行うための環境構築を行う。
+今回の構築ではGKE上にSpinnakerを構築し、Stackdriverから分析用のログを取得する。</p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>&ldquo;Try out Halyard on GKE&rdquo;の通りにHalyardインスタンスを作成する
+
+<ul>
+<li><a href="https://www.spinnaker.io/setup/quickstart/halyard-gke/">https://www.spinnaker.io/setup/quickstart/halyard-gke/</a></li>
+</ul></li>
+<li>サービスアカウントにStackdriver周りの権限を付与する</li>
+<li>&ldquo;Set up canary support&rdquo;の通りにGCP関連の設定をONにして<code>hal deploy apply</code>する
+
+<ul>
+<li><a href="https://www.spinnaker.io/setup/canary/">https://www.spinnaker.io/setup/canary/</a></li>
+</ul></li>
+</ul>
+
+<h1 id="try-out-halyard-on-gke-の通りにhalyardインスタンスを作成する">&ldquo;Try out Halyard on GKE&rdquo;の通りにHalyardインスタンスを作成する</h1>
+
+<p>Kayentaを有効にするためには、Halyard経由で操作可能なSpinnakerを用意する必要がある。<br />
+GKEとHalyardを使ったSpinnakerの起動は以下のページの通りにすればよい。<br />
+<code>hal deploy apply</code>する手前まで実施する。</p>
+
+<p><strong>Try out Halyard on GKE</strong><br />
+<a href="https://www.spinnaker.io/setup/quickstart/halyard-gke/">https://www.spinnaker.io/setup/quickstart/halyard-gke/</a></p>
+
+<h1 id="サービスアカウントにstackdriver周りの権限を付与する">サービスアカウントにStackdriver周りの権限を付与する</h1>
+
+<p>一通りの準備が終わったあとはモニタリング周りの準備をしておく。当然ながらStackdriverは有効にしておくこと。</p>
+
+<p>サービスアカウントにStackdriverへアクセス権限を付与しておく。<br />
+<code>$GCS_SA_EMAIL</code>などは<code>Halyard</code>の準備をするときに取得したサービスアカウントのEメールアドレスだ。</p>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">gcloud projects add-iam-policy-binding $GCP_PROJECT <span style="color:#0ff;font-weight:bold">\
+</span><span style="color:#0ff;font-weight:bold"></span>    --role roles/logging.admin <span style="color:#0ff;font-weight:bold">\
+</span><span style="color:#0ff;font-weight:bold"></span>    --member serviceAccount:$GCS_SA_EMAIL
+
+gcloud projects add-iam-policy-binding $GCP_PROJECT <span style="color:#0ff;font-weight:bold">\
+</span><span style="color:#0ff;font-weight:bold"></span>    --role roles/monitoring.admin <span style="color:#0ff;font-weight:bold">\
+</span><span style="color:#0ff;font-weight:bold"></span>    --member serviceAccount:$GCS_SA_EMAIL
+
+gcloud projects add-iam-policy-binding $GCP_PROJECT <span style="color:#0ff;font-weight:bold">\
+</span><span style="color:#0ff;font-weight:bold"></span>    --role roles/compute.viewer <span style="color:#0ff;font-weight:bold">\
+</span><span style="color:#0ff;font-weight:bold"></span>    --member serviceAccount:$GCS_SA_EMAIL</code></pre></td></tr></table>
+</div>
+</div>
+<p><code>roles/compute.viewer</code>ロールまで使うのは<code>compute.projects.get</code>権限が必要なため。</p>
+
+<h1 id="set-up-canary-support-の通りにgcp関連の設定をonにして-hal-deploy-apply-する">&ldquo;Set up canary support&rdquo;の通りにGCP関連の設定をONにして<code>hal deploy apply</code>する</h1>
+
+<p>上記が終わった後は、GCP Storageを開き、バケットを作成しておく。<br />
+<a href="https://console.cloud.google.com/storage/browser">https://console.cloud.google.com/storage/browser</a></p>
+
+<pre><code>MY_SPINNAKER_BUCKET=budougumi0617-spinnaker-bucket
+</code></pre>
+
+<p>その後は以下の手順のGCP関連の部分に則ってcanary系のコマンドを実行していけばよい。</p>
+
+<p><strong>Set up canary support</strong><br />
+<a href="https://www.spinnaker.io/setup/canary/">https://www.spinnaker.io/setup/canary/</a></p>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">hal config canary <span style="color:#fff;font-weight:bold">enable</span>
+hal config canary google <span style="color:#fff;font-weight:bold">enable</span>
+hal config canary google account add my-google-account <span style="color:#0ff;font-weight:bold">\
+</span><span style="color:#0ff;font-weight:bold"></span>  --project $GCP_PROJECT <span style="color:#0ff;font-weight:bold">\
+</span><span style="color:#0ff;font-weight:bold"></span>  --json-path $GCS_SA_DEST <span style="color:#0ff;font-weight:bold">\
+</span><span style="color:#0ff;font-weight:bold"></span>  --bucket $MY_SPINNAKER_BUCKET
+hal config canary google edit --gcs-enabled <span style="color:#fff;font-weight:bold">true</span> <span style="color:#0ff;font-weight:bold">\
+</span><span style="color:#0ff;font-weight:bold"></span>  --stackdriver-enabled <span style="color:#fff;font-weight:bold">true</span>
+hal config canary edit --default-metrics-store stackdriver
+hal deploy apply</code></pre></td></tr></table>
+</div>
+</div>
+<p><code>hal deploy connect</code>コマンドでSpinnakerにつなぎ、<code>Create Application</code>でアプリケーションの設定を作る。<br />
+<code>CONFIG</code>を開いて、<code>Features</code>に<code>Canary</code>が表示されていれば自動カナリー分析をする準備が完了している。</p>
+
+<p><img src="/2018/06/canary-setting.png" alt="CanarySetting" /></p>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>今回はそのままカナリー分析を行ってみるところもまで記事にするつもりだったが、実はこの先で詰まってしまっている。<br />
+一通りのパイプラインまで作ったのだが、デプロイ後のログが取得できていない（Stackdriverから設定は読み込めているので権限で弾かれているわけではないはずなのだが。。。）。<br />
+そちらが解決したら実際に自動カナリー分析をする記事も書く。</p>
+
+<h1 id="関連">関連</h1>
+
+<ul>
+<li><a href="/2018/06/13/403-error-when-add-google-account-for-kayenta/">hal config canary google account addすると&rdquo;Required &lsquo;compute.projects.get&rsquo; permission for&hellip;&ldquo;で403エラー #spinnaker #kayenta</a></li>
+</ul>
+
+        </div>
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Jun 23, 2018</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/spinnaker">spinnaker</a>  <a class="category" href="https://budougumi0617.github.io/tags/kayenta">kayenta</a>  <a class="category" href="https://budougumi0617.github.io/tags/k8s">k8s</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2018/06/20/setting-vim-gitgutter-column-shows-always/" title="未修正ファイルでもvim-gitgutter列を表示して差分表示で画面をガタガタさせない #vim #git">未修正ファイルでもvim-gitgutter列を表示して差分表示で画面をガタガタさせない #vim #git</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+
+    <p>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Archives</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories" title="Categories" >Categories</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags" title="Tags" >Tags</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2018/06/23/how-to-start-auto-canary-analysis/">GKE上でStackdriverと連携したSpinnaker/Kayenta環境を構築する #spinnaker #kayenta</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/06/20/setting-vim-gitgutter-column-shows-always/">未修正ファイルでもvim-gitgutter列を表示して差分表示で画面をガタガタさせない #vim #git</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/06/16/spinnaker-failing-with-stackdrivermetricsservice/">[Spinnaker]GKE上でhal deploy applyするとkayenta failed http://localhost:8090/spectator/metrics with &lt;urlopen error [Errno 111] Connection refused&gt; #spinnaker #kayenta</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/06/15/cndjp6-review-kubernetes/">[k8s]隅からスミまでKubernetes総復習 - cndjpシーズン1まとめ参加メモ #cndjp #k8s</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/06/14/review-continuous-delivery-with-spinnaker/">Continuous Delivery With Spinnakerでマイクロサービスの継続的デリバリーの課題と解決手法を学ぶ</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2018  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+</body>
+</html>
+
