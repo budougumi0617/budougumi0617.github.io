@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>GCPUG Tokyo gVisor Day July 2018 参加メモ #gcpug #gvisor</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.42.1" />
+
+  
+  
+
+  
+  
+    
+
+  
+    <meta name="twitter:card" content="summary"/>
+  
+  
+  <meta name="twitter:title" content="GCPUG Tokyo gVisor Day July 2018 参加メモ #gcpug #gvisor"/>
+  <meta name="twitter:description" content="GCPUG(Google Cloud Platform User Group)の勉強会に参加してきた。
+先日OSSとして公開されて話題となっているgVisorの話を聞いてきたので参加メモ。
+
+"/>
+  
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+  
+
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Jul 18, 2018
+         - 10 minute read 
+         - <a href="https://budougumi0617.github.io/2018/07/18/report-gcpug-gvisor/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/report/">report </a><a class="label" href="https://budougumi0617.github.io/categories/gcp/">gcp </a>
+        
+    </p>
+    <h1 class="entry-title">
+         GCPUG Tokyo gVisor Day July 2018 参加メモ #gcpug #gvisor 
+    </h1>
+</header>
+
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#所感">所感</a></li>
+<li><a href="#gvisor-入門-サンドボックス化されたlinuxコンテナランタイム">gVisor 入門: サンドボックス化されたLinuxコンテナランタイム</a>
+<ul>
+<li><a href="#コンテナについて">コンテナについて</a></li>
+<li><a href="#linux-osとセキュリティ">Linux OSとセキュリティ</a></li>
+<li><a href="#安全なコンテナを作る">安全なコンテナを作る</a></li>
+<li><a href="#gvisorの設計思想">gVisorの設計思想</a>
+<ul>
+<li><a href="#gvisorの概要">gVisorの概要</a></li>
+<li><a href="#gvisorのアーキテクチャ">gVisorのアーキテクチャ</a></li>
+</ul></li>
+<li><a href="#gvisorの性能と用途">gVisorの性能と用途</a></li>
+<li><a href="#gvisorを実行する時方法">gVisorを実行する時方法</a></li>
+<li><a href="#まとめ">まとめ</a></li>
+</ul></li>
+<li><a href="#gvisor-と-gcp-仮-by-apstndb">gVisor と GCP(仮) by apstndb</a>
+<ul>
+<li><a href="#app-engineとgvisor">App EngineとgVisor</a></li>
+<li><a href="#app-engine以外とgvisor">App Engine以外とgVisor</a></li>
+<li><a href="#gvisorからみるgoogle-gcpの今後">gVisorからみるgoogle, GCPの今後</a></li>
+</ul></li>
+<li><a href="#関連">関連</a></li>
+</ul>
+</nav>
+          
+          <p><a href="https://gcpug.jp/">GCPUG(Google Cloud Platform User Group)</a>の勉強会に参加してきた。<br />
+先日OSSとして公開されて話題となっているgVisorの話を聞いてきたので参加メモ。</p>
+
+<p></p>
+
+<ul>
+<li><a href="https://github.com/google/gvisor">https://github.com/google/gvisor</a></li>
+<li>コンテナの軽量さと、より安全な分離を実現する「gVisor」、Googleがオープンソースで公開
+
+<ul>
+<li><a href="https://www.publickey1.jp/blog/18/gvisorgoogle.html">https://www.publickey1.jp/blog/18/gvisorgoogle.html</a></li>
+</ul></li>
+</ul>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>URL</td>
+<td><a href="https://gcpug-tokyo.connpass.com/event/90909/">https://gcpug-tokyo.connpass.com/event/90909/</a></td>
+</tr>
+
+<tr>
+<td>会場</td>
+<td>六本木ヒルズ 森タワー</td>
+</tr>
+
+<tr>
+<td>日時</td>
+<td>2018/07/12(木) 19:00 〜 21:30</td>
+</tr>
+
+<tr>
+<td>ハッシュタグ</td>
+<td><a href="https://twitter.com/hashtag/gcpug">#gcpug</a></td>
+</tr>
+</tbody>
+</table>
+
+<h1 id="所感">所感</h1>
+
+<p>本題のgVisorについてはもちろん、Linuxのセキュリティ機能の知識、企業が公開しているOSSからその企業の戦略を推測する新しい見方を知ることができた。</p>
+
+<p>最初の<a href="https://twitter.com/yuryu">@yuryu</a>の発表では以下を聞くことができた。</p>
+
+<ul>
+<li>信頼性が低いアプリ・プロセスを実行するときに守るべきLinuxのセキュリティ</li>
+<li>gVisorがどのようにしてセキュアなコンテナランタイムを実現しているか</li>
+</ul>
+
+<p>まさかPaaSの勉強会でLinuxのセキュリティ機能について教えてもらえると思っていなかった。<br />
+どんな点に気をつけなければいけないのか、を「非特権ユーザでサービス実行する」というところから丁寧に教えてもらえたのでその後の話の重要性もかなり噛み砕いて納得することができた。自分は雰囲気でLinuxを動かしている(本番はSREの方々がいい感じのAnsibleを流したり、AWSの設定をしてくれているし、ローカルで試すときはまずSELinux切る)ので、ちゃんと知っておかないといけないなと思った。<br />
+gVisor自体についても話を聞くのは初めてだった。正直「googleのすごい人たちがGoでLinux作り直しているのかな？」くらいの認識だったので、どんな思想で作られたOSSなのか知ることができて良かった。</p>
+
+<ul>
+<li>不特定多数の任意のアプリを安全に動かせるコンテナランタイムの実現
+
+<ul>
+<li>google(GCP)はPaaSとして開発者すら意図してない挙動をする可能性があるアプリをホスティングしないといけない</li>
+</ul></li>
+<li>Linuxの再実装をしたいわけではない(gVisorでシステムコール全てを再現するつもりはない)</li>
+</ul>
+
+<p>また、デモでは1月に話題になったメルトダウンを使ったコンテナからホストへのハックを実際に見せてもらい、gVisorがそれを防げることを確認できた。</p>
+
+<p><a href="https://twitter.com/apstndb">@apstndb</a>さんの発表ではgVisorがどのようにGCP内で使われているのか知ることができた。<br />
+gVisorの動作確認済み言語、アプリからGCPの動きを推測するのは「その発想はなかった！」という感じだった。<br />
+たしかにGCPや何らかのサービスに利用するために開発しているはずなので、gVisorの設計やサポートしている機能からgoogleの戦略を考えるのは非常に面白い話だった。</p>
+
+<p>以下自分用メモ。</p>
+
+<h1 id="gvisor-入門-サンドボックス化されたlinuxコンテナランタイム">gVisor 入門: サンドボックス化されたLinuxコンテナランタイム</h1>
+
+<p><a href="https://twitter.com/yuryu">@yuryu</a></p>
+
+<p>なぜgVisorが必要だったのか。Dockerなどの既存のコンテナ技術の流れから何が違うのか。</p>
+
+<h2 id="コンテナについて">コンテナについて</h2>
+
+<ul>
+<li>13年にDockerが公開してからコンテナ技術が世界に広まった</li>
+<li>googleは自社サービスで40億以上のコンテナを毎週起動している</li>
+<li>既存のコンテナ技術では完全にホストOSから隔離されてない
+
+<ul>
+<li>&ldquo;Containers do not contain&rdquo;</li>
+<li><a href="https://www.slideshare.net/d0cent/containers-do-not-contain">https://www.slideshare.net/d0cent/containers-do-not-contain</a></li>
+</ul></li>
+</ul>
+
+<h2 id="linux-osとセキュリティ">Linux OSとセキュリティ</h2>
+
+<ul>
+<li>大昔の各サービスプロセスが<code>root</code>(特権ユーザー)で動いていた時代
+
+<ul>
+<li>なんでもできちゃった。無関係なプロセスを終了させたりもできた</li>
+<li>悪意のある行動がしやすい状態になっている</li>
+</ul></li>
+<li>非特権ユーザーでサービスプロセスを実行するようになった
+
+<ul>
+<li>いろいろ制約をつけられるようになった</li>
+<li>まだ<code>Raw Socket</code>や<code>setuid</code>という抜け穴がまだある</li>
+<li><a href="https://ja.wikipedia.org/wiki/Raw_socket">https://ja.wikipedia.org/wiki/Raw_socket</a></li>
+<li><a href="https://ja.wikipedia.org/wiki/Setuid">https://ja.wikipedia.org/wiki/Setuid</a></li>
+</ul></li>
+<li><code>capabilities</code>を使って更に制約を課すことができるようになった
+
+<ul>
+<li><a href="http://man7.org/linux/man-pages/man7/capabilities.7.html">http://man7.org/linux/man-pages/man7/capabilities.7.html</a></li>
+<li>細分化された権限（<code>CAP_SYS_NICE</code>、<code>CAP_SYS_CHROOT</code> etc&hellip;)sを使って必要最低限の権限のみを渡すことができるようになった。</li>
+</ul></li>
+<li>ここまででもまだ各サービスプロセスはCPUやメモリなどの計算資源を際限なく利用できる
+
+<ul>
+<li><code>cgroups</code>でリソースの制約をつける</li>
+<li><a href="https://ja.wikipedia.org/wiki/Cgroups">https://ja.wikipedia.org/wiki/Cgroups</a></li>
+</ul></li>
+<li>これでも他のプロセスなどを見れる。
+
+<ul>
+<li><code>namespace</code>で名前の分離のための名前空間を作る</li>
+<li><a href="http://man7.org/linux/man-pages/man7/namespaces.7.html">http://man7.org/linux/man-pages/man7/namespaces.7.html</a></li>
+<li>これで各サービスプロセスの<code>/</code>ディレクトリを分離できる</li>
+</ul></li>
+<li>これで十分な分離ができたのか？
+
+<ul>
+<li>まだだめ。ホストカーネルやデバイスドライバを共有している</li>
+<li>単一の脆弱性が特権昇格や情報漏えいが発生してしまう可能性</li>
+<li>ネットワークスタックにも脆弱性がある。</li>
+</ul></li>
+</ul>
+
+<h2 id="安全なコンテナを作る">安全なコンテナを作る</h2>
+
+<ul>
+<li>上記のセキュリティの問題をクリアした安全なコンテナを使いたい
+
+<ul>
+<li>コンテナ内からホストに影響が及ぼせないこと</li>
+<li>通常のコンテナと同じくらい簡単に使えること</li>
+<li>アプリ側にコンテナの変更に伴う修正が不要なこと</li>
+</ul></li>
+</ul>
+
+<h2 id="gvisorの設計思想">gVisorの設計思想</h2>
+
+<p><a href="https://github.com/google/gvisor#how-is-gvisor-different-from-other-container-isolation-mechanisms">https://github.com/google/gvisor#how-is-gvisor-different-from-other-container-isolation-mechanisms</a></p>
+
+<ul>
+<li>参考になる既存世界1: 仮想マシン
+
+<ul>
+<li>ハードウェアをエミュレートして完全なOSを実行</li>
+<li>優れた分離性、互換性</li>
+<li>高いオーバーヘッド、メモリ使用量</li>
+<li>固定されたCPU/メモリ割り当て</li>
+</ul></li>
+<li>参考になる既存世界2: ルールに基づいたアクセス制御
+
+<ul>
+<li><code>seccomp</code>, <code>SELinux</code>, <code>AppArmor</code></li>
+<li><a href="http://man7.org/linux/man-pages/man2/seccomp.2.html">http://man7.org/linux/man-pages/man2/seccomp.2.html</a></li>
+<li><a href="https://ja.wikipedia.org/wiki/Security-Enhanced_Linux">https://ja.wikipedia.org/wiki/Security-Enhanced_Linux</a></li>
+<li><a href="https://ja.wikipedia.org/wiki/AppArmor">https://ja.wikipedia.org/wiki/AppArmor</a></li>
+<li>ネイティブに匹敵する非常に良い性能</li>
+<li>ルールの定義、設定が大変</li>
+<li>未知のバイナリに対応しづらい</li>
+</ul></li>
+<li>２つの世界の良い点をいいところどりする
+
+<ul>
+<li>独立したカーネル</li>
+<li>ソフトウェアの仮想化</li>
+<li>仮想化されたハードウェアインタフェースは柔軟性がない</li>
+<li>OSをそのまま再現するのはでかすぎる</li>
+<li>コードが2,0000万行を超えるLinuxカーネルは（抜け穴が多く）安全性が低い</li>
+<li>サンドボックス化は攻撃面を減らす効果的な手法</li>
+</ul></li>
+</ul>
+
+<h3 id="gvisorの概要">gVisorの概要</h3>
+
+<p><a href="https://github.com/google/gvisor">https://github.com/google/gvisor</a></p>
+
+<ul>
+<li>gVisor上のコンテナランタイムはユーザーモードで動作する小さなカーネル
+
+<ul>
+<li>gVisorのカーネル内でアプリからのシステムコールをトラップし実行する</li>
+<li>gVisorがホストのシステムコールを実行する。アプリはgVisorしか操作してない</li>
+</ul></li>
+<li>通常のプロセスのような柔軟なスレッド、メモリ割当</li>
+<li>仮想化と比べて低いオーバーヘッド</li>
+<li>Linuxシステムコールをユーザー空間内で独立して実装している
+
+<ul>
+<li>現在211のシステムコールを実装している</li>
+<li>アプリ側はとくに意識することがない</li>
+</ul></li>
+<li>最初からセキュア</li>
+<li>gVisor上のコンテナひとつひとつが別々のユーザーモードカーネル上で実行される</li>
+<li>メモリ安全、型安全なGoで書かれている。(Goで実装された理由はGoLoverなのも大いに関係している）
+
+<ul>
+<li><a href="https://github.com/google/gvisor#why-go">https://github.com/google/gvisor#why-go</a></li>
+</ul></li>
+</ul>
+
+<h3 id="gvisorのアーキテクチャ">gVisorのアーキテクチャ</h3>
+
+<p><a href="https://github.com/google/gvisor#architecture">https://github.com/google/gvisor#architecture</a></p>
+
+<ul>
+<li>gVisorのコンテナランタイムは2つの別々のプロセスで動く</li>
+<li>Sentry システムコールをエミュレートしている</li>
+<li>Gofer ファイルアクセス</li>
+<li>２つのプロセスは9Pプロトコルで通信している
+
+<ul>
+<li><a href="https://ja.wikipedia.org/wiki/9P">https://ja.wikipedia.org/wiki/9P</a></li>
+</ul></li>
+
+<li><p>ネットワークはSentry内のユーザーモードで動いている</p></li>
+
+<li><p>なぜ２つに分けているか</p>
+
+<ul>
+<li>もっとも悪用されるのは<code>socket</code>と<code>open</code></li>
+<li>ファイルシステムをGofer経由でしかアクセスできないようにすることでSentryに何かされても安心</li>
+</ul></li>
+
+<li><p>システムコールのトラップ</p>
+
+<ul>
+<li>ptrace PTRAP_SYSEMUを使ってシステムコールをトラップしている</li>
+<li>これは全Linuxで動くという点が利点。</li>
+<li>KVM（試験的）</li>
+<li>gVisorがVMMM件ゲストOSとして動作</li>
+<li>ハードウェアによる仮想化サポートが要件</li>
+</ul></li>
+</ul>
+
+<h2 id="gvisorの性能と用途">gVisorの性能と用途</h2>
+
+<ul>
+<li>メモリ使用量15MB</li>
+<li>起動時間150ms</li>
+<li>システムコールに若干のオーバーヘッド(コンテナよりおそい)</li>
+<li>gVisorが向いていない用途
+
+<ul>
+<li>ホストと異なる種類のゲストOSを動作させたいとき</li>
+<li>完全に信頼されたバイナリ（だけを実行するなら普通のコンテナでよい）</li>
+<li>システムコールを多用するアプリ</li>
+<li>完全なアプリケーションの互換性を期待する</li>
+</ul></li>
+<li>Linuxの再実装をしたいわけではない
+
+<ul>
+<li>gVisorでシステムコール全てを再現するつもりはない</li>
+</ul></li>
+<li>gVisorで動くアプリ
+
+<ul>
+<li><a href="https://github.com/google/gvisor#what-works">https://github.com/google/gvisor#what-works</a></li>
+<li>golang, java, php, node, python etc&hellip;</li>
+</ul></li>
+<li>gVisorはクラウドの裏方
+
+<ul>
+<li>GAEはgVisorで動作している</li>
+</ul></li>
+<li>OSカーネル自体の研究開発に向いているかも？
+
+<ul>
+<li>gVisorにGoで変更を加えユーザーモードで実行する</li>
+<li>gVisorで試してみてLinuxへ移植するとか</li>
+<li>Cで実装された巨大なLinuxのコードよりはユーザーフレンドリーなはず？</li>
+</ul></li>
+<li>gVisorは安全なサンドボックス内でコンテナを実行する新しい手法
+
+<ul>
+<li>裏方の技術を知ることは正しい判断する上で大切</li>
+</ul></li>
+</ul>
+
+<h2 id="gvisorを実行する時方法">gVisorを実行する時方法</h2>
+
+<ul>
+<li><a href="https://github.com/google/gvisor#installation">https://github.com/google/gvisor#installation</a>
+
+<ul>
+<li>Dockerで動かしたいときは<code>docker run</code>に<code>--runtime=runsc</code>をつける</li>
+<li>最後にメルトダウンを悪用するDockerコンテナが、gVisor上ではCPU情報へアクセスできなくなるデモをされていた</li>
+<li><a href="https://ja.wikipedia.org/wiki/Meltdown">https://ja.wikipedia.org/wiki/Meltdown</a></li>
+<li>k8s上で動かしたいときはcrio.confに一行たすだけ。</li>
+</ul></li>
+</ul>
+
+<h2 id="まとめ">まとめ</h2>
+
+<ul>
+<li>gVisorを使ってサンドボックス内で安全にコンテナを実行できる</li>
+<li>コンテナのメリットは保たれている</li>
+<li>コンテナとホストOSの間に厳格な境界をもたらす</li>
+<li>信頼されていないバイナリをコンテナ内でより安全に実行できる</li>
+<li>裏方の技術を知ることは正しい判断する上で大切</li>
+<li>今から5分くらいで試せるよ！
+
+<ul>
+<li><a href="https://github.com/google/gvisor">https://github.com/google/gvisor</a></li>
+</ul></li>
+</ul>
+
+<h1 id="gvisor-と-gcp-仮-by-apstndb">gVisor と GCP(仮) by apstndb</h1>
+
+<p><a href="https://twitter.com/apstndb">@apstndb</a></p>
+
+<ul>
+<li><p>gVisorとGCP</p>
+
+<ul>
+<li><a href="https://docs.google.com/presentation/d/1F6k6bBS7BOUQWl9WGEpQJDyfvd04Et_-EeIHRoQzz-Y/edit">https://docs.google.com/presentation/d/1F6k6bBS7BOUQWl9WGEpQJDyfvd04Et_-EeIHRoQzz-Y/edit</a></li>
+</ul></li>
+
+<li><p>gVisorに対する観点の違い</p>
+
+<ul>
+<li>googler勢、システムプログラミング勢、マルチテナント勢で視点が異なる</li>
+<li>GCP勢はもっともgVisorからメリットを享受していそう。</li>
+</ul></li>
+</ul>
+
+<h2 id="app-engineとgvisor">App EngineとgVisor</h2>
+
+<ul>
+<li>GAEのような任意のプログラムを実行できる環境では悪意あるユーザーの攻撃が多方面に及ぶ
+
+<ul>
+<li>任意のシステムコールが呼べる状態では危険</li>
+<li>信頼出来ないプログラムはサンドボックス上で動作させたい</li>
+</ul></li>
+<li>従来のGAEはランタイムごとに実装されていた。例えば魔改造されたJVMとか</li>
+<li>gVisorで処理系に改造より安全なサンドボックスになる</li>
+<li>GAE/SEのランタイムがどんどんgVisorによって増大している。Java8やNode.js8、Python、PHP7&hellip;</li>
+</ul>
+
+<h2 id="app-engine以外とgvisor">App Engine以外とgVisor</h2>
+
+<ul>
+<li>Cloud functionもgVisor</li>
+<li><code>faster than light</code>(FTL)の対応でどんなランタイムが増えていくのかわかりそう
+
+<ul>
+<li><a href="https://github.com/GoogleCloudPlatform/runtimes-common/tree/master/ftl">https://github.com/GoogleCloudPlatform/runtimes-common/tree/master/ftl</a></li>
+<li>gVisor上で走るOCIイメージのビルドツール</li>
+<li>GAE/Node.jsのビルドログで確認可能</li>
+</ul></li>
+<li>FTLの対応言語がGAEと同じ。pythonとかPHPとか
+
+<ul>
+<li><a href="https://github.com/google/gvisor#what-works">https://github.com/google/gvisor#what-works</a></li>
+</ul></li>
+<li>GCPがサポートしている７つの言語が最優先なのでは？
+
+<ul>
+<li><a href="https://cloud.google.com/docs/?hl=en">https://cloud.google.com/docs/?hl=en</a></li>
+<li>となると次は.NETやRubyが…？</li>
+</ul></li>
+<li>gVisorはサーバーレス戦略と密接な関係がありそう</li>
+</ul>
+
+<h2 id="gvisorからみるgoogle-gcpの今後">gVisorからみるgoogle, GCPの今後</h2>
+
+<ul>
+<li>gVisorの対抗となるVMベースコンテナランタイムであるKata Containers側からは批判も出ている
+
+<ul>
+<li><a href="https://katacontainers.io/">https://katacontainers.io/</a></li>
+<li>「既存技術を危険危険いうのはFUDしているのでは？」</li>
+</ul></li>
+<li>Googleの特殊なトレードオフを把握する
+
+<ul>
+<li>互換性</li>
+<li>リソースフットプリント</li>
+<li>セキュリティ境界の頑強性</li>
+<li>パフォーマンス</li>
+</ul></li>
+<li>自社でコントロールできるOSSじゃないといざというとき責任が取れないというのもありそう
+
+<ul>
+<li>コミュニティで機能を取捨選択するようだと難しい？</li>
+</ul></li>
+<li>googleにとってはリソース効率もかなり重要視されている
+
+<ul>
+<li>googleは100%再生可能エネルギーで電力を調達している</li>
+<li><a href="https://jp.techcrunch.com/2018/04/05/2018-04-04-google-matches-100-percent-of-its-power-consumption-with-renewables/">https://jp.techcrunch.com/2018/04/05/2018-04-04-google-matches-100-percent-of-its-power-consumption-with-renewables/</a></li>
+</ul></li>
+<li>gooogleによるgVisor動作確認済みテストについて
+
+<ul>
+<li><a href="https://github.com/google/gvisor#what-works">https://github.com/google/gvisor#what-works</a></li>
+<li>動作確認済みのものはGoogle社内かGCPでの優先度が高いのでは？gVisorのシステムコールの実装優先順にも関わるはず</li>
+<li>nginxは最近まで動かなかった</li>
+<li>GCEで提供されているDB系統(redis, mongo, mysql)が動作確認済みなのは意味深</li>
+</ul></li>
+</ul>
+
+<h1 id="関連">関連</h1>
+
+<ul>
+<li><a href="/2018/02/05/gcpug-container-builder-day/">GCPUG Tokyo Container Builder Day February 2018 #gcpug 参加メモ</a></li>
+<li><a href="/2018/04/28/gcpug-tokyo-kubernetes-engine-day-april-2018/">[k8s]GCPUG Tokyo Kubernetes Engine Day April 2018参加メモ #gcpug</a></li>
+</ul>
+        </div>
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Jul 18, 2018</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/gcpug">gcpug</a>  <a class="category" href="https://budougumi0617.github.io/tags/gcp">gcp</a>  <a class="category" href="https://budougumi0617.github.io/tags/gvisor">gvisor</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2018/07/10/graduate-blog-mentoring-by-kakakakakku/" title="@kakakakakku さんのブログメンタリングを3ヶ月間受けて卒業した">@kakakakakku さんのブログメンタリングを3ヶ月間受けて卒業した</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+
+    <p>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Archives</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories" title="Categories" >Categories</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags" title="Tags" >Tags</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2018/07/18/report-gcpug-gvisor/">GCPUG Tokyo gVisor Day July 2018 参加メモ #gcpug #gvisor</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/07/10/graduate-blog-mentoring-by-kakakakakku/">@kakakakakku さんのブログメンタリングを3ヶ月間受けて卒業した</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/07/05/report-mercarigo-1/">mercari.go #1 参加メモ #mercarigo</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/06/29/get-started-auto-canary-analysis-by-spinnaker-with-kayenta/">Spinnakerを使ったカナリーリリースの自動評価 #spinnaker #kayenta</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/06/27/gke-must-use-beta-monitoring-for-kayenta/">SpinnakerでGKEの自動カナリー分析をするときはStackdriver k8s Monitoring V2 BETAを使う #spinnaker #kayenta</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2018  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
