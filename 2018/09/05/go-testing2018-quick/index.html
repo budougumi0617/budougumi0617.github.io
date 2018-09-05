@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>Goのtestingを理解する in 2018 - quickサブパッケージ編 #go</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.46" />
+
+  
+  
+
+  
+  
+    
+
+  
+    <meta name="twitter:card" content="summary"/>
+  
+  
+  <meta name="twitter:title" content="Goのtestingを理解する in 2018 - quickサブパッケージ編 #go"/>
+  <meta name="twitter:description" content="この記事は以下の記事で触れなかったtesting/quickパッケージについてまとめる。
+
+
+Goのtestを理解する in 2018 #go
+Goのtestingを理解する in 2018 - Examples編 #go
+
+
+"/>
+  
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+  
+
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Sep 5, 2018
+         - 3 minute read 
+         - <a href="https://budougumi0617.github.io/2018/09/05/go-testing2018-quick/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+        
+    </p>
+    <h1 class="entry-title">
+         Goのtestingを理解する in 2018 - quickサブパッケージ編 #go 
+    </h1>
+</header>
+
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#quick-checkequal関数">quick.CheckEqual関数</a>
+<ul>
+<li><a href="#quick-checkerror">quick.CheckError</a></li>
+</ul></li>
+<li><a href="#quick-checkequal">quick.CheckEqual</a>
+<ul>
+<li><a href="#quick-checkequalerror">quick.CheckEqualError</a></li>
+</ul></li>
+<li><a href="#quick-value">quick.Value</a></li>
+<li><a href="#generatorインターフェース">Generatorインターフェース</a></li>
+<li><a href="#参考">参考</a></li>
+<li><a href="#関連">関連</a></li>
+</ul>
+</nav>
+          
+          <p>この記事は以下の記事で触れなかった<code>testing/quick</code>パッケージについてまとめる。</p>
+
+<ul>
+<li><a href="/2018/08/19/go-testing2018">Goのtestを理解する in 2018 #go</a></li>
+<li><a href="/2018/08/30/go-testing2018-examples/">Goのtestingを理解する in 2018 - Examples編 #go</a></li>
+</ul>
+
+<p></p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>testing/quickパッケージ
+
+<ul>
+<li><a href="https://golang.org/pkg/testing/quick/">https://golang.org/pkg/testing/quick/</a></li>
+</ul></li>
+<li><code>testing/quick</code>パッケージはランダムテストを行う</li>
+<li>新旧メソッドを比較するデグレ確認にも使うことができる。</li>
+</ul>
+
+<h1 id="quick-checkequal関数">quick.CheckEqual関数</h1>
+
+<ul>
+<li><a href="https://golang.org/pkg/testing/quick/#Check">https://golang.org/pkg/testing/quick/#Check</a></li>
+</ul>
+
+<p><code>func Check(f interface{}, config *Config) error</code>は与えられた関数<code>f</code>に対してランダムテストを行う。
+<code>f</code>の引数が構造体や文字列でもある程度は融通してランダムな引数を用意してくれる。
+また、<code>f</code>は戻り値が<code>bool</code>である必要があるので、必要に応じてラップ関数を作る。</p>
+
+<ul>
+<li><a href="https://play.golang.org/p/ovZM2kkwHBK">https://play.golang.org/p/ovZM2kkwHBK</a></li>
+</ul>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">19
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#fff;font-weight:bold">type</span> MyInt <span style="color:#fff;font-weight:bold">struct</span> {
+    V <span style="color:#fff;font-weight:bold">int</span>
+    X <span style="color:#fff;font-weight:bold">string</span>
+}
+
+<span style="color:#fff;font-weight:bold">func</span> div(n, m MyInt) <span style="color:#fff;font-weight:bold">int</span> {
+    <span style="color:#fff;font-weight:bold">return</span> n.V / m.V
+}
+
+<span style="color:#fff;font-weight:bold">func</span> TestDiv(t *testing.T) {
+    <span style="color:#007f7f">// div関数は戻り値がintなので、評価結果をboolで返すラップ関数を用意する
+</span><span style="color:#007f7f"></span>    f := <span style="color:#fff;font-weight:bold">func</span>(x, y MyInt) <span style="color:#fff;font-weight:bold">bool</span> {
+        <span style="color:#fff;font-weight:bold">return</span> div(x, y) == (x.V / y.V)
+    }
+
+    <span style="color:#fff;font-weight:bold">if</span> err := quick.Check(f, <span style="color:#fff;font-weight:bold">nil</span>); err != <span style="color:#fff;font-weight:bold">nil</span> {
+        t.Error(err.Error())
+    }
+}</code></pre></td></tr></table>
+</div>
+</div>
+<p>第二引数の<code>quick.Config</code>を指定すれば、試行回数や与える引数の範囲、ランダムシードなどを設定できる。</p>
+
+<ul>
+<li><a href="https://play.golang.org/p/8nPw0pgUkN3">https://play.golang.org/p/8nPw0pgUkN3</a></li>
+</ul>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">    cfg := &amp;quick.Config{
+        <span style="color:#007f7f">// 試行回数
+</span><span style="color:#007f7f"></span>        MaxCount: <span style="color:#ff0;font-weight:bold">10</span>,
+        <span style="color:#007f7f">// Seed
+</span><span style="color:#007f7f"></span>        Rand: rand.New(rand.NewSource(<span style="color:#ff0;font-weight:bold">2</span>)),
+        <span style="color:#007f7f">// 独自定義した引数の生成関数
+</span><span style="color:#007f7f"></span>        Values: <span style="color:#fff;font-weight:bold">func</span>(args []reflect.Value, rand *rand.Rand) {
+            args[<span style="color:#ff0;font-weight:bold">0</span>] = reflect.ValueOf(MyInt{rand.Int(), <span style="color:#0ff;font-weight:bold">&#34;x&#34;</span>})
+            args[<span style="color:#ff0;font-weight:bold">1</span>] = reflect.ValueOf(MyInt{rand.Int(), <span style="color:#0ff;font-weight:bold">&#34;y&#34;</span>})
+        },
+    }
+
+    <span style="color:#fff;font-weight:bold">if</span> err := quick.Check(f, cfg); err != <span style="color:#fff;font-weight:bold">nil</span> {
+        t.Error(err.Error())
+    }</code></pre></td></tr></table>
+</div>
+</div>
+<h2 id="quick-checkerror">quick.CheckError</h2>
+
+<p><code>quick.Check</code>関数が戻す<code>Error</code>は<code>quick.CheckError</code>型のポインタなので、任意の情報も取得できる。</p>
+
+<ul>
+<li><a href="https://golang.org/pkg/testing/quick/#CheckError">https://golang.org/pkg/testing/quick/#CheckError</a></li>
+</ul>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">    <span style="color:#fff;font-weight:bold">if</span> err := quick.Check(f, <span style="color:#fff;font-weight:bold">nil</span>); err != <span style="color:#fff;font-weight:bold">nil</span> {
+        <span style="color:#fff;font-weight:bold">if</span> ce, ok := err.(*quick.CheckError); ok {
+            t.Errorf(<span style="color:#0ff;font-weight:bold">&#34;Try count = %d, In %#v, Out %s\n&#34;</span>, ce.Count, ce.In, ce)
+        } <span style="color:#fff;font-weight:bold">else</span> {
+            t.Error(err)
+        }
+    }</code></pre></td></tr></table>
+</div>
+</div>
+<h1 id="quick-checkequal">quick.CheckEqual</h1>
+
+<ul>
+<li><a href="https://golang.org/pkg/testing/quick/#CheckEqual">https://golang.org/pkg/testing/quick/#CheckEqual</a></li>
+</ul>
+
+<p><code>quick.CheckEqual</code>関数は2つの関数に対して乱数テストを実施し、出力結果に変化がないか確認をできる。
+Go本体のコードでは例えば<code>sync.Map</code>の挙動の確認に利用されている。</p>
+
+<ul>
+<li><a href="https://github.com/golang/go/blob/67ac554d7978eb93f3dfe7a819c67948dd291d88/src/sync/map_test.go#L99-L109">https://github.com/golang/go/blob/67ac554d7978eb93f3dfe7a819c67948dd291d88/src/sync/map_test.go#L99-L109</a></li>
+</ul>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#fff;font-weight:bold">func</span> TestMapMatchesRWMutex(t *testing.T) {
+    <span style="color:#fff;font-weight:bold">if</span> err := quick.CheckEqual(applyMap, applyRWMutexMap, <span style="color:#fff;font-weight:bold">nil</span>); err != <span style="color:#fff;font-weight:bold">nil</span> {
+        t.Error(err)
+    }
+}
+
+<span style="color:#fff;font-weight:bold">func</span> TestMapMatchesDeepCopy(t *testing.T) {
+    <span style="color:#fff;font-weight:bold">if</span> err := quick.CheckEqual(applyMap, applyDeepCopyMap, <span style="color:#fff;font-weight:bold">nil</span>); err != <span style="color:#fff;font-weight:bold">nil</span> {
+        t.Error(err)
+    }
+}</code></pre></td></tr></table>
+</div>
+</div>
+<h2 id="quick-checkequalerror">quick.CheckEqualError</h2>
+
+<ul>
+<li><a href="https://golang.org/pkg/testing/quick/#CheckEqualError">https://golang.org/pkg/testing/quick/#CheckEqualError</a></li>
+</ul>
+
+<p><code>quick.CheckEqual</code>関数が戻す<code>Error</code>も<code>quick.CheckEqualError</code>として定義されているので、結果が不一致なときの各情報を取得できる。</p>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#fff;font-weight:bold">type</span> CheckEqualError <span style="color:#fff;font-weight:bold">struct</span> {
+        CheckError
+        Out1 []<span style="color:#fff;font-weight:bold">interface</span>{}
+        Out2 []<span style="color:#fff;font-weight:bold">interface</span>{}
+}</code></pre></td></tr></table>
+</div>
+</div>
+<h1 id="quick-value">quick.Value</h1>
+
+<p>ただ単にランダムな値が欲しい場合は、<code>quick.Value</code>関数で生成できる。</p>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#007f7f">// 乱数整数を生成する
+</span><span style="color:#007f7f"></span>ri, _ := quick.Value(reflect.TypeOf([]<span style="color:#fff;font-weight:bold">int</span>{}), rand.New(rand.NewSource(<span style="color:#ff0;font-weight:bold">0</span>)))
+<span style="color:#007f7f">// 乱数整数スライスを生成する
+</span><span style="color:#007f7f"></span>ris, _ := quick.Value(reflect.TypeOf([]<span style="color:#fff;font-weight:bold">int</span>{}), rand.New(rand.NewSource(<span style="color:#ff0;font-weight:bold">0</span>)))</code></pre></td></tr></table>
+</div>
+</div>
+<h1 id="generatorインターフェース">Generatorインターフェース</h1>
+
+<p><code>Generator</code>インターフェースを実装していれば、独自定義した型も<code>quick.Value</code>の引数に利用できる。
+- <a href="https://play.golang.org/p/8HRbhNYBsnu">https://play.golang.org/p/8HRbhNYBsnu</a></p>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#fff;font-weight:bold">type</span> Foo <span style="color:#fff;font-weight:bold">struct</span>{}
+
+<span style="color:#fff;font-weight:bold">func</span> (f *Foo) Generate(rand *rand.Rand, size <span style="color:#fff;font-weight:bold">int</span>) reflect.Value {
+    <span style="color:#007f7f">// 雑な実装
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">return</span> reflect.ValueOf(&amp;Foo{})
+}
+
+<span style="color:#fff;font-weight:bold">func</span> main() {
+    v, ok := quick.Value(reflect.TypeOf([]*Foo{}), rand.New(rand.NewSource(<span style="color:#ff0;font-weight:bold">0</span>)))
+}</code></pre></td></tr></table>
+</div>
+</div>
+<h1 id="参考">参考</h1>
+
+<ul>
+<li>GoでQuickCheckをする
+
+<ul>
+<li><a href="https://ymotongpoo.hatenablog.com/entry/2012/11/30/155846">https://ymotongpoo.hatenablog.com/entry/2012/11/30/155846</a></li>
+</ul></li>
+<li>Goでテストを書く(テストの実装パターン集) - QuickCheck(testing/quick)でブラックボックステストをする
+
+<ul>
+<li><a href="https://qiita.com/atotto/items/f6b8c773264a3183a53c#quickchecktestingquick%E3%81%A7%E3%83%96%E3%83%A9%E3%83%83%E3%82%AF%E3%83%9C%E3%83%83%E3%82%AF%E3%82%B9%E3%83%86%E3%82%B9%E3%83%88%E3%82%92%E3%81%99%E3%82%8B">https://qiita.com/atotto/items/f6b8c773264a3183a53c#quickchecktestingquick%E3%81%A7%E3%83%96%E3%83%A9%E3%83%83%E3%82%AF%E3%83%9C%E3%83%83%E3%82%AF%E3%82%B9%E3%83%86%E3%82%B9%E3%83%88%E3%82%92%E3%81%99%E3%82%8B</a></li>
+</ul></li>
+<li>Goのtesting/quickを簡単に触ってみる
+
+<ul>
+<li><a href="http://kamenasu.blogspot.com/2015/04/go-testing-quick.html)">http://kamenasu.blogspot.com/2015/04/go-testing-quick.html)</a></li>
+</ul></li>
+</ul>
+
+<h1 id="関連">関連</h1>
+
+<ul>
+<li><a href="/2018/08/19/go-testing2018">Goのtestを理解する in 2018 #go</a></li>
+<li><a href="/2018/08/30/go-testing2018-examples/">Goのtestingを理解する in 2018 - Examples編 #go</a></li>
+</ul>
+        </div>
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Sep 5, 2018</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/test">test</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2018/08/30/go-testing2018-examples/" title="Goのtestingを理解する in 2018 - Examples編 #go">Goのtestingを理解する in 2018 - Examples編 #go</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+
+    <p>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Archives</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories" title="Categories" >Categories</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags" title="Tags" >Tags</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2018/09/05/go-testing2018-quick/">Goのtestingを理解する in 2018 - quickサブパッケージ編 #go</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/08/30/go-testing2018-examples/">Goのtestingを理解する in 2018 - Examples編 #go</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/08/19/go-testing2018/">Goのtestを理解する in 2018 #go</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/08/15/cannot-load-zshrc-on-vim-terminal/">Vimの:terminalコマンドでzshを開くと.zshrcが読み込まれない #vim #zsh</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/08/12/report-mercarigo2/">mercari.go #2 参加メモ #mercarigo</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2018  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
