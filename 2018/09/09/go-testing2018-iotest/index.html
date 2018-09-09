@@ -167,7 +167,9 @@ Goのtestを理解する in 2018 #go
 <li><a href="#func-dataerrreader-r-io-reader-io-reader">func DataErrReader(r io.Reader) io.Reader</a></li>
 <li><a href="#func-halfreader-r-io-reader-io-reader">func HalfReader(r io.Reader) io.Reader</a></li>
 <li><a href="#func-onebytereader-r-io-reader-io-reader">func OneByteReader(r io.Reader) io.Reader</a></li>
+<li><a href="#func-timeoutreader-r-io-reader-io-reader">func TimeoutReader(r io.Reader) io.Reader</a></li>
 <li><a href="#func-truncatewriter-w-io-writer-n-int64-io-writer">func TruncateWriter(w io.Writer, n int64) io.Writer</a></li>
+<li><a href="#func-newwritelogger-prefix-string-w-io-writer-io-writer">func NewWriteLogger(prefix string, w io.Writer) io.Writer</a></li>
 <li><a href="#参考">参考</a></li>
 <li><a href="#関連">関連</a></li>
 </ul>
@@ -389,85 +391,159 @@ Goのtestを理解する in 2018 #go
 <p><code>OneByteReader</code>はその名の通り、常に1バイトしか読みこまない<code>io.Reader</code>を返す。</p>
 
 <ul>
-<li><a href="https://play.golang.org/p/b-GVUag2eSN">https://play.golang.org/p/b-GVUag2eSN</a>
-```go
-	orign := []byte(&ldquo;Hello\nbyte.Reader\n&rdquo;)
-	type want struct {
-		// DataErrReaderのサンプルコードと同じなので省略
-	}
-	tests := []struct {
-		// DataErrReaderのサンプルコードと同じなので省略
-	}{
+<li><a href="https://play.golang.org/p/b-GVUag2eSN">https://play.golang.org/p/b-GVUag2eSN</a></li>
+</ul>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">41
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	orign := []<span style="color:#fff;font-weight:bold">byte</span>(<span style="color:#0ff;font-weight:bold">&#34;Hello\nbyte.Reader\n&#34;</span>)
+	<span style="color:#fff;font-weight:bold">type</span> want <span style="color:#fff;font-weight:bold">struct</span> {
+		<span style="color:#007f7f">// DataErrReaderのサンプルコードと同じなので省略
+</span><span style="color:#007f7f"></span>	}
+	tests := []<span style="color:#fff;font-weight:bold">struct</span> {
+		<span style="color:#007f7f">// DataErrReaderのサンプルコードと同じなので省略
+</span><span style="color:#007f7f"></span>	}{
 		{
-			&ldquo;OneByteReader&rdquo;,
+			<span style="color:#0ff;font-weight:bold">&#34;OneByteReader&#34;</span>,
 			iotest.OneByteReader(bytes.NewReader(orign)),
-			5,
+			<span style="color:#ff0;font-weight:bold">5</span>,
 			[]want{
-				// 1バイトしか読み込まない
-				{1, &ldquo;H\x00\x00\x00\x00&rdquo;, nil},
-				{1, &ldquo;e\x00\x00\x00\x00&rdquo;, nil},
-				{1, &ldquo;l\x00\x00\x00\x00&rdquo;, nil},
-				{1, &ldquo;l\x00\x00\x00\x00&rdquo;, nil},
-				{1, &ldquo;o\x00\x00\x00\x00&rdquo;, nil},
-				{1, &ldquo;\n\x00\x00\x00\x00&rdquo;, nil},
-				{1, &ldquo;b\x00\x00\x00\x00&rdquo;, nil},
-				{1, &ldquo;y\x00\x00\x00\x00&rdquo;, nil},
-				{1, &ldquo;t\x00\x00\x00\x00&rdquo;, nil},
-				{1, &ldquo;e\x00\x00\x00\x00&rdquo;, nil},
-				{1, &ldquo;.\x00\x00\x00\x00&rdquo;, nil},
-				{1, &ldquo;R\x00\x00\x00\x00&rdquo;, nil},
-				{1, &ldquo;e\x00\x00\x00\x00&rdquo;, nil},
-				{1, &ldquo;a\x00\x00\x00\x00&rdquo;, nil},
-				{1, &ldquo;d\x00\x00\x00\x00&rdquo;, nil},
-				{1, &ldquo;e\x00\x00\x00\x00&rdquo;, nil},
-				{1, &ldquo;r\x00\x00\x00\x00&rdquo;, nil},
-				{1, &ldquo;\n\x00\x00\x00\x00&rdquo;, nil},
-				{0, &ldquo;\x00\x00\x00\x00\x00&rdquo;, io.EOF},
+				<span style="color:#007f7f">// 1バイトしか読み込まない
+</span><span style="color:#007f7f"></span>				{<span style="color:#ff0;font-weight:bold">1</span>, <span style="color:#0ff;font-weight:bold">&#34;H\x00\x00\x00\x00&#34;</span>, <span style="color:#fff;font-weight:bold">nil</span>},
+				{<span style="color:#ff0;font-weight:bold">1</span>, <span style="color:#0ff;font-weight:bold">&#34;e\x00\x00\x00\x00&#34;</span>, <span style="color:#fff;font-weight:bold">nil</span>},
+				{<span style="color:#ff0;font-weight:bold">1</span>, <span style="color:#0ff;font-weight:bold">&#34;l\x00\x00\x00\x00&#34;</span>, <span style="color:#fff;font-weight:bold">nil</span>},
+				{<span style="color:#ff0;font-weight:bold">1</span>, <span style="color:#0ff;font-weight:bold">&#34;l\x00\x00\x00\x00&#34;</span>, <span style="color:#fff;font-weight:bold">nil</span>},
+				{<span style="color:#ff0;font-weight:bold">1</span>, <span style="color:#0ff;font-weight:bold">&#34;o\x00\x00\x00\x00&#34;</span>, <span style="color:#fff;font-weight:bold">nil</span>},
+				{<span style="color:#ff0;font-weight:bold">1</span>, <span style="color:#0ff;font-weight:bold">&#34;\n\x00\x00\x00\x00&#34;</span>, <span style="color:#fff;font-weight:bold">nil</span>},
+				{<span style="color:#ff0;font-weight:bold">1</span>, <span style="color:#0ff;font-weight:bold">&#34;b\x00\x00\x00\x00&#34;</span>, <span style="color:#fff;font-weight:bold">nil</span>},
+				{<span style="color:#ff0;font-weight:bold">1</span>, <span style="color:#0ff;font-weight:bold">&#34;y\x00\x00\x00\x00&#34;</span>, <span style="color:#fff;font-weight:bold">nil</span>},
+				{<span style="color:#ff0;font-weight:bold">1</span>, <span style="color:#0ff;font-weight:bold">&#34;t\x00\x00\x00\x00&#34;</span>, <span style="color:#fff;font-weight:bold">nil</span>},
+				{<span style="color:#ff0;font-weight:bold">1</span>, <span style="color:#0ff;font-weight:bold">&#34;e\x00\x00\x00\x00&#34;</span>, <span style="color:#fff;font-weight:bold">nil</span>},
+				{<span style="color:#ff0;font-weight:bold">1</span>, <span style="color:#0ff;font-weight:bold">&#34;.\x00\x00\x00\x00&#34;</span>, <span style="color:#fff;font-weight:bold">nil</span>},
+				{<span style="color:#ff0;font-weight:bold">1</span>, <span style="color:#0ff;font-weight:bold">&#34;R\x00\x00\x00\x00&#34;</span>, <span style="color:#fff;font-weight:bold">nil</span>},
+				{<span style="color:#ff0;font-weight:bold">1</span>, <span style="color:#0ff;font-weight:bold">&#34;e\x00\x00\x00\x00&#34;</span>, <span style="color:#fff;font-weight:bold">nil</span>},
+				{<span style="color:#ff0;font-weight:bold">1</span>, <span style="color:#0ff;font-weight:bold">&#34;a\x00\x00\x00\x00&#34;</span>, <span style="color:#fff;font-weight:bold">nil</span>},
+				{<span style="color:#ff0;font-weight:bold">1</span>, <span style="color:#0ff;font-weight:bold">&#34;d\x00\x00\x00\x00&#34;</span>, <span style="color:#fff;font-weight:bold">nil</span>},
+				{<span style="color:#ff0;font-weight:bold">1</span>, <span style="color:#0ff;font-weight:bold">&#34;e\x00\x00\x00\x00&#34;</span>, <span style="color:#fff;font-weight:bold">nil</span>},
+				{<span style="color:#ff0;font-weight:bold">1</span>, <span style="color:#0ff;font-weight:bold">&#34;r\x00\x00\x00\x00&#34;</span>, <span style="color:#fff;font-weight:bold">nil</span>},
+				{<span style="color:#ff0;font-weight:bold">1</span>, <span style="color:#0ff;font-weight:bold">&#34;\n\x00\x00\x00\x00&#34;</span>, <span style="color:#fff;font-weight:bold">nil</span>},
+				{<span style="color:#ff0;font-weight:bold">0</span>, <span style="color:#0ff;font-weight:bold">&#34;\x00\x00\x00\x00\x00&#34;</span>, io.EOF},
 			},
 		},
-	}</li>
+	}
+
+	<span style="color:#fff;font-weight:bold">for</span> _, tt := <span style="color:#fff;font-weight:bold">range</span> tests {
+		t.Run(tt.subject, <span style="color:#fff;font-weight:bold">func</span>(t *testing.T) {
+			<span style="color:#007f7f">// DataErrReaderのサンプルコードと同じなので省略
+</span><span style="color:#007f7f"></span>		})
+	}</code></pre></td></tr></table>
+</div>
+</div>
+<h1 id="func-timeoutreader-r-io-reader-io-reader">func TimeoutReader(r io.Reader) io.Reader</h1>
+
+<ul>
+<li><a href="https://golang.org/pkg/testing/iotest/#TimeoutReader">https://golang.org/pkg/testing/iotest/#TimeoutReader</a></li>
 </ul>
 
-<p>	for _, tt := range tests {
-		t.Run(tt.subject, func(t *testing.T) {
-			// DataErrReaderのサンプルコードと同じなので省略
-		})
-	}</p>
+<p><code>TimeoutReader</code>は二回目の<code>Read</code>呼び出し時にエラーが発生する。返されるエラーは<code>iotest</code>パッケージ内に定義されている。</p>
 
-<pre><code>
-# func TimeoutReader(r io.Reader) io.Reader
-- https://golang.org/pkg/testing/iotest/#TimeoutReader
-
-`TimeoutReader`は二回目の`Read`呼び出し時にエラーが発生する。返されるエラーは`iotest`パッケージ内に定義されている。
-
-
-- https://play.golang.org/p/dnwZwG5NyzG
-```go
-	orign := []byte(&quot;Hello\nbyte.Reader\n&quot;)
-	type want struct {
-		// DataErrReaderのサンプルコードと同じなので省略
-	}
-	tests := []struct {
-		// DataErrReaderのサンプルコードと同じなので省略
-	}{
+<ul>
+<li><a href="https://play.golang.org/p/dnwZwG5NyzG">https://play.golang.org/p/dnwZwG5NyzG</a></li>
+</ul>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">23
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	orign := []<span style="color:#fff;font-weight:bold">byte</span>(<span style="color:#0ff;font-weight:bold">&#34;Hello\nbyte.Reader\n&#34;</span>)
+	<span style="color:#fff;font-weight:bold">type</span> want <span style="color:#fff;font-weight:bold">struct</span> {
+		<span style="color:#007f7f">// DataErrReaderのサンプルコードと同じなので省略
+</span><span style="color:#007f7f"></span>	}
+	tests := []<span style="color:#fff;font-weight:bold">struct</span> {
+		<span style="color:#007f7f">// DataErrReaderのサンプルコードと同じなので省略
+</span><span style="color:#007f7f"></span>	}{
 		{
-			&quot;TimeoutReader&quot;,
+			<span style="color:#0ff;font-weight:bold">&#34;TimeoutReader&#34;</span>,
 			iotest.TimeoutReader(bytes.NewReader(orign)),
-			5,
+			<span style="color:#ff0;font-weight:bold">5</span>,
 			[]want{
-				{5, &quot;Hello&quot;, nil},
-				{0, &quot;\x00\x00\x00\x00\x00&quot;, iotest.ErrTimeout}, // ErrTimeout on the second read with no data.
-			},
+				{<span style="color:#ff0;font-weight:bold">5</span>, <span style="color:#0ff;font-weight:bold">&#34;Hello&#34;</span>, <span style="color:#fff;font-weight:bold">nil</span>},
+				{<span style="color:#ff0;font-weight:bold">0</span>, <span style="color:#0ff;font-weight:bold">&#34;\x00\x00\x00\x00\x00&#34;</span>, iotest.ErrTimeout}, <span style="color:#007f7f">// ErrTimeout on the second read with no data.
+</span><span style="color:#007f7f"></span>			},
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.subject, func(t *testing.T) {
-			// DataErrReaderのサンプルコードと同じなので省略
-		})
-	}
-</code></pre>
-
+	<span style="color:#fff;font-weight:bold">for</span> _, tt := <span style="color:#fff;font-weight:bold">range</span> tests {
+		t.Run(tt.subject, <span style="color:#fff;font-weight:bold">func</span>(t *testing.T) {
+			<span style="color:#007f7f">// DataErrReaderのサンプルコードと同じなので省略
+</span><span style="color:#007f7f"></span>		})
+	}</code></pre></td></tr></table>
+</div>
+</div>
 <h1 id="func-truncatewriter-w-io-writer-n-int64-io-writer">func TruncateWriter(w io.Writer, n int64) io.Writer</h1>
 
 <ul>
@@ -480,43 +556,72 @@ Goのtestを理解する in 2018 #go
 <ul>
 <li><p><a href="https://github.com/golang/go/blob/50bd1c4d4eb4fac8ddeb5f063c099daccfb71b26/src/archive/tar/writer_test.go#L487">https://github.com/golang/go/blob/50bd1c4d4eb4fac8ddeb5f063c099daccfb71b26/src/archive/tar/writer_test.go#L487</a></p></li>
 
-<li><p><a href="https://play.golang.org/p/GvFtBx2rPcu">https://play.golang.org/p/GvFtBx2rPcu</a>
-```go
-	func TestTruncateWriter(t *testing.T) {
-	orign := []byte(&ldquo;Hello\nbyte.Reader\n&rdquo;)
-	wants := []struct {
-		buf string
-		n   int
-	}{
-		{&ldquo;Hel&rdquo;, 3},
-		{&ldquo;Hello\nby&rdquo;, 8},
-	}</p></li>
+<li><p><a href="https://play.golang.org/p/GvFtBx2rPcu">https://play.golang.org/p/GvFtBx2rPcu</a></p></li>
 </ul>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">20
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#fff;font-weight:bold">func</span> TestTruncateWriter(t *testing.T) {
+	orign := []<span style="color:#fff;font-weight:bold">byte</span>(<span style="color:#0ff;font-weight:bold">&#34;Hello\nbyte.Reader\n&#34;</span>)
+	wants := []<span style="color:#fff;font-weight:bold">struct</span> {
+		buf <span style="color:#fff;font-weight:bold">string</span>
+		n   <span style="color:#fff;font-weight:bold">int</span>
+	}{
+		{<span style="color:#0ff;font-weight:bold">&#34;Hel&#34;</span>, <span style="color:#ff0;font-weight:bold">3</span>},
+		{<span style="color:#0ff;font-weight:bold">&#34;Hello\nby&#34;</span>, <span style="color:#ff0;font-weight:bold">8</span>},
+	}
 
-<p>	for _, want := range wants {
+	<span style="color:#fff;font-weight:bold">for</span> _, want := <span style="color:#fff;font-weight:bold">range</span> wants {
 		b := &amp;bytes.Buffer{}
-		w := iotest.TruncateWriter(b, int64(want.n))
-		w.Write(orign)</p>
+		w := iotest.TruncateWriter(b, <span style="color:#fff;font-weight:bold">int64</span>(want.n))
+		w.Write(orign)
 
-<p>		if got := b.Bytes(); string(got) != want.buf {
-			t.Fatalf(&ldquo;want %#v, but got = %#v\n&rdquo;, want.buf, string(got))
+		<span style="color:#fff;font-weight:bold">if</span> got := b.Bytes(); <span style="color:#fff;font-weight:bold">string</span>(got) != want.buf {
+			t.Fatalf(<span style="color:#0ff;font-weight:bold">&#34;want %#v, but got = %#v\n&#34;</span>, want.buf, <span style="color:#fff;font-weight:bold">string</span>(got))
 		}
 	}
-}</p>
+}</code></pre></td></tr></table>
+</div>
+</div>
+<h1 id="func-newwritelogger-prefix-string-w-io-writer-io-writer">func NewWriteLogger(prefix string, w io.Writer) io.Writer</h1>
 
-<pre><code>
-# func NewWriteLogger(prefix string, w io.Writer) io.Writer
-- https://golang.org/pkg/testing/iotest/#NewWriteLogger
-- https://golang.org/pkg/testing/iotest/#NewReadLogger
+<ul>
+<li><a href="https://golang.org/pkg/testing/iotest/#NewWriteLogger">https://golang.org/pkg/testing/iotest/#NewWriteLogger</a></li>
+<li><a href="https://golang.org/pkg/testing/iotest/#NewReadLogger">https://golang.org/pkg/testing/iotest/#NewReadLogger</a></li>
+</ul>
 
-`NewWriteLogger`/`NewReadLogger`は書き込んだ(読み込んだ)結果をログ出力にフックする`io.Writer`(`io.Reader`)を返す。
+<p><code>NewWriteLogger</code>/<code>NewReadLogger</code>は書き込んだ(読み込んだ)結果をログ出力にフックする<code>io.Writer</code>(<code>io.Reader</code>)を返す。</p>
 
-たとえば、先ほどの`TestTruncateWriter`テストに`NewWriteLogger`を挟むと、
-
-```go
-		w = iotest.NewWriteLogger(&quot;Hook write&quot;, w)
-</code></pre>
-
+<p>たとえば、先ほどの<code>TestTruncateWriter</code>テストに<code>NewWriteLogger</code>を挟むと、</p>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">		w = iotest.NewWriteLogger(<span style="color:#0ff;font-weight:bold">&#34;Hook write&#34;</span>, w)</code></pre></td></tr></table>
+</div>
+</div>
 <p><code>io.Writer</code>に書き込んだタイミングでその内容を16進数でログに出力する。</p>
 <div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
