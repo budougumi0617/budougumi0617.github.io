@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>go listで依存パッケージを一覧する。-tagsで依存パッケージを切り替える #go</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.48" />
+
+  
+  
+
+  
+  
+    
+
+  
+    <meta name="twitter:card" content="summary"/>
+  
+  
+  <meta name="twitter:title" content="go listで依存パッケージを一覧する。-tagsで依存パッケージを切り替える #go"/>
+  <meta name="twitter:description" content="今更だがGoでビルドタグで依存パッケージをどう制御できるのか確認した。
+また、依存パッケージの一覧を確認するのにはgo listコマンドの使い方を調べた。
+
+"/>
+  
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+  
+
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Sep 21, 2018
+         - 4 minute read 
+         - <a href="https://budougumi0617.github.io/2018/09/21/package-dependencies-with-go-list-and-build-tags/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+        
+    </p>
+    <h1 class="entry-title">
+         go listで依存パッケージを一覧する。-tagsで依存パッケージを切り替える #go 
+    </h1>
+</header>
+
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#ソースコードの事前準備">ソースコードの事前準備</a>
+<ul>
+<li><a href="#サブパッケージをimportするファイルにビルドタグをつける">サブパッケージをimportするファイルにビルドタグをつける</a></li>
+</ul></li>
+<li><a href="#go-listで依存パッケージの一覧を取得する">go listで依存パッケージの一覧を取得する</a></li>
+<li><a href="#go-buildして依存を確認する">go buildして依存を確認する</a></li>
+<li><a href="#終わりに">終わりに</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</nav>
+          
+          <p>今更だがGoでビルドタグで依存パッケージをどう制御できるのか確認した。<br />
+また、依存パッケージの一覧を確認するのには<code>go list</code>コマンドの使い方を調べた。</p>
+
+<p></p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li><code>go list -f '{{join .Deps &quot;\n&quot;}}'</code>コマンドで依存パッケージの情報を取得できる</li>
+<li><code>go</code>コマンドは<code>go build</code>/<code>go test</code>コマンド以外のときもビルドタグに基づいた結果を出力する</li>
+<li>ビルドタグによってビルドに含まれないコードの依存パッケージはビルドにも含まれない</li>
+</ul>
+
+<p>確認で利用したソースコードは以下。</p>
+
+<ul>
+<li><a href="https://github.com/budougumi0617/sandbox-go-cloud/tree/679665ce3573ad2f83642e2613a95424c1647456">https://github.com/budougumi0617/sandbox-go-cloud@679665c</a></li>
+</ul>
+
+<h1 id="ソースコードの事前準備">ソースコードの事前準備</h1>
+
+<p>確認では以下の構成のソースコードを作成した。<br />
+簡易の構成だが、AWS関係のパッケージに依存した<code>aws</code>パッケージと、GCP関係のパッケージに依存した<code>gcp</code>パッケージがある。</p>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ tree
+.
+├── LICENSE
+├── README.md
+├── aws           <span style="color:#007f7f"># !gcpタグ付きのコード
+</span><span style="color:#007f7f"></span>│   └── setup.go  <span style="color:#007f7f"># AWS SDKに依存しているコード
+</span><span style="color:#007f7f"></span>├── aws.go
+├── gcp
+│   └── setup.go  <span style="color:#007f7f"># GCP SDKに依存しているコード
+</span><span style="color:#007f7f"></span>├── gcp.go        <span style="color:#007f7f"># gcpタグ付きのコード
+</span><span style="color:#007f7f"></span>├── main.go
+└── sandbox-go-cloud</code></pre></td></tr></table>
+</div>
+</div>
+<p><code>main.go</code>では<code>test()</code>関数を呼ぶ。</p>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#fff;font-weight:bold">package</span> main
+
+<span style="color:#fff;font-weight:bold">func</span> main() {
+    <span style="color:#007f7f">// tags=gcpのときはgcp.goのtest()が呼ばれる
+</span><span style="color:#007f7f"></span>    <span style="color:#007f7f">// tagsがなければaws.goのtest()が呼ばれる
+</span><span style="color:#007f7f"></span>    test()
+}</code></pre></td></tr></table>
+</div>
+</div>
+<p><code>test()</code>関数は<code>./aws.go</code>と<code>./gcp.go</code>に定義した。<br />
+２つのファイルはビルドタグによって必ず片方しかビルドに含まれないので、同じ関数があっても矛盾しない。</p>
+
+<h2 id="サブパッケージをimportするファイルにビルドタグをつける">サブパッケージをimportするファイルにビルドタグをつける</h2>
+
+<ul>
+<li><a href="https://golang.org/pkg/go/build/#hdr-Build_Constraints">https://golang.org/pkg/go/build/#hdr-Build_Constraints</a></li>
+</ul>
+
+<p>Goは他言語の<code>#ifdef</code>のように、ビルドタグを使ってファイル単位でビルドスイッチを定義することができる。<br />
+利用するときはファイルの先頭に<code>// +build</code>から始まるビルドタグを書く。必ず二行目は空行にする必要がある。複数のビルドタグを付けることも可能。</p>
+
+<p><code>gcp.go</code>は<code>gcp</code>タグがついている時にしかビルドに含まれないファイルになる。</p>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#007f7f">// +build gcp
+</span><span style="color:#007f7f"></span>
+<span style="color:#fff;font-weight:bold">package</span> main
+
+<span style="color:#fff;font-weight:bold">import</span> (
+    <span style="color:#007f7f">// go-cloud経由でGCPのSDKに依存しているサブパッケージ
+</span><span style="color:#007f7f"></span>    <span style="color:#0ff;font-weight:bold">&#34;github.com/budougumi0617/sandbox-go-cloud/gcp&#34;</span>
+)
+
+<span style="color:#fff;font-weight:bold">func</span> test() {
+    gcp.Print()
+}</code></pre></td></tr></table>
+</div>
+</div>
+<p>ビルドタグの定義には倫理式も使えるので、<code>aws.go</code>は<code>gcp</code>タグがついて「いない」時にビルドに含まれるファイルになる。</p>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#007f7f">// +build !gcp
+</span><span style="color:#007f7f"></span>
+<span style="color:#fff;font-weight:bold">package</span> main
+
+<span style="color:#fff;font-weight:bold">import</span> (
+    <span style="color:#007f7f">// AWSのSDKに依存しているサブパッケージ
+</span><span style="color:#007f7f"></span>    <span style="color:#0ff;font-weight:bold">&#34;github.com/budougumi0617/sandbox-go-cloud/aws&#34;</span>
+)
+
+<span style="color:#fff;font-weight:bold">func</span> test() {
+    aws.Print()
+}</code></pre></td></tr></table>
+</div>
+</div>
+<p>ビルドタグの定義により、<code>aws.go</code>と<code>gcp.go</code>はビルド時にいずれしか含まれない。それぞれ別のサブパッケージに依存している。<br />
+また、今回は結果をわかりやすくするため、GCP関係の依存パッケージをローカルから取り除いている。（GCP関係の依存があるとパッケージが見つからずにビルドが失敗する）</p>
+
+<h1 id="go-listで依存パッケージの一覧を取得する">go listで依存パッケージの一覧を取得する</h1>
+
+<ul>
+<li><a href="https://golang.org/cmd/go/#hdr-List_packages_or_modules">https://golang.org/cmd/go/#hdr-List_packages_or_modules</a></li>
+</ul>
+
+<p><code>go list</code>コマンドは<code>text/template</code>のようなコマンドオプションを使うと、出力情報を制御できる。<br />
+また、<code>go</code>コマンドは<code>go build</code>や<code>go test</code>コマンド以外のときもビルドタグに基づいた結果を出力する。</p>
+
+<p>まず、<code>gcp</code>タグ無しで依存パッケージの一覧を出力する。<br />
+<code>go list</code>コマンドでは<a href="https://qiita.com/suin/items/edf59157ba010c04b50e">こちら</a>の記事を参考に標準パッケージ以外の依存パッケージを出力するようにしている。<br />
+結果はたしかにAWS関係の依存のみ出力された。</p>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go list -f <span style="color:#0ff;font-weight:bold">&#39;{{join .Deps &#34;\n&#34;}}&#39;</span> | xargs go list -f <span style="color:#0ff;font-weight:bold">&#39;{{if not .Standard}}{{.ImportPath}}{{end}}&#39;</span>
+github.com/aws/aws-sdk-go/aws
+github.com/aws/aws-sdk-go/aws/awserr
+...
+github.com/google/go-cloud/blob/s3blob</code></pre></td></tr></table>
+</div>
+</div>
+<p><code>gcp</code>タグをつけて<code>go list</code>コマンドを実行する。<br />
+(GCP関連のパッケージは<code>go get</code>していないのでエラーが出ているが、）GCP関連のパッケージへの依存を確認できた。<br />
+また、AWS関係の依存はなくなっていた。</p>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go list -tags=gcp -f <span style="color:#0ff;font-weight:bold">&#39;{{join .Deps &#34;\n&#34;}}&#39;</span> | xargs go list -f <span style="color:#0ff;font-weight:bold">&#39;{{if not .Standard}}{{.ImportPath}}{{end}}&#39;</span>
+can<span style="color:#f00">&#39;</span>t load package: package cloud.google.com/go/storage: cannot find package <span style="color:#0ff;font-weight:bold">&#34;cloud.google.com/go/storage&#34;</span> in any of:
+    /usr/local/opt/go/libexec/src/cloud.google.com/go/storage (from $GOROOT)
+    /Users/shimizu-yoichiro/go/src/cloud.google.com/go/storage (from $GOPATH)
+...
+github.com/google/go-cloud/gcp
+github.com/google/go-cloud/wire</code></pre></td></tr></table>
+</div>
+</div>
+<h1 id="go-buildして依存を確認する">go buildして依存を確認する</h1>
+
+<p>今度は実際にビルドしてみる。ビルドタグがないときのビルドはAWS関係のパッケージにしか依存関係がないはずなので成功する。</p>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go build</code></pre></td></tr></table>
+</div>
+</div>
+<p>ビルドタグを付与してビルドすると、GCP関係のパッケージが見つからずビルドエラーになる。<br />
+ビルドタグで依存パッケージを制御することができた。</p>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go build -tags=gcp
+../../google/go-cloud/blob/gcsblob/gcsblob.go:31:2: cannot find package <span style="color:#0ff;font-weight:bold">&#34;cloud.google.com/go/storage&#34;</span> in any of:
+    /usr/local/opt/go/libexec/src/cloud.google.com/go/storage (from $GOROOT)
+    /Users/shimizu-yoichiro/go/src/cloud.google.com/go/storage (from $GOPATH)
+../../google/go-cloud/gcp/gcp.go:24:2: cannot find package <span style="color:#0ff;font-weight:bold">&#34;golang.org/x/oauth2&#34;</span> in any of:
+    /usr/local/opt/go/libexec/src/golang.org/x/oauth2 (from $GOROOT)
+...</code></pre></td></tr></table>
+</div>
+</div>
+<h1 id="終わりに">終わりに</h1>
+
+<p>今回はビルドタグを使って、依存パッケージを切り替えることを確認した。<br />
+なぜこんなことをしているかたというと、go-cloudやDependency Injectionの検証をしていたから。この辺は別の場所で公開する。</p>
+
+<ul>
+<li><a href="https://godoc.org/github.com/google/go-cloud">https://godoc.org/github.com/google/go-cloud</a></li>
+</ul>
+
+<p>また、<code>go list</code>はオプションをつけて実行しないと大した情報が出てこないので、使うときは<code>-f</code>オプションをちゃんと使ったほうがよさそう。</p>
+
+<h1 id="参考">参考</h1>
+
+<ul>
+<li>Package build | Build Constraints
+
+<ul>
+<li><a href="https://golang.org/pkg/go/build/#hdr-Build_Constraints">https://golang.org/pkg/go/build/#hdr-Build_Constraints</a></li>
+</ul></li>
+<li>Command Go | List packages or modules
+
+<ul>
+<li><a href="https://golang.org/cmd/go/#hdr-List_packages_or_modules">https://golang.org/cmd/go/#hdr-List_packages_or_modules</a></li>
+</ul></li>
+<li>Go言語: 依存するパッケージ一覧を調べたい
+
+<ul>
+<li><a href="https://qiita.com/suin/items/edf59157ba010c04b50e">https://qiita.com/suin/items/edf59157ba010c04b50e</a></li>
+</ul></li>
+</ul>
+        </div>
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Sep 21, 2018</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/build">build</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2018/09/12/type-can-only-be-used-in-a-dot-ts-file-on-vim/" title="Vim &#43; ALEでReact&#43;Flowなファイルを開くと&#39;type aliases&#39; can only be used in a .ts file.と怒られる #react #eslint">Vim &#43; ALEでReact&#43;Flowなファイルを開くと&#39;type aliases&#39; can only be used in a .ts file.と怒られる #react #eslint</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+
+    <p>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Archives</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories" title="Categories" >Categories</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags" title="Tags" >Tags</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2018/09/21/package-dependencies-with-go-list-and-build-tags/">go listで依存パッケージを一覧する。-tagsで依存パッケージを切り替える #go</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/09/12/type-can-only-be-used-in-a-dot-ts-file-on-vim/">Vim &#43; ALEでReact&#43;Flowなファイルを開くと&#39;type aliases&#39; can only be used in a .ts file.と怒られる #react #eslint</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/09/09/go-testing2018-iotest/">Goのtestingを理解する in 2018 - iotestサブパッケージ編 #go</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/09/05/go-testing2018-quick/">Goのtestingを理解する in 2018 - quickサブパッケージ編 #go</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/08/30/go-testing2018-examples/">Goのtestingを理解する in 2018 - Examples編 #go</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2018  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
