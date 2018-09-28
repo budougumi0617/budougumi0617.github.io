@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>Jest( &gt;23.0.0 )、enzymeでReactのテーブル駆動テストを行う #react #test</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.46" />
+
+  
+  
+
+  
+  
+    
+
+  
+    <meta name="twitter:card" content="summary"/>
+  
+  
+  <meta name="twitter:title" content="Jest( &gt;23.0.0 )、enzymeでReactのテーブル駆動テストを行う #react #test"/>
+  <meta name="twitter:description" content="Reactでもテーブル駆動テスト(データ駆動テスト)がしたいと思い、Jestを使ってみた。
+ステートレスなコンポーネントがちゃんと設計できていれば入出力は冪等になるので、Reactとテーブル駆動テストは非常に相性がよさそう。
+enzymeを使えばDOMアクセスも簡単だった。
+ただ、Jestのバージョンが23.0.0以上じゃないとeachメソッドが使えないので、create-react-appで作ったプロジェクトの場合はejectする必要があった。
+
+JestはJavascriptでrspecのようなテストが書けるツール。enzymeはairbnbが作成したいい感じにDOMにアクセスできるAPIライブラリ。
+
+
+Jest
+
+
+https://jestjs.io/
+
+enzyme
+
+
+http://airbnb.io/enzyme/
+
+
+
+"/>
+  
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+  
+
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Sep 28, 2018
+         - 5 minute read 
+         - <a href="https://budougumi0617.github.io/2018/09/28/react-table-driven-test-by-jest-enzyme/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/react/">react </a><a class="label" href="https://budougumi0617.github.io/categories/test/">test </a>
+        
+    </p>
+    <h1 class="entry-title">
+         Jest( &gt;23.0.0 )、enzymeでReactのテーブル駆動テストを行う #react #test 
+    </h1>
+</header>
+
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#プロジェクトの準備">プロジェクトの準備</a></li>
+<li><a href="#jestでテーブル駆動テストを書く">Jestでテーブル駆動テストを書く</a></li>
+<li><a href="#テストを書くときのtips">テストを書くときのTips</a></li>
+<li><a href="#終わりに">終わりに</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</nav>
+          
+          <p>Reactでもテーブル駆動テスト(データ駆動テスト)がしたいと思い、Jestを使ってみた。
+ステートレスなコンポーネントがちゃんと設計できていれば入出力は冪等になるので、Reactとテーブル駆動テストは非常に相性がよさそう。
+enzymeを使えばDOMアクセスも簡単だった。
+ただ、Jestのバージョンが23.0.0以上じゃないと<code>each</code>メソッドが使えないので、<code>create-react-app</code>で作ったプロジェクトの場合は<code>eject</code>する必要があった。</p>
+
+<p>JestはJavascriptで<code>rspec</code>のようなテストが書けるツール。enzymeはairbnbが作成したいい感じにDOMにアクセスできるAPIライブラリ。</p>
+
+<ul>
+<li>Jest
+
+<ul>
+<li><a href="https://jestjs.io/">https://jestjs.io/</a></li>
+</ul></li>
+<li>enzyme
+
+<ul>
+<li><a href="http://airbnb.io/enzyme/">http://airbnb.io/enzyme/</a></li>
+</ul></li>
+</ul>
+
+<p></p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li><code>create-react-app</code>で作ったプロジェクトの場合は<code>eject</code>してJestをアップグレードする</li>
+<li><code>enzyme</code>を<code>yarn add</code>しておくとテストがラク</li>
+<li><code>setupTest.js</code>を足してテストを書けば終わり</li>
+<li><code>yarn test -watch</code>でホットリロードしながらテストができる</li>
+<li><code>node --inspect-brk node_modules/.bin/jest --runInBand</code>を使えばChromeコンソールでいろいろ試せる</li>
+</ul>
+
+<p>サンプルリポジトリは以下。</p>
+
+<ul>
+<li>tdt-react-jest-enzyme
+
+<ul>
+<li><a href="https://github.com/budougumi0617/tdt-react-jest-enzyme">https://github.com/budougumi0617/tdt-react-jest-enzyme</a></li>
+</ul></li>
+</ul>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-react" data-lang="react"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">25
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-react" data-lang="react"><span style="color:#fff;font-weight:bold">import</span> React from <span style="color:#0ff;font-weight:bold">&#39;react&#39;</span>;
+<span style="color:#fff;font-weight:bold">import</span> { shallow  } from <span style="color:#0ff;font-weight:bold">&#39;enzyme&#39;</span>;
+
+<span style="color:#fff;font-weight:bold">import</span> App from <span style="color:#0ff;font-weight:bold">&#39;./App&#39;</span>;
+
+<span style="color:#fff;font-weight:bold">const</span> emptyProps ={
+  text: <span style="color:#0ff;font-weight:bold">&#39;test&#39;</span>
+};
+
+describe(<span style="color:#0ff;font-weight:bold">&#39;App&#39;</span>, () =&gt; {
+  describe(<span style="color:#0ff;font-weight:bold">&#39;App-title&#39;</span>, () =&gt; {
+    <span style="color:#fff;font-weight:bold">const</span> cases = [
+      [<span style="color:#0ff;font-weight:bold">&#39;simple test1&#39;</span>, { text: <span style="color:#0ff;font-weight:bold">&#39;Jest&#39;</span>}, <span style="color:#0ff;font-weight:bold">&#39;Welcome to Jest&#39;</span>],
+      [<span style="color:#0ff;font-weight:bold">&#39;simple test2&#39;</span>, { text: <span style="color:#0ff;font-weight:bold">&#39;enzyme&#39;</span>}, <span style="color:#0ff;font-weight:bold">&#39;Welcome to enzyme&#39;</span>]
+    ];
+    describe.each(cases)(<span style="color:#0ff;font-weight:bold">&#39;change Props&#39;</span>, (title, override, expected) =&gt; {
+       it(title, () =&gt; {
+         <span style="color:#fff;font-weight:bold">const</span> customProps = <span style="color:#fff;font-weight:bold">Object</span>.assign({}, emptyProps, override);
+         <span style="color:#fff;font-weight:bold">const</span> wrapper = shallow(&lt;<span style="font-weight:bold">App</span> {<span style="color:#007f7f">...customProps</span>} /&gt;);
+         expect(wrapper.instance().props.text).toBe(customProps.text);
+         expect(wrapper.find(<span style="color:#0ff;font-weight:bold">&#39;.App-title&#39;</span>).text()).toBe(expected);
+       });
+    });
+  });
+});</code></pre></td></tr></table>
+</div>
+</div>
+<p>利用した各々のバージョンは次のとおり。</p>
+
+<pre><code>$ create-react-app --version
+1.5.2
+
+$ node -v
+v10.8.0
+
+$ yarn -v
+1.9.4
+
+$ egrep &quot;react|jest|enzyme&quot; package.json
+&quot;jest&quot;: &quot;23.6.0&quot;,
+&quot;react&quot;: &quot;^16.5.2&quot;,
+&quot;react-dom&quot;: &quot;^16.5.2&quot;,
+&quot;enzyme&quot;: &quot;^3.6.0&quot;,
+&quot;enzyme-adapter-react-16&quot;: &quot;^1.5.0&quot;,
+&quot;react-test-renderer&quot;: &quot;^16.5.2&quot;
+....
+</code></pre>
+
+<h1 id="プロジェクトの準備">プロジェクトの準備</h1>
+
+<p>まず、テーブル駆動テストを行うReactプロジェクトを作成する。</p>
+
+<pre><code>$ create-react-app tdt-react-jest-enzyme
+</code></pre>
+
+<p>テーブル駆動テストを利用しない場合は、このまま<code>enzyme</code>をインストールすればよい。<br />
+Jestについては<code>create-react-app</code>コマンドでプロジェクトを作成した時点でインストールされている。<br />
+が、<code>create-react-app</code>の最新版（1.5.2）でも、プリインストールされているJestのバージョンは20.X系だった（<code>eject</code>するとわかる）。</p>
+
+<pre><code>&quot;jest&quot;: &quot;20.0.4&quot;,
+</code></pre>
+
+<p>Jestでテーブル駆動をするために必要な<code>describe.each</code>は23.X系からなので利用できない。</p>
+
+<ul>
+<li><code>describe.each(table)(name, fn, timeout)</code>
+
+<ul>
+<li><a href="https://jestjs.io/docs/en/api#describeeachtable-name-fn-timeout">https://jestjs.io/docs/en/api#describeeachtable-name-fn-timeout</a></li>
+</ul></li>
+<li>Jest Release Notes
+
+<ul>
+<li><a href="https://github.com/facebook/jest/blob/master/CHANGELOG.md#2300">https://github.com/facebook/jest/blob/master/CHANGELOG.md#2300</a></li>
+</ul></li>
+</ul>
+
+<p>そのため、<code>yarn eject</code>で<code>create-react-app</code>プロジェクトを解体したあと、Jestをアップグレードする。</p>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ yarn eject
+$ yarn upgrade jest --latest
+$ yarn add -D enzyme enzyme-adapter-react-16 react-test-renderer</code></pre></td></tr></table>
+</div>
+</div>
+<p><code>enzyme</code>は<code>create-react-app</code>のテンプレートに書いてあるとおりにインストールすれば良い。</p>
+
+<ul>
+<li>Testing Components
+
+<ul>
+<li><a href="https://github.com/facebook/create-react-app/blob/master/packages/react-scripts/template/README.md#testing-components">https://github.com/facebook/create-react-app/blob/master/packages/react-scripts/template/README.md#testing-components</a></li>
+</ul></li>
+</ul>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ yarn add -D enzyme enzyme-adapter-react-16 react-test-renderer</code></pre></td></tr></table>
+</div>
+</div>
+<p>あとは<code>enzyme</code>を読み込む<code>setupTests.js</code>を作成する。</p>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-react" data-lang="react"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-react" data-lang="react"><span style="color:#fff;font-weight:bold">import</span> { configure } from <span style="color:#0ff;font-weight:bold">&#39;enzyme&#39;</span>;
+<span style="color:#fff;font-weight:bold">import</span> Adapter from <span style="color:#0ff;font-weight:bold">&#39;enzyme-adapter-react-16&#39;</span>;
+
+configure({ adapter: <span style="color:#fff;font-weight:bold">new</span> Adapter() });</code></pre></td></tr></table>
+</div>
+</div>
+<p>Jestが読み込むように<code>package.json</code>へ<code>&quot;setupTestFrameworkScriptFile</code>という設定を追加する。</p>
+
+<ul>
+<li>Jest - setupTestFrameworkScriptFile [string]
+
+<ul>
+<li><a href="https://jestjs.io/docs/en/configuration.html#setuptestframeworkscriptfile-string">https://jestjs.io/docs/en/configuration.html#setuptestframeworkscriptfile-string</a></li>
+</ul></li>
+</ul>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff">  &#34;jest&#34;: {
+   ...
+      &#34;mjs&#34;
+    ],
+    &#34;setupTestFrameworkScriptFile&#34;: &#34;&lt;rootDir&gt;/src/setupTests.js&#34;
+  },
+</code></pre></td></tr></table>
+</div>
+</div>
+<p>これでプロジェクトでテーブル駆動テストができる状態にできた。<br />
+あとは以下の命名規則に則ってテストファイルを作成して<code>yarn test</code>を実行すればテストが始まる。</p>
+
+<ul>
+<li>Jest - testRegex [string]
+
+<ul>
+<li><a href="https://jestjs.io/docs/en/configuration#testregex-string">https://jestjs.io/docs/en/configuration#testregex-string</a></li>
+</ul></li>
+</ul>
+
+<h1 id="jestでテーブル駆動テストを書く">Jestでテーブル駆動テストを書く</h1>
+
+<p>まず、テスト対象のコンポーネントを作成する。今回は<code>create-react-app</code>で出来た<code>src/App.js</code>を少し改良した。</p>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-react" data-lang="react"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">30
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-react" data-lang="react"><span style="color:#fff;font-weight:bold">import</span> React, { Component } from <span style="color:#0ff;font-weight:bold">&#39;react&#39;</span>;
+<span style="color:#fff;font-weight:bold">import</span> PropTypes from <span style="color:#0ff;font-weight:bold">&#39;prop-types&#39;</span>;
+<span style="color:#fff;font-weight:bold">import</span> logo from <span style="color:#0ff;font-weight:bold">&#39;./logo.svg&#39;</span>;
+<span style="color:#fff;font-weight:bold">import</span> <span style="color:#0ff;font-weight:bold">&#39;./App.css&#39;</span>;
+
+<span style="color:#fff;font-weight:bold">class</span> App <span style="color:#fff;font-weight:bold">extends</span> Component {
+  render() {
+    <span style="color:#fff;font-weight:bold">return</span> (
+      &lt;<span style="font-weight:bold">div</span> <span style="color:#007f7f">className</span>=<span style="color:#0ff;font-weight:bold">&#34;App&#34;</span>&gt;
+        &lt;<span style="font-weight:bold">header</span> <span style="color:#007f7f">className</span>=<span style="color:#0ff;font-weight:bold">&#34;App-header&#34;</span>&gt;
+          &lt;<span style="font-weight:bold">img</span> <span style="color:#007f7f">src</span>=<span style="color:#0ff;font-weight:bold">{logo}</span> <span style="color:#007f7f">className</span>=<span style="color:#0ff;font-weight:bold">&#34;App-logo&#34;</span> <span style="color:#007f7f">alt</span>=<span style="color:#0ff;font-weight:bold">&#34;logo&#34;</span> /&gt;
+          &lt;<span style="font-weight:bold">h1</span> <span style="color:#007f7f">className</span>=<span style="color:#0ff;font-weight:bold">&#34;App-title&#34;</span>&gt;Welcome to { <span style="color:#fff;font-weight:bold">this</span>.props.text }&lt;/<span style="font-weight:bold">h1</span>&gt;
+        &lt;/<span style="font-weight:bold">header</span>&gt;
+        &lt;<span style="font-weight:bold">p</span> <span style="color:#007f7f">className</span>=<span style="color:#0ff;font-weight:bold">&#34;App-intro&#34;</span>&gt;
+          To get started, edit &lt;<span style="font-weight:bold">code</span>&gt;src<span style="color:#f00">/App.js&lt;/code&gt; and save to reload.</span>
+        &lt;/<span style="font-weight:bold">p</span>&gt;
+      &lt;/<span style="font-weight:bold">div</span>&gt;
+    );
+  }
+}
+
+App.propTypes = {
+  text: PropTypes.string
+};
+
+App.defaultProps = {
+  text: <span style="color:#0ff;font-weight:bold">&#39;React&#39;</span>
+};
+
+<span style="color:#fff;font-weight:bold">export</span> <span style="color:#fff;font-weight:bold">default</span> App;</code></pre></td></tr></table>
+</div>
+</div>
+<p>無修正だと本当にImmutableなため、<code>Props</code>をもたせて文字列が変わるようにしてある。<br />
+テストは以下の通り。<code>__tests__</code>ディレクトリに入れるほうが好きだが、今回は<code>src/App.test.js</code>ファイルがあるのでそれを修正した。</p>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-react" data-lang="react"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">25
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-react" data-lang="react"><span style="color:#fff;font-weight:bold">import</span> React from <span style="color:#0ff;font-weight:bold">&#39;react&#39;</span>;
+<span style="color:#fff;font-weight:bold">import</span> { shallow  } from <span style="color:#0ff;font-weight:bold">&#39;enzyme&#39;</span>;
+
+<span style="color:#fff;font-weight:bold">import</span> App from <span style="color:#0ff;font-weight:bold">&#39;./App&#39;</span>;
+
+<span style="color:#fff;font-weight:bold">const</span> emptyProps ={
+  text: <span style="color:#0ff;font-weight:bold">&#39;test&#39;</span>
+};
+
+describe(<span style="color:#0ff;font-weight:bold">&#39;App&#39;</span>, () =&gt; {
+  describe(<span style="color:#0ff;font-weight:bold">&#39;App-title&#39;</span>, () =&gt; {
+    <span style="color:#fff;font-weight:bold">const</span> cases = [
+      [<span style="color:#0ff;font-weight:bold">&#39;simple test1&#39;</span>, { text: <span style="color:#0ff;font-weight:bold">&#39;Jest&#39;</span>}, <span style="color:#0ff;font-weight:bold">&#39;Welcome to Jest&#39;</span>],
+      [<span style="color:#0ff;font-weight:bold">&#39;simple test2&#39;</span>, { text: <span style="color:#0ff;font-weight:bold">&#39;enzyme&#39;</span>}, <span style="color:#0ff;font-weight:bold">&#39;Welcome to enzyme&#39;</span>]
+    ];
+    describe.each(cases)(<span style="color:#0ff;font-weight:bold">&#39;change Props&#39;</span>, (title, override, expected) =&gt; {
+       it(title, () =&gt; {
+         <span style="color:#fff;font-weight:bold">const</span> customProps = <span style="color:#fff;font-weight:bold">Object</span>.assign({}, emptyProps, override);
+         <span style="color:#fff;font-weight:bold">const</span> wrapper = shallow(&lt;<span style="font-weight:bold">App</span> {<span style="color:#007f7f">...customProps</span>} /&gt;);
+         expect(wrapper.instance().props.text).toBe(customProps.text);
+         expect(wrapper.find(<span style="color:#0ff;font-weight:bold">&#39;.App-title&#39;</span>).text()).toBe(expected);
+       });
+    });
+  });
+});</code></pre></td></tr></table>
+</div>
+</div>
+<p>Rubyを書いているひとならば、<code>rspec</code>と文法が似ているのでは読みやすいのではないだろうか？<br />
+<code>cases</code>で作成したテストデータのテーブルの内容の数だけ、3回目の<code>describe</code>内が実行される。<br />
+これを<code>yarn test</code>で実行してみると、テストが2ケース実行されているのがわかる。</p>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"> PASS  src/App.test.js
+  App
+    App-title
+      change Props
+        ✓ simple test1 (5ms)
+        ✓ simple test2 (1ms)
+
+Test Suites: <span style="color:#ff0;font-weight:bold">1</span> passed, <span style="color:#ff0;font-weight:bold">1</span> total
+Tests:       <span style="color:#ff0;font-weight:bold">2</span> passed, <span style="color:#ff0;font-weight:bold">2</span> total
+Snapshots:   <span style="color:#ff0;font-weight:bold">0</span> total
+Time:        <span style="color:#ff0;font-weight:bold">0</span>.888s, estimated 1s
+Ran all <span style="color:#fff;font-weight:bold">test</span> suites.</code></pre></td></tr></table>
+</div>
+</div>
+<p>Jestは<code>yarn test --watch</code>コマンドで実行するとファイル更新を検知して自動でテストを再実行してくれる。<br />
+これでテーブル駆動テストをしながらテスト駆動開発(TDD)をすることができる。</p>
+
+<h1 id="テストを書くときのtips">テストを書くときのTips</h1>
+
+<p>enzymeはDOMコンポーネントにいろいろなアクセスをすることができる。メソッドも実行することができる。<br />
+APIリファレンスはサンプルコードも多いので、一通り眺めるとだいたいやりかたが載っている。<br />
+Matcherの書き方も、JestのAPIリファレンスの情報量が多いので公式を見れば良い。</p>
+
+<ul>
+<li>enzyme - API Reference
+
+<ul>
+<li><a href="http://airbnb.io/enzyme/docs/api/">http://airbnb.io/enzyme/docs/api/</a></li>
+</ul></li>
+<li>Jest - Expect
+
+<ul>
+<li><a href="https://jestjs.io/docs/en/expect">https://jestjs.io/docs/en/expect</a></li>
+</ul></li>
+</ul>
+
+<p>イマイチテストがうまく動かない、あるいは目的のデータにどうアクセスしたらいいのかわからないときは、
+以下のコマンドでデバッガを起動してREPL的に検証できる。</p>
+
+<ul>
+<li>Tests are Failing and You Don&rsquo;t Know Why
+
+<ul>
+<li><a href="https://jestjs.io/docs/en/troubleshooting#tests-are-failing-and-you-don-t-know-why">https://jestjs.io/docs/en/troubleshooting#tests-are-failing-and-you-don-t-know-why</a></li>
+</ul></li>
+</ul>
+
+<pre><code>$ node --inspect-brk node_modules/.bin/jest --runInBand
+</code></pre>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>普段はGoを書いているので、Reactでもテーブル駆動テスト（TDT）が書きたかった。<br />
+実際、Jestは<code>--watch</code>でホットリロードテストが書けるのでTDT+TDDでかなり実装が捗っている。<br />
+また、今回は省略したが、Flowとの併用も可能だ（おそらくTypeScriptととも）。<br />
+Reduxなどに対するテストはまだ書いたことがないので、いずれやってみる。</p>
+
+<h1 id="参考">参考</h1>
+
+<ul>
+<li>golang/go Wiki - TableDrivenTests
+
+<ul>
+<li><a href="https://github.com/golang/go/wiki/TableDrivenTests">https://github.com/golang/go/wiki/TableDrivenTests</a></li>
+</ul></li>
+<li>Jest
+
+<ul>
+<li><a href="https://jestjs.io/">https://jestjs.io/</a></li>
+</ul></li>
+<li>enzyme
+
+<ul>
+<li><a href="http://airbnb.io/enzyme/">http://airbnb.io/enzyme/</a></li>
+</ul></li>
+</ul>
+        </div>
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Sep 28, 2018</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/react">react</a>  <a class="category" href="https://budougumi0617.github.io/tags/tdt">tdt</a>  <a class="category" href="https://budougumi0617.github.io/tags/jest">jest</a>  <a class="category" href="https://budougumi0617.github.io/tags/enzyme">enzyme</a>  <a class="category" href="https://budougumi0617.github.io/tags/test">test</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2018/09/21/package-dependencies-with-go-list-and-build-tags/" title="go listで依存パッケージを一覧する。-tagsで依存パッケージを切り替える #go">go listで依存パッケージを一覧する。-tagsで依存パッケージを切り替える #go</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+
+    <p>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Archives</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories" title="Categories" >Categories</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags" title="Tags" >Tags</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2018/09/28/react-table-driven-test-by-jest-enzyme/">Jest( &gt;23.0.0 )、enzymeでReactのテーブル駆動テストを行う #react #test</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/09/21/package-dependencies-with-go-list-and-build-tags/">go listで依存パッケージを一覧する。-tagsで依存パッケージを切り替える #go</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/09/12/type-can-only-be-used-in-a-dot-ts-file-on-vim/">Vim &#43; ALEでReact&#43;Flowなファイルを開くと&#39;type aliases&#39; can only be used in a .ts file.と怒られる #react #eslint</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/09/09/go-testing2018-iotest/">Goのtestingを理解する in 2018 - iotestサブパッケージ編 #go</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/09/05/go-testing2018-quick/">Goのtestingを理解する in 2018 - quickサブパッケージ編 #go</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2018  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
