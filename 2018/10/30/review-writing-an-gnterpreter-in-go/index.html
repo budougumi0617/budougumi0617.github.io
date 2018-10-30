@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[書評] Go言語でつくるインタプリタ を読んだ #go</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.49.2" />
+
+  
+  
+
+  
+  
+    
+
+  
+    <meta name="twitter:card" content="summary"/>
+  
+  
+  <meta name="twitter:title" content="[書評] Go言語でつくるインタプリタ を読んだ #go"/>
+  <meta name="twitter:description" content="Go言語でつくるインタプリタを読んだのでメモ。
+プログラマなら一度はやる（？）であろうインタプリタの実装をGoで行う本書では、優れた設計は拡張性が高く「小さく作る」・「常に動くものを作る」を可能にすること、テスト駆動開発とテーブル駆動テストを用いることで検証を繰り返しながら着実に開発を進めることができることを実感することができる。
+
+"/>
+  
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+  
+
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Oct 30, 2018
+         - 7 minute read 
+         - <a href="https://budougumi0617.github.io/2018/10/30/review-writing-an-gnterpreter-in-go/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/review/">review </a><a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+        
+    </p>
+    <h1 class="entry-title">
+         [書評] Go言語でつくるインタプリタ を読んだ #go 
+    </h1>
+</header>
+
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#なぜ読んだのか">なぜ読んだのか？</a></li>
+<li><a href="#実装するインタプリタとmonkyという仮想言語について">実装するインタプリタとMonkyという仮想言語について</a></li>
+<li><a href="#プログラムを作る-過程に必要なアプローチを学ぶことができる">「プログラムを作る」過程に必要なアプローチを学ぶことができる。</a>
+<ul>
+<li><a href="#終始-動くものを小さく作る-を一貫して最後まで続ける">終始「動くものを小さく作る」を一貫して最後まで続ける</a></li>
+<li><a href="#テスト駆動開発-tdd-で機能を着実に実装していく">テスト駆動開発（TDD）で機能を着実に実装していく</a></li>
+</ul></li>
+<li><a href="#終わりに">終わりに</a></li>
+</ul>
+</nav>
+          
+          <p><a href="https://amazon.jp/dp/4873118220">Go言語でつくるインタプリタ</a>を読んだのでメモ。
+プログラマなら一度はやる（？）であろうインタプリタの実装をGoで行う本書では、優れた設計は拡張性が高く「小さく作る」・「常に動くものを作る」を可能にすること、テスト駆動開発とテーブル駆動テストを用いることで検証を繰り返しながら着実に開発を進めることができることを実感することができる。</p>
+
+<p></p>
+
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4873118220&linkId=ce2985386081de40a6b08a555d61ebe0"></iframe>
+
+<h1 id="なぜ読んだのか">なぜ読んだのか？</h1>
+
+<p>一言で言うとGoの勉強とパーサーを書きたいと思っていたので手にとった。以前の職場の知り合いに聞くたびに何らかの理由(あるフレームワークのlinterを作りたいetc）でパーサーを書いているめちゃくちゃできる人がいて、「パーサーを書く」という行為に憧れのような感情を抱いていた。「パーサーを作る」という行為は以下のスキルがないと実現できないからだ。</p>
+
+<ul>
+<li>パース対象の式表現を抽象構文木（abstract syntax tree、AST）に落とし込む</li>
+<li>ASTを操作・走査する実装力</li>
+</ul>
+
+<p>正直Go言語の場合はAST pkgがあるので「それ見ろよ」でもいいのかもしれない。ただ最初から相当規模となっている完成形を見るのではなく、ゼロから作り始めてひとつひとつを解説してくれるほうがよかった。本書は英語版を<a href="https://twitter.com/deeeet">@deeeet</a>さんが紹介していたりして気になっていた。</p>
+
+<ul>
+<li>Package ast
+
+<ul>
+<li><a href="https://golang.org/pkg/go/ast/">https://golang.org/pkg/go/ast/</a></li>
+</ul></li>
+<li>Writing An Interpreter In Goを読んだ
+
+<ul>
+<li><a href="https://deeeet.com/writing/2017/01/12/go-interpreter/">https://deeeet.com/writing/2017/01/12/go-interpreter/</a></li>
+</ul></li>
+</ul>
+
+<h1 id="実装するインタプリタとmonkyという仮想言語について">実装するインタプリタとMonkyという仮想言語について</h1>
+
+<p>本書ではMonkeyという仮想言語のインタプリタの開発を行う。最終的に実装するインタプリタではMonkey言語は以下のような機能が実現される（本書の「はじめに」より引用）。</p>
+
+<ul>
+<li>C言語風の構文</li>
+<li>変数束縛</li>
+<li>整数と真偽値</li>
+<li>算術式</li>
+<li>組み込み関数</li>
+<li>第一級の高階関数(関数を引数に受け取る関数)</li>
+<li>クロージャ</li>
+<li>文字列データ型</li>
+<li>配列データ型</li>
+<li>ハッシュデータ型</li>
+</ul>
+
+<p>また、本書は以下のWebサイトから購入できる<code>Writing An Interpreter In Go</code>の翻訳版だ。</p>
+
+<ul>
+<li>Writing An Interpreter In Go
+
+<ul>
+<li><a href="https://interpreterbook.com/">https://interpreterbook.com/</a></li>
+</ul></li>
+</ul>
+
+<p>翻訳版の本書は無料公開されている以下のおまけチャプターの「マクロシステムの実装」も付録として翻訳されている。</p>
+
+<ul>
+<li>The Lost Chapter - A Macro System For Monkey
+
+<ul>
+<li><a href="https://interpreterbook.com/lost/">https://interpreterbook.com/lost/</a></li>
+</ul></li>
+</ul>
+
+<p>よって、上記の箇条書きの機能に加えElixerのquote/unquoteのようなマクロ機能も実装する。</p>
+
+<ul>
+<li>Quote and unquote
+
+<ul>
+<li><a href="https://elixir-lang.org/getting-started/meta/quote-and-unquote.html">https://elixir-lang.org/getting-started/meta/quote-and-unquote.html</a></li>
+</ul></li>
+</ul>
+
+<p>本書ではこれらの機能の実装（インタプリタの実装）をゼロから（字句解析、構文解析から）始めて全て行う。
+後述する通り、本書では第一章からREPLとしても作成するので、実際にコンソールで機能を確かめながら実装を進めていく。</p>
+
+<h1 id="プログラムを作る-過程に必要なアプローチを学ぶことができる">「プログラムを作る」過程に必要なアプローチを学ぶことができる。</h1>
+
+<p>この本の良さに以下の2つがある。なので、「インタプリタを作る」ことの勉強だけではなく、「何もないところからプログラムを作る」過程のアプローチについても学ぶことができる。</p>
+
+<ul>
+<li>終始「動くものを小さく作る」を一貫して最後まで続ける</li>
+<li>テスト駆動開発（TDD）で機能を着実に実装していく</li>
+</ul>
+
+<h2 id="終始-動くものを小さく作る-を一貫して最後まで続ける">終始「動くものを小さく作る」を一貫して最後まで続ける</h2>
+
+<p>本書のインタプリタではASTのノードを全て<code>Node</code>インターフェースで表現する。与えられたテキストは自作する字句解析器によって<code>Token</code>に分解されたあと、<code>Statement</code>あるいは<code>Expression</code>インタフェースを満たす<code>Node</code>の派生オブジェクトとしてパースされていく。</p>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#007f7f">// Node is base of AST.
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">type</span> Node <span style="color:#fff;font-weight:bold">interface</span> {
+	TokenLiteral() <span style="color:#fff;font-weight:bold">string</span>
+	String() <span style="color:#fff;font-weight:bold">string</span>
+}
+
+<span style="color:#007f7f">// Statement is base statement.
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">type</span> Statement <span style="color:#fff;font-weight:bold">interface</span> {
+	Node
+	statementNode()
+}
+
+<span style="color:#007f7f">// Expression is base expression.
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">type</span> Expression <span style="color:#fff;font-weight:bold">interface</span> {
+	Node
+	expressionNode()
+}</code></pre></td></tr></table>
+</div>
+</div>
+<p>本書の構成のすごいところは1章でREPLを作成しコンソールで触りながら実装を進められるところだ。節の実装をひとつ終えるたびにインタプリタ（REPL）に新しい機能が「動かせる状態」で追加されていく。普段の開発で例えるならスプリントが終わるたびに必ず「新機能のデモができる」ような進め方で章が進んでいく。つまり「今は作らないけど今後の拡張を考慮しておく」アプローチについても学習することができる。前半でパーサーのコアロジックまで実装したあとは新しいトークンリテラルを追加して条件分岐に処理を追加していくだけだ。このような優れた設計・抽象化は一度実装したあと（全部一度見通したあと）のリファクタリングで得られるものなのかもしれないが、コア部分の設計が大きく開発に影響することを感じることができた。</p>
+
+<h2 id="テスト駆動開発-tdd-で機能を着実に実装していく">テスト駆動開発（TDD）で機能を着実に実装していく</h2>
+
+<p>本書が良いと感じた2点目の理由は最初から最後まで一貫してテスト駆動開発で実装が進むところだ。本書の各節は以下の流れで進む。</p>
+
+<ol>
+<li>その節で新たに対応する命令文やリテラルの概要</li>
+<li>実装後に処理できるようになる文字列をテストケースにしたテストコードの作成</li>
+<li>テストレッドを確認したあと実装を行う</li>
+</ol>
+
+<p>特にテストコードの作成では簡単な確認のテスト以外ではすべてテーブル駆動テストで実装される。そのためテストも文字列と期待値のテストケースを数行（数ケース＿加えるだけですぐ実装が開始できる。例えば以下のテストケースにコメントアウト部分のテストケースを足せばもう<code>==</code>と<code>!=</code>の実装を開始することができる。</p>
+<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">26
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	infixTests := []<span style="color:#fff;font-weight:bold">struct</span> {
+		input      <span style="color:#fff;font-weight:bold">string</span>
+		leftValue  <span style="color:#fff;font-weight:bold">interface</span>{}
+		operator   <span style="color:#fff;font-weight:bold">string</span>
+		rightValue <span style="color:#fff;font-weight:bold">interface</span>{}
+	}{
+		{<span style="color:#0ff;font-weight:bold">&#34;5 + 5;&#34;</span>, <span style="color:#ff0;font-weight:bold">5</span>, <span style="color:#0ff;font-weight:bold">&#34;+&#34;</span>, <span style="color:#ff0;font-weight:bold">5</span>},
+		{<span style="color:#0ff;font-weight:bold">&#34;5 - 5;&#34;</span>, <span style="color:#ff0;font-weight:bold">5</span>, <span style="color:#0ff;font-weight:bold">&#34;-&#34;</span>, <span style="color:#ff0;font-weight:bold">5</span>},
+		{<span style="color:#0ff;font-weight:bold">&#34;5 * 5;&#34;</span>, <span style="color:#ff0;font-weight:bold">5</span>, <span style="color:#0ff;font-weight:bold">&#34;*&#34;</span>, <span style="color:#ff0;font-weight:bold">5</span>},
+		{<span style="color:#0ff;font-weight:bold">&#34;5 / 5;&#34;</span>, <span style="color:#ff0;font-weight:bold">5</span>, <span style="color:#0ff;font-weight:bold">&#34;/&#34;</span>, <span style="color:#ff0;font-weight:bold">5</span>},
+		{<span style="color:#0ff;font-weight:bold">&#34;5 &gt; 5;&#34;</span>, <span style="color:#ff0;font-weight:bold">5</span>, <span style="color:#0ff;font-weight:bold">&#34;&gt;&#34;</span>, <span style="color:#ff0;font-weight:bold">5</span>},
+		{<span style="color:#0ff;font-weight:bold">&#34;5 &lt; 5;&#34;</span>, <span style="color:#ff0;font-weight:bold">5</span>, <span style="color:#0ff;font-weight:bold">&#34;&lt;&#34;</span>, <span style="color:#ff0;font-weight:bold">5</span>},
+		{<span style="color:#0ff;font-weight:bold">&#34;5 == 5;&#34;</span>, <span style="color:#ff0;font-weight:bold">5</span>, <span style="color:#0ff;font-weight:bold">&#34;==&#34;</span>, <span style="color:#ff0;font-weight:bold">5</span>},
+		{<span style="color:#0ff;font-weight:bold">&#34;5 != 5;&#34;</span>, <span style="color:#ff0;font-weight:bold">5</span>, <span style="color:#0ff;font-weight:bold">&#34;!=&#34;</span>, <span style="color:#ff0;font-weight:bold">5</span>},
+		{<span style="color:#0ff;font-weight:bold">&#34;foobar + barfoo;&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;foobar&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;+&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;barfoo&#34;</span>},
+		{<span style="color:#0ff;font-weight:bold">&#34;foobar - barfoo;&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;foobar&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;-&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;barfoo&#34;</span>},
+		{<span style="color:#0ff;font-weight:bold">&#34;foobar * barfoo;&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;foobar&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;*&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;barfoo&#34;</span>},
+		{<span style="color:#0ff;font-weight:bold">&#34;foobar / barfoo;&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;foobar&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;/&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;barfoo&#34;</span>},
+		{<span style="color:#0ff;font-weight:bold">&#34;foobar &gt; barfoo;&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;foobar&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;&gt;&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;barfoo&#34;</span>},
+		{<span style="color:#0ff;font-weight:bold">&#34;foobar &lt; barfoo;&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;foobar&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;&lt;&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;barfoo&#34;</span>},
+<span style="color:#007f7f">//	{&#34;foobar == barfoo;&#34;, &#34;foobar&#34;, &#34;==&#34;, &#34;barfoo&#34;},
+</span><span style="color:#007f7f">//	{&#34;foobar != barfoo;&#34;, &#34;foobar&#34;, &#34;!=&#34;, &#34;barfoo&#34;},
+</span><span style="color:#007f7f">//	{&#34;true == true&#34;, true, &#34;==&#34;, true},
+</span><span style="color:#007f7f">//  {&#34;true != false&#34;, true, &#34;!=&#34;, false},
+</span><span style="color:#007f7f">//  {&#34;false == false&#34;, false, &#34;==&#34;, false},
+</span><span style="color:#007f7f"></span>	}</code></pre></td></tr></table>
+</div>
+</div>
+<p>テストを回しながらリグレッションテストを繰り返すだけで「実装の完了」を明確に確認できる。「デグレなく実装できたか」、「今どこまで実装できているのか（どの構文まで対応できているのか）」を確かめながら新たな実装に進むことができるので、テスト駆動開発の強さを体感しながら読み進めることができた。「課題」として取り組みたい人はテストケースを実装したところで本を閉じ、自分で考えて実装するという進め方もできるだろう。</p>
+
+<ul>
+<li>TableDrivenTests
+
+<ul>
+<li><a href="https://github.com/golang/go/wiki/TableDrivenTests">https://github.com/golang/go/wiki/TableDrivenTests</a></li>
+</ul></li>
+</ul>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>本書ではインタプリタを作るという目的の他に以下の点を学習することができた。</p>
+
+<ul>
+<li>優れた設計は拡張性が高く、「小さく作る」、「常に動くものを作る」を可能にする。</li>
+<li>テスト駆動開発とテーブル駆動テストを用いることで検証を繰り返しながら着実に開発を進めることができる。</li>
+</ul>
+
+<p>正直に言うと私は<a href="https://github.com/budougumi0617/waiig">途中までは読書と一緒にコードも実装していた</a>のだが、時間の関係（<a href="https://www.oreilly.co.jp/books/9784873118468/">Goによる並行処理</a>が発売されたのもある）で中盤以降は読むだけで終えてしまった。ただこの本は何周かする予定なので二週目は実装の方も再開したい。</p>
+
+<p>また、これは本の内容にはまったく関係がないし本の構成の問題ではないのだが、自分の英語能力の低さを強く感じた。少し時間を開けて読書を再開するたびに遡ってインターフェースや構造体を定義したページに戻らないと、今拡張しているオブジェクト・実装しているインターフェースの「意味」を名前から連想できていなかった。例えば<code>InfixExpression</code>とは何を定義しているのだろうか？<code>Expression</code>と<code>Statement</code>という英単語が持つ意味合いの違いはなんだろうか？となっていた。
+これはフレームワークや標準パッケージを利用する際、仕様を読む際、命名付けをする際、日常に頻繁に直面する問題なのでもっとしっかり英語の勉強もしないといけないと痛感した。</p>
+
+<p>なお、この本には続編の&rdquo;Go言語で作るコンパイラ&rdquo;もある（2018/10/30現在翻訳版はなし）。いずれこちらも読んでみたい。</p>
+
+<ul>
+<li>Writing A Compiler In Go
+
+<ul>
+<li><a href="https://compilerbook.com/">https://compilerbook.com/</a></li>
+</ul></li>
+</ul>
+
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4873118220&linkId=ce2985386081de40a6b08a555d61ebe0"></iframe>
+        </div>
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Oct 30, 2018</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/book">book</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2018/10/22/deug-gocode-and-vim-go-auto-completion/" title="vim-goの自動補完が効かないときの調べ方（gocode が Error parsing input file (outer block)） #vim #go">vim-goの自動補完が効かないときの調べ方（gocode が Error parsing input file (outer block)） #vim #go</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+
+    <p>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Archives</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories" title="Categories" >Categories</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags" title="Tags" >Tags</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2018/10/30/review-writing-an-gnterpreter-in-go/">[書評] Go言語でつくるインタプリタ を読んだ #go</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/10/22/deug-gocode-and-vim-go-auto-completion/">vim-goの自動補完が効かないときの調べ方（gocode が Error parsing input file (outer block)） #vim #go</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/10/19/presentation-gounco-lt4/">[発表資料]go-cloudとWireを利用したDI #gounco #go</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/10/10/how-to-throw-error-by-create-action-of-redux-actions/">redux-actionsのcreateActionでFlux Standard Actionに則ったerror=trueなActionを作る #react</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/10/03/review-the-productive-technique-of-engineer/">[書評]エンジニアの知的生産術を読んだ</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2018  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
