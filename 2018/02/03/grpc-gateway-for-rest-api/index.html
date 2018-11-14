@@ -178,71 +178,35 @@ Protocol BufferにREST用の定義を追加して<code>grpc-ecosystem/grpc-gatew
 <p>Protocol Bufferの定義に<code>protoc</code>を使ってGoのコードを作成し、gRPCサーバ/クライアントの作成が一通り出来る環境は出来ているとする。</p>
 
 <p>まずは<code>grpc-gateway</code>関連のライブラリを取得する。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
 $ go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
-$ go get -u github.com/golang/protobuf/protoc-gen-go</code></pre></td></tr></table>
-</div>
-</div>
+$ go get -u github.com/golang/protobuf/protoc-gen-go</code></pre></div>
 <h2 id="rest-api定義をprotoファイルに追加する">REST API定義をprotoファイルに追加する</h2>
 
 <p>以下のページに文法が載っているので、gRPCとRPCの対比を見ながら<code>.proto</code>ファイルにオプションをつけていく。</p>
 
 <p><a href="https://cloud.google.com/service-management/reference/rpc/google.api#http">https://cloud.google.com/service-management/reference/rpc/google.api#http</a></p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">18
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">19
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">20
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">21
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"> // For define null request
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"> // For define null request
  import &#34;google/protobuf/empty.proto&#34;;
 
-+// For grpc gateway
-+import &#34;google/api/annotations.proto&#34;;
-+
- service TaskManager {
--  rpc GetTask (GetTaskRequest) returns (Task) {}
--  rpc ListTasks (google.protobuf.Empty) returns (stream Task) {}
-+  rpc GetTask (GetTaskRequest) returns (Task) {
-+    option (google.api.http) = {
-+       get: &#34;/v1/tasklist-gateway/task/{id}&#34; // &#34;id&#34; is defined in GetTaskRequest
-+    };
-+  }
-+  rpc ListTasks (google.protobuf.Empty) returns (stream Task) {
-+    option (google.api.http) = {
-+       get: &#34;/v1/tasklist-gateway/task&#34;
-+    };
-+  }
- }
-</code></pre></td></tr></table>
-</div>
-</div>
+<span style="color:#719e07">+// For grpc gateway
+</span><span style="color:#719e07">+import &#34;google/api/annotations.proto&#34;;
+</span><span style="color:#719e07">+
+</span><span style="color:#719e07"></span> service TaskManager {
+<span style="color:#dc322f">-  rpc GetTask (GetTaskRequest) returns (Task) {}
+</span><span style="color:#dc322f">-  rpc ListTasks (google.protobuf.Empty) returns (stream Task) {}
+</span><span style="color:#dc322f"></span><span style="color:#719e07">+  rpc GetTask (GetTaskRequest) returns (Task) {
+</span><span style="color:#719e07">+    option (google.api.http) = {
+</span><span style="color:#719e07">+       get: &#34;/v1/tasklist-gateway/task/{id}&#34; // &#34;id&#34; is defined in GetTaskRequest
+</span><span style="color:#719e07">+    };
+</span><span style="color:#719e07">+  }
+</span><span style="color:#719e07">+  rpc ListTasks (google.protobuf.Empty) returns (stream Task) {
+</span><span style="color:#719e07">+    option (google.api.http) = {
+</span><span style="color:#719e07">+       get: &#34;/v1/tasklist-gateway/task&#34;
+</span><span style="color:#719e07">+    };
+</span><span style="color:#719e07">+  }
+</span><span style="color:#719e07"></span> }
+</code></pre></div>
 <h2 id="protoc-gen-grpc-gateway-によるproxyサーバ用apiコードの自動生成"><code>protoc-gen-grpc-gateway</code>によるProxyサーバ用APIコードの自動生成</h2>
 
 <p>まずは普通の<code>protoc</code>コマンドでコンパイルする。<code>import</code>を増やしているので、<code>include</code>ディレクトリを増やす必要がある。<code>README</code>はもう少し<code>-I</code>オプションが多いが、自分はこれだけでOKだった。</p>
@@ -253,18 +217,9 @@ $ go get -u github.com/golang/protobuf/protoc-gen-go</code></pre></td></tr></tab
 </code></pre>
 
 <p>次に、Gateway用のコンパイルを行う。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">protoc -I/usr/local/include -I. -I$GOPATH/src <span style="color:#0ff;font-weight:bold">\
-</span><span style="color:#0ff;font-weight:bold"></span>  -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis <span style="color:#0ff;font-weight:bold">\
-</span><span style="color:#0ff;font-weight:bold"></span>  --grpc-gateway_out=logtostderr=true:. proto/task_list.proto</code></pre></td></tr></table>
-</div>
-</div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">protoc -I/usr/local/include -I. -I<span style="color:#268bd2">$GOPATH</span>/src <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  -I<span style="color:#268bd2">$GOPATH</span>/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  --grpc-gateway_out<span style="color:#719e07">=</span><span style="color:#268bd2">logtostderr</span><span style="color:#719e07">=</span>true:. proto/task_list.proto</code></pre></div>
 <p><code>grpc-gateway</code>で使えるオプションは2018/01/28の時点では以下の通りだった。<code>protoc</code>を実行するときに<code>--grpc-gateway_out=logtostderr=true</code>にカンマ区切りでオプションを追加できる。</p>
 
 <pre><code>go run $GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway/main.go -h
@@ -294,33 +249,14 @@ Usage of /var/folders/sy/ls4cfp216x774g54brzl67yw0000gn/T/go-build442506345/comm
 </code></pre>
 
 <p>例えば、こんな感じ。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">protoc -I/usr/local/include -I. -I$GOPATH/src <span style="color:#0ff;font-weight:bold">\
-</span><span style="color:#0ff;font-weight:bold"></span>  -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis <span style="color:#0ff;font-weight:bold">\
-</span><span style="color:#0ff;font-weight:bold"></span>  --grpc-gateway_out=logtostderr=true,request_context=false,allow_delete_body=true:. <span style="color:#0ff;font-weight:bold">\
-</span><span style="color:#0ff;font-weight:bold"></span>  proto/task_list.proto</code></pre></td></tr></table>
-</div>
-</div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">protoc -I/usr/local/include -I. -I<span style="color:#268bd2">$GOPATH</span>/src <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  -I<span style="color:#268bd2">$GOPATH</span>/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  --grpc-gateway_out<span style="color:#719e07">=</span><span style="color:#268bd2">logtostderr</span><span style="color:#719e07">=</span>true,request_context<span style="color:#719e07">=</span>false,allow_delete_body<span style="color:#719e07">=</span>true:. <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  proto/task_list.proto</code></pre></div>
 <p><code>swagger.json</code>も生成できる。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">protoc -I/usr/local/include -I. -I$GOPATH/src <span style="color:#0ff;font-weight:bold">\
-</span><span style="color:#0ff;font-weight:bold"></span>  -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis <span style="color:#0ff;font-weight:bold">\
-</span><span style="color:#0ff;font-weight:bold"></span>  --swagger_out=logtostderr=true:. proto/task_list.proto</code></pre></td></tr></table>
-</div>
-</div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">protoc -I/usr/local/include -I. -I<span style="color:#268bd2">$GOPATH</span>/src <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  -I<span style="color:#268bd2">$GOPATH</span>/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  --swagger_out<span style="color:#719e07">=</span><span style="color:#268bd2">logtostderr</span><span style="color:#719e07">=</span>true:. proto/task_list.proto</code></pre></div>
 <p><code>swagger</code>生成用のオプションは<code>go run $GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/main.go -h</code>で知ることができる。</p>
 
 <h2 id="サーバコードの実装">サーバコードの実装</h2>
@@ -328,356 +264,166 @@ Usage of /var/folders/sy/ls4cfp216x774g54brzl67yw0000gn/T/go-build442506345/comm
 <p>もろもろのコードを自動生成できたので、あとはサーバーのコードを実装する。</p>
 
 <p>gRPCサーバは適当なデータを返すように実装しておく。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">18
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">19
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">20
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">21
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">22
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">23
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">24
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">25
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">26
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">27
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">28
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">29
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">30
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">31
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">32
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">33
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">34
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">35
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">36
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">37
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">38
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">39
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">40
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">41
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">42
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">43
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">44
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">45
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">46
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">47
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">48
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">49
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">50
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">51
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">52
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">53
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">54
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">55
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">56
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">57
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">58
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">59
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">60
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">61
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">62
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">63
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">64
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">65
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">66
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">67
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">68
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">69
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">70
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">71
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">72
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">73
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">74
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">75
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">76
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">77
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#007f7f">// sandbox-grpc/tasklist-gateway/server/main.go
-</span><span style="color:#007f7f"></span>
-<span style="color:#007f7f">// It implements the route guide service whose definition can be found in proto/task_list.proto
-</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">package</span> main
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// sandbox-grpc/tasklist-gateway/server/main.go
+</span><span style="color:#586e75"></span>
+<span style="color:#586e75">// It implements the route guide service whose definition can be found in proto/task_list.proto
+</span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
 
-<span style="color:#fff;font-weight:bold">import</span> (
-	<span style="color:#0ff;font-weight:bold">&#34;context&#34;</span>
-	<span style="color:#0ff;font-weight:bold">&#34;errors&#34;</span>
-	<span style="color:#0ff;font-weight:bold">&#34;log&#34;</span>
-	<span style="color:#0ff;font-weight:bold">&#34;net&#34;</span>
+<span style="color:#719e07">import</span> (
+	<span style="color:#2aa198">&#34;context&#34;</span>
+	<span style="color:#2aa198">&#34;errors&#34;</span>
+	<span style="color:#2aa198">&#34;log&#34;</span>
+	<span style="color:#2aa198">&#34;net&#34;</span>
 
-	tlpb <span style="color:#0ff;font-weight:bold">&#34;github.com/budougumi0617/sandbox-grpc/tasklist-gateway/proto&#34;</span>
-	google_protobuf <span style="color:#0ff;font-weight:bold">&#34;github.com/golang/protobuf/ptypes/empty&#34;</span>
-	<span style="color:#0ff;font-weight:bold">&#34;google.golang.org/grpc&#34;</span>
-	<span style="color:#0ff;font-weight:bold">&#34;google.golang.org/grpc/reflection&#34;</span>
+	tlpb <span style="color:#2aa198">&#34;github.com/budougumi0617/sandbox-grpc/tasklist-gateway/proto&#34;</span>
+	google_protobuf <span style="color:#2aa198">&#34;github.com/golang/protobuf/ptypes/empty&#34;</span>
+	<span style="color:#2aa198">&#34;google.golang.org/grpc&#34;</span>
+	<span style="color:#2aa198">&#34;google.golang.org/grpc/reflection&#34;</span>
 )
 
-<span style="color:#fff;font-weight:bold">const</span> (
-	port = <span style="color:#0ff;font-weight:bold">&#34;:50051&#34;</span>
+<span style="color:#268bd2">const</span> (
+	port = <span style="color:#2aa198">&#34;:50051&#34;</span>
 )
 
-<span style="color:#007f7f">// server is used to implement sa
-</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">type</span> server <span style="color:#fff;font-weight:bold">struct</span>{}
+<span style="color:#586e75">// server is used to implement sa
+</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> server <span style="color:#268bd2">struct</span>{}
 
-<span style="color:#fff;font-weight:bold">func</span> (s *server) GetTask(ctx context.Context, req *tlpb.GetTaskRequest) (*tlpb.Task, <span style="color:#fff;font-weight:bold">error</span>) {
-	log.Println(<span style="color:#0ff;font-weight:bold">&#34;GetTask in gPRC server&#34;</span>)
-	<span style="color:#fff;font-weight:bold">var</span> task = &amp;tlpb.Task{
-		Id:     <span style="color:#ff0;font-weight:bold">10</span>,
-		Title:  <span style="color:#0ff;font-weight:bold">&#34;Implement gRPC server&#34;</span>,
-		Detail: <span style="color:#0ff;font-weight:bold">&#34;Implement interface&#34;</span>,
+<span style="color:#268bd2">func</span> (s <span style="color:#719e07">*</span>server) GetTask(ctx context.Context, req <span style="color:#719e07">*</span>tlpb.GetTaskRequest) (<span style="color:#719e07">*</span>tlpb.Task, <span style="color:#dc322f">error</span>) {
+	log.Println(<span style="color:#2aa198">&#34;GetTask in gPRC server&#34;</span>)
+	<span style="color:#268bd2">var</span> task = <span style="color:#719e07">&amp;</span>tlpb.Task{
+		Id:     <span style="color:#2aa198">10</span>,
+		Title:  <span style="color:#2aa198">&#34;Implement gRPC server&#34;</span>,
+		Detail: <span style="color:#2aa198">&#34;Implement interface&#34;</span>,
 	}
-	<span style="color:#fff;font-weight:bold">if</span> req.Id == task.Id {
-		<span style="color:#fff;font-weight:bold">return</span> task, <span style="color:#fff;font-weight:bold">nil</span>
+	<span style="color:#719e07">if</span> req.Id <span style="color:#719e07">==</span> task.Id {
+		<span style="color:#719e07">return</span> task, <span style="color:#cb4b16">nil</span>
 	}
-	<span style="color:#fff;font-weight:bold">return</span> <span style="color:#fff;font-weight:bold">nil</span>, errors.New(<span style="color:#0ff;font-weight:bold">&#34;Not find Task&#34;</span>)
+	<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>, errors.New(<span style="color:#2aa198">&#34;Not find Task&#34;</span>)
 }
-<span style="color:#fff;font-weight:bold">func</span> (s *server) ListTasks(_ *google_protobuf.Empty, stream tlpb.TaskManager_ListTasksServer) <span style="color:#fff;font-weight:bold">error</span> {
-	log.Println(<span style="color:#0ff;font-weight:bold">&#34;ListTasks in gPRC server&#34;</span>)
-	tasks := []*tlpb.Task{
-		&amp;tlpb.Task{
-			Id:     <span style="color:#ff0;font-weight:bold">20</span>,
-			Title:  <span style="color:#0ff;font-weight:bold">&#34;List Tasks 1&#34;</span>,
-			Detail: <span style="color:#0ff;font-weight:bold">&#34;Implement interface&#34;</span>,
+<span style="color:#268bd2">func</span> (s <span style="color:#719e07">*</span>server) ListTasks(_ <span style="color:#719e07">*</span>google_protobuf.Empty, stream tlpb.TaskManager_ListTasksServer) <span style="color:#dc322f">error</span> {
+	log.Println(<span style="color:#2aa198">&#34;ListTasks in gPRC server&#34;</span>)
+	tasks <span style="color:#719e07">:=</span> []<span style="color:#719e07">*</span>tlpb.Task{
+		<span style="color:#719e07">&amp;</span>tlpb.Task{
+			Id:     <span style="color:#2aa198">20</span>,
+			Title:  <span style="color:#2aa198">&#34;List Tasks 1&#34;</span>,
+			Detail: <span style="color:#2aa198">&#34;Implement interface&#34;</span>,
 		},
-		&amp;tlpb.Task{
-			Id:     <span style="color:#ff0;font-weight:bold">21</span>,
-			Title:  <span style="color:#0ff;font-weight:bold">&#34;List Tasks 2&#34;</span>,
-			Detail: <span style="color:#0ff;font-weight:bold">&#34;Implement interface&#34;</span>,
+		<span style="color:#719e07">&amp;</span>tlpb.Task{
+			Id:     <span style="color:#2aa198">21</span>,
+			Title:  <span style="color:#2aa198">&#34;List Tasks 2&#34;</span>,
+			Detail: <span style="color:#2aa198">&#34;Implement interface&#34;</span>,
 		},
-		&amp;tlpb.Task{
-			Id:     <span style="color:#ff0;font-weight:bold">22</span>,
-			Title:  <span style="color:#0ff;font-weight:bold">&#34;List Tasks 3&#34;</span>,
-			Detail: <span style="color:#0ff;font-weight:bold">&#34;Implement interface&#34;</span>,
+		<span style="color:#719e07">&amp;</span>tlpb.Task{
+			Id:     <span style="color:#2aa198">22</span>,
+			Title:  <span style="color:#2aa198">&#34;List Tasks 3&#34;</span>,
+			Detail: <span style="color:#2aa198">&#34;Implement interface&#34;</span>,
 		},
 	}
-	<span style="color:#fff;font-weight:bold">for</span> _, task := <span style="color:#fff;font-weight:bold">range</span> tasks {
-		<span style="color:#fff;font-weight:bold">if</span> err := stream.Send(task); err != <span style="color:#fff;font-weight:bold">nil</span> {
-			<span style="color:#fff;font-weight:bold">return</span> err
+	<span style="color:#719e07">for</span> _, task <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> tasks {
+		<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> stream.Send(task); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+			<span style="color:#719e07">return</span> err
 		}
 	}
-	<span style="color:#fff;font-weight:bold">return</span> <span style="color:#fff;font-weight:bold">nil</span>
+	<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
 }
 
-<span style="color:#fff;font-weight:bold">func</span> main() {
-	lis, err := net.Listen(<span style="color:#0ff;font-weight:bold">&#34;tcp&#34;</span>, port)
-	<span style="color:#fff;font-weight:bold">if</span> err != <span style="color:#fff;font-weight:bold">nil</span> {
-		log.Fatalf(<span style="color:#0ff;font-weight:bold">&#34;failed to listen: %v&#34;</span>, err)
+<span style="color:#268bd2">func</span> main() {
+	lis, err <span style="color:#719e07">:=</span> net.Listen(<span style="color:#2aa198">&#34;tcp&#34;</span>, port)
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		log.Fatalf(<span style="color:#2aa198">&#34;failed to listen: %v&#34;</span>, err)
 	}
-	s := grpc.NewServer()
-	tlpb.RegisterTaskManagerServer(s, &amp;server{})
-	<span style="color:#007f7f">// Register reflection service on gRPC server.
-</span><span style="color:#007f7f"></span>	reflection.Register(s)
-	log.Printf(<span style="color:#0ff;font-weight:bold">&#34;gRPC Server started: localhost%s\n&#34;</span>, port)
-	<span style="color:#fff;font-weight:bold">if</span> err := s.Serve(lis); err != <span style="color:#fff;font-weight:bold">nil</span> {
-		log.Fatalf(<span style="color:#0ff;font-weight:bold">&#34;failed to serve: %v&#34;</span>, err)
+	s <span style="color:#719e07">:=</span> grpc.NewServer()
+	tlpb.RegisterTaskManagerServer(s, <span style="color:#719e07">&amp;</span>server{})
+	<span style="color:#586e75">// Register reflection service on gRPC server.
+</span><span style="color:#586e75"></span>	reflection.Register(s)
+	log.Printf(<span style="color:#2aa198">&#34;gRPC Server started: localhost%s\n&#34;</span>, port)
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> s.Serve(lis); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		log.Fatalf(<span style="color:#2aa198">&#34;failed to serve: %v&#34;</span>, err)
 	}
-}</code></pre></td></tr></table>
-</div>
-</div>
+}</code></pre></div>
 <p>Proxyサーバはサンプルコードの<code>import</code>を変えるだけで良かった。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">18
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">19
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">20
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">21
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">22
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">23
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">24
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">25
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">26
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">27
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">28
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">29
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">30
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">31
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">32
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">33
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">34
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">35
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">36
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">37
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">38
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">39
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">40
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">41
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">42
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#007f7f">// sandbox-grpc/tasklist-gateway/gateway/main.go
-</span><span style="color:#007f7f"></span>
-<span style="color:#fff;font-weight:bold">package</span> main
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// sandbox-grpc/tasklist-gateway/gateway/main.go
+</span><span style="color:#586e75"></span>
+<span style="color:#719e07">package</span> main
 
-<span style="color:#fff;font-weight:bold">import</span> (
-	<span style="color:#0ff;font-weight:bold">&#34;flag&#34;</span>
-	<span style="color:#0ff;font-weight:bold">&#34;net/http&#34;</span>
+<span style="color:#719e07">import</span> (
+	<span style="color:#2aa198">&#34;flag&#34;</span>
+	<span style="color:#2aa198">&#34;net/http&#34;</span>
 
-	gw <span style="color:#0ff;font-weight:bold">&#34;github.com/budougumi0617/sandbox-grpc/tasklist-gateway/proto&#34;</span>
-	<span style="color:#0ff;font-weight:bold">&#34;github.com/golang/glog&#34;</span>
-	<span style="color:#0ff;font-weight:bold">&#34;github.com/grpc-ecosystem/grpc-gateway/runtime&#34;</span>
-	<span style="color:#0ff;font-weight:bold">&#34;golang.org/x/net/context&#34;</span>
-	<span style="color:#0ff;font-weight:bold">&#34;google.golang.org/grpc&#34;</span>
+	gw <span style="color:#2aa198">&#34;github.com/budougumi0617/sandbox-grpc/tasklist-gateway/proto&#34;</span>
+	<span style="color:#2aa198">&#34;github.com/golang/glog&#34;</span>
+	<span style="color:#2aa198">&#34;github.com/grpc-ecosystem/grpc-gateway/runtime&#34;</span>
+	<span style="color:#2aa198">&#34;golang.org/x/net/context&#34;</span>
+	<span style="color:#2aa198">&#34;google.golang.org/grpc&#34;</span>
 )
 
-<span style="color:#fff;font-weight:bold">var</span> (
-	tasklistEndpoint = flag.String(<span style="color:#0ff;font-weight:bold">&#34;tasklist_endpoint&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;localhost:50051&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;endpoint of YourService&#34;</span>)
+<span style="color:#268bd2">var</span> (
+	tasklistEndpoint = flag.String(<span style="color:#2aa198">&#34;tasklist_endpoint&#34;</span>, <span style="color:#2aa198">&#34;localhost:50051&#34;</span>, <span style="color:#2aa198">&#34;endpoint of YourService&#34;</span>)
 )
 
-<span style="color:#fff;font-weight:bold">func</span> run() <span style="color:#fff;font-weight:bold">error</span> {
-	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
-	<span style="color:#fff;font-weight:bold">defer</span> cancel()
+<span style="color:#268bd2">func</span> run() <span style="color:#dc322f">error</span> {
+	ctx <span style="color:#719e07">:=</span> context.Background()
+	ctx, cancel <span style="color:#719e07">:=</span> context.WithCancel(ctx)
+	<span style="color:#719e07">defer</span> cancel()
 
-	mux := runtime.NewServeMux()
-	opts := []grpc.DialOption{grpc.WithInsecure()}
-	err := gw.RegisterTaskManagerHandlerFromEndpoint(ctx, mux, *tasklistEndpoint, opts)
-	<span style="color:#fff;font-weight:bold">if</span> err != <span style="color:#fff;font-weight:bold">nil</span> {
-		<span style="color:#fff;font-weight:bold">return</span> err
+	mux <span style="color:#719e07">:=</span> runtime.NewServeMux()
+	opts <span style="color:#719e07">:=</span> []grpc.DialOption{grpc.WithInsecure()}
+	err <span style="color:#719e07">:=</span> gw.RegisterTaskManagerHandlerFromEndpoint(ctx, mux, <span style="color:#719e07">*</span>tasklistEndpoint, opts)
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		<span style="color:#719e07">return</span> err
 	}
 
-	<span style="color:#fff;font-weight:bold">return</span> http.ListenAndServe(<span style="color:#0ff;font-weight:bold">&#34;:8080&#34;</span>, mux)
+	<span style="color:#719e07">return</span> http.ListenAndServe(<span style="color:#2aa198">&#34;:8080&#34;</span>, mux)
 }
 
-<span style="color:#fff;font-weight:bold">func</span> main() {
+<span style="color:#268bd2">func</span> main() {
 	flag.Parse()
-	<span style="color:#fff;font-weight:bold">defer</span> glog.Flush()
+	<span style="color:#719e07">defer</span> glog.Flush()
 
-	<span style="color:#fff;font-weight:bold">if</span> err := run(); err != <span style="color:#fff;font-weight:bold">nil</span> {
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> run(); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 		glog.Fatal(err)
 	}
-}</code></pre></td></tr></table>
-</div>
-</div>
+}</code></pre></div>
 <h2 id="動作確認">動作確認</h2>
 
 <p>それぞれのサーバーを起動する。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run ./gateway/main.go</code></pre></td></tr></table>
-</div>
-</div><div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run ./server/main.go</code></pre></td></tr></table>
-</div>
-</div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run ./gateway/main.go</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run ./server/main.go</code></pre></div>
 <p><code>curl</code>コマンドでREST APIを実行してみた。
 期待通りにデータが取得できている。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">18
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">19
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">20
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">21
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">22
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">23
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">24
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">25
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">26
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">27
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">28
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ curl -D - -X GET http://localhost:8080/v1/tasklist-gateway/task
-HTTP/1.1 <span style="color:#ff0;font-weight:bold">200</span> OK
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ curl -D - -X GET http://localhost:8080/v1/tasklist-gateway/task
+HTTP/1.1 <span style="color:#2aa198">200</span> OK
 Content-Type: application/json
 Grpc-Metadata-Content-Type: application/grpc
-Date: Sun, <span style="color:#ff0;font-weight:bold">28</span> Jan <span style="color:#ff0;font-weight:bold">2018</span> <span style="color:#ff0;font-weight:bold">04</span>:03:14 GMT
+Date: Sun, <span style="color:#2aa198">28</span> Jan <span style="color:#2aa198">2018</span> <span style="color:#2aa198">04</span>:03:14 GMT
 Transfer-Encoding: chunked
 
-{<span style="color:#0ff;font-weight:bold">&#34;result&#34;</span>:{<span style="color:#0ff;font-weight:bold">&#34;id&#34;</span>:20,<span style="color:#0ff;font-weight:bold">&#34;title&#34;</span>:<span style="color:#0ff;font-weight:bold">&#34;List Tasks 1&#34;</span>,<span style="color:#0ff;font-weight:bold">&#34;detail&#34;</span>:<span style="color:#0ff;font-weight:bold">&#34;Implement interface&#34;</span>}}
-{<span style="color:#0ff;font-weight:bold">&#34;result&#34;</span>:{<span style="color:#0ff;font-weight:bold">&#34;id&#34;</span>:21,<span style="color:#0ff;font-weight:bold">&#34;title&#34;</span>:<span style="color:#0ff;font-weight:bold">&#34;List Tasks 2&#34;</span>,<span style="color:#0ff;font-weight:bold">&#34;detail&#34;</span>:<span style="color:#0ff;font-weight:bold">&#34;Implement interface&#34;</span>}}
-{<span style="color:#0ff;font-weight:bold">&#34;result&#34;</span>:{<span style="color:#0ff;font-weight:bold">&#34;id&#34;</span>:22,<span style="color:#0ff;font-weight:bold">&#34;title&#34;</span>:<span style="color:#0ff;font-weight:bold">&#34;List Tasks 3&#34;</span>,<span style="color:#0ff;font-weight:bold">&#34;detail&#34;</span>:<span style="color:#0ff;font-weight:bold">&#34;Implement interface&#34;</span>}}
+<span style="color:#719e07">{</span><span style="color:#2aa198">&#34;result&#34;</span>:<span style="color:#719e07">{</span><span style="color:#2aa198">&#34;id&#34;</span>:20,<span style="color:#2aa198">&#34;title&#34;</span>:<span style="color:#2aa198">&#34;List Tasks 1&#34;</span>,<span style="color:#2aa198">&#34;detail&#34;</span>:<span style="color:#2aa198">&#34;Implement interface&#34;</span><span style="color:#719e07">}}</span>
+<span style="color:#719e07">{</span><span style="color:#2aa198">&#34;result&#34;</span>:<span style="color:#719e07">{</span><span style="color:#2aa198">&#34;id&#34;</span>:21,<span style="color:#2aa198">&#34;title&#34;</span>:<span style="color:#2aa198">&#34;List Tasks 2&#34;</span>,<span style="color:#2aa198">&#34;detail&#34;</span>:<span style="color:#2aa198">&#34;Implement interface&#34;</span><span style="color:#719e07">}}</span>
+<span style="color:#719e07">{</span><span style="color:#2aa198">&#34;result&#34;</span>:<span style="color:#719e07">{</span><span style="color:#2aa198">&#34;id&#34;</span>:22,<span style="color:#2aa198">&#34;title&#34;</span>:<span style="color:#2aa198">&#34;List Tasks 3&#34;</span>,<span style="color:#2aa198">&#34;detail&#34;</span>:<span style="color:#2aa198">&#34;Implement interface&#34;</span><span style="color:#719e07">}}</span>
 
 $ curl -D - -X GET http://localhost:8080/v1/tasklist-gateway/task/11
-HTTP/1.1 <span style="color:#ff0;font-weight:bold">500</span> Internal Server Error
+HTTP/1.1 <span style="color:#2aa198">500</span> Internal Server Error
 Content-Type: application/json
 Trailer: Grpc-Trailer-Content-Type
-Date: Sun, <span style="color:#ff0;font-weight:bold">28</span> Jan <span style="color:#ff0;font-weight:bold">2018</span> <span style="color:#ff0;font-weight:bold">04</span>:03:29 GMT
+Date: Sun, <span style="color:#2aa198">28</span> Jan <span style="color:#2aa198">2018</span> <span style="color:#2aa198">04</span>:03:29 GMT
 Transfer-Encoding: chunked
 
-{<span style="color:#0ff;font-weight:bold">&#34;error&#34;</span>:<span style="color:#0ff;font-weight:bold">&#34;Not find Task&#34;</span>,<span style="color:#0ff;font-weight:bold">&#34;code&#34;</span>:2}Grpc-Trailer-Content-Type: application/grpc
+<span style="color:#719e07">{</span><span style="color:#2aa198">&#34;error&#34;</span>:<span style="color:#2aa198">&#34;Not find Task&#34;</span>,<span style="color:#2aa198">&#34;code&#34;</span>:2<span style="color:#719e07">}</span>Grpc-Trailer-Content-Type: application/grpc
 
 $ curl -D - -X GET http://localhost:8080/v1/tasklist-gateway/task/10
-HTTP/1.1 <span style="color:#ff0;font-weight:bold">200</span> OK
+HTTP/1.1 <span style="color:#2aa198">200</span> OK
 Content-Type: application/json
 Grpc-Metadata-Content-Type: application/grpc
-Date: Sun, <span style="color:#ff0;font-weight:bold">28</span> Jan <span style="color:#ff0;font-weight:bold">2018</span> <span style="color:#ff0;font-weight:bold">04</span>:03:33 GMT
-Content-Length: <span style="color:#ff0;font-weight:bold">72</span>
+Date: Sun, <span style="color:#2aa198">28</span> Jan <span style="color:#2aa198">2018</span> <span style="color:#2aa198">04</span>:03:33 GMT
+Content-Length: <span style="color:#2aa198">72</span>
 
-{<span style="color:#0ff;font-weight:bold">&#34;id&#34;</span>:10,<span style="color:#0ff;font-weight:bold">&#34;title&#34;</span>:<span style="color:#0ff;font-weight:bold">&#34;Implement gRPC server&#34;</span>,<span style="color:#0ff;font-weight:bold">&#34;detail&#34;</span>:<span style="color:#0ff;font-weight:bold">&#34;Implement interface&#34;</span>}%</code></pre></td></tr></table>
-</div>
-</div>
+<span style="color:#719e07">{</span><span style="color:#2aa198">&#34;id&#34;</span>:10,<span style="color:#2aa198">&#34;title&#34;</span>:<span style="color:#2aa198">&#34;Implement gRPC server&#34;</span>,<span style="color:#2aa198">&#34;detail&#34;</span>:<span style="color:#2aa198">&#34;Implement interface&#34;</span><span style="color:#719e07">}</span>%</code></pre></div>
 <p>当然だが、gRPC API内に仕込んでおいた実行ログも確認できた。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">5
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">go run ./server/main.go
-<span style="color:#ff0;font-weight:bold">2018</span>/01/28 <span style="color:#ff0;font-weight:bold">13</span>:00:48 gRPC Server started: localhost:50051
-<span style="color:#ff0;font-weight:bold">2018</span>/01/28 <span style="color:#ff0;font-weight:bold">13</span>:03:14 ListTasks in gPRC server
-<span style="color:#ff0;font-weight:bold">2018</span>/01/28 <span style="color:#ff0;font-weight:bold">13</span>:03:29 GetTask in gPRC server
-<span style="color:#ff0;font-weight:bold">2018</span>/01/28 <span style="color:#ff0;font-weight:bold">13</span>:03:33 GetTask in gPRC server</code></pre></td></tr></table>
-</div>
-</div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">go run ./server/main.go
+<span style="color:#2aa198">2018</span>/01/28 <span style="color:#2aa198">13</span>:00:48 gRPC Server started: localhost:50051
+<span style="color:#2aa198">2018</span>/01/28 <span style="color:#2aa198">13</span>:03:14 ListTasks in gPRC server
+<span style="color:#2aa198">2018</span>/01/28 <span style="color:#2aa198">13</span>:03:29 GetTask in gPRC server
+<span style="color:#2aa198">2018</span>/01/28 <span style="color:#2aa198">13</span>:03:33 GetTask in gPRC server</code></pre></div>
 <h1 id="終わりに">終わりに</h1>
 
 <p>gRPCサーバに対応するRESTのリバースプロクシサーバを自動生成した。リバースプロクシサーバに関してはほぼ自分で実装していない。<br />

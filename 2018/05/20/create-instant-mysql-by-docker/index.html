@@ -191,14 +191,7 @@ MySQLは公式コンテナーが以下に用意されている。</p>
 
 <p>Docker自体のインストールが完了したら<code>MySQL</code>のコンテナーを起動する。<br />
 以下のコマンドを実行すれば自動的にMySQL公式のコンテナーのダウンロードが開始され、内部で<code>MySQL</code>が稼働しているコンテナーが開始される。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker container run --rm -d -e MYSQL_ROOT_PASSWORD=mysql -p <span style="color:#ff0;font-weight:bold">43306</span>:3306 --name mysql mysql:5.7</code></pre></td></tr></table>
-</div>
-</div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker container run --rm -d -e <span style="color:#268bd2">MYSQL_ROOT_PASSWORD</span><span style="color:#719e07">=</span>mysql -p <span style="color:#2aa198">43306</span>:3306 --name mysql mysql:5.7</code></pre></div>
 <p>大雑把にいうと、ホストマシンの43336ポートからアクセス出来る使い捨てのMySQLを<code>mysql</code>という名前でデーモン起動している。</p>
 
 <table>
@@ -248,71 +241,34 @@ MySQLは公式コンテナーが以下に用意されている。</p>
 <a href="https://docs.docker.com/engine/reference/commandline/container/">https://docs.docker.com/engine/reference/commandline/container/</a></p>
 
 <p>コマンド実行後、<code>docker container ls</code>(<code>docker ps</code>)コマンドで<code>mysql</code>コンテナーが起動しているか確認する。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker container ls
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker container ls
 CONTAINER ID        IMAGE               COMMAND                  CREATED                  STATUS              PORTS                     NAMES
-4838ea05a813        mysql:5.7           <span style="color:#0ff;font-weight:bold">&#34;docker-entrypoint.s…&#34;</span>   Less than a second ago   Up <span style="color:#ff0;font-weight:bold">4</span> seconds        <span style="color:#ff0;font-weight:bold">0</span>.0.0.0:43306-&gt;3306/tcp   mysql</code></pre></td></tr></table>
-</div>
-</div>
+4838ea05a813        mysql:5.7           <span style="color:#2aa198">&#34;docker-entrypoint.s…&#34;</span>   Less than a second ago   Up <span style="color:#2aa198">4</span> seconds        <span style="color:#2aa198">0</span>.0.0.0:43306-&gt;3306/tcp   mysql</code></pre></div>
 <p>これで使い捨てのMySQLが起動できた。</p>
 
 <h1 id="mysqlへのアクセス">MySQLへのアクセス</h1>
 
 <p>上述したとおり、MySQLのコンテナーのポート(3306)をホストマシンのポート(43336)に割り当てているので、ホストマシン（自分のPC）からDBに接続できる。
 上記のコマンドの場合は接続するポートは<code>43336</code>、<code>root</code>のパスワードは<code>MYSQL_ROOT_PASSWORD</code>で指定した<code>mysql</code>になっている。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ mysql -h <span style="color:#ff0;font-weight:bold">127</span>.0.0.1 --port <span style="color:#ff0;font-weight:bold">43306</span> -uroot -pmysql
-mysql: [Warning] Using a password on the <span style="color:#fff;font-weight:bold">command</span> line interface can be insecure.
-Welcome to the MySQL monitor.  Commands end with ; or <span style="color:#0ff;font-weight:bold">\g</span>.
-Your MySQL connection id is <span style="color:#ff0;font-weight:bold">2</span>
-Server version: <span style="color:#ff0;font-weight:bold">5</span>.7.21 MySQL Community Server (GPL)
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ mysql -h <span style="color:#2aa198">127</span>.0.0.1 --port <span style="color:#2aa198">43306</span> -uroot -pmysql
+mysql: <span style="color:#719e07">[</span>Warning<span style="color:#719e07">]</span> Using a password on the <span style="color:#b58900">command</span> line interface can be insecure.
+Welcome to the MySQL monitor.  Commands end with ; or <span style="color:#cb4b16">\g</span>.
+Your MySQL connection id is <span style="color:#2aa198">2</span>
+Server version: <span style="color:#2aa198">5</span>.7.21 MySQL Community Server <span style="color:#719e07">(</span>GPL<span style="color:#719e07">)</span>
 
-Copyright (c) <span style="color:#ff0;font-weight:bold">2000</span>, <span style="color:#ff0;font-weight:bold">2016</span>, Oracle and/or its affiliates. All rights reserved.
+Copyright <span style="color:#719e07">(</span>c<span style="color:#719e07">)</span> <span style="color:#2aa198">2000</span>, <span style="color:#2aa198">2016</span>, Oracle and/or its affiliates. All rights reserved.
 
 Oracle is a registered trademark of Oracle Corporation and/or its
 affiliates. Other names may be trademarks of their respective
 owners.
 
-Type <span style="color:#0ff;font-weight:bold">&#39;help;&#39;</span> or <span style="color:#0ff;font-weight:bold">&#39;\h&#39;</span> <span style="color:#fff;font-weight:bold">for</span> help. Type <span style="color:#0ff;font-weight:bold">&#39;\c&#39;</span> to clear the current input statement.
+Type <span style="color:#2aa198">&#39;help;&#39;</span> or <span style="color:#2aa198">&#39;\h&#39;</span> <span style="color:#719e07">for</span> help. Type <span style="color:#2aa198">&#39;\c&#39;</span> to clear the current input statement.
 
-mysql&gt;</code></pre></td></tr></table>
-</div>
-</div>
+mysql&gt;</code></pre></div>
 <h1 id="使い捨てのmysqlコンテナーを終了したいとき">使い捨てのMySQLコンテナーを終了したいとき</h1>
 
 <p>利用を終了するときは以下のコマンドで完了する。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker container stop mysql</code></pre></td></tr></table>
-</div>
-</div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker container stop mysql</code></pre></div>
 <p>前述したとおりの<code>docker container run</code>コマンドでコンテナーを起動していた場合は、
 <code>--rm</code>オプションをつけて起動しているので、利用したコンテナは廃棄される。</p>
 
@@ -322,74 +278,35 @@ mysql&gt;</code></pre></td></tr></table>
 公式のMySQLコンテナーは<code>/docker-entrypoint-initdb.d</code>に<code>sql</code>ファイルや<code>gz</code>ファイルを配置することでコンテナ起動時にMySQLのデータベースを更新することができる。</p>
 
 <p>たとえば、ホストマシン上(Dockerが動いているマシン)に<code>init</code>ディレクトリを作り、テーブルを作成する<code>sql</code>ファイルとデータを投入する<code>sql</code>ファイルを作成しておく。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-SQL" data-lang="SQL"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">18
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">19
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">20
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">21
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">22
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">23
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">24
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">25
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">26
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-SQL" data-lang="SQL"><span style="color:#f00">$</span> cat init/<span style="color:#ff0;font-weight:bold">01</span>_initial_db.<span style="color:#fff;font-weight:bold">sql</span>
-<span style="color:#fff;font-weight:bold">CREATE</span> <span style="color:#fff;font-weight:bold">DATABASE</span> <span style="color:#fff;font-weight:bold">IF</span> <span style="color:#fff;font-weight:bold">NOT</span> <span style="color:#fff;font-weight:bold">EXISTS</span> todo;
-<span style="color:#fff;font-weight:bold">CREATE</span> <span style="color:#fff;font-weight:bold">TABLE</span> <span style="color:#fff;font-weight:bold">IF</span> <span style="color:#fff;font-weight:bold">NOT</span> <span style="color:#fff;font-weight:bold">EXISTS</span> todo.tasks(
-  id <span style="color:#fff;font-weight:bold">INT</span> <span style="color:#fff;font-weight:bold">PRIMARY</span> <span style="color:#fff;font-weight:bold">KEY</span> AUTO_INCREMENT,
-  title <span style="color:#fff;font-weight:bold">VARCHAR</span>(<span style="color:#ff0;font-weight:bold">100</span>),
-  body <span style="color:#fff;font-weight:bold">VARCHAR</span>(<span style="color:#ff0;font-weight:bold">1000</span>),
-  created_at <span style="color:#fff;font-weight:bold">TIMESTAMP</span> <span style="color:#fff;font-weight:bold">NOT</span> <span style="color:#fff;font-weight:bold">NULL</span> <span style="color:#fff;font-weight:bold">default</span> <span style="color:#fff;font-weight:bold">current_timestamp</span>,
-  updated_at <span style="color:#fff;font-weight:bold">TIMESTAMP</span> <span style="color:#fff;font-weight:bold">NOT</span> <span style="color:#fff;font-weight:bold">NULL</span> <span style="color:#fff;font-weight:bold">default</span> <span style="color:#fff;font-weight:bold">current_timestamp</span> <span style="color:#fff;font-weight:bold">on</span> <span style="color:#fff;font-weight:bold">update</span> <span style="color:#fff;font-weight:bold">current_timestamp</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-SQL" data-lang="SQL">$ cat init<span style="color:#719e07">/</span><span style="color:#2aa198">01</span>_initial_db.<span style="color:#719e07">sql</span>
+<span style="color:#719e07">CREATE</span> <span style="color:#719e07">DATABASE</span> <span style="color:#719e07">IF</span> <span style="color:#719e07">NOT</span> <span style="color:#719e07">EXISTS</span> todo;
+<span style="color:#719e07">CREATE</span> <span style="color:#719e07">TABLE</span> <span style="color:#719e07">IF</span> <span style="color:#719e07">NOT</span> <span style="color:#719e07">EXISTS</span> todo.tasks(
+  id <span style="color:#b58900">INT</span> <span style="color:#719e07">PRIMARY</span> <span style="color:#719e07">KEY</span> AUTO_INCREMENT,
+  title <span style="color:#b58900">VARCHAR</span>(<span style="color:#2aa198">100</span>),
+  body <span style="color:#b58900">VARCHAR</span>(<span style="color:#2aa198">1000</span>),
+  created_at <span style="color:#719e07">TIMESTAMP</span> <span style="color:#719e07">NOT</span> <span style="color:#719e07">NULL</span> <span style="color:#719e07">default</span> <span style="color:#719e07">current_timestamp</span>,
+  updated_at <span style="color:#719e07">TIMESTAMP</span> <span style="color:#719e07">NOT</span> <span style="color:#719e07">NULL</span> <span style="color:#719e07">default</span> <span style="color:#719e07">current_timestamp</span> <span style="color:#719e07">on</span> <span style="color:#719e07">update</span> <span style="color:#719e07">current_timestamp</span>
 );
 
-<span style="color:#f00">$</span> cat init/<span style="color:#ff0;font-weight:bold">02</span>_insert_dummy.<span style="color:#fff;font-weight:bold">sql</span>
+$ cat init<span style="color:#719e07">/</span><span style="color:#2aa198">02</span>_insert_dummy.<span style="color:#719e07">sql</span>
 USE todo;
-<span style="color:#007f7f">-- Insert initlal data
-</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">START</span> TRANSACTION;
-<span style="color:#fff;font-weight:bold">INSERT</span> <span style="color:#fff;font-weight:bold">INTO</span> tasks(title, body) <span style="color:#fff;font-weight:bold">VALUES</span>(<span style="color:#0ff;font-weight:bold">&#39;First task&#39;</span>, <span style="color:#0ff;font-weight:bold">&#39;test data1&#39;</span>);
-<span style="color:#fff;font-weight:bold">INSERT</span> <span style="color:#fff;font-weight:bold">INTO</span> tasks(title, body) <span style="color:#fff;font-weight:bold">VALUES</span>(<span style="color:#0ff;font-weight:bold">&#39;Second task&#39;</span>, <span style="color:#0ff;font-weight:bold">&#39;test data2&#39;</span>);
-<span style="color:#fff;font-weight:bold">INSERT</span> <span style="color:#fff;font-weight:bold">INTO</span> tasks(title, body) <span style="color:#fff;font-weight:bold">VALUES</span>(<span style="color:#0ff;font-weight:bold">&#39;Third task&#39;</span>, <span style="color:#0ff;font-weight:bold">&#39;test data3&#39;</span>);
-<span style="color:#fff;font-weight:bold">INSERT</span> <span style="color:#fff;font-weight:bold">INTO</span> tasks(title, body) <span style="color:#fff;font-weight:bold">VALUES</span>(<span style="color:#0ff;font-weight:bold">&#39;Dummy Data4&#39;</span>, <span style="color:#0ff;font-weight:bold">&#39;long long long long long&#39;</span>);
-<span style="color:#fff;font-weight:bold">INSERT</span> <span style="color:#fff;font-weight:bold">INTO</span> tasks(title, body) <span style="color:#fff;font-weight:bold">VALUES</span>(<span style="color:#0ff;font-weight:bold">&#39;Dummy Data5&#39;</span>, <span style="color:#0ff;font-weight:bold">&#39;long long long long long&#39;</span>);
-<span style="color:#fff;font-weight:bold">INSERT</span> <span style="color:#fff;font-weight:bold">INTO</span> tasks(title, body) <span style="color:#fff;font-weight:bold">VALUES</span>(<span style="color:#0ff;font-weight:bold">&#39;Dummy Data6&#39;</span>, <span style="color:#0ff;font-weight:bold">&#39;long long long long long&#39;</span>);
-<span style="color:#fff;font-weight:bold">INSERT</span> <span style="color:#fff;font-weight:bold">INTO</span> tasks(title, body) <span style="color:#fff;font-weight:bold">VALUES</span>(<span style="color:#0ff;font-weight:bold">&#39;Dummy Data7&#39;</span>, <span style="color:#0ff;font-weight:bold">&#39;long long long long long&#39;</span>);
-<span style="color:#fff;font-weight:bold">INSERT</span> <span style="color:#fff;font-weight:bold">INTO</span> tasks(title, body) <span style="color:#fff;font-weight:bold">VALUES</span>(<span style="color:#0ff;font-weight:bold">&#39;Dummy Data8&#39;</span>, <span style="color:#0ff;font-weight:bold">&#39;long long long long long&#39;</span>);
-<span style="color:#fff;font-weight:bold">INSERT</span> <span style="color:#fff;font-weight:bold">INTO</span> tasks(title, body) <span style="color:#fff;font-weight:bold">VALUES</span>(<span style="color:#0ff;font-weight:bold">&#39;Dummy Data9&#39;</span>, <span style="color:#0ff;font-weight:bold">&#39;long long long long long&#39;</span>);
-<span style="color:#fff;font-weight:bold">INSERT</span> <span style="color:#fff;font-weight:bold">INTO</span> tasks(title, body) <span style="color:#fff;font-weight:bold">VALUES</span>(<span style="color:#0ff;font-weight:bold">&#39;Dummy Data10&#39;</span>, <span style="color:#0ff;font-weight:bold">&#39;long long long long long&#39;</span>);
-<span style="color:#fff;font-weight:bold">INSERT</span> <span style="color:#fff;font-weight:bold">INTO</span> tasks(title, body) <span style="color:#fff;font-weight:bold">VALUES</span>(<span style="color:#0ff;font-weight:bold">&#39;Dummy Data11&#39;</span>, <span style="color:#0ff;font-weight:bold">&#39;long long long long long&#39;</span>);
-<span style="color:#fff;font-weight:bold">COMMIT</span>;</code></pre></td></tr></table>
-</div>
-</div>
+<span style="color:#586e75">-- Insert initlal data
+</span><span style="color:#586e75"></span><span style="color:#719e07">START</span> TRANSACTION;
+<span style="color:#719e07">INSERT</span> <span style="color:#719e07">INTO</span> tasks(title, body) <span style="color:#719e07">VALUES</span>(<span style="color:#2aa198">&#39;First task&#39;</span>, <span style="color:#2aa198">&#39;test data1&#39;</span>);
+<span style="color:#719e07">INSERT</span> <span style="color:#719e07">INTO</span> tasks(title, body) <span style="color:#719e07">VALUES</span>(<span style="color:#2aa198">&#39;Second task&#39;</span>, <span style="color:#2aa198">&#39;test data2&#39;</span>);
+<span style="color:#719e07">INSERT</span> <span style="color:#719e07">INTO</span> tasks(title, body) <span style="color:#719e07">VALUES</span>(<span style="color:#2aa198">&#39;Third task&#39;</span>, <span style="color:#2aa198">&#39;test data3&#39;</span>);
+<span style="color:#719e07">INSERT</span> <span style="color:#719e07">INTO</span> tasks(title, body) <span style="color:#719e07">VALUES</span>(<span style="color:#2aa198">&#39;Dummy Data4&#39;</span>, <span style="color:#2aa198">&#39;long long long long long&#39;</span>);
+<span style="color:#719e07">INSERT</span> <span style="color:#719e07">INTO</span> tasks(title, body) <span style="color:#719e07">VALUES</span>(<span style="color:#2aa198">&#39;Dummy Data5&#39;</span>, <span style="color:#2aa198">&#39;long long long long long&#39;</span>);
+<span style="color:#719e07">INSERT</span> <span style="color:#719e07">INTO</span> tasks(title, body) <span style="color:#719e07">VALUES</span>(<span style="color:#2aa198">&#39;Dummy Data6&#39;</span>, <span style="color:#2aa198">&#39;long long long long long&#39;</span>);
+<span style="color:#719e07">INSERT</span> <span style="color:#719e07">INTO</span> tasks(title, body) <span style="color:#719e07">VALUES</span>(<span style="color:#2aa198">&#39;Dummy Data7&#39;</span>, <span style="color:#2aa198">&#39;long long long long long&#39;</span>);
+<span style="color:#719e07">INSERT</span> <span style="color:#719e07">INTO</span> tasks(title, body) <span style="color:#719e07">VALUES</span>(<span style="color:#2aa198">&#39;Dummy Data8&#39;</span>, <span style="color:#2aa198">&#39;long long long long long&#39;</span>);
+<span style="color:#719e07">INSERT</span> <span style="color:#719e07">INTO</span> tasks(title, body) <span style="color:#719e07">VALUES</span>(<span style="color:#2aa198">&#39;Dummy Data9&#39;</span>, <span style="color:#2aa198">&#39;long long long long long&#39;</span>);
+<span style="color:#719e07">INSERT</span> <span style="color:#719e07">INTO</span> tasks(title, body) <span style="color:#719e07">VALUES</span>(<span style="color:#2aa198">&#39;Dummy Data10&#39;</span>, <span style="color:#2aa198">&#39;long long long long long&#39;</span>);
+<span style="color:#719e07">INSERT</span> <span style="color:#719e07">INTO</span> tasks(title, body) <span style="color:#719e07">VALUES</span>(<span style="color:#2aa198">&#39;Dummy Data11&#39;</span>, <span style="color:#2aa198">&#39;long long long long long&#39;</span>);
+<span style="color:#719e07">COMMIT</span>;</code></pre></div>
 <p>この<code>init</code>ディレクトリを<code>/docker-entrypoint-initdb.d</code>として<code>MySQL</code>コンテナーにマウントして起動する。
 <code>docker</code>コマンドで行う場合は<code>-v</code>オプションで以下のように行う。このとき<code>init</code>ディレクトリのPATHは絶対PATHで指定する必要がある。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker container run --rm -d -v {$ABSOLUTE_PATH}/init:/docker-entrypoint-initdb.d -e MYSQL_ROOT_PASSWORD=mysql -p <span style="color:#ff0;font-weight:bold">43306</span>:3306 --name mysql mysql:5.7</code></pre></td></tr></table>
-</div>
-</div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker container run --rm -d -v <span style="color:#719e07">{</span><span style="color:#268bd2">$ABSOLUTE_PATH</span><span style="color:#719e07">}</span>/init:/docker-entrypoint-initdb.d -e <span style="color:#268bd2">MYSQL_ROOT_PASSWORD</span><span style="color:#719e07">=</span>mysql -p <span style="color:#2aa198">43306</span>:3306 --name mysql mysql:5.7</code></pre></div>
 <p>こうして起動した<code>mysql</code>コンテナーは常に以下のようにデータが投入されている。
 <code>SELECT</code>や<code>JOIN</code>の練習をするためには、最初にデータを投入しておくと良いかもしれない。</p>
 

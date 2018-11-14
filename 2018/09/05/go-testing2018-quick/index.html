@@ -214,91 +214,45 @@ Goのtestingを理解する in 2018 - Examples編 #go
 <ul>
 <li><a href="https://play.golang.org/p/ovZM2kkwHBK">https://play.golang.org/p/ovZM2kkwHBK</a></li>
 </ul>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">18
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">19
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#fff;font-weight:bold">type</span> MyInt <span style="color:#fff;font-weight:bold">struct</span> {
-    V <span style="color:#fff;font-weight:bold">int</span>
-    X <span style="color:#fff;font-weight:bold">string</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> MyInt <span style="color:#268bd2">struct</span> {
+    V <span style="color:#dc322f">int</span>
+    X <span style="color:#dc322f">string</span>
 }
 
-<span style="color:#fff;font-weight:bold">func</span> div(n, m MyInt) <span style="color:#fff;font-weight:bold">int</span> {
-    <span style="color:#fff;font-weight:bold">return</span> n.V / m.V
+<span style="color:#268bd2">func</span> div(n, m MyInt) <span style="color:#dc322f">int</span> {
+    <span style="color:#719e07">return</span> n.V <span style="color:#719e07">/</span> m.V
 }
 
-<span style="color:#fff;font-weight:bold">func</span> TestDiv(t *testing.T) {
-    <span style="color:#007f7f">// div関数は戻り値がintなので、評価結果をboolで返すラップ関数を用意する
-</span><span style="color:#007f7f"></span>    f := <span style="color:#fff;font-weight:bold">func</span>(x, y MyInt) <span style="color:#fff;font-weight:bold">bool</span> {
-        <span style="color:#fff;font-weight:bold">return</span> div(x, y) == (x.V / y.V)
+<span style="color:#268bd2">func</span> TestDiv(t <span style="color:#719e07">*</span>testing.T) {
+    <span style="color:#586e75">// div関数は戻り値がintなので、評価結果をboolで返すラップ関数を用意する
+</span><span style="color:#586e75"></span>    f <span style="color:#719e07">:=</span> <span style="color:#268bd2">func</span>(x, y MyInt) <span style="color:#dc322f">bool</span> {
+        <span style="color:#719e07">return</span> div(x, y) <span style="color:#719e07">==</span> (x.V <span style="color:#719e07">/</span> y.V)
     }
 
-    <span style="color:#fff;font-weight:bold">if</span> err := quick.Check(f, <span style="color:#fff;font-weight:bold">nil</span>); err != <span style="color:#fff;font-weight:bold">nil</span> {
+    <span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> quick.Check(f, <span style="color:#cb4b16">nil</span>); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
         t.Error(err.Error())
     }
-}</code></pre></td></tr></table>
-</div>
-</div>
+}</code></pre></div>
 <p>第二引数の<code>quick.Config</code>を指定すれば、試行回数や与える引数の範囲、ランダムシードなどを設定できる。</p>
 
 <ul>
 <li><a href="https://play.golang.org/p/8nPw0pgUkN3">https://play.golang.org/p/8nPw0pgUkN3</a></li>
 </ul>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">    cfg := &amp;quick.Config{
-        <span style="color:#007f7f">// 試行回数
-</span><span style="color:#007f7f"></span>        MaxCount: <span style="color:#ff0;font-weight:bold">10</span>,
-        <span style="color:#007f7f">// Seed
-</span><span style="color:#007f7f"></span>        Rand: rand.New(rand.NewSource(<span style="color:#ff0;font-weight:bold">2</span>)),
-        <span style="color:#007f7f">// 独自定義した引数の生成関数
-</span><span style="color:#007f7f"></span>        Values: <span style="color:#fff;font-weight:bold">func</span>(args []reflect.Value, rand *rand.Rand) {
-            args[<span style="color:#ff0;font-weight:bold">0</span>] = reflect.ValueOf(MyInt{rand.Int(), <span style="color:#0ff;font-weight:bold">&#34;x&#34;</span>})
-            args[<span style="color:#ff0;font-weight:bold">1</span>] = reflect.ValueOf(MyInt{rand.Int(), <span style="color:#0ff;font-weight:bold">&#34;y&#34;</span>})
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">    cfg <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>quick.Config{
+        <span style="color:#586e75">// 試行回数
+</span><span style="color:#586e75"></span>        MaxCount: <span style="color:#2aa198">10</span>,
+        <span style="color:#586e75">// Seed
+</span><span style="color:#586e75"></span>        Rand: rand.New(rand.NewSource(<span style="color:#2aa198">2</span>)),
+        <span style="color:#586e75">// 独自定義した引数の生成関数
+</span><span style="color:#586e75"></span>        Values: <span style="color:#268bd2">func</span>(args []reflect.Value, rand <span style="color:#719e07">*</span>rand.Rand) {
+            args[<span style="color:#2aa198">0</span>] = reflect.ValueOf(MyInt{rand.Int(), <span style="color:#2aa198">&#34;x&#34;</span>})
+            args[<span style="color:#2aa198">1</span>] = reflect.ValueOf(MyInt{rand.Int(), <span style="color:#2aa198">&#34;y&#34;</span>})
         },
     }
 
-    <span style="color:#fff;font-weight:bold">if</span> err := quick.Check(f, cfg); err != <span style="color:#fff;font-weight:bold">nil</span> {
+    <span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> quick.Check(f, cfg); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
         t.Error(err.Error())
-    }</code></pre></td></tr></table>
-</div>
-</div>
+    }</code></pre></div>
 <h2 id="quick-checkerror">quick.CheckError</h2>
 
 <p><code>quick.Check</code>関数が戻す<code>Error</code>は<code>quick.CheckError</code>型のポインタなので、任意の情報も取得できる。</p>
@@ -306,26 +260,13 @@ Goのtestingを理解する in 2018 - Examples編 #go
 <ul>
 <li><a href="https://golang.org/pkg/testing/quick/#CheckError">https://golang.org/pkg/testing/quick/#CheckError</a></li>
 </ul>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">7
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">    <span style="color:#fff;font-weight:bold">if</span> err := quick.Check(f, <span style="color:#fff;font-weight:bold">nil</span>); err != <span style="color:#fff;font-weight:bold">nil</span> {
-        <span style="color:#fff;font-weight:bold">if</span> ce, ok := err.(*quick.CheckError); ok {
-            t.Errorf(<span style="color:#0ff;font-weight:bold">&#34;Try count = %d, In %#v, Out %s\n&#34;</span>, ce.Count, ce.In, ce)
-        } <span style="color:#fff;font-weight:bold">else</span> {
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">    <span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> quick.Check(f, <span style="color:#cb4b16">nil</span>); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+        <span style="color:#719e07">if</span> ce, ok <span style="color:#719e07">:=</span> err.(<span style="color:#719e07">*</span>quick.CheckError); ok {
+            t.Errorf(<span style="color:#2aa198">&#34;Try count = %d, In %#v, Out %s\n&#34;</span>, ce.Count, ce.In, ce)
+        } <span style="color:#719e07">else</span> {
             t.Error(err)
         }
-    }</code></pre></td></tr></table>
-</div>
-</div>
+    }</code></pre></div>
 <h1 id="quick-checkequal">quick.CheckEqual</h1>
 
 <ul>
@@ -338,34 +279,17 @@ Go本体のコードでは例えば<code>sync.Map</code>の挙動の確認に利
 <ul>
 <li><a href="https://github.com/golang/go/blob/67ac554d7978eb93f3dfe7a819c67948dd291d88/src/sync/map_test.go#L99-L109">https://github.com/golang/go/blob/67ac554d7978eb93f3dfe7a819c67948dd291d88/src/sync/map_test.go#L99-L109</a></li>
 </ul>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#fff;font-weight:bold">func</span> TestMapMatchesRWMutex(t *testing.T) {
-    <span style="color:#fff;font-weight:bold">if</span> err := quick.CheckEqual(applyMap, applyRWMutexMap, <span style="color:#fff;font-weight:bold">nil</span>); err != <span style="color:#fff;font-weight:bold">nil</span> {
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> TestMapMatchesRWMutex(t <span style="color:#719e07">*</span>testing.T) {
+    <span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> quick.CheckEqual(applyMap, applyRWMutexMap, <span style="color:#cb4b16">nil</span>); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
         t.Error(err)
     }
 }
 
-<span style="color:#fff;font-weight:bold">func</span> TestMapMatchesDeepCopy(t *testing.T) {
-    <span style="color:#fff;font-weight:bold">if</span> err := quick.CheckEqual(applyMap, applyDeepCopyMap, <span style="color:#fff;font-weight:bold">nil</span>); err != <span style="color:#fff;font-weight:bold">nil</span> {
+<span style="color:#268bd2">func</span> TestMapMatchesDeepCopy(t <span style="color:#719e07">*</span>testing.T) {
+    <span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> quick.CheckEqual(applyMap, applyDeepCopyMap, <span style="color:#cb4b16">nil</span>); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
         t.Error(err)
     }
-}</code></pre></td></tr></table>
-</div>
-</div>
+}</code></pre></div>
 <h2 id="quick-checkequalerror">quick.CheckEqualError</h2>
 
 <ul>
@@ -373,69 +297,32 @@ Go本体のコードでは例えば<code>sync.Map</code>の挙動の確認に利
 </ul>
 
 <p><code>quick.CheckEqual</code>関数が戻す<code>Error</code>も<code>quick.CheckEqualError</code>として定義されているので、結果が不一致なときの各情報を取得できる。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">5
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#fff;font-weight:bold">type</span> CheckEqualError <span style="color:#fff;font-weight:bold">struct</span> {
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> CheckEqualError <span style="color:#268bd2">struct</span> {
         CheckError
-        Out1 []<span style="color:#fff;font-weight:bold">interface</span>{}
-        Out2 []<span style="color:#fff;font-weight:bold">interface</span>{}
-}</code></pre></td></tr></table>
-</div>
-</div>
+        Out1 []<span style="color:#268bd2">interface</span>{}
+        Out2 []<span style="color:#268bd2">interface</span>{}
+}</code></pre></div>
 <h1 id="quick-value">quick.Value</h1>
 
 <p>ただ単にランダムな値が欲しい場合は、<code>quick.Value</code>関数で生成できる。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#007f7f">// 乱数整数を生成する
-</span><span style="color:#007f7f"></span>ri, _ := quick.Value(reflect.TypeOf([]<span style="color:#fff;font-weight:bold">int</span>{}), rand.New(rand.NewSource(<span style="color:#ff0;font-weight:bold">0</span>)))
-<span style="color:#007f7f">// 乱数整数スライスを生成する
-</span><span style="color:#007f7f"></span>ris, _ := quick.Value(reflect.TypeOf([]<span style="color:#fff;font-weight:bold">int</span>{}), rand.New(rand.NewSource(<span style="color:#ff0;font-weight:bold">0</span>)))</code></pre></td></tr></table>
-</div>
-</div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// 乱数整数を生成する
+</span><span style="color:#586e75"></span>ri, _ <span style="color:#719e07">:=</span> quick.Value(reflect.TypeOf([]<span style="color:#dc322f">int</span>{}), rand.New(rand.NewSource(<span style="color:#2aa198">0</span>)))
+<span style="color:#586e75">// 乱数整数スライスを生成する
+</span><span style="color:#586e75"></span>ris, _ <span style="color:#719e07">:=</span> quick.Value(reflect.TypeOf([]<span style="color:#dc322f">int</span>{}), rand.New(rand.NewSource(<span style="color:#2aa198">0</span>)))</code></pre></div>
 <h1 id="generatorインターフェース">Generatorインターフェース</h1>
 
 <p><code>Generator</code>インターフェースを実装していれば、独自定義した型も<code>quick.Value</code>の引数に利用できる。
 - <a href="https://play.golang.org/p/8HRbhNYBsnu">https://play.golang.org/p/8HRbhNYBsnu</a></p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#fff;font-weight:bold">type</span> Foo <span style="color:#fff;font-weight:bold">struct</span>{}
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Foo <span style="color:#268bd2">struct</span>{}
 
-<span style="color:#fff;font-weight:bold">func</span> (f *Foo) Generate(rand *rand.Rand, size <span style="color:#fff;font-weight:bold">int</span>) reflect.Value {
-    <span style="color:#007f7f">// 雑な実装
-</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">return</span> reflect.ValueOf(&amp;Foo{})
+<span style="color:#268bd2">func</span> (f <span style="color:#719e07">*</span>Foo) Generate(rand <span style="color:#719e07">*</span>rand.Rand, size <span style="color:#dc322f">int</span>) reflect.Value {
+    <span style="color:#586e75">// 雑な実装
+</span><span style="color:#586e75"></span>    <span style="color:#719e07">return</span> reflect.ValueOf(<span style="color:#719e07">&amp;</span>Foo{})
 }
 
-<span style="color:#fff;font-weight:bold">func</span> main() {
-    v, ok := quick.Value(reflect.TypeOf([]*Foo{}), rand.New(rand.NewSource(<span style="color:#ff0;font-weight:bold">0</span>)))
-}</code></pre></td></tr></table>
-</div>
-</div>
+<span style="color:#268bd2">func</span> main() {
+    v, ok <span style="color:#719e07">:=</span> quick.Value(reflect.TypeOf([]<span style="color:#719e07">*</span>Foo{}), rand.New(rand.NewSource(<span style="color:#2aa198">0</span>)))
+}</code></pre></div>
 <h1 id="参考">参考</h1>
 
 <ul>

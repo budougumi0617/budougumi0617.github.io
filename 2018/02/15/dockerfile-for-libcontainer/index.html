@@ -210,100 +210,47 @@ libcontainerライブラリを使ってGoでコンテナを実装し起動する
 <h1 id="dockerfileを作成する">Dockerfileを作成する</h1>
 
 <p>Dockerfileの内容は以下。alpineベースのコンテナに<code>go build</code>するときに要求されるライブラリを入れた後、ビルドするだけの単純な構成。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-dockerfile" data-lang="dockerfile"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-dockerfile" data-lang="dockerfile"><span style="color:#fff;font-weight:bold">FROM</span><span style="color:#0ff;font-weight:bold"> golang:1.9.4-alpine3.7</span><span style="color:#f00">
-</span><span style="color:#f00">
-</span><span style="color:#f00"></span><span style="color:#fff;font-weight:bold">RUN</span> apk add --update openssl-dev pcre-dev git gcc musl-dev linux-headers sudo<span style="color:#f00">
-</span><span style="color:#f00">
-</span><span style="color:#f00"></span><span style="color:#fff;font-weight:bold">WORKDIR</span><span style="color:#0ff;font-weight:bold"> /go/src/github.com/budougumi0617/gsp/ch17/container/</span><span style="color:#f00">
-</span><span style="color:#f00"></span><span style="color:#fff;font-weight:bold">ADD</span><span style="color:#0ff;font-weight:bold"> _main.go ./main.go</span><span style="color:#f00">
-</span><span style="color:#f00"></span><span style="color:#fff;font-weight:bold">ADD</span><span style="color:#0ff;font-weight:bold"> rootfs ./rootfs/</span><span style="color:#f00">
-</span><span style="color:#f00"></span><span style="color:#fff;font-weight:bold">RUN</span> go get -v .<span style="color:#f00">
-</span><span style="color:#f00"></span><span style="color:#fff;font-weight:bold">RUN</span> go build main.go<span style="color:#f00">
-</span><span style="color:#f00"></span><span style="color:#fff;font-weight:bold">CMD</span><span style="color:#0ff;font-weight:bold"> echo &#34;test&#34;</span></code></pre></td></tr></table>
-</div>
-</div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-dockerfile" data-lang="dockerfile"><span style="color:#719e07">FROM</span><span style="color:#2aa198"> golang:1.9.4-alpine3.7</span>
+
+<span style="color:#719e07">RUN</span> apk add --update openssl-dev pcre-dev git gcc musl-dev linux-headers sudo
+
+<span style="color:#719e07">WORKDIR</span><span style="color:#2aa198"> /go/src/github.com/budougumi0617/gsp/ch17/container/</span>
+<span style="color:#719e07">ADD</span><span style="color:#2aa198"> _main.go ./main.go</span>
+<span style="color:#719e07">ADD</span><span style="color:#2aa198"> rootfs ./rootfs/</span>
+<span style="color:#719e07">RUN</span> go get -v .
+<span style="color:#719e07">RUN</span> go build main.go
+<span style="color:#719e07">CMD</span><span style="color:#2aa198"> echo &#34;test&#34;</span></code></pre></div>
 <p><code>alpine</code>コンテナだとインクルードファイルなどが入っていないのでもろもろ<code>apk add</code>しておく。<br />
 また、コンテナに入って自作コンテナでいろいろコマンドを実行するのが目的のためエントリはただの<code>echo</code>にしてある。</p>
 
 <p>本（連載）に記載されている<code>rootfs</code>ディレクトリにalpineコンテナから抽出したもろもろのファイルを入れる作業は
 Dockerfile外で行う必要があるので注意。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">6
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker pull alpine
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker pull alpine
 $ docker run --name alpine alpine
-$ docker <span style="color:#fff;font-weight:bold">export</span> alpine &gt; alpine.tar
+$ docker <span style="color:#b58900">export</span> alpine &gt; alpine.tar
 $ docker rm alpine
 $ mkdir rootfs
-$ tar -C rootfs -xvf alpine.tar</code></pre></td></tr></table>
-</div>
-</div>
+$ tar -C rootfs -xvf alpine.tar</code></pre></div>
 <p>これで自作（写経）コンテナを実行してみる準備ができた。</p>
 
 <h1 id="docker-runするときは-privilegedオプションをつけること">docker runするときは&ndash;privilegedオプションをつけること</h1>
 
 <p><code>docker build</code>の中で<code>go build</code>するので、あとはコンテナに入って実際に起動してみる。<br />
 ここでオプションをつけずにそのまま<code>docker run</code>をすると以下のようなエラーで終了してしまう。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">5
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker build -t build-container .
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker build -t build-container .
 $ docker run -it build-container /bin/ash
-/go/src/github.com/budougumi0617/gsp/ch17/container <span style="color:#007f7f"># sudo ./main
-</span><span style="color:#007f7f"></span>WARN[<span style="color:#ff0;font-weight:bold">0000</span>] signal: killed
-<span style="color:#ff0;font-weight:bold">2018</span>/02/14 <span style="color:#ff0;font-weight:bold">00</span>:43:37 container_linux.go:348: starting container process caused <span style="color:#0ff;font-weight:bold">&#34;process_linux.go:279: applying cgroup configuration for process caused \&#34;mkdir /sys/fs/cgroup/cpuset/system: read-only file system\&#34;&#34;</span></code></pre></td></tr></table>
-</div>
-</div>
+/go/src/github.com/budougumi0617/gsp/ch17/container <span style="color:#586e75"># sudo ./main
+</span><span style="color:#586e75"></span>WARN<span style="color:#719e07">[</span><span style="color:#2aa198">0000</span><span style="color:#719e07">]</span> signal: killed
+<span style="color:#2aa198">2018</span>/02/14 <span style="color:#2aa198">00</span>:43:37 container_linux.go:348: starting container process caused <span style="color:#2aa198">&#34;process_linux.go:279: applying cgroup configuration for process caused \&#34;mkdir /sys/fs/cgroup/cpuset/system: read-only file system\&#34;&#34;</span></code></pre></div>
 <p><code>syscall</code>する権限が不足しているのが原因らしいので、<code>--privileged</code>をつけて<code>docker run</code>する。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">8
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker build -t build-container . --no-cache=<span style="color:#fff;font-weight:bold">true</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker build -t build-container . --no-cache<span style="color:#719e07">=</span><span style="color:#b58900">true</span>
 $ docker run --privileged -it build-container /bin/ash
-/go/src/github.com/budougumi0617/gsp/ch17/container <span style="color:#007f7f"># ./main
-</span><span style="color:#007f7f"></span>/bin/sh: can<span style="color:#f00">&#39;</span>t access tty; job control turned off
-/ <span style="color:#007f7f"># /bin/hostname
-</span><span style="color:#007f7f"></span>testing
-/ <span style="color:#007f7f"># exit
-</span><span style="color:#007f7f"></span>/go/src/github.com/budougumi0617/gsp/ch17/container # exit</code></pre></td></tr></table>
-</div>
-</div>
+/go/src/github.com/budougumi0617/gsp/ch17/container <span style="color:#586e75"># ./main
+</span><span style="color:#586e75"></span>/bin/sh: can&#39;t access tty; job control turned off
+/ <span style="color:#586e75"># /bin/hostname
+</span><span style="color:#586e75"></span>testing
+/ <span style="color:#586e75"># exit
+</span><span style="color:#586e75"></span>/go/src/github.com/budougumi0617/gsp/ch17/container # exit</code></pre></div>
 <p>ちょっとTTYの設定は出来ていないが、ちゃんと実行することができた。</p>
 
 <h1 id="おわりに">おわりに</h1>

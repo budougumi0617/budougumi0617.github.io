@@ -194,42 +194,21 @@ Swagger定義ではないが、ルーティングの設定をMarkdownやJSONで�
 <h2 id="go-chi-chi-でhttpルーティングを設定した-chi-router-を作成する"><code>go-chi/chi</code>でHTTPルーティングを設定した<code>chi.Router</code>を作成する。</h2>
 
 <p>HTTPルーティングの設定（<code>chi.Router</code>にハンドラなどを定義していく）に特に追加で行う設定はない。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#fff;font-weight:bold">func</span> GetTodoRouter() chi.Router {
-	router := chi.NewRouter()
-	<span style="color:#007f7f">// Set output for logging.
-</span><span style="color:#007f7f"></span>	middleware.DefaultLogger = middleware.RequestLogger(
-		&amp;middleware.DefaultLogFormatter{
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> GetTodoRouter() chi.Router {
+	router <span style="color:#719e07">:=</span> chi.NewRouter()
+	<span style="color:#586e75">// Set output for logging.
+</span><span style="color:#586e75"></span>	middleware.DefaultLogger = middleware.RequestLogger(
+		<span style="color:#719e07">&amp;</span>middleware.DefaultLogFormatter{
 			Logger: newLogger(),
 		},
 	)
 	router.Use(middleware.Logger)
-	router.HandleFunc(<span style="color:#0ff;font-weight:bold">&#34;/*&#34;</span>, Index) <span style="color:#007f7f">// WildCard.
-</span><span style="color:#007f7f"></span>	router.HandleFunc(<span style="color:#0ff;font-weight:bold">&#34;/todos&#34;</span>, TodoIndex)
-	router.HandleFunc(<span style="color:#0ff;font-weight:bold">&#34;/todos/{todoID}&#34;</span>, TodoShow)
-	router.Post(<span style="color:#0ff;font-weight:bold">&#34;/todos&#34;</span>, TodoCreate)
-	<span style="color:#fff;font-weight:bold">return</span> router
-}</code></pre></td></tr></table>
-</div>
-</div>
+	router.HandleFunc(<span style="color:#2aa198">&#34;/*&#34;</span>, Index) <span style="color:#586e75">// WildCard.
+</span><span style="color:#586e75"></span>	router.HandleFunc(<span style="color:#2aa198">&#34;/todos&#34;</span>, TodoIndex)
+	router.HandleFunc(<span style="color:#2aa198">&#34;/todos/{todoID}&#34;</span>, TodoShow)
+	router.Post(<span style="color:#2aa198">&#34;/todos&#34;</span>, TodoCreate)
+	<span style="color:#719e07">return</span> router
+}</code></pre></div>
 <h2 id="routerからmarkdownを生成する">RouterからMarkdownを生成する</h2>
 
 <p>Markdownを生成する場合はオプションを指定しておく必要がある。<br />
@@ -255,40 +234,20 @@ Swagger定義ではないが、ルーティングの設定をMarkdownやJSONで�
 
 <p><code>MarkdownOpts</code>を生成したあとは<code>docgen.MarkdownRoutesDoc(r chi.Router, opts docgen.MarkdownOpts) string</code>を呼ぶだけだ。
 以下のようなMarkdown文字列が得られる</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-markdown" data-lang="markdown"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-markdown" data-lang="markdown"><span style="font-weight:bold">#</span> github.com/budougumi0617/simple-json-api-by-chi
-<span style="color:#f00">
-</span><span style="color:#f00"></span>Sample JSON API server by go-chi.<span style="color:#f00">
-</span><span style="color:#f00">
-</span><span style="color:#f00"></span><span style="font-weight:bold">##</span> Routes
-<span style="color:#f00">
-</span><span style="color:#f00"></span>&lt;details&gt;<span style="color:#f00">
-</span><span style="color:#f00"></span>&lt;summary&gt;`/*`&lt;/summary&gt;
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-markdown" data-lang="markdown"><span style="color:#cb4b16">#</span> github.com/budougumi0617/simple-json-api-by-chi
 
-<span style="color:#fff;font-weight:bold">-</span> [<span style="font-weight:bold">Logger</span>](<span style="color:#007f7f">https://github.com/go-chi/chi/blob/master/middleware/logger.go#L30</span>)<span style="color:#f00">
-</span><span style="color:#f00"></span><span style="color:#fff;font-weight:bold">-</span> **/***<span style="color:#f00">
-</span><span style="color:#f00"></span>	<span style="color:#fff;font-weight:bold">-</span> _*_<span style="color:#f00">
-</span><span style="color:#f00"></span>		<span style="color:#fff;font-weight:bold">-</span> [<span style="font-weight:bold">main.Index</span>](<span style="color:#007f7f">/handler.go#L16</span>)<span style="color:#f00">
-</span><span style="color:#f00"></span>...</code></pre></td></tr></table>
-</div>
-</div>
+Sample JSON API server by go-chi.
+
+<span style="color:#268bd2">##</span> Routes
+
+&lt;details&gt;
+&lt;summary&gt;`/*`&lt;/summary&gt;
+
+<span style="color:#719e07">-</span> [<span style="color:#268bd2">Logger</span>](https://github.com/go-chi/chi/blob/master/middleware/logger.go#L30)
+<span style="color:#719e07">-</span> **/***
+	<span style="color:#719e07">-</span> _*_
+		<span style="color:#719e07">-</span> [<span style="color:#268bd2">main.Index</span>](/handler.go#L16)
+...</code></pre></div>
 <p>実際に使うと以下のようになる。</p>
 
 <hr />
@@ -367,64 +326,32 @@ GitHubのREADMEなどに貼ると、各ハンドラ定義の実装へのリン�
 <h1 id="routerからjsonを生成する">RouterからJSONを生成する</h1>
 
 <p>JSONの場合は<code>docgen.JSONRoutesDoc(r chi.Router) string</code>を呼ぶだけで以下のようなJSON文字列が出力される。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">18
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">19
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">20
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">21
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">22
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">23
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">24
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">25
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">26
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">  <span style="color:#0ff;font-weight:bold">&#34;router&#34;</span><span style="color:#f00">:</span> {
-    <span style="font-weight:bold">&#34;middlewares&#34;</span>: [
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">  <span style="color:#2aa198">&#34;router&#34;</span>: {
+    <span style="color:#268bd2">&#34;middlewares&#34;</span>: [
       {
-        <span style="font-weight:bold">&#34;pkg&#34;</span>: <span style="color:#0ff;font-weight:bold">&#34;github.com/budougumi0617/simple-json-api-by-chi/vendor/github.com/go-chi/chi/middleware&#34;</span>,
-        <span style="font-weight:bold">&#34;func&#34;</span>: <span style="color:#0ff;font-weight:bold">&#34;Logger&#34;</span>,
-        <span style="font-weight:bold">&#34;comment&#34;</span>: <span style="color:#0ff;font-weight:bold">&#34;Logger is a mi...ware pkg.\n&#34;</span>,
-        <span style="font-weight:bold">&#34;file&#34;</span>: <span style="color:#0ff;font-weight:bold">&#34;github.com/budougumi0617/simple-json-api-by-chi/vendor/github.com/go-chi/chi/middleware/logger.go&#34;</span>,
-        <span style="font-weight:bold">&#34;line&#34;</span>: <span style="color:#ff0;font-weight:bold">30</span>
+        <span style="color:#268bd2">&#34;pkg&#34;</span>: <span style="color:#2aa198">&#34;github.com/budougumi0617/simple-json-api-by-chi/vendor/github.com/go-chi/chi/middleware&#34;</span>,
+        <span style="color:#268bd2">&#34;func&#34;</span>: <span style="color:#2aa198">&#34;Logger&#34;</span>,
+        <span style="color:#268bd2">&#34;comment&#34;</span>: <span style="color:#2aa198">&#34;Logger is a mi...ware pkg.\n&#34;</span>,
+        <span style="color:#268bd2">&#34;file&#34;</span>: <span style="color:#2aa198">&#34;github.com/budougumi0617/simple-json-api-by-chi/vendor/github.com/go-chi/chi/middleware/logger.go&#34;</span>,
+        <span style="color:#268bd2">&#34;line&#34;</span>: <span style="color:#2aa198">30</span>
       }
     ],
-    <span style="font-weight:bold">&#34;routes&#34;</span>: {
-      <span style="font-weight:bold">&#34;/*&#34;</span>: {
-        <span style="font-weight:bold">&#34;handlers&#34;</span>: {
-          <span style="font-weight:bold">&#34;*&#34;</span>: {
-            <span style="font-weight:bold">&#34;middlewares&#34;</span>: [],
-            <span style="font-weight:bold">&#34;method&#34;</span>: <span style="color:#0ff;font-weight:bold">&#34;*&#34;</span>,
-            <span style="font-weight:bold">&#34;pkg&#34;</span>: <span style="color:#0ff;font-weight:bold">&#34;&#34;</span>,
-            <span style="font-weight:bold">&#34;func&#34;</span>: <span style="color:#0ff;font-weight:bold">&#34;main.Index&#34;</span>,
-            <span style="font-weight:bold">&#34;comment&#34;</span>: <span style="color:#0ff;font-weight:bold">&#34;Index returns simple response.\n&#34;</span>,
-            <span style="font-weight:bold">&#34;file&#34;</span>: <span style="color:#0ff;font-weight:bold">&#34;github.com/budougumi0617/simple-json-api-by-chi/handler.go&#34;</span>,
-            <span style="font-weight:bold">&#34;line&#34;</span>: <span style="color:#ff0;font-weight:bold">16</span>
+    <span style="color:#268bd2">&#34;routes&#34;</span>: {
+      <span style="color:#268bd2">&#34;/*&#34;</span>: {
+        <span style="color:#268bd2">&#34;handlers&#34;</span>: {
+          <span style="color:#268bd2">&#34;*&#34;</span>: {
+            <span style="color:#268bd2">&#34;middlewares&#34;</span>: [],
+            <span style="color:#268bd2">&#34;method&#34;</span>: <span style="color:#2aa198">&#34;*&#34;</span>,
+            <span style="color:#268bd2">&#34;pkg&#34;</span>: <span style="color:#2aa198">&#34;&#34;</span>,
+            <span style="color:#268bd2">&#34;func&#34;</span>: <span style="color:#2aa198">&#34;main.Index&#34;</span>,
+            <span style="color:#268bd2">&#34;comment&#34;</span>: <span style="color:#2aa198">&#34;Index returns simple response.\n&#34;</span>,
+            <span style="color:#268bd2">&#34;file&#34;</span>: <span style="color:#2aa198">&#34;github.com/budougumi0617/simple-json-api-by-chi/handler.go&#34;</span>,
+            <span style="color:#268bd2">&#34;line&#34;</span>: <span style="color:#2aa198">16</span>
           }
         }
       },
-      <span style="font-weight:bold">&#34;/todos&#34;</span>: {
-        <span style="color:#f00">...</span></code></pre></td></tr></table>
-</div>
-</div>
+      <span style="color:#268bd2">&#34;/todos&#34;</span>: {
+        ...</code></pre></div>
 <p>vendorディレクトリに入っているmiddlewareを使った場合、pkgがそのままvendorのPATHになってしまっている。<br />
 （Markdownの場合はオプションでマッピングすることができる。）</p>
 

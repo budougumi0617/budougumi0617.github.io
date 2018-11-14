@@ -146,7 +146,7 @@ https://speakerdeck.com/budougumi0617/tour-of-testing-in-2018
 
 <header>
     <p class="meta">Aug 19, 2018
-         - 14 minute read 
+         - 13 minute read 
          - <a href="https://budougumi0617.github.io/2018/08/19/go-testing2018/#disqus_thread">Comments</a>
 
         
@@ -246,24 +246,12 @@ Goでテストを書くときは<code>testing</code>パッケージを使う。<
 この命名規則を守ることで<code>go build</code>のときは無視され、<code>go test</code>のときだけビルドされる。</p>
 
 <p>テストメソッドは<code>*testing.T</code>型を引数として、<code>TestXxx</code>という命名規則で書かれる。<code>Test</code>のあとの単語もキャメルケースで命名する必要がある。<code>TestSum</code>は実行されるが、<code>Testsum</code>は実行されない。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">6
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#fff;font-weight:bold">func</span> TestSum(t *testing.T) {
-	a, b, want := <span style="color:#ff0;font-weight:bold">1</span>, <span style="color:#ff0;font-weight:bold">2</span>, <span style="color:#ff0;font-weight:bold">3</span>
-	<span style="color:#fff;font-weight:bold">if</span> got := Sum(a, b); got != want {
-		t.Fatalf(<span style="color:#0ff;font-weight:bold">&#34;want = %d, got = %d&#34;</span>, want, got)
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> TestSum(t <span style="color:#719e07">*</span>testing.T) {
+	a, b, want <span style="color:#719e07">:=</span> <span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>, <span style="color:#2aa198">3</span>
+	<span style="color:#719e07">if</span> got <span style="color:#719e07">:=</span> Sum(a, b); got <span style="color:#719e07">!=</span> want {
+		t.Fatalf(<span style="color:#2aa198">&#34;want = %d, got = %d&#34;</span>, want, got)
 	}
-}</code></pre></td></tr></table>
-</div>
-</div>
+}</code></pre></div>
 <p>構造体メソッドのテストを書くときは<code>TestSturct_Method</code>という命名するのが望ましい(<code>Examples</code>を書くときとフォーマットを合わせるため)。</p>
 
 <h2 id="テストデータを用意する">テストデータを用意する</h2>
@@ -292,28 +280,14 @@ JSONやバイナリデータなどをテスト結果として用意するとき�
 <h2 id="パッケージを指定して実行する">パッケージを指定して実行する</h2>
 
 <p><code>go test</code>コマンドは以下のように実行できる。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">8
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#007f7f"># カレントパッケージのテストを実行する
-</span><span style="color:#007f7f"></span>$ go <span style="color:#fff;font-weight:bold">test</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># カレントパッケージのテストを実行する
+</span><span style="color:#586e75"></span>$ go <span style="color:#b58900">test</span>
 
-<span style="color:#007f7f"># パスで指定されたパッケージのテストを実行する(相対パス指定が可能)
-</span><span style="color:#007f7f"></span>$ go <span style="color:#fff;font-weight:bold">test</span> ./table
+<span style="color:#586e75"># パスで指定されたパッケージのテストを実行する(相対パス指定が可能)
+</span><span style="color:#586e75"></span>$ go <span style="color:#b58900">test</span> ./table
 
-<span style="color:#007f7f"># サブパッケージを含めたパスで指定されたパッケージ以下のテストを全て実行する
-</span><span style="color:#007f7f"></span>$ go <span style="color:#fff;font-weight:bold">test</span> ./...</code></pre></td></tr></table>
-</div>
-</div>
+<span style="color:#586e75"># サブパッケージを含めたパスで指定されたパッケージ以下のテストを全て実行する
+</span><span style="color:#586e75"></span>$ go <span style="color:#b58900">test</span> ./...</code></pre></div>
 <h2 id="go1-10から事前に-go-vet-コマンドが実行されている">Go1.10から事前に<code>go vet</code>コマンドが実行されている</h2>
 
 <p>Go1.10からは<code>go test</code>が実行される前に<code>go vet</code>が実行される。<br />
@@ -338,42 +312,21 @@ JSONやバイナリデータなどをテスト結果として用意するとき�
 <p>Go1.10から<code>go build</code>の結果がキャッシュされるように、<code>go test</code>の結果もキャッシュされる（つまり実行されない。特定のオプション時は除外）。<br />
 キャッシュを削除したいときは<code>go clean -testcache</code>コマンドでキャッシュを削除する。<br />
 キャッシュを使わずにテストを実行するだけならば<code>-count=1</code>オプションをつけて<code>go test</code>を実行する。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#007f7f"># t/parallel パッケージの結果だけキャッシュされている
-</span><span style="color:#007f7f"></span>$ go <span style="color:#fff;font-weight:bold">test</span> ./...
-ok  	github.com/budougumi0617/go-testing/t	<span style="color:#ff0;font-weight:bold">0</span>.009s
-ok  	github.com/budougumi0617/go-testing/t/parallel	(cached)
-ok  	github.com/budougumi0617/go-testing/t/table	<span style="color:#ff0;font-weight:bold">0</span>.009s
-<span style="color:#007f7f"># 全ての結果がキャッシュされている（つまり何も実行していない）
-</span><span style="color:#007f7f"></span>$ go <span style="color:#fff;font-weight:bold">test</span> ./...
-ok  	github.com/budougumi0617/go-testing/t	(cached)
-ok  	github.com/budougumi0617/go-testing/t/parallel	(cached)
-ok  	github.com/budougumi0617/go-testing/t/table	(cached)
-<span style="color:#007f7f"># キャッシュを使わずに全て実行する
-</span><span style="color:#007f7f"></span>$ go <span style="color:#fff;font-weight:bold">test</span> ./... -count=<span style="color:#ff0;font-weight:bold">1</span>
-ok  	github.com/budougumi0617/go-testing/t	<span style="color:#ff0;font-weight:bold">0</span>.011s
-ok  	github.com/budougumi0617/go-testing/t/parallel	<span style="color:#ff0;font-weight:bold">0</span>.011s
-ok  	github.com/budougumi0617/go-testing/t/table	<span style="color:#ff0;font-weight:bold">0</span>.010s</code></pre></td></tr></table>
-</div>
-</div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># t/parallel パッケージの結果だけキャッシュされている
+</span><span style="color:#586e75"></span>$ go <span style="color:#b58900">test</span> ./...
+ok  	github.com/budougumi0617/go-testing/t	<span style="color:#2aa198">0</span>.009s
+ok  	github.com/budougumi0617/go-testing/t/parallel	<span style="color:#719e07">(</span>cached<span style="color:#719e07">)</span>
+ok  	github.com/budougumi0617/go-testing/t/table	<span style="color:#2aa198">0</span>.009s
+<span style="color:#586e75"># 全ての結果がキャッシュされている（つまり何も実行していない）
+</span><span style="color:#586e75"></span>$ go <span style="color:#b58900">test</span> ./...
+ok  	github.com/budougumi0617/go-testing/t	<span style="color:#719e07">(</span>cached<span style="color:#719e07">)</span>
+ok  	github.com/budougumi0617/go-testing/t/parallel	<span style="color:#719e07">(</span>cached<span style="color:#719e07">)</span>
+ok  	github.com/budougumi0617/go-testing/t/table	<span style="color:#719e07">(</span>cached<span style="color:#719e07">)</span>
+<span style="color:#586e75"># キャッシュを使わずに全て実行する
+</span><span style="color:#586e75"></span>$ go <span style="color:#b58900">test</span> ./... -count<span style="color:#719e07">=</span><span style="color:#2aa198">1</span>
+ok  	github.com/budougumi0617/go-testing/t	<span style="color:#2aa198">0</span>.011s
+ok  	github.com/budougumi0617/go-testing/t/parallel	<span style="color:#2aa198">0</span>.011s
+ok  	github.com/budougumi0617/go-testing/t/table	<span style="color:#2aa198">0</span>.010s</code></pre></div>
 <ul>
 <li><p>How Go cache tests</p>
 
@@ -391,31 +344,15 @@ ok  	github.com/budougumi0617/go-testing/t/table	<span style="color:#ff0;font-we
 <h2 id="特定のテストファイルだけを実行する">特定のテストファイルだけを実行する</h2>
 
 <p>同じパッケージのメソッドを対象にした特定のテストファイルを明示的に指定してテストする場合は、テスト対象のファイルも引数に指定する。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#007f7f"># sum.goの中にテストするメソッドが含まれている
-</span><span style="color:#007f7f"></span>$ go <span style="color:#fff;font-weight:bold">test</span> sum_test.go sum.go</code></pre></td></tr></table>
-</div>
-</div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># sum.goの中にテストするメソッドが含まれている
+</span><span style="color:#586e75"></span>$ go <span style="color:#b58900">test</span> sum_test.go sum.go</code></pre></div>
 <p>後述する<code>package XXX_test</code>を使ったテストの外部パッケージ化をしているときは必然的に<code>import</code>しているのでテストファイルだけで実行できる。</p>
 
 <h2 id="特定のテストケースだけを実行する">特定のテストケースだけを実行する</h2>
 
 <p>特定のテストケースだけ実行する場合は<code>-run</code>オプションで指定することができる(正規表現可)。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#007f7f"># カレントパッケージ配下にある&#34;Minus&#34;というサブテスト(後述）だけを実行するとき
-</span><span style="color:#007f7f"></span>$ go <span style="color:#fff;font-weight:bold">test</span> ./... -v -run /Minus</code></pre></td></tr></table>
-</div>
-</div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># カレントパッケージ配下にある&#34;Minus&#34;というサブテスト(後述）だけを実行するとき
+</span><span style="color:#586e75"></span>$ go <span style="color:#b58900">test</span> ./... -v -run /Minus</code></pre></div>
 <h2 id="parallel-n-オプションで最大並行実行数を制御する"><code>-parallel n</code>オプションで最大並行実行数を制御する</h2>
 
 <p>後述する<code>T.Parallel()</code>メソッドが呼ばれているテストケースは並行に実行される。<br />
@@ -439,14 +376,7 @@ ok  	github.com/budougumi0617/go-testing/t/table	<span style="color:#ff0;font-we
 
 <p>Delveでテストのデバッグ実行をするときは以下のようにオプションを渡す。<br />
 普段<code>-run</code>と指定していても、正式なオプションは<code>-test.run</code>などだったりする。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ dlv <span style="color:#fff;font-weight:bold">test</span> -- -test.run TestCreateTempFile</code></pre></td></tr></table>
-</div>
-</div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ dlv <span style="color:#b58900">test</span> -- -test.run TestCreateTempFile</code></pre></div>
 <ul>
 <li><a href="/2018/04/08/debug-by-delve/">Goのデバッガ(Delve)のいろいろな起動のしかた</a></li>
 </ul>
@@ -455,22 +385,11 @@ ok  	github.com/budougumi0617/go-testing/t/table	<span style="color:#ff0;font-we
 
 <p>JUnit形式で結果を出力するとCIの機能でテスト結果を可視化してくれたりする。<br />
 CircleCIの場合は公式にやり方が書いてある。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">5
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">      - run:
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">      - run:
           name: Run unit tests
-          command: <span style="color:#0ff;font-weight:bold">|
-</span><span style="color:#0ff;font-weight:bold">            trap &#34;go-junit-report &lt;${TEST_RESULTS}/go-test.out &gt; ${TEST_RESULTS}/go-test-report.xml&#34; EXIT
-</span><span style="color:#0ff;font-weight:bold">            go test -v ./... | tee ${TEST_RESULTS}/go-test.out</span></code></pre></td></tr></table>
-</div>
-</div>
+          command: <span style="color:#2aa198">|
+</span><span style="color:#2aa198">            trap &#34;go-junit-report &lt;${TEST_RESULTS}/go-test.out &gt; ${TEST_RESULTS}/go-test-report.xml&#34; EXIT
+</span><span style="color:#2aa198">            go test -v ./... | tee ${TEST_RESULTS}/go-test.out</span></code></pre></div>
 <p>サンプルリポジトリでCircleCIを実行した結果はこちら</p>
 
 <ul>
@@ -536,104 +455,47 @@ CircleCIの場合は公式にやり方が書いてある。</p>
 サブメソッド内で同メソッドを呼ぶと、サブメソッド内でFailしても呼び出し元メソッドの情報が出力される。</p>
 
 <p>何もしないサブメソッドと、<code>TB.Helper()</code>メソッドの呼び出すサブメソッドを<code>helper_test.go</code>ファイルに記述し、</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#fff;font-weight:bold">package</span> helper_test
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> helper_test
 
-<span style="color:#fff;font-weight:bold">import</span> (
-	<span style="color:#0ff;font-weight:bold">&#34;testing&#34;</span>
+<span style="color:#719e07">import</span> (
+	<span style="color:#2aa198">&#34;testing&#34;</span>
 )
 
-<span style="color:#fff;font-weight:bold">func</span> errorf(tb testing.TB, want, got <span style="color:#fff;font-weight:bold">int</span>) {
-	tb.Errorf(<span style="color:#0ff;font-weight:bold">&#34;want = %d, got = %d&#34;</span>, want, got)
+<span style="color:#268bd2">func</span> errorf(tb testing.TB, want, got <span style="color:#dc322f">int</span>) {
+	tb.Errorf(<span style="color:#2aa198">&#34;want = %d, got = %d&#34;</span>, want, got)
 }
 
-<span style="color:#fff;font-weight:bold">func</span> errorfHelper(tb testing.TB, want, got <span style="color:#fff;font-weight:bold">int</span>) {
+<span style="color:#268bd2">func</span> errorfHelper(tb testing.TB, want, got <span style="color:#dc322f">int</span>) {
 	tb.Helper()
-	tb.Errorf(<span style="color:#0ff;font-weight:bold">&#34;want = %d, got = %d&#34;</span>, want, got)
-}</code></pre></td></tr></table>
-</div>
-</div>
+	tb.Errorf(<span style="color:#2aa198">&#34;want = %d, got = %d&#34;</span>, want, got)
+}</code></pre></div>
 <p>それぞれを<code>sample_test.go</code>ファイル内のテストケースから呼び出すと、</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">18
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#fff;font-weight:bold">package</span> helper_test
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> helper_test
 
-<span style="color:#fff;font-weight:bold">import</span> (
-	<span style="color:#0ff;font-weight:bold">&#34;testing&#34;</span>
+<span style="color:#719e07">import</span> (
+	<span style="color:#2aa198">&#34;testing&#34;</span>
 )
 
-<span style="color:#007f7f">// Sum returns two int values.
-</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">func</span> Sum(a, b <span style="color:#fff;font-weight:bold">int</span>) <span style="color:#fff;font-weight:bold">int</span> {
-	<span style="color:#fff;font-weight:bold">return</span> a + b
+<span style="color:#586e75">// Sum returns two int values.
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> Sum(a, b <span style="color:#dc322f">int</span>) <span style="color:#dc322f">int</span> {
+	<span style="color:#719e07">return</span> a <span style="color:#719e07">+</span> b
 }
 
-<span style="color:#fff;font-weight:bold">func</span> TestSum(t *testing.T) {
-	a, b, want := <span style="color:#ff0;font-weight:bold">1</span>, <span style="color:#ff0;font-weight:bold">2</span>, <span style="color:#ff0;font-weight:bold">4</span>
-	<span style="color:#fff;font-weight:bold">if</span> got := Sum(a, b); got != want {
+<span style="color:#268bd2">func</span> TestSum(t <span style="color:#719e07">*</span>testing.T) {
+	a, b, want <span style="color:#719e07">:=</span> <span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>, <span style="color:#2aa198">4</span>
+	<span style="color:#719e07">if</span> got <span style="color:#719e07">:=</span> Sum(a, b); got <span style="color:#719e07">!=</span> want {
 		errorf(t, want, got)
 		errorfHelper(t, want, got)
 	}
-}</code></pre></td></tr></table>
-</div>
-</div>
+}</code></pre></div>
 <p><code>TB.Helper()</code>メソッドを呼んだほうだけ呼び出し元の<code>sample_test.go</code>の情報を持ってエラーが出力される。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">7
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#fff;font-weight:bold">test</span>
---- FAIL: TestSum (<span style="color:#ff0;font-weight:bold">0</span>.00s)
-	helper_test.go:8: want = <span style="color:#ff0;font-weight:bold">4</span>, got = <span style="color:#ff0;font-weight:bold">3</span>
-	simple_test.go:16: want = <span style="color:#ff0;font-weight:bold">4</span>, got = <span style="color:#ff0;font-weight:bold">3</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span>
+--- FAIL: TestSum <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
+	helper_test.go:8: <span style="color:#268bd2">want</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">4</span>, <span style="color:#268bd2">got</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">3</span>
+	simple_test.go:16: <span style="color:#268bd2">want</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">4</span>, <span style="color:#268bd2">got</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">3</span>
 FAIL
-<span style="color:#fff;font-weight:bold">exit</span> status <span style="color:#ff0;font-weight:bold">1</span>
-FAIL	github.com/budougumi0617/go-testing/t/helper	<span style="color:#ff0;font-weight:bold">0</span>.010s</code></pre></td></tr></table>
-</div>
-</div>
+<span style="color:#b58900">exit</span> status <span style="color:#2aa198">1</span>
+FAIL	github.com/budougumi0617/go-testing/t/helper	<span style="color:#2aa198">0</span>.010s</code></pre></div>
 <h2 id="table-driven-test">Table Driven Test</h2>
 
 <p>Goではテーブルを使ってテストを書くことが推奨されている。</p>
@@ -642,40 +504,20 @@ FAIL	github.com/budougumi0617/go-testing/t/helper	<span style="color:#ff0;font-w
 <li>テーブルでテストを用意することで、テーブル内容を確認すれば評価済みの入出力セットをすぐ確認することができて見通しが良い。<br /></li>
 <li>また、バグが発見されたときはテーブルに「バグ発生時の入力とあるべき出力」を追加するだけでTDDがスタートできる。</li>
 </ul>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  <span style="color:#fff;font-weight:bold">func</span> TestSum(t *testing.T) {
-      tests := []<span style="color:#fff;font-weight:bold">struct</span> {
-          a, b, want <span style="color:#fff;font-weight:bold">int</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  <span style="color:#268bd2">func</span> TestSum(t <span style="color:#719e07">*</span>testing.T) {
+      tests <span style="color:#719e07">:=</span> []<span style="color:#268bd2">struct</span> {
+          a, b, want <span style="color:#dc322f">int</span>
       }{
-          {<span style="color:#ff0;font-weight:bold">0</span>, <span style="color:#ff0;font-weight:bold">1</span>, <span style="color:#ff0;font-weight:bold">1</span>},
-          {-<span style="color:#ff0;font-weight:bold">1</span>, -<span style="color:#ff0;font-weight:bold">1</span>, -<span style="color:#ff0;font-weight:bold">2</span>},
-          {-<span style="color:#ff0;font-weight:bold">3</span>, <span style="color:#ff0;font-weight:bold">2</span>, -<span style="color:#ff0;font-weight:bold">1</span>},
+          {<span style="color:#2aa198">0</span>, <span style="color:#2aa198">1</span>, <span style="color:#2aa198">1</span>},
+          {<span style="color:#719e07">-</span><span style="color:#2aa198">1</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">1</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">2</span>},
+          {<span style="color:#719e07">-</span><span style="color:#2aa198">3</span>, <span style="color:#2aa198">2</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">1</span>},
       }
-      <span style="color:#fff;font-weight:bold">for</span> _, tt := <span style="color:#fff;font-weight:bold">range</span> tests {
-          <span style="color:#fff;font-weight:bold">if</span> got := parallel.Sum(tt.a, tt.b); got != tt.want {
-              t.Fatalf(<span style="color:#0ff;font-weight:bold">&#34;want = %d, got = %d&#34;</span>, tt.want, got)
+      <span style="color:#719e07">for</span> _, tt <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> tests {
+          <span style="color:#719e07">if</span> got <span style="color:#719e07">:=</span> parallel.Sum(tt.a, tt.b); got <span style="color:#719e07">!=</span> tt.want {
+              t.Fatalf(<span style="color:#2aa198">&#34;want = %d, got = %d&#34;</span>, tt.want, got)
           }
       }
-  }</code></pre></td></tr></table>
-</div>
-</div>
+  }</code></pre></div>
 <h2 id="for-tt-range-tests"><code>for _, tt := range tests</code></h2>
 
 <p>標準パッケージで確認すると、テーブル駆動テストをするときは<code>tests</code>で宣言してループを<code>tt</code>で流していることが多いので、それに従って書くことが多い。(<code>for _, test := range tests</code>も多いが、<code>test</code>は長いので<code>tt</code>を選ぶ。)</p>
@@ -683,46 +525,23 @@ FAIL	github.com/budougumi0617/go-testing/t/helper	<span style="color:#ff0;font-w
 <h2 id="sub-test-testing-t-run">Sub Test(<code>testing.T.Run</code>)</h2>
 
 <p><code>testing.T.Run</code>メソッドを使うとサブテスト書くことができる。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  <span style="color:#fff;font-weight:bold">func</span> TestSum(t *testing.T) {
-      tests := []<span style="color:#fff;font-weight:bold">struct</span> {
-          name       <span style="color:#fff;font-weight:bold">string</span>
-          a, b, want <span style="color:#fff;font-weight:bold">int</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  <span style="color:#268bd2">func</span> TestSum(t <span style="color:#719e07">*</span>testing.T) {
+      tests <span style="color:#719e07">:=</span> []<span style="color:#268bd2">struct</span> {
+          name       <span style="color:#dc322f">string</span>
+          a, b, want <span style="color:#dc322f">int</span>
       }{
-          {<span style="color:#0ff;font-weight:bold">&#34;Simple&#34;</span>, <span style="color:#ff0;font-weight:bold">0</span>, <span style="color:#ff0;font-weight:bold">1</span>, <span style="color:#ff0;font-weight:bold">1</span>},
-          {<span style="color:#0ff;font-weight:bold">&#34;Minus&#34;</span>, -<span style="color:#ff0;font-weight:bold">1</span>, -<span style="color:#ff0;font-weight:bold">1</span>, -<span style="color:#ff0;font-weight:bold">2</span>},
-          {<span style="color:#0ff;font-weight:bold">&#34;Both&#34;</span>, -<span style="color:#ff0;font-weight:bold">3</span>, <span style="color:#ff0;font-weight:bold">2</span>, -<span style="color:#ff0;font-weight:bold">1</span>},
+          {<span style="color:#2aa198">&#34;Simple&#34;</span>, <span style="color:#2aa198">0</span>, <span style="color:#2aa198">1</span>, <span style="color:#2aa198">1</span>},
+          {<span style="color:#2aa198">&#34;Minus&#34;</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">1</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">1</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">2</span>},
+          {<span style="color:#2aa198">&#34;Both&#34;</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">3</span>, <span style="color:#2aa198">2</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">1</span>},
       }
-      <span style="color:#fff;font-weight:bold">for</span> _, tt := <span style="color:#fff;font-weight:bold">range</span> tests {
-          t.Run(tt.name, <span style="color:#fff;font-weight:bold">func</span>(t *testing.T) {
-              <span style="color:#fff;font-weight:bold">if</span> got := parallel.Sum(tt.a, tt.b); got != tt.want {
-                  t.Fatalf(<span style="color:#0ff;font-weight:bold">&#34;want = %d, got = %d&#34;</span>, tt.want, got)
+      <span style="color:#719e07">for</span> _, tt <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> tests {
+          t.Run(tt.name, <span style="color:#268bd2">func</span>(t <span style="color:#719e07">*</span>testing.T) {
+              <span style="color:#719e07">if</span> got <span style="color:#719e07">:=</span> parallel.Sum(tt.a, tt.b); got <span style="color:#719e07">!=</span> tt.want {
+                  t.Fatalf(<span style="color:#2aa198">&#34;want = %d, got = %d&#34;</span>, tt.want, got)
               }
           })
       }
-  }</code></pre></td></tr></table>
-</div>
-</div>
+  }</code></pre></div>
 <p>テーブルテストとサブテストを組み合わせることで以下の効果が得られる。</p>
 
 <ul>
@@ -733,98 +552,44 @@ FAIL	github.com/budougumi0617/go-testing/t/helper	<span style="color:#ff0;font-w
 
 <p>サブテストの名前は<code>testing.T.Run</code>の第一引数に渡した文字列になる。スペースを含んだ文字列は<code>_</code>で置換されるので、使わないほうがよい。<br />
 「このテストケースでは何をテストしている（テストしたい）のか？」がわかりやすいようにtable要素で名前をつけたほうがテストコードの可読性が高い。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">tests := []<span style="color:#fff;font-weight:bold">struct</span> {
-  name <span style="color:#fff;font-weight:bold">string</span>
-	<span style="color:#007f7f">// ...
-</span><span style="color:#007f7f"></span>}{}
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">tests <span style="color:#719e07">:=</span> []<span style="color:#268bd2">struct</span> {
+  name <span style="color:#dc322f">string</span>
+	<span style="color:#586e75">// ...
+</span><span style="color:#586e75"></span>}{}
 
-<span style="color:#fff;font-weight:bold">for</span> _, tt := <span style="color:#fff;font-weight:bold">range</span> tests {
-	t.Run(tt.name, <span style="color:#fff;font-weight:bold">func</span>(t *testing.T) {
-		<span style="color:#007f7f">// ...
-</span><span style="color:#007f7f"></span>	})
-}</code></pre></td></tr></table>
-</div>
-</div>
+<span style="color:#719e07">for</span> _, tt <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> tests {
+	t.Run(tt.name, <span style="color:#268bd2">func</span>(t <span style="color:#719e07">*</span>testing.T) {
+		<span style="color:#586e75">// ...
+</span><span style="color:#586e75"></span>	})
+}</code></pre></div>
 <p>冒頭の<code>TestSum</code>を実行すると以下のようになる。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#fff;font-weight:bold">test</span> ./... -v
-=== RUN   TestSum
-=== RUN   TestSum/Simple
-=== PAUSE TestSum/Simple
-=== RUN   TestSum/Minus
-=== PAUSE TestSum/Minus
-=== RUN   TestSum/Both
-=== PAUSE TestSum/Both
-=== CONT  TestSum/Simple
-=== CONT  TestSum/Both
-=== CONT  TestSum/Minus
---- PASS: TestSum (<span style="color:#ff0;font-weight:bold">0</span>.00s)
-    --- PASS: TestSum/Simple (<span style="color:#ff0;font-weight:bold">0</span>.00s)
-    --- PASS: TestSum/Both (<span style="color:#ff0;font-weight:bold">0</span>.00s)
-    --- PASS: TestSum/Minus (<span style="color:#ff0;font-weight:bold">0</span>.00s)
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> ./... -v
+<span style="color:#719e07">===</span> RUN   <span style="color:#268bd2">TestSum</span>
+<span style="color:#719e07">===</span> RUN   TestSum/Simple
+<span style="color:#719e07">===</span> PAUSE TestSum/Simple
+<span style="color:#719e07">===</span> RUN   TestSum/Minus
+<span style="color:#719e07">===</span> PAUSE TestSum/Minus
+<span style="color:#719e07">===</span> RUN   TestSum/Both
+<span style="color:#719e07">===</span> PAUSE TestSum/Both
+<span style="color:#719e07">===</span> CONT  TestSum/Simple
+<span style="color:#719e07">===</span> CONT  TestSum/Both
+<span style="color:#719e07">===</span> CONT  TestSum/Minus
+--- PASS: TestSum <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
+    --- PASS: TestSum/Simple <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
+    --- PASS: TestSum/Both <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
+    --- PASS: TestSum/Minus <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
 PASS
-ok  	github.com/budougumi0617/go-testing/t/parallel	<span style="color:#ff0;font-weight:bold">0</span>.009s</code></pre></td></tr></table>
-</div>
-</div>
+ok  	github.com/budougumi0617/go-testing/t/parallel	<span style="color:#2aa198">0</span>.009s</code></pre></div>
 <p><code>-run</code>オプションで特定のサブテストだけ実行する例は以下になる。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">9
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#fff;font-weight:bold">test</span> ./... -v -run Sum/Both
-=== RUN   TestSum
-=== RUN   TestSum/Both
-=== PAUSE TestSum/Both
-=== CONT  TestSum/Both
---- PASS: TestSum (<span style="color:#ff0;font-weight:bold">0</span>.00s)
-    --- PASS: TestSum/Both (<span style="color:#ff0;font-weight:bold">0</span>.00s)
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> ./... -v -run Sum/Both
+<span style="color:#719e07">===</span> RUN   <span style="color:#268bd2">TestSum</span>
+<span style="color:#719e07">===</span> RUN   TestSum/Both
+<span style="color:#719e07">===</span> PAUSE TestSum/Both
+<span style="color:#719e07">===</span> CONT  TestSum/Both
+--- PASS: TestSum <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
+    --- PASS: TestSum/Both <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
 PASS
-ok  	github.com/budougumi0617/go-testing/t/parallel	<span style="color:#ff0;font-weight:bold">0</span>.011s</code></pre></td></tr></table>
-</div>
-</div>
+ok  	github.com/budougumi0617/go-testing/t/parallel	<span style="color:#2aa198">0</span>.011s</code></pre></div>
 <h2 id="wantとgot">wantとgot</h2>
 
 <p><code>expect</code>や<code>actual</code>は単語が長いので、<code>want</code>と<code>got</code>で書くほうがベターに思える。</p>
@@ -847,99 +612,49 @@ ok  	github.com/budougumi0617/go-testing/t/parallel	<span style="color:#ff0;font
 </ul>
 
 <p>その場合はテストケース内でエラーの有無をフラグとして検証条件を増やす。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">18
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">19
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">20
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">21
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">22
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">23
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">24
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">25
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">26
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">27
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  tests := []<span style="color:#fff;font-weight:bold">struct</span> {
-      name      <span style="color:#fff;font-weight:bold">string</span>
-      in        <span style="color:#fff;font-weight:bold">int</span>
-      want      <span style="color:#fff;font-weight:bold">int</span>
-      wantError <span style="color:#fff;font-weight:bold">bool</span>
-      err       <span style="color:#fff;font-weight:bold">error</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  tests <span style="color:#719e07">:=</span> []<span style="color:#268bd2">struct</span> {
+      name      <span style="color:#dc322f">string</span>
+      in        <span style="color:#dc322f">int</span>
+      want      <span style="color:#dc322f">int</span>
+      wantError <span style="color:#dc322f">bool</span>
+      err       <span style="color:#dc322f">error</span>
   }{
-      {<span style="color:#0ff;font-weight:bold">&#34;Basic&#34;</span>, <span style="color:#ff0;font-weight:bold">4</span>, <span style="color:#ff0;font-weight:bold">4</span>, <span style="color:#fff;font-weight:bold">false</span>, <span style="color:#fff;font-weight:bold">nil</span>},
-      {<span style="color:#0ff;font-weight:bold">&#34;HasError&#34;</span>, -<span style="color:#ff0;font-weight:bold">1</span>, <span style="color:#ff0;font-weight:bold">0</span>, <span style="color:#fff;font-weight:bold">true</span>, errors.New(<span style="color:#0ff;font-weight:bold">&#34;Negative value&#34;</span>)},
+      {<span style="color:#2aa198">&#34;Basic&#34;</span>, <span style="color:#2aa198">4</span>, <span style="color:#2aa198">4</span>, <span style="color:#cb4b16">false</span>, <span style="color:#cb4b16">nil</span>},
+      {<span style="color:#2aa198">&#34;HasError&#34;</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">1</span>, <span style="color:#2aa198">0</span>, <span style="color:#cb4b16">true</span>, errors.New(<span style="color:#2aa198">&#34;Negative value&#34;</span>)},
   }
-  <span style="color:#fff;font-weight:bold">for</span> _, tt := <span style="color:#fff;font-weight:bold">range</span> tests {
-      t.Run(tt.name, <span style="color:#fff;font-weight:bold">func</span>(t *testing.T) {
-          pt := we.PositiveInt(tt.in)
-          got, err := pt.Value()
-          <span style="color:#fff;font-weight:bold">if</span> !tt.wantError &amp;&amp; err != <span style="color:#fff;font-weight:bold">nil</span> {
-              t.Fatalf(<span style="color:#0ff;font-weight:bold">&#34;want no err, but has error %#v&#34;</span>, err)
+  <span style="color:#719e07">for</span> _, tt <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> tests {
+      t.Run(tt.name, <span style="color:#268bd2">func</span>(t <span style="color:#719e07">*</span>testing.T) {
+          pt <span style="color:#719e07">:=</span> we.PositiveInt(tt.in)
+          got, err <span style="color:#719e07">:=</span> pt.Value()
+          <span style="color:#719e07">if</span> !tt.wantError <span style="color:#719e07">&amp;&amp;</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+              t.Fatalf(<span style="color:#2aa198">&#34;want no err, but has error %#v&#34;</span>, err)
           }
 
-          <span style="color:#fff;font-weight:bold">if</span> tt.wantError &amp;&amp; !reflect.DeepEqual(err, tt.err) {
-              t.Fatalf(<span style="color:#0ff;font-weight:bold">&#34;want %#v, but %#v&#34;</span>, tt.err, err)
+          <span style="color:#719e07">if</span> tt.wantError <span style="color:#719e07">&amp;&amp;</span> !reflect.DeepEqual(err, tt.err) {
+              t.Fatalf(<span style="color:#2aa198">&#34;want %#v, but %#v&#34;</span>, tt.err, err)
           }
 
-          <span style="color:#fff;font-weight:bold">if</span> !tt.wantError &amp;&amp; got != tt.want {
-              t.Fatalf(<span style="color:#0ff;font-weight:bold">&#34;want %q, but %q&#34;</span>, tt.want, got)
+          <span style="color:#719e07">if</span> !tt.wantError <span style="color:#719e07">&amp;&amp;</span> got <span style="color:#719e07">!=</span> tt.want {
+              t.Fatalf(<span style="color:#2aa198">&#34;want %q, but %q&#34;</span>, tt.want, got)
           }
       })
-  }</code></pre></td></tr></table>
-</div>
-</div>
+  }</code></pre></div>
 <p>エラーの有無だけではなく期待するエラーかも確認するのが望ましい。</p>
 
 <h2 id="errorfのテンプレート文字列">Errorfのテンプレート文字列</h2>
 
 <p>文字列を出力するときは<code>%#v</code>を使ったほうが良い（ときもある）。微妙に空白が混ざっていたとしても可視化できる。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#fff;font-weight:bold">package</span> main
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
-<span style="color:#fff;font-weight:bold">import</span> (
-	<span style="color:#0ff;font-weight:bold">&#34;fmt&#34;</span>
+<span style="color:#719e07">import</span> (
+	<span style="color:#2aa198">&#34;fmt&#34;</span>
 )
 
-<span style="color:#fff;font-weight:bold">func</span> main() {
-	spaces := <span style="color:#0ff;font-weight:bold">&#34;      \n &#34;</span>
-	fmt.Printf(<span style="color:#0ff;font-weight:bold">&#34;spaces = %v\n&#34;</span>, spaces)  <span style="color:#007f7f">// spaces =
-</span><span style="color:#007f7f"></span>	fmt.Printf(<span style="color:#0ff;font-weight:bold">&#34;spaces = %#v\n&#34;</span>, spaces) <span style="color:#007f7f">// spaces = &#34;      \n &#34;
-</span><span style="color:#007f7f"></span>}</code></pre></td></tr></table>
-</div>
-</div>
+<span style="color:#268bd2">func</span> main() {
+	spaces <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;      \n &#34;</span>
+	fmt.Printf(<span style="color:#2aa198">&#34;spaces = %v\n&#34;</span>, spaces)  <span style="color:#586e75">// spaces =
+</span><span style="color:#586e75"></span>	fmt.Printf(<span style="color:#2aa198">&#34;spaces = %#v\n&#34;</span>, spaces) <span style="color:#586e75">// spaces = &#34;      \n &#34;
+</span><span style="color:#586e75"></span>}</code></pre></div>
 <ul>
 <li><a href="https://play.golang.org/p/WmNrzxzq3aG">https://play.golang.org/p/WmNrzxzq3aG</a></li>
 </ul>
@@ -949,30 +664,15 @@ ok  	github.com/budougumi0617/go-testing/t/parallel	<span style="color:#ff0;font
 <p>Goのテストは通常逐次的に実行される。並行実行オプションをつけて実行してもそれぞれのテストケースは逐次的にされる。<br />
 テストケースの中で<code>T.Parallel()</code>メソッドが呼ばれているテストケースのみが並行に実行される。<br />
 各サブテストを並行実行したい場合は、<code>testing.T.Run()</code>メソッドで呼ぶ<code>func(*testign.T)</code>メソッド内で呼ぶ。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">9
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  <span style="color:#fff;font-weight:bold">for</span> _, tt := <span style="color:#fff;font-weight:bold">range</span> tests {
-      tt := tt <span style="color:#007f7f">// Don&#39;t forget when parallel test
-</span><span style="color:#007f7f"></span>      t.Run(tt.name, <span style="color:#fff;font-weight:bold">func</span>(t *testing.T) {
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  <span style="color:#719e07">for</span> _, tt <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> tests {
+      tt <span style="color:#719e07">:=</span> tt <span style="color:#586e75">// Don&#39;t forget when parallel test
+</span><span style="color:#586e75"></span>      t.Run(tt.name, <span style="color:#268bd2">func</span>(t <span style="color:#719e07">*</span>testing.T) {
           t.Parallel()
-          <span style="color:#fff;font-weight:bold">if</span> got := Sum(tt.a, tt.b); got != tt.want {
-              t.Fatalf(<span style="color:#0ff;font-weight:bold">&#34;want = %d, got = %d&#34;</span>, tt.want, got)
+          <span style="color:#719e07">if</span> got <span style="color:#719e07">:=</span> Sum(tt.a, tt.b); got <span style="color:#719e07">!=</span> tt.want {
+              t.Fatalf(<span style="color:#2aa198">&#34;want = %d, got = %d&#34;</span>, tt.want, got)
           }
       })
-  }</code></pre></td></tr></table>
-</div>
-</div>
+  }</code></pre></div>
 <p>ループ変数の<code>tt</code>をローカル変数で補足するのを忘れないこと。</p>
 
 <ul>
@@ -987,88 +687,38 @@ ok  	github.com/budougumi0617/go-testing/t/parallel	<span style="color:#ff0;font
 
 <p>パッケージのテストを実行する前後で任意の処理を実行してからテストを行いたいときは<code>TestMain(m *testing.M)</code>を宣言しておく。<br />
 <code>m.Run()</code>前後に処理を記述することで、そのパッケージのテストの実行前後に処理を割り込ませることができる。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#fff;font-weight:bold">func</span> TestMain(m *testing.M) {
-	<span style="color:#fff;font-weight:bold">func</span>() {
-		fmt.Println(<span style="color:#0ff;font-weight:bold">&#34;Prepare test&#34;</span>)
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> TestMain(m <span style="color:#719e07">*</span>testing.M) {
+	<span style="color:#268bd2">func</span>() {
+		fmt.Println(<span style="color:#2aa198">&#34;Prepare test&#34;</span>)
 	}()
-	ret := m.Run()
-	<span style="color:#fff;font-weight:bold">func</span>() {
-		fmt.Println(<span style="color:#0ff;font-weight:bold">&#34;Teardown test&#34;</span>)
+	ret <span style="color:#719e07">:=</span> m.Run()
+	<span style="color:#268bd2">func</span>() {
+		fmt.Println(<span style="color:#2aa198">&#34;Teardown test&#34;</span>)
 	}()
 	os.Exit(ret)
-}</code></pre></td></tr></table>
-</div>
-</div><div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">5
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#fff;font-weight:bold">test</span>
-Prepare <span style="color:#fff;font-weight:bold">test</span>
+}</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span>
+Prepare <span style="color:#b58900">test</span>
 PASS
-Teardown <span style="color:#fff;font-weight:bold">test</span>
-ok  	github.com/budougumi0617/go-testing/t/testmain	<span style="color:#ff0;font-weight:bold">0</span>.009s</code></pre></td></tr></table>
-</div>
-</div>
+Teardown <span style="color:#b58900">test</span>
+ok  	github.com/budougumi0617/go-testing/t/testmain	<span style="color:#2aa198">0</span>.009s</code></pre></div>
 <p>当然(?)だが、特定のテストファイルのみを引数に実行した場合は<code>TestMain</code>は実行は実行されない。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">14
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">15
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">16
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">17
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#007f7f"># TestMainはmain_test.goに含まれている
-</span><span style="color:#007f7f"></span>$ go <span style="color:#fff;font-weight:bold">test</span> sumsub_test.go -v
-=== RUN   TestSum
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># TestMainはmain_test.goに含まれている
+</span><span style="color:#586e75"></span>$ go <span style="color:#b58900">test</span> sumsub_test.go -v
+<span style="color:#719e07">===</span> RUN   TestSum
 ...
-    --- PASS: TestSub/Both (<span style="color:#ff0;font-weight:bold">0</span>.00s)
+    --- PASS: TestSub/Both <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
 PASS
-ok  	command-line-arguments	<span style="color:#ff0;font-weight:bold">0</span>.011s
+ok  	command-line-arguments	<span style="color:#2aa198">0</span>.011s
 
-<span style="color:#007f7f"># TestMainを含んだmain_test.goと一緒に実行する
-</span><span style="color:#007f7f"></span>go <span style="color:#fff;font-weight:bold">test</span> sumsub_test.go main_test.go -v
-Prepare <span style="color:#fff;font-weight:bold">test</span>
-=== RUN   TestSum
+<span style="color:#586e75"># TestMainを含んだmain_test.goと一緒に実行する
+</span><span style="color:#586e75"></span>go <span style="color:#b58900">test</span> sumsub_test.go main_test.go -v
+Prepare <span style="color:#b58900">test</span>
+<span style="color:#719e07">===</span> RUN   TestSum
 ...
-    --- PASS: TestSub/Both (<span style="color:#ff0;font-weight:bold">0</span>.00s)
+    --- PASS: TestSub/Both <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
 PASS
-Teardown <span style="color:#fff;font-weight:bold">test</span>
-ok  	command-line-arguments	<span style="color:#ff0;font-weight:bold">0</span>.009s</code></pre></td></tr></table>
-</div>
-</div>
+Teardown <span style="color:#b58900">test</span>
+ok  	command-line-arguments	<span style="color:#2aa198">0</span>.009s</code></pre></div>
 <ul>
 <li>Goでテストを書く(テストの実装パターン集)  - パッケージ全体でSetup/Teardownを使う
 
@@ -1083,154 +733,67 @@ ok  	command-line-arguments	<span style="color:#ff0;font-weight:bold">0</span>.0
 テストファイルごとに適切なビルドタグを指定しておけば、ビルドタグが有効なときだけ実行されるテストケースを宣言しておくことができる。</p>
 
 <p><code>-tags integration</code>オプションが付与されたときだけ有効なテストファイルを作成し、</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#007f7f">// +build integration
-</span><span style="color:#007f7f"></span>
-<span style="color:#fff;font-weight:bold">package</span> tags_test
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// +build integration
+</span><span style="color:#586e75"></span>
+<span style="color:#719e07">package</span> tags_test
 
-<span style="color:#fff;font-weight:bold">import</span> (
-	<span style="color:#0ff;font-weight:bold">&#34;testing&#34;</span>
+<span style="color:#719e07">import</span> (
+	<span style="color:#2aa198">&#34;testing&#34;</span>
 
-	<span style="color:#0ff;font-weight:bold">&#34;github.com/budougumi0617/go-testing/t/tags&#34;</span>
+	<span style="color:#2aa198">&#34;github.com/budougumi0617/go-testing/t/tags&#34;</span>
 )
 
-<span style="color:#fff;font-weight:bold">func</span> TestSub(t *testing.T) {
-	<span style="color:#007f7f">// some testing...
-</span><span style="color:#007f7f"></span>}</code></pre></td></tr></table>
-</div>
-</div>
+<span style="color:#268bd2">func</span> TestSub(t <span style="color:#719e07">*</span>testing.T) {
+	<span style="color:#586e75">// some testing...
+</span><span style="color:#586e75"></span>}</code></pre></div>
 <p>通常のファイルは<code>-tags integration</code>オプション有効時に無効にしておけば、</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">12
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">13
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#007f7f">// +build !integration
-</span><span style="color:#007f7f"></span>
-<span style="color:#fff;font-weight:bold">package</span> tags_test
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// +build !integration
+</span><span style="color:#586e75"></span>
+<span style="color:#719e07">package</span> tags_test
 
-<span style="color:#fff;font-weight:bold">import</span> (
-	<span style="color:#0ff;font-weight:bold">&#34;testing&#34;</span>
+<span style="color:#719e07">import</span> (
+	<span style="color:#2aa198">&#34;testing&#34;</span>
 
-	<span style="color:#0ff;font-weight:bold">&#34;github.com/budougumi0617/go-testing/t/tags&#34;</span>
+	<span style="color:#2aa198">&#34;github.com/budougumi0617/go-testing/t/tags&#34;</span>
 )
 
-<span style="color:#fff;font-weight:bold">func</span> TestSum(t *testing.T) {
-	<span style="color:#007f7f">// some testing...
-</span><span style="color:#007f7f"></span>}</code></pre></td></tr></table>
-</div>
-</div>
+<span style="color:#268bd2">func</span> TestSum(t <span style="color:#719e07">*</span>testing.T) {
+	<span style="color:#586e75">// some testing...
+</span><span style="color:#586e75"></span>}</code></pre></div>
 <p>複数目的のテストを分類して実行できる。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">11
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#fff;font-weight:bold">test</span> -v
-=== RUN   TestSum
---- PASS: TestSum (<span style="color:#ff0;font-weight:bold">0</span>.00s)
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> -v
+<span style="color:#719e07">===</span> RUN   TestSum
+--- PASS: TestSum <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
 PASS
-ok  	github.com/budougumi0617/go-testing/t/tags	<span style="color:#ff0;font-weight:bold">0</span>.009s
+ok  	github.com/budougumi0617/go-testing/t/tags	<span style="color:#2aa198">0</span>.009s
 
-$ go <span style="color:#fff;font-weight:bold">test</span> -v -tags integration
-=== RUN   TestSub
---- PASS: TestSub (<span style="color:#ff0;font-weight:bold">0</span>.00s)
+$ go <span style="color:#b58900">test</span> -v -tags <span style="color:#268bd2">integration</span>
+<span style="color:#719e07">===</span> RUN   TestSub
+--- PASS: TestSub <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
 PASS
-ok  	github.com/budougumi0617/go-testing/t/tags	<span style="color:#ff0;font-weight:bold">0</span>.009s</code></pre></td></tr></table>
-</div>
-</div>
+ok  	github.com/budougumi0617/go-testing/t/tags	<span style="color:#2aa198">0</span>.009s</code></pre></div>
 <h1 id="テストカバレッジを集計する">テストカバレッジを集計する</h1>
 
 <p>Goは標準機能でテストカバレッジを計測することができる。<br />
 Go1.10からは複数パッケージのカバレッジも簡単に取得できるようになった。</p>
 
 <p>単純にコマンドライン上に計測結果を出力したいならば<code>go test</code>コマンドに<code>-cover</code>オプションをつけて実行すればよい。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#fff;font-weight:bold">test</span> -cover ./...</code></pre></td></tr></table>
-</div>
-</div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> -cover ./...</code></pre></div>
 <h2 id="htmlにカバレッジを保存する">HTMLにカバレッジを保存する</h2>
 
 <p><code>go tool</code>と組み合わせるとカバレッジの計測結果を
 <code>-covermode=count</code>(<code>atomic</code>)オプションをつけておくと各コード行の実行回数も計測できる。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#fff;font-weight:bold">test</span> ./... -covermode=count -coverprofile=c.out
-$ go tool cover -html=c.out -o coverage.html</code></pre></td></tr></table>
-</div>
-</div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> ./... -covermode<span style="color:#719e07">=</span>count -coverprofile<span style="color:#719e07">=</span>c.out
+$ go tool cover -html<span style="color:#719e07">=</span>c.out -o coverage.html</code></pre></div>
 <h2 id="ciと組み合わせる">CIと組み合わせる</h2>
 
 <p>たとえばCircle CIならばCI中の成果物を保存しておく設定があるので、これで前述のHTMLファイルを保存しておく。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">3
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml">- store_artifacts:
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml">- store_artifacts:
     path: /code/test-results
-    destination: prefix</code></pre></td></tr></table>
-</div>
-</div>
+    destination: prefix</code></pre></div>
 <p>Codecovと連携するならばCI中で以下のようにスクリプトを呼ぶだけで結果を送信できる。</p>
-<div class="highlight"><div style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#727272">2
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#fff;font-weight:bold">test</span> ./... -coverprofile=coverage.txt -covermode=count
-$ bash &lt;(curl -s https://codecov.io/bash)</code></pre></td></tr></table>
-</div>
-</div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> ./... -coverprofile<span style="color:#719e07">=</span>coverage.txt -covermode<span style="color:#719e07">=</span>count
+$ bash &lt;<span style="color:#719e07">(</span>curl -s https://codecov.io/bash<span style="color:#719e07">)</span></code></pre></div>
 <p>サンプルリポジトリを実行したCodecovの結果はこちら。</p>
 
 <ul>
