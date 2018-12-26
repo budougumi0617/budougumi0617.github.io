@@ -207,24 +207,21 @@
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#586e75">// Select and sync to appropriate version of the repository.
 </span><span style="color:#586e75"></span>	tags, err <span style="color:#719e07">:=</span> vcs.tags(root)</code></pre></div>
 <p><a href="https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/vcs.go#L472-L486">https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/vcs.go#L472-L486</a></p>
-
-<pre><code>// tags returns the list of available tags for the repo in dir.
-func (v *vcsCmd) tags(dir string) ([]string, error) {
-	var tags []string
-	for _, tc := range v.tagCmd {
-		out, err := v.runOutput(dir, tc.cmd)
-		if err != nil {
-			return nil, err
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// tags returns the list of available tags for the repo in dir.
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (v <span style="color:#719e07">*</span>vcsCmd) tags(dir <span style="color:#dc322f">string</span>) ([]<span style="color:#dc322f">string</span>, <span style="color:#dc322f">error</span>) {
+	<span style="color:#268bd2">var</span> tags []<span style="color:#dc322f">string</span>
+	<span style="color:#719e07">for</span> _, tc <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> v.tagCmd {
+		out, err <span style="color:#719e07">:=</span> v.runOutput(dir, tc.cmd)
+		<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+			<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>, err
 		}
-		re := regexp.MustCompile(`(?m-s)` + tc.pattern)
-		for _, m := range re.FindAllStringSubmatch(string(out), -1) {
-			tags = append(tags, m[1])
+		re <span style="color:#719e07">:=</span> regexp.MustCompile(<span style="color:#2aa198">`(?m-s)`</span> <span style="color:#719e07">+</span> tc.pattern)
+		<span style="color:#719e07">for</span> _, m <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> re.FindAllStringSubmatch(<span style="color:#b58900">string</span>(out), <span style="color:#719e07">-</span><span style="color:#2aa198">1</span>) {
+			tags = <span style="color:#b58900">append</span>(tags, m[<span style="color:#2aa198">1</span>])
 		}
 	}
-	return tags, nil
-}
-</code></pre>
-
+	<span style="color:#719e07">return</span> tags, <span style="color:#cb4b16">nil</span>
+}</code></pre></div>
 <p><code>v.tagCmd</code>のコマンドによって<code>tags</code>の一覧が取得されるが、<code>git</code>の場合は<code>git show-ref</code>コマンドで、このコマンドを使うと<code>tag</code>と<code>branch</code>の一覧が取得できる。</p>
 
 <p><a href="https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/vcs.go#L151-L155">https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/vcs.go#L151-L155</a></p>
@@ -248,10 +245,7 @@ cb6c6570b73a1c4d19cad94570ed277f7dae55ac refs/tags/go1.0.2
 <p>ここまでの一連の流れで、<code>tag</code>、<code>branch</code> の一覧の中に<code>go1</code>があった場合は、そこから<code>go get</code>される実装になっていることがわかった。</p>
 
 <p><a href="https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/get.go#L506">https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/get.go#L506</a></p>
-
-<pre><code>vcs.tagSync(root, selectTag(vers, tags))
-</code></pre>
-
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">vcs.tagSync(root, selectTag(vers, tags))</code></pre></div>
 <h1 id="終わりに">終わりに</h1>
 
 <p>コマンドの実装もコードで簡単に追えるのが<code>go</code>のいいところだなと改めて思った。<br />
@@ -385,6 +379,12 @@ cb6c6570b73a1c4d19cad94570ed277f7dae55ac refs/tags/go1.0.2
           
             
               <li class="post">
+                <a href="/2018/12/27/retrospective-2018/">2018年振り返り</a>
+              </li>
+            
+          
+            
+              <li class="post">
                 <a href="/2018/12/19/report-golangtokyo-20/">golang.tokyo #20 忘年LT大会！！ 参加メモ #golangtokyo</a>
               </li>
             
@@ -404,12 +404,6 @@ cb6c6570b73a1c4d19cad94570ed277f7dae55ac refs/tags/go1.0.2
             
               <li class="post">
                 <a href="/2018/12/09/mecab-undefined-symbols-for-architecture-x86_64/">[Go] bluele/mecab-golangを含むコードをビルドすると Undefined symbols for architecture x86_64 と出て失敗する</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2018/12/02/write-blog-every-week/">毎週ブログを書くということ #write_blog_every_week</a>
               </li>
             
           
