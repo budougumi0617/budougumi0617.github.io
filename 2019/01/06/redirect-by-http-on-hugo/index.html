@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>HTTPSで公開しているHugoで一部のページがHTTPでページ遷移してしまう #hugo</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="hugo">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.50" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/hugo-logo.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/hugo-logo.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/01/06/redirect-by-http-on-hugo/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="HTTPSで公開しているHugoで一部のページがHTTPでページ遷移してしまう #hugo"/>
+  <meta property="og:description" content="Hugoで公開しているこのブログのサイドバーのリンクの一部をクリックすると、HTTPSで公開しているはずがHTTP通信となって遷移していた。
+HTTPS通信でページ遷移するように直したときのメモ。
+
+"/>
+  
+  <meta name="twitter:title" content="HTTPSで公開しているHugoで一部のページがHTTPでページ遷移してしまう #hugo"/>
+  <meta name="twitter:description" content="Hugoで公開しているこのブログのサイドバーのリンクの一部をクリックすると、HTTPSで公開しているはずがHTTP通信となって遷移していた。
+HTTPS通信でページ遷移するように直したときのメモ。
+
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Jan 6, 2019
+         - 3 minute read 
+         - <a href="https://budougumi0617.github.io/2019/01/06/redirect-by-http-on-hugo/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/hugo/">hugo </a><a class="label" href="https://budougumi0617.github.io/categories/blog/">blog </a>
+        
+    </p>
+    <h1 class="entry-title">
+         HTTPSで公開しているHugoで一部のページがHTTPでページ遷移してしまう #hugo 
+    </h1>
+</header>
+
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#chrome-developer-toolで通信内容を確認する">Chrome Developer Toolで通信内容を確認する</a></li>
+<li><a href="#サイドバーのリンクの設定を修正する">サイドバーのリンクの設定を修正する</a></li>
+<li><a href="#終わりに">終わりに</a></li>
+<li><a href="#関連">関連</a></li>
+</ul>
+</nav>
+          
+          <p>Hugoで公開しているこのブログのサイドバーのリンクの一部をクリックすると、HTTPSで公開しているはずがHTTP通信となって遷移していた。<br />
+HTTPS通信でページ遷移するように直したときのメモ。</p>
+
+<p></p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>Chrome DevToolsで通信内容を確認する</li>
+<li>リンク先アドレスの指定が微妙に間違っていたので、リダイレクトが発生していた
+
+<ul>
+<li>リダイレクト時に、HTTPでページ遷移を行なっていた</li>
+</ul></li>
+<li>正しいパスに修正するとHTTPSのままページ遷移するようになった</li>
+<li>原因はわからなかった</li>
+</ul>
+
+<h1 id="chrome-developer-toolで通信内容を確認する">Chrome Developer Toolで通信内容を確認する</h1>
+
+<p>私のこのブログは2019/01/06現在サイドバーにTagsページとCategoryページへのリンクを貼っている。
+この２つのページへのリンクがマウスホバーをしたときには<code>https://budougumi0617.github.io/tags</code>とHTTPSのリンクになっているのだが、実際にリンクをクリックすると、<code>http://budougumi0617.github.io/tags/</code>とHTTPで画面遷移してしまっていた（この時点で分かる人は分かったかもしれない）。</p>
+
+<p><img src="/2019/01/06-hover-information.png" alt="マウスホバー時の情報" /></p>
+
+<p>ひとまずページ遷移中に何が起きているか確認するため、Chrome DeveToolsでNetworkタブで通信内容を確認してみた。リクエストとリソースの流れを確認した結果、途中でリダイレクトが発生していた。以下は<code>https://budougumi0617.github.io/tags</code>へのアクセス時のHeadersの情報の一部だ。</p>
+
+<p><img src="/2019/01/06-devtools.png" alt="DevToolsの情報" /></p>
+
+<pre><code>General
+    Request URL: https://budougumi0617.github.io/tags
+    Request Method: GET
+    Status Code: 301
+    ...
+
+Response Headers
+    accept-ranges: bytes
+    access-control-allow-origin: *
+    ...
+    location: http://budougumi0617.github.io/tags/
+    server: GitHub.com
+    status: 301
+    ...
+</code></pre>
+
+<p>Hugoで生成したタグページの正式なURLは<code>${BASE_URL}/tags/index.html</code>となる。前述のリンク先に指定していたURLは<code>${BASE_URL}/tags</code>だったため、<code>/</code>が付与された<code>${BASE_URL}/tags/</code>(<code>index.html</code>)へのリダイレクトが発生していた。リダイレクトなしでページ遷移すれば良さそうだ。</p>
+
+<h1 id="サイドバーのリンクの設定を修正する">サイドバーのリンクの設定を修正する</h1>
+
+<p>サイドバーの設定はTOMLファイルで以下のようになっている。</p>
+
+<ul>
+<li><a href="https://github.com/budougumi0617/blog/blob/0e74c26179d16d343c8f98f9dd65a3b7102ea6ca/config.toml#L118-L126">config.toml</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-toml" data-lang="toml">[[menu.sidebar]]
+  Name = <span style="color:#2aa198">&#34;Tags&#34;</span>
+  URL = <span style="color:#2aa198">&#34;/tags&#34;</span>
+  weight = <span style="color:#2aa198">1</span>
+
+[[menu.sidebar]]
+  Name = <span style="color:#2aa198">&#34;Categories&#34;</span>
+  URL = <span style="color:#2aa198">&#34;/categories&#34;</span>
+  weight = <span style="color:#2aa198">1</span></code></pre></div>
+<p>ここのURLの指定に明示的に<code>/</code>をつけ、<code>URL = &quot;/tags/&quot;</code>としたところ、リダイレクトが発生しなくなり、HTTPS通信でページ遷移できるようになった。</p>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>なぜリダイレクト時にHTTPS通信がHTTP通信になってしまうのか？調査すればOSSへのPRチャンスかとも思っていたのだが、すぐに原因はわからないかった。悔しいが目的の修正はできたので今回はここで終わりにしておく。<br />
+まったく本編と関係ないのだが、今まで「Chrome Developer Tools」だと思っていたが、正式名称は「Chrome DevTools」のようだ。</p>
+
+<p><a href="https://developers.google.com/web/tools/chrome-devtools/">https://developers.google.com/web/tools/chrome-devtools/</a></p>
+
+<h1 id="関連">関連</h1>
+
+<ul>
+<li><a href="2019/01/04/set-twitter-image-in-hugo-blog/">Hugoのブログ記事にTwitter Card(アイキャッチ画像)を設定する #hugo</a></li>
+<li><a href="/2019/01/05/set-ogp-in-hugo-blog/">HugoでOGP(Facebook用のアイキャッチ画像)を設定する #hugo</a></li>
+</ul>
+        </div>
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Jan 6, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/hugo">hugo</a>  <a class="category" href="https://budougumi0617.github.io/tags/blog">blog</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/01/05/set-ogp-in-hugo-blog/" title="HugoでOGP(Facebook用のアイキャッチ画像)を設定する #hugo">HugoでOGP(Facebook用のアイキャッチ画像)を設定する #hugo</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+
+    <p>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Archives</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="Categories" >Categories</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/" title="Tags" >Tags</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/01/06/redirect-by-http-on-hugo/">HTTPSで公開しているHugoで一部のページがHTTPでページ遷移してしまう #hugo</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/01/05/set-ogp-in-hugo-blog/">HugoでOGP(Facebook用のアイキャッチ画像)を設定する #hugo</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/01/04/set-twitter-image-in-hugo-blog/">Hugoのブログ記事にTwitter Card(アイキャッチ画像)を設定する #hugo</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/12/27/retrospective-2018/">2018年振り返り</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2018/12/19/report-golangtokyo-20/">golang.tokyo #20 忘年LT大会！！ 参加メモ #golangtokyo</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
