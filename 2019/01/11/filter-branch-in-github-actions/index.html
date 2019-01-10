@@ -277,8 +277,8 @@ https://github.com/features/actions/
 </ul></li>
 </ul>
 
-<p>GitHub Actionsでは、一連の処理のまとまりをworkflow、各処理はActionsと定義している。各Actionsはそれぞれで「別の」コンテナを起動して実行される。コンセプトはGCPのCloud Buildに近い。
-workflowの定義は<code>/.github/main.workflow</code>ファイルをリポジトリに配置することで設定でき、GitHub上で該当ファイルを開くとGUIエディタからも編集できる。</p>
+<p>GitHub Actionsでは、一連の処理のまとまりをWorkflow、各処理はActionと定義している。各Actionはそれぞれで「別の」コンテナを起動して実行される。コンセプトはGCPのCloud Buildに近い。
+Workflowの定義は<code>/.github/main.workflow</code>ファイルをリポジトリに配置することで設定でき、GitHub上で該当ファイルを開くとGUIエディタからも編集できる。</p>
 
 <h1 id="やりたいこと">やりたいこと</h1>
 
@@ -297,7 +297,7 @@ CircleCIでいうと、<code>branches only</code>相当の処理になる。</p>
 
 <h1 id="actions-bin-filterを使う">actions/bin/filterを使う</h1>
 
-<p>実は公式ですでに用意されているActions用のコンテナがあるのでそれを使えば簡単に実現できた。</p>
+<p>実は公式ですでに用意されているAction用のコンテナがあるのでそれを使えば簡単に実現できた。</p>
 
 <ul>
 <li><a href="https://github.com/actions/bin/tree/master/filter">https://github.com/actions/bin/tree/master/filter</a></li>
@@ -317,7 +317,7 @@ CircleCIでいうと、<code>branches only</code>相当の処理になる。</p>
 </code></pre>
 
 <p>なお、任意の<code>shell</code>コマンドを実行するActionはGUIエディタからすぐ選べないので、自分で<code>actions/bin/sh@master</code>を選んで定義する。
-workflow全体は以下のようになる。</p>
+Workflow全体は以下のようになる。</p>
 
 <ul>
 <li><a href="https://github.com/budougumi0617/actions-filter-branch/blob/master/.github/main.workflow">https://github.com/budougumi0617/actions-filter-branch/blob/master/.github/main.workflow</a></li>
@@ -342,7 +342,7 @@ action &quot;Shell&quot; {
 
 <p><img src="/2019/01/11-workflow.png" alt="work flow" /></p>
 
-<p>このworkflowはリポジトリにpushイベントが発生されるたびに実行される。</p>
+<p>このWorkflowはリポジトリにpushイベントが発生されるたびに実行される。</p>
 
 <ul>
 <li><a href="https://github.com/budougumi0617/actions-filter-branch/actions">https://github.com/budougumi0617/actions-filter-branch/actions</a></li>
@@ -356,7 +356,7 @@ action &quot;Shell&quot; {
 
 <p><img src="/2019/01/11-succeeded.png" alt="Succeeded" /></p>
 
-<p><code>master</code>ブランチでないときは<code>Neutral</code>というstatusでWorkflowは最後まで実行されなかったので、意図通りブランチ名でActionsを制御できた。</p>
+<p><code>master</code>ブランチでないときは<code>Neutral</code>というstatusでWorkflowは最後まで実行されなかったので、意図通りブランチ名でWorkflowを制御できた。</p>
 
 <ul>
 <li><a href="https://github.com/budougumi0617/actions-filter-branch/actions/workflow-runs/MDEwOkNoZWNrU3VpdGU0NzU1MDMxNg==">https://github.com/budougumi0617/actions-filter-branch/actions/workflow-runs/MDEwOkNoZWNrU3VpdGU0NzU1MDMxNg==</a></li>
@@ -407,7 +407,7 @@ action &quot;Shell&quot; {
     <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$GITHUB_REF</span><span style="color:#2aa198"> does not match </span><span style="color:#268bd2">$pattern</span><span style="color:#2aa198">&#34;</span>
     <span style="color:#b58900">exit</span> <span style="color:#2aa198">78</span>
 <span style="color:#719e07">esac</span></code></pre></div>
-<p><code>$GITHUB_REF</code>はActions実行毎に設定されている環境変数で、Actions実行時のブランチ名やタグ名が取得できる。</p>
+<p><code>$GITHUB_REF</code>はWorkflow実行毎に設定されている環境変数で、Workflow実行時のブランチ名やタグ名が取得できる。</p>
 
 <ul>
 <li>Environment variables | GitHub Actions
@@ -428,7 +428,7 @@ action &quot;Shell&quot; {
 <p>今回はTwitterで<a href="https://twitter.com/teitei_tk">@teitei_k</a>さんと話題に上がったので他の確認よりまず先にやってみた。<code>$GITHUB_REF</code>が取れるところまでは知っていたので、スクリプトを自作しようと思ったがすでに公式で提供済みのものがあった。</p>
 
 <p>Beta版だからなのかそういう設計思想のなのか（おろらく後者だが）、GitHub ActionsではCircleCIなどほどとリッチなYAMLのような設定を書けない。
-ただ、複雑な設定を書き始めると属人化しはじめたりするし、YAML地獄になったりしがちだ。私がGoのシンプルなところが好きなせいなのもあるかもしれないが、ここのActionsとして小さく設定する今の塩梅が好きだ。実行ステータスを表示できるバッジなど早くほしいのと、publicリポジトリはまだpush通知をトリガーにしかできないので、PRのイベントにも対応されると嬉しい。</p>
+ただ、複雑な設定を書き始めると属人化しはじめたりするし、YAML地獄になったりしがちだ。私がGoのシンプルなところが好きなせいなのもあるかもしれないが、このActionとして小さく設定する今の塩梅が好きだ。実行ステータスを表示できるバッジなどが早くほしいのと、publicリポジトリはまだpush通知をトリガーにしかできないので、PRのイベントにも対応されると嬉しい。</p>
 
 <h1 id="参考">参考</h1>
 
