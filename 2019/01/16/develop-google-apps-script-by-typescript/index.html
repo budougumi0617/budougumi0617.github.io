@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>Google Apps ScriptをTypeScriptで実装する(clasp/TSLint/Prettier) #gas #typescript - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="Google Apps Script,GAS,TypeScript,Prettier,ESLint,clasp">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.50" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io//2019/01/tslint-gas-prettier.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io//2019/01/tslint-gas-prettier.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/01/16/develop-google-apps-script-by-typescript/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="Google Apps ScriptをTypeScriptで実装する(clasp/TSLint/Prettier) #gas #typescript - My External Storage"/>
+  <meta property="og:description" content="claspというGoogle Apps Script(GAS)をローカルで開発するためのツールがある。claspを使うと、TypeScriptを使ったGASのコーディングも標準で行える。
+今回はclaspを使って以下の要求を満たしながらGASの開発を行う際の設定をまとめる。
+
+
+TypeScriptによる実装
+Gitによる構成管理
+Prettierによる自動フォーマット
+TSLintによる静的解析
+
+
+
+
+"/>
+  
+  <meta name="twitter:title" content="Google Apps ScriptをTypeScriptで実装する(clasp/TSLint/Prettier) #gas #typescript - My External Storage"/>
+  <meta name="twitter:description" content="claspというGoogle Apps Script(GAS)をローカルで開発するためのツールがある。claspを使うと、TypeScriptを使ったGASのコーディングも標準で行える。
+今回はclaspを使って以下の要求を満たしながらGASの開発を行う際の設定をまとめる。
+
+
+TypeScriptによる実装
+Gitによる構成管理
+Prettierによる自動フォーマット
+TSLintによる静的解析
+
+
+
+
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Jan 16, 2019
+         - 7 minute read 
+         - <a href="https://budougumi0617.github.io/2019/01/16/develop-google-apps-script-by-typescript/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/gas/">gas </a><a class="label" href="https://budougumi0617.github.io/categories/typescript/">typescript </a>
+        
+    </p>
+    <h1 class="entry-title">
+         Google Apps ScriptをTypeScriptで実装する(clasp/TSLint/Prettier) #gas #typescript 
+    </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#claspとは">claspとは</a></li>
+<li><a href="#typescriptで実装するgasプロジェクトの作成方法">TypeScriptで実装するGASプロジェクトの作成方法</a>
+<ul>
+<li><a href="#web上のgasプロジェクトから実行する">Web上のGASプロジェクトから実行する</a></li>
+<li><a href="#実行結果の確認">実行結果の確認</a></li>
+</ul></li>
+<li><a href="#終わりに">終わりに</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</nav>
+          
+          <p>claspというGoogle Apps Script(GAS)をローカルで開発するためのツールがある。claspを使うと、TypeScriptを使ったGASのコーディングも標準で行える。
+今回はclaspを使って以下の要求を満たしながらGASの開発を行う際の設定をまとめる。</p>
+
+<ul>
+<li>TypeScriptによる実装</li>
+<li>Gitによる構成管理</li>
+<li>Prettierによる自動フォーマット</li>
+<li>TSLintによる静的解析</li>
+</ul>
+
+<p><img src="/2019/01/16-vscode.png" alt="VSCodeでの実装画面" /></p>
+
+<p></p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>claspを使えばGoogle Apps Script(GAS)をローカルで開発できる
+
+<ul>
+<li><a href="https://github.com/google/clasp">https://github.com/google/clasp</a></li>
+</ul></li>
+<li>claspはwebpackなどを使わずにTypeScriptで実装できる
+
+<ul>
+<li><a href="https://github.com/google/clasp/blob/master/docs/typescript.md">https://github.com/google/clasp/blob/master/docs/typescript.md</a></li>
+<li>静的型付けをすることで補完などを使いながら実装することができる</li>
+</ul></li>
+<li>書いたTypeScriptをそのままGitHubで管理することもできる</li>
+<li>TSLint、PrettierとVSCodeを組み合わせた開発環境も構築できる
+
+<ul>
+<li>TSLint（静的解析）
+
+<ul>
+<li><a href="https://palantir.github.io/tslint/">https://palantir.github.io/tslint/</a></li>
+</ul></li>
+<li>Prettier（フォーマッター）
+
+<ul>
+<li><a href="https://prettier.io/">https://prettier.io/</a></li>
+</ul></li>
+</ul></li>
+</ul>
+
+<p>サンプルコードは以下のリポジトリにある。</p>
+
+<ul>
+<li>budougumi0617/gas-typescript
+
+<ul>
+<li><a href="https://github.com/budougumi0617/gas-typescript">https://github.com/budougumi0617/gas-typescript</a></li>
+</ul></li>
+</ul>
+
+<p>今回使っている各ツールのバージョンは以下の通り。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ node -v
+v10.8.0
+$ npm -v
+<span style="color:#2aa198">6</span>.2.0
+$ clasp -v
+<span style="color:#2aa198">1</span>.7.0
+$ tslint -v
+<span style="color:#2aa198">5</span>.12.1
+$ prettier -v
+<span style="color:#2aa198">1</span>.15.3</code></pre></div>
+<p>なお、私の環境はすでにグローバル環境にTSLintとPrettierがインストールされている。今回TSLintとPrettierの詳細な説明は省略する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ npm i tslint -g
+$ npm i prettier -g</code></pre></div>
+<h1 id="claspとは">claspとは</h1>
+
+<p>claspはGASをローカルで開発するためのツールだ。<code>clasp push</code>とすればローカルの<code>js</code>ファイルを<code>gas</code>ファイルとしてGoogle Drive上のApps Scriptプロジェクトにアップロードできる。
+また、<code>clasp pull</code>とすればDrive上の<code>gas</code>ファイルを<code>js</code>ファイルとしてローカルにダウンロードできる。<strong><code>1.5.0</code>からTypeScriptを標準でサポートした。とくにwebpackなどの設定を書かなくても、<code>ts</code>ファイルをアップロードすれば自動的に<code>gas</code>ファイルに変換してくれる。</strong></p>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 168px; padding-bottom: 0;"><a href="https://github.com/google/clasp/blob/master/docs/typescript.md" data-iframely-url="//cdn.iframe.ly/bBcWGaZ"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<p>clasp自体のインストール方法については以下の記事通りやれば良い。次節以降の処理はすでにログイン処理が実施済みであることを前提にする。</p>
+
+<ul>
+<li>GAS のGoogle謹製CLIツール clasp
+
+<ul>
+<li><a href="https://qiita.com/HeRo/items/4e65dcc82783b2766c03">https://qiita.com/HeRo/items/4e65dcc82783b2766c03</a></li>
+</ul></li>
+</ul>
+
+<h1 id="typescriptで実装するgasプロジェクトの作成方法">TypeScriptで実装するGASプロジェクトの作成方法</h1>
+
+<p>今回はDrive上にプロジェクトを作成していない状態から、Googleスプレットシートと連携するGASプロジェクトをTypeScriptを使って書いていく。まずローカルGASのプロジェクトを作成する。
+途中<code>hub create</code>コマンドでGitHubリポジトリも作成している（不要なら<code>hub</code>コマンドは省略してよい）。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ mkdir gas-typescript
+$ <span style="color:#b58900">cd</span> gas-typescript
+$ git init .
+$ hub create
+$ npm init -y
+$ npm i -S @google/clasp tslint
+$ npm i -S @types/google-apps-script @types/node</code></pre></div>
+<p>claspのTypeScriptの<a href="https://github.com/google/clasp/blob/master/docs/typescript.md">README</a>通り、<code>jsconfig.json</code>ファイルを用意しておく。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+  <span style="color:#268bd2">&#34;compilerOptions&#34;</span>: {
+    <span style="color:#268bd2">&#34;lib&#34;</span>: [<span style="color:#2aa198">&#34;esnext&#34;</span>]
+  }
+}</code></pre></div>
+<p>今回は自動フォーマットも利用するので、Prettierも導入しておく。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ npm i -D prettier
+$ npm i -D tslint-config-prettier
+$ npm i -D tslint-plugin-prettier</code></pre></div>
+<p><code>tslint.json</code>は以下の設定を用意した。Stackdriverでログを取るには<code>console</code>系の関数を使うので、<code>no-console</code>は<code>false</code>にしてある。
+また、prettierと設定が競合しないようにもろもろの設定も含めてある。その他は好みの設定にすれば良いと思う。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">$ cat tslint.json
+{
+    <span style="color:#268bd2">&#34;defaultSeverity&#34;</span>: <span style="color:#2aa198">&#34;error&#34;</span>,
+    <span style="color:#268bd2">&#34;extends&#34;</span>: [
+        <span style="color:#2aa198">&#34;tslint:recommended&#34;</span>,
+        <span style="color:#2aa198">&#34;tslint-config-prettier&#34;</span>
+    ],
+    <span style="color:#268bd2">&#34;jsRules&#34;</span>: {},
+    <span style="color:#268bd2">&#34;rules&#34;</span>: {
+        <span style="color:#268bd2">&#34;semicolon&#34;</span>: [
+            <span style="color:#cb4b16">true</span>,
+            <span style="color:#2aa198">&#34;always&#34;</span>
+        ],
+        <span style="color:#268bd2">&#34;prettier&#34;</span>: <span style="color:#cb4b16">true</span>,
+        <span style="color:#268bd2">&#34;no-console&#34;</span>: [
+            <span style="color:#cb4b16">false</span>
+        ]
+    },
+    <span style="color:#268bd2">&#34;rulesDirectory&#34;</span>: [
+        <span style="color:#2aa198">&#34;tslint-plugin-prettier&#34;</span>
+    ]
+}</code></pre></div>
+<p>VSCodeを使っている場合は、以下のプラグインをインストールしておく。</p>
+
+<ul>
+<li>Prettier - Code formatter
+
+<ul>
+<li><a href="https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode">https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode</a></li>
+</ul></li>
+</ul>
+
+<p>VSCode自体の<code>setting.json</code>に以下の設定を書いておくことでファイル保存時にprettierによる自動整形が走るようになる。(<code>Command + Shift + P</code>を押したあと、<code>open settings(JSON)</code>などで検索すれば<code>setting.json</code>が直接編集できる。)</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+    // *.tsは自動でフォーマットする
+    <span style="color:#268bd2">&#34;[typescript]&#34;</span>: {
+        <span style="color:#268bd2">&#34;editor.formatOnSave&#34;</span>: <span style="color:#cb4b16">true</span>
+    },
+    // *.tsxは自動でフォーマットする
+    <span style="color:#268bd2">&#34;[typescriptreact]&#34;</span>: {
+        <span style="color:#268bd2">&#34;editor.formatOnSave&#34;</span>: <span style="color:#cb4b16">true</span>
+    }
+}</code></pre></div>
+<p>あとはclasp経由でDrive上に紐づくGASプロジェクトを作ればよい。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ clasp create --title <span style="color:#2aa198">&#34;TypeScript sample&#34;</span> --type sheets --rootDir ./src
+$ clasp pull</code></pre></div>
+<p>これでWeb上のプロジェクトと関連付けられたローカルのGASプロジェクトが作成できた。
+（<code>clasp create</code>と<code>clasp pull</code>の間にWebブラウザでプロジェクトを開くと、<code>clasp pull</code>したときに<code>js</code>ファイルがダウンロードされるかもしれない。</p>
+
+<p>ここで自動生成された<code>src/appscript.json</code>内のタイムゾーンの設定がニューヨークになっていたので、東京に修正した。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+  <span style="color:#268bd2">&#34;timeZone&#34;</span>: <span style="color:#2aa198">&#34;Asia/Tokyo&#34;</span>,
+  <span style="color:#268bd2">&#34;dependencies&#34;</span>: {
+  },
+  <span style="color:#268bd2">&#34;exceptionLogging&#34;</span>: <span style="color:#2aa198">&#34;STACKDRIVER&#34;</span>
+}</code></pre></div>
+<p>あとはローカルでtsファイルを追加して編集する。APIについては以下からたどればよい。</p>
+
+<ul>
+<li>Reference Overview | Google Apps Script
+
+<ul>
+<li><a href="https://developers.google.com/apps-script/reference/">https://developers.google.com/apps-script/reference/</a></li>
+</ul></li>
+</ul>
+
+<p>今回は簡単にStackdriverへのログ出力とスプレットシートに書き込みをする関数を含む<code>src/Hello.ts</code>を作成した。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#268bd2">function</span> main() {
+  <span style="color:#586e75">// https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet
+</span><span style="color:#586e75"></span>  <span style="color:#719e07">const</span> sheet <span style="color:#719e07">=</span> SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  <span style="color:#719e07">const</span> today <span style="color:#719e07">=</span> Utilities.formatDate(<span style="color:#719e07">new</span> <span style="color:#b58900">Date</span>(), <span style="color:#2aa198">&#34;JST&#34;</span>, <span style="color:#2aa198">&#34;yyyy/MM/dd&#34;</span>);
+  <span style="color:#719e07">const</span> value <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;Hello clasp&#34;</span>;
+
+  console.log(value);
+  sheet.appendRow([today, value]);
+}
+</code></pre></div>
+<p>VSCode上で上記のファイルを編集していると、TypeScriptを使っているので関数定義などのヘルプも表示され、未定義変数などのエラーも表示されている。また、Prettierによってファイル保存時に自動フォーマットも行われる。</p>
+
+<p><img src="/2019/01/16-vscode.png" alt="VSCodeでの実装画面" /></p>
+
+<h2 id="web上のgasプロジェクトから実行する">Web上のGASプロジェクトから実行する</h2>
+
+<p>コードを書いたらまず<code>clasp push</code>コマンドでGoogle Drive上にコードをプッシュしてみる。</p>
+
+<pre><code>$ clasp push
+? Manifest file has been updated. Do you want to push and overwrite? Yes
+└─ src/Hello.ts
+└─ src/appsscript.json
+Pushed 2 files.
+</code></pre>
+
+<p>pushが出来たら<code>clasp open</code>コマンドでプロジェクトを開いて内容を確認しておく。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ clasp open
+Opening script: https://script.google.com/d/<span style="color:#2aa198">${</span>.clasp.json内のscroptIdと同じ文字列<span style="color:#2aa198">}</span>/edit</code></pre></div>
+<p>自動的にトランスポイルされた<code>Hello.gs</code>ファイルがプロジェクト内に配置されている。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#268bd2">var</span> exports <span style="color:#719e07">=</span> exports <span style="color:#719e07">||</span> {};
+<span style="color:#268bd2">var</span> module <span style="color:#719e07">=</span> module <span style="color:#719e07">||</span> { exports<span style="color:#719e07">:</span> exports };
+<span style="color:#268bd2">function</span> main() {
+    <span style="color:#586e75">// https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet
+</span><span style="color:#586e75"></span>    <span style="color:#268bd2">var</span> sheet <span style="color:#719e07">=</span> SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    <span style="color:#268bd2">var</span> today <span style="color:#719e07">=</span> Utilities.formatDate(<span style="color:#719e07">new</span> <span style="color:#b58900">Date</span>(), <span style="color:#2aa198">&#34;JST&#34;</span>, <span style="color:#2aa198">&#34;yyyy/MM/dd&#34;</span>);
+    <span style="color:#268bd2">var</span> value <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;Hello clasp&#34;</span>;
+    console.log(value);
+    sheet.appendRow([today, value]);
+}
+</code></pre></div>
+<p>以下画像の赤矢印が指す実行ボタンをクリックしてGASを実行してみる。</p>
+
+<p><img src="/2019/01/16-gas-file.png" alt="Web上のgasファイル" /></p>
+
+<p>Web上でスクリプトの実行を行おうとすると、初回は許可を与える必要がある旨が表示されるので、案内に則って権限を付与する。
+以下は開いたモーダル内の「詳細」ボタンをクリックした後の警告画面。</p>
+
+<p><img src="/2019/01/16-warning.png" alt="Web上での警告画面" /></p>
+
+<p>スプレットシートへのアクセスを許可する。
+<img src="/2019/01/16-auth.png" alt="Web上での認可画面" /></p>
+
+<p>許可を与えていくと、スクリプトが実行される。実行されない場合はもう一度プロジェクトの実行ボタンをクリックする。</p>
+
+<h2 id="実行結果の確認">実行結果の確認</h2>
+
+<p>私はプロジェクトのページから直接スプレットシートを開く方法を知らないので一度GASのプロジェクト管理コンソールを開く。</p>
+
+<p><a href="https://script.google.com/home/my">https://script.google.com/home/my</a></p>
+
+<p>ここで、該当プロジェクトの上にマウスオーバーすると、対応するスプレットシートへのリンクが表示されるのでクリックする。</p>
+
+<p><img src="/2019/01/16-manage-console.png" alt="管理コンソール画面" />
+ちゃんとGASで作った文字列が書き込まれていた。</p>
+
+<p><img src="/2019/01/16-sheet-result.png" alt="実行結果" /></p>
+
+<p>あとはローカルのプロジェクトをGitHubにコミットしておけばよい。
+権限が正しく設定されていれば問題ないとは思うのだが、私は心配性なのでscriptIdが含まれている<code>.clasp.json</code>はコミットしないようにしておいた。</p>
+
+<pre><code># .gitignoreファイルの中身
+node_modules/
+.vscode/
+.clasp.json
+</code></pre>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>今回はローカルでGASの実装をするclaspを試してみた。TypeScriptを使えるようにしておくと補完なども効くようになってサクサク書けそうだ。
+また、ついでにTSLintとPrettierなども導入した。GASのオンライエディタもかなり優秀だが、手元でLinter/Formatterを書けながら書けるのはよい。</p>
+
+<h1 id="参考">参考</h1>
+
+<ul>
+<li>budougumi0617/gas-typescript
+
+<ul>
+<li><a href="https://github.com/budougumi0617/gas-typescript">https://github.com/budougumi0617/gas-typescript</a></li>
+</ul></li>
+<li>TypeScript | google/clasp
+
+<ul>
+<li><a href="https://github.com/google/clasp/blob/master/docs/typescript.md">https://github.com/google/clasp/blob/master/docs/typescript.md</a></li>
+</ul></li>
+<li>Reference Overview
+
+<ul>
+<li><a href="https://developers.google.com/apps-script/reference/">https://developers.google.com/apps-script/reference/</a></li>
+</ul></li>
+<li>GAS のGoogle謹製CLIツール clasp
+
+<ul>
+<li><a href="https://qiita.com/HeRo/items/4e65dcc82783b2766c03">https://qiita.com/HeRo/items/4e65dcc82783b2766c03</a></li>
+</ul></li>
+<li>clasp が Typescript をサポートした！
+
+<ul>
+<li><a href="https://qiita.com/HeRo/items/f2ce057c6b1456e896ad">https://qiita.com/HeRo/items/f2ce057c6b1456e896ad</a></li>
+</ul></li>
+<li>Prettier - Code formatter
+
+<ul>
+<li><a href="https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode">https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode</a></li>
+</ul></li>
+</ul>
+        </div>
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+​<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Jan 16, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/gas">gas</a>  <a class="category" href="https://budougumi0617.github.io/tags/typescript">typescript</a>  <a class="category" href="https://budougumi0617.github.io/tags/prettier">prettier</a>  <a class="category" href="https://budougumi0617.github.io/tags/tslint">tslint</a>  <a class="category" href="https://budougumi0617.github.io/tags/clasp">clasp</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/01/11/filter-branch-in-github-actions/" title="GitHub Actionsで特定のブランチのときのみワークフローを実行する #github #actions #ci">GitHub Actionsで特定のブランチのときのみワークフローを実行する #github #actions #ci</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/01/16/develop-google-apps-script-by-typescript/">Google Apps ScriptをTypeScriptで実装する(clasp/TSLint/Prettier) #gas #typescript</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/01/11/filter-branch-in-github-actions/">GitHub Actionsで特定のブランチのときのみワークフローを実行する #github #actions #ci</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/01/06/redirect-by-http-on-hugo/">HTTPSで公開しているHugoで一部のページがHTTPでページ遷移してしまう #hugo</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/01/05/set-ogp-in-hugo-blog/">HugoでOGP(Facebook用のアイキャッチ画像)を設定する #hugo</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/01/04/set-twitter-image-in-hugo-blog/">Hugoのブログ記事にTwitter Card(アイキャッチ画像)を設定する #hugo</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
