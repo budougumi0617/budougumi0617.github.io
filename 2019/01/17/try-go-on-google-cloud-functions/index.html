@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>BetaリリースされたGoのGoogle Cloud Functionsを試す #gcp #golangjp - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="Go,golang,gcp,Google Cloud Functions">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.50" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/2019/01/gofunctions.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/2019/01/gofunctions.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/01/17/try-go-on-google-cloud-functions/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="BetaリリースされたGoのGoogle Cloud Functionsを試す #gcp #golangjp - My External Storage"/>
+  <meta property="og:description" content="Google Cloud FunctionsでついにGoがサポートされた（まだベータリリースだが）。
+さっそくさわってみたメモ。
+
+
+
+"/>
+  
+  <meta name="twitter:title" content="BetaリリースされたGoのGoogle Cloud Functionsを試す #gcp #golangjp - My External Storage"/>
+  <meta name="twitter:description" content="Google Cloud FunctionsでついにGoがサポートされた（まだベータリリースだが）。
+さっそくさわってみたメモ。
+
+
+
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Jan 17, 2019
+         - 5 minute read 
+         - <a href="https://budougumi0617.github.io/2019/01/17/try-go-on-google-cloud-functions/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/gcp/">gcp </a><a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+        
+    </p>
+    <h1 class="entry-title">
+         BetaリリースされたGoのGoogle Cloud Functionsを試す #gcp #golangjp 
+    </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#goのfunctionsを作成する">GoのFunctionsを作成する</a>
+<ul>
+<li><a href="#httpをトリガーにして実行するhttp-functionsの場合">HTTPをトリガーにして実行するHTTP Functionsの場合</a></li>
+<li><a href="#イベントをトリガーにして実行するbackground-functionsの場合">イベントをトリガーにして実行するBackground Functionsの場合</a></li>
+</ul></li>
+<li><a href="#functionsをデプロイする">Functionsをデプロイする</a></li>
+<li><a href="#cloud-functions実行時のログについて">Cloud Functions実行時のログについて</a></li>
+<li><a href="#イベントについて">イベントについて</a></li>
+<li><a href="#その他">その他</a></li>
+<li><a href="#終わりに">終わりに</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</nav>
+          
+          <p>Google Cloud FunctionsでついにGoがサポートされた（まだベータリリースだが）。<br />
+さっそくさわってみたメモ。</p>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 168px; padding-bottom: 0;"><a href="https://cloud.google.com/blog/products/application-development/cloud-functions-go-1-11-is-now-a-supported-language/" data-iframely-url="//cdn.iframe.ly/mGNAEkA"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<p></p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>Go1.11でCloud Functionsを書くことができるようになった</li>
+<li>Cloud Functionsの定義は主に2種類
+
+<ul>
+<li><code>gcloud functions deploy ${ファンクション名} --runtime go111 --entry-point ${関数名} ${Functions実行時のトリガー}</code>でデプロイできる</li>
+</ul></li>
+<li>HTTP Functions
+
+<ul>
+<li><code>http.HandlerFunc</code>インターフェースを満たす関数</li>
+<li>Functions以外の設定をせずに外部公開されてエンドポイントが与えられる</li>
+</ul></li>
+<li>Background Functions
+
+<ul>
+<li>第一引数が<code>context.Context</code>、第二引数が任意の<code>struct</code>な関数</li>
+<li>特定のGCP上のイベントをトリガーにして起動する</li>
+<li>イベントの情報は第二引数の構造体に含まれるが、公式から構造体はまだ公開されていない
+
+<ul>
+<li>公式ガイドのサンプルコードを見るとよい</li>
+</ul></li>
+</ul></li>
+</ul>
+
+<h1 id="goのfunctionsを作成する">GoのFunctionsを作成する</h1>
+
+<p>まず以下のドキュメントを参考にGoのGunctions用の関数を定義する。</p>
+
+<ul>
+<li>The Go Runtime | Documentation | Cloud Functions
+
+<ul>
+<li><a href="https://cloud.google.com/functions/docs/concepts/go-runtime?hl=en">https://cloud.google.com/functions/docs/concepts/go-runtime?hl=en</a></li>
+</ul></li>
+</ul>
+
+<h2 id="httpをトリガーにして実行するhttp-functionsの場合">HTTPをトリガーにして実行するHTTP Functionsの場合</h2>
+
+<p>HTTPアクセスをトリガーにして実行されるFunctionsを定義する場合は、<code>http.HandlerFunc</code>インターフェースを満たす関数を用意しておけば良い。</p>
+
+<ul>
+<li><a href="https://golang.org/pkg/net/http/#HandleFunc">https://golang.org/pkg/net/http/#HandleFunc</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> HandleFunc(pattern <span style="color:#dc322f">string</span>, handler <span style="color:#268bd2">func</span>(ResponseWriter, <span style="color:#719e07">*</span>Request))</code></pre></div>
+<h2 id="イベントをトリガーにして実行するbackground-functionsの場合">イベントをトリガーにして実行するBackground Functionsの場合</h2>
+
+<p>Cloud Storageなどで発生したイベントをトリガーに起動するFunctionsを定義することもできる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> GCSEvent <span style="color:#268bd2">struct</span> {
+  <span style="color:#586e75">// 省略
+</span><span style="color:#586e75"></span>}
+
+<span style="color:#586e75">// HelloGCSInfo はGCSのイベントをトリガーに起動するBackground Functions用の関数
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> HelloGCSInfo(ctx context.Context, e GCSEvent) <span style="color:#dc322f">error</span> {
+  <span style="color:#586e75">// Do anything...
+</span><span style="color:#586e75"></span>}</code></pre></div>
+<hr />
+
+<p>今回はリリース記事に記載されていたHTTP Functionsを少し改良した以下のソースコードを利用する。パッケージ名は<code>main</code>じゃなければ良い。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> functions
+
+<span style="color:#719e07">import</span> (
+        <span style="color:#2aa198">&#34;fmt&#34;</span>
+        <span style="color:#2aa198">&#34;log&#34;</span>
+        <span style="color:#2aa198">&#34;net/http&#34;</span>
+)
+
+<span style="color:#586e75">// F is sample functions
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> F(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
+        w.Header().Set(<span style="color:#2aa198">&#34;Content-Type&#34;</span>, <span style="color:#2aa198">&#34;text/plain; charset=utf-8&#34;</span>)
+        fmt.Println(<span style="color:#2aa198">&#34;Hello by fmt pkg&#34;</span>)
+        log.Println(<span style="color:#2aa198">&#34;Hello by log pkg&#34;</span>)
+        w.Write([]<span style="color:#b58900">byte</span>(r.Header.Get(<span style="color:#2aa198">&#34;X-Forwarded-For&#34;</span>)))
+}</code></pre></div>
+<h1 id="functionsをデプロイする">Functionsをデプロイする</h1>
+
+<p>まずは<code>gcloud</code>コマンドで選択中のプロジェクトのCloud FunctionsのAPIを有効化しておく。</p>
+
+<ul>
+<li>Cloud Functions API | IAM Library
+
+<ul>
+<li><a href="https://console.cloud.google.com/apis/library/cloudfunctions.googleapis.com">https://console.cloud.google.com/apis/library/cloudfunctions.googleapis.com</a></li>
+</ul></li>
+</ul>
+
+<p>また、ローカルの<code>gcloud</code>コマンドも以下のコマンドで最新にしておく。
+なお、最新にしても<code>gcloud functions deploy --help</code>の<code>runtime</code>オプションに<code>go111</code>の記述はなかったが、ちゃんと使うことができた。</p>
+
+<pre><code>$ gcloud components update
+</code></pre>
+
+<p>あとは、作成したローカルのGoの関数定義があるディレクトリで<code>gcloud functions deploy</code>コマンドを実行すれば良い。
+以下のコマンド実行結果はHTTPをトリガーとする<code>hello</code>という名前のCloud Functionsを<code>F</code>という名前のGoの関数をエントリポイントとして公開したときのログ。
+デプロイ完了までそこそこかかるので少し待つ必要があった。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash`" data-lang="bash`">$ gcloud functions deploy hello --runtime go111 --entry-point F --trigger-http --region asia-northeast1
+Deploying function (may take a while - up to 2 minutes)...done.
+availableMemoryMb: 256
+entryPoint: F
+httpsTrigger:
+  url: https://asia-northeast1-MYPROJECT_NAME.cloudfunctions.net/hello
+labels:
+  deployment-tool: cli-gcloud
+name: projects/MYPROJECT_NAME/locations/asia-northeast1/functions/hello
+runtime: go111
+serviceAccountEmail: MUPROJECT_NAME@appspot.gserviceaccount.com
+sourceUploadUrl: https://storage.googleapis.com/g....
+status: ACTIVE
+timeout: 60s
+updateTime: &#39;2019-01-16T23:11:50Z&#39;
+versionId: &#39;1&#39;</code></pre></div>
+<p>デプロイ後の実行結果ログの<code>httpsTrigger</code>という項目がHTTPのエントリポイントなので、そのアドレスに対して<code>curl</code>コマンドを実行してみる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash`" data-lang="bash`">$ curl -i https://asia-northeast1-MYPROJECT_NAME.cloudfunctions.net/hello
+HTTP/2 200
+content-type: text/plain; charset=utf-8
+function-execution-id: pzhl9rayoaq6
+x-cloud-trace-context: f7bc8c67d13641651434d8b3dc2b2444;o=1
+date: Wed, 16 Jan 2019 23:14:58 GMT
+server: Google Frontend
+content-length: 14
+alt-svc: quic=&#34;:443&#34;; ma=2592000; v=&#34;44,43,39,35&#34;
+
+XXX.XXX.XXX.82%</code></pre></div>
+<p>先ほどのGoの関数がちゃんと実行された！！</p>
+
+<h1 id="cloud-functions実行時のログについて">Cloud Functions実行時のログについて</h1>
+
+<p>とくに記載はなかったような気がするが、標準出力に出ていればStackdriverで確認できるようだ。
+<code>fmt</code>と<code>log</code>を仕込んだ先程のFunctionsを実行したあとログを確認すると、両方ともログが残っていた。</p>
+
+<ul>
+<li>Stacdriver Logging
+
+<ul>
+<li><a href="https://console.cloud.google.com/logs/viewer">https://console.cloud.google.com/logs/viewer</a></li>
+</ul></li>
+</ul>
+
+<p><img src="/2019/01/17-functions-log.png" alt="実行ログ" /></p>
+
+<h1 id="イベントについて">イベントについて</h1>
+
+<p>Goで作成するCloud FunctionsもCloud Functionsがサポートするイベントを受け取ることができる。<br />
+<a href="https://github.com/aws/aws-lambda-go/tree/master/events">aws-lambda-goは公式から構造体が提供</a>されているが、2019/01/17時点でGCPから各イベント情報を格納する構造体はパッケージとして公開されていなそうだ。
+受け取れるイベント情報の構造は以下のガイドで確認できる。</p>
+
+<ul>
+<li>Calling Cloud Functions
+
+<ul>
+<li><a href="https://cloud.google.com/functions/docs/calling/">https://cloud.google.com/functions/docs/calling/</a></li>
+</ul></li>
+</ul>
+
+<p>2019/01/17現在日本語のガイドには記載がないが、英語のガイドを確認するとGoのサンプルコードがあるので、そこから構造体定義を確認すれば良い。</p>
+
+<p>下記は<a href="https://cloud.google.com/functions/docs/calling/cloud-firestore">ガイドに記載されている</a>Cloud Firestoreのイベント用の構造体。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// FirestoreEvent is the payload of a Firestore event.
+</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> FirestoreEvent <span style="color:#268bd2">struct</span> {
+        OldValue   FirestoreValue <span style="color:#2aa198">`json:&#34;oldValue&#34;`</span>
+        Value      FirestoreValue <span style="color:#2aa198">`json:&#34;value&#34;`</span>
+        UpdateMask <span style="color:#268bd2">struct</span> {
+                FieldPaths []<span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;fieldPaths&#34;`</span>
+        } <span style="color:#2aa198">`json:&#34;updateMask&#34;`</span>
+}</code></pre></div>
+<p><img src="/2019/01/17-sample-code.png" alt="公式ページのキャプチャ" /></p>
+
+<p><code>Background Functions</code>実行時に受け取る<code>context</code>の中からメタデータを取得する<code>cloud.google.com/go/functions/metadata</code>パッケージは提供されている。</p>
+
+<ul>
+<li>GoDoc cloud.google.com/go/functions/metadata
+
+<ul>
+<li><a href="https://godoc.org/cloud.google.com/go/functions/metadata">https://godoc.org/cloud.google.com/go/functions/metadata</a></li>
+</ul></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;cloud.google.com/go/functions/metadata&#34;</span>
+
+<span style="color:#586e75">// ...
+</span><span style="color:#586e75"></span>
+meta, err <span style="color:#719e07">:=</span> metadata.FromContext(ctx)
+<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+   <span style="color:#719e07">return</span> fmt.Errorf(<span style="color:#2aa198">&#34;metadata.FromContext: %v&#34;</span>, err)
+}
+log.Printf(<span style="color:#2aa198">&#34;Event ID: %v\n&#34;</span>, meta.EventID)
+<span style="color:#719e07">//</span> <span style="color:#719e07">...</span></code></pre></div>
+<h1 id="その他">その他</h1>
+
+<p>go1.11ベースで動くので当然go modulesもサポートされている。また、ドキュメントでは<code>init()</code>関数や<code>sync.Once</code>を利用した実行時の初期化についても触れられていた。</p>
+
+<ul>
+<li>Specifying dependencies
+
+<ul>
+<li><a href="https://cloud.google.com/functions/docs/concepts/go-runtime?hl=en#specifying_dependencies">https://cloud.google.com/functions/docs/concepts/go-runtime?hl=en#specifying_dependencies</a></li>
+</ul></li>
+<li>One-time initialization
+
+<ul>
+<li><a href="https://cloud.google.com/functions/docs/concepts/go-runtime?hl=en#one-time_initialization">https://cloud.google.com/functions/docs/concepts/go-runtime?hl=en#one-time_initialization</a></li>
+</ul></li>
+</ul>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>軽くさわってみたが、<code>gcloud</code>コマンドの認証さえちゃんとできていれば直ぐ試せた。
+とくにAPIゲートウェイなどの公開設定をしなくてもすぐHTTPリクエストの処理ができるのもよい。イベント処理を行う構造体のパッケージも提供されると無用なコピペ定義しなくても済みそうだ。</p>
+
+<p>なお、Cloud Functionsは呼び出し200万回まで無料（正確には別に実行時間などの条件もある）なので誰でも試すことが出来る。Goの関数一つで試せるのでぜひ触ってみるといいと思う。</p>
+
+<ul>
+<li>Pricing | Documentation | Cloud Functions
+
+<ul>
+<li><a href="https://cloud.google.com/functions/pricing?hl=ja">https://cloud.google.com/functions/pricing?hl=ja</a></li>
+</ul></li>
+</ul>
+
+<h1 id="参考">参考</h1>
+
+<ul>
+<li>The Go Runtime | Documentation | Cloud Functions
+
+<ul>
+<li><a href="https://cloud.google.com/functions/docs/concepts/go-runtime?hl=en">https://cloud.google.com/functions/docs/concepts/go-runtime?hl=en</a></li>
+</ul></li>
+<li>Get Go-ing with Cloud Functions: Go 1.11 is now a supported language | Google Cloud Blog
+
+<ul>
+<li><a href="https://cloud.google.com/blog/products/application-development/cloud-functions-go-1-11-is-now-a-supported-language">https://cloud.google.com/blog/products/application-development/cloud-functions-go-1-11-is-now-a-supported-language</a></li>
+</ul></li>
+<li>GoDoc cloud.google.com/go/functions/metadata
+
+<ul>
+<li><a href="https://godoc.org/cloud.google.com/go/functions/metadata">https://godoc.org/cloud.google.com/go/functions/metadata</a></li>
+</ul></li>
+</ul>
+        </div>
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+​<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Jan 17, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/gcp">gcp</a>  <a class="category" href="https://budougumi0617.github.io/tags/functions">functions</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/01/16/develop-google-apps-script-by-typescript/" title="Google Apps ScriptをTypeScriptで実装する(clasp/TSLint/Prettier) #gas #typescript">Google Apps ScriptをTypeScriptで実装する(clasp/TSLint/Prettier) #gas #typescript</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/01/17/try-go-on-google-cloud-functions/">BetaリリースされたGoのGoogle Cloud Functionsを試す #gcp #golangjp</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/01/16/develop-google-apps-script-by-typescript/">Google Apps ScriptをTypeScriptで実装する(clasp/TSLint/Prettier) #gas #typescript</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/01/11/filter-branch-in-github-actions/">GitHub Actionsで特定のブランチのときのみワークフローを実行する #github #actions #ci</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/01/06/redirect-by-http-on-hugo/">HTTPSで公開しているHugoで一部のページがHTTPでページ遷移してしまう #hugo</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/01/05/set-ogp-in-hugo-blog/">HugoでOGP(Facebook用のアイキャッチ画像)を設定する #hugo</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
