@@ -209,7 +209,9 @@ MySQLは公式コンテナーが以下に用意されている。</p>
 
 <p>Docker自体のインストールが完了したら<code>MySQL</code>のコンテナーを起動する。<br />
 以下のコマンドを実行すれば自動的にMySQL公式のコンテナーのダウンロードが開始され、内部で<code>MySQL</code>が稼働しているコンテナーが開始される。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker container run --rm -d -e <span style="color:#268bd2">MYSQL_ROOT_PASSWORD</span><span style="color:#719e07">=</span>mysql -p <span style="color:#2aa198">43306</span>:3306 --name mysql mysql:5.7</code></pre></div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker container run --rm -d <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  -e <span style="color:#268bd2">MYSQL_ROOT_PASSWORD</span><span style="color:#719e07">=</span>mysql <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  -p <span style="color:#2aa198">43306</span>:3306 --name mysql mysql:5.7</code></pre></div>
 <p>大雑把にいうと、ホストマシンの43336ポートからアクセス出来る使い捨てのMySQLを<code>mysql</code>という名前でデーモン起動している。</p>
 
 <table>
@@ -324,7 +326,10 @@ USE todo;
 <span style="color:#719e07">COMMIT</span>;</code></pre></div>
 <p>この<code>init</code>ディレクトリを<code>/docker-entrypoint-initdb.d</code>として<code>MySQL</code>コンテナーにマウントして起動する。
 <code>docker</code>コマンドで行う場合は<code>-v</code>オプションで以下のように行う。このとき<code>init</code>ディレクトリのPATHは絶対PATHで指定する必要がある。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker container run --rm -d -v <span style="color:#719e07">{</span><span style="color:#268bd2">$ABSOLUTE_PATH</span><span style="color:#719e07">}</span>/init:/docker-entrypoint-initdb.d -e <span style="color:#268bd2">MYSQL_ROOT_PASSWORD</span><span style="color:#719e07">=</span>mysql -p <span style="color:#2aa198">43306</span>:3306 --name mysql mysql:5.7</code></pre></div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker container run --rm -d <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  -v <span style="color:#719e07">{</span><span style="color:#268bd2">$ABSOLUTE_PATH</span><span style="color:#719e07">}</span>/init:/docker-entrypoint-initdb.d <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  -e <span style="color:#268bd2">MYSQL_ROOT_PASSWORD</span><span style="color:#719e07">=</span>mysql <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  -p <span style="color:#2aa198">43306</span>:3306 --name mysql mysql:5.7</code></pre></div>
 <p>こうして起動した<code>mysql</code>コンテナーは常に以下のようにデータが投入されている。
 <code>SELECT</code>や<code>JOIN</code>の練習をするためには、最初にデータを投入しておくと良いかもしれない。</p>
 
