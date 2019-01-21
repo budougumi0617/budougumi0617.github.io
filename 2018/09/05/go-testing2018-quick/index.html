@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.50" />
+  <meta name="generator" content="Hugo 0.53" />
 
   
   
@@ -70,8 +70,6 @@
 
 Goのtestを理解する in 2018 #go
 Goのtestingを理解する in 2018 - Examples編 #go
-
-
 "/>
   
   <meta name="twitter:title" content="Goのtestingを理解する in 2018 - quickサブパッケージ編 #go - My External Storage"/>
@@ -80,8 +78,6 @@ Goのtestingを理解する in 2018 - Examples編 #go
 
 Goのtestを理解する in 2018 #go
 Goのtestingを理解する in 2018 - Examples編 #go
-
-
 "/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
@@ -212,8 +208,6 @@ Goのtestingを理解する in 2018 - Examples編 #go
 <li><a href="/2018/08/30/go-testing2018-examples/">Goのtestingを理解する in 2018 - Examples編 #go</a></li>
 </ul>
 
-<p></p>
-
 <h1 id="tl-dr">TL;DR</h1>
 
 <ul>
@@ -244,18 +238,18 @@ Goのtestingを理解する in 2018 - Examples編 #go
 	X <span style="color:#dc322f">string</span>
 }
 
-<span style="color:#268bd2">func</span> div(n, m MyInt) <span style="color:#dc322f">int</span> {
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">div</span>(n, m MyInt) <span style="color:#dc322f">int</span> {
 	<span style="color:#719e07">return</span> n.V <span style="color:#719e07">/</span> m.V
 }
 
-<span style="color:#268bd2">func</span> TestDiv(t <span style="color:#719e07">*</span>testing.T) {
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">TestDiv</span>(t <span style="color:#719e07">*</span>testing.T) {
 	<span style="color:#586e75">// div関数は戻り値がintなので、評価結果をboolで返すラップ関数を用意する
 </span><span style="color:#586e75"></span>	f <span style="color:#719e07">:=</span> <span style="color:#268bd2">func</span>(x, y MyInt) <span style="color:#dc322f">bool</span> {
-		<span style="color:#719e07">return</span> div(x, y) <span style="color:#719e07">==</span> (x.V <span style="color:#719e07">/</span> y.V)
+		<span style="color:#719e07">return</span> <span style="color:#268bd2">div</span>(x, y) <span style="color:#719e07">==</span> (x.V <span style="color:#719e07">/</span> y.V)
 	}
 
-	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> quick.Check(f, <span style="color:#cb4b16">nil</span>); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		t.Error(err.Error())
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> quick.<span style="color:#268bd2">Check</span>(f, <span style="color:#cb4b16">nil</span>); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		t.<span style="color:#268bd2">Error</span>(err.<span style="color:#268bd2">Error</span>())
 	}
 }</code></pre></div>
 <p>第二引数の<code>quick.Config</code>を指定すれば、試行回数や与える引数の範囲、ランダムシードなどを設定できる。</p>
@@ -267,16 +261,16 @@ Goのtestingを理解する in 2018 - Examples編 #go
 		<span style="color:#586e75">// 試行回数
 </span><span style="color:#586e75"></span>		MaxCount: <span style="color:#2aa198">10</span>,
 		<span style="color:#586e75">// Seed
-</span><span style="color:#586e75"></span>		Rand: rand.New(rand.NewSource(<span style="color:#2aa198">2</span>)),
+</span><span style="color:#586e75"></span>		Rand: rand.<span style="color:#268bd2">New</span>(rand.<span style="color:#268bd2">NewSource</span>(<span style="color:#2aa198">2</span>)),
 		<span style="color:#586e75">// 独自定義した引数の生成関数
 </span><span style="color:#586e75"></span>		Values: <span style="color:#268bd2">func</span>(args []reflect.Value, rand <span style="color:#719e07">*</span>rand.Rand) {
-			args[<span style="color:#2aa198">0</span>] = reflect.ValueOf(MyInt{rand.Int(), <span style="color:#2aa198">&#34;x&#34;</span>})
-			args[<span style="color:#2aa198">1</span>] = reflect.ValueOf(MyInt{rand.Int(), <span style="color:#2aa198">&#34;y&#34;</span>})
+			args[<span style="color:#2aa198">0</span>] = reflect.<span style="color:#268bd2">ValueOf</span>(MyInt{rand.<span style="color:#268bd2">Int</span>(), <span style="color:#2aa198">&#34;x&#34;</span>})
+			args[<span style="color:#2aa198">1</span>] = reflect.<span style="color:#268bd2">ValueOf</span>(MyInt{rand.<span style="color:#268bd2">Int</span>(), <span style="color:#2aa198">&#34;y&#34;</span>})
 		},
 	}
 
-	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> quick.Check(f, cfg); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		t.Error(err.Error())
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> quick.<span style="color:#268bd2">Check</span>(f, cfg); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		t.<span style="color:#268bd2">Error</span>(err.<span style="color:#268bd2">Error</span>())
 	}</code></pre></div>
 <h2 id="quick-checkerror">quick.CheckError</h2>
 
@@ -285,11 +279,11 @@ Goのtestingを理解する in 2018 - Examples編 #go
 <ul>
 <li><a href="https://golang.org/pkg/testing/quick/#CheckError">https://golang.org/pkg/testing/quick/#CheckError</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> quick.Check(f, <span style="color:#cb4b16">nil</span>); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> quick.<span style="color:#268bd2">Check</span>(f, <span style="color:#cb4b16">nil</span>); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 		<span style="color:#719e07">if</span> ce, ok <span style="color:#719e07">:=</span> err.(<span style="color:#719e07">*</span>quick.CheckError); ok {
-			t.Errorf(<span style="color:#2aa198">&#34;Try count = %d, In %#v, Out %s\n&#34;</span>, ce.Count, ce.In, ce)
+			t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;Try count = %d, In %#v, Out %s\n&#34;</span>, ce.Count, ce.In, ce)
 		} <span style="color:#719e07">else</span> {
-			t.Error(err)
+			t.<span style="color:#268bd2">Error</span>(err)
 		}
 	}</code></pre></div>
 <h1 id="quick-checkequal">quick.CheckEqual</h1>
@@ -304,15 +298,15 @@ Go本体のコードでは例えば<code>sync.Map</code>の挙動の確認に利
 <ul>
 <li><a href="https://github.com/golang/go/blob/67ac554d7978eb93f3dfe7a819c67948dd291d88/src/sync/map_test.go#L99-L109">https://github.com/golang/go/blob/67ac554d7978eb93f3dfe7a819c67948dd291d88/src/sync/map_test.go#L99-L109</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> TestMapMatchesRWMutex(t <span style="color:#719e07">*</span>testing.T) {
-	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> quick.CheckEqual(applyMap, applyRWMutexMap, <span style="color:#cb4b16">nil</span>); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		t.Error(err)
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestMapMatchesRWMutex</span>(t <span style="color:#719e07">*</span>testing.T) {
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> quick.<span style="color:#268bd2">CheckEqual</span>(applyMap, applyRWMutexMap, <span style="color:#cb4b16">nil</span>); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		t.<span style="color:#268bd2">Error</span>(err)
 	}
 }
 
-<span style="color:#268bd2">func</span> TestMapMatchesDeepCopy(t <span style="color:#719e07">*</span>testing.T) {
-	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> quick.CheckEqual(applyMap, applyDeepCopyMap, <span style="color:#cb4b16">nil</span>); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		t.Error(err)
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">TestMapMatchesDeepCopy</span>(t <span style="color:#719e07">*</span>testing.T) {
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> quick.<span style="color:#268bd2">CheckEqual</span>(applyMap, applyDeepCopyMap, <span style="color:#cb4b16">nil</span>); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		t.<span style="color:#268bd2">Error</span>(err)
 	}
 }</code></pre></div>
 <h2 id="quick-checkequalerror">quick.CheckEqualError</h2>
@@ -331,22 +325,22 @@ Go本体のコードでは例えば<code>sync.Map</code>の挙動の確認に利
 
 <p>ただ単にランダムな値が欲しい場合は、<code>quick.Value</code>関数で生成できる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// 乱数整数を生成する
-</span><span style="color:#586e75"></span>ri, _ <span style="color:#719e07">:=</span> quick.Value(reflect.TypeOf([]<span style="color:#dc322f">int</span>{}), rand.New(rand.NewSource(<span style="color:#2aa198">0</span>)))
+</span><span style="color:#586e75"></span>ri, _ <span style="color:#719e07">:=</span> quick.<span style="color:#268bd2">Value</span>(reflect.<span style="color:#268bd2">TypeOf</span>([]<span style="color:#dc322f">int</span>{}), rand.<span style="color:#268bd2">New</span>(rand.<span style="color:#268bd2">NewSource</span>(<span style="color:#2aa198">0</span>)))
 <span style="color:#586e75">// 乱数整数スライスを生成する
-</span><span style="color:#586e75"></span>ris, _ <span style="color:#719e07">:=</span> quick.Value(reflect.TypeOf([]<span style="color:#dc322f">int</span>{}), rand.New(rand.NewSource(<span style="color:#2aa198">0</span>)))</code></pre></div>
+</span><span style="color:#586e75"></span>ris, _ <span style="color:#719e07">:=</span> quick.<span style="color:#268bd2">Value</span>(reflect.<span style="color:#268bd2">TypeOf</span>([]<span style="color:#dc322f">int</span>{}), rand.<span style="color:#268bd2">New</span>(rand.<span style="color:#268bd2">NewSource</span>(<span style="color:#2aa198">0</span>)))</code></pre></div>
 <h1 id="generatorインターフェース">Generatorインターフェース</h1>
 
 <p><code>Generator</code>インターフェースを実装していれば、独自定義した型も<code>quick.Value</code>の引数に利用できる。
 - <a href="https://play.golang.org/p/8HRbhNYBsnu">https://play.golang.org/p/8HRbhNYBsnu</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Foo <span style="color:#268bd2">struct</span>{}
 
-<span style="color:#268bd2">func</span> (f <span style="color:#719e07">*</span>Foo) Generate(rand <span style="color:#719e07">*</span>rand.Rand, size <span style="color:#dc322f">int</span>) reflect.Value {
+<span style="color:#268bd2">func</span> (f <span style="color:#719e07">*</span>Foo) <span style="color:#268bd2">Generate</span>(rand <span style="color:#719e07">*</span>rand.Rand, size <span style="color:#dc322f">int</span>) reflect.Value {
 	<span style="color:#586e75">// 雑な実装
-</span><span style="color:#586e75"></span>	<span style="color:#719e07">return</span> reflect.ValueOf(<span style="color:#719e07">&amp;</span>Foo{})
+</span><span style="color:#586e75"></span>	<span style="color:#719e07">return</span> reflect.<span style="color:#268bd2">ValueOf</span>(<span style="color:#719e07">&amp;</span>Foo{})
 }
 
-<span style="color:#268bd2">func</span> main() {
-	v, ok <span style="color:#719e07">:=</span> quick.Value(reflect.TypeOf([]<span style="color:#719e07">*</span>Foo{}), rand.New(rand.NewSource(<span style="color:#2aa198">0</span>)))
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+	v, ok <span style="color:#719e07">:=</span> quick.<span style="color:#268bd2">Value</span>(reflect.<span style="color:#268bd2">TypeOf</span>([]<span style="color:#719e07">*</span>Foo{}), rand.<span style="color:#268bd2">New</span>(rand.<span style="color:#268bd2">NewSource</span>(<span style="color:#2aa198">0</span>)))
 }</code></pre></div>
 <h1 id="参考">参考</h1>
 
@@ -376,6 +370,20 @@ Go本体のコードでは例えば<code>sync.Map</code>の挙動の確認に利
 <li><a href="/2018/09/09/go-testing2018-iotest/">Goのtestingを理解する in 2018 - iotestサブパッケージ編 #go</a></li>
 </ul>
         </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2018/08/30/go-testing2018-examples/">Goのtestingを理解する in 2018 - Examples編 #go</a></li>
+  
+  <li><a href="/2018/08/19/go-testing2018/">Goのtestを理解する in 2018 #go</a></li>
+  
+  <li><a href="/2018/07/26/presentation-gounco-lt3/">[発表資料]初級者向けGoの落とし穴と解説 #gounco</a></li>
+  
+</ul>
+
+
         <div class="addthis_inline_share_toolbox"></div>
 
         <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>

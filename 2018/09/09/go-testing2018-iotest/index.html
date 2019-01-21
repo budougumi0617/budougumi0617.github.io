@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.50" />
+  <meta name="generator" content="Hugo 0.53" />
 
   
   
@@ -69,8 +69,6 @@
 
 
 Goのtestを理解する in 2018 #go
-
-
 "/>
   
   <meta name="twitter:title" content="Goのtestingを理解する in 2018 - iotestサブパッケージ編 #go - My External Storage"/>
@@ -78,8 +76,6 @@ Goのtestを理解する in 2018 #go
 
 
 Goのtestを理解する in 2018 #go
-
-
 "/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
@@ -205,8 +201,6 @@ Goのtestを理解する in 2018 #go
 <li><a href="/2018/08/19/go-testing2018">Goのtestを理解する in 2018 #go</a></li>
 </ul>
 
-<p></p>
-
 <h1 id="tl-dr">TL;DR</h1>
 
 <ul>
@@ -245,7 +239,7 @@ Goのtestを理解する in 2018 #go
 	}{
 		{
 			<span style="color:#2aa198">&#34;DataErrReader&#34;</span>,
-			iotest.DataErrReader(bytes.NewReader(orign)),
+			iotest.<span style="color:#268bd2">DataErrReader</span>(bytes.<span style="color:#268bd2">NewReader</span>(orign)),
 			<span style="color:#2aa198">5</span>,
 			[]want{
 				{<span style="color:#2aa198">5</span>, <span style="color:#2aa198">&#34;Hello&#34;</span>, <span style="color:#cb4b16">nil</span>},
@@ -257,18 +251,18 @@ Goのtestを理解する in 2018 #go
 	}
 
 	<span style="color:#719e07">for</span> _, tt <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> tests {
-		t.Run(tt.subject, <span style="color:#268bd2">func</span>(t <span style="color:#719e07">*</span>testing.T) {
+		t.<span style="color:#268bd2">Run</span>(tt.subject, <span style="color:#268bd2">func</span>(t <span style="color:#719e07">*</span>testing.T) {
 			<span style="color:#719e07">for</span> _, want <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> tt.wants {
 				buf <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>([]<span style="color:#dc322f">byte</span>, tt.size)
-				size, err <span style="color:#719e07">:=</span> tt.r.Read(buf)
+				size, err <span style="color:#719e07">:=</span> tt.r.<span style="color:#268bd2">Read</span>(buf)
 				<span style="color:#719e07">if</span> size <span style="color:#719e07">!=</span> want.n {
-					t.Fatalf(<span style="color:#2aa198">&#34;want %d, but got = %d\n&#34;</span>, want.n, size)
+					t.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;want %d, but got = %d\n&#34;</span>, want.n, size)
 				}
 				<span style="color:#719e07">if</span> <span style="color:#b58900">string</span>(buf) <span style="color:#719e07">!=</span> want.buf {
-					t.Fatalf(<span style="color:#2aa198">&#34;want %#v, but got = %#v\n&#34;</span>, want.buf, <span style="color:#b58900">string</span>(buf))
+					t.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;want %#v, but got = %#v\n&#34;</span>, want.buf, <span style="color:#b58900">string</span>(buf))
 				}
 				<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> want.wantError {
-					t.Fatalf(<span style="color:#2aa198">&#34;want io.EOF, but got = %#v\n&#34;</span>, err)
+					t.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;want io.EOF, but got = %#v\n&#34;</span>, err)
 				}
 			}
 		})
@@ -301,7 +295,7 @@ Goのtestを理解する in 2018 #go
 </span><span style="color:#586e75"></span>	}{
 		{
 			<span style="color:#2aa198">&#34;HalfReader&#34;</span>,
-			iotest.HalfReader(bytes.NewReader(orign)),
+			iotest.<span style="color:#268bd2">HalfReader</span>(bytes.<span style="color:#268bd2">NewReader</span>(orign)),
 			<span style="color:#2aa198">5</span>,
 			[]want{
 			  <span style="color:#586e75">// len(5)のbufferでReadしても、半分の3バイトしか読み込んでくれない
@@ -317,7 +311,7 @@ Goのtestを理解する in 2018 #go
 	}
 
 	<span style="color:#719e07">for</span> _, tt <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> tests {
-		t.Run(tt.subject, <span style="color:#268bd2">func</span>(t <span style="color:#719e07">*</span>testing.T) {
+		t.<span style="color:#268bd2">Run</span>(tt.subject, <span style="color:#268bd2">func</span>(t <span style="color:#719e07">*</span>testing.T) {
 			<span style="color:#586e75">// DataErrReaderのサンプルコードと同じなので省略
 </span><span style="color:#586e75"></span>		})
 	}
@@ -342,7 +336,7 @@ Goのtestを理解する in 2018 #go
 </span><span style="color:#586e75"></span>	}{
 		{
 			<span style="color:#2aa198">&#34;OneByteReader&#34;</span>,
-			iotest.OneByteReader(bytes.NewReader(orign)),
+			iotest.<span style="color:#268bd2">OneByteReader</span>(bytes.<span style="color:#268bd2">NewReader</span>(orign)),
 			<span style="color:#2aa198">5</span>,
 			[]want{
 				<span style="color:#586e75">// 1バイトしか読み込まない
@@ -370,7 +364,7 @@ Goのtestを理解する in 2018 #go
 	}
 
 	<span style="color:#719e07">for</span> _, tt <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> tests {
-		t.Run(tt.subject, <span style="color:#268bd2">func</span>(t <span style="color:#719e07">*</span>testing.T) {
+		t.<span style="color:#268bd2">Run</span>(tt.subject, <span style="color:#268bd2">func</span>(t <span style="color:#719e07">*</span>testing.T) {
 			<span style="color:#586e75">// DataErrReaderのサンプルコードと同じなので省略
 </span><span style="color:#586e75"></span>		})
 	}</code></pre></div>
@@ -394,7 +388,7 @@ Goのtestを理解する in 2018 #go
 </span><span style="color:#586e75"></span>	}{
 		{
 			<span style="color:#2aa198">&#34;TimeoutReader&#34;</span>,
-			iotest.TimeoutReader(bytes.NewReader(orign)),
+			iotest.<span style="color:#268bd2">TimeoutReader</span>(bytes.<span style="color:#268bd2">NewReader</span>(orign)),
 			<span style="color:#2aa198">5</span>,
 			[]want{
 				{<span style="color:#2aa198">5</span>, <span style="color:#2aa198">&#34;Hello&#34;</span>, <span style="color:#cb4b16">nil</span>},
@@ -404,7 +398,7 @@ Goのtestを理解する in 2018 #go
 	}
 
 	<span style="color:#719e07">for</span> _, tt <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> tests {
-		t.Run(tt.subject, <span style="color:#268bd2">func</span>(t <span style="color:#719e07">*</span>testing.T) {
+		t.<span style="color:#268bd2">Run</span>(tt.subject, <span style="color:#268bd2">func</span>(t <span style="color:#719e07">*</span>testing.T) {
 			<span style="color:#586e75">// DataErrReaderのサンプルコードと同じなので省略
 </span><span style="color:#586e75"></span>		})
 	}</code></pre></div>
@@ -422,7 +416,7 @@ Goのtestを理解する in 2018 #go
 
 <li><p><a href="https://play.golang.org/p/GvFtBx2rPcu">https://play.golang.org/p/GvFtBx2rPcu</a></p></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#268bd2">func</span> TestTruncateWriter(t <span style="color:#719e07">*</span>testing.T) {
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#268bd2">func</span> <span style="color:#268bd2">TestTruncateWriter</span>(t <span style="color:#719e07">*</span>testing.T) {
 	orign <span style="color:#719e07">:=</span> []<span style="color:#b58900">byte</span>(<span style="color:#2aa198">&#34;Hello\nbyte.Reader\n&#34;</span>)
 	wants <span style="color:#719e07">:=</span> []<span style="color:#268bd2">struct</span> {
 		buf <span style="color:#dc322f">string</span>
@@ -434,11 +428,11 @@ Goのtestを理解する in 2018 #go
 
 	<span style="color:#719e07">for</span> _, want <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> wants {
 		b <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>bytes.Buffer{}
-		w <span style="color:#719e07">:=</span> iotest.TruncateWriter(b, <span style="color:#b58900">int64</span>(want.n))
-		w.Write(orign)
+		w <span style="color:#719e07">:=</span> iotest.<span style="color:#268bd2">TruncateWriter</span>(b, <span style="color:#b58900">int64</span>(want.n))
+		w.<span style="color:#268bd2">Write</span>(orign)
 
-		<span style="color:#719e07">if</span> got <span style="color:#719e07">:=</span> b.Bytes(); <span style="color:#b58900">string</span>(got) <span style="color:#719e07">!=</span> want.buf {
-			t.Fatalf(<span style="color:#2aa198">&#34;want %#v, but got = %#v\n&#34;</span>, want.buf, <span style="color:#b58900">string</span>(got))
+		<span style="color:#719e07">if</span> got <span style="color:#719e07">:=</span> b.<span style="color:#268bd2">Bytes</span>(); <span style="color:#b58900">string</span>(got) <span style="color:#719e07">!=</span> want.buf {
+			t.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;want %#v, but got = %#v\n&#34;</span>, want.buf, <span style="color:#b58900">string</span>(got))
 		}
 	}
 }</code></pre></div>
@@ -452,7 +446,7 @@ Goのtestを理解する in 2018 #go
 <p><code>NewWriteLogger</code>/<code>NewReadLogger</code>は書き込んだ(読み込んだ)結果をログ出力にフックする<code>io.Writer</code>(<code>io.Reader</code>)を返す。</p>
 
 <p>たとえば、先ほどの<code>TestTruncateWriter</code>テストに<code>NewWriteLogger</code>を挟むと、</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">		w = iotest.NewWriteLogger(<span style="color:#2aa198">&#34;Hook write&#34;</span>, w)</code></pre></div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">		w = iotest.<span style="color:#268bd2">NewWriteLogger</span>(<span style="color:#2aa198">&#34;Hook write&#34;</span>, w)</code></pre></div>
 <p><code>io.Writer</code>に書き込んだタイミングでその内容を16進数でログに出力する。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">go <span style="color:#b58900">test</span> ./iotest -v -run <span style="color:#268bd2">TestTruncateWriter</span>
 <span style="color:#719e07">===</span> RUN   TestTruncateWriter
@@ -479,6 +473,20 @@ ok  	github.com/budougumi0617/go-testing/iotest	<span style="color:#2aa198">0</s
 <li><a href="/2018/09/05/go-testing2018-quick">Goのtestingを理解する in 2018 - quickサブパッケージ編 #go</a></li>
 </ul>
         </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2018/09/05/go-testing2018-quick/">Goのtestingを理解する in 2018 - quickサブパッケージ編 #go</a></li>
+  
+  <li><a href="/2018/08/30/go-testing2018-examples/">Goのtestingを理解する in 2018 - Examples編 #go</a></li>
+  
+  <li><a href="/2018/08/19/go-testing2018/">Goのtestを理解する in 2018 #go</a></li>
+  
+</ul>
+
+
         <div class="addthis_inline_share_toolbox"></div>
 
         <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>

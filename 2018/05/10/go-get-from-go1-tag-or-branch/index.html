@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.50" />
+  <meta name="generator" content="Hugo 0.53" />
 
   
   
@@ -206,7 +206,7 @@
 </span><span style="color:#586e75">//
 </span><span style="color:#586e75">// NOTE(rsc): Eventually we will need to decide on some logic here.
 </span><span style="color:#586e75">// For now, there is only &#34;go1&#34;. This matches the docs in go help get.
-</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> selectTag(goVersion <span style="color:#dc322f">string</span>, tags []<span style="color:#dc322f">string</span>) (match <span style="color:#dc322f">string</span>) {
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">selectTag</span>(goVersion <span style="color:#dc322f">string</span>, tags []<span style="color:#dc322f">string</span>) (match <span style="color:#dc322f">string</span>) {
 	<span style="color:#719e07">for</span> _, t <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> tags {
 		<span style="color:#719e07">if</span> t <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;go1&#34;</span> {
 			<span style="color:#719e07">return</span> <span style="color:#2aa198">&#34;go1&#34;</span>
@@ -219,18 +219,18 @@
 <p>上記引数の<code>tags</code>は<code>vcsCmd</code>オブジェクトの<code>tags</code>メソッドで生成される<code>string</code>スライスだ。
 <a href="https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/get.go#L497-L498">https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/get.go#L497-L498</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#586e75">// Select and sync to appropriate version of the repository.
-</span><span style="color:#586e75"></span>	tags, err <span style="color:#719e07">:=</span> vcs.tags(root)</code></pre></div>
+</span><span style="color:#586e75"></span>	tags, err <span style="color:#719e07">:=</span> vcs.<span style="color:#268bd2">tags</span>(root)</code></pre></div>
 <p><a href="https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/vcs.go#L472-L486">https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/vcs.go#L472-L486</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// tags returns the list of available tags for the repo in dir.
-</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (v <span style="color:#719e07">*</span>vcsCmd) tags(dir <span style="color:#dc322f">string</span>) ([]<span style="color:#dc322f">string</span>, <span style="color:#dc322f">error</span>) {
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (v <span style="color:#719e07">*</span>vcsCmd) <span style="color:#268bd2">tags</span>(dir <span style="color:#dc322f">string</span>) ([]<span style="color:#dc322f">string</span>, <span style="color:#dc322f">error</span>) {
 	<span style="color:#268bd2">var</span> tags []<span style="color:#dc322f">string</span>
 	<span style="color:#719e07">for</span> _, tc <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> v.tagCmd {
-		out, err <span style="color:#719e07">:=</span> v.runOutput(dir, tc.cmd)
+		out, err <span style="color:#719e07">:=</span> v.<span style="color:#268bd2">runOutput</span>(dir, tc.cmd)
 		<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 			<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>, err
 		}
-		re <span style="color:#719e07">:=</span> regexp.MustCompile(<span style="color:#2aa198">`(?m-s)`</span> <span style="color:#719e07">+</span> tc.pattern)
-		<span style="color:#719e07">for</span> _, m <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> re.FindAllStringSubmatch(<span style="color:#b58900">string</span>(out), <span style="color:#719e07">-</span><span style="color:#2aa198">1</span>) {
+		re <span style="color:#719e07">:=</span> regexp.<span style="color:#268bd2">MustCompile</span>(<span style="color:#2aa198">`(?m-s)`</span> <span style="color:#719e07">+</span> tc.pattern)
+		<span style="color:#719e07">for</span> _, m <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> re.<span style="color:#268bd2">FindAllStringSubmatch</span>(<span style="color:#b58900">string</span>(out), <span style="color:#719e07">-</span><span style="color:#2aa198">1</span>) {
 			tags = <span style="color:#b58900">append</span>(tags, m[<span style="color:#2aa198">1</span>])
 		}
 	}
@@ -259,7 +259,7 @@ cb6c6570b73a1c4d19cad94570ed277f7dae55ac refs/tags/go1.0.2
 <p>ここまでの一連の流れで、<code>tag</code>、<code>branch</code> の一覧の中に<code>go1</code>があった場合は、そこから<code>go get</code>される実装になっていることがわかった。</p>
 
 <p><a href="https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/get.go#L506">https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/get.go#L506</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">vcs.tagSync(root, selectTag(vers, tags))</code></pre></div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">vcs.<span style="color:#268bd2">tagSync</span>(root, <span style="color:#268bd2">selectTag</span>(vers, tags))</code></pre></div>
 <h1 id="終わりに">終わりに</h1>
 
 <p>コマンドの実装もコードで簡単に追えるのが<code>go</code>のいいところだなと改めて思った。<br />
@@ -267,6 +267,20 @@ cb6c6570b73a1c4d19cad94570ed277f7dae55ac refs/tags/go1.0.2
 <a href="https://github.com/golang/go/blob/master/src/cmd/go/internal/get/vcs.go">vcs.go</a>の各VCS(Mercurial, Git, Subversion)の差分を隠蔽する構造も実装の参考になる。</p>
 
         </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2018/05/06/vim-go-gofillstruct/">[vim-go]GoFillStructで構造体のフィールド初期化文を自動生成する</a></li>
+  
+  <li><a href="/2018/04/19/golangtokyo-14-goroutine/">golang.tokyo #14 ゴールーチンとチャネルによる並行処理 参加メモ #golangtokyo</a></li>
+  
+  <li><a href="/2018/04/17/go-conference-2018-spring/">Go Conference 2018 Spring 参加メモ #gocon</a></li>
+  
+</ul>
+
+
         <div class="addthis_inline_share_toolbox"></div>
 
         <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>

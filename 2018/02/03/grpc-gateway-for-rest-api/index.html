@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.50" />
+  <meta name="generator" content="Hugo 0.53" />
 
   
   
@@ -306,8 +306,8 @@ Usage of /var/folders/sy/ls4cfp216x774g54brzl67yw0000gn/T/go-build442506345/comm
 <span style="color:#586e75">// server is used to implement sa
 </span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> server <span style="color:#268bd2">struct</span>{}
 
-<span style="color:#268bd2">func</span> (s <span style="color:#719e07">*</span>server) GetTask(ctx context.Context, req <span style="color:#719e07">*</span>tlpb.GetTaskRequest) (<span style="color:#719e07">*</span>tlpb.Task, <span style="color:#dc322f">error</span>) {
-	log.Println(<span style="color:#2aa198">&#34;GetTask in gPRC server&#34;</span>)
+<span style="color:#268bd2">func</span> (s <span style="color:#719e07">*</span>server) <span style="color:#268bd2">GetTask</span>(ctx context.Context, req <span style="color:#719e07">*</span>tlpb.GetTaskRequest) (<span style="color:#719e07">*</span>tlpb.Task, <span style="color:#dc322f">error</span>) {
+	log.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;GetTask in gPRC server&#34;</span>)
 	<span style="color:#268bd2">var</span> task = <span style="color:#719e07">&amp;</span>tlpb.Task{
 		Id:     <span style="color:#2aa198">10</span>,
 		Title:  <span style="color:#2aa198">&#34;Implement gRPC server&#34;</span>,
@@ -316,10 +316,10 @@ Usage of /var/folders/sy/ls4cfp216x774g54brzl67yw0000gn/T/go-build442506345/comm
 	<span style="color:#719e07">if</span> req.Id <span style="color:#719e07">==</span> task.Id {
 		<span style="color:#719e07">return</span> task, <span style="color:#cb4b16">nil</span>
 	}
-	<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>, errors.New(<span style="color:#2aa198">&#34;Not find Task&#34;</span>)
+	<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>, errors.<span style="color:#268bd2">New</span>(<span style="color:#2aa198">&#34;Not find Task&#34;</span>)
 }
-<span style="color:#268bd2">func</span> (s <span style="color:#719e07">*</span>server) ListTasks(_ <span style="color:#719e07">*</span>google_protobuf.Empty, stream tlpb.TaskManager_ListTasksServer) <span style="color:#dc322f">error</span> {
-	log.Println(<span style="color:#2aa198">&#34;ListTasks in gPRC server&#34;</span>)
+<span style="color:#268bd2">func</span> (s <span style="color:#719e07">*</span>server) <span style="color:#268bd2">ListTasks</span>(_ <span style="color:#719e07">*</span>google_protobuf.Empty, stream tlpb.TaskManager_ListTasksServer) <span style="color:#dc322f">error</span> {
+	log.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;ListTasks in gPRC server&#34;</span>)
 	tasks <span style="color:#719e07">:=</span> []<span style="color:#719e07">*</span>tlpb.Task{
 		<span style="color:#719e07">&amp;</span>tlpb.Task{
 			Id:     <span style="color:#2aa198">20</span>,
@@ -338,25 +338,25 @@ Usage of /var/folders/sy/ls4cfp216x774g54brzl67yw0000gn/T/go-build442506345/comm
 		},
 	}
 	<span style="color:#719e07">for</span> _, task <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> tasks {
-		<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> stream.Send(task); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> stream.<span style="color:#268bd2">Send</span>(task); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 			<span style="color:#719e07">return</span> err
 		}
 	}
 	<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
 }
 
-<span style="color:#268bd2">func</span> main() {
-	lis, err <span style="color:#719e07">:=</span> net.Listen(<span style="color:#2aa198">&#34;tcp&#34;</span>, port)
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+	lis, err <span style="color:#719e07">:=</span> net.<span style="color:#268bd2">Listen</span>(<span style="color:#2aa198">&#34;tcp&#34;</span>, port)
 	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		log.Fatalf(<span style="color:#2aa198">&#34;failed to listen: %v&#34;</span>, err)
+		log.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;failed to listen: %v&#34;</span>, err)
 	}
-	s <span style="color:#719e07">:=</span> grpc.NewServer()
-	tlpb.RegisterTaskManagerServer(s, <span style="color:#719e07">&amp;</span>server{})
+	s <span style="color:#719e07">:=</span> grpc.<span style="color:#268bd2">NewServer</span>()
+	tlpb.<span style="color:#268bd2">RegisterTaskManagerServer</span>(s, <span style="color:#719e07">&amp;</span>server{})
 	<span style="color:#586e75">// Register reflection service on gRPC server.
-</span><span style="color:#586e75"></span>	reflection.Register(s)
-	log.Printf(<span style="color:#2aa198">&#34;gRPC Server started: localhost%s\n&#34;</span>, port)
-	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> s.Serve(lis); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		log.Fatalf(<span style="color:#2aa198">&#34;failed to serve: %v&#34;</span>, err)
+</span><span style="color:#586e75"></span>	reflection.<span style="color:#268bd2">Register</span>(s)
+	log.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;gRPC Server started: localhost%s\n&#34;</span>, port)
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> s.<span style="color:#268bd2">Serve</span>(lis); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		log.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;failed to serve: %v&#34;</span>, err)
 	}
 }</code></pre></div>
 <p>Proxyサーバはサンプルコードの<code>import</code>を変えるだけで良かった。</p>
@@ -376,30 +376,30 @@ Usage of /var/folders/sy/ls4cfp216x774g54brzl67yw0000gn/T/go-build442506345/comm
 )
 
 <span style="color:#268bd2">var</span> (
-	tasklistEndpoint = flag.String(<span style="color:#2aa198">&#34;tasklist_endpoint&#34;</span>, <span style="color:#2aa198">&#34;localhost:50051&#34;</span>, <span style="color:#2aa198">&#34;endpoint of YourService&#34;</span>)
+	tasklistEndpoint = flag.<span style="color:#268bd2">String</span>(<span style="color:#2aa198">&#34;tasklist_endpoint&#34;</span>, <span style="color:#2aa198">&#34;localhost:50051&#34;</span>, <span style="color:#2aa198">&#34;endpoint of YourService&#34;</span>)
 )
 
-<span style="color:#268bd2">func</span> run() <span style="color:#dc322f">error</span> {
-	ctx <span style="color:#719e07">:=</span> context.Background()
-	ctx, cancel <span style="color:#719e07">:=</span> context.WithCancel(ctx)
-	<span style="color:#719e07">defer</span> cancel()
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">run</span>() <span style="color:#dc322f">error</span> {
+	ctx <span style="color:#719e07">:=</span> context.<span style="color:#268bd2">Background</span>()
+	ctx, cancel <span style="color:#719e07">:=</span> context.<span style="color:#268bd2">WithCancel</span>(ctx)
+	<span style="color:#719e07">defer</span> <span style="color:#268bd2">cancel</span>()
 
-	mux <span style="color:#719e07">:=</span> runtime.NewServeMux()
-	opts <span style="color:#719e07">:=</span> []grpc.DialOption{grpc.WithInsecure()}
-	err <span style="color:#719e07">:=</span> gw.RegisterTaskManagerHandlerFromEndpoint(ctx, mux, <span style="color:#719e07">*</span>tasklistEndpoint, opts)
+	mux <span style="color:#719e07">:=</span> runtime.<span style="color:#268bd2">NewServeMux</span>()
+	opts <span style="color:#719e07">:=</span> []grpc.DialOption{grpc.<span style="color:#268bd2">WithInsecure</span>()}
+	err <span style="color:#719e07">:=</span> gw.<span style="color:#268bd2">RegisterTaskManagerHandlerFromEndpoint</span>(ctx, mux, <span style="color:#719e07">*</span>tasklistEndpoint, opts)
 	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 		<span style="color:#719e07">return</span> err
 	}
 
-	<span style="color:#719e07">return</span> http.ListenAndServe(<span style="color:#2aa198">&#34;:8080&#34;</span>, mux)
+	<span style="color:#719e07">return</span> http.<span style="color:#268bd2">ListenAndServe</span>(<span style="color:#2aa198">&#34;:8080&#34;</span>, mux)
 }
 
-<span style="color:#268bd2">func</span> main() {
-	flag.Parse()
-	<span style="color:#719e07">defer</span> glog.Flush()
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+	flag.<span style="color:#268bd2">Parse</span>()
+	<span style="color:#719e07">defer</span> glog.<span style="color:#268bd2">Flush</span>()
 
-	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> run(); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		glog.Fatal(err)
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> <span style="color:#268bd2">run</span>(); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		glog.<span style="color:#268bd2">Fatal</span>(err)
 	}
 }</code></pre></div>
 <h2 id="動作確認">動作確認</h2>
@@ -468,6 +468,20 @@ IssueをたててPR作ったらマージされた。今まではREADMEなどへ�
 </ul>
 
         </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2018/01/14/grpc-basics-go/">[Go]gRPC Basics: GoからgRPCのストリーミングRPCを理解する</a></li>
+  
+  <li><a href="/2018/01/01/hello-grpc-go/">[Go]gRPCのGo Quick Startをやってみた。</a></li>
+  
+  <li><a href="/2018/01/21/try-gomock-on-grpc-go/">[Go]gomockを使ったgRPCのテスト</a></li>
+  
+</ul>
+
+
         <div class="addthis_inline_share_toolbox"></div>
 
         <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>

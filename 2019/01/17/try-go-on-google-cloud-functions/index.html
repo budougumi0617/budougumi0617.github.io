@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.50" />
+  <meta name="generator" content="Hugo 0.53" />
 
   
   
@@ -68,15 +68,11 @@
   <meta property="og:description" content="Google Cloud FunctionsでついにGoがサポートされた（まだベータリリースだが）。
 さっそくさわってみたメモ。
 
-
-
 "/>
   
   <meta name="twitter:title" content="BetaリリースされたGoのGoogle Cloud Functionsを試す #gcp #golangjp - My External Storage"/>
   <meta name="twitter:description" content="Google Cloud FunctionsでついにGoがサポートされた（まだベータリリースだが）。
 さっそくさわってみたメモ。
-
-
 
 "/>
   <meta name="twitter:site" content="@budougumi0617"/>
@@ -205,8 +201,6 @@
 
 <p><div class="iframely-embed"><div class="iframely-responsive" style="height: 168px; padding-bottom: 0;"><a href="https://cloud.google.com/blog/products/application-development/cloud-functions-go-1-11-is-now-a-supported-language/" data-iframely-url="//cdn.iframe.ly/mGNAEkA"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
 
-<p></p>
-
 <h1 id="tl-dr">TL;DR</h1>
 
 <ul>
@@ -254,7 +248,7 @@
 <ul>
 <li><a href="https://golang.org/pkg/net/http/#HandleFunc">https://golang.org/pkg/net/http/#HandleFunc</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> HandleFunc(pattern <span style="color:#dc322f">string</span>, handler <span style="color:#268bd2">func</span>(ResponseWriter, <span style="color:#719e07">*</span>Request))</code></pre></div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">HandleFunc</span>(pattern <span style="color:#dc322f">string</span>, handler <span style="color:#268bd2">func</span>(ResponseWriter, <span style="color:#719e07">*</span>Request))</code></pre></div>
 <h2 id="イベントをトリガーにして実行するbackground-functionsの場合">イベントをトリガーにして実行するBackground Functionsの場合</h2>
 
 <p>Cloud Storageなどで発生したイベントをトリガーに起動するFunctionsを定義することもできる。</p>
@@ -263,7 +257,7 @@
 </span><span style="color:#586e75"></span>}
 
 <span style="color:#586e75">// HelloGCSInfo はGCSのイベントをトリガーに起動するBackground Functions用の関数
-</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> HelloGCSInfo(ctx context.Context, e GCSEvent) <span style="color:#dc322f">error</span> {
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">HelloGCSInfo</span>(ctx context.Context, e GCSEvent) <span style="color:#dc322f">error</span> {
   <span style="color:#586e75">// Do anything...
 </span><span style="color:#586e75"></span>}</code></pre></div>
 <hr />
@@ -278,11 +272,11 @@
 )
 
 <span style="color:#586e75">// F is sample functions
-</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> F(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
-        w.Header().Set(<span style="color:#2aa198">&#34;Content-Type&#34;</span>, <span style="color:#2aa198">&#34;text/plain; charset=utf-8&#34;</span>)
-        fmt.Println(<span style="color:#2aa198">&#34;Hello by fmt pkg&#34;</span>)
-        log.Println(<span style="color:#2aa198">&#34;Hello by log pkg&#34;</span>)
-        w.Write([]<span style="color:#b58900">byte</span>(r.Header.Get(<span style="color:#2aa198">&#34;X-Forwarded-For&#34;</span>)))
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">F</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
+        w.<span style="color:#268bd2">Header</span>().<span style="color:#268bd2">Set</span>(<span style="color:#2aa198">&#34;Content-Type&#34;</span>, <span style="color:#2aa198">&#34;text/plain; charset=utf-8&#34;</span>)
+        fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Hello by fmt pkg&#34;</span>)
+        log.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Hello by log pkg&#34;</span>)
+        w.<span style="color:#268bd2">Write</span>([]<span style="color:#b58900">byte</span>(r.Header.<span style="color:#268bd2">Get</span>(<span style="color:#2aa198">&#34;X-Forwarded-For&#34;</span>)))
 }</code></pre></div>
 <h1 id="functionsをデプロイする">Functionsをデプロイする</h1>
 
@@ -391,11 +385,11 @@ XXX.XXX.XXX.82%</code></pre></div>
 
 <span style="color:#586e75">// ...
 </span><span style="color:#586e75"></span>
-meta, err <span style="color:#719e07">:=</span> metadata.FromContext(ctx)
+meta, err <span style="color:#719e07">:=</span> metadata.<span style="color:#268bd2">FromContext</span>(ctx)
 <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-   <span style="color:#719e07">return</span> fmt.Errorf(<span style="color:#2aa198">&#34;metadata.FromContext: %v&#34;</span>, err)
+   <span style="color:#719e07">return</span> fmt.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;metadata.FromContext: %v&#34;</span>, err)
 }
-log.Printf(<span style="color:#2aa198">&#34;Event ID: %v\n&#34;</span>, meta.EventID)
+log.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;Event ID: %v\n&#34;</span>, meta.EventID)
 <span style="color:#719e07">//</span> <span style="color:#719e07">...</span></code></pre></div>
 <h1 id="その他">その他</h1>
 
@@ -449,6 +443,20 @@ log.Printf(<span style="color:#2aa198">&#34;Event ID: %v\n&#34;</span>, meta.Eve
 </ul></li>
 </ul>
         </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2018/12/14/how-to-use-google-wire/">google/wireを使ったDIとDI関数のシグネチャについて #go</a></li>
+  
+  <li><a href="/2018/10/19/presentation-gounco-lt4/">[発表資料]go-cloudとWireを利用したDI #gounco #go</a></li>
+  
+  <li><a href="/2018/09/09/go-testing2018-iotest/">Goのtestingを理解する in 2018 - iotestサブパッケージ編 #go</a></li>
+  
+</ul>
+
+
         <div class="addthis_inline_share_toolbox"></div>
 
         <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>

@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.50" />
+  <meta name="generator" content="Hugo 0.53" />
 
   
   
@@ -63,16 +63,12 @@
   <meta property="og:title" content="[Go] JSON内の数字や文字列が混じった配列を構造体にUnmarshalする - My External Storage"/>
   <meta property="og:description" content="以下のようなJSONデータはGoではパースしずらい。
 理由は、配列に複数の型が含まれていてGoの配列としては[]interface{}にするしかないことと、名前(key)が設定されていないのでマッピングしにくいからだ。
-これを無理やりUnmarshalしたときのメモ。
-
-"/>
+これを無理やりUnmarshalしたときのメモ。"/>
   
   <meta name="twitter:title" content="[Go] JSON内の数字や文字列が混じった配列を構造体にUnmarshalする - My External Storage"/>
   <meta name="twitter:description" content="以下のようなJSONデータはGoではパースしずらい。
 理由は、配列に複数の型が含まれていてGoの配列としては[]interface{}にするしかないことと、名前(key)が設定されていないのでマッピングしにくいからだ。
-これを無理やりUnmarshalしたときのメモ。
-
-"/>
+これを無理やりUnmarshalしたときのメモ。"/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
   <meta name="twitter:creator" content="@budougumi0617"/>
@@ -192,7 +188,6 @@
 理由は、配列に複数の型が含まれていてGoの配列としては<code>[]interface{}</code>にするしかないことと、名前(<code>key</code>)が設定されていないのでマッピングしにくいからだ。
 これを無理やりUnmarshalしたときのメモ。</p>
 
-<p></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
   <span style="color:#268bd2">&#34;totals&#34;</span>: [
     <span style="color:#2aa198">1</span>,
@@ -227,10 +222,10 @@
 }
 
 <span style="color:#586e75">// UnmarshalJSON 独自定義したUnmarshal方法でUnmarshal時の動きを変える
-</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (ta <span style="color:#719e07">*</span>TotalsArray) UnmarshalJSON(data []<span style="color:#dc322f">byte</span>) <span style="color:#dc322f">error</span> {
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (ta <span style="color:#719e07">*</span>TotalsArray) <span style="color:#268bd2">UnmarshalJSON</span>(data []<span style="color:#dc322f">byte</span>) <span style="color:#dc322f">error</span> {
 	<span style="color:#586e75">// まず引数のdataとして渡ってきたJSONから`[]interface{}`を取得する
 </span><span style="color:#586e75"></span>	<span style="color:#268bd2">var</span> row []<span style="color:#268bd2">interface</span>{}
-	err <span style="color:#719e07">:=</span> json.Unmarshal(data, <span style="color:#719e07">&amp;</span>row)
+	err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmarshal</span>(data, <span style="color:#719e07">&amp;</span>row)
 	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 		<span style="color:#719e07">return</span> err
 	}
@@ -238,13 +233,13 @@
 	<span style="color:#586e75">// 決め打ちで型キャストして取得した情報で構造体の初期化を行なっていく。
 </span><span style="color:#586e75"></span>	f, ok <span style="color:#719e07">:=</span> row[<span style="color:#2aa198">0</span>].(<span style="color:#dc322f">float64</span>)
 	<span style="color:#719e07">if</span> !ok {
-		<span style="color:#719e07">return</span> errors.New(<span style="color:#2aa198">&#34;failed type cast f&#34;</span>)
+		<span style="color:#719e07">return</span> errors.<span style="color:#268bd2">New</span>(<span style="color:#2aa198">&#34;failed type cast f&#34;</span>)
 	}
 	ta.Files = <span style="color:#b58900">int</span>(f)
 
 	c, ok <span style="color:#719e07">:=</span> row[<span style="color:#2aa198">3</span>].(<span style="color:#dc322f">string</span>)
 	<span style="color:#719e07">if</span> !ok {
-		<span style="color:#719e07">return</span> errors.New(<span style="color:#2aa198">&#34;failed type cast c&#34;</span>)
+		<span style="color:#719e07">return</span> errors.<span style="color:#268bd2">New</span>(<span style="color:#2aa198">&#34;failed type cast c&#34;</span>)
 	}
 	ta.CoverageRatio = c
 
@@ -253,7 +248,7 @@
 	<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
 }
 
-<span style="color:#268bd2">func</span> TestTotalsArray_UnmarshalJSON(t <span style="color:#719e07">*</span>testing.T) {
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">TestTotalsArray_UnmarshalJSON</span>(t <span style="color:#719e07">*</span>testing.T) {
 	<span style="color:#586e75">// 複数型が混じった配列を含むJSON配列。Keyがないので個別にUnmarshalできない
 </span><span style="color:#586e75"></span>	jsondata <span style="color:#719e07">:=</span> <span style="color:#2aa198">`
 </span><span style="color:#2aa198">{
@@ -276,10 +271,10 @@
 		Totals TotalsArray <span style="color:#2aa198">`json:&#34;totals&#34;`</span>
 	}
 
-	json.Unmarshal([]<span style="color:#b58900">byte</span>(jsondata), <span style="color:#719e07">&amp;</span>got) <span style="color:#586e75">// {Files:1, CoverageRatio:&#34;42.85714&#34;}
+	json.<span style="color:#268bd2">Unmarshal</span>([]<span style="color:#b58900">byte</span>(jsondata), <span style="color:#719e07">&amp;</span>got) <span style="color:#586e75">// {Files:1, CoverageRatio:&#34;42.85714&#34;}
 </span><span style="color:#586e75"></span>
 	<span style="color:#719e07">if</span> got.Totals <span style="color:#719e07">!=</span> want {
-		t.Fatalf(<span style="color:#2aa198">&#34;want:\n%+v\nbut, got:\n%#v&#34;</span>, want, got.Totals)
+		t.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;want:\n%+v\nbut, got:\n%#v&#34;</span>, want, got.Totals)
 	}
 }</code></pre></div>
 <h1 id="json配列をうまくunmarshalできない">JSON配列をうまくUnmarshalできない</h1>
@@ -316,7 +311,7 @@
 
 <p><a href="https://golang.org/pkg/encoding/json/#Unmarshaler">https://golang.org/pkg/encoding/json/#Unmarshaler</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Unmarshaler <span style="color:#268bd2">interface</span> {
-        UnmarshalJSON([]<span style="color:#dc322f">byte</span>) <span style="color:#dc322f">error</span>
+        <span style="color:#268bd2">UnmarshalJSON</span>([]<span style="color:#dc322f">byte</span>) <span style="color:#dc322f">error</span>
 }</code></pre></div>
 <p>なので、<code>TotalsArray</code>に<code>UnmarshalJSON([]byte) error</code>を実装する。</p>
 
@@ -344,10 +339,10 @@ nil for JSON null
 
 <p>今回は<code>[]interface{}</code>の何番目がどんなデータかわかっているので、以下のようにタイプキャストして構造体のフィールドに取得した情報を代入していく。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// UnmarshalJSON はエラーハンドリングを省略した簡易コード
-</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (ta <span style="color:#719e07">*</span>TotalsArray) UnmarshalJSON(data []<span style="color:#dc322f">byte</span>) <span style="color:#dc322f">error</span> {
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (ta <span style="color:#719e07">*</span>TotalsArray) <span style="color:#268bd2">UnmarshalJSON</span>(data []<span style="color:#dc322f">byte</span>) <span style="color:#dc322f">error</span> {
 	<span style="color:#268bd2">var</span> arr <span style="color:#268bd2">interface</span>{}
 	<span style="color:#586e75">// 引数として&#34;totals&#34;のデータが渡ってくる
-</span><span style="color:#586e75"></span>	json.Unmarshal(data, <span style="color:#719e07">&amp;</span>arr)
+</span><span style="color:#586e75"></span>	json.<span style="color:#268bd2">Unmarshal</span>(data, <span style="color:#719e07">&amp;</span>arr)
 
 	<span style="color:#586e75">// 0番目は数値(float64)であると決め打ち
 </span><span style="color:#586e75"></span>	f, _ <span style="color:#719e07">:=</span> arr[<span style="color:#2aa198">0</span>].(<span style="color:#dc322f">float64</span>)
@@ -364,7 +359,7 @@ nil for JSON null
 				Totals TotalsArray <span style="color:#2aa198">`json:&#34;totals&#34;`</span>
 			}
 
-json.Unmarshal(data, <span style="color:#719e07">&amp;</span>got)</code></pre></div>
+json.<span style="color:#268bd2">Unmarshal</span>(data, <span style="color:#719e07">&amp;</span>got)</code></pre></div>
 <h1 id="終わりに">終わりに</h1>
 
 <p>自分でAPIを設計するときはこんなJSONを出力するのは辞めよう。利用者がその値の意味を理解できない可能性があるし、配列内の順序が変わっていたとしても利用者は気づくことができないのでAPI間でバグが混入する可能性が高い。</p>
@@ -386,6 +381,20 @@ json.Unmarshal(data, <span style="color:#719e07">&amp;</span>got)</code></pre></
 
 <iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=B00LGJTXT8&linkId=8a84541627790149dbb0561368fbfafc"></iframe>
         </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2018/11/18/loop-by-time-tick-in-golang/">[Go] n秒おきになにかするループをtime.Tickで書く #go</a></li>
+  
+  <li><a href="/2018/10/30/review-writing-an-gnterpreter-in-go/">[書評] Go言語でつくるインタプリタ を読んだ #go</a></li>
+  
+  <li><a href="/2018/10/22/deug-gocode-and-vim-go-auto-completion/">vim-goの自動補完が効かないときの調べ方（gocode が Error parsing input file (outer block)） #vim #go</a></li>
+  
+</ul>
+
+
         <div class="addthis_inline_share_toolbox"></div>
 
         <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>

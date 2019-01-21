@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.50" />
+  <meta name="generator" content="Hugo 0.53" />
 
   
   
@@ -61,14 +61,10 @@
   <meta property="og:url" content="https://budougumi0617.github.io/2018/11/18/loop-by-time-tick-in-golang/"/>
   <meta property="og:type" content="article"/>
   <meta property="og:title" content="[Go] n秒おきになにかするループをtime.Tickで書く #go - My External Storage"/>
-  <meta property="og:description" content="Go言語による並行処理に知らない書き方があったのでメモ。
-
-"/>
+  <meta property="og:description" content="Go言語による並行処理に知らない書き方があったのでメモ。"/>
   
   <meta name="twitter:title" content="[Go] n秒おきになにかするループをtime.Tickで書く #go - My External Storage"/>
-  <meta name="twitter:description" content="Go言語による並行処理に知らない書き方があったのでメモ。
-
-"/>
+  <meta name="twitter:description" content="Go言語による並行処理に知らない書き方があったのでメモ。"/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
   <meta name="twitter:creator" content="@budougumi0617"/>
@@ -189,8 +185,6 @@
           
           <p><a href="http://amazon.jp/dp/4873118468">Go言語による並行処理</a>に知らない書き方があったのでメモ。</p>
 
-<p></p>
-
 <h1 id="tl-dr">TL;DR</h1>
 
 <ul>
@@ -213,10 +207,10 @@
 	<span style="color:#2aa198">&#34;time&#34;</span>
 )
 
-<span style="color:#268bd2">func</span> main() {
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 	<span style="color:#719e07">for</span> {
-		fmt.Println(<span style="color:#2aa198">&#34;Tick!!&#34;</span>)
-		time.Sleep(<span style="color:#2aa198">3</span> <span style="color:#719e07">*</span> time.Millisecond)
+		fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Tick!!&#34;</span>)
+		time.<span style="color:#268bd2">Sleep</span>(<span style="color:#2aa198">3</span> <span style="color:#719e07">*</span> time.Millisecond)
 	}
 }</code></pre></div>
 <h2 id="time-tickを使ってx秒おきに無限ループ">time.Tickを使ってX秒おきに無限ループ</h2>
@@ -231,9 +225,9 @@
 	<span style="color:#2aa198">&#34;time&#34;</span>
 )
 
-<span style="color:#268bd2">func</span> main() {
-	<span style="color:#719e07">for</span> <span style="color:#719e07">range</span> time.Tick(<span style="color:#2aa198">3</span> <span style="color:#719e07">*</span> time.Millisecond) {
-		fmt.Println(<span style="color:#2aa198">&#34;Tick!!&#34;</span>)
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+	<span style="color:#719e07">for</span> <span style="color:#719e07">range</span> time.<span style="color:#268bd2">Tick</span>(<span style="color:#2aa198">3</span> <span style="color:#719e07">*</span> time.Millisecond) {
+		fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Tick!!&#34;</span>)
 	}
 }</code></pre></div>
 <h1 id="x秒間だけn秒おきになにかする有限ループ">x秒間だけn秒おきになにかする有限ループ</h1>
@@ -248,12 +242,12 @@
 	<span style="color:#2aa198">&#34;time&#34;</span>
 )
 
-<span style="color:#268bd2">func</span> main() {
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 	limit <span style="color:#719e07">:=</span> <span style="color:#2aa198">5</span> <span style="color:#719e07">*</span> time.Millisecond
 	<span style="color:#586e75">// time.Since()で取得したDurationでループを止めるか決める
-</span><span style="color:#586e75"></span>	<span style="color:#719e07">for</span> begin <span style="color:#719e07">:=</span> time.Now(); time.Since(begin) &lt; limit; {
-		fmt.Println(<span style="color:#2aa198">&#34;Tick!!&#34;</span>)
-		time.Sleep(<span style="color:#2aa198">1</span> <span style="color:#719e07">*</span> time.Millisecond)
+</span><span style="color:#586e75"></span>	<span style="color:#719e07">for</span> begin <span style="color:#719e07">:=</span> time.<span style="color:#268bd2">Now</span>(); time.<span style="color:#268bd2">Since</span>(begin) &lt; limit; {
+		fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Tick!!&#34;</span>)
+		time.<span style="color:#268bd2">Sleep</span>(<span style="color:#2aa198">1</span> <span style="color:#719e07">*</span> time.Millisecond)
 	}
 }</code></pre></div>
 <p><code>time.Tick</code>を使うとこんな感じ？これは素直に上の書き方をしたほうがシンプルだとおもう。</p>
@@ -266,13 +260,13 @@
 	<span style="color:#2aa198">&#34;time&#34;</span>
 )
 
-<span style="color:#268bd2">func</span> main() {
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 	limit <span style="color:#719e07">:=</span> <span style="color:#2aa198">5</span> <span style="color:#719e07">*</span> time.Millisecond
-	begin <span style="color:#719e07">:=</span> time.Now()
-	<span style="color:#719e07">for</span> now <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> time.Tick(<span style="color:#2aa198">1</span> <span style="color:#719e07">*</span> time.Millisecond) {
-		fmt.Println(<span style="color:#2aa198">&#34;Tick!!&#34;</span>)
+	begin <span style="color:#719e07">:=</span> time.<span style="color:#268bd2">Now</span>()
+	<span style="color:#719e07">for</span> now <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> time.<span style="color:#268bd2">Tick</span>(<span style="color:#2aa198">1</span> <span style="color:#719e07">*</span> time.Millisecond) {
+		fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Tick!!&#34;</span>)
 		<span style="color:#586e75">// time.Tickで取得した現在時間とループ開始直前の時間の差分でループを止めるか決める
-</span><span style="color:#586e75"></span>		<span style="color:#719e07">if</span> now.Sub(begin) <span style="color:#719e07">&gt;=</span> limit {
+</span><span style="color:#586e75"></span>		<span style="color:#719e07">if</span> now.<span style="color:#268bd2">Sub</span>(begin) <span style="color:#719e07">&gt;=</span> limit {
 			<span style="color:#719e07">break</span>
 		}
 	}
@@ -283,11 +277,11 @@
 <code>time.Ticker</code>を使うときは明示的に<code>Stop()</code>を呼ばないとリークするらしいが、<code>time.Tick()</code>を<code>range</code>で使っている場合はループのスコープが外れればGCされるのかな？</p>
 
 <p><a href="https://golang.org/src/time/tick.go?s=1752:1785#L44">https://golang.org/src/time/tick.go?s=1752:1785#L44</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> Tick(d Duration) <span style="color:#719e07">&lt;-</span><span style="color:#268bd2">chan</span> Time {
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">Tick</span>(d Duration) <span style="color:#719e07">&lt;-</span><span style="color:#268bd2">chan</span> Time {
 	<span style="color:#719e07">if</span> d <span style="color:#719e07">&lt;=</span> <span style="color:#2aa198">0</span> {
 		<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
 	}
-	<span style="color:#719e07">return</span> NewTicker(d).C
+	<span style="color:#719e07">return</span> <span style="color:#268bd2">NewTicker</span>(d).C
 }</code></pre></div>
 <h1 id="参考">参考</h1>
 
@@ -306,6 +300,20 @@
 
 <iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4873118468&linkId=65ce90491608995926ef69b8e0257c2a"></iframe>
         </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2018/10/30/review-writing-an-gnterpreter-in-go/">[書評] Go言語でつくるインタプリタ を読んだ #go</a></li>
+  
+  <li><a href="/2018/10/22/deug-gocode-and-vim-go-auto-completion/">vim-goの自動補完が効かないときの調べ方（gocode が Error parsing input file (outer block)） #vim #go</a></li>
+  
+  <li><a href="/2018/10/19/presentation-gounco-lt4/">[発表資料]go-cloudとWireを利用したDI #gounco #go</a></li>
+  
+</ul>
+
+
         <div class="addthis_inline_share_toolbox"></div>
 
         <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>

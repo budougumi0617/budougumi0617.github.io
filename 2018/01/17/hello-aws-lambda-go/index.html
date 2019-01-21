@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.50" />
+  <meta name="generator" content="Hugo 0.53" />
 
   
   
@@ -214,22 +214,22 @@
 	<span style="color:#2aa198">&#34;github.com/aws/aws-lambda-go/lambdacontext&#34;</span>
 )
 
-<span style="color:#268bd2">func</span> HelloLambdaHandler(ctx context.Context, config events.ConfigEvent) (<span style="color:#dc322f">string</span>, <span style="color:#dc322f">error</span>) {
-	lc, ok <span style="color:#719e07">:=</span> lambdacontext.FromContext(ctx)
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">HelloLambdaHandler</span>(ctx context.Context, config events.ConfigEvent) (<span style="color:#dc322f">string</span>, <span style="color:#dc322f">error</span>) {
+	lc, ok <span style="color:#719e07">:=</span> lambdacontext.<span style="color:#268bd2">FromContext</span>(ctx)
 	<span style="color:#719e07">if</span> !ok {
-		<span style="color:#719e07">return</span> <span style="color:#2aa198">&#34;&#34;</span>, errors.New(<span style="color:#2aa198">&#34;Cannot find LambdaContext&#34;</span>)
+		<span style="color:#719e07">return</span> <span style="color:#2aa198">&#34;&#34;</span>, errors.<span style="color:#268bd2">New</span>(<span style="color:#2aa198">&#34;Cannot find LambdaContext&#34;</span>)
 	}
 
-	log.Printf(<span style="color:#2aa198">&#34;log:InvokedFunctionArn = %s\n&#34;</span>, lc.InvokedFunctionArn)
-	fmt.Printf(<span style="color:#2aa198">&#34;fmt:InvokedFunctionArn = %s\n&#34;</span>, lc.InvokedFunctionArn)
-	log.Printf(<span style="color:#2aa198">&#34;config version is %v\n&#34;</span>, config.Version)
-	log.Printf(<span style="color:#2aa198">&#34;\&#34;%s\&#34; executes on \&#34;%s\&#34;.\n&#34;</span>, os.Getenv(<span style="color:#2aa198">&#34;LAMBDA_TASK_ROOT&#34;</span>), os.Getenv(<span style="color:#2aa198">&#34;AWS_EXECUTION_ENV&#34;</span>))
+	log.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;log:InvokedFunctionArn = %s\n&#34;</span>, lc.InvokedFunctionArn)
+	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;fmt:InvokedFunctionArn = %s\n&#34;</span>, lc.InvokedFunctionArn)
+	log.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;config version is %v\n&#34;</span>, config.Version)
+	log.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;\&#34;%s\&#34; executes on \&#34;%s\&#34;.\n&#34;</span>, os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;LAMBDA_TASK_ROOT&#34;</span>), os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;AWS_EXECUTION_ENV&#34;</span>))
 
 	<span style="color:#719e07">return</span> <span style="color:#2aa198">&#34;function finished&#34;</span>, <span style="color:#cb4b16">nil</span>
 }
 
-<span style="color:#268bd2">func</span> main() {
-	lambda.Start(HelloLambdaHandler)
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+	lambda.<span style="color:#268bd2">Start</span>(HelloLambdaHandler)
 }</code></pre></div>
 <h1 id="前提-準備">前提・準備</h1>
 
@@ -311,11 +311,11 @@ AWS内のイベントは既に構造体が定義されているので、それ�
 <p><a href="https://godoc.org/github.com/aws/aws-lambda-go/lambdacontext">https://godoc.org/github.com/aws/aws-lambda-go/lambdacontext</a></p>
 
 <p>ハンドラに渡される<code>context.Context</code>の中には、<code>LambdaContext</code>が入っていて、AWSの情報がよしなに入っている。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	lc, ok <span style="color:#719e07">:=</span> lambdacontext.FromContext(ctx)
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	lc, ok <span style="color:#719e07">:=</span> lambdacontext.<span style="color:#268bd2">FromContext</span>(ctx)
 	<span style="color:#719e07">if</span> !ok {
-		<span style="color:#719e07">return</span> <span style="color:#2aa198">&#34;&#34;</span>, errors.New(<span style="color:#2aa198">&#34;Cannot find LambdaContext&#34;</span>)
+		<span style="color:#719e07">return</span> <span style="color:#2aa198">&#34;&#34;</span>, errors.<span style="color:#268bd2">New</span>(<span style="color:#2aa198">&#34;Cannot find LambdaContext&#34;</span>)
 	}
-	fmt.Printf(<span style="color:#2aa198">&#34;InvokedFunctionArn = %s\n&#34;</span>, lc.InvokedFunctionArn) <span style="color:#719e07">//</span> InvokedFunctionArn = arn:aws:lambda:ap<span style="color:#719e07">-</span>no<span style="color:#719e07">...</span></code></pre></div>
+	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;InvokedFunctionArn = %s\n&#34;</span>, lc.InvokedFunctionArn) <span style="color:#719e07">//</span> InvokedFunctionArn = arn:aws:lambda:ap<span style="color:#719e07">-</span>no<span style="color:#719e07">...</span></code></pre></div>
 <p><a href="https://godoc.org/github.com/aws/aws-lambda-go/lambdacontext#NewContext">lambdacontext.NewContext</a>を使って
 自分で<code>Context</code>の中に<code>LambdaContext</code>を入れることも出来る(ハンドラ内でgoroutine回したりする時用？)</p>
 
@@ -325,8 +325,8 @@ AWS内のイベントは既に構造体が定義されているので、それ�
 <a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-logging.html">https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-logging.html</a></p>
 
 <p>ログは他の言語で実装したとき同様標準出力に出力すれば<code>CloudWatch</code>に保存される。<code>log</code>を使えばタイムスタンプを付与しておく事もできる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">log.Printf(<span style="color:#2aa198">&#34;log:InvokedFunctionArn = %s\n&#34;</span>, lc.InvokedFunctionArn) <span style="color:#586e75">// 2018/01/16 23:07:46 log:Invoked...
-</span><span style="color:#586e75"></span>fmt.Printf(<span style="color:#2aa198">&#34;fmt:InvokedFunctionArn = %s\n&#34;</span>, lc.InvokedFunctionArn) <span style="color:#719e07">//</span> fmt:Invoked<span style="color:#719e07">...</span></code></pre></div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">log.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;log:InvokedFunctionArn = %s\n&#34;</span>, lc.InvokedFunctionArn) <span style="color:#586e75">// 2018/01/16 23:07:46 log:Invoked...
+</span><span style="color:#586e75"></span>fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;fmt:InvokedFunctionArn = %s\n&#34;</span>, lc.InvokedFunctionArn) <span style="color:#719e07">//</span> fmt:Invoked<span style="color:#719e07">...</span></code></pre></div>
 <h1 id="エラー処理は-erro-や-panic-など標準のものが使える">エラー処理は<code>erro</code>や<code>panic</code>など標準のものが使える</h1>
 
 <p><strong>Function Errors (Go)</strong><br />
@@ -355,7 +355,7 @@ AWS内のイベントは既に構造体が定義されているので、それ�
 <a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-env-variables.html">https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-env-variables.html</a></p>
 
 <p>他の言語と同様、<code>os.Getenv</code>で環境変数を取得できる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">fmt.Printf(<span style="color:#2aa198">&#34;\&#34;%s\&#34; executes on \&#34;%s\&#34;.\n&#34;</span>, os.Getenv(<span style="color:#2aa198">&#34;LAMBDA_TASK_ROOT&#34;</span>), os.Getenv(<span style="color:#2aa198">&#34;AWS_EXECUTION_ENV&#34;</span>))  <span style="color:#719e07">//</span> <span style="color:#2aa198">&#34;/var/task&#34;</span> executes on <span style="color:#2aa198">&#34;&#34;</span>.</code></pre></div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;\&#34;%s\&#34; executes on \&#34;%s\&#34;.\n&#34;</span>, os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;LAMBDA_TASK_ROOT&#34;</span>), os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;AWS_EXECUTION_ENV&#34;</span>))  <span style="color:#719e07">//</span> <span style="color:#2aa198">&#34;/var/task&#34;</span> executes on <span style="color:#2aa198">&#34;&#34;</span>.</code></pre></div>
 <p>ちなみに<code>AWS_EXECUTION_ENV</code>がどうなるか書いてなかったので、興味本位で見ようと思ったら本当に設定されてなかった（？）</p>
 
 <p><strong>Environment Variables Available to Lambda Functions</strong><br />
@@ -433,6 +433,20 @@ Goでの実装はコードひとつだけでビルドできるので、非常に
 <a href="https://github.com/budougumi0617/sandbox-aws-lambda-go">https://github.com/budougumi0617/sandbox-aws-lambda-go</a></p>
 
         </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2018/01/14/grpc-basics-go/">[Go]gRPC Basics: GoからgRPCのストリーミングRPCを理解する</a></li>
+  
+  <li><a href="/2018/01/04/server-reflection-tutorial/">[Go][gRPC]Server Reflection Tutorialをやってみた</a></li>
+  
+  <li><a href="/2018/01/01/hello-grpc-go/">[Go]gRPCのGo Quick Startをやってみた。</a></li>
+  
+</ul>
+
+
         <div class="addthis_inline_share_toolbox"></div>
 
         <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
