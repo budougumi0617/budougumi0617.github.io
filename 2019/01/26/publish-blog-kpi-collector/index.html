@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>GoogleスプレットシートでWebサイトのKPIを集計するためのOSSを作った #blog #gas - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="SEO,ブログ,GAS,Google Apps Script,KPI">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.53" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/2019/01/26-kpi-collector.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/2019/01/26-kpi-collector.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/01/26/publish-blog-kpi-collector/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="GoogleスプレットシートでWebサイトのKPIを集計するためのOSSを作った #blog #gas - My External Storage"/>
+  <meta property="og:description" content="ブログのKPIを集計するGoogle Apps Script(GAS)をシュッと作成するスターターキットのOSSを作った。
+
+
+
+GASのトリガー機能で定期実行すれば、定期的にKPIを自動集計できる。2019/01/26現在対応している項目は以下。
+
+
+Google Analyticsの週間PV数
+Google Analyticsの週間直帰率
+はてなブックマークの総数
+はてなブログの読者数
+Twitterのフォロワー数
+
+
+"/>
+  
+  <meta name="twitter:title" content="GoogleスプレットシートでWebサイトのKPIを集計するためのOSSを作った #blog #gas - My External Storage"/>
+  <meta name="twitter:description" content="ブログのKPIを集計するGoogle Apps Script(GAS)をシュッと作成するスターターキットのOSSを作った。
+
+
+
+GASのトリガー機能で定期実行すれば、定期的にKPIを自動集計できる。2019/01/26現在対応している項目は以下。
+
+
+Google Analyticsの週間PV数
+Google Analyticsの週間直帰率
+はてなブックマークの総数
+はてなブログの読者数
+Twitterのフォロワー数
+
+
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Jan 26, 2019
+         - 4 minute read 
+         - <a href="https://budougumi0617.github.io/2019/01/26/publish-blog-kpi-collector/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/blog/">blog </a><a class="label" href="https://budougumi0617.github.io/categories/gas/">gas </a>
+        
+    </p>
+    <h1 class="entry-title">
+         GoogleスプレットシートでWebサイトのKPIを集計するためのOSSを作った #blog #gas 
+    </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#なぜ作ったのか-誰が使うのか">なぜ作ったのか？（誰が使うのか？）</a></li>
+<li><a href="#仕組みの概要">仕組みの概要</a></li>
+<li><a href="#気をつけたところ">気をつけたところ</a></li>
+<li><a href="#今後">今後</a></li>
+<li><a href="#最後に作ってみて">最後に作ってみて</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</nav>
+          
+          <p>ブログのKPIを集計するGoogle Apps Script(GAS)をシュッと作成するスターターキットのOSSを作った。</p>
+
+<p><img src="/2019/01/26-results.png" alt="集計イメージ" /></p>
+
+<p>GASのトリガー機能で定期実行すれば、定期的にKPIを自動集計できる。2019/01/26現在対応している項目は以下。</p>
+
+<ul>
+<li>Google Analyticsの週間PV数</li>
+<li>Google Analyticsの週間直帰率</li>
+<li>はてなブックマークの総数</li>
+<li>はてなブログの読者数</li>
+<li>Twitterのフォロワー数</li>
+</ul>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 168px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/blog-kpi-collector" data-iframely-url="//cdn.iframe.ly/api/iframe?url=https%3A%2F%2Fgithub.com%2Fbudougumi0617%2Fblog-kpi-collector%2F&amp;key=bc7b75ad5adf2dc500d4b0dee9f92949"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li><code>Node.js</code>の実行環境、Googeアカウントがあれば利用できる</li>
+<li>ローカルから<code>clasp</code>コマンドを使って簡単にGASとスプレットシートの準備が出来る</li>
+<li>ブログのURLなどをスクリプトのプロパティに設定し、トリガーなどをWebブラウザで設定するだけ</li>
+<li>全部無料で使えるのでよかったら使ってみてください</li>
+</ul>
+
+<h1 id="なぜ作ったのか-誰が使うのか">なぜ作ったのか？（誰が使うのか？）</h1>
+
+<p>このブログを毎週更新している。去年まではなんとなくGoogle Analyticsのグラフを見ていただけだった。今年はもう少しブログの質をちゃんとみよう、と思いもろもろの情報をGoogleスプレットシートに集計することにした（ちゃんと見ましょう、という指摘を受けたほうが大きいが）。このOSS作成以前に自分で使うためのGASコードは出来てたのだが、他のブロガーの方も同様の集計をしたい・しているということなので一般化して公開することにした。</p>
+
+<h1 id="仕組みの概要">仕組みの概要</h1>
+
+<p>このOSSは以下の流れで利用できる。<code>Node.js</code>の準備などで詰まらなければ、だいたい30分もかからず利用開始できるはずだ。</p>
+
+<ul>
+<li>ローカルで<code>clasp</code>コマンド（後述）を利用する準備をする</li>
+<li>OSSをダウンロード（`git clone）する</li>
+<li><code>clasp</code>コマンドを使って、Google DriveにGASのプロジェクトとGoogleスプレットシートを自動生成する</li>
+<li>Webブラウザ上でブログURLなどをスクリプトのプロパティ（GASの環境変数みたいなKeyValue）に設定する</li>
+<li>実行して権限設定をして、定期実行をするためのトリガーを設定する</li>
+</ul>
+
+<p>使い方の詳細については、リポジトリのREADMEに網羅しているつもりなのでそちらを参照のこと（不足があれば<a href="https://github.com/budougumi0617/blog-kpi-collector/issues/new">issueで指摘</a>していただければ）。</p>
+
+<ul>
+<li><a href="https://github.com/budougumi0617/blog-kpi-collector/blob/master/README.md">https://github.com/budougumi0617/blog-kpi-collector/blob/master/README.md</a></li>
+</ul>
+
+<p><code>clasp</code>コマンドとは、ローカルでGAS開発をするためのGoogle公式ツールだ。<code>npm</code>ライブラリなので、実行には<code>Node.js</code>の準備が必要だ。
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 168px; padding-bottom: 0;"><a href="https://github.com/google/clasp" data-iframely-url="//cdn.iframe.ly/api/iframe?url=https%3A%2F%2Fgithub.com%2Fgoogle%2Fclasp&amp;key=bc7b75ad5adf2dc500d4b0dee9f92949"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<h1 id="気をつけたところ">気をつけたところ</h1>
+
+<p>あまりコード書かない方でも使えるように、なるべく簡単に開始準備が出来るように気をつけた。具体的には以下の点を考慮している。</p>
+
+<ul>
+<li>GASのコードは編集せずにスクリプトのプロパティをするだけで有効化出来る</li>
+<li>READMEを読めば一通りの設定が終わる</li>
+</ul>
+
+<p>本当は認可周りの設定もコマンドで完了したかったのだが、プロジェクトIDなどの取得のためにどうしてもWebブラウザを開くことは回避できないのでひとまず諦めた。
+また、現状の<code>clasp</code>コマンドではスクリプトプロパティの更新などは出来ないはずなので、こちらも諦めた。</p>
+
+<h1 id="今後">今後</h1>
+
+<p>自動集計する仕組みは作ったものの、まだそのデータを使って可視化や分析は出来ていない。グラフなどを作ったらそのTipsも公開できたらよいと思っている。
+また、他にも集計したほうがよさそうな項目があれば適宜追加していきたい。その週の記事投稿数なども必要かなと思っている。
+そもそもTypeScriptで書いておきつつ型付けができていないなどの問題もあるのだが、Analytics APIがnpm上に存在しない（？）などもあるのでそこの解決はあまり優先していない。</p>
+
+<h1 id="最後に作ってみて">最後に作ってみて</h1>
+
+<p>有志に人柱を依頼したのだが、好評をいただけたりして良かった。<a href="https://twitter.com/mom0tomo">@mom0tomo</a>さんや<a href="https://twitter.com/ngmt83">@ngmt83</a>さんにはすでにPRも作っていただいて不足点を改善していただいた。
+この調子で今年は誰かに使ってもらえるOSSをいくつか作っていく（出来たらGoで作りたいな）。</p>
+
+<h1 id="参考">参考</h1>
+
+<ul>
+<li><a href="https://github.com/budougumi0617/blog-kpi-collector">https://github.com/budougumi0617/blog-kpi-collector</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/01/16/develop-google-apps-script-by-typescript/">Google Apps ScriptをTypeScriptで実装する(clasp/TSLint/Prettier) #gas #typescript</a></li>
+  
+  <li><a href="/2019/01/05/set-ogp-in-hugo-blog/">HugoでOGP(Facebook用のアイキャッチ画像)を設定する #hugo</a></li>
+  
+  <li><a href="/2019/01/04/set-twitter-image-in-hugo-blog/">Hugoのブログ記事にTwitter Card(アイキャッチ画像)を設定する #hugo</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+​<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Jan 26, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/clasp">clasp</a>  <a class="category" href="https://budougumi0617.github.io/tags/gas">gas</a>  <a class="category" href="https://budougumi0617.github.io/tags/blog">blog</a>  <a class="category" href="https://budougumi0617.github.io/tags/kpi">kpi</a>  <a class="category" href="https://budougumi0617.github.io/tags/seo">seo</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/01/21/use-heatmap-by-userheat/" title="HugoブログにUser Heatを設置してヒートマップ分析をする">HugoブログにUser Heatを設置してヒートマップ分析をする</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/01/26/publish-blog-kpi-collector/">GoogleスプレットシートでWebサイトのKPIを集計するためのOSSを作った #blog #gas</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/01/21/use-heatmap-by-userheat/">HugoブログにUser Heatを設置してヒートマップ分析をする</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/01/17/try-go-on-google-cloud-functions/">BetaリリースされたGoのGoogle Cloud Functionsを試す #gcp #golangjp</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/01/16/develop-google-apps-script-by-typescript/">Google Apps ScriptをTypeScriptで実装する(clasp/TSLint/Prettier) #gas #typescript</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/01/11/filter-branch-in-github-actions/">GitHub Actionsで特定のブランチのときのみワークフローを実行する #github #actions #ci</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
