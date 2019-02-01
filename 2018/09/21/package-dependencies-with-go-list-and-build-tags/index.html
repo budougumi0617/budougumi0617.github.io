@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.53" />
+  <meta name="generator" content="Hugo 0.50" />
 
   
   
@@ -62,11 +62,15 @@
   <meta property="og:type" content="article"/>
   <meta property="og:title" content="go listで依存パッケージを一覧する。-tagsで依存パッケージを切り替える #go - My External Storage"/>
   <meta property="og:description" content="今更だがGoでビルドタグで依存パッケージをどう制御できるのか確認した。
-また、依存パッケージの一覧を確認するのにはgo listコマンドの使い方を調べた。"/>
+また、依存パッケージの一覧を確認するのにはgo listコマンドの使い方を調べた。
+
+"/>
   
   <meta name="twitter:title" content="go listで依存パッケージを一覧する。-tagsで依存パッケージを切り替える #go - My External Storage"/>
   <meta name="twitter:description" content="今更だがGoでビルドタグで依存パッケージをどう制御できるのか確認した。
-また、依存パッケージの一覧を確認するのにはgo listコマンドの使い方を調べた。"/>
+また、依存パッケージの一覧を確認するのにはgo listコマンドの使い方を調べた。
+
+"/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
   <meta name="twitter:creator" content="@budougumi0617"/>
@@ -188,6 +192,8 @@
           <p>今更だがGoでビルドタグで依存パッケージをどう制御できるのか確認した。<br />
 また、依存パッケージの一覧を確認するのには<code>go list</code>コマンドの使い方を調べた。</p>
 
+<p></p>
+
 <h1 id="tl-dr">TL;DR</h1>
 
 <ul>
@@ -210,21 +216,21 @@
 .
 ├── LICENSE
 ├── README.md
-├── aws           <span style="color:#586e75"># !gcpタグ付きのコード</span>
-│   └── setup.go  <span style="color:#586e75"># AWS SDKに依存しているコード</span>
-├── aws.go
+├── aws           <span style="color:#586e75"># !gcpタグ付きのコード
+</span><span style="color:#586e75"></span>│   └── setup.go  <span style="color:#586e75"># AWS SDKに依存しているコード
+</span><span style="color:#586e75"></span>├── aws.go
 ├── gcp
-│   └── setup.go  <span style="color:#586e75"># GCP SDKに依存しているコード</span>
-├── gcp.go        <span style="color:#586e75"># gcpタグ付きのコード</span>
-├── main.go
+│   └── setup.go  <span style="color:#586e75"># GCP SDKに依存しているコード
+</span><span style="color:#586e75"></span>├── gcp.go        <span style="color:#586e75"># gcpタグ付きのコード
+</span><span style="color:#586e75"></span>├── main.go
 └── sandbox-go-cloud</code></pre></div>
 <p><code>main.go</code>では<code>test()</code>関数を呼ぶ。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+<span style="color:#268bd2">func</span> main() {
     <span style="color:#586e75">// tags=gcpのときはgcp.goのtest()が呼ばれる
 </span><span style="color:#586e75"></span>    <span style="color:#586e75">// tagsがなければaws.goのtest()が呼ばれる
-</span><span style="color:#586e75"></span>    <span style="color:#268bd2">test</span>()
+</span><span style="color:#586e75"></span>    test()
 }</code></pre></div>
 <p><code>test()</code>関数は<code>./aws.go</code>と<code>./gcp.go</code>に定義した。<br />
 ２つのファイルはビルドタグによって必ず片方しかビルドに含まれないので、同じ関数があっても矛盾しない。</p>
@@ -248,8 +254,8 @@
 </span><span style="color:#586e75"></span>    <span style="color:#2aa198">&#34;github.com/budougumi0617/sandbox-go-cloud/gcp&#34;</span>
 )
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">test</span>() {
-    gcp.<span style="color:#268bd2">Print</span>()
+<span style="color:#268bd2">func</span> test() {
+    gcp.Print()
 }</code></pre></div>
 <p>ビルドタグの定義には倫理式も使えるので、<code>aws.go</code>は<code>gcp</code>タグがついて「いない」時にビルドに含まれるファイルになる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// +build !gcp
@@ -261,8 +267,8 @@
 </span><span style="color:#586e75"></span>    <span style="color:#2aa198">&#34;github.com/budougumi0617/sandbox-go-cloud/aws&#34;</span>
 )
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">test</span>() {
-    aws.<span style="color:#268bd2">Print</span>()
+<span style="color:#268bd2">func</span> test() {
+    aws.Print()
 }</code></pre></div>
 <p>ビルドタグの定義により、<code>aws.go</code>と<code>gcp.go</code>はビルド時にいずれしか含まれない。それぞれ別のサブパッケージに依存している。<br />
 また、今回は結果をわかりやすくするため、GCP関係の依存パッケージをローカルから取り除いている。（GCP関係の依存があるとパッケージが見つからずにビルドが失敗する）</p>
@@ -506,6 +512,12 @@ github.com/google/go-cloud/wire</code></pre></div>
           
             
               <li class="post">
+                <a href="/2019/02/01/how-to-use-analisys-package/">golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang</a>
+              </li>
+            
+          
+            
+              <li class="post">
                 <a href="/2019/01/26/publish-blog-kpi-collector/">GoogleスプレットシートでWebサイトのKPIを集計するためのOSSを作った #blog #gas</a>
               </li>
             
@@ -525,12 +537,6 @@ github.com/google/go-cloud/wire</code></pre></div>
             
               <li class="post">
                 <a href="/2019/01/16/develop-google-apps-script-by-typescript/">Google Apps ScriptをTypeScriptで実装する(clasp/TSLint/Prettier) #gas #typescript</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2019/01/11/filter-branch-in-github-actions/">GitHub Actionsで特定のブランチのときのみワークフローを実行する #github #actions #ci</a>
               </li>
             
           

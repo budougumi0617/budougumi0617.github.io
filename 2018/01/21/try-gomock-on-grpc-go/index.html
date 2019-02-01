@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.53" />
+  <meta name="generator" content="Hugo 0.50" />
 
   
   
@@ -248,12 +248,12 @@ message GetTaskRequest {
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// Client API for TaskManager service
 </span><span style="color:#586e75"></span>
 <span style="color:#268bd2">type</span> TaskManagerClient <span style="color:#268bd2">interface</span> {
-    <span style="color:#268bd2">GetTask</span>(ctx context.Context, in <span style="color:#719e07">*</span>GetTaskRequest, opts <span style="color:#719e07">...</span>grpc.CallOption) (<span style="color:#719e07">*</span>Task, <span style="color:#dc322f">error</span>)
-    <span style="color:#268bd2">ListTasks</span>(ctx context.Context, in <span style="color:#719e07">*</span>google_protobuf.Empty, opts <span style="color:#719e07">...</span>grpc.CallOption) (TaskManager_ListTasksClient, <span style="color:#dc322f">error</span>)
+    GetTask(ctx context.Context, in <span style="color:#719e07">*</span>GetTaskRequest, opts <span style="color:#719e07">...</span>grpc.CallOption) (<span style="color:#719e07">*</span>Task, <span style="color:#dc322f">error</span>)
+    ListTasks(ctx context.Context, in <span style="color:#719e07">*</span>google_protobuf.Empty, opts <span style="color:#719e07">...</span>grpc.CallOption) (TaskManager_ListTasksClient, <span style="color:#dc322f">error</span>)
 }
 
 <span style="color:#268bd2">type</span> TaskManager_ListTasksClient <span style="color:#268bd2">interface</span> {
-    <span style="color:#268bd2">Recv</span>() (<span style="color:#719e07">*</span>Task, <span style="color:#dc322f">error</span>)
+    Recv() (<span style="color:#719e07">*</span>Task, <span style="color:#dc322f">error</span>)
     grpc.ClientStream
 }</code></pre></div>
 <p>このインターフェースのモックを<code>mockgen</code>コマンドで自動生成する。
@@ -276,7 +276,7 @@ $ mockgen github.com/budougumi0617/sandbox-grpc/tasklist/proto TaskManagerClient
 
 <p><code>GetTask</code>メソッドのモックを利用するテストを書く。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> TaskManagerClient <span style="color:#268bd2">interface</span> {
-  <span style="color:#268bd2">GetTask</span>(ctx context.Context, in <span style="color:#719e07">*</span>GetTaskRequest, opts <span style="color:#719e07">...</span>grpc.CallOption) (<span style="color:#719e07">*</span>Task, <span style="color:#dc322f">error</span>)
+  GetTask(ctx context.Context, in <span style="color:#719e07">*</span>GetTaskRequest, opts <span style="color:#719e07">...</span>grpc.CallOption) (<span style="color:#719e07">*</span>Task, <span style="color:#dc322f">error</span>)
 }</code></pre></div>
 <p><code>Id = 1</code>が指定されたときだけ、、<code>Task</code>オブジェクトを戻すモックを設定する。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">import</span> (
@@ -285,28 +285,28 @@ $ mockgen github.com/budougumi0617/sandbox-grpc/tasklist/proto TaskManagerClient
     tlpb <span style="color:#2aa198">&#34;github.com/budougumi0617/sandbox-grpc/tasklist/proto&#34;</span>
 )
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">TestGetTask</span>(t <span style="color:#719e07">*</span>testing.T) {
-    ctrl <span style="color:#719e07">:=</span> gomock.<span style="color:#268bd2">NewController</span>(t)
-    <span style="color:#719e07">defer</span> ctrl.<span style="color:#268bd2">Finish</span>()
-    mockTaskManagerClient <span style="color:#719e07">:=</span> tlmock.<span style="color:#268bd2">NewMockTaskManagerClient</span>(ctrl)
+<span style="color:#268bd2">func</span> TestGetTask(t <span style="color:#719e07">*</span>testing.T) {
+    ctrl <span style="color:#719e07">:=</span> gomock.NewController(t)
+    <span style="color:#719e07">defer</span> ctrl.Finish()
+    mockTaskManagerClient <span style="color:#719e07">:=</span> tlmock.NewMockTaskManagerClient(ctrl)
     req <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>tlpb.GetTaskRequest{Id: <span style="color:#2aa198">1</span>}
-    mockTaskManagerClient.<span style="color:#268bd2">EXPECT</span>().<span style="color:#268bd2">GetTask</span>(
-        gomock.<span style="color:#268bd2">Any</span>(),
+    mockTaskManagerClient.EXPECT().GetTask(
+        gomock.Any(),
         req,
-    ).<span style="color:#268bd2">Return</span>(task, <span style="color:#cb4b16">nil</span>)
-    <span style="color:#268bd2">testGetTask</span>(t, mockTaskManagerClient)
+    ).Return(task, <span style="color:#cb4b16">nil</span>)
+    testGetTask(t, mockTaskManagerClient)
 }
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">testGetTask</span>(t <span style="color:#719e07">*</span>testing.T, client tlpb.TaskManagerClient) {
-    t.<span style="color:#268bd2">Helper</span>()
-    resp, err <span style="color:#719e07">:=</span> client.<span style="color:#268bd2">GetTask</span>(context.<span style="color:#268bd2">Background</span>(), <span style="color:#719e07">&amp;</span>tlpb.GetTaskRequest{Id: <span style="color:#2aa198">2</span>})
+<span style="color:#268bd2">func</span> testGetTask(t <span style="color:#719e07">*</span>testing.T, client tlpb.TaskManagerClient) {
+    t.Helper()
+    resp, err <span style="color:#719e07">:=</span> client.GetTask(context.Background(), <span style="color:#719e07">&amp;</span>tlpb.GetTaskRequest{Id: <span style="color:#2aa198">2</span>})
     <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> <span style="color:#719e07">||</span> resp.Title <span style="color:#719e07">!=</span> task.Title {
-        t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;mocking failed&#34;</span>)
+        t.Errorf(<span style="color:#2aa198">&#34;mocking failed&#34;</span>)
     }
-    t.<span style="color:#268bd2">Log</span>(<span style="color:#2aa198">&#34;Reply : &#34;</span>, resp.Title)
+    t.Log(<span style="color:#2aa198">&#34;Reply : &#34;</span>, resp.Title)
 }</code></pre></div>
 <p>転記したコードでは<code>testGetTask</code>メソッドの中で<code>Id = 1</code>でない<code>GetTaskRequest</code>でモックコードを呼び出している。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">resp, err <span style="color:#719e07">:=</span> client.<span style="color:#268bd2">GetTask</span>(context.<span style="color:#268bd2">Background</span>(), <span style="color:#719e07">&amp;</span>tlpb.GetTaskRequest{Id: <span style="color:#2aa198">2</span>})</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> . -v
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">resp, err <span style="color:#719e07">:=</span> client.GetTask(context.Background(), <span style="color:#719e07">&amp;</span>tlpb.GetTaskRequest{Id: <span style="color:#2aa198">2</span>})</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> . -v
 <span style="color:#719e07">===</span> RUN   TestGetTask
 --- FAIL: TestGetTask <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
     controller.go:150: Unexpected call to *mock_proto.MockTaskManagerClient.GetTask<span style="color:#719e07">([</span>context.Background id:2 <span style="color:#719e07">])</span> at /Users/budougumi0617/go/src/github.com/budougumi0617/sandbox-grpc/tasklist/mockproto/tl_mock.go:46 because:
@@ -324,10 +324,10 @@ FAIL  github.com/budougumi0617/sandbox-grpc/tasklist  <span style="color:#2aa198
 
 <p>ストリーミングの場合は<code>ListTasks</code>メソッドと<code>TaskManager_ListTasksClient</code>のモックを利用する。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> TaskManagerClient <span style="color:#268bd2">interface</span> {
-  <span style="color:#268bd2">ListTasks</span>(ctx context.Context, in <span style="color:#719e07">*</span>google_protobuf.Empty, opts <span style="color:#719e07">...</span>grpc.CallOption) (TaskManager_ListTasksClient, <span style="color:#dc322f">error</span>)
+  ListTasks(ctx context.Context, in <span style="color:#719e07">*</span>google_protobuf.Empty, opts <span style="color:#719e07">...</span>grpc.CallOption) (TaskManager_ListTasksClient, <span style="color:#dc322f">error</span>)
 }
 <span style="color:#268bd2">type</span> TaskManager_ListTasksClient <span style="color:#268bd2">interface</span> {
-    <span style="color:#268bd2">Recv</span>() (<span style="color:#719e07">*</span>Task, <span style="color:#dc322f">error</span>)
+    Recv() (<span style="color:#719e07">*</span>Task, <span style="color:#dc322f">error</span>)
     grpc.ClientStream
 }</code></pre></div>
 <p>今回は２つ<code>Task</code>オブジェクトを返して終了するストリームをモックに設定した。</p>
@@ -337,50 +337,50 @@ FAIL  github.com/budougumi0617/sandbox-grpc/tasklist  <span style="color:#2aa198
     tlpb <span style="color:#2aa198">&#34;github.com/budougumi0617/sandbox-grpc/tasklist/proto&#34;</span>
 )
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">TestListTasks</span>(t <span style="color:#719e07">*</span>testing.T) {
-    ctrl <span style="color:#719e07">:=</span> gomock.<span style="color:#268bd2">NewController</span>(t)
-    <span style="color:#719e07">defer</span> ctrl.<span style="color:#268bd2">Finish</span>()
+<span style="color:#268bd2">func</span> TestListTasks(t <span style="color:#719e07">*</span>testing.T) {
+    ctrl <span style="color:#719e07">:=</span> gomock.NewController(t)
+    <span style="color:#719e07">defer</span> ctrl.Finish()
 
     <span style="color:#586e75">// Create mock for the stream returned by ListTasks
-</span><span style="color:#586e75"></span>    stream <span style="color:#719e07">:=</span> tlmock.<span style="color:#268bd2">NewMockTaskManager_ListTasksClient</span>(ctrl)
-    stream.<span style="color:#268bd2">EXPECT</span>().<span style="color:#268bd2">Recv</span>().<span style="color:#268bd2">Return</span>(<span style="color:#719e07">&amp;</span>tlpb.Task{
+</span><span style="color:#586e75"></span>    stream <span style="color:#719e07">:=</span> tlmock.NewMockTaskManager_ListTasksClient(ctrl)
+    stream.EXPECT().Recv().Return(<span style="color:#719e07">&amp;</span>tlpb.Task{
         Id:     <span style="color:#2aa198">1</span>,
         Title:  <span style="color:#2aa198">&#34;first Task&#34;</span>,
         Detail: <span style="color:#2aa198">&#34;fist Detail&#34;</span>,
     }, <span style="color:#cb4b16">nil</span>)
-    stream.<span style="color:#268bd2">EXPECT</span>().<span style="color:#268bd2">Recv</span>().<span style="color:#268bd2">Return</span>(<span style="color:#719e07">&amp;</span>tlpb.Task{
+    stream.EXPECT().Recv().Return(<span style="color:#719e07">&amp;</span>tlpb.Task{
         Id:     <span style="color:#2aa198">2</span>,
         Title:  <span style="color:#2aa198">&#34;second Task&#34;</span>,
         Detail: <span style="color:#2aa198">&#34;second Detail&#34;</span>,
     }, <span style="color:#cb4b16">nil</span>)
     <span style="color:#586e75">// io.EOFを戻すと終了したことになる
-</span><span style="color:#586e75"></span>    stream.<span style="color:#268bd2">EXPECT</span>().<span style="color:#268bd2">Recv</span>().<span style="color:#268bd2">Return</span>(<span style="color:#cb4b16">nil</span>, io.EOF)
+</span><span style="color:#586e75"></span>    stream.EXPECT().Recv().Return(<span style="color:#cb4b16">nil</span>, io.EOF)
     <span style="color:#586e75">// Create mock for the client interface.
-</span><span style="color:#586e75"></span>    mockclient <span style="color:#719e07">:=</span> tlmock.<span style="color:#268bd2">NewMockTaskManagerClient</span>(ctrl)
-    mockclient.<span style="color:#268bd2">EXPECT</span>().<span style="color:#268bd2">ListTasks</span>(
-        gomock.<span style="color:#268bd2">Any</span>(), <span style="color:#586e75">// 引数は無視する（任意にしておく）
-</span><span style="color:#586e75"></span>        gomock.<span style="color:#268bd2">Any</span>(),
-    ).<span style="color:#268bd2">Return</span>(stream, <span style="color:#cb4b16">nil</span>)
-    <span style="color:#268bd2">testListTasks</span>(t, mockclient)
+</span><span style="color:#586e75"></span>    mockclient <span style="color:#719e07">:=</span> tlmock.NewMockTaskManagerClient(ctrl)
+    mockclient.EXPECT().ListTasks(
+        gomock.Any(), <span style="color:#586e75">// 引数は無視する（任意にしておく）
+</span><span style="color:#586e75"></span>        gomock.Any(),
+    ).Return(stream, <span style="color:#cb4b16">nil</span>)
+    testListTasks(t, mockclient)
 }
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">testListTasks</span>(t <span style="color:#719e07">*</span>testing.T, client tlpb.TaskManagerClient) {
-    t.<span style="color:#268bd2">Helper</span>()
+<span style="color:#268bd2">func</span> testListTasks(t <span style="color:#719e07">*</span>testing.T, client tlpb.TaskManagerClient) {
+    t.Helper()
     <span style="color:#586e75">// ストリームを取得する
-</span><span style="color:#586e75"></span>    ltc, _ <span style="color:#719e07">:=</span> client.<span style="color:#268bd2">ListTasks</span>(context.<span style="color:#268bd2">Background</span>(), <span style="color:#cb4b16">nil</span>)
+</span><span style="color:#586e75"></span>    ltc, _ <span style="color:#719e07">:=</span> client.ListTasks(context.Background(), <span style="color:#cb4b16">nil</span>)
     <span style="color:#586e75">// ストリームからオブジェクトを取得する
-</span><span style="color:#586e75"></span>    first, err <span style="color:#719e07">:=</span> ltc.<span style="color:#268bd2">Recv</span>()
+</span><span style="color:#586e75"></span>    first, err <span style="color:#719e07">:=</span> ltc.Recv()
     <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> <span style="color:#719e07">||</span> first.Title <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;first Task&#34;</span> {
-        t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;Unexpected task at first response&#34;</span>)
+        t.Errorf(<span style="color:#2aa198">&#34;Unexpected task at first response&#34;</span>)
     }
-    second, err <span style="color:#719e07">:=</span> ltc.<span style="color:#268bd2">Recv</span>()
+    second, err <span style="color:#719e07">:=</span> ltc.Recv()
     <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> <span style="color:#719e07">||</span> second.Title <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;second Task&#34;</span> {
-        t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;Unexpected task at second response&#34;</span>)
+        t.Errorf(<span style="color:#2aa198">&#34;Unexpected task at second response&#34;</span>)
     }
     <span style="color:#586e75">// 最後はio.EOFで終了する
-</span><span style="color:#586e75"></span>    _, eof <span style="color:#719e07">:=</span> ltc.<span style="color:#268bd2">Recv</span>()
+</span><span style="color:#586e75"></span>    _, eof <span style="color:#719e07">:=</span> ltc.Recv()
     <span style="color:#719e07">if</span> eof <span style="color:#719e07">!=</span> io.EOF {
-        t.<span style="color:#268bd2">Error</span>(eof)
+        t.Error(eof)
     }
 }</code></pre></div>
 <p>Streaming RPCを使う時、モックの設定を2つすることだけ覚えていれば、あとは問題なさそうだ。PASSするだけなので、結果は省略。</p>
@@ -579,6 +579,12 @@ FAIL  github.com/budougumi0617/sandbox-grpc/tasklist  <span style="color:#2aa198
           
             
               <li class="post">
+                <a href="/2019/02/01/how-to-use-analisys-package/">golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang</a>
+              </li>
+            
+          
+            
+              <li class="post">
                 <a href="/2019/01/26/publish-blog-kpi-collector/">GoogleスプレットシートでWebサイトのKPIを集計するためのOSSを作った #blog #gas</a>
               </li>
             
@@ -598,12 +604,6 @@ FAIL  github.com/budougumi0617/sandbox-grpc/tasklist  <span style="color:#2aa198
             
               <li class="post">
                 <a href="/2019/01/16/develop-google-apps-script-by-typescript/">Google Apps ScriptをTypeScriptで実装する(clasp/TSLint/Prettier) #gas #typescript</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2019/01/11/filter-branch-in-github-actions/">GitHub Actionsで特定のブランチのときのみワークフローを実行する #github #actions #ci</a>
               </li>
             
           

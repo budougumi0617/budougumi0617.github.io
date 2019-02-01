@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.53" />
+  <meta name="generator" content="Hugo 0.50" />
 
   
   
@@ -247,36 +247,36 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
 	<span style="color:#2aa198">&#34;time&#34;</span>
 )
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">A</span>() {
-	<span style="color:#268bd2">B</span>()
+<span style="color:#268bd2">func</span> A() {
+	B()
 }
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">B</span>() {
+<span style="color:#268bd2">func</span> B() {
 	<span style="color:#719e07">defer</span> <span style="color:#268bd2">func</span>() {
 		<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> <span style="color:#b58900">recover</span>(); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-			fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Catch panic in B!&#34;</span>)
+			fmt.Println(<span style="color:#2aa198">&#34;Catch panic in B!&#34;</span>)
 		}
 	}()
-	<span style="color:#719e07">go</span> <span style="color:#268bd2">C</span>()
-	time.<span style="color:#268bd2">Sleep</span>(<span style="color:#2aa198">3</span> <span style="color:#719e07">*</span> time.Second) <span style="color:#586e75">// Heavy task...
+	<span style="color:#719e07">go</span> C()
+	time.Sleep(<span style="color:#2aa198">3</span> <span style="color:#719e07">*</span> time.Second) <span style="color:#586e75">// Heavy task...
 </span><span style="color:#586e75"></span>}
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">C</span>() {
+<span style="color:#268bd2">func</span> C() {
 	<span style="color:#719e07">defer</span> <span style="color:#268bd2">func</span>() {
-		fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;defer in C!&#34;</span>)
+		fmt.Println(<span style="color:#2aa198">&#34;defer in C!&#34;</span>)
 	}()
-	<span style="color:#268bd2">D</span>()
-	time.<span style="color:#268bd2">Sleep</span>(<span style="color:#2aa198">3</span> <span style="color:#719e07">*</span> time.Second) <span style="color:#586e75">// Heavy task...
+	D()
+	time.Sleep(<span style="color:#2aa198">3</span> <span style="color:#719e07">*</span> time.Second) <span style="color:#586e75">// Heavy task...
 </span><span style="color:#586e75"></span>}
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">D</span>() {
+<span style="color:#268bd2">func</span> D() {
 	<span style="color:#b58900">panic</span>(<span style="color:#2aa198">&#34;dead&#34;</span>)
 }
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-	<span style="color:#268bd2">A</span>()
-	fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Hello, playground&#34;</span>)
-	time.<span style="color:#268bd2">Sleep</span>(<span style="color:#2aa198">10</span> <span style="color:#719e07">*</span> time.Second) <span style="color:#586e75">// Careless waiting...
+<span style="color:#268bd2">func</span> main() {
+	A()
+	fmt.Println(<span style="color:#2aa198">&#34;Hello, playground&#34;</span>)
+	time.Sleep(<span style="color:#2aa198">10</span> <span style="color:#719e07">*</span> time.Second) <span style="color:#586e75">// Careless waiting...
 </span><span style="color:#586e75"></span>}</code></pre></div>
 <ul>
 <li>channelは読み込み、書き込み、読み書き可能なchannelを作れる
@@ -331,28 +331,28 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
 	<span style="color:#2aa198">&#34;time&#34;</span>
 )
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">task</span>(ctx context.Context, s <span style="color:#dc322f">int</span>, ch <span style="color:#268bd2">chan</span><span style="color:#719e07">&lt;-</span> <span style="color:#dc322f">int</span>) {
-	time.<span style="color:#268bd2">Sleep</span>(time.<span style="color:#268bd2">Duration</span>(s) <span style="color:#719e07">*</span> time.Second) <span style="color:#586e75">// Heavy task
+<span style="color:#268bd2">func</span> task(ctx context.Context, s <span style="color:#dc322f">int</span>, ch <span style="color:#268bd2">chan</span><span style="color:#719e07">&lt;-</span> <span style="color:#dc322f">int</span>) {
+	time.Sleep(time.Duration(s) <span style="color:#719e07">*</span> time.Second) <span style="color:#586e75">// Heavy task
 </span><span style="color:#586e75"></span>	<span style="color:#719e07">select</span> {
 	<span style="color:#719e07">case</span> ch <span style="color:#719e07">&lt;-</span> s:
-		fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;Done task with %d\n&#34;</span>, s)
-	<span style="color:#719e07">case</span> <span style="color:#719e07">&lt;-</span>ctx.<span style="color:#268bd2">Done</span>():
-		fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;Cancel task with %d\n&#34;</span>, s) <span style="color:#586e75">// Write if cancel
+		fmt.Printf(<span style="color:#2aa198">&#34;Done task with %d\n&#34;</span>, s)
+	<span style="color:#719e07">case</span> <span style="color:#719e07">&lt;-</span>ctx.Done():
+		fmt.Printf(<span style="color:#2aa198">&#34;Cancel task with %d\n&#34;</span>, s) <span style="color:#586e75">// Write if cancel
 </span><span style="color:#586e75"></span>	}
 }
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+<span style="color:#268bd2">func</span> main() {
 	ch <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#dc322f">int</span>)
-	ctx, cancel <span style="color:#719e07">:=</span> context.<span style="color:#268bd2">WithCancel</span>(context.<span style="color:#268bd2">Background</span>())
+	ctx, cancel <span style="color:#719e07">:=</span> context.WithCancel(context.Background())
 	<span style="color:#719e07">defer</span> <span style="color:#268bd2">func</span>() {
-		<span style="color:#268bd2">cancel</span>()
-		time.<span style="color:#268bd2">Sleep</span>(<span style="color:#2aa198">10</span> <span style="color:#719e07">*</span> time.Second) <span style="color:#586e75">// Wait cancel result
+		cancel()
+		time.Sleep(<span style="color:#2aa198">10</span> <span style="color:#719e07">*</span> time.Second) <span style="color:#586e75">// Wait cancel result
 </span><span style="color:#586e75"></span>	}()
 
-	<span style="color:#719e07">go</span> <span style="color:#268bd2">task</span>(ctx, <span style="color:#2aa198">2</span>, ch)
-	<span style="color:#719e07">go</span> <span style="color:#268bd2">task</span>(ctx, <span style="color:#2aa198">10</span>, ch)
+	<span style="color:#719e07">go</span> task(ctx, <span style="color:#2aa198">2</span>, ch)
+	<span style="color:#719e07">go</span> task(ctx, <span style="color:#2aa198">10</span>, ch)
 
-	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;Return value %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch) <span style="color:#586e75">// Wait result
+	fmt.Printf(<span style="color:#2aa198">&#34;Return value %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch) <span style="color:#586e75">// Wait result
 </span><span style="color:#586e75"></span>}</code></pre></div>
 <ul>
 <li>便利ツール gotrace
@@ -801,6 +801,12 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
           
             
               <li class="post">
+                <a href="/2019/02/01/how-to-use-analisys-package/">golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang</a>
+              </li>
+            
+          
+            
+              <li class="post">
                 <a href="/2019/01/26/publish-blog-kpi-collector/">GoogleスプレットシートでWebサイトのKPIを集計するためのOSSを作った #blog #gas</a>
               </li>
             
@@ -820,12 +826,6 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
             
               <li class="post">
                 <a href="/2019/01/16/develop-google-apps-script-by-typescript/">Google Apps ScriptをTypeScriptで実装する(clasp/TSLint/Prettier) #gas #typescript</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2019/01/11/filter-branch-in-github-actions/">GitHub Actionsで特定のブランチのときのみワークフローを実行する #github #actions #ci</a>
               </li>
             
           

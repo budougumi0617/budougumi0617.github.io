@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.53" />
+  <meta name="generator" content="Hugo 0.50" />
 
   
   
@@ -62,11 +62,15 @@
   <meta property="og:type" content="article"/>
   <meta property="og:title" content="[書評] Go言語でつくるインタプリタ を読んだ #go - My External Storage"/>
   <meta property="og:description" content="Go言語でつくるインタプリタを読んだのでメモ。
-プログラマなら一度はやる（？）であろうインタプリタの実装をGoで行う本書では、優れた設計は拡張性が高く「小さく作る」・「常に動くものを作る」を可能にすること、テスト駆動開発とテーブル駆動テストを用いることで検証を繰り返しながら着実に開発を進めることができることを実感することができる。"/>
+プログラマなら一度はやる（？）であろうインタプリタの実装をGoで行う本書では、優れた設計は拡張性が高く「小さく作る」・「常に動くものを作る」を可能にすること、テスト駆動開発とテーブル駆動テストを用いることで検証を繰り返しながら着実に開発を進めることができることを実感することができる。
+
+"/>
   
   <meta name="twitter:title" content="[書評] Go言語でつくるインタプリタ を読んだ #go - My External Storage"/>
   <meta name="twitter:description" content="Go言語でつくるインタプリタを読んだのでメモ。
-プログラマなら一度はやる（？）であろうインタプリタの実装をGoで行う本書では、優れた設計は拡張性が高く「小さく作る」・「常に動くものを作る」を可能にすること、テスト駆動開発とテーブル駆動テストを用いることで検証を繰り返しながら着実に開発を進めることができることを実感することができる。"/>
+プログラマなら一度はやる（？）であろうインタプリタの実装をGoで行う本書では、優れた設計は拡張性が高く「小さく作る」・「常に動くものを作る」を可能にすること、テスト駆動開発とテーブル駆動テストを用いることで検証を繰り返しながら着実に開発を進めることができることを実感することができる。
+
+"/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
   <meta name="twitter:creator" content="@budougumi0617"/>
@@ -187,6 +191,8 @@
           <p><a href="https://amazon.jp/dp/4873118220">Go言語でつくるインタプリタ</a>を読んだのでメモ。
 プログラマなら一度はやる（？）であろうインタプリタの実装をGoで行う本書では、優れた設計は拡張性が高く「小さく作る」・「常に動くものを作る」を可能にすること、テスト駆動開発とテーブル駆動テストを用いることで検証を繰り返しながら着実に開発を進めることができることを実感することができる。</p>
 
+<p></p>
+
 <iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4873118220&linkId=ce2985386081de40a6b08a555d61ebe0"></iframe>
 
 <h1 id="なぜ読んだのか">なぜ読んだのか？</h1>
@@ -277,20 +283,20 @@
 <p>本書のインタプリタではASTのノードを全て<code>Node</code>インターフェースで表現する。与えられたテキストは自作する字句解析器によって<code>Token</code>に分解されたあと、<code>Statement</code>あるいは<code>Expression</code>インタフェースを満たす<code>Node</code>の派生オブジェクトとしてパースされていく。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// Node is base of AST.
 </span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> Node <span style="color:#268bd2">interface</span> {
-	<span style="color:#268bd2">TokenLiteral</span>() <span style="color:#dc322f">string</span>
-	<span style="color:#268bd2">String</span>() <span style="color:#dc322f">string</span>
+	TokenLiteral() <span style="color:#dc322f">string</span>
+	String() <span style="color:#dc322f">string</span>
 }
 
 <span style="color:#586e75">// Statement is base statement.
 </span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> Statement <span style="color:#268bd2">interface</span> {
 	Node
-	<span style="color:#268bd2">statementNode</span>()
+	statementNode()
 }
 
 <span style="color:#586e75">// Expression is base expression.
 </span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> Expression <span style="color:#268bd2">interface</span> {
 	Node
-	<span style="color:#268bd2">expressionNode</span>()
+	expressionNode()
 }</code></pre></div>
 <p>本書の構成のすごいところは1章でREPLを作成しコンソールで触りながら実装を進められるところだ。節の実装をひとつ終えるたびにインタプリタ（REPL）に新しい機能が「動かせる状態」で追加されていく。普段の開発で例えるならスプリントが終わるたびに必ず「新機能のデモができる」ような進め方で章が進んでいく。つまり「今は作らないけど今後の拡張を考慮しておく」アプローチについても学習することができる。前半でパーサーのコアロジックまで実装したあとは新しいトークンリテラルを追加して条件分岐に処理を追加していくだけだ。このような優れた設計・抽象化は一度実装したあと（全部一度見通したあと）のリファクタリングで得られるものなのかもしれないが、コア部分の設計が大きく開発に影響することを感じることができた。</p>
 
@@ -535,6 +541,12 @@
           
             
               <li class="post">
+                <a href="/2019/02/01/how-to-use-analisys-package/">golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang</a>
+              </li>
+            
+          
+            
+              <li class="post">
                 <a href="/2019/01/26/publish-blog-kpi-collector/">GoogleスプレットシートでWebサイトのKPIを集計するためのOSSを作った #blog #gas</a>
               </li>
             
@@ -554,12 +566,6 @@
             
               <li class="post">
                 <a href="/2019/01/16/develop-google-apps-script-by-typescript/">Google Apps ScriptをTypeScriptで実装する(clasp/TSLint/Prettier) #gas #typescript</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2019/01/11/filter-branch-in-github-actions/">GitHub Actionsで特定のブランチのときのみワークフローを実行する #github #actions #ci</a>
               </li>
             
           

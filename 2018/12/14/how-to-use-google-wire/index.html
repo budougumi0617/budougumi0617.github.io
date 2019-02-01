@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.53" />
+  <meta name="generator" content="Hugo 0.50" />
 
   
   
@@ -79,6 +79,8 @@ Compile-time Dependency Injection With Go Cloud&rsquo;s Wire | The Go blog
 
 https://blog.golang.org/wire
 
+
+
 "/>
   
   <meta name="twitter:title" content="google/wireを使ったDIとDI関数のシグネチャについて #go - My External Storage"/>
@@ -95,6 +97,8 @@ Compile-time Dependency Injection With Go Cloud&rsquo;s Wire | The Go blog
 
 
 https://blog.golang.org/wire
+
+
 
 "/>
   <meta name="twitter:site" content="@budougumi0617"/>
@@ -239,6 +243,8 @@ https://blog.golang.org/wire
 </ul></li>
 </ul>
 
+<p></p>
+
 <h1 id="tl-dr">TL;DR</h1>
 
 <ul>
@@ -283,7 +289,7 @@ usage: wire <span style="color:#719e07">[</span>gen|diff|show|check<span style="
 }
 
 <span style="color:#586e75">// ProvideFoo はFoo構造体を提供するNew関数
-</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">ProvideFoo</span>() Foo {
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> ProvideFoo() Foo {
     <span style="color:#719e07">return</span> Foo{X: <span style="color:#2aa198">42</span>}
 }
 
@@ -292,7 +298,7 @@ usage: wire <span style="color:#719e07">[</span>gen|diff|show|check<span style="
 }
 
 <span style="color:#586e75">// ProvideBar はFooを用いてBarを初期化するNew関数
-</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">ProvideBar</span>(foo Foo) Bar {
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> ProvideBar(foo Foo) Bar {
     <span style="color:#719e07">return</span> Bar{X: <span style="color:#719e07">-</span>foo.X}
 }
 
@@ -301,16 +307,16 @@ usage: wire <span style="color:#719e07">[</span>gen|diff|show|check<span style="
 }
 
 <span style="color:#586e75">// ProvideBaz はBarを利用してBazを初期化するNew関数
-</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">ProvideBaz</span>(ctx context.Context, bar Bar) (Baz, <span style="color:#dc322f">error</span>) {
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> ProvideBaz(ctx context.Context, bar Bar) (Baz, <span style="color:#dc322f">error</span>) {
     <span style="color:#719e07">if</span> bar.X <span style="color:#719e07">==</span> <span style="color:#2aa198">0</span> {
-        <span style="color:#719e07">return</span> Baz{}, errors.<span style="color:#268bd2">New</span>(<span style="color:#2aa198">&#34;cannot provide baz when bar is zero&#34;</span>)
+        <span style="color:#719e07">return</span> Baz{}, errors.New(<span style="color:#2aa198">&#34;cannot provide baz when bar is zero&#34;</span>)
     }
     <span style="color:#719e07">return</span> Baz{X: bar.X}, <span style="color:#cb4b16">nil</span>
 }
 
 <span style="color:#586e75">// wireを使ってFoo | Bar | Bazを提供するDIセットを定義する。
 </span><span style="color:#586e75">// Bazを取得するときは別にcontext.Contextを用意する必要がある。
-</span><span style="color:#586e75"></span><span style="color:#268bd2">var</span> SuperSet = wire.<span style="color:#268bd2">NewSet</span>(ProvideFoo, ProvideBar, ProvideBaz)</code></pre></div>
+</span><span style="color:#586e75"></span><span style="color:#268bd2">var</span> SuperSet = wire.NewSet(ProvideFoo, ProvideBar, ProvideBaz)</code></pre></div>
 <p>上記のサンプルコードの最後で定義しているのがWireの仕組み内でProviderと呼ばれるもので、このProviderを複数組み合わせることでDIの初期化をしていく。</p>
 
 <h2 id="wireを使ったdiの宣言">Wireを使ったDIの宣言</h2>
@@ -329,8 +335,8 @@ usage: wire <span style="color:#719e07">[</span>gen|diff|show|check<span style="
 )
 
 <span style="color:#586e75">// SuperSetを使ってDI済みのBazを生成する。
-</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">initializeBaz</span>(ctx context.Context) (foobarbaz.Baz, <span style="color:#dc322f">error</span>) {
-    wire.<span style="color:#268bd2">Build</span>(foobarbaz.SuperSet)
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> initializeBaz(ctx context.Context) (foobarbaz.Baz, <span style="color:#dc322f">error</span>) {
+    wire.Build(foobarbaz.SuperSet)
     <span style="color:#719e07">return</span> foobarbaz.Baz{}, <span style="color:#cb4b16">nil</span>
 }</code></pre></div>
 <p>この例では<code>Baz</code>オブジェクトを生成する関数を定義している。
@@ -338,13 +344,13 @@ usage: wire <span style="color:#719e07">[</span>gen|diff|show|check<span style="
 なお、「あるSetからXXXオブジェクトを生成するためにはどんなオブジェクトを用意すればいいのか？」は<code>wire show</code>コマンドを使えば簡単に調べることができる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ wire show
 <span style="color:#2aa198">&#34;github.com/budougumi0617/foobarbaz&#34;</span>.SuperSet
-Outputs given no inputs: <span style="color:#586e75"># 特に用意せずにSuperSetから生成できるオブジェクト</span>
-        github.com/budougumi0617/foobarbaz.Bar
+Outputs given no inputs: <span style="color:#586e75"># 特に用意せずにSuperSetから生成できるオブジェクト
+</span><span style="color:#586e75"></span>        github.com/budougumi0617/foobarbaz.Bar
                 at /Users/budougumi0617/go/src/github.com/budougumi0617/foobarbaz/foobarbaz.go:24:6
         github.com/budougumi0617/foobarbaz.Foo
                 at /Users/budougumi0617/go/src/github.com/budougumi0617/foobarbaz/foobarbaz.go:15:6
-Outputs given context.Context: <span style="color:#586e75"># context.Contextを与えれば生成できるオブジェクト</span>
-        github.com/budougumi0617/foobarbaz.Baz
+Outputs given context.Context: <span style="color:#586e75"># context.Contextを与えれば生成できるオブジェクト
+</span><span style="color:#586e75"></span>        github.com/budougumi0617/foobarbaz.Baz
                 at /Users/budougumi0617/go/src/github.com/budougumi0617/foobarbaz/foobarbaz.go:33:6</code></pre></div>
 <h2 id="wireを使ってdiの自動生成">Wireを使ってDIの自動生成</h2>
 
@@ -363,10 +369,10 @@ Outputs given context.Context: <span style="color:#586e75"># context.Contextを�
     <span style="color:#2aa198">&#34;example.com/foobarbaz&#34;</span>
 )
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">initializeBaz</span>(ctx context.Context) (foobarbaz.Baz, <span style="color:#dc322f">error</span>) {
-    foo <span style="color:#719e07">:=</span> foobarbaz.<span style="color:#268bd2">ProvideFoo</span>()
-    bar <span style="color:#719e07">:=</span> foobarbaz.<span style="color:#268bd2">ProvideBar</span>(foo)
-    baz, err <span style="color:#719e07">:=</span> foobarbaz.<span style="color:#268bd2">ProvideBaz</span>(ctx, bar)
+<span style="color:#268bd2">func</span> initializeBaz(ctx context.Context) (foobarbaz.Baz, <span style="color:#dc322f">error</span>) {
+    foo <span style="color:#719e07">:=</span> foobarbaz.ProvideFoo()
+    bar <span style="color:#719e07">:=</span> foobarbaz.ProvideBar(foo)
+    baz, err <span style="color:#719e07">:=</span> foobarbaz.ProvideBaz(ctx, bar)
     <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
         <span style="color:#719e07">return</span> <span style="color:#2aa198">0</span>, err
     }
@@ -391,10 +397,10 @@ Outputs given context.Context: <span style="color:#586e75"># context.Contextを�
 
 <p><a href="https://github.com/google/go-cloud/blob/3c405e2532f18716f030e35b1e99c2dffcb92a6e/samples/guestbook/inject_gcp.go#L37-L50">/github.com/google/go-cloud/samples/guestbook/inject_gcp.go</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// setupGCP is a Wire injector function that sets up the application using GCP.
-</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">setupGCP</span>(ctx context.Context, flags <span style="color:#719e07">*</span>cliFlags) (<span style="color:#719e07">*</span>application, <span style="color:#268bd2">func</span>(), <span style="color:#dc322f">error</span>) {
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> setupGCP(ctx context.Context, flags <span style="color:#719e07">*</span>cliFlags) (<span style="color:#719e07">*</span>application, <span style="color:#268bd2">func</span>(), <span style="color:#dc322f">error</span>) {
     <span style="color:#586e75">// This will be filled in by Wire with providers from the provider sets in
 </span><span style="color:#586e75"></span>    <span style="color:#586e75">// wire.Build.
-</span><span style="color:#586e75"></span>    wire.<span style="color:#268bd2">Build</span>(
+</span><span style="color:#586e75"></span>    wire.Build(
         gcpcloud.GCP,
         cloudmysql.Open,
         applicationSet,
@@ -421,13 +427,13 @@ Outputs given context.Context: <span style="color:#586e75"># context.Contextを�
 <p>１つ目は単純にDI済みのオブジェクトのみを返すパターンだ。</p>
 
 <p>例: <a href="https://github.com/google/go-cloud/blob/129201bb98c1758a383cd059f0b5fe8d7920c9fa/gcp/gcp.go#L79">github.com/google/go-cloud/gcp/gcp.go#L79</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">CredentialsTokenSource</span>(creds <span style="color:#719e07">*</span>google.Credentials) TokenSource</code></pre></div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> CredentialsTokenSource(creds <span style="color:#719e07">*</span>google.Credentials) TokenSource</code></pre></div>
 <h2 id="func-object-error">func() (Object, error)</h2>
 
 <p>２つ目はDIに失敗したときに<code>error</code>を返す戻り値パターンだ。<code>error</code>を返すDI関数が<code>wire.Build</code>に含まれている場合は、自動生成後のコード内で適切にエラーハンドリングするコードを生成してくれる。</p>
 
 <p>例: <a href="https://github.com/google/go-cloud/blob/129201bb98c1758a383cd059f0b5fe8d7920c9fa/gcp/gcp.go#L70">github.com/google/go-cloud/gcp/gcp.go#L70</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">DefaultCredentials</span>(ctx context.Context) (<span style="color:#719e07">*</span>google.Credentials, <span style="color:#dc322f">error</span>)</code></pre></div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> DefaultCredentials(ctx context.Context) (<span style="color:#719e07">*</span>google.Credentials, <span style="color:#dc322f">error</span>)</code></pre></div>
 <h2 id="func-object-func">func() (Object, func())</h2>
 
 <p>３つ目は廃棄前に何らかのクリーンアップ処理が必要なDI済みのオブジェクトを生成する関数に対応するパターン。
@@ -445,7 +451,7 @@ Outputs given context.Context: <span style="color:#586e75"># context.Contextを�
 実際に定義する際は３つめのパターンよりこの宣言になることのほうが多いだろう。</p>
 
 <p>例: <a href="https://github.com/google/go-cloud/blob/129201bb98c1758a383cd059f0b5fe8d7920c9fa/mysql/rdsmysql/rdsmysql.go#L60">https://github.com/google/go-cloud/mysql/rdsmysql/rdsmysql.go#L60</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">appHealthChecks</span>(db <span style="color:#719e07">*</span>sql.DB) ([]health.Checker, <span style="color:#268bd2">func</span>())</code></pre></div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> appHealthChecks(db <span style="color:#719e07">*</span>sql.DB) ([]health.Checker, <span style="color:#268bd2">func</span>())</code></pre></div>
 <p>どれも<code>XXX</code>構造体に対して<code>NewXXX</code>関数を定義するときに利用されるパターンだ。なので、既存コードの<code>New</code>関数を使って<code>wire.NewSet</code>を定義していけば既存のプロジェクトでもすぐに利用を開始できる。</p>
 
 <h1 id="終わりに">終わりに</h1>
@@ -677,6 +683,12 @@ Outputs given context.Context: <span style="color:#586e75"># context.Contextを�
           
             
               <li class="post">
+                <a href="/2019/02/01/how-to-use-analisys-package/">golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang</a>
+              </li>
+            
+          
+            
+              <li class="post">
                 <a href="/2019/01/26/publish-blog-kpi-collector/">GoogleスプレットシートでWebサイトのKPIを集計するためのOSSを作った #blog #gas</a>
               </li>
             
@@ -696,12 +708,6 @@ Outputs given context.Context: <span style="color:#586e75"># context.Contextを�
             
               <li class="post">
                 <a href="/2019/01/16/develop-google-apps-script-by-typescript/">Google Apps ScriptをTypeScriptで実装する(clasp/TSLint/Prettier) #gas #typescript</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2019/01/11/filter-branch-in-github-actions/">GitHub Actionsで特定のブランチのときのみワークフローを実行する #github #actions #ci</a>
               </li>
             
           

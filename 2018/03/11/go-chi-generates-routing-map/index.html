@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.53" />
+  <meta name="generator" content="Hugo 0.50" />
 
   
   
@@ -208,19 +208,19 @@ Swagger定義ではないが、ルーティングの設定をMarkdownやJSONで�
 <h2 id="go-chi-chi-でhttpルーティングを設定した-chi-router-を作成する"><code>go-chi/chi</code>でHTTPルーティングを設定した<code>chi.Router</code>を作成する。</h2>
 
 <p>HTTPルーティングの設定（<code>chi.Router</code>にハンドラなどを定義していく）に特に追加で行う設定はない。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">GetTodoRouter</span>() chi.Router {
-	router <span style="color:#719e07">:=</span> chi.<span style="color:#268bd2">NewRouter</span>()
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> GetTodoRouter() chi.Router {
+	router <span style="color:#719e07">:=</span> chi.NewRouter()
 	<span style="color:#586e75">// Set output for logging.
-</span><span style="color:#586e75"></span>	middleware.DefaultLogger = middleware.<span style="color:#268bd2">RequestLogger</span>(
+</span><span style="color:#586e75"></span>	middleware.DefaultLogger = middleware.RequestLogger(
 		<span style="color:#719e07">&amp;</span>middleware.DefaultLogFormatter{
-			Logger: <span style="color:#268bd2">newLogger</span>(),
+			Logger: newLogger(),
 		},
 	)
-	router.<span style="color:#268bd2">Use</span>(middleware.Logger)
-	router.<span style="color:#268bd2">HandleFunc</span>(<span style="color:#2aa198">&#34;/*&#34;</span>, Index) <span style="color:#586e75">// WildCard.
-</span><span style="color:#586e75"></span>	router.<span style="color:#268bd2">HandleFunc</span>(<span style="color:#2aa198">&#34;/todos&#34;</span>, TodoIndex)
-	router.<span style="color:#268bd2">HandleFunc</span>(<span style="color:#2aa198">&#34;/todos/{todoID}&#34;</span>, TodoShow)
-	router.<span style="color:#268bd2">Post</span>(<span style="color:#2aa198">&#34;/todos&#34;</span>, TodoCreate)
+	router.Use(middleware.Logger)
+	router.HandleFunc(<span style="color:#2aa198">&#34;/*&#34;</span>, Index) <span style="color:#586e75">// WildCard.
+</span><span style="color:#586e75"></span>	router.HandleFunc(<span style="color:#2aa198">&#34;/todos&#34;</span>, TodoIndex)
+	router.HandleFunc(<span style="color:#2aa198">&#34;/todos/{todoID}&#34;</span>, TodoShow)
+	router.Post(<span style="color:#2aa198">&#34;/todos&#34;</span>, TodoCreate)
 	<span style="color:#719e07">return</span> router
 }</code></pre></div>
 <h2 id="routerからmarkdownを生成する">RouterからMarkdownを生成する</h2>
@@ -548,6 +548,12 @@ GitHubのREADMEなどに貼ると、各ハンドラ定義の実装へのリン�
           
             
               <li class="post">
+                <a href="/2019/02/01/how-to-use-analisys-package/">golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang</a>
+              </li>
+            
+          
+            
+              <li class="post">
                 <a href="/2019/01/26/publish-blog-kpi-collector/">GoogleスプレットシートでWebサイトのKPIを集計するためのOSSを作った #blog #gas</a>
               </li>
             
@@ -567,12 +573,6 @@ GitHubのREADMEなどに貼ると、各ハンドラ定義の実装へのリン�
             
               <li class="post">
                 <a href="/2019/01/16/develop-google-apps-script-by-typescript/">Google Apps ScriptをTypeScriptで実装する(clasp/TSLint/Prettier) #gas #typescript</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2019/01/11/filter-branch-in-github-actions/">GitHub Actionsで特定のブランチのときのみワークフローを実行する #github #actions #ci</a>
               </li>
             
           

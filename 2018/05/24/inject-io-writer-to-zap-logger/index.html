@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.53" />
+  <meta name="generator" content="Hugo 0.50" />
 
   
   
@@ -196,10 +196,10 @@
 <li><code>zap.New</code>関数で<code>zap.Logger</code>を生成すると任意の<code>io.Writer</code>にログを出力できる</li>
 </ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// 引数のbytes.Bufferにログを出力するzap.Loggerを生成する
-</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">getDummyLogger</span>(buf <span style="color:#719e07">*</span>bytes.Buffer) <span style="color:#719e07">*</span>zap.Logger {
-        encoder <span style="color:#719e07">:=</span> zapcore.<span style="color:#268bd2">NewConsoleEncoder</span>(<span style="color:#719e07">...</span>)
-        core <span style="color:#719e07">:=</span> zapcore.<span style="color:#268bd2">NewCore</span>(encoder, zapcore.<span style="color:#268bd2">AddSync</span>(buf), zapcore.InfoLevel)
-        <span style="color:#719e07">return</span> zap.<span style="color:#268bd2">New</span>(core)
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> getDummyLogger(buf <span style="color:#719e07">*</span>bytes.Buffer) <span style="color:#719e07">*</span>zap.Logger {
+        encoder <span style="color:#719e07">:=</span> zapcore.NewConsoleEncoder(<span style="color:#719e07">...</span>)
+        core <span style="color:#719e07">:=</span> zapcore.NewCore(encoder, zapcore.AddSync(buf), zapcore.InfoLevel)
+        <span style="color:#719e07">return</span> zap.New(core)
 }</code></pre></div>
 <h1 id="zapとは">zapとは</h1>
 
@@ -225,25 +225,25 @@
 <p><code>zap.Logger</code>のインスタンスを生成する方法は<code>Config</code>インスタンスの<code>Build()</code>メソッドを利用する他に、<code>zap.New()</code>関数を利用する方法がある。</p>
 
 <p><a href="https://godoc.org/go.uber.org/zap#New">https://godoc.org/go.uber.org/zap#New</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">New</span>(core zapcore.Core, options <span style="color:#719e07">...</span>Option) <span style="color:#719e07">*</span>Logger</code></pre></div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> New(core zapcore.Core, options <span style="color:#719e07">...</span>Option) <span style="color:#719e07">*</span>Logger</code></pre></div>
 <p><code>New()</code>関数の<code>zapcore.Core</code>は<code>zapcore.NewCore</code>関数から生成できる。</p>
 
 <p><a href="https://godoc.org/go.uber.org/zap/zapcore#NewCore">https://godoc.org/go.uber.org/zap/zapcore#NewCore</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewCore</span>(enc Encoder, ws WriteSyncer, enab LevelEnabler) Core</code></pre></div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> NewCore(enc Encoder, ws WriteSyncer, enab LevelEnabler) Core</code></pre></div>
 <p>この第二引数の<code>zapcore.WriteSyncer</code>インターフェースが<code>zap.New()</code>関数から生成したときの<code>zap.Logger</code>の出力先になる。<br />
 <code>zapcore.WriteSyncer</code>インターフェースは<code>io.Writer</code>と<code>Sync()</code>メソッドを満たしていればよい。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> WriteSyncer <span style="color:#268bd2">interface</span> {
     io.Writer
-    <span style="color:#268bd2">Sync</span>() <span style="color:#dc322f">error</span>
+    Sync() <span style="color:#dc322f">error</span>
 }</code></pre></div>
 <p>そしてひとまずインターフェースを満たすだけで良いならば<code>io.Writer</code>を引数に<code>zapcore.WriteSyncer</code>を返す便利な関数が<code>zapcore</code>パッケージに存在する。</p>
 
 <p><a href="https://godoc.org/go.uber.org/zap/zapcore#AddSync">https://godoc.org/go.uber.org/zap/zapcore#AddSync</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">AddSync</span>(w io.Writer) WriteSyncer</code></pre></div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> AddSync(w io.Writer) WriteSyncer</code></pre></div>
 <p>よって、以下のような手順を踏めば、<code>zapcore.NewCore</code>関数、<code>zap.New</code>関数を経由すれば<code>bytes.Buffer</code>(<code>io.Writer</code>)にログ出力をする<code>zap.Logger</code>を取得できる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">getDummyLogger</span>(buf <span style="color:#719e07">*</span>bytes.Buffer) <span style="color:#719e07">*</span>zap.Logger {
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> getDummyLogger(buf <span style="color:#719e07">*</span>bytes.Buffer) <span style="color:#719e07">*</span>zap.Logger {
         <span style="color:#586e75">// ログ出力のフォーマットを指定できる
-</span><span style="color:#586e75"></span>        encoder <span style="color:#719e07">:=</span> zapcore.<span style="color:#268bd2">NewConsoleEncoder</span>(zapcore.EncoderConfig{
+</span><span style="color:#586e75"></span>        encoder <span style="color:#719e07">:=</span> zapcore.NewConsoleEncoder(zapcore.EncoderConfig{
                 <span style="color:#586e75">// TimeKey: &#34;time&#34;, // 時刻情報は期待結果に含めにくいので省略
 </span><span style="color:#586e75"></span>                NameKey:        <span style="color:#2aa198">&#34;name&#34;</span>,
                 EncodeLevel:    zapcore.CapitalLevelEncoder,
@@ -251,8 +251,8 @@
                 EncodeDuration: zapcore.StringDurationEncoder,
                 EncodeCaller:   zapcore.ShortCallerEncoder,
         })
-        core <span style="color:#719e07">:=</span> zapcore.<span style="color:#268bd2">NewCore</span>(encoder, zapcore.<span style="color:#268bd2">AddSync</span>(buf), zapcore.InfoLevel)
-        <span style="color:#719e07">return</span> zap.<span style="color:#268bd2">New</span>(core)
+        core <span style="color:#719e07">:=</span> zapcore.NewCore(encoder, zapcore.AddSync(buf), zapcore.InfoLevel)
+        <span style="color:#719e07">return</span> zap.New(core)
 }</code></pre></div>
 <h1 id="終わりに">終わりに</h1>
 
@@ -428,6 +428,12 @@
           
             
               <li class="post">
+                <a href="/2019/02/01/how-to-use-analisys-package/">golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang</a>
+              </li>
+            
+          
+            
+              <li class="post">
                 <a href="/2019/01/26/publish-blog-kpi-collector/">GoogleスプレットシートでWebサイトのKPIを集計するためのOSSを作った #blog #gas</a>
               </li>
             
@@ -447,12 +453,6 @@
             
               <li class="post">
                 <a href="/2019/01/16/develop-google-apps-script-by-typescript/">Google Apps ScriptをTypeScriptで実装する(clasp/TSLint/Prettier) #gas #typescript</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2019/01/11/filter-branch-in-github-actions/">GitHub Actionsで特定のブランチのときのみワークフローを実行する #github #actions #ci</a>
               </li>
             
           

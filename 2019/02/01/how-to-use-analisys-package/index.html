@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="Go,AST,静的解析">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.50" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Blue.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Blue.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/02/01/how-to-use-analisys-package/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang - My External Storage"/>
+  <meta property="og:description" content="この記事ではGo(Un)Conferenceで発表したGoにおけるLinterツールの作成方法をまとめる。 Go(Un)Conference（"/>
+  
+  <meta name="twitter:title" content="golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang - My External Storage"/>
+  <meta name="twitter:description" content="この記事ではGo(Un)Conferenceで発表したGoにおけるLinterツールの作成方法をまとめる。 Go(Un)Conference（"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Feb 1, 2019
+         - 10 minute read 
+         - <a href="https://budougumi0617.github.io/2019/02/01/how-to-use-analisys-package/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+        
+    </p>
+    <h1 class="entry-title">
+         golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang 
+    </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#golang-org-x-tools-go-analysisとは">golang.org/x/tools/go/analysisとは</a></li>
+<li><a href="#静的解析モジュールを作成するための基本的な知識">静的解析モジュールを作成するための基本的な知識</a>
+<ul>
+<li><a href="#analyzer">Analyzer</a></li>
+<li><a href="#pass">Pass</a></li>
+<li><a href="#静的解析中に利用するデータ概念">静的解析中に利用するデータ概念</a></li>
+</ul></li>
+<li><a href="#自作のlinterを作ってみる">自作のLinterを作ってみる</a>
+<ul>
+<li><a href="#astの探索について">ASTの探索について。</a></li>
+</ul></li>
+<li><a href="#analyzerのテストを用意する">Analyzerのテストを用意する</a></li>
+<li><a href="#その他のtips">その他のTips</a>
+<ul>
+<li><a href="#静的解析を実装するときに参考にしたいコード">静的解析を実装するときに参考にしたいコード</a></li>
+<li><a href="#テストケースの書き方について">テストケースの書き方について</a></li>
+<li><a href="#フラグ">フラグ</a></li>
+<li><a href="#既存linterツールの移行について">既存Linterツールの移行について</a></li>
+</ul></li>
+<li><a href="#終わりに">終わりに</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</nav>
+          
+          <p>この記事ではGo(Un)Conferenceで発表したGoにおけるLinterツールの作成方法をまとめる。</p>
+
+<ul>
+<li>Go(Un)Conference（Goあんこ）LT大会 5kg
+
+<ul>
+<li><a href="https://gounconference.connpass.com/event/112942/">https://gounconference.connpass.com/event/112942/</a></li>
+</ul></li>
+<li>golang.org/x/tools/go/analysisで静的解析ツールを自作する #gounco
+
+<ul>
+<li><a href="https://speakerdeck.com/budougumi0617/how-to-create-the-static-analysis-tool-for-go">https://speakerdeck.com/budougumi0617/how-to-create-the-static-analysis-tool-for-go</a>
+</li>
+</ul></li>
+</ul>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>2018年末にGoのLinterツール用ライブラリが刷新された
+
+<ul>
+<li><a href="https://godoc.org/golang.org/x/tools/go/analysis">https://godoc.org/golang.org/x/tools/go/analysis</a></li>
+<li>モジュールとして静的解析ルールを作成・自由に組み合わせることができるようになった</li>
+</ul></li>
+<li><code>golang.org/x/tools/go/analysis</code>パッケージを使うと自作Linterツールが簡単に作れる
+
+<ul>
+<li><a href="https://godoc.org/golang.org/x/tools/go/analysis">https://godoc.org/golang.org/x/tools/go/analysis</a></li>
+<li>ざっくり言うと静的解析ロジックを実装し、<code>Reportf</code>メソッドで結果を出力するだけ</li>
+<li>他の<code>Analyzer</code>の結果を利用したりもできる</li>
+</ul></li>
+<li>テストも直感的に書くことができる
+
+<ul>
+<li><a href="https://godoc.org/golang.org/x/tools/go/analysis/analysistest">https://godoc.org/golang.org/x/tools/go/analysis/analysistest</a></li>
+<li>テスト用のGoファイルを作ってそれを読み込む仕組みが提供されている</li>
+</ul></li>
+<li>Linterを自作するときはtenntennさんのツールを使うととても簡単
+
+<ul>
+<li><a href="https://github.com/tenntenn/gosa/tree/master/skeleton">https://github.com/tenntenn/gosa/tree/master/skeleton</a></li>
+</ul></li>
+</ul>
+
+<p>実際に静的解析コマンドを実装したサンプルリポジトリは以下になる。</p>
+
+<p><a href="https://github.com/budougumi0617/importcheck"><img src="https://github-link-card.s3.ap-northeast-1.amazonaws.com/budougumi0617/importcheck.png" width="460px"></a></p>
+
+<h1 id="golang-org-x-tools-go-analysisとは">golang.org/x/tools/go/analysisとは</h1>
+
+<ul>
+<li><a href="https://godoc.org/golang.org/x/tools/go/analysis">https://godoc.org/golang.org/x/tools/go/analysis</a></li>
+</ul>
+
+<p><code>golang.org/x/tools/go/analysis</code>パッケージはGoで静的解析ツールを作成するための仕組みを提供するパッケージだ。詳細については<a href="https://twitter.com/tenntenn">@tenntenn</a>さんがmercariのブログにまとめてくれている。</p>
+
+<ul>
+<li><a href="https://tech.mercari.com/entry/2018/12/16/150000">Goにおける静的解析のモジュール化について - Mercari Engineering Blog</a></li>
+</ul>
+
+<p>このパッケージを使うと静的解析ロジックをモジュール化することができ、自由に組み合わせたりすることができる。
+利用例でみると、すでに<code>go vet</code>コマンドの静的解析ロジックは分割・モジュール化され、<code>analysis/passes</code>以下に各モジュールとして配置されている。
+モジュールは<a href="https://godoc.org/golang.org/x/tools/go/analysis#Analyzer">analysis.Analyzer</a>構造体を実装することで構成される。
+<code>go vet</code>コマンドの<code>main</code>関数は以下のようになっており、各モジュールの<code>Analyzer</code>オブジェクトを読み込んでいるだけなのがわかるはずだ。</p>
+
+<ul>
+<li><a href="https://github.com/golang/tools/blob/master/go/analysis/cmd/vet/vet.go">https://github.com/golang/tools/blob/master/go/analysis/cmd/vet/vet.go</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/golang/tools/blob/master/go/analysis/cmd/vet/vet.go
+</span><span style="color:#586e75"></span>
+<span style="color:#268bd2">func</span> main() {
+	multichecker.Main(
+		<span style="color:#586e75">// the traditional vet suite:
+</span><span style="color:#586e75"></span>		asmdecl.Analyzer,
+		assign.Analyzer,
+		atomic.Analyzer,
+		atomicalign.Analyzer,
+		bools.Analyzer,
+		buildtag.Analyzer,
+
+		<span style="color:#586e75">// ...
+</span><span style="color:#586e75"></span>
+		nilness.Analyzer,
+	)
+}</code></pre></div>
+<h1 id="静的解析モジュールを作成するための基本的な知識">静的解析モジュールを作成するための基本的な知識</h1>
+
+<p><a href="(https://tech.mercari.com/entry/2018/12/16/150000)">Mercariのブログ</a>と<a href="https://godoc.org/golang.org/x/tools/go/analysis">GoDoc</a>を見てもらえばいいのだが、<code>golang.org/x/tools/go/analysis</code>パッケージで静的解析モジュールを作る際には以下の要点を押さえておけばよい。</p>
+
+<h2 id="analyzer">Analyzer</h2>
+
+<ul>
+<li><a href="https://godoc.org/golang.org/x/tools/go/analysis#Analyzer">https://godoc.org/golang.org/x/tools/go/analysis#Analyzer</a></li>
+</ul>
+
+<p>各静的解析のモジュールの実態が<code>Analyzer</code>構造体となる。<code>Analyzer</code>構造体の<code>Run</code>メソッドに静的解析ロジックを実装することで静的解析が実現する。<code>Analyzer</code>では他の<code>Analyzer</code>に解析結果を提供する際の<code>ResultType</code>、依存する他の<code>Analyzer</code>を指定する<code>Requires</code>などのフィールドが存在する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Analyzer <span style="color:#268bd2">struct</span> {
+    <span style="color:#586e75">// ...
+</span><span style="color:#586e75"></span>
+    <span style="color:#586e75">// ロジック本体。戻り値はなくても良いが、Resultとして他のAnalyzerに結果を渡す場合は返す。
+</span><span style="color:#586e75"></span>    Run <span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>Pass) (<span style="color:#268bd2">interface</span>{}, <span style="color:#dc322f">error</span>)
+
+    <span style="color:#586e75">// ...
+</span><span style="color:#586e75"></span>
+    <span style="color:#586e75">// このAnalyzerが実行時に利用したい他のAnalyzer
+</span><span style="color:#586e75"></span>    Requires []<span style="color:#719e07">*</span>Analyzer
+
+    <span style="color:#586e75">// このAnalyzerが他のAnalyzerに提供する情報。Runメソッドの戻り値
+</span><span style="color:#586e75"></span>    ResultType reflect.Type
+
+    <span style="color:#586e75">// 同じAnalyzer内で解析対象のパッケージをまたいで解析情報を利用したい場合はFactという概念を利用してやり取りする
+</span><span style="color:#586e75"></span>    FactTypes []Fact
+}</code></pre></div>
+<h2 id="pass">Pass</h2>
+
+<ul>
+<li><a href="https://godoc.org/golang.org/x/tools/go/analysis#Pass">https://godoc.org/golang.org/x/tools/go/analysis#Pass</a></li>
+</ul>
+
+<p>静的解析は実行時に受け取った解析対象のパッケージに対して<code>Analyzer</code>の<code>Run</code>メソッドを実行していく。
+<code>Run</code>メソッドの引数として解析対象パッケージの情報を持つのが<code>Pass</code>構造体だ。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Pass <span style="color:#268bd2">struct</span> {
+    Analyzer <span style="color:#719e07">*</span>Analyzer <span style="color:#586e75">// the identity of the current analyzer
+</span><span style="color:#586e75"></span>
+    <span style="color:#586e75">// 解析対象パッケージの静的解析用の情報
+</span><span style="color:#586e75"></span>    Fset       <span style="color:#719e07">*</span>token.FileSet <span style="color:#586e75">// file position information
+</span><span style="color:#586e75"></span>    Files      []<span style="color:#719e07">*</span>ast.File    <span style="color:#586e75">// the abstract syntax tree of each file
+</span><span style="color:#586e75"></span>    OtherFiles []<span style="color:#dc322f">string</span>       <span style="color:#586e75">// names of non-Go files of this package
+</span><span style="color:#586e75"></span>    Pkg        <span style="color:#719e07">*</span>types.Package <span style="color:#586e75">// type information about the package
+</span><span style="color:#586e75"></span>    TypesInfo  <span style="color:#719e07">*</span>types.Info    <span style="color:#586e75">// type information about the syntax trees
+</span><span style="color:#586e75"></span>    TypesSizes types.Sizes    <span style="color:#586e75">// function for computing sizes of types
+</span><span style="color:#586e75"></span>
+    <span style="color:#586e75">// ...
+</span><span style="color:#586e75"></span>
+    <span style="color:#586e75">// 他のAnalyzerのReslutを利用したい場合はこの中から受け取る
+</span><span style="color:#586e75"></span>    ResultOf <span style="color:#268bd2">map</span>[<span style="color:#719e07">*</span>Analyzer]<span style="color:#268bd2">interface</span>{}
+
+    <span style="color:#586e75">// Factをやりとりするときの関数
+</span><span style="color:#586e75"></span>    ImportObjectFact <span style="color:#268bd2">func</span>(obj types.Object, fact Fact) <span style="color:#dc322f">bool</span>
+
+    <span style="color:#586e75">// ...
+</span><span style="color:#586e75"></span>}</code></pre></div>
+<h2 id="静的解析中に利用するデータ概念">静的解析中に利用するデータ概念</h2>
+
+<p><code>Analyzer</code>や<code>Pass</code>の説明中に出てきた3種類のデータの概念が以下だ。</p>
+
+<ul>
+<li>Result
+
+<ul>
+<li><a href="https://godoc.org/golang.org/x/tools/go/analysis#Analyzer">https://godoc.org/golang.org/x/tools/go/analysis#Analyzer</a></li>
+<li>その<code>Analyzer</code>に解析結果を提供するときに定義する</li>
+</ul></li>
+<li>Diagnostic
+
+<ul>
+<li><a href="https://godoc.org/golang.org/x/tools/go/analysis#Diagnostic">https://godoc.org/golang.org/x/tools/go/analysis#Diagnostic</a></li>
+<li>CLIにしたときに出力されるエラー情報(<code>github.com/johndue/pkg/bar.go: 5:2: some analysis error</code>のような)</li>
+<li><code>Printf</code>関数の用に使える<a href="https://godoc.org/golang.org/x/tools/go/analysis#Pass.Reportf">Pass.Reportf</a>メソッドがあるので、実際この構造体をそのまま扱うことはない（と思う）</li>
+</ul></li>
+<li>Facts
+
+<ul>
+<li><a href="https://godoc.org/golang.org/x/tools/go/analysis#Fact">https://godoc.org/golang.org/x/tools/go/analysis#Fact</a></li>
+<li>同じAnalyzer内で解析対象のパッケージをまたいで解析情報を利用できる。</li>
+</ul></li>
+</ul>
+
+<h1 id="自作のlinterを作ってみる">自作のLinterを作ってみる</h1>
+
+<p>ここからは実際に自作のLinterを作ってみる。まず最初は@tenntennさんが公開している<code>skeleten</code>コマンドを使うと簡単にテンプレートが生成される。</p>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 168px; padding-bottom: 0;"><a href="https://github.com/tenntenn/gosa/tree/master/skeleton" data-iframely-url="//cdn.iframe.ly/bG7XmYw"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<p><code>mylinter</code>という名前で静的解析モジュールのテンプレートを作成するときは以下のように使う。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get github.com/tenntenn/gosa/skeleton
+$ skeleton mylinter
+mylinter
+├── mylinter.go  <span style="color:#586e75"># 静的解析ロジックを書く本体
+</span><span style="color:#586e75"></span>├── mylinter_test.go
+└── testdata
+    └── src
+        └── a <span style="color:#586e75"># テストを書くときのテストケースパッケージ
+</span><span style="color:#586e75"></span>            └── a.go</code></pre></div>
+<p>これで静的解析ロジックを<code>mylinter.go</code>の中の<code>Analyzer.Run</code>に自作の静的解析ロジックを実装していくだけでよい。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> mylinter
+
+<span style="color:#719e07">import</span> (
+        <span style="color:#2aa198">&#34;go/ast&#34;</span>
+
+        <span style="color:#2aa198">&#34;golang.org/x/tools/go/analysis&#34;</span>
+        <span style="color:#2aa198">&#34;golang.org/x/tools/go/analysis/passes/inspect&#34;</span>
+        <span style="color:#2aa198">&#34;golang.org/x/tools/go/ast/inspector&#34;</span>
+)
+
+<span style="color:#268bd2">var</span> Analyzer = <span style="color:#719e07">&amp;</span>analysis.Analyzer{
+        Name: <span style="color:#2aa198">&#34;mylinter&#34;</span>,
+        Doc:  Doc,
+        Run:  run,
+        Requires: []<span style="color:#719e07">*</span>analysis.Analyzer{
+                inspect.Analyzer,
+        },
+}
+
+<span style="color:#268bd2">const</span> Doc = <span style="color:#2aa198">&#34;mylinter is ...&#34;</span>
+
+<span style="color:#268bd2">func</span> run(pass <span style="color:#719e07">*</span>analysis.Pass) (<span style="color:#268bd2">interface</span>{}, <span style="color:#dc322f">error</span>) {
+  <span style="color:#586e75">// 省略
+</span><span style="color:#586e75"></span>}</code></pre></div>
+<p>このまま<code>Analyzer</code>をコマンドとして実行したい場合は以下のような<code>cmd/main.go</code>ファイルを用意すればよいだろう。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// cmd/main.go
+</span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+        <span style="color:#2aa198">&#34;github.com/budougumi0617/mylinter&#34;</span>
+        <span style="color:#2aa198">&#34;golang.org/x/tools/go/analysis/multichecker&#34;</span>
+        <span style="color:#2aa198">&#34;golang.org/x/tools/go/analysis/passes/inspect&#34;</span>
+)
+
+<span style="color:#268bd2">func</span> main() {
+        multichecker.Main(
+                <span style="color:#586e75">// skeletonで生成したAnalyzerの初期コードの場合はinspect.Analyzerの結果に依存している
+</span><span style="color:#586e75"></span>                inspect.Analyzer,
+                mylinter.Analyzer,
+        )
+}</code></pre></div>
+<p>ここでは<code>multichecker.Main</code>関数で定義しているが、<code>Main</code>関数の実装はいくつか提供されている。
+一つの<code>Analyzer</code>だけを使ったLinterなのか？複数の<code>Analyzer</code>を使ったLinterなのか？などによって使い分ける。</p>
+
+<ul>
+<li><a href="https://godoc.org/golang.org/x/tools/go/analysis/singlechecker">https://godoc.org/golang.org/x/tools/go/analysis/singlechecker</a></li>
+<li><a href="https://godoc.org/golang.org/x/tools/go/analysis/unitchecker">https://godoc.org/golang.org/x/tools/go/analysis/unitchecker</a></li>
+<li><a href="https://godoc.org/golang.org/x/tools/go/analysis/multichecker">https://godoc.org/golang.org/x/tools/go/analysis/multichecker</a></li>
+</ul>
+
+<h2 id="astの探索について">ASTの探索について。</h2>
+
+<p>準備は簡単なのだが、実際に難しいところは目的の静的解析ロジックを組み立てるところだろう（逆にいうと本質的な部分にフォーカスできるようになっているとも言える）。
+抽象構文木(AST)については@tenntennさんのQiitaの記事や<a href="https://twitter.com/motemen">@motemen</a>さんのgit bookを見るとわかりやすい。</p>
+
+<ul>
+<li><a href="https://qiita.com/search?q=AST+user%3Atenntenn&amp;sort=">Qiitaで「&rdquo;AST user:tenntenn&rdquo;」と検索</a></li>
+<li><a href="https://motemen.github.io/go-for-go-book/">GoのためのGo</a></li>
+</ul>
+
+<p><code>skeleton</code>で生成したコードにもふくまれているが、<code>inspect</code>パッケージを使うと簡単にASTを走査できるので<code>switch</code>文を組み立てるだけでパースを開始できる。</p>
+
+<ul>
+<li><a href="https://godoc.org/golang.org/x/tools/go/analysis/passes/inspect">https://godoc.org/golang.org/x/tools/go/analysis/passes/inspect</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> run(pass <span style="color:#719e07">*</span>analysis.Pass) (<span style="color:#268bd2">interface</span>{}, <span style="color:#dc322f">error</span>) {
+        inspect <span style="color:#719e07">:=</span> pass.ResultOf[inspect.Analyzer].(<span style="color:#719e07">*</span>inspector.Inspector)
+
+        <span style="color:#586e75">// 調べたいNodeの型でフィルタリングできる
+</span><span style="color:#586e75"></span>        nodeFilter <span style="color:#719e07">:=</span> []ast.Node{
+                (<span style="color:#719e07">*</span>ast.Ident)(<span style="color:#cb4b16">nil</span>),
+        }
+
+        inspect.Preorder(nodeFilter, <span style="color:#268bd2">func</span>(n ast.Node) {
+                <span style="color:#719e07">switch</span> n <span style="color:#719e07">:=</span> n.(<span style="color:#268bd2">type</span>) {
+                <span style="color:#719e07">case</span> <span style="color:#719e07">*</span>ast.Ident:
+                        _ = n
+                }
+        })
+
+        <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>, <span style="color:#cb4b16">nil</span>
+}</code></pre></div>
+<p>あとはシンプルな<code>Analyzer</code>の実装を見ていくとなんとなくやり方が見えてくると思う（私はまだ見えていない）。</p>
+
+<ul>
+<li><a href="https://github.com/golang/tools/blob/master/go/analysis/passes/nilfunc/nilfunc.go">https://github.com/golang/tools/blob/master/go/analysis/passes/nilfunc/nilfunc.go</a></li>
+</ul>
+
+<h1 id="analyzerのテストを用意する">Analyzerのテストを用意する</h1>
+
+<ul>
+<li><a href="https://godoc.org/golang.org/x/tools/go/analysis/analysistest">https://godoc.org/golang.org/x/tools/go/analysis/analysistest</a></li>
+</ul>
+
+<p><code>analysistest</code>パッケージを使うと、簡単に<code>Analyzer</code>をテストすることができる。
+下記のように静的解析でエラーを出したいテスト用のサンプルコードを準備するだけだ。
+エラーを出したい行に対して、<code>// want</code>と始めて期待出力文字列をコメントしておくだけでよい。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// testdata/src/handler/h.go
+</span><span style="color:#586e75"></span><span style="color:#719e07">package</span> handler
+
+<span style="color:#719e07">import</span> (
+        <span style="color:#2aa198">&#34;repository&#34;</span> <span style="color:#586e75">// want &#34;handler must not include \&#34;repository\&#34;&#34;
+</span><span style="color:#586e75"></span>        <span style="color:#2aa198">&#34;service&#34;</span>
+)
+
+<span style="color:#719e07">...</span></code></pre></div>
+<p>あとは用意したサンプルコードを読み込んで、<code>Analyzer</code>を実行するテストケースを用意する。<code>skeleteon</code>コマンドでテンプレートを生成した場合、<code>xxx_test.go</code>にそのようなテストケースがすでに生成されている。
+テストコードには「<code>./testdata/src</code>ディレクトリにある<code>&quot;a&quot;</code>パッケージを一緒に生成した<code>Analyzer</code>で静的解析する」テストケースがすでにあるので、<code>testdata/src/a/a.go</code>ファイルに自分が実装した静的解析ロジックで見つけたいエラーを書いておくだけだ。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> mylinter_test
+
+<span style="color:#719e07">import</span> (
+        <span style="color:#2aa198">&#34;testing&#34;</span>
+
+        <span style="color:#2aa198">&#34;github.com/budougumi0617/mylinter&#34;</span>
+        <span style="color:#2aa198">&#34;golang.org/x/tools/go/analysis/analysistest&#34;</span>
+)
+
+<span style="color:#268bd2">func</span> Test(t <span style="color:#719e07">*</span>testing.T) {
+        testdata <span style="color:#719e07">:=</span> analysistest.TestData()
+        analysistest.Run(t, testdata, mylinter.Analyzer, <span style="color:#2aa198">&#34;a&#34;</span>)
+}</code></pre></div>
+<p><code>skeleton</code>で生成したコードでそのまま<code>go test</code>すれば、サンプルコードに書かれた<code>// want</code>が満たされずFAILするのがわかる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span>
+--- FAIL: Test <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.03s<span style="color:#719e07">)</span>
+    analysistest.go:311: a/a.go:4: no diagnostic was reported matching <span style="color:#2aa198">&#34;pattern&#34;</span>
+FAIL
+<span style="color:#b58900">exit</span> status <span style="color:#2aa198">1</span>
+FAIL    github.com/budougumi0617/mylinter       <span style="color:#2aa198">0</span>.042s</code></pre></div>
+<h1 id="その他のtips">その他のTips</h1>
+
+<h2 id="静的解析を実装するときに参考にしたいコード">静的解析を実装するときに参考にしたいコード</h2>
+
+<p>そもそも静的解析でどんなことができるのか？あの静的解析はどのようにロジックを組めばできるのだろう？という疑問もあるはずだ。
+そういう疑問を持ったときははまず<code>golang.org/x/tools/go/analysis/passes</code>以下のパッケージを読むといいだろう。<code>go vet</code>の静的解析の実装が全て<code>Analyzer</code>ベースになっている、</p>
+
+<ul>
+<li><a href="https://godoc.org/golang.org/x/tools/go/analysis">https://godoc.org/golang.org/x/tools/go/analysis</a></li>
+</ul>
+
+<p><code>ExportObjectFact</code>など、<code>Facts</code>を使った実装は<code>golang.org/x/tools/go/analysis/passes/printf/printf</code>パッケージで行われている。</p>
+
+<ul>
+<li><a href="https://github.com/golang/tools/blob/master/go/analysis/passes/printf/printf.go">https://github.com/golang/tools/blob/master/go/analysis/passes/printf/printf.go</a></li>
+</ul>
+
+<p><code>Result</code>については<code>golang.org/x/tools/go/analysis/passes/inspect/inspect</code>を参考にすれば良い（他のモジュールからの使い方については<code>skeleton</code>コマンドで生成したコードを見ればわかるだろう）。</p>
+
+<ul>
+<li><a href="https://github.com/golang/tools/blob/master/go/analysis/passes/inspect/inspect.go">https://github.com/golang/tools/blob/master/go/analysis/passes/inspect/inspect.go</a></li>
+</ul>
+
+<h2 id="テストケースの書き方について">テストケースの書き方について</h2>
+
+<p>テスト用のサンプルコードは<code>testdata</code>ディレクトリ以下に作成することになるが、<code>analysistest</code>パッケージでテストを実行するときは<code>testdata</code>ディレクトリが<code>GOPATH</code>になる。なので、たとえば<code>repository</code>パッケージを<code>import</code>する<code>handler</code>パッケージというサンプルコードを作ったとすると、ディレクトリ構成は以下のようになる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ tree testdata
+testdata
+└── src
+    ├── domain
+    │   └── d.go
+    ├── handler
+    │   └── h.go
+    ├── repository
+    │   └── r.go
+    └── service
+        └── s.go</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// testdata/src/handler/h.go
+</span><span style="color:#586e75"></span>
+<span style="color:#719e07">package</span> handler
+
+<span style="color:#719e07">import</span> (
+        <span style="color:#2aa198">&#34;encoding/json&#34;</span>
+        <span style="color:#2aa198">&#34;net/http&#34;</span>
+
+        <span style="color:#2aa198">&#34;repository&#34;</span> <span style="color:#586e75">// want &#34;handler must not include \&#34;repository\&#34;&#34;
+</span><span style="color:#586e75"></span>        <span style="color:#2aa198">&#34;service&#34;</span>
+)
+
+<span style="color:#719e07">//</span> Do anything<span style="color:#719e07">...</span></code></pre></div>
+<h2 id="フラグ">フラグ</h2>
+
+<p>CLIツールの場合フラグ処理を入れたくなるのが常だ。<code>analysis</code>パッケージを使った実装した場合、実行時のフラグは<code>Analyzer.Flags</code>に入って渡ってくる。具体的な呼び出し方は<a href="https://tech.mercari.com/entry/2018/12/16/150000">Mercariのブログ</a>を見るとよいだろう。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Analyzer <span style="color:#268bd2">struct</span> {
+    <span style="color:#586e75">// ...
+</span><span style="color:#586e75"></span>
+    <span style="color:#586e75">// Flags defines any flags accepted by the analyzer.
+</span><span style="color:#586e75"></span>    <span style="color:#586e75">// The manner in which these flags are exposed to the user
+</span><span style="color:#586e75"></span>    <span style="color:#586e75">// depends on the driver which runs the analyzer.
+</span><span style="color:#586e75"></span>    Flags flag.FlagSet
+
+    <span style="color:#586e75">// ...
+</span><span style="color:#586e75"></span>}</code></pre></div>
+<h2 id="既存linterツールの移行について">既存Linterツールの移行について</h2>
+
+<p>すでに<code>golang.org/x/tools/go/analysis</code>パッケージ以前の仕組みでLinterを作成していた方もいるだろう。
+既存Linterツールの移行(マイグレーション)については<a href="https://twitter.com/izumin5210">izumin5210</a>さんや<a href="https://twitter.com/dice_zu">daisuzu</a>さんの記事が参考になる。</p>
+
+<ul>
+<li><a href="https://blog.izum.in/understand-understand-golang-org-x-tools-analysis-b7a3aba7ae4">golang.org/x/tools/analysis を理解する #golang #golangtokyo</a></li>
+<li><a href="https://daisuzu.hatenablog.com/entry/2018/12/08/225147">golang.tokyo 静的解析Dayでgolang.org/x/tools/go/analysisを使ってみた</a></li>
+</ul>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>私は今までLinterを作るのは難しそうだなと思っていたが、<code>golang.org/x/tools/go/analysis</code>で提供されるようになった仕組みを使えば、静的解析ロジック以外の殆どを気にしなくてすむ。また静的解析ロジックそのものもヘルパーモジュールを使うことでだいぶラクに実装できる。
+今回サンプルとして実装したLinterツールはハードコーディングだらけで使い物にならないので、設定ファイルから条件を読み込むようにしたりして実際の業務で使えるLinterを作ってみたいと思う。
+また、私は英語がちゃんと読めないので、日本語でいろいろな情報を書いてくださっている先輩Gopherのみなさんに感謝しかない(ましてやジェネレータまで提供してくれている！)。</p>
+
+<h1 id="参考">参考</h1>
+
+<ul>
+<li><a href="https://godoc.org/golang.org/x/tools/go/analysis">package analysis - GoDoc</a></li>
+<li><a href="https://tech.mercari.com/entry/2018/12/16/150000">Goにおける静的解析のモジュール化について - Mercari Engineering Blog</a></li>
+<li><a href="https://qiita.com/tenntenn/items/65b9a39e6db09efabd74">モジュール化された静的解析の実装を追ってみよう #golang - Qita</a></li>
+<li><a href="https://github.com/tenntenn/gosa/tree/master/skeleton">github.com/tenntenn/gosa/skeleton</a></li>
+<li><a href="https://qiita.com/search?q=AST+user%3Atenntenn&amp;sort=">Qiitaで「&rdquo;AST user:tenntenn&rdquo;」と検索</a></li>
+<li><a href="https://motemen.github.io/go-for-go-book/">GoのためのGo</a></li>
+<li><a href="https://qiita.com/tenntenn/items/dfc112ae7bb8c9703ab9">静的解析で型を扱う #golang - Qiita</a></li>
+<li><a href="https://qiita.com/po3rin/items/a19d96d29284108ad442">Go言語の golang/go パッケージで初めての構文解析</a></li>
+<li><a href="https://blog.izum.in/understand-understand-golang-org-x-tools-analysis-b7a3aba7ae4">golang.org/x/tools/analysis を理解する #golang #golangtokyo</a></li>
+<li><a href="https://daisuzu.hatenablog.com/entry/2018/12/08/225147">golang.tokyo 静的解析Dayでgolang.org/x/tools/go/analysisを使ってみた</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/01/17/try-go-on-google-cloud-functions/">BetaリリースされたGoのGoogle Cloud Functionsを試す #gcp #golangjp</a></li>
+  
+  <li><a href="/2018/12/14/how-to-use-google-wire/">google/wireを使ったDIとDI関数のシグネチャについて #go</a></li>
+  
+  <li><a href="/2018/10/19/presentation-gounco-lt4/">[発表資料]go-cloudとWireを利用したDI #gounco #go</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+​<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Feb 1, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/ast">ast</a>  <a class="category" href="https://budougumi0617.github.io/tags/analysis">analysis</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/01/26/publish-blog-kpi-collector/" title="GoogleスプレットシートでWebサイトのKPIを集計するためのOSSを作った #blog #gas">GoogleスプレットシートでWebサイトのKPIを集計するためのOSSを作った #blog #gas</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/02/01/how-to-use-analisys-package/">golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/01/26/publish-blog-kpi-collector/">GoogleスプレットシートでWebサイトのKPIを集計するためのOSSを作った #blog #gas</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/01/21/use-heatmap-by-userheat/">HugoブログにUser Heatを設置してヒートマップ分析をする</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/01/17/try-go-on-google-cloud-functions/">BetaリリースされたGoのGoogle Cloud Functionsを試す #gcp #golangjp</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/01/16/develop-google-apps-script-by-typescript/">Google Apps ScriptをTypeScriptで実装する(clasp/TSLint/Prettier) #gas #typescript</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
