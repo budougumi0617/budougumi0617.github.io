@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go]スライス生成時(slice operator)に使える珍しい宣言方法 - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="Go,Golang,slice,初心者,スライス">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.50" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/02/08/go-slice-operator/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go]スライス生成時(slice operator)に使える珍しい宣言方法 - My External Storage"/>
+  <meta property="og:description" content="Goにおけるスライス演算子(slice operator)を改めて調べ直し、3-INDEX記法などを学んだ。
+
+"/>
+  
+  <meta name="twitter:title" content="[Go]スライス生成時(slice operator)に使える珍しい宣言方法 - My External Storage"/>
+  <meta name="twitter:description" content="Goにおけるスライス演算子(slice operator)を改めて調べ直し、3-INDEX記法などを学んだ。
+
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Feb 8, 2019
+         - 4 minute read 
+         - <a href="https://budougumi0617.github.io/2019/02/08/go-slice-operator/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+        
+    </p>
+    <h1 class="entry-title">
+         [Go]スライス生成時(slice operator)に使える珍しい宣言方法 
+    </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#スライス">スライス</a></li>
+<li><a href="#スライス演算子-slice-operator">スライス演算子(<em>slice operator)</em></a></li>
+<li><a href="#スライス演算子の省略記法">スライス演算子の省略記法</a></li>
+<li><a href="#3-index記法でスライス演算子利用時でも容量を指定する">3-INDEX記法でスライス演算子利用時でも容量を指定する</a></li>
+<li><a href="#最後に">最後に</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</nav>
+          
+          <p>Goにおけるスライス演算子(<em>slice operator</em>)を改めて調べ直し、3-INDEX記法などを学んだ。</p>
+
+<p></p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>スライスは<code>make</code>などのほかにスライス演算子(<em>slice operator</em>)による初期化も存在する</li>
+<li>スライス演算子でもcapacityを指定することができる。</li>
+<li>他にも珍しいスライスの宣言方法があった。</li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">arr <span style="color:#719e07">:=</span> [<span style="color:#719e07">...</span>]<span style="color:#dc322f">int</span>{<span style="color:#2aa198">0</span>, <span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>, <span style="color:#2aa198">3</span>, <span style="color:#2aa198">4</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">6</span>, <span style="color:#2aa198">7</span>, <span style="color:#2aa198">8</span>, <span style="color:#2aa198">9</span>}
+
+s <span style="color:#719e07">:=</span> arr[<span style="color:#2aa198">2</span>:<span style="color:#2aa198">5</span>]           <span style="color:#586e75">// s = [2 3 4] cap(s) = 8
+</span><span style="color:#586e75"></span>s = arr[<span style="color:#2aa198">2</span>:<span style="color:#2aa198">5</span>:<span style="color:#2aa198">7</span>]          <span style="color:#586e75">// s = [2 3 4] cap(s) = 5
+</span><span style="color:#586e75"></span>s = arr[:<span style="color:#2aa198">0</span>]             <span style="color:#586e75">// s = []      cap(s) = 10
+</span><span style="color:#586e75"></span>s = arr[:<span style="color:#2aa198">0</span>:<span style="color:#2aa198">7</span>]           <span style="color:#586e75">// s = []      cap(s) = 7
+</span><span style="color:#586e75"></span>s = <span style="color:#b58900">make</span>([]<span style="color:#dc322f">int</span>, <span style="color:#2aa198">10</span>)[:<span style="color:#2aa198">5</span>] <span style="color:#719e07">//</span> [<span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span>]  make ([]<span style="color:#dc322f">int</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">10</span>)と同じ</code></pre></div>
+<p>記事中のサンプルコードをまとめたplaygroundは以下。</p>
+
+<ul>
+<li><a href="https://play.golang.org/p/rS6SU9m5v2F">https://play.golang.org/p/rS6SU9m5v2F</a></li>
+</ul>
+
+<h1 id="スライス">スライス</h1>
+
+<p>Goにおけるスライスは、基底配列(<em>underlying array</em>)の要素の部分列（あるいは全部）へアクセスする軽量なデータ構造だ。</p>
+
+<ul>
+<li>Slice expressions | The Go Programming Language Specification
+
+<ul>
+<li><a href="https://golang.org/ref/spec#Slice_expressions">https://golang.org/ref/spec#Slice_expressions</a></li>
+</ul></li>
+</ul>
+
+<p>詳細なデータ構造についてはGo Blogが参考になる。</p>
+
+<ul>
+<li>Go Slices: usage and internals | The Go Blog
+
+<ul>
+<li><a href="https://blog.golang.org/go-slices-usage-and-internals">https://blog.golang.org/go-slices-usage-and-internals</a></li>
+</ul></li>
+</ul>
+
+<p>スライスは大雑把に以下のような情報を持つ。容量を超える数の値が入る場合はメモリアロケーションが走る。</p>
+
+<ul>
+<li>基底配列の特定の場所を指すポインタ。スライスの先頭要素になる場所</li>
+<li>長さ。スライスにふくまれている値の数。<code>len</code>関数で取得できる値</li>
+<li>容量(*capacity*）。<code>cap</code>関数で取得できる値</li>
+</ul>
+
+<p>まったく新しいスライスを宣言するときは<code>make</code>などを使う。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#b58900">make</span>([]<span style="color:#dc322f">int</span>, <span style="color:#2aa198">5</span>)       <span style="color:#586e75">// [0 0 0 0 0]
+</span><span style="color:#586e75"></span><span style="color:#b58900">make</span>([]<span style="color:#dc322f">int</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">10</span>)   <span style="color:#586e75">// [0 0 0 0 0] あらかじめ容量が10ある
+</span><span style="color:#586e75"></span>[]<span style="color:#dc322f">int</span>{}              <span style="color:#586e75">// [0 0 0 0 0]
+</span><span style="color:#586e75"></span>[]<span style="color:#dc322f">int</span>{<span style="color:#2aa198">3</span>:<span style="color:#2aa198">2</span>, <span style="color:#2aa198">5</span>:<span style="color:#2aa198">1</span>}      <span style="color:#719e07">//</span> [<span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> <span style="color:#2aa198">2</span> <span style="color:#2aa198">0</span> <span style="color:#2aa198">1</span>]</code></pre></div>
+<p>詳細はプログラミング言語Go 4.2スライスに記載されている（上記も大半が引用）。</p>
+
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4621300253&linkId=d133cb0683bd924a3f87eb96c455af48"></iframe>
+
+<h1 id="スライス演算子-slice-operator">スライス演算子(<em>slice operator)</em></h1>
+
+<p>そしてある配列（あるいは別のスライス）から新たなスライスを生成するのがスライス演算子(<em>slice operator</em>)だ。
+基底配列（あるいは別のスライス）のオブジェクト<code>array</code>に対して<code>array[1:2]</code>のように宣言する。</p>
+
+<p>例えば以下のようにスライス演算子でスライスを生成すると、各情報は以下のようになる。</p>
+
+<pre><code>	arr := [...]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} // array(not slice)
+	s := arr[2:5]                                 // slice operator a[ low : high ]
+
+	fmt.Println(&quot;s =&quot;, s)        // s = [2 3 4]
+	fmt.Println(&quot;len =&quot;, len(s)) // len = 3
+	fmt.Println(&quot;cap =&quot;, cap(s)) // cap = 8
+</code></pre>
+
+<p>上記の例でいうと、「基底配列の2番目の要素」(<code>law</code>)から「基底配列の(5-1)番目の要素」(<code>high</code>)までのスライスが用意される。
+容量は基底配列（あるいは元のスライス）で決まるので、<code>基底配列の長さ - スライスの開始位置(len(arr) - low))</code>になる。</p>
+
+<h1 id="スライス演算子の省略記法">スライス演算子の省略記法</h1>
+
+<p>スライス演算子では<code>low</code>や<code>high</code>を明示的に書かずに省略することができる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">a[<span style="color:#2aa198">2</span>:]  <span style="color:#586e75">// a[2 : len(a)] と書くのと同じ
+</span><span style="color:#586e75"></span>a[:<span style="color:#2aa198">3</span>]  <span style="color:#586e75">// a[0 : 3] と書くのと同じ
+</span><span style="color:#586e75"></span>a[:]   <span style="color:#719e07">//</span> a[<span style="color:#2aa198">0</span> : <span style="color:#b58900">len</span>(a)] と書くのと同じ</code></pre></div>
+<h1 id="3-index記法でスライス演算子利用時でも容量を指定する">3-INDEX記法でスライス演算子利用時でも容量を指定する</h1>
+
+<p>あまり見ない気がするが、3つインデックスを指定する方法も存在する。</p>
+
+<ul>
+<li>Three-index slices | Go 1.2 Release Notes
+
+<ul>
+<li><a href="https://golang.org/doc/go1.2#three_index">https://golang.org/doc/go1.2#three_index</a></li>
+</ul></li>
+</ul>
+
+<p><code>make</code>を使ってスライスを生成するとき(<code>make([]int, len, cap)</code>)のように、容量を3つ目の値として指定する。</p>
+
+<pre><code>arr := [...]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 
+
+s = arr[2:5:7]
+fmt.Println(&quot;s =&quot;, s)        // s = [2 3 4]
+fmt.Println(&quot;len =&quot;, len(s)) // len = 3
+fmt.Println(&quot;cap =&quot;, cap(s)) // cap = 5
+</code></pre>
+
+<p>3-INDEX記法でも最初のパラメータだけを省略することができる。2番目と3番目のパラメータは省略することができなくなる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">arr <span style="color:#719e07">:=</span> [<span style="color:#719e07">...</span>]<span style="color:#dc322f">int</span>{<span style="color:#2aa198">0</span>, <span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>, <span style="color:#2aa198">3</span>, <span style="color:#2aa198">4</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">6</span>, <span style="color:#2aa198">7</span>, <span style="color:#2aa198">8</span>, <span style="color:#2aa198">9</span>}
+
+s = arr[:<span style="color:#2aa198">0</span>:<span style="color:#2aa198">7</span>]
+fmt.Println(<span style="color:#2aa198">&#34;s =&#34;</span>, s)        <span style="color:#586e75">// s = []
+</span><span style="color:#586e75"></span>fmt.Println(<span style="color:#2aa198">&#34;len =&#34;</span>, <span style="color:#b58900">len</span>(s)) <span style="color:#586e75">// len = 0
+</span><span style="color:#586e75"></span>fmt.Println(<span style="color:#2aa198">&#34;cap =&#34;</span>, <span style="color:#b58900">cap</span>(s)) <span style="color:#586e75">// cap = 7
+</span><span style="color:#586e75"></span>
+<span style="color:#586e75">// s = arr[::7]              // middle index required in 3-index slice
+</span><span style="color:#586e75">// s = arr[:5:]              // final index required in 3-index slice
+</span><span style="color:#586e75"></span><span style="color:#719e07">//</span> s = arr[<span style="color:#2aa198">5</span>:<span style="color:#2aa198">7</span>:<span style="color:#2aa198">5</span>]            <span style="color:#719e07">//</span> invalid slice index: <span style="color:#2aa198">7</span> &gt; <span style="color:#2aa198">5</span></code></pre></div>
+<h1 id="最後に">最後に</h1>
+
+<p>スライスの宣言について仕様を再確認していたら結構知らなかったことがあったので、まとめた。
+3-INDEX記法はいつから入ったんだ？と思ったが1.2からだったのでほぼ最初から入っていたのに使ったことがなかった。
+普段メモリアロケーションなど細部を気をつけてコーディングできていないので状況に応じては使えるようになった（そんな状況がいつあるか？はちょっと想像できていないが…）。
+基底配列(<em>underlying array</em>)や<code>a[low:high]</code>という書き方を <em>slice operator</em> と呼ぶこともわかってよかった。ただ、今回調べていて一番びっくりした書き方は以下だったりする。</p>
+
+<pre><code>// [0 0 0 0 0] make ([]int, 5, 10)と同じ
+make([]int, 10)[:5]
+</code></pre>
+
+<h1 id="参考">参考</h1>
+
+<ul>
+<li>Slice expressions | The Go Programming Language Specification
+
+<ul>
+<li><a href="https://golang.org/ref/spec#Slice_expressions">https://golang.org/ref/spec#Slice_expressions</a></li>
+</ul></li>
+<li>Three-index slices | Go 1.2 Release Notes
+
+<ul>
+<li><a href="https://golang.org/doc/go1.2#three_index">https://golang.org/doc/go1.2#three_index</a></li>
+</ul></li>
+<li>Go Slices: usage and internals | The Go Blog
+
+<ul>
+<li><a href="https://blog.golang.org/go-slices-usage-and-internals">https://blog.golang.org/go-slices-usage-and-internals</a></li>
+</ul></li>
+</ul>
+
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4621300253&linkId=d133cb0683bd924a3f87eb96c455af48"></iframe>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/02/01/how-to-use-analisys-package/">golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang</a></li>
+  
+  <li><a href="/2019/01/17/try-go-on-google-cloud-functions/">BetaリリースされたGoのGoogle Cloud Functionsを試す #gcp #golangjp</a></li>
+  
+  <li><a href="/2018/12/14/how-to-use-google-wire/">google/wireを使ったDIとDI関数のシグネチャについて #go</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+​<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Feb 8, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/02/01/how-to-use-analisys-package/" title="golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang">golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/02/08/go-slice-operator/">[Go]スライス生成時(slice operator)に使える珍しい宣言方法</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/02/01/how-to-use-analisys-package/">golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/01/26/publish-blog-kpi-collector/">GoogleスプレットシートでWebサイトのKPIを集計するためのOSSを作った #blog #gas</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/01/21/use-heatmap-by-userheat/">HugoブログにUser Heatを設置してヒートマップ分析をする</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/01/17/try-go-on-google-cloud-functions/">BetaリリースされたGoのGoogle Cloud Functionsを試す #gcp #golangjp</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
