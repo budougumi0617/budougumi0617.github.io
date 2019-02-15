@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>Go Modulesの概要とGo1.12に含まれるModulesに関する変更 #golangjp #go112party - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="Go1.12,Go Modules,Go,vendoring">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.50" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/02/15/go-modules-on-go112/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="Go Modulesの概要とGo1.12に含まれるModulesに関する変更 #golangjp #go112party - My External Storage"/>
+  <meta property="og:description" content="今更ながらGo Modulesについて簡単にまとめた。
+そして今月(2019年2月)にリリースされる予定のGo1.12に含まれるGo Modules関連の仕様変更について調べた。
+
+"/>
+  
+  <meta name="twitter:title" content="Go Modulesの概要とGo1.12に含まれるModulesに関する変更 #golangjp #go112party - My External Storage"/>
+  <meta name="twitter:description" content="今更ながらGo Modulesについて簡単にまとめた。
+そして今月(2019年2月)にリリースされる予定のGo1.12に含まれるGo Modules関連の仕様変更について調べた。
+
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Feb 15, 2019
+         - 10 minute read 
+         - <a href="https://budougumi0617.github.io/2019/02/15/go-modules-on-go112/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+        
+    </p>
+    <h1 class="entry-title">
+         Go Modulesの概要とGo1.12に含まれるModulesに関する変更 #golangjp #go112party 
+    </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#modulesの概要">Modulesの概要</a>
+<ul>
+<li><a href="#minimal-version-selection">Minimal Version Selection</a></li>
+<li><a href="#２つのモード">２つのモード</a></li>
+</ul></li>
+<li><a href="#go-modコマンド">go modコマンド</a></li>
+<li><a href="#tips">Tips</a></li>
+<li><a href="#go-1-12の変更">Go 1.12の変更</a>
+<ul>
+<li><a href="#モジュール管理外でも-go-get-などができるようになった">モジュール管理外でも<code>go get</code>などができるようになった</a></li>
+<li><a href="#go-env-gomod-が-dev-null-を報告する"><code>go env GOMOD</code>が<code>/dev/null</code>を報告する</a></li>
+</ul></li>
+<li><a href="#言語バージョンが保存される">言語バージョンが保存される。</a></li>
+<li><a href="#replace-でローカルのディレクトリのバージョン別に参照できるようになった"><code>replace</code>でローカルのディレクトリのバージョン別に参照できるようになった</a></li>
+<li><a href="#今後の動向を知るためには">今後の動向を知るためには</a></li>
+<li><a href="#終わりに">終わりに</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</nav>
+          
+          <p>今更ながらGo Modulesについて簡単にまとめた。
+そして今月(2019年2月)にリリースされる予定のGo1.12に含まれるGo Modules関連の仕様変更について調べた。</p>
+
+<p></p>
+
+<p>なお、この記事はGo 1.12 Release Party登壇に関する補足資料となる。</p>
+
+<table>
+<thead>
+<tr>
+<th>イベント名</th>
+<th>Go 1.12 Release Party in Tokyo w/ Fukuoka&amp;Umeda</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>URL</td>
+<td><a href="https://gocon.connpass.com/event/118022/">https://gocon.connpass.com/event/118022/</a></td>
+</tr>
+
+<tr>
+<td>会場</td>
+<td>株式会社メルカリ 東京都港区六本木6-10-1(六本木ヒルズ森タワー18F)</td>
+</tr>
+
+<tr>
+<td>日時</td>
+<td>2019/02/15(金) 19:30 〜 22:00</td>
+</tr>
+
+<tr>
+<td>ハッシュタグ</td>
+<td><a href="https://twitter.com/hashtag/go112party">#go112party</a></td>
+</tr>
+</tbody>
+</table>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>Go Modules(vgo)はGo1.11から導入され始めたGoの新しいバージョン管理</li>
+<li>Go1.12ではまだ有効にはなっていない(Go1.13からはデフォルトで有効になる）</li>
+<li>Go Modulesの概要とTipsなどを簡単にまとめた</li>
+<li>Go1.12のModules関連の変更をDockerを動かして確認してみた
+
+<ul>
+<li><code>GOPATHi</code>外で<code>go.mod</code>がなくても<code>go run</code>可能</li>
+<li><code>replace</code>ディレクティブで依存パッケージをローカルのコードを使って解決</li>
+<li>etc&hellip;</li>
+</ul></li>
+</ul>
+
+<p>確認に利用したDockerfileやスクリプトは以下のリポジトリにある。</p>
+
+<ul>
+<li><a href="https://github.com/budougumi0617/gomodules-explore">https://github.com/budougumi0617/gomodules-explore</a></li>
+</ul>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 168px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/gomodules-explore" data-iframely-url="//cdn.iframe.ly/XQI0aX5"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<h1 id="modulesの概要">Modulesの概要</h1>
+
+<p>Go Modulesは2018年2月にRuss Coxさんが発表したGoのプロジェクトの依存パッケージに対するバージョン管理構想だ。
+最初は<code>vgo</code>と呼ばれ、Goとは独立したCLIツールとして提供されており、Go1.11からGo本体に試験的に導入された。</p>
+
+<ul>
+<li>Go &amp; Versioning | research!rsc
+
+<ul>
+<li><a href="https://research.swtch.com/vgo">https://research.swtch.com/vgo</a></li>
+</ul></li>
+</ul>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 168px; padding-bottom: 0;"><a href="https://github.com/golang/vgo" data-iframely-url="//cdn.iframe.ly/LgJYXfz"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<p><code>vgo</code>発表前のGoのバージョン管理は以下のような手法が取られていた。</p>
+
+<ul>
+<li><code>go get</code>で<code>go1</code>タグ・ブランチもしくは最新の<code>master</code>ブランチを取得する
+
+<ul>
+<li><a href="/2018/05/10/go-get-from-go1-tag-or-branch/">go getで取得されるコードはmasterブランチ(HEAD)がデフォルトではない #golang</a></li>
+</ul></li>
+<li><code>glide</code>や<code>dep</code>などのサードパーティ製ツールでバージョン管理をする
+
+<ul>
+<li><a href="https://github.com/Masterminds/glide">https://github.com/Masterminds/glide</a></li>
+<li><a href="https://github.com/golang/dep">https://github.com/golang/dep</a></li>
+</ul></li>
+</ul>
+
+<p>2017年、2018年に新規にプロジェクトを作るのならば<code>dep</code>で管理することが多かったように思う。
+（<a href="https://blog.vvaka.me/2018/06/08/vgo/">vvakameさんの記事</a>を見たりして私は<code>vgo</code>への移行は様子見していた。）</p>
+
+<h2 id="minimal-version-selection">Minimal Version Selection</h2>
+
+<p>Go ModulesはSemantic Versioningに基づいてモジュールの管理を行なう。Semantic Versioningとは、<code>vX.X.X</code>というようなバージョン番号の定義方法だ。</p>
+
+<ul>
+<li>Semantic Versioning 2.0.0
+
+<ul>
+<li><a href="https://semver.org/">https://semver.org/</a></li>
+</ul></li>
+</ul>
+
+<p><img src="/2019/02/15_semantic.png" alt="Semantic Versioning" />
+<a href="https://research.swtch.com/vgo-import">Semantic Import Versioning</a>より引用</p>
+
+<p>Go以外のプログラミング言語・フレームワークでも依存ライブラリのバージョン管理は行われているが、Go Modulesは可能な限り古いバージョンを採用するのが特徴的だ。</p>
+
+<ul>
+<li>Minimal Version Selection | research!rsc
+
+<ul>
+<li><a href="https://research.swtch.com/vgo-mvs">https://research.swtch.com/vgo-mvs</a></li>
+</ul></li>
+</ul>
+
+<h2 id="２つのモード">２つのモード</h2>
+
+<ul>
+<li>Module-aware go get
+
+<ul>
+<li><a href="https://golang.org/cmd/go/#hdr-Module_aware_go_get">https://golang.org/cmd/go/#hdr-Module_aware_go_get</a></li>
+</ul></li>
+</ul>
+
+<p>Go1.11、Go1.12のGo ModulesはGOPATH modeとmodule-aware modeという２つのモードを有している。
+大まかな違いは以下の通り。</p>
+
+<ul>
+<li>GOPATH mode
+
+<ul>
+<li>バージョン 1.10 までと同じ挙動をする。</li>
+<li>標準pkg以外を全部 <code>GOPATH</code> 以下のディレクトリで管理する</li>
+<li>パッケージの管理はリポジトリの最新リビジョンのみが対象となる</li>
+</ul></li>
+<li>module-aware mode
+
+<ul>
+<li>標準pkg以外の全てのパッケージをモジュールとして管理する</li>
+<li>モジュールの管理やビルドが任意のディレクトリで可能になる，</li>
+<li>モジュールはリポジトリのバージョンタグまたはリビジョン毎に管理される</li>
+</ul></li>
+</ul>
+
+<p>2つのモードは<code>GO111MODULE</code>という環境変数で切り替わる。</p>
+
+<ul>
+<li><code>on</code>  常にmodule-aware modeで動作する</li>
+<li><code>off</code> 常にGOPATH modeで動作する</li>
+<li><code>auto</code> <code>$GOPATH</code> 配下ではGOPATH modeで，それ以外のディレクトリではmodule-aware modeで動作する</li>
+</ul>
+
+<p>Go1.11のときはデフォルトの挙動が<code>auto</code>だったので、何もしなければ今までと同じ挙動をする。
+Go1.12もGo1.11と同じように<code>auto</code>がデフォルト状態になっている。ただし半年後にリリースされるGo1.13では<code>GO111MODULE=on</code>がデフォルトとなる予定だ。</p>
+
+<ul>
+<li>Go Modules in 2019
+
+<ul>
+<li><a href="https://blog.golang.org/modules2019">https://blog.golang.org/modules2019</a></li>
+</ul></li>
+</ul>
+
+<blockquote>
+<p>Go 1.12, scheduled for February 2019, will refine module support but still leave it in auto mode by default.
+Our aim is for Go 1.13, scheduled for August 2019, to enable module mode by default (that is, to change the default from auto to on) and deprecate GOPATH mode.</p>
+</blockquote>
+
+<h1 id="go-modコマンド">go modコマンド</h1>
+
+<p>Modulesの機能はモジュールのルートディレクトリに配置する<code>go.mod</code>ファイルと<code>go mod</code>コマンドから利用することができる。
+すでに解説記事がいくつかあるのでここでは<code>go.mod</code>ファイルについてだけ触れる。
+<code>go mod</code>コマンドの概要は以下の通り。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">help</span> mod
+Go mod provides access to operations on modules.
+
+Note that support <span style="color:#719e07">for</span> modules is built into all the go commands,
+not just <span style="color:#2aa198">&#39;go mod&#39;</span>. For example, day-to-day adding, removing, upgrading,
+and downgrading of dependencies should be <span style="color:#719e07">done</span> using <span style="color:#2aa198">&#39;go get&#39;</span>.
+See <span style="color:#2aa198">&#39;go help modules&#39;</span> <span style="color:#719e07">for</span> an overview of module functionality.
+
+Usage:
+
+	go mod &lt;command&gt; <span style="color:#719e07">[</span>arguments<span style="color:#719e07">]</span>
+
+The commands are:
+
+	download    download modules to <span style="color:#b58900">local</span> cache
+	edit        edit go.mod from tools or scripts
+	graph       print module requirement graph
+	init        initialize new module in current directory
+	tidy        add missing and remove unused modules
+	vendor      make vendored copy of dependencies
+	verify      verify dependencies have expected content
+	why         explain why packages or modules are needed
+
+Use <span style="color:#2aa198">&#34;go help mod &lt;command&gt;&#34;</span> <span style="color:#719e07">for</span> more information about a command.</code></pre></div>
+<p>依存関係は<code>go.mod</code>ファイルに書き出される。<code>go.mod</code>ファイルは<code>go mod init</code>コマンドで作成することができる（<code>go mod download</code>をすると<code>Gemfile.Lock</code>や<code>package-lock.json</code>のように<code>go.sum</code>ファイルも生成される）。</p>
+
+<p>いくつかの依存関係を含んだ<code>go.mod</code>ファイルは以下のようになる。</p>
+
+<pre><code>module example.com/m
+
+replace (
+	example.com/a =&gt; ./a
+	example.com/a/b =&gt; ./b
+)
+
+require (
+	example.com/a/b v0.0.0-00010101000000-000000000000
+	example.com/v v1.12.0
+	example.com/x/v3 v3.0.0-00010101000000-000000000000
+	example.com/y v0.0.0-00010101000000-000000000000
+)
+</code></pre>
+
+<p><code>go.mod</code>の中のディレクティブ（構成要素）の概要は以下の通り（Go1.12では後述する<code>go</code>ディレクティブも増える）。</p>
+
+<ul>
+<li><code>module</code> ルートディレクトリのモジュール名</li>
+<li><code>require</code> 必要なモジュール名とバージョン名を指定する</li>
+<li><code>exclude</code> 明示的に除外するモジュールを指定する</li>
+<li><code>replace</code> <code>require</code>で指定したモジュール名を置き換える</li>
+</ul>
+
+<p><code>go mod</code>コマンドの利用法は以下のブログが日本語で詳しい。</p>
+
+<ul>
+<li>モジュール対応モードへの移行を検討する
+
+<ul>
+<li><a href="https://text.baldanders.info/golang/go-module-aware-mode/">https://text.baldanders.info/golang/go-module-aware-mode/</a></li>
+</ul></li>
+</ul>
+
+<p>また、<code>go/src/cmd/go/testdata/script</code>に<code>go</code>コマンド自体のテストスクリプトがあるのでそこから<code>go mod</code>コマンドの使い方を探ることもできる。</p>
+
+<ul>
+<li>go/src/cmd/go/testdata/script
+
+<ul>
+<li><a href="https://github.com/golang/go/tree/master/src/cmd/go/testdata/script">https://github.com/golang/go/tree/master/src/cmd/go/testdata/script</a></li>
+</ul></li>
+</ul>
+
+<h1 id="tips">Tips</h1>
+
+<p>Go Modulesに関するTipsは以下の通り</p>
+
+<ul>
+<li><code>go mod</code>で取得したバイナリなどは<code>$GOPATH/pkg/mod/</code>以下にキャッシュされている
+
+<ul>
+<li>なのでCIの高速化でビルドキャッシュをするときはこのディレクトリをキャッシュする必要がある</li>
+<li>キャッシュを削除するときは<code>go clean -cache</code>コマンドで削除できる</li>
+<li><code>go mod vendor</code>コマンドで<code>dep</code>のように<code>vendor</code>ディレクトリに依存関係を保存することができる</li>
+</ul></li>
+<li><code>go mod tidy</code>で<code>go.mod</code>から不要な依存関係を削除できる
+
+<ul>
+<li>不用意な<code>go get</code>で依存関係が増えてしまうことがあるのでツールを<code>go get</code>したときはやったほうがよい</li>
+</ul></li>
+</ul>
+
+<p>CIでの設定例は<a href="https://twitter.com/__timakin__">ちまきん</a>さんや<a href="https://twitter.com/duck8823">だっく</a>さんが公開してくれている。</p>
+
+<ul>
+<li>timakin/go-module | CircleCI Orbs Registory
+
+<ul>
+<li><a href="https://circleci.com/orbs/registry/orb/timakin/go-module">https://circleci.com/orbs/registry/orb/timakin/go-module</a></li>
+</ul></li>
+<li>GitHub Actions のワークフローで Go 1.11 Modules のキャッシュを扱う | This is my life.
+
+<ul>
+<li><a href="https://blog.duck8823.com/entry/2018/12/20/011632">https://blog.duck8823.com/entry/2018/12/20/011632</a></li>
+<li>(2019/02/15現在ブログが見れないかもしれない…）</li>
+</ul></li>
+</ul>
+
+<h1 id="go-1-12の変更">Go 1.12の変更</h1>
+
+<p>Go1.12のリリースノートに記載されているModules関連の変更を確認しておく。
+なお、全ての変更はmodule-aware mode（<code>GO111MODULE=on</code>）の場合である。</p>
+
+<ul>
+<li>Go 1.12 Release Notes
+
+<ul>
+<li><a href="https://tip.golang.org/doc/go1.12">https://tip.golang.org/doc/go1.12</a></li>
+</ul></li>
+</ul>
+
+<p>確認（1.11との比較）はGo1.11.5とGo1.12rc1のDockerイメージ上で同じコマンドを実行することで行なった。</p>
+
+<ul>
+<li><a href="/2019/02/14/investigate-go-unreleased-version/">[Go]未リリース版のGoの仕様や実際の動きを確認する #golangjp</a></li>
+</ul>
+
+<p>比較につかったDockerfileやスクリプトなどは以下のリポジトリにある。</p>
+
+<ul>
+<li><a href="https://github.com/budougumi0617/gomodules-explore">https://github.com/budougumi0617/gomodules-explore</a></li>
+</ul>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 168px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/gomodules-explore" data-iframely-url="//cdn.iframe.ly/XQI0aX5"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<h2 id="モジュール管理外でも-go-get-などができるようになった">モジュール管理外でも<code>go get</code>などができるようになった</h2>
+
+<p>1.11のときは<code>go.mod</code>がないディレクトリで<code>go get</code>をすると失敗していたが、1.12ではそれが解消された。
+（ただ、<code>go.mod</code>があるディレクトリで行なうと<code>go get</code>で取得した情報を<code>go.mod</code>に追加してしまうので注意が必要）。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.11 at outside module and  GOPATH
+</span><span style="color:#586e75"></span>$ <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go get -u golang.org/x/lint/golint
+go: cannot find main module; see <span style="color:#2aa198">&#39;go help modules&#39;</span>
+make: *** <span style="color:#719e07">[</span>run111_go_get<span style="color:#719e07">]</span> Error <span style="color:#2aa198">1</span></code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.12 at outside module and  GOPATH
+</span><span style="color:#586e75"></span>$ <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go get -u golang.org/x/lint/golint
+go: finding golang.org/x/lint/golint latest
+go: finding golang.org/x/lint latest
+go: downloading golang.org/x/lint v0.0.0-20181217174547-8f45f776aaf1
+go: extracting golang.org/x/lint v0.0.0-20181217174547-8f45f776aaf1
+go: finding golang.org/x/tools/go/gcexportdata latest
+go: finding golang.org/x/tools/go/ast/astutil latest
+go: finding golang.org/x/tools/go latest
+go: finding golang.org/x/tools/go/ast latest
+go: finding golang.org/x/tools latest
+go: downloading golang.org/x/tools v0.0.0-20190214204934-8dcb7</code></pre></div>
+<p><code>go.mod</code>がなくてもどこでも<code>go run</code>ができるようになった。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.11 in moudle outside
+</span><span style="color:#586e75"></span>$ <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go run -v main.go
+go: cannot find main module; see <span style="color:#2aa198">&#39;go help modules&#39;</span>
+make: *** <span style="color:#719e07">[</span>run111_run_module_on_outside<span style="color:#719e07">]</span> Error <span style="color:#2aa198">1</span></code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.12 in moudle outside
+</span><span style="color:#586e75"></span>$ <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go run -v main.go
+Fetching https://gopkg.in/pressly/chi.v2?go-get<span style="color:#719e07">=</span><span style="color:#2aa198">1</span>
+Parsing meta tags from https://gopkg.in/pressly/chi.v2?go-get<span style="color:#719e07">=</span><span style="color:#2aa198">1</span> <span style="color:#719e07">(</span>status code <span style="color:#2aa198">200</span><span style="color:#719e07">)</span>
+get <span style="color:#2aa198">&#34;gopkg.in/pressly/chi.v2&#34;</span>: found meta tag get.metaImport<span style="color:#719e07">{</span>Prefix:<span style="color:#2aa198">&#34;gopkg.in/pressly/chi.v2&#34;</span>, VCS:<span style="color:#2aa198">&#34;git&#34;</span>, RepoRoot:<span style="color:#2aa198">&#34;https://gopkg.in/pressly/chi.v2&#34;</span><span style="color:#719e07">}</span> at https://gopkg.in/pressly/chi.v2?go-get<span style="color:#719e07">=</span><span style="color:#2aa198">1</span>
+go: finding gopkg.in/pressly/chi.v2 v2.1.0
+...</code></pre></div>
+<h2 id="go-env-gomod-が-dev-null-を報告する"><code>go env GOMOD</code>が<code>/dev/null</code>を報告する</h2>
+
+<p>カレントディレクトリで参照している<code>go.mod</code>ファイルを示す<code>GOMOD</code>変数がある。
+module-aware modeの時、Go1.11では参照する<code>go.mod</code>ファイルがないと空白文字列を返していたが、Go1.12は<code>/dev/null</code>を返すようになった。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.11 with GO111MODULE=on
+</span><span style="color:#586e75"></span>root@2d5cbf159edc:/tmp/test# <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go env|grep GOMOD
+<span style="color:#268bd2">GOMOD</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;&#34;</span></code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.12 with GO111MODULE=on
+</span><span style="color:#586e75"></span>root@a36b23164e3d:/tmp/test# <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go env|grep GOMOD
+<span style="color:#268bd2">GOMOD</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;/dev/null&#34;</span></code></pre></div>
+<h1 id="言語バージョンが保存される">言語バージョンが保存される。</h1>
+
+<p><code>go.mod</code>に<code>go</code>ディレクティブが追加され、そのモジュール内のファイルで使用されている言語バージョンを示すようになった。
+<code>go.mod</code>に記載がない場合は、現在のリリースバージョンが設定される（1.12扱い）。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">root@b83f6e3b9a00:/tmp/test# <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go mod init <span style="color:#b58900">test</span>
+go: creating new go.mod: module <span style="color:#b58900">test</span>
+root@b83f6e3b9a00:/tmp/test# cat go.mod
+module <span style="color:#b58900">test</span>
+
+go <span style="color:#2aa198">1</span>.12</code></pre></div>
+<h1 id="replace-でローカルのディレクトリのバージョン別に参照できるようになった"><code>replace</code>でローカルのディレクトリのバージョン別に参照できるようになった</h1>
+
+<p>Go1.11でも<code>replace</code>ディレクティブを使ってルートディレクトリ以下のディレクトリに対して相対的に<code>replace</code>ディレクティブをおけるようになっていた。
+Go1.12からは同じmodulesをバージョンごとに異なるディレクトリとして設定できるようになった。(発表後<a href="https://twitter.com/hajimehoshi">@hajimehoshi</a>さんに指摘いただきました。ありがとうございます）。
+バージョンの指定は<code>v0.0.0-00010101000000-000000000000</code>のようになる。例えば以下のような<code>go.mod</code>ファイルと適切なローカルディレクトリを用意しておく。</p>
+
+<pre><code>module example.com/m
+
+replace (
+	example.com/a =&gt; ./a
+	example.com/a/b =&gt; ./b
+)
+
+replace (
+	example.com/x =&gt; ./x
+	example.com/x/v3 =&gt; ./v3
+)
+
+replace (
+	example.com/y =&gt; ./y
+	example.com/y/z/w =&gt; ./w
+)
+
+replace (
+	example.com/v =&gt; ./v
+	example.com/v v1.11.0 =&gt; ./v11
+	example.com/v v1.12.0 =&gt; ./v12
+)
+</code></pre>
+
+<p>Go1.11で上記の<code>go.mod</code>は<code>example.com/v</code>の部分のパースに失敗してビルドできない。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go build -o test.exe
+go: errors parsing go.mod:
+/tmp/replace_import/go.mod:19: invalid module path
+/tmp/replace_import/go.mod:20: invalid module path
+/tmp/replace_import/go.mod:21: invalid module path</code></pre></div>
+<p>Go1.12ではビルドに成功し、<code>require</code>ディレクティブが自動生成される。</p>
+
+<pre><code>module example.com/m
+
+replace (
+	example.com/a =&gt; ./a
+	example.com/a/b =&gt; ./b
+)
+
+replace (
+	example.com/x =&gt; ./x
+	example.com/x/v3 =&gt; ./v3
+)
+
+replace (
+	example.com/y =&gt; ./y
+	example.com/y/z/w =&gt; ./w
+)
+
+replace (
+	example.com/v =&gt; ./v
+	example.com/v v1.11.0 =&gt; ./v11
+	example.com/v v1.12.0 =&gt; ./v12
+)
+
+require (
+	example.com/a/b v0.0.0-00010101000000-000000000000
+	example.com/v v1.12.0
+	example.com/x/v3 v3.0.0-00010101000000-000000000000
+	example.com/y v0.0.0-00010101000000-000000000000
+)
+</code></pre>
+
+<h1 id="今後の動向を知るためには">今後の動向を知るためには</h1>
+
+<p>ModulesはGo1.13からはデフォルトで有効になる。1.13に向けて準備をしたいとき、最新の仕様を確認したいときは以下を確認する。
+まず、計画されているModulesの2019年のプランは以下に記載されている。</p>
+
+<ul>
+<li>Go Modules in 2019
+
+<ul>
+<li><a href="https://blog.golang.org/modules2019">https://blog.golang.org/modules2019</a></li>
+</ul></li>
+</ul>
+
+<p>また、未リリース版のGoの仕様は以下で確認できる。</p>
+
+<ul>
+<li>The Go Programming Language(tip)
+
+<ul>
+<li><a href="https://tip.golang.org/doc/">https://tip.golang.org/doc/</a></li>
+</ul></li>
+</ul>
+
+<p>Modulesの利用に関してissueなどでtipsが見つかったときは、以下のwikiの追加されている。</p>
+
+<ul>
+<li>Modules | golang/go wiki
+
+<ul>
+<li><a href="https://github.com/golang/go/wiki/Modules">https://github.com/golang/go/wiki/Modules</a></li>
+</ul></li>
+</ul>
+
+<p>さっとbeta版やrc版を試したいときはdockerイメージを使ってみれば良いだろう。</p>
+
+<ul>
+<li>golang images | docker hub
+
+<ul>
+<li><a href="https://hub.docker.com/_/golang">https://hub.docker.com/_/golang</a></li>
+</ul></li>
+</ul>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>depのファイルなどからGo Modulesへの移行は簡単に行える。
+正直私はまだ<code>dep</code>を使っていたのだが、Go1.12を契機にそろそろModulesへの移行を始めようと思う（依存しているライブラリもちゃんと<code>go.mod</code>を配置していないと辛い模様）。
+ただ、まだ理解できていないこともあるのでGo1.13までにはちゃんと使えるようになっておきたい。</p>
+
+<h1 id="参考">参考</h1>
+
+<ul>
+<li>Go &amp; Versioning | research!rsc
+
+<ul>
+<li><a href="https://research.swtch.com/vgo">https://research.swtch.com/vgo</a></li>
+</ul></li>
+<li>Go Modules in 2019
+
+<ul>
+<li><a href="https://blog.golang.org/modules2019">https://blog.golang.org/modules2019</a></li>
+</ul></li>
+<li>Modules | golang/go wiki
+
+<ul>
+<li><a href="https://github.com/golang/go/wiki/Modules">https://github.com/golang/go/wiki/Modules</a></li>
+</ul></li>
+<li>Goにおけるバージョン管理の必要性 − vgoについて −
+
+<ul>
+<li><a href="https://www.slideshare.net/takuyaueda967/go-vgo-102442203">https://www.slideshare.net/takuyaueda967/go-vgo-102442203</a></li>
+</ul></li>
+<li>モジュール対応モードへの移行を検討する
+
+<ul>
+<li><a href="https://text.baldanders.info/golang/go-module-aware-mode/">https://text.baldanders.info/golang/go-module-aware-mode/</a></li>
+</ul></li>
+<li>Understand Go Modules / Go Modulesを理解する
+
+<ul>
+<li><a href="https://speakerdeck.com/linyows/go-moduleswoli-jie-suru?slide=21">https://speakerdeck.com/linyows/go-moduleswoli-jie-suru?slide=21</a></li>
+</ul></li>
+<li>Semantic Versioning 2.0.0
+
+<ul>
+<li><a href="https://semver.org/">https://semver.org/</a></li>
+</ul></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/02/08/go-slice-operator/">[Go]スライス生成時(slice operator)に使える珍しい宣言方法 #golangjp</a></li>
+  
+  <li><a href="/2019/02/01/how-to-use-analisys-package/">golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang</a></li>
+  
+  <li><a href="/2019/01/17/try-go-on-google-cloud-functions/">BetaリリースされたGoのGoogle Cloud Functionsを試す #gcp #golangjp</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+​<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Feb 15, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/02/14/investigate-go-unreleased-version/" title="[Go]未リリース版のGoの仕様や実際の動きを確認する #golangjp">[Go]未リリース版のGoの仕様や実際の動きを確認する #golangjp</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/02/15/go-modules-on-go112/">Go Modulesの概要とGo1.12に含まれるModulesに関する変更 #golangjp #go112party</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/02/14/investigate-go-unreleased-version/">[Go]未リリース版のGoの仕様や実際の動きを確認する #golangjp</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/02/08/go-slice-operator/">[Go]スライス生成時(slice operator)に使える珍しい宣言方法 #golangjp</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/02/01/how-to-use-analisys-package/">golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/01/26/publish-blog-kpi-collector/">GoogleスプレットシートでWebサイトのKPIを集計するためのOSSを作った #blog #gas</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
