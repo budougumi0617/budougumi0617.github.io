@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>GoでJSONのUnmarshalがシンタックスエラーで失敗した時、エラー周辺の文字列を表示する - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="Go,JSON,Unmarshal">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.50" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/02/24/go-print-detail-of-json-syntax-error/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="GoでJSONのUnmarshalがシンタックスエラーで失敗した時、エラー周辺の文字列を表示する - My External Storage"/>
+  <meta property="og:description" content="json.Unmarshalに失敗したときjson.SyntaxErrorが取得できた場合は文字列の中のどの位置でパースに失敗したのか知ることができる。
+"/>
+  
+  <meta name="twitter:title" content="GoでJSONのUnmarshalがシンタックスエラーで失敗した時、エラー周辺の文字列を表示する - My External Storage"/>
+  <meta name="twitter:description" content="json.Unmarshalに失敗したときjson.SyntaxErrorが取得できた場合は文字列の中のどの位置でパースに失敗したのか知ることができる。
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Feb 24, 2019
+         - 3 minute read 
+         - <a href="https://budougumi0617.github.io/2019/02/24/go-print-detail-of-json-syntax-error/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+        
+    </p>
+    <h1 class="entry-title">
+         GoでJSONのUnmarshalがシンタックスエラーで失敗した時、エラー周辺の文字列を表示する 
+    </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#json-syntaxerrorとは">json.SyntaxErrorとは</a></li>
+<li><a href="#json-unmarshalで失敗したときのエラー出力を確認する">json.Unmarshalで失敗したときのエラー出力を確認する</a></li>
+<li><a href="#json-syntaxerrorを使ってもう少し情報を入手する">json.SyntaxErrorを使ってもう少し情報を入手する</a></li>
+<li><a href="#終わりに">終わりに</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</nav>
+          
+          <p><code>json.Unmarshal</code>に失敗したとき<code>json.SyntaxError</code>が取得できた場合は文字列の中のどの位置でパースに失敗したのか知ることができる。
+</p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li><code>json.Unmarshal</code>はUnmarshalに失敗した時<code>json.SyntaxError</code>を返す場合がある</li>
+<li><code>json.SyntaxError</code>はインデックス情報(<code>SyntaxError.Offset</code>)を持っている</li>
+<li><code>SyntaxError.Offset</code>を使うと通常のエラーより少し解析がラクにできるかもしれない</li>
+</ul>
+
+<h1 id="json-syntaxerrorとは">json.SyntaxErrorとは</h1>
+
+<p>Twitterを見ていたところ、以下のTweetを読んだので実際に試してみた。</p>
+
+<p><blockquote class="twitter-tweet" data-lang="ja"><p lang="en" dir="ltr">TIL Go json syntax errors give you the offset, so you can provide more context if you want, the single char gets a little confusing <a href="https://t.co/r2dR9JkBjt">pic.twitter.com/r2dR9JkBjt</a></p>&mdash; TJ Holowaychuk 🙃 (@tjholowaychuk) <a href="https://twitter.com/tjholowaychuk/status/1098872828110229505?ref_src=twsrc%5Etfw">2019年2月22日</a></blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
+
+<p><code>json.SyntaxError</code>の定義は以下の通りだ。</p>
+
+<p><a href="https://golang.org/pkg/encoding/json/#SyntaxError">https://golang.org/pkg/encoding/json/#SyntaxError</a></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> SyntaxError <span style="color:#268bd2">struct</span> {
+        Offset <span style="color:#dc322f">int64</span> <span style="color:#586e75">// error occurred after reading Offset bytes
+</span><span style="color:#586e75"></span>        <span style="color:#586e75">// contains filtered or unexported fields
+</span><span style="color:#586e75"></span>}</code></pre></div>
+<p>オフセット情報を含んだ<code>error</code>インターフェースを満たす構造体らしい。</p>
+
+<h1 id="json-unmarshalで失敗したときのエラー出力を確認する">json.Unmarshalで失敗したときのエラー出力を確認する</h1>
+
+<p>まずTweetのような<code>json.Unmarshal</code>を失敗する簡単なサンプルコードを用意した。</p>
+
+<p><a href="https://play.golang.org/p/PgLmO9fo0nX">https://play.golang.org/p/PgLmO9fo0nX</a></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+	<span style="color:#2aa198">&#34;encoding/json&#34;</span>
+	<span style="color:#2aa198">&#34;fmt&#34;</span>
+	<span style="color:#2aa198">&#34;log&#34;</span>
+)
+
+<span style="color:#268bd2">func</span> main() {
+	bd <span style="color:#719e07">:=</span> []<span style="color:#b58900">byte</span>(data)
+	<span style="color:#268bd2">var</span> v <span style="color:#268bd2">struct</span> {
+		Timestamp    <span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;timestamp&#34;`</span>
+		ParentTotals <span style="color:#268bd2">struct</span> {
+			C <span style="color:#dc322f">int</span> <span style="color:#2aa198">`json:&#34;C&#34;`</span>
+		} <span style="color:#2aa198">`json:&#34;parent_totals&#34;`</span>
+	}
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> json.Unmarshal(bd, <span style="color:#719e07">&amp;</span>v); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		<span style="color:#586e75">// 2009/11/10 23:00:00 invalid character &#39;&#34;&#39; after object key:value pair
+</span><span style="color:#586e75"></span>		log.Fatal(err)
+	}
+	fmt.Println(v)
+}
+
+<span style="color:#586e75">// &#34;c&#34;: 52.57732&#34;, の部分に「&#34;」が足りないためinvalidなJSON文字列。
+</span><span style="color:#586e75"></span><span style="color:#268bd2">const</span> data = <span style="color:#2aa198">`
+</span><span style="color:#2aa198">{
+</span><span style="color:#2aa198">      &#34;timestamp&#34;: &#34;2019-02-24 07:07:03&#34;,
+</span><span style="color:#2aa198">      &#34;parent_totals&#34;: {
+</span><span style="color:#2aa198">        &#34;C&#34;: 0,
+</span><span style="color:#2aa198">        &#34;b&#34;: 0,
+</span><span style="color:#2aa198">        &#34;d&#34;: 0,
+</span><span style="color:#2aa198">        &#34;f&#34;: 9,
+</span><span style="color:#2aa198">        &#34;h&#34;: 102,
+</span><span style="color:#2aa198">        &#34;M&#34;: 0,
+</span><span style="color:#2aa198">        &#34;c&#34;: 52.57732&#34;,
+</span><span style="color:#2aa198">        &#34;N&#34;: 0,
+</span><span style="color:#2aa198">        &#34;p&#34;: 34,
+</span><span style="color:#2aa198">        &#34;m&#34;: 58,
+</span><span style="color:#2aa198">        &#34;diff&#34;: null,
+</span><span style="color:#2aa198">        &#34;s&#34;: 1,
+</span><span style="color:#2aa198">        &#34;n&#34;: 194
+</span><span style="color:#2aa198">      }
+</span><span style="color:#2aa198">}`</span></code></pre></div>
+<p><code>data</code>文字列は<code>52.57732&quot;,</code>部分が不正なのでUnmarshalに失敗する。
+出力される<code>log.Fatal</code>の結果は以下だ。取得された<code>error</code>オブジェクトの<code>Error()</code>から取得できる文字列だけだと正直どこが問題だったのかわかりにくい。</p>
+
+<pre><code>invalid character '&quot;' after object key:value pair
+</code></pre>
+
+<h1 id="json-syntaxerrorを使ってもう少し情報を入手する">json.SyntaxErrorを使ってもう少し情報を入手する</h1>
+
+<p><code>SyntaxError.Offset</code>と元データの文字列を使うともう少しエラーに関係する部分の情報が取得できる。試し先程のコードのエラーハンドリング部分を<code>SyntaxError.Offset</code>から前後15文字の情報も出力するようにしてみる。</p>
+
+<p><a href="https://play.golang.org/p/axUQ1WnMhvV">https://play.golang.org/p/axUQ1WnMhvV</a></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> json.Unmarshal(bd, <span style="color:#719e07">&amp;</span>v); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		<span style="color:#719e07">if</span> err, ok <span style="color:#719e07">:=</span> err.(<span style="color:#719e07">*</span>json.SyntaxError); ok {
+			fmt.Println(<span style="color:#b58900">string</span>(bd[err.Offset<span style="color:#719e07">-</span><span style="color:#2aa198">15</span>:err.Offset<span style="color:#719e07">+</span><span style="color:#2aa198">15</span>]))
+		}
+		log.Fatal(err)
+	}</code></pre></div>
+<p>以下の情報が出力された。これくらいの情報があると、すぐエラーの位置がわかりやすそうだ。</p>
+
+<pre><code> &quot;c&quot;: 52.57732&quot;,
+        &quot;N&quot;:
+2009/11/10 23:00:00 invalid character '&quot;' after object key:value pair
+</code></pre>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>他にも少しいじってみたところ、構造体定義が問題のときは<code>json.SyntaxError</code>は取得できなかった。
+あくまでも文字列がJSONとして読めないときにのみしか発生しないようだ。</p>
+
+<p><a href="https://play.golang.org/p/J6P03WyIwhw">https://play.golang.org/p/J6P03WyIwhw</a></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+	<span style="color:#2aa198">&#34;encoding/json&#34;</span>
+	<span style="color:#2aa198">&#34;fmt&#34;</span>
+	<span style="color:#2aa198">&#34;log&#34;</span>
+)
+
+<span style="color:#268bd2">func</span> main() {
+	bd <span style="color:#719e07">:=</span> []<span style="color:#b58900">byte</span>(data)
+	<span style="color:#268bd2">var</span> v <span style="color:#268bd2">struct</span> {
+		Timestamp    <span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;timestamp&#34;`</span>
+		ParentTotals <span style="color:#268bd2">struct</span> {
+			C <span style="color:#dc322f">int</span> <span style="color:#2aa198">`json:&#34;C&#34;`</span>
+		} <span style="color:#2aa198">`json:&#34;parent_totals&#34;`</span>
+	}
+
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> json.Unmarshal(bd, <span style="color:#719e07">&amp;</span>v); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		<span style="color:#586e75">// 真にはならない
+</span><span style="color:#586e75"></span>		<span style="color:#719e07">if</span> err, ok <span style="color:#719e07">:=</span> err.(<span style="color:#719e07">*</span>json.SyntaxError); ok {
+			fmt.Println(<span style="color:#b58900">string</span>(bd[err.Offset<span style="color:#719e07">-</span><span style="color:#2aa198">1</span>:]))
+		}
+		<span style="color:#586e75">// 2009/11/10 23:00:00 json: cannot unmarshal string into Go struct field .C of type int
+</span><span style="color:#586e75"></span>		log.Fatal(err)
+	}
+	fmt.Println(v)
+}
+
+<span style="color:#586e75">// `json:&#34;C&#34;と`json:&#34;c&#34;が宣言されていない構造体でUnmarshalしようとすると失敗する正しいJSONシンタックスの文字列。
+</span><span style="color:#586e75"></span><span style="color:#268bd2">const</span> data = <span style="color:#2aa198">`
+</span><span style="color:#2aa198">{
+</span><span style="color:#2aa198">      &#34;timestamp&#34;: &#34;2019-02-24 07:07:03&#34;,
+</span><span style="color:#2aa198">      &#34;parent_totals&#34;: {
+</span><span style="color:#2aa198">        &#34;C&#34;: 0,
+</span><span style="color:#2aa198">        &#34;c&#34;: &#34;52.57732&#34;
+</span><span style="color:#2aa198">      }
+</span><span style="color:#2aa198">}`</span></code></pre></div>
+<h1 id="参考">参考</h1>
+
+<ul>
+<li><a href="https://golang.org/pkg/encoding/json/#SyntaxError">https://golang.org/pkg/encoding/json/#SyntaxError</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/02/14/investigate-go-unreleased-version/">[Go]未リリース版のGoの仕様や実際の動きを確認する #golangjp</a></li>
+  
+  <li><a href="/2019/02/15/go-modules-on-go112/">Go Modulesの概要とGo1.12に含まれるModulesに関する変更 #golangjp #go112party</a></li>
+  
+  <li><a href="/2019/02/08/go-slice-operator/">[Go]スライス生成時(slice operator)に使える珍しい宣言方法 #golangjp</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+​<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Feb 24, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/go">go</a>  <a class="category" href="https://budougumi0617.github.io/tags/json">json</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/02/15/go-modules-on-go112/" title="Go Modulesの概要とGo1.12に含まれるModulesに関する変更 #golangjp #go112party">Go Modulesの概要とGo1.12に含まれるModulesに関する変更 #golangjp #go112party</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/02/24/go-print-detail-of-json-syntax-error/">GoでJSONのUnmarshalがシンタックスエラーで失敗した時、エラー周辺の文字列を表示する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/02/15/go-modules-on-go112/">Go Modulesの概要とGo1.12に含まれるModulesに関する変更 #golangjp #go112party</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/02/14/investigate-go-unreleased-version/">[Go]未リリース版のGoの仕様や実際の動きを確認する #golangjp</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/02/08/go-slice-operator/">[Go]スライス生成時(slice operator)に使える珍しい宣言方法 #golangjp</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/02/01/how-to-use-analisys-package/">golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
