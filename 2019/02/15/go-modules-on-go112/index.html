@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.50" />
+  <meta name="generator" content="Hugo 0.53" />
 
   
   
@@ -66,15 +66,11 @@
   <meta property="og:type" content="article"/>
   <meta property="og:title" content="Go Modulesの概要とGo1.12に含まれるModulesに関する変更 #golangjp #go112party - My External Storage"/>
   <meta property="og:description" content="今更ながらGo Modulesについて簡単にまとめた。
-そして今月(2019年2月)にリリースされる予定のGo1.12に含まれるGo Modules関連の仕様変更について調べた。
-
-"/>
+そして今月(2019年2月)にリリースされる予定のGo1.12に含まれるGo Modules関連の仕様変更について調べた。"/>
   
   <meta name="twitter:title" content="Go Modulesの概要とGo1.12に含まれるModulesに関する変更 #golangjp #go112party - My External Storage"/>
   <meta name="twitter:description" content="今更ながらGo Modulesについて簡単にまとめた。
-そして今月(2019年2月)にリリースされる予定のGo1.12に含まれるGo Modules関連の仕様変更について調べた。
-
-"/>
+そして今月(2019年2月)にリリースされる予定のGo1.12に含まれるGo Modules関連の仕様変更について調べた。"/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
   <meta name="twitter:creator" content="@budougumi0617"/>
@@ -204,8 +200,6 @@
           
           <p>今更ながらGo Modulesについて簡単にまとめた。
 そして今月(2019年2月)にリリースされる予定のGo1.12に含まれるGo Modules関連の仕様変更について調べた。</p>
-
-<p></p>
 
 <p>なお、この記事はGo 1.12 Release Party登壇に関する補足資料となる。</p>
 
@@ -528,11 +522,11 @@ require (
 
 <p>1.11のときは<code>go.mod</code>がないディレクトリで<code>go get</code>をすると失敗していたが、1.12ではそれが解消された。
 （ただ、<code>go.mod</code>があるディレクトリで行なうと<code>go get</code>で取得した情報を<code>go.mod</code>に追加してしまうので注意が必要）。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.11 at outside module and  GOPATH
-</span><span style="color:#586e75"></span>$ <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go get -u golang.org/x/lint/golint
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.11 at outside module and  GOPATH</span>
+$ <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go get -u golang.org/x/lint/golint
 go: cannot find main module; see <span style="color:#2aa198">&#39;go help modules&#39;</span>
-make: *** <span style="color:#719e07">[</span>run111_go_get<span style="color:#719e07">]</span> Error <span style="color:#2aa198">1</span></code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.12 at outside module and  GOPATH
-</span><span style="color:#586e75"></span>$ <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go get -u golang.org/x/lint/golint
+make: *** <span style="color:#719e07">[</span>run111_go_get<span style="color:#719e07">]</span> Error <span style="color:#2aa198">1</span></code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.12 at outside module and  GOPATH</span>
+$ <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go get -u golang.org/x/lint/golint
 go: finding golang.org/x/lint/golint latest
 go: finding golang.org/x/lint latest
 go: downloading golang.org/x/lint v0.0.0-20181217174547-8f45f776aaf1
@@ -544,11 +538,11 @@ go: finding golang.org/x/tools/go/ast latest
 go: finding golang.org/x/tools latest
 go: downloading golang.org/x/tools v0.0.0-20190214204934-8dcb7</code></pre></div>
 <p><code>go.mod</code>がなくてもどこでも<code>go run</code>ができるようになった。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.11 in moudle outside
-</span><span style="color:#586e75"></span>$ <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go run -v main.go
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.11 in moudle outside</span>
+$ <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go run -v main.go
 go: cannot find main module; see <span style="color:#2aa198">&#39;go help modules&#39;</span>
-make: *** <span style="color:#719e07">[</span>run111_run_module_on_outside<span style="color:#719e07">]</span> Error <span style="color:#2aa198">1</span></code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.12 in moudle outside
-</span><span style="color:#586e75"></span>$ <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go run -v main.go
+make: *** <span style="color:#719e07">[</span>run111_run_module_on_outside<span style="color:#719e07">]</span> Error <span style="color:#2aa198">1</span></code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.12 in moudle outside</span>
+$ <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go run -v main.go
 Fetching https://gopkg.in/pressly/chi.v2?go-get<span style="color:#719e07">=</span><span style="color:#2aa198">1</span>
 Parsing meta tags from https://gopkg.in/pressly/chi.v2?go-get<span style="color:#719e07">=</span><span style="color:#2aa198">1</span> <span style="color:#719e07">(</span>status code <span style="color:#2aa198">200</span><span style="color:#719e07">)</span>
 get <span style="color:#2aa198">&#34;gopkg.in/pressly/chi.v2&#34;</span>: found meta tag get.metaImport<span style="color:#719e07">{</span>Prefix:<span style="color:#2aa198">&#34;gopkg.in/pressly/chi.v2&#34;</span>, VCS:<span style="color:#2aa198">&#34;git&#34;</span>, RepoRoot:<span style="color:#2aa198">&#34;https://gopkg.in/pressly/chi.v2&#34;</span><span style="color:#719e07">}</span> at https://gopkg.in/pressly/chi.v2?go-get<span style="color:#719e07">=</span><span style="color:#2aa198">1</span>
@@ -558,10 +552,10 @@ go: finding gopkg.in/pressly/chi.v2 v2.1.0
 
 <p>カレントディレクトリで参照している<code>go.mod</code>ファイルを示す<code>GOMOD</code>変数がある。
 module-aware modeの時、Go1.11では参照する<code>go.mod</code>ファイルがないと空白文字列を返していたが、Go1.12は<code>/dev/null</code>を返すようになった。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.11 with GO111MODULE=on
-</span><span style="color:#586e75"></span>root@2d5cbf159edc:/tmp/test# <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go env|grep GOMOD
-<span style="color:#268bd2">GOMOD</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;&#34;</span></code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.12 with GO111MODULE=on
-</span><span style="color:#586e75"></span>root@a36b23164e3d:/tmp/test# <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go env|grep GOMOD
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.11 with GO111MODULE=on</span>
+root@2d5cbf159edc:/tmp/test# <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go env|grep GOMOD
+<span style="color:#268bd2">GOMOD</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;&#34;</span></code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.12 with GO111MODULE=on</span>
+root@a36b23164e3d:/tmp/test# <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go env|grep GOMOD
 <span style="color:#268bd2">GOMOD</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;/dev/null&#34;</span></code></pre></div>
 <h1 id="言語バージョンが保存される">言語バージョンが保存される。</h1>
 
@@ -899,6 +893,12 @@ require (
           
             
               <li class="post">
+                <a href="/2019/03/03/review-output-encyclopedia/">[書評] アウトプット大全 を一ヶ月試してみて毎日のアウトプット力が着実に向上し始めた</a>
+              </li>
+            
+          
+            
+              <li class="post">
                 <a href="/2019/02/24/go-print-detail-of-json-syntax-error/">GoでJSONのUnmarshalがシンタックスエラーで失敗した時、エラー周辺の文字列を表示する</a>
               </li>
             
@@ -918,12 +918,6 @@ require (
             
               <li class="post">
                 <a href="/2019/02/08/go-slice-operator/">[Go]スライス生成時(slice operator)に使える珍しい宣言方法 #golangjp</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2019/02/01/how-to-use-analisys-package/">golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang</a>
               </li>
             
           
