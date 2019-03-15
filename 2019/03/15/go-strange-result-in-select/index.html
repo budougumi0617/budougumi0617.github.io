@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go] selectのcase文中でch &lt;- &lt;- chやch &lt;- f()をしない方が良い #golangjp #横浜go読書会 - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="Go,並行処理,select,channel">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.50" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/03/15/go-strange-result-in-select/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go] selectのcase文中でch &lt;- &lt;- chやch &lt;- f()をしない方が良い #golangjp #横浜go読書会 - My External Storage"/>
+  <meta property="og:description" content="簡潔にまとめられなかったので式表現をそのままタイトルに書いてしまったが、分かっていないとエンバグしそうな挙動を見つけたのでメモしておく。
+
+"/>
+  
+  <meta name="twitter:title" content="[Go] selectのcase文中でch &lt;- &lt;- chやch &lt;- f()をしない方が良い #golangjp #横浜go読書会 - My External Storage"/>
+  <meta name="twitter:description" content="簡潔にまとめられなかったので式表現をそのままタイトルに書いてしまったが、分かっていないとエンバグしそうな挙動を見つけたのでメモしておく。
+
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Mar 15, 2019
+         - 4 minute read 
+         - <a href="https://budougumi0617.github.io/2019/03/15/go-strange-result-in-select/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+        
+    </p>
+    <h1 class="entry-title">
+         [Go] selectのcase文中でch &lt;- &lt;- chやch &lt;- f()をしない方が良い #golangjp #横浜go読書会 
+    </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#チャネルを使ったselectのcase文中で-関数を呼び出した結果でチャネルへの送信をしないほうがよい">チャネルを使ったselectのcase文中で、関数を呼び出した結果でチャネルへの送信をしないほうがよい</a></li>
+<li><a href="#チャネルを使ったselectのcase文中で-別のチャネルから受信した結果でチャネルへの送信をしないほうがよい">チャネルを使ったselectのcase文中で、別のチャネルから受信した結果でチャネルへの送信をしないほうがよい</a></li>
+<li><a href="#最後に">最後に</a></li>
+</ul>
+</nav>
+          
+          <p>簡潔にまとめられなかったので式表現をそのままタイトルに書いてしまったが、分かっていないとエンバグしそうな挙動を見つけたのでメモしておく。</p>
+
+<p></p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>チャネルを使ったselectのcase文中で、関数を呼び出した結果でチャネルへの送信をしないほうがよい</li>
+<li>チャネルを使ったselectのcase文中で、別のチャネルから受信した結果でチャネルへの送信をしないほうがよい</li>
+</ul>
+
+<p>文章で書くとわかりにくいのだが、コードで書くと以下のような処理を書くのは避けたほうがよい、というのが主題だ。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"> <span style="color:#719e07">select</span> {
+ <span style="color:#719e07">case</span> ch1 <span style="color:#719e07">&lt;-</span> f(): <span style="color:#586e75">// チャネルへ関数を呼び出した結果を送信する
+</span><span style="color:#586e75"></span> <span style="color:#719e07">case</span> ch1 <span style="color:#719e07">&lt;-</span> <span style="color:#719e07">&lt;-</span> ch2: <span style="color:#586e75">// チャネルへ別のチャネルからの受信結果を送信する
+</span><span style="color:#586e75"></span> }</code></pre></div>
+<p>なお、検証環境は以下。</p>
+
+<ul>
+<li><code>go version go1.12 darwin/amd64</code></li>
+<li><a href="https://play.golang.org/">https://play.golang.org/</a> （2019/03/15時点）</li>
+</ul>
+
+<h1 id="チャネルを使ったselectのcase文中で-関数を呼び出した結果でチャネルへの送信をしないほうがよい">チャネルを使ったselectのcase文中で、関数を呼び出した結果でチャネルへの送信をしないほうがよい</h1>
+
+<p>まずselect文のcaseで関数呼び出しをしているときを検証した。<br />
+以下の処理は<code>done</code>チャネルに通知が入るまで無限ループが行われるコードだ。<br />
+<code>ch1</code>や<code>ch2</code>の準備ができているときは<code>f</code>関数の戻り値を送信する。このプログラムを実行したとき、<code>called f</code>という文字列を何回出力するだろうか？（<code>f</code>関数は何回実行されるだろうか？）</p>
+
+<ul>
+<li><a href="https://play.golang.org/p/ZvypfcE-oPe">https://play.golang.org/p/ZvypfcE-oPe</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+	<span style="color:#2aa198">&#34;fmt&#34;</span>
+)
+
+<span style="color:#268bd2">func</span> f() <span style="color:#dc322f">int</span> {
+	fmt.Println(<span style="color:#2aa198">&#34;called f&#34;</span>)
+	<span style="color:#719e07">return</span> <span style="color:#2aa198">1</span>
+}
+
+<span style="color:#268bd2">func</span> main() {
+	ch1 <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#dc322f">int</span>)
+	ch2 <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#dc322f">int</span>)
+	done <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#268bd2">struct</span>{})
+
+	<span style="color:#719e07">go</span> <span style="color:#268bd2">func</span>() {
+		fmt.Printf(<span style="color:#2aa198">&#34;f return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch1)
+		done <span style="color:#719e07">&lt;-</span> <span style="color:#268bd2">struct</span>{}{}
+	}()
+
+	<span style="color:#719e07">for</span> {
+		<span style="color:#719e07">select</span> {
+		<span style="color:#719e07">case</span> <span style="color:#719e07">&lt;-</span>done:
+			fmt.Println(<span style="color:#2aa198">&#34;done&#34;</span>)
+			<span style="color:#719e07">return</span>
+		<span style="color:#719e07">case</span> ch1 <span style="color:#719e07">&lt;-</span> f():
+		<span style="color:#719e07">case</span> ch2 <span style="color:#719e07">&lt;-</span> f():
+		}
+	}
+}</code></pre></div>
+<p>私は<code>fmt.Printf(&quot;f return = %d\n&quot;, &lt;-ch1)</code>の時に<code>ch1</code>から値を受け取るときだけ<code>f</code>関数が呼び出されると思ったので1回と予想していた。<br />
+だが、答えは4回だ。</p>
+
+<pre><code>called f
+called f
+f return = 1
+called f
+called f
+done
+</code></pre>
+
+<p>どうやら<strong><code>select</code>文に突入した時点でチャネルへの送信文(<code>channel &lt;- XXXX</code>)の右辺(<code>XXXX</code>)が実行されなかった<code>case</code>も含めて確定的に行われてしまう</strong>らしい。<br />
+この挙動はselectのcase文でチャネルからの受信式(<code>&lt;-channel</code>)を使っても同様に発生する。</p>
+
+<h1 id="チャネルを使ったselectのcase文中で-別のチャネルから受信した結果でチャネルへの送信をしないほうがよい">チャネルを使ったselectのcase文中で、別のチャネルから受信した結果でチャネルへの送信をしないほうがよい</h1>
+
+<p>以下のコードは別のチャネル（<code>fchX</code>）から送信された<code>int</code>を受信するチャネル（<code>chX</code>）を複数<code>select</code>文で並べて待機するコードだ。</p>
+
+<ul>
+<li><a href="https://play.golang.org/p/cdZORmhc8k7">https://play.golang.org/p/cdZORmhc8k7</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+	<span style="color:#2aa198">&#34;fmt&#34;</span>
+)
+
+<span style="color:#268bd2">func</span> main() {
+	sample3()
+}
+
+<span style="color:#268bd2">func</span> sample3() {
+	ch1 <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#dc322f">int</span>)
+	ch2 <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#dc322f">int</span>)
+	done <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#268bd2">struct</span>{})
+
+  <span style="color:#586e75">// 1ずつインクリメントされたintを送信するチャネルを生成する関数
+</span><span style="color:#586e75"></span>	f <span style="color:#719e07">:=</span> <span style="color:#268bd2">func</span>() <span style="color:#719e07">&lt;-</span><span style="color:#268bd2">chan</span> <span style="color:#dc322f">int</span> {
+		ch <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#dc322f">int</span>)
+		<span style="color:#719e07">go</span> <span style="color:#268bd2">func</span>() {
+			<span style="color:#268bd2">var</span> i <span style="color:#dc322f">int</span>
+			<span style="color:#719e07">for</span> {
+				ch <span style="color:#719e07">&lt;-</span> i
+				i<span style="color:#719e07">++</span>
+			}
+		}()
+		<span style="color:#719e07">return</span> ch
+	}
+
+	<span style="color:#719e07">go</span> <span style="color:#268bd2">func</span>() {
+		fmt.Printf(<span style="color:#2aa198">&#34;fch1 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch1)
+		fmt.Printf(<span style="color:#2aa198">&#34;fch2 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch2)
+		fmt.Printf(<span style="color:#2aa198">&#34;fch1 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch1)
+		done <span style="color:#719e07">&lt;-</span> <span style="color:#268bd2">struct</span>{}{}
+	}()
+
+	fch1 <span style="color:#719e07">:=</span> f()
+	fch2 <span style="color:#719e07">:=</span> f()
+	<span style="color:#719e07">for</span> {
+		<span style="color:#719e07">select</span> {
+		<span style="color:#719e07">case</span> ch1 <span style="color:#719e07">&lt;-</span> <span style="color:#719e07">&lt;-</span>fch1:
+		<span style="color:#719e07">case</span> ch2 <span style="color:#719e07">&lt;-</span> <span style="color:#719e07">&lt;-</span>fch2:
+		<span style="color:#719e07">case</span> <span style="color:#719e07">&lt;-</span>done:
+			fmt.Println(<span style="color:#2aa198">&#34;done&#34;</span>)
+			<span style="color:#719e07">return</span>
+		}
+	}
+}</code></pre></div>
+<p>この実行結果は以下となる。</p>
+
+<pre><code>fch1 return = 0
+fch2 return = 1
+fch1 return = 2
+done
+</code></pre>
+
+<p>標準出力している部分のコードを確認する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">fmt.Printf(<span style="color:#2aa198">&#34;fch1 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch1)
+fmt.Printf(<span style="color:#2aa198">&#34;fch2 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch2)
+fmt.Printf(<span style="color:#2aa198">&#34;fch1 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch1)</code></pre></div>
+<p>最初の<code>fmt.Printf(&quot;fch1 return = %d\n&quot;, &lt;-ch1)</code>の結果は<code>0</code>だ。<code>ch1</code>への入力の<code>fch1</code>（<code>f()</code>で生成したチャネル）は<code>0</code>からインクメントされた整数を返すチャネルなので、期待通りだ。<br />
+だが、<code>fmt.Printf(&quot;fch2 return = %d\n&quot;, &lt;-ch2)</code>は<code>ch2</code>(<code>fch2</code>)から初めて値を取り出すので<code>0</code>を期待したいところだが、<code>1</code>が出力される。<br />
+また、二回目の<code>fmt.Printf(&quot;fch1 return = %d\n&quot;, &lt;-ch1)</code>では<code>ch1</code>(<code>fch1</code>)に対する二度目の取得なので、<code>1</code>が出てくるのを期待するのだが、<code>2</code>が出てくる。<br />
+<code>select</code>で実行されたなかった時でも<code>case</code>中の右辺が評価されてしまうので、
+<strong><code>fch2</code>から<code>ch2</code>へ渡されたはずの<code>0</code>や、<code>fch1</code>から<code>ch1</code>に渡されたはずの<code>1</code>はどこか虚空に消えてしまった</strong>ようだ…</p>
+
+<h1 id="最後に">最後に</h1>
+
+<p><code>select</code>の<code>case</code>中に関数呼び出しやチャネルからの受信をしていると思わぬ挙動をしてしまうことをまとめた。<br />
+今回の内容は<a href="https://yokohama-go-reading.connpass.com/event/120344/">第25回横浜Go読書会</a>に参加中に話題になったことをまとめた内容である。<br />
+具体的な仕様や実装までは追えなかったので実動作についてのみのまとめになってしまった。<br />
+本当ならば実際にGoの実装のどの部分でこのような挙動を実現しているかなどちゃんと調べていきたい。</p>
+
+<ul>
+<li>横浜Go読書会
+
+<ul>
+<li><a href="https://yokohama-go-reading.connpass.com/">https://yokohama-go-reading.connpass.com/</a></li>
+</ul></li>
+<li>Select statements | The Go Programming Language Specification
+
+<ul>
+<li><a href="https://golang.org/ref/spec#Select_statements">https://golang.org/ref/spec#Select_statements</a></li>
+</ul></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/03/10/define-gomock-method-by-doandreturn/">[Go][gomcok]引数によって挙動を変えるモックメソッドを定義する #golangjp</a></li>
+  
+  <li><a href="/2019/02/15/go-modules-on-go112/">Go Modulesの概要とGo1.12に含まれるModulesに関する変更 #golangjp #go112party</a></li>
+  
+  <li><a href="/2019/02/08/go-slice-operator/">[Go]スライス生成時(slice operator)に使える珍しい宣言方法 #golangjp</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+​<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Mar 15, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/select">select</a>  <a class="category" href="https://budougumi0617.github.io/tags/channel">channel</a>  <a class="category" href="https://budougumi0617.github.io/tags/goroutine">goroutine</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/03/10/define-gomock-method-by-doandreturn/" title="[Go][gomcok]引数によって挙動を変えるモックメソッドを定義する #golangjp">[Go][gomcok]引数によって挙動を変えるモックメソッドを定義する #golangjp</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/03/15/go-strange-result-in-select/">[Go] selectのcase文中でch &lt;- &lt;- chやch &lt;- f()をしない方が良い #golangjp #横浜go読書会</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/03/10/define-gomock-method-by-doandreturn/">[Go][gomcok]引数によって挙動を変えるモックメソッドを定義する #golangjp</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/03/03/review-output-encyclopedia/">[書評] アウトプット大全 を一ヶ月試してみて毎日のアウトプット力が着実に向上し始めた</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/02/24/go-print-detail-of-json-syntax-error/">GoでJSONのUnmarshalがシンタックスエラーで失敗した時、エラー周辺の文字列を表示する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/02/15/go-modules-on-go112/">Go Modulesの概要とGo1.12に含まれるModulesに関する変更 #golangjp #go112party</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
