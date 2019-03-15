@@ -329,16 +329,17 @@ done
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">fmt.Printf(<span style="color:#2aa198">&#34;fch1 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch1)
 fmt.Printf(<span style="color:#2aa198">&#34;fch2 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch2)
 fmt.Printf(<span style="color:#2aa198">&#34;fch1 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch1)</code></pre></div>
-<p>最初の<code>fmt.Printf(&quot;fch1 return = %d\n&quot;, &lt;-ch1)</code>の結果は<code>0</code>だ。<code>ch1</code>への入力の<code>fch1</code>（<code>f()</code>で生成したチャネル）は<code>0</code>からインクメントされた整数を返すチャネルなので、期待通りだ。<br />
-だが、<code>fmt.Printf(&quot;fch2 return = %d\n&quot;, &lt;-ch2)</code>は<code>ch2</code>(<code>fch2</code>)から初めて値を取り出すので<code>0</code>を期待したいところだが、<code>1</code>が出力される。<br />
-また、二回目の<code>fmt.Printf(&quot;fch1 return = %d\n&quot;, &lt;-ch1)</code>では<code>ch1</code>(<code>fch1</code>)に対する二度目の取得なので、<code>1</code>が出てくるのを期待するのだが、<code>2</code>が出てくる。<br />
-<code>select</code>で実行されたなかった時でも<code>case</code>中の右辺が評価されてしまうので、
+<p>最初の<code>fmt.Printf(&quot;fch1 return = %d\n&quot;, &lt;-ch1)</code>の結果は<code>0</code>だ。<code>ch1</code>への入力の<code>fch1</code>（<code>f()</code>で生成したチャネル）は<code>0</code>からインクメントされた整数を返すチャネルなので、期待通りだ。
+だが、<code>fmt.Printf(&quot;fch2 return = %d\n&quot;, &lt;-ch2)</code>は<code>ch2</code>(<code>fch2</code>)から初めて値を取り出すので<code>0</code>を期待したいところだが、<code>1</code>が出力される。
+また、二回目の<code>fmt.Printf(&quot;fch1 return = %d\n&quot;, &lt;-ch1)</code>では<code>ch1</code>(<code>fch1</code>)に対する二度目の取得なので、<code>1</code>が出てくるのを期待するのだが、<code>2</code>が出てくる。</p>
+
+<p><code>select</code>で実行されたなかった時でも<code>case</code>中の右辺が評価されてしまうので、
 <strong><code>fch2</code>から<code>ch2</code>へ渡されたはずの<code>0</code>や、<code>fch1</code>から<code>ch1</code>に渡されたはずの<code>1</code>はどこか虚空に消えてしまった</strong>ようだ…</p>
 
 <h1 id="最後に">最後に</h1>
 
 <p><code>select</code>の<code>case</code>中に関数呼び出しやチャネルからの受信をしていると思わぬ挙動をしてしまうことをまとめた。<br />
-今回の内容は<a href="https://yokohama-go-reading.connpass.com/event/120344/">第25回横浜Go読書会</a>に参加中に話題になったことをまとめた内容である。<br />
+今回の内容は<a href="https://yokohama-go-reading.connpass.com/event/120344/">第25回横浜Go読書会</a>に参加中に話題になったことをまとめた内容である。
 具体的な仕様や実装までは追えなかったので実動作についてのみのまとめになってしまった。<br />
 本当ならば実際にGoの実装のどの部分でこのような挙動を実現しているかなどちゃんと調べていきたい。</p>
 
