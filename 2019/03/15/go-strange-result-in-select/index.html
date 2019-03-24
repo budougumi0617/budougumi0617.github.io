@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.50" />
+  <meta name="generator" content="Hugo 0.53" />
 
   
   
@@ -65,14 +65,10 @@
   <meta property="og:url" content="https://budougumi0617.github.io/2019/03/15/go-strange-result-in-select/"/>
   <meta property="og:type" content="article"/>
   <meta property="og:title" content="[Go] selectのcase文中でch &lt;- &lt;- chやch &lt;- f()をしない方が良い #golangjp #横浜go読書会 - My External Storage"/>
-  <meta property="og:description" content="簡潔にまとめられなかったので式表現をそのままタイトルに書いてしまったが、分かっていないとエンバグしそうな挙動を見つけたのでメモしておく。
-
-"/>
+  <meta property="og:description" content="簡潔にまとめられなかったので式表現をそのままタイトルに書いてしまったが、分かっていないとエンバグしそうな挙動を見つけたのでメモしておく。"/>
   
   <meta name="twitter:title" content="[Go] selectのcase文中でch &lt;- &lt;- chやch &lt;- f()をしない方が良い #golangjp #横浜go読書会 - My External Storage"/>
-  <meta name="twitter:description" content="簡潔にまとめられなかったので式表現をそのままタイトルに書いてしまったが、分かっていないとエンバグしそうな挙動を見つけたのでメモしておく。
-
-"/>
+  <meta name="twitter:description" content="簡潔にまとめられなかったので式表現をそのままタイトルに書いてしまったが、分かっていないとエンバグしそうな挙動を見つけたのでメモしておく。"/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
   <meta name="twitter:creator" content="@budougumi0617"/>
@@ -188,8 +184,6 @@
           
           <p>簡潔にまとめられなかったので式表現をそのままタイトルに書いてしまったが、分かっていないとエンバグしそうな挙動を見つけたのでメモしておく。</p>
 
-<p></p>
-
 <h1 id="tl-dr">TL;DR</h1>
 
 <ul>
@@ -199,7 +193,7 @@
 
 <p>文章で書くとわかりにくいのだが、コードで書くと以下のような処理を書くのは避けたほうがよい、というのが主題だ。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"> <span style="color:#719e07">select</span> {
- <span style="color:#719e07">case</span> ch1 <span style="color:#719e07">&lt;-</span> f(): <span style="color:#586e75">// チャネルへ関数を呼び出した結果を送信する
+ <span style="color:#719e07">case</span> ch1 <span style="color:#719e07">&lt;-</span> <span style="color:#268bd2">f</span>(): <span style="color:#586e75">// チャネルへ関数を呼び出した結果を送信する
 </span><span style="color:#586e75"></span> <span style="color:#719e07">case</span> ch1 <span style="color:#719e07">&lt;-</span> <span style="color:#719e07">&lt;-</span> ch2: <span style="color:#586e75">// チャネルへ別のチャネルからの受信結果を送信する
 </span><span style="color:#586e75"></span> }</code></pre></div>
 <p>なお、検証環境は以下。</p>
@@ -224,28 +218,28 @@
 	<span style="color:#2aa198">&#34;fmt&#34;</span>
 )
 
-<span style="color:#268bd2">func</span> f() <span style="color:#dc322f">int</span> {
-	fmt.Println(<span style="color:#2aa198">&#34;called f&#34;</span>)
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">f</span>() <span style="color:#dc322f">int</span> {
+	fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;called f&#34;</span>)
 	<span style="color:#719e07">return</span> <span style="color:#2aa198">1</span>
 }
 
-<span style="color:#268bd2">func</span> main() {
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 	ch1 <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#dc322f">int</span>)
 	ch2 <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#dc322f">int</span>)
 	done <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#268bd2">struct</span>{})
 
 	<span style="color:#719e07">go</span> <span style="color:#268bd2">func</span>() {
-		fmt.Printf(<span style="color:#2aa198">&#34;f return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch1)
+		fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;f return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch1)
 		done <span style="color:#719e07">&lt;-</span> <span style="color:#268bd2">struct</span>{}{}
 	}()
 
 	<span style="color:#719e07">for</span> {
 		<span style="color:#719e07">select</span> {
 		<span style="color:#719e07">case</span> <span style="color:#719e07">&lt;-</span>done:
-			fmt.Println(<span style="color:#2aa198">&#34;done&#34;</span>)
+			fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;done&#34;</span>)
 			<span style="color:#719e07">return</span>
-		<span style="color:#719e07">case</span> ch1 <span style="color:#719e07">&lt;-</span> f():
-		<span style="color:#719e07">case</span> ch2 <span style="color:#719e07">&lt;-</span> f():
+		<span style="color:#719e07">case</span> ch1 <span style="color:#719e07">&lt;-</span> <span style="color:#268bd2">f</span>():
+		<span style="color:#719e07">case</span> ch2 <span style="color:#719e07">&lt;-</span> <span style="color:#268bd2">f</span>():
 		}
 	}
 }</code></pre></div>
@@ -276,11 +270,11 @@ done
 	<span style="color:#2aa198">&#34;fmt&#34;</span>
 )
 
-<span style="color:#268bd2">func</span> main() {
-	sample3()
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+	<span style="color:#268bd2">sample3</span>()
 }
 
-<span style="color:#268bd2">func</span> sample3() {
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">sample3</span>() {
 	ch1 <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#dc322f">int</span>)
 	ch2 <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#dc322f">int</span>)
 	done <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#268bd2">struct</span>{})
@@ -299,20 +293,20 @@ done
 	}
 
 	<span style="color:#719e07">go</span> <span style="color:#268bd2">func</span>() {
-		fmt.Printf(<span style="color:#2aa198">&#34;fch1 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch1)
-		fmt.Printf(<span style="color:#2aa198">&#34;fch2 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch2)
-		fmt.Printf(<span style="color:#2aa198">&#34;fch1 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch1)
+		fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;fch1 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch1)
+		fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;fch2 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch2)
+		fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;fch1 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch1)
 		done <span style="color:#719e07">&lt;-</span> <span style="color:#268bd2">struct</span>{}{}
 	}()
 
-	fch1 <span style="color:#719e07">:=</span> f()
-	fch2 <span style="color:#719e07">:=</span> f()
+	fch1 <span style="color:#719e07">:=</span> <span style="color:#268bd2">f</span>()
+	fch2 <span style="color:#719e07">:=</span> <span style="color:#268bd2">f</span>()
 	<span style="color:#719e07">for</span> {
 		<span style="color:#719e07">select</span> {
 		<span style="color:#719e07">case</span> ch1 <span style="color:#719e07">&lt;-</span> <span style="color:#719e07">&lt;-</span>fch1:
 		<span style="color:#719e07">case</span> ch2 <span style="color:#719e07">&lt;-</span> <span style="color:#719e07">&lt;-</span>fch2:
 		<span style="color:#719e07">case</span> <span style="color:#719e07">&lt;-</span>done:
-			fmt.Println(<span style="color:#2aa198">&#34;done&#34;</span>)
+			fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;done&#34;</span>)
 			<span style="color:#719e07">return</span>
 		}
 	}
@@ -326,9 +320,9 @@ done
 </code></pre>
 
 <p>標準出力している部分のコードを確認する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">fmt.Printf(<span style="color:#2aa198">&#34;fch1 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch1)
-fmt.Printf(<span style="color:#2aa198">&#34;fch2 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch2)
-fmt.Printf(<span style="color:#2aa198">&#34;fch1 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch1)</code></pre></div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;fch1 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch1)
+fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;fch2 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch2)
+fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;fch1 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch1)</code></pre></div>
 <p>最初の<code>fmt.Printf(&quot;fch1 return = %d\n&quot;, &lt;-ch1)</code>の結果は<code>0</code>だ。<code>ch1</code>への入力の<code>fch1</code>（<code>f()</code>で生成したチャネル）は<code>0</code>からインクメントされた整数を返すチャネルなので、期待通りだ。
 だが、<code>fmt.Printf(&quot;fch2 return = %d\n&quot;, &lt;-ch2)</code>は<code>ch2</code>(<code>fch2</code>)から初めて値を取り出すので<code>0</code>を期待したいところだが、<code>1</code>が出力される。
 また、二回目の<code>fmt.Printf(&quot;fch1 return = %d\n&quot;, &lt;-ch1)</code>では<code>ch1</code>(<code>fch1</code>)に対する二度目の取得なので、<code>1</code>が出てくるのを期待するのだが、<code>2</code>が出てくる。</p>
@@ -524,6 +518,12 @@ fmt.Printf(<span style="color:#2aa198">&#34;fch1 return = %d\n&#34;</span>, <spa
           
             
               <li class="post">
+                <a href="/2019/03/24/go-create-type-check-handson/">go/typesパッケージを使って型チェックを行なうハンズオンを作った #golangtokyo</a>
+              </li>
+            
+          
+            
+              <li class="post">
                 <a href="/2019/03/20/publish-docker-image-for-sql-training/">クエリの練習用に20以上のテーブルと大量データを事前投入したMySQLイメージをDocker Hubで公開する</a>
               </li>
             
@@ -543,12 +543,6 @@ fmt.Printf(<span style="color:#2aa198">&#34;fch1 return = %d\n&#34;</span>, <spa
             
               <li class="post">
                 <a href="/2019/03/03/review-output-encyclopedia/">[書評] アウトプット大全 を一ヶ月試してみて毎日のアウトプット力が着実に向上し始めた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2019/02/24/go-print-detail-of-json-syntax-error/">GoでJSONのUnmarshalがシンタックスエラーで失敗した時、エラー周辺の文字列を表示する</a>
               </li>
             
           

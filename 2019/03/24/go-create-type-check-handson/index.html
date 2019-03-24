@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>go/typesパッケージを使って型チェックを行なうハンズオンを作った #golangtokyo - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="Go,静的解析,type check,go/types,golang">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.53" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/03/24/go-create-type-check-handson/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="go/typesパッケージを使って型チェックを行なうハンズオンを作った #golangtokyo - My External Storage"/>
+  <meta property="og:description" content="golang.tokyoで静的解析ハンズオンを行なうにあたり、ハンズオン資料を作成した。
+ハンズオン作成時の際参考にした資料や、作る時に工夫した点をまとめておく。
+
+
+型チェックでインターフェースを実装しているか調べよう
+
+
+https://golangtokyo.github.io/codelab/first-step-type-check/
+
+"/>
+  
+  <meta name="twitter:title" content="go/typesパッケージを使って型チェックを行なうハンズオンを作った #golangtokyo - My External Storage"/>
+  <meta name="twitter:description" content="golang.tokyoで静的解析ハンズオンを行なうにあたり、ハンズオン資料を作成した。
+ハンズオン作成時の際参考にした資料や、作る時に工夫した点をまとめておく。
+
+
+型チェックでインターフェースを実装しているか調べよう
+
+
+https://golangtokyo.github.io/codelab/first-step-type-check/
+
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Mar 24, 2019
+         - 6 minute read 
+         - <a href="https://budougumi0617.github.io/2019/03/24/go-create-type-check-handson/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+        
+    </p>
+    <h1 class="entry-title">
+         go/typesパッケージを使って型チェックを行なうハンズオンを作った #golangtokyo 
+    </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#なぜ作ったのか">なぜ作ったのか</a></li>
+<li><a href="#参考にした記事">参考にした記事</a>
+<ul>
+<li><a href="#go-typesのgodoc">go/typesのGodoc</a></li>
+<li><a href="#goのためのgo">GoのためのGo</a></li>
+<li><a href="#go-types-the-go-type-checker">go/types: The Go Type Checker</a></li>
+<li><a href="#静的解析で型を扱う-golang">静的解析で型を扱う #golang</a></li>
+<li><a href="#goでstructの定義を見てあれこれするのに-ast-fileを直接見るよりtypes-packageを参照したほうが楽-かもしれない">goでstructの定義を見てあれこれするのに、ast.Fileを直接見るよりtypes.Packageを参照したほうが楽(かもしれない)</a></li>
+</ul></li>
+<li><a href="#作る時に工夫したこと">作る時に工夫したこと</a></li>
+<li><a href="#終わりに">終わりに</a></li>
+<li><a href="#参考url">参考URL</a></li>
+</ul>
+</nav>
+          
+          <p>golang.tokyoで静的解析ハンズオンを行なうにあたり、ハンズオン資料を作成した。<br />
+ハンズオン作成時の際参考にした資料や、作る時に工夫した点をまとめておく。</p>
+
+<ul>
+<li>型チェックでインターフェースを実装しているか調べよう
+
+<ul>
+<li><a href="https://golangtokyo.github.io/codelab/first-step-type-check/">https://golangtokyo.github.io/codelab/first-step-type-check/</a></li>
+</ul></li>
+</ul>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li><code>go/types</code>パッケージを使った型チェックを勉強するハンズオンを作った
+
+<ul>
+<li><a href="https://golangtokyo.github.io/codelab/first-step-type-check">型チェックでインターフェースを実装しているか調べよう</a></li>
+</ul></li>
+<li>ハンズオンを作るにあたって以下のWEBサイト・記事が大変参考になった</li>
+<li>資料を作る際はひたすらPlayGroundで以下のようなサンプルコードを回していた
+
+<ul>
+<li><a href="https://play.golang.org/p/DltIoOjroh2">https://play.golang.org/p/DltIoOjroh2</a></li>
+</ul></li>
+<li>静的解析を勉強して「Goにおける型」の概念を知ることができた。言語仕様に対する理解も深めることができてオススメ。</li>
+</ul>
+
+<p>なお、静的解析ハンズオン自体の情報は以下になる。</p>
+
+<table>
+<thead>
+<tr>
+<th>イベント名</th>
+<th>golang.tokyo #22+Okayama.go/Sendai.go</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>URL</td>
+<td><a href="https://golangtokyo.connpass.com/event/122263/">https://golangtokyo.connpass.com/event/122263/</a></td>
+</tr>
+
+<tr>
+<td>会場</td>
+<td>freee株式会社 東京都品川区西五反田2-8-1(五反田ファーストビル 9F)</td>
+</tr>
+
+<tr>
+<td>日時</td>
+<td>2019/03/23（土）13:00 〜 17:00</td>
+</tr>
+
+<tr>
+<td>ハッシュタグ</td>
+<td><a href="https://twitter.com/hashtag/golangtokyo">#golangtokyo</a></td>
+</tr>
+</tbody>
+</table>
+
+<h1 id="なぜ作ったのか">なぜ作ったのか</h1>
+
+<p>今回golang.tokyoで静的解析のハンズオンをすることになった。<br />
+golang.tokyoでは以前から静的解析を含めたハンズオンを提供していたが型チェック（<code>go/types</code>）についてのハンズオンはまだなかった。<br />
+私自身今年のはじめあたりから静的解析を初めたが、まだ<code>go/types</code>パッケージはあまり触ったことがなかったのでこの機会に学習することにした。</p>
+
+<h1 id="参考にした記事">参考にした記事</h1>
+
+<p>今回の資料を作るにあたって以下の記事を参考にした。また、そもそもとして、ハンズオン資料のネタ出しは<a href="https://twitter.com/tenntenn">@tenntenn</a>さんにしてもらった。<br />
+（全てのネタをハンズオンに含めることはできなかったのだが、）自分にとっていい具合にストレッチした課題（ネタ）だった。圧倒的に感謝！</p>
+
+<h2 id="go-typesのgodoc">go/typesのGodoc</h2>
+
+<ul>
+<li><a href="https://golang.org/pkg/go/types/">https://golang.org/pkg/go/types/</a></li>
+</ul>
+
+<p>当たり前だが<code>go/types</code>のGo Doc。<code>types.Info</code>構造体などを使うときは一度Go Docを読んでExamplesを動かしておいたほうが圧倒的に理解が進むと思う。</p>
+
+<ul>
+<li><a href="https://golang.org/pkg/go/types/#Info">https://golang.org/pkg/go/types/#Info</a></li>
+</ul>
+
+<h2 id="goのためのgo">GoのためのGo</h2>
+
+<ul>
+<li><a href="https://motemen.github.io/go-for-go-book">https://motemen.github.io/go-for-go-book</a></li>
+</ul>
+
+<p><a href="https://twitter.com/motemen">@motemen</a>さんが書いている静的解析全般の解説記事。日本語で<code>go/ast</code>パッケージや<code>go/types</code>パッケージの内容がまとめてあって大変ありがたい。<br />
+また、資料内にある<a href="https://motemen.github.io/go-for-go-book/#ast_node%E3%81%AE%E9%9A%8E%E5%B1%A4">Appendix A: ast.Nodeの階層</a>などが大変参考になった。<br />
+Go Docはたどりやすいし実際のコードもワンクリックで辿れるのでとても読みやすいのだが、インターフェースと具象型の関係などを調べることができない（ダックタイピングなので当然といえば当然）。<br />
+なので、「この型を取りたいときはどのインターフェースから辿れたいいのいかな？」などを調べるときにとても重宝した。</p>
+
+<ul>
+<li><a href="https://motemen.github.io/go-for-go-book/#ast_node%E3%81%AE%E9%9A%8E%E5%B1%A4">Appendix A: ast.Nodeの階層</a></li>
+<li><a href="https://motemen.github.io/go-for-go-book/#types_object%E3%81%AE%E9%9A%8E%E5%B1%A4">Appendix B: types.Objectの階層</a></li>
+<li><a href="https://motemen.github.io/go-for-go-book/#types_type%E3%81%AE%E9%9A%8E%E5%B1%A4">Appendix C: types.Typeの階層</a></li>
+</ul>
+
+<h2 id="go-types-the-go-type-checker">go/types: The Go Type Checker</h2>
+
+<ul>
+<li><a href="https://github.com/golang/example/tree/master/gotypes">https://github.com/golang/example/tree/master/gotypes</a></li>
+</ul>
+
+<p><code>godoc -analysis</code>などGoの静的解析部分の設計者であり、<a href="http://amazon.jp/dp/4621300253">プログラミング言語Go</a>執筆者のAlan Donovan氏による<code>go/types</code>パッケージの解説。
+英語が読めないのでちゃんと全部は読めていないのだが、サンプルコードも大量にありわかりやすい。</p>
+
+<h2 id="静的解析で型を扱う-golang">静的解析で型を扱う #golang</h2>
+
+<ul>
+<li><a href="https://qiita.com/tenntenn/items/dfc112ae7bb8c9703ab9">https://qiita.com/tenntenn/items/dfc112ae7bb8c9703ab9</a></li>
+</ul>
+
+<p><a href="https://twitter.com/tenntenn">@tenntenn</a>さんが書いた型の記事。
+Goには継承はないが、静的解析的（構文木）には「基底型」という概念がある。<code>error</code>型の基底型を取り出す方法、基底型の概念を学べた。<br />
+インターフェースを実装しているか？などの比較処理なども書いてあり、ハンズオン中のコードはだいぶこの記事から作られている。<br />
+今回ハンズオン資料を作るにあたって一番の自分にとっての収穫は基底型という概念とGoの中の型の概念を知れたところが大きい。</p>
+
+<h2 id="goでstructの定義を見てあれこれするのに-ast-fileを直接見るよりtypes-packageを参照したほうが楽-かもしれない">goでstructの定義を見てあれこれするのに、ast.Fileを直接見るよりtypes.Packageを参照したほうが楽(かもしれない)</h2>
+
+<ul>
+<li><a href="https://pod.hatenablog.com/entry/2018/02/04/145615">https://pod.hatenablog.com/entry/2018/02/04/145615</a></li>
+</ul>
+
+<p><a href="https://twitter.com/podhmo">@podhmo</a>さんが書いた<code>types.Object</code>の概観の記事。<br />
+最初は<code>types.Object</code>と<code>types.Type</code>の違いもよくわかっていなかったので全体感を感じられてよかった。<br />
+あと、記事の最後に添付されている<a href="https://gist.github.com/podhmo/85aec6afb53df58d35f4264fa756b952"><code>gist</code></a>のサンプルコードがいい感じの分量のコードで理解が捗った。<br />
+なんだかんだ静的解析をするときはひたすら動かしてキャストを繰り返したり挙動を確認するしかないので、このサンプルコードをベースにPlaygroudをいろいろ動かしてみて理解を進めた。</p>
+
+<h1 id="作る時に工夫したこと">作る時に工夫したこと</h1>
+
+<p>私は動かさないとわからないタイプだったのでひたすらPlaygroudでサンプルコードを動かして理解していた。<br />
+具体的には下記のようなコードをちょっとずつ変えながらひたすらデバッグプリントをしたりしていた。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+	<span style="color:#2aa198">&#34;fmt&#34;</span>
+	<span style="color:#2aa198">&#34;go/ast&#34;</span>
+	<span style="color:#2aa198">&#34;go/importer&#34;</span>
+	<span style="color:#2aa198">&#34;go/parser&#34;</span>
+	<span style="color:#2aa198">&#34;go/token&#34;</span>
+	<span style="color:#2aa198">&#34;go/types&#34;</span>
+	<span style="color:#2aa198">&#34;log&#34;</span>
+)
+
+<span style="color:#268bd2">const</span> code = <span style="color:#2aa198">`
+</span><span style="color:#2aa198">package p
+</span><span style="color:#2aa198">
+</span><span style="color:#2aa198">type I interface{
+</span><span style="color:#2aa198">	Hoge() string
+</span><span style="color:#2aa198">}
+</span><span style="color:#2aa198">
+</span><span style="color:#2aa198">type S struct {
+</span><span style="color:#2aa198">}
+</span><span style="color:#2aa198">
+</span><span style="color:#2aa198">func (s *S) Hoge() string{
+</span><span style="color:#2aa198">	return &#34;&#34;
+</span><span style="color:#2aa198">}
+</span><span style="color:#2aa198">
+</span><span style="color:#2aa198">type Y struct {
+</span><span style="color:#2aa198">}
+</span><span style="color:#2aa198">
+</span><span style="color:#2aa198">func (y Y) Error() string{
+</span><span style="color:#2aa198">	return &#34;&#34;
+</span><span style="color:#2aa198">}
+</span><span style="color:#2aa198">
+</span><span style="color:#2aa198">`</span>
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+	fset <span style="color:#719e07">:=</span> token.<span style="color:#268bd2">NewFileSet</span>()
+
+	conf <span style="color:#719e07">:=</span> types.Config{
+		Importer: importer.<span style="color:#268bd2">Default</span>(),
+		Error: <span style="color:#268bd2">func</span>(err <span style="color:#dc322f">error</span>) {
+			fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;!!! %#v\n&#34;</span>, err)
+		},
+	}
+
+	f, err <span style="color:#719e07">:=</span> parser.<span style="color:#268bd2">ParseFile</span>(fset, <span style="color:#2aa198">&#34;p&#34;</span>, code, parser.ParseComments)
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		log.<span style="color:#268bd2">Fatal</span>(err)
+	}
+
+	<span style="color:#586e75">// Info.ObjectOfやInfo.TypeOfのspecに書いてあるPreconditionを読んで初期化が必要なフィールドを把握しておく
+</span><span style="color:#586e75"></span>	info <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>types.Info{
+		<span style="color:#586e75">// Types: map[ast.Expr]types.TypeAndValue{},
+</span><span style="color:#586e75"></span>		Defs: <span style="color:#268bd2">map</span>[<span style="color:#719e07">*</span>ast.Ident]types.Object{},
+		<span style="color:#586e75">// Uses:  map[*ast.Ident]types.Object{},
+</span><span style="color:#586e75"></span>	}
+
+	_, err = conf.<span style="color:#268bd2">Check</span>(<span style="color:#2aa198">&#34;p&#34;</span>, fset, []<span style="color:#719e07">*</span>ast.File{f}, info)
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		log.<span style="color:#268bd2">Fatal</span>(err)
+	}
+
+	<span style="color:#586e75">// error型の定義を取得する
+</span><span style="color:#586e75"></span>	errType <span style="color:#719e07">:=</span> types.Universe.<span style="color:#268bd2">Lookup</span>(<span style="color:#2aa198">&#34;error&#34;</span>).<span style="color:#268bd2">Type</span>()
+	<span style="color:#586e75">// error型の基底となっているインターフェースを取得する
+</span><span style="color:#586e75"></span>	it <span style="color:#719e07">:=</span> errType.<span style="color:#268bd2">Underlying</span>().(<span style="color:#719e07">*</span>types.Interface)
+
+	ast.<span style="color:#268bd2">Inspect</span>(f, <span style="color:#268bd2">func</span>(n ast.Node) <span style="color:#dc322f">bool</span> {
+		<span style="color:#719e07">switch</span> n <span style="color:#719e07">:=</span> n.(<span style="color:#268bd2">type</span>) {
+		<span style="color:#586e75">// 識別子のみ処理する
+</span><span style="color:#586e75"></span>		<span style="color:#719e07">case</span> <span style="color:#719e07">*</span>ast.Ident:
+			<span style="color:#586e75">// types.Infoの中からtypes.Objectを取得する
+</span><span style="color:#586e75"></span>			obj <span style="color:#719e07">:=</span> info.<span style="color:#268bd2">ObjectOf</span>(n)
+			<span style="color:#719e07">if</span> obj <span style="color:#719e07">==</span> <span style="color:#cb4b16">nil</span> {
+				<span style="color:#719e07">return</span> <span style="color:#cb4b16">true</span>
+			}
+			<span style="color:#586e75">// 型名じゃなかったら無視する
+</span><span style="color:#586e75"></span>			<span style="color:#719e07">if</span> _, ok <span style="color:#719e07">:=</span> obj.(<span style="color:#719e07">*</span>types.TypeName); !ok {
+				<span style="color:#719e07">return</span> <span style="color:#cb4b16">true</span>
+			}
+			typ <span style="color:#719e07">:=</span> obj.<span style="color:#268bd2">Type</span>()
+
+
+			<span style="color:#586e75">// 構造体か
+</span><span style="color:#586e75"></span>			<span style="color:#719e07">if</span> _, ok <span style="color:#719e07">:=</span> typ.<span style="color:#268bd2">Underlying</span>().(<span style="color:#719e07">*</span>types.Struct); ok {
+				<span style="color:#719e07">if</span> types.<span style="color:#268bd2">Implements</span>(typ, it) {
+					fmt.<span style="color:#268bd2">Println</span>(fset.<span style="color:#268bd2">Position</span>(obj.<span style="color:#268bd2">Pos</span>()), typ, <span style="color:#2aa198">&#34;implements&#34;</span>, errType)
+					<span style="color:#719e07">return</span> <span style="color:#cb4b16">true</span>
+				}
+				<span style="color:#586e75">// ポインタ型としてerrorインターフェースを満たしていないか
+</span><span style="color:#586e75"></span>				ptr <span style="color:#719e07">:=</span> types.<span style="color:#268bd2">NewPointer</span>(typ)
+				<span style="color:#719e07">if</span> types.<span style="color:#268bd2">Implements</span>(ptr, it) {
+					fmt.<span style="color:#268bd2">Println</span>(fset.<span style="color:#268bd2">Position</span>(obj.<span style="color:#268bd2">Pos</span>()), ptr, <span style="color:#2aa198">&#34;implements&#34;</span>, errType)
+				}
+			}
+		}
+		<span style="color:#719e07">return</span> <span style="color:#cb4b16">true</span>
+	})
+}</code></pre></div>
+<p>今は<a href="https://godoc.org/golang.org/x/tools/go/analysis"><code>x/tools/go/analysis</code></a>パッケージもあるので、<code>analysistest</code>パッケージを使ってひたすらテストを実行しても良いかも知れない。</p>
+
+<h1 id="終わりに">終わりに</h1>
+
+<ul>
+<li>型チェックでインターフェースを実装しているか調べよう
+
+<ul>
+<li><a href="https://golangtokyo.github.io/codelab/first-step-type-check/">https://golangtokyo.github.io/codelab/first-step-type-check/</a></li>
+</ul></li>
+</ul>
+
+<p>今回はgolang.tokyoに寄稿したハンズオン資料作成時のいろいろを自分用にまとめた。今後は実際に静的解析ツールを作るのと、もっと静的解析について勉強をしていきたい。<br />
+本当はanalysisパッケージを使ってCLIツールを作るまでやりたかったのだが、自分の力量不足でできなかったので、そのようなハンズオン資料もいずれ作っていきたい。<br />
+静的解析を勉強すると言語仕様についての理解も進んでいくことがわかったので以前以上にやる気も出てきた。<br />
+また、ハンズオン資料の作成で使っているCodlabsのツールはとても使い勝手がいいので、ツールの使い方を紹介する記事を後日書いておく。</p>
+
+<p>ちなみにハンズオン資料の不備などは以下で受け付けているので、間違いやわかりにくいところがあったらぜひ登録していただけると幸い。</p>
+
+<ul>
+<li><a href="https://github.com/golangtokyo/codelab/issues">https://github.com/golangtokyo/codelab/issues</a></li>
+</ul>
+
+<h1 id="参考url">参考URL</h1>
+
+<ul>
+<li>go/typesパッケージ
+
+<ul>
+<li><a href="https://golang.org/pkg/go/types">https://golang.org/pkg/go/types</a></li>
+</ul></li>
+<li>go/types: The Go Type Checker
+
+<ul>
+<li><a href="https://github.com/golang/example/tree/master/gotypes">https://github.com/golang/example/tree/master/gotypes</a></li>
+</ul></li>
+<li>GoのためのGo
+
+<ul>
+<li><a href="https://motemen.github.io/go-for-go-book/">https://motemen.github.io/go-for-go-book/</a></li>
+</ul></li>
+<li>静的解析で型を扱う #golang
+
+<ul>
+<li><a href="https://qiita.com/tenntenn/items/dfc112ae7bb8c9703ab9">https://qiita.com/tenntenn/items/dfc112ae7bb8c9703ab9</a></li>
+</ul></li>
+<li>goでstructの定義を見てあれこれするのに、ast.Fileを直接見るよりtypes.Packageを参照したほうが楽(かもしれない)
+
+<ul>
+<li><a href="https://pod.hatenablog.com/entry/2018/02/04/145615">https://pod.hatenablog.com/entry/2018/02/04/145615</a></li>
+</ul></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/02/01/how-to-use-analisys-package/">golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang</a></li>
+  
+  <li><a href="/2019/01/17/try-go-on-google-cloud-functions/">BetaリリースされたGoのGoogle Cloud Functionsを試す #gcp #golangjp</a></li>
+  
+  <li><a href="/2019/02/24/go-print-detail-of-json-syntax-error/">GoでJSONのUnmarshalがシンタックスエラーで失敗した時、エラー周辺の文字列を表示する</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+​<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Mar 24, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/go">go</a>  <a class="category" href="https://budougumi0617.github.io/tags/static-analysis">static analysis</a>  <a class="category" href="https://budougumi0617.github.io/tags/types">types</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/03/20/publish-docker-image-for-sql-training/" title="クエリの練習用に20以上のテーブルと大量データを事前投入したMySQLイメージをDocker Hubで公開する">クエリの練習用に20以上のテーブルと大量データを事前投入したMySQLイメージをDocker Hubで公開する</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/03/24/go-create-type-check-handson/">go/typesパッケージを使って型チェックを行なうハンズオンを作った #golangtokyo</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/03/20/publish-docker-image-for-sql-training/">クエリの練習用に20以上のテーブルと大量データを事前投入したMySQLイメージをDocker Hubで公開する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/03/15/go-strange-result-in-select/">[Go] selectのcase文中でch &lt;- &lt;- chやch &lt;- f()をしない方が良い #golangjp #横浜go読書会</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/03/10/define-gomock-method-by-doandreturn/">[Go][gomcok]引数によって挙動を変えるモックメソッドを定義する #golangjp</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/03/03/review-output-encyclopedia/">[書評] アウトプット大全 を一ヶ月試してみて毎日のアウトプット力が着実に向上し始めた</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
