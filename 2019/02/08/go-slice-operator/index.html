@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.53" />
+  <meta name="generator" content="Hugo 0.50" />
 
   
   
@@ -65,10 +65,14 @@
   <meta property="og:url" content="https://budougumi0617.github.io/2019/02/08/go-slice-operator/"/>
   <meta property="og:type" content="article"/>
   <meta property="og:title" content="[Go]スライス生成時(slice operator)に使える珍しい宣言方法 #golangjp - My External Storage"/>
-  <meta property="og:description" content="Goにおけるスライス演算子(slice operator)を改めて調べ直し、3-INDEX記法などを学んだ。"/>
+  <meta property="og:description" content="Goにおけるスライス演算子(slice operator)を改めて調べ直し、3-INDEX記法などを学んだ。
+
+"/>
   
   <meta name="twitter:title" content="[Go]スライス生成時(slice operator)に使える珍しい宣言方法 #golangjp - My External Storage"/>
-  <meta name="twitter:description" content="Goにおけるスライス演算子(slice operator)を改めて調べ直し、3-INDEX記法などを学んだ。"/>
+  <meta name="twitter:description" content="Goにおけるスライス演算子(slice operator)を改めて調べ直し、3-INDEX記法などを学んだ。
+
+"/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
   <meta name="twitter:creator" content="@budougumi0617"/>
@@ -187,6 +191,8 @@
           
           <p>Goにおけるスライス演算子(<em>slice operator</em>)を改めて調べ直し、3-INDEX記法などを学んだ。</p>
 
+<p></p>
+
 <h1 id="tl-dr">TL;DR</h1>
 
 <ul>
@@ -200,7 +206,7 @@ s <span style="color:#719e07">:=</span> arr[<span style="color:#2aa198">2</span>
 </span><span style="color:#586e75"></span>s = arr[<span style="color:#2aa198">2</span>:<span style="color:#2aa198">5</span>:<span style="color:#2aa198">7</span>]          <span style="color:#586e75">// s = [2 3 4] cap(s) = 5
 </span><span style="color:#586e75"></span>s = arr[:<span style="color:#2aa198">0</span>]             <span style="color:#586e75">// s = []      cap(s) = 10
 </span><span style="color:#586e75"></span>s = arr[:<span style="color:#2aa198">0</span>:<span style="color:#2aa198">7</span>]           <span style="color:#586e75">// s = []      cap(s) = 7
-</span><span style="color:#586e75"></span>s = <span style="color:#b58900">make</span>([]<span style="color:#dc322f">int</span>, <span style="color:#2aa198">10</span>)[:<span style="color:#2aa198">5</span>] <span style="color:#719e07">//</span> [<span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span>]  <span style="color:#268bd2">make</span> ([]<span style="color:#dc322f">int</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">10</span>)と同じ</code></pre></div>
+</span><span style="color:#586e75"></span>s = <span style="color:#b58900">make</span>([]<span style="color:#dc322f">int</span>, <span style="color:#2aa198">10</span>)[:<span style="color:#2aa198">5</span>] <span style="color:#719e07">//</span> [<span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span>]  make ([]<span style="color:#dc322f">int</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">10</span>)と同じ</code></pre></div>
 <p>記事中のサンプルコードをまとめたplaygroundは以下。</p>
 
 <ul>
@@ -296,9 +302,9 @@ fmt.Println(&quot;cap =&quot;, cap(s)) // cap = 5
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">arr <span style="color:#719e07">:=</span> [<span style="color:#719e07">...</span>]<span style="color:#dc322f">int</span>{<span style="color:#2aa198">0</span>, <span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>, <span style="color:#2aa198">3</span>, <span style="color:#2aa198">4</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">6</span>, <span style="color:#2aa198">7</span>, <span style="color:#2aa198">8</span>, <span style="color:#2aa198">9</span>}
 
 s = arr[:<span style="color:#2aa198">0</span>:<span style="color:#2aa198">7</span>]
-fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;s =&#34;</span>, s)        <span style="color:#586e75">// s = []
-</span><span style="color:#586e75"></span>fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;len =&#34;</span>, <span style="color:#b58900">len</span>(s)) <span style="color:#586e75">// len = 0
-</span><span style="color:#586e75"></span>fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;cap =&#34;</span>, <span style="color:#b58900">cap</span>(s)) <span style="color:#586e75">// cap = 7
+fmt.Println(<span style="color:#2aa198">&#34;s =&#34;</span>, s)        <span style="color:#586e75">// s = []
+</span><span style="color:#586e75"></span>fmt.Println(<span style="color:#2aa198">&#34;len =&#34;</span>, <span style="color:#b58900">len</span>(s)) <span style="color:#586e75">// len = 0
+</span><span style="color:#586e75"></span>fmt.Println(<span style="color:#2aa198">&#34;cap =&#34;</span>, <span style="color:#b58900">cap</span>(s)) <span style="color:#586e75">// cap = 7
 </span><span style="color:#586e75"></span>
 <span style="color:#586e75">// s = arr[::7]              // middle index required in 3-index slice
 </span><span style="color:#586e75">// s = arr[:5:]              // final index required in 3-index slice
@@ -504,6 +510,12 @@ make([]int, 10)[:5]
           
             
               <li class="post">
+                <a href="/2019/03/27/create-codelab-page-by-claat/">claatを使ってCodelabs形式のオリジナルハンズオンを作る</a>
+              </li>
+            
+          
+            
+              <li class="post">
                 <a href="/2019/03/24/go-create-type-check-handson/">go/typesパッケージを使って型チェックを行なうハンズオンを作った #golangtokyo</a>
               </li>
             
@@ -523,12 +535,6 @@ make([]int, 10)[:5]
             
               <li class="post">
                 <a href="/2019/03/10/define-gomock-method-by-doandreturn/">[Go][gomcok]引数によって挙動を変えるモックメソッドを定義する #golangjp</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2019/03/03/review-output-encyclopedia/">[書評] アウトプット大全 を一ヶ月試してみて毎日のアウトプット力が着実に向上し始めた</a>
               </li>
             
           
