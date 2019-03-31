@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go] MySQLからScanしたときunsupported Scan, storing driver.Value type []uint8 into type *time.Timeと出てパースに失敗する - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="Go,MySQL">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.53" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/03/31/go_db_unsupported_scan_storing_driver_value_type_uint8_into_type_time_time/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go] MySQLからScanしたときunsupported Scan, storing driver.Value type []uint8 into type *time.Timeと出てパースに失敗する - My External Storage"/>
+  <meta property="og:description" content="GoでDBを操作するコードを書いている。jmoiron/sqlxパッケージを使ってMySQLサーバ内のDBをを操作しようとして表題のエラーに遭遇した。
+MySQLサーバとの接続パラメータを変えることでうまくいったので解決方法をメモしておく。"/>
+  
+  <meta name="twitter:title" content="[Go] MySQLからScanしたときunsupported Scan, storing driver.Value type []uint8 into type *time.Timeと出てパースに失敗する - My External Storage"/>
+  <meta name="twitter:description" content="GoでDBを操作するコードを書いている。jmoiron/sqlxパッケージを使ってMySQLサーバ内のDBをを操作しようとして表題のエラーに遭遇した。
+MySQLサーバとの接続パラメータを変えることでうまくいったので解決方法をメモしておく。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Mar 31, 2019
+         - 3 minute read 
+         - <a href="https://budougumi0617.github.io/2019/03/31/go_db_unsupported_scan_storing_driver_value_type_uint8_into_type_time_time/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a><a class="label" href="https://budougumi0617.github.io/categories/sql/">sql </a>
+        
+    </p>
+    <h1 class="entry-title">
+         [Go] MySQLからScanしたときunsupported Scan, storing driver.Value type []uint8 into type *time.Timeと出てパースに失敗する 
+    </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#構造体からレコードを書き込めたのに読み込みは失敗した">構造体からレコードを書き込めたのに読み込みは失敗した</a></li>
+<li><a href="#parsetime-true-を指定してmysqlと接続する"><code>parseTime=true</code>を指定してMySQLと接続する。</a></li>
+<li><a href="#終わりに">終わりに</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</nav>
+          
+          <p>GoでDBを操作するコードを書いている。<code>jmoiron/sqlx</code>パッケージを使ってMySQLサーバ内のDBをを操作しようとして表題のエラーに遭遇した。<br />
+MySQLサーバとの接続パラメータを変えることでうまくいったので解決方法をメモしておく。</p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li><code>jmoiron/sqlx</code>パッケージを使ってスキーマに<code>datetime</code>型を持つレコードを<code>time.Time</code>型を持つ構造体に読み込もうとして失敗した
+
+<ul>
+<li><code>unsupported Scan, storing driver.Value type []uint8 into type *time.Time</code></li>
+</ul></li>
+<li>（<code>sql.Open</code>相当の）<a href="https://godoc.org/github.com/jmoiron/sqlx#Connect"><code>sqlx.Connect</code></a>を使う際にオプションパラメータを指定しておくことで解決することができた
+
+<ul>
+<li><code>sqlx.Connect(&quot;mysql&quot;, &quot;root:@(localhost:43306)/sqlx_development?parseTime=true&quot;)</code></li>
+</ul></li>
+</ul>
+
+<p>なお、利用したGoとMySQLのバージョンは以下。</p>
+
+<ul>
+<li>MySQL 5.7</li>
+<li>Go 1.12.1</li>
+</ul>
+
+<p>サンプルコードの<code>go.mod</code>は以下の状態。</p>
+
+<pre><code>module github.com/budougumi0617/til/go/db/sql-migrate
+
+go 1.12
+
+require (
+	github.com/go-sql-driver/mysql v1.4.1
+	github.com/jmoiron/sqlx v1.2.0
+	google.golang.org/appengine v1.5.0 // indirect
+)
+</code></pre>
+
+<h1 id="構造体からレコードを書き込めたのに読み込みは失敗した">構造体からレコードを書き込めたのに読み込みは失敗した</h1>
+
+<p>自分でイチからDB操作を行なうコードを書こうと思い、以下のようなソースコードを作成した。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+	<span style="color:#2aa198">&#34;log&#34;</span>
+	<span style="color:#2aa198">&#34;time&#34;</span>
+
+	_ <span style="color:#2aa198">&#34;github.com/go-sql-driver/mysql&#34;</span>
+	<span style="color:#2aa198">&#34;github.com/jmoiron/sqlx&#34;</span>
+)
+
+<span style="color:#586e75">// User is sample structure.
+</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> User <span style="color:#268bd2">struct</span> {
+	ID        <span style="color:#dc322f">int</span>       <span style="color:#2aa198">`db:&#34;id&#34;`</span>
+	Name      <span style="color:#dc322f">string</span>    <span style="color:#2aa198">`db:&#34;name&#34;`</span>
+	Email     <span style="color:#dc322f">string</span>    <span style="color:#2aa198">`db:&#34;email&#34;`</span>
+	CreatedAt time.Time <span style="color:#2aa198">`db:&#34;created_at&#34;`</span>
+	UpdatedAt time.Time <span style="color:#2aa198">`db:&#34;updated_at&#34;`</span>
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+	db, err <span style="color:#719e07">:=</span> sqlx.<span style="color:#268bd2">Connect</span>(<span style="color:#2aa198">&#34;mysql&#34;</span>, <span style="color:#2aa198">&#34;root:@(localhost:43306)/sqlx_development&#34;</span>)
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		log.<span style="color:#268bd2">Fatalln</span>(err)
+	}
+
+	id, err <span style="color:#719e07">:=</span> <span style="color:#268bd2">addUser</span>(db, <span style="color:#2aa198">&#34;John Doe&#34;</span>, <span style="color:#2aa198">&#34;john@example.com&#34;</span>)
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		log.<span style="color:#268bd2">Fatal</span>(err)
+	}
+
+	user <span style="color:#719e07">:=</span> User{}
+	userState <span style="color:#719e07">:=</span> <span style="color:#2aa198">`SELECT * FROM user WHERE id = ?`</span>
+	err = db.<span style="color:#268bd2">QueryRowx</span>(userState, id).<span style="color:#268bd2">StructScan</span>(<span style="color:#719e07">&amp;</span>user)
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		log.<span style="color:#268bd2">Fatal</span>(err)
+	}
+
+	log.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;Added user was %v\n&#34;</span>, user)
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">addUser</span>(db <span style="color:#719e07">*</span>sqlx.DB, n, e <span style="color:#dc322f">string</span>) (<span style="color:#dc322f">int64</span>, <span style="color:#dc322f">error</span>) {
+	userState <span style="color:#719e07">:=</span> <span style="color:#2aa198">`INSERT INTO user (name, email, created_at, updated_at) VALUES (?, ?, ?, ?)`</span>
+	r <span style="color:#719e07">:=</span> db.<span style="color:#268bd2">MustExec</span>(userState, n, e, time.<span style="color:#268bd2">Now</span>(), time.<span style="color:#268bd2">Now</span>())
+	<span style="color:#719e07">return</span> r.<span style="color:#268bd2">LastInsertId</span>()
+}</code></pre></div>
+<p>なお、<code>43306</code>ポートでリッスンしているMySQL内には、コード中で参照しているデータベース(<code>sqlx_development</code>)やテーブル(<code>user</code>)をすでに作成している。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">mysql<span style="color:#719e07">&gt;</span> <span style="color:#719e07">desc</span> <span style="color:#719e07">user</span>;
+<span style="color:#719e07">+</span><span style="color:#586e75">------------+---------------------+------+-----+---------+----------------+
+</span><span style="color:#586e75"></span><span style="color:#719e07">|</span> Field      <span style="color:#719e07">|</span> <span style="color:#719e07">Type</span>                <span style="color:#719e07">|</span> <span style="color:#719e07">Null</span> <span style="color:#719e07">|</span> <span style="color:#719e07">Key</span> <span style="color:#719e07">|</span> <span style="color:#719e07">Default</span> <span style="color:#719e07">|</span> Extra          <span style="color:#719e07">|</span>
+<span style="color:#719e07">+</span><span style="color:#586e75">------------+---------------------+------+-----+---------+----------------+
+</span><span style="color:#586e75"></span><span style="color:#719e07">|</span> id         <span style="color:#719e07">|</span> <span style="color:#b58900">bigint</span>(<span style="color:#2aa198">20</span>) unsigned <span style="color:#719e07">|</span> <span style="color:#719e07">NO</span>   <span style="color:#719e07">|</span> PRI <span style="color:#719e07">|</span> <span style="color:#719e07">NULL</span>    <span style="color:#719e07">|</span> auto_increment <span style="color:#719e07">|</span>
+<span style="color:#719e07">|</span> name       <span style="color:#719e07">|</span> <span style="color:#b58900">varchar</span>(<span style="color:#2aa198">255</span>)        <span style="color:#719e07">|</span> <span style="color:#719e07">NO</span>   <span style="color:#719e07">|</span>     <span style="color:#719e07">|</span> <span style="color:#719e07">NULL</span>    <span style="color:#719e07">|</span>                <span style="color:#719e07">|</span>
+<span style="color:#719e07">|</span> email      <span style="color:#719e07">|</span> <span style="color:#b58900">varchar</span>(<span style="color:#2aa198">255</span>)        <span style="color:#719e07">|</span> <span style="color:#719e07">NO</span>   <span style="color:#719e07">|</span>     <span style="color:#719e07">|</span> <span style="color:#719e07">NULL</span>    <span style="color:#719e07">|</span>                <span style="color:#719e07">|</span>
+<span style="color:#719e07">|</span> created_at <span style="color:#719e07">|</span> datetime            <span style="color:#719e07">|</span> YES  <span style="color:#719e07">|</span>     <span style="color:#719e07">|</span> <span style="color:#719e07">NULL</span>    <span style="color:#719e07">|</span>                <span style="color:#719e07">|</span>
+<span style="color:#719e07">|</span> updated_at <span style="color:#719e07">|</span> datetime            <span style="color:#719e07">|</span> YES  <span style="color:#719e07">|</span>     <span style="color:#719e07">|</span> <span style="color:#719e07">NULL</span>    <span style="color:#719e07">|</span>                <span style="color:#719e07">|</span>
+<span style="color:#719e07">+</span><span style="color:#586e75">------------+---------------------+------+-----+---------+----------------+
+</span><span style="color:#586e75"></span><span style="color:#2aa198">5</span> <span style="color:#719e07">rows</span> <span style="color:#719e07">in</span> <span style="color:#719e07">set</span> (<span style="color:#2aa198">0</span>.<span style="color:#2aa198">01</span> sec)</code></pre></div>
+<p>そして前述のコードを実行すると、<code>addUser</code>関数によるレコードの書き込みはうまくいった。
+しかし、結果を<code>User</code>構造体に読み込むための<code>db.QueryRowx(userState, id).StructScan(&amp;user)</code>部分の処理は次のような出力を出して失敗してしまった。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># 読みやすさのために出力結果に改行を入れている</span>
+$ go run adduser.go
+<span style="color:#2aa198">2019</span>/03/30 <span style="color:#2aa198">19</span>:33:37 Added user was <span style="color:#719e07">{</span><span style="color:#2aa198">6</span> John Doe john@example.com <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    <span style="color:#2aa198">2019</span>-03-30 <span style="color:#2aa198">10</span>:33:38 +0000 UTC <span style="color:#2aa198">2019</span>-03-30 <span style="color:#2aa198">10</span>:33:38 +0000 UTC<span style="color:#719e07">}</span></code></pre></div>
+<h1 id="parsetime-true-を指定してmysqlと接続する"><code>parseTime=true</code>を指定してMySQLと接続する。</h1>
+
+<p>調べてみたら<code>sql.Open</code>時にパラメータを指定してDB接続をすれば良いとの事だった。</p>
+
+<ul>
+<li>time.Time support
+
+<ul>
+<li><a href="https://github.com/go-sql-driver/mysql#timetime-support">https://github.com/go-sql-driver/mysql#timetime-support</a></li>
+</ul></li>
+</ul>
+
+<p><code>jmoiron/sqlx</code>パッケージの<code>sql.Open</code>に該当する操作は<code>sqlx.Connect</code>なので、修正は以下のようになる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">db, err <span style="color:#719e07">:=</span> sqlx.<span style="color:#268bd2">Connect</span>(<span style="color:#2aa198">&#34;mysql&#34;</span>, <span style="color:#2aa198">&#34;root:@(localhost:43306)/sqlx_development?parseTime=true&#34;</span>)</code></pre></div>
+<p>実際に修正したコードで再度実行したところ、今度はレコード情報を読込できた。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run adduser.go
+<span style="color:#2aa198">2019</span>/03/30 <span style="color:#2aa198">19</span>:33:37 Added user was <span style="color:#719e07">{</span><span style="color:#2aa198">6</span> John Doe john@example.com <span style="color:#2aa198">2019</span>-03-30 <span style="color:#2aa198">10</span>:33:38 +0000 UTC <span style="color:#2aa198">2019</span>-03-30 <span style="color:#2aa198">10</span>:33:38 +0000 UTC<span style="color:#719e07">}</span></code></pre></div>
+<h1 id="終わりに">終わりに</h1>
+
+<p>業務では既製のライブラリ化を使ってDBに接続・操作している。<br />
+そのため、DB操作に対する理解が浅く、DBを操作するコードをゼロから書いていくつもりで改めてコードを書いている（OSS使っているのでゼロではないけれど）。<br />
+引き続きCircleCIを使ったE2Eテストの方法などを試して、後日公開する。</p>
+
+<h1 id="参考">参考</h1>
+
+<ul>
+<li>Add Scan() support for time.Time
+
+<ul>
+<li><a href="https://github.com/go-sql-driver/mysql/issues/9#issuecomment-51552649">https://github.com/go-sql-driver/mysql/issues/9#issuecomment-51552649</a></li>
+</ul></li>
+<li>time.Time support
+
+<ul>
+<li><a href="https://github.com/go-sql-driver/mysql#timetime-support">https://github.com/go-sql-driver/mysql#timetime-support</a></li>
+</ul></li>
+<li>github.com/jmoiron/sqlx
+
+<ul>
+<li><a href="https://github.com/jmoiron/sqlx/">https://github.com/jmoiron/sqlx/</a></li>
+</ul></li>
+<li>go-sql-driver/mysql
+
+<ul>
+<li><a href="https://github.com/go-sql-driver/mysql">https://github.com/go-sql-driver/mysql</a></li>
+</ul></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/03/20/publish-docker-image-for-sql-training/">クエリの練習用に20以上のテーブルと大量データを事前投入したMySQLイメージをDocker Hubで公開する</a></li>
+  
+  <li><a href="/2019/03/15/go-strange-result-in-select/">[Go] selectのcase文中でch &lt;- &lt;- chやch &lt;- f()をしない方が良い #golangjp #横浜go読書会</a></li>
+  
+  <li><a href="/2019/03/10/define-gomock-method-by-doandreturn/">[Go][gomcok]引数によって挙動を変えるモックメソッドを定義する #golangjp</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+​<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Mar 31, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/mysql">mysql</a>  <a class="category" href="https://budougumi0617.github.io/tags/sqlx">sqlx</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/03/27/create-codelab-page-by-claat/" title="claatを使ってCodelabs形式のオリジナルハンズオンを作る">claatを使ってCodelabs形式のオリジナルハンズオンを作る</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/03/31/go_db_unsupported_scan_storing_driver_value_type_uint8_into_type_time_time/">[Go] MySQLからScanしたときunsupported Scan, storing driver.Value type []uint8 into type *time.Timeと出てパースに失敗する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/03/27/create-codelab-page-by-claat/">claatを使ってCodelabs形式のオリジナルハンズオンを作る</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/03/24/go-create-type-check-handson/">go/typesパッケージを使って型チェックを行なうハンズオンを作った #golangtokyo</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/03/20/publish-docker-image-for-sql-training/">クエリの練習用に20以上のテーブルと大量データを事前投入したMySQLイメージをDocker Hubで公開する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/03/15/go-strange-result-in-select/">[Go] selectのcase文中でch &lt;- &lt;- chやch &lt;- f()をしない方が良い #golangjp #横浜go読書会</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
