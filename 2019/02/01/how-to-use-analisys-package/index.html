@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.50" />
+  <meta name="generator" content="Hugo 0.53" />
 
   
   
@@ -65,10 +65,36 @@
   <meta property="og:url" content="https://budougumi0617.github.io/2019/02/01/how-to-use-analisys-package/"/>
   <meta property="og:type" content="article"/>
   <meta property="og:title" content="golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang - My External Storage"/>
-  <meta property="og:description" content="この記事ではGo(Un)Conferenceで発表したGoにおけるLinterツールの作成方法をまとめる。 Go(Un)Conference（"/>
+  <meta property="og:description" content="この記事ではGo(Un)Conferenceで発表したGoにおけるLinterツールの作成方法をまとめる。
+
+
+Go(Un)Conference（Goあんこ）LT大会 5kg
+
+
+https://gounconference.connpass.com/event/112942/
+
+golang.org/x/tools/go/analysisで静的解析ツールを自作する #gounco
+
+
+https://speakerdeck.com/budougumi0617/how-to-create-the-static-analysis-tool-for-go
+
+"/>
   
   <meta name="twitter:title" content="golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang - My External Storage"/>
-  <meta name="twitter:description" content="この記事ではGo(Un)Conferenceで発表したGoにおけるLinterツールの作成方法をまとめる。 Go(Un)Conference（"/>
+  <meta name="twitter:description" content="この記事ではGo(Un)Conferenceで発表したGoにおけるLinterツールの作成方法をまとめる。
+
+
+Go(Un)Conference（Goあんこ）LT大会 5kg
+
+
+https://gounconference.connpass.com/event/112942/
+
+golang.org/x/tools/go/analysisで静的解析ツールを自作する #gounco
+
+
+https://speakerdeck.com/budougumi0617/how-to-create-the-static-analysis-tool-for-go
+
+"/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
   <meta name="twitter:creator" content="@budougumi0617"/>
@@ -211,8 +237,7 @@
 <li>golang.org/x/tools/go/analysisで静的解析ツールを自作する #gounco
 
 <ul>
-<li><a href="https://speakerdeck.com/budougumi0617/how-to-create-the-static-analysis-tool-for-go">https://speakerdeck.com/budougumi0617/how-to-create-the-static-analysis-tool-for-go</a>
-</li>
+<li><a href="https://speakerdeck.com/budougumi0617/how-to-create-the-static-analysis-tool-for-go">https://speakerdeck.com/budougumi0617/how-to-create-the-static-analysis-tool-for-go</a></li>
 </ul></li>
 </ul>
 
@@ -271,8 +296,8 @@
 </ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/golang/tools/blob/master/go/analysis/cmd/vet/vet.go
 </span><span style="color:#586e75"></span>
-<span style="color:#268bd2">func</span> main() {
-	multichecker.Main(
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+	multichecker.<span style="color:#268bd2">Main</span>(
 		<span style="color:#586e75">// the traditional vet suite:
 </span><span style="color:#586e75"></span>		asmdecl.Analyzer,
 		assign.Analyzer,
@@ -379,12 +404,12 @@
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get github.com/tenntenn/gosa/skeleton
 $ skeleton mylinter
 mylinter
-├── mylinter.go  <span style="color:#586e75"># 静的解析ロジックを書く本体
-</span><span style="color:#586e75"></span>├── mylinter_test.go
+├── mylinter.go  <span style="color:#586e75"># 静的解析ロジックを書く本体</span>
+├── mylinter_test.go
 └── testdata
     └── src
-        └── a <span style="color:#586e75"># テストを書くときのテストケースパッケージ
-</span><span style="color:#586e75"></span>            └── a.go</code></pre></div>
+        └── a <span style="color:#586e75"># テストを書くときのテストケースパッケージ</span>
+            └── a.go</code></pre></div>
 <p>これで静的解析ロジックを<code>mylinter.go</code>の中の<code>Analyzer.Run</code>に自作の静的解析ロジックを実装していくだけでよい。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> mylinter
 
@@ -407,7 +432,7 @@ mylinter
 
 <span style="color:#268bd2">const</span> Doc = <span style="color:#2aa198">&#34;mylinter is ...&#34;</span>
 
-<span style="color:#268bd2">func</span> run(pass <span style="color:#719e07">*</span>analysis.Pass) (<span style="color:#268bd2">interface</span>{}, <span style="color:#dc322f">error</span>) {
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">run</span>(pass <span style="color:#719e07">*</span>analysis.Pass) (<span style="color:#268bd2">interface</span>{}, <span style="color:#dc322f">error</span>) {
   <span style="color:#586e75">// 省略
 </span><span style="color:#586e75"></span>}</code></pre></div>
 <p>このまま<code>Analyzer</code>をコマンドとして実行したい場合は以下のような<code>cmd/main.go</code>ファイルを用意すればよいだろう。</p>
@@ -420,8 +445,8 @@ mylinter
         <span style="color:#2aa198">&#34;golang.org/x/tools/go/analysis/passes/inspect&#34;</span>
 )
 
-<span style="color:#268bd2">func</span> main() {
-        multichecker.Main(
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+        multichecker.<span style="color:#268bd2">Main</span>(
                 <span style="color:#586e75">// skeletonで生成したAnalyzerの初期コードの場合はinspect.Analyzerの結果に依存している
 </span><span style="color:#586e75"></span>                inspect.Analyzer,
                 mylinter.Analyzer,
@@ -439,9 +464,9 @@ mylinter
 <p>あとは通常どおり<code>go buid</code>すればLinterコマンドがもう利用できる。（以下はサンプルリポジトリを実行した例）</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go build -o icheck ./cmd/main.go
 
-<span style="color:#586e75"># testdataディレクトリ以下のサンプルコードのimport構成が特殊なので
-</span><span style="color:#586e75"># GOPATHをちょっと変えているが、本来はGOPATHの再定義は必要ない
-</span><span style="color:#586e75"></span>$ <span style="color:#268bd2">GOPATH</span><span style="color:#719e07">=</span><span style="color:#586e75">`</span><span style="color:#b58900">pwd</span><span style="color:#586e75">`</span>/testdata:<span style="color:#268bd2">$GOPATH</span> ./icheck ./testdata/src/...
+<span style="color:#586e75"># testdataディレクトリ以下のサンプルコードのimport構成が特殊なので</span>
+<span style="color:#586e75"># GOPATHをちょっと変えているが、本来はGOPATHの再定義は必要ない</span>
+$ <span style="color:#268bd2">GOPATH</span><span style="color:#719e07">=</span><span style="color:#586e75">`</span><span style="color:#b58900">pwd</span><span style="color:#586e75">`</span>/testdata:<span style="color:#268bd2">$GOPATH</span> ./icheck ./testdata/src/...
 /Users/shimizubudougumi0617/importcheck/testdata/src/handler/h.go:7:2: <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>handler must not include <span style="color:#2aa198">&#34;repository&#34;</span></code></pre></div>
 <h2 id="astの探索について">ASTの探索について。</h2>
@@ -459,7 +484,7 @@ mylinter
 <ul>
 <li><a href="https://godoc.org/golang.org/x/tools/go/analysis/passes/inspect">https://godoc.org/golang.org/x/tools/go/analysis/passes/inspect</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> run(pass <span style="color:#719e07">*</span>analysis.Pass) (<span style="color:#268bd2">interface</span>{}, <span style="color:#dc322f">error</span>) {
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">run</span>(pass <span style="color:#719e07">*</span>analysis.Pass) (<span style="color:#268bd2">interface</span>{}, <span style="color:#dc322f">error</span>) {
         inspect <span style="color:#719e07">:=</span> pass.ResultOf[inspect.Analyzer].(<span style="color:#719e07">*</span>inspector.Inspector)
 
         <span style="color:#586e75">// 調べたいNodeの型でフィルタリングできる
@@ -467,7 +492,7 @@ mylinter
                 (<span style="color:#719e07">*</span>ast.Ident)(<span style="color:#cb4b16">nil</span>),
         }
 
-        inspect.Preorder(nodeFilter, <span style="color:#268bd2">func</span>(n ast.Node) {
+        inspect.<span style="color:#268bd2">Preorder</span>(nodeFilter, <span style="color:#268bd2">func</span>(n ast.Node) {
                 <span style="color:#719e07">switch</span> n <span style="color:#719e07">:=</span> n.(<span style="color:#268bd2">type</span>) {
                 <span style="color:#719e07">case</span> <span style="color:#719e07">*</span>ast.Ident:
                         _ = n
@@ -511,9 +536,9 @@ mylinter
         <span style="color:#2aa198">&#34;golang.org/x/tools/go/analysis/analysistest&#34;</span>
 )
 
-<span style="color:#268bd2">func</span> Test(t <span style="color:#719e07">*</span>testing.T) {
-        testdata <span style="color:#719e07">:=</span> analysistest.TestData()
-        analysistest.Run(t, testdata, mylinter.Analyzer, <span style="color:#2aa198">&#34;a&#34;</span>)
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">Test</span>(t <span style="color:#719e07">*</span>testing.T) {
+        testdata <span style="color:#719e07">:=</span> analysistest.<span style="color:#268bd2">TestData</span>()
+        analysistest.<span style="color:#268bd2">Run</span>(t, testdata, mylinter.Analyzer, <span style="color:#2aa198">&#34;a&#34;</span>)
 }</code></pre></div>
 <p><code>skeleton</code>で生成したコードでそのまま<code>go test</code>すれば、サンプルコードに書かれた<code>// want</code>が満たされずFAILするのがわかる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span>
@@ -783,6 +808,12 @@ testdata
           
             
               <li class="post">
+                <a href="/2019/04/21/ci_go_with_multiple_jobs_on_circleci/">[Go] CicleCI2.1でgo modのデータを共有しながら複数ジョブを実行する</a>
+              </li>
+            
+          
+            
+              <li class="post">
                 <a href="/2019/04/11/shoten6/">golang.tokyoの技術書典6新刊「文Go」に「Goにおけるデータベース実践入門を寄稿しました。 #技術書典</a>
               </li>
             
@@ -802,12 +833,6 @@ testdata
             
               <li class="post">
                 <a href="/2019/03/27/create-codelab-page-by-claat/">claatを使ってCodelabs形式のオリジナルハンズオンを作る</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2019/03/24/go-create-type-check-handson/">go/typesパッケージを使って型チェックを行なうハンズオンを作った #golangtokyo</a>
               </li>
             
           

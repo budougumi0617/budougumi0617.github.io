@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go] CicleCI2.1でgo modのデータを共有しながら複数ジョブを実行する - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="CircleCI,Go,golang,継続的インテグレーション,CI">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.53" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/circleci.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/circleci.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/04/21/ci_go_with_multiple_jobs_on_circleci/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go] CicleCI2.1でgo modのデータを共有しながら複数ジョブを実行する - My External Storage"/>
+  <meta property="og:description" content="GitHub上のGoのリポジトリに対して継続的インテグレーション(CI)を行なう場合、CircleCIやTravisCIを使うのが一般的だろう。
+CicrcleCI2.1でGo Modulesを使いながらマルチJobを定義したWorkflowを定義する。
+attach_workspaceを使ってジョブ間のデータ共有をするのにひと手間必要だった。"/>
+  
+  <meta name="twitter:title" content="[Go] CicleCI2.1でgo modのデータを共有しながら複数ジョブを実行する - My External Storage"/>
+  <meta name="twitter:description" content="GitHub上のGoのリポジトリに対して継続的インテグレーション(CI)を行なう場合、CircleCIやTravisCIを使うのが一般的だろう。
+CicrcleCI2.1でGo Modulesを使いながらマルチJobを定義したWorkflowを定義する。
+attach_workspaceを使ってジョブ間のデータ共有をするのにひと手間必要だった。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Apr 21, 2019
+         - 7 minute read 
+         - <a href="https://budougumi0617.github.io/2019/04/21/ci_go_with_multiple_jobs_on_circleci/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a><a class="label" href="https://budougumi0617.github.io/categories/circleci/">circleci </a>
+        
+    </p>
+    <h1 class="entry-title">
+         [Go] CicleCI2.1でgo modのデータを共有しながら複数ジョブを実行する 
+    </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#circleciでgoのciを定義する">CircleCIでGoのCIを定義する</a>
+<ul>
+<li><a href="#workflowを利用して処理を平行化する">Workflowを利用して処理を平行化する。</a></li>
+<li><a href="#save-cacheを使ってgo-mod-downloadの結果を保存しておく">save_cacheを使ってgo mod downloadの結果を保存しておく</a></li>
+<li><a href="#persist-to-workspaceを使ってジョブ間でデータを共有する">persist_to_workspaceを使ってジョブ間でデータを共有する</a></li>
+</ul></li>
+<li><a href="#attach-workspaceしようとするとerror-applying-workspace-layer-for-job-error-extracting-tarball-exit-status-2">attach_workspaceしようとするとError applying workspace layer for job &hellip;: Error extracting tarball &hellip;: exit status 2</a></li>
+<li><a href="#ジョブをrootユーザで実行するようにすれば良い">ジョブをrootユーザで実行するようにすれば良い</a></li>
+<li><a href="#完成した-circleci-config-yml">完成した.circleci/config.yml</a></li>
+<li><a href="#終わりに">終わりに</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</nav>
+          
+          <p>GitHub上のGoのリポジトリに対して継続的インテグレーション(CI)を行なう場合、CircleCIやTravisCIを使うのが一般的だろう。<br />
+CicrcleCI2.1でGo Modulesを使いながらマルチJobを定義したWorkflowを定義する。<br />
+<code>attach_workspace</code>を使ってジョブ間のデータ共有をするのにひと手間必要だった。</p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>CircleCI2.0はWorkflowを使って複数Jobを平行実行することができる</li>
+<li><code>save_cache</code>を使うとWorkflowを実行するたびにModuleをダウンロードせずに済む</li>
+<li><code>persist_to_workspace</code>を使うと各ジョブで毎回Moduleをダウンロードせずに済む
+
+<ul>
+<li><code>attach_workspace</code>するときに<code>user:root</code>の設定が必要な場合がある</li>
+</ul></li>
+
+<li><p>めんどくさいときは<a href="https://twitter.com/__timakin__">@<strong>timakin</strong></a>さんのCircleCI Orbを使えば簡単</p></li>
+
+<li><p>timakin/go-module | CircleCI Orb Registry</p>
+
+<ul>
+<li><a href="https://circleci.com/orbs/registry/orb/timakin/go-module">https://circleci.com/orbs/registry/orb/timakin/go-module</a></li>
+</ul></li>
+</ul>
+
+<p>文中で部分参照している<code>.circleci/config.yml</code>の全文やCircleCIの実行結果は以下になる。</p>
+
+<ul>
+<li><a href="https://github.com/budougumi0617/caww/blob/bc7896079c715e0dfe172033a28e3392bfa18468/.circleci/config.yml">github.com/budougumi0617/.circleci/config.yml</a></li>
+<li><a href="https://circleci.com/gh/budougumi0617/caww">https://circleci.com/gh/budougumi0617/caww</a></li>
+</ul>
+
+<h1 id="circleciでgoのciを定義する">CircleCIでGoのCIを定義する</h1>
+
+<p>まずCircleCIでGoを実行するときの基本的な設定方法は公式ページで参照することができる。</p>
+
+<ul>
+<li>Language Guide: Go | CircleCI
+
+<ul>
+<li><a href="https://circleci.com/docs/2.0/language-go/">https://circleci.com/docs/2.0/language-go/</a></li>
+</ul></li>
+</ul>
+
+<p>（<code>GO111MODULE=on</code>としていた場合、）Go1.11からGo Moudlesが利用できるようになっているので、
+テストなどを実行する前に依存パッケージをダウンロードする必要がある。</p>
+
+<p>また、CIはなるべく短時間で実行を終わらせたいので、サンプルの設定とは別に以下の設定をして実行時間を短くしていく。</p>
+
+<h2 id="workflowを利用して処理を平行化する">Workflowを利用して処理を平行化する。</h2>
+
+<p>CircleCI2.0から、1回のCIの実行の中にWorkflowと言う概念と、Jobという概念が加わった。</p>
+
+<ul>
+<li>Using Workflows to Schedule Jobs
+
+<ul>
+<li><a href="https://circleci.com/docs/2.0/workflows/">https://circleci.com/docs/2.0/workflows/</a></li>
+</ul></li>
+</ul>
+
+<p>一回のCI実行がWorkflowという単位になり、Workflowの中に複数のJobというステージを作成することができる。<br />
+そして、「ジョブBはジョブAが完了したあとに実行する」、「ジョブBとジョブCは同時に実行できる」などの設定ができるようになる。<br />
+今回はWorkflowの中に以下のジョブを定義する。</p>
+
+<ul>
+<li><code>setup</code>ジョブ
+
+<ul>
+<li><code>go mod dwonload</code>を行なって外部ライブラリのコードをインストールしておくジョブ</li>
+</ul></li>
+<li><code>e2e</code>ジョブ
+
+<ul>
+<li><code>go test</code>を実行するジョブ</li>
+</ul></li>
+<li><code>lint</code>ジョブ
+
+<ul>
+<li><code>go lint</code>などを実行して静的解析を行なうジョブ</li>
+</ul></li>
+</ul>
+
+<p><code>setup</code>ジョブで<code>go mod download</code>などの他のジョブが実行するために必要な処理を全て済ませておく（他のジョブにダウンロードしたデータの共有などをするには、後述する<code>persist_to_workspace</code>の設定が必要）。
+<code>e2e</code>ジョブと<code>lint</code>ジョブは互いの実行結果を必要としないので、同時に実行することができる。
+並行に実行できるようにしておくことで、Workflow全体の実行時間を短縮することができる。</p>
+
+<p>3つのジョブを定義してジョブ間の依存関係を定義すると<code>.circleci/config.yml</code>は以下のような設定になる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">version: <span style="color:#2aa198">2.1</span>
+executors:
+  default:
+    docker:
+      <span style="color:#586e75"># CircleCI Go images available at: https://hub.docker.com/r/circleci/golang/</span>
+      - image: circleci/golang:<span style="color:#2aa198">1.12</span>.<span style="color:#2aa198">2</span>
+    working_directory: /go/src/github.com/budougumi0617/caww
+    environment:
+      - GO111MODULE: <span style="color:#2aa198">&#34;on&#34;</span>
+
+jobs:
+  <span style="color:#586e75"># 事前にもろもろのダウンロードなどを済ませておくジョブ</span>
+  setup:
+    executor:
+      name: default
+    steps:
+      - checkout
+      - run:
+          name: Vendoring
+          command: go mod download
+
+  <span style="color:#586e75"># e2eテストを実行するジョブ</span>
+  e2e:
+    executor:
+      name: default
+    steps:
+      <span style="color:#586e75"># テストの実行、結果のアップロードなど...</span>
+
+  <span style="color:#586e75"># linterを実行するジョブ。e2eジョブとは並行で実行することができる</span>
+  lint:
+    executor:
+      name: default
+    steps:
+      <span style="color:#586e75"># 静的解析の実行など...</span>
+
+workflows:
+  build-and-test:
+    jobs:
+      - setup
+      - e2e:
+          <span style="color:#586e75"># e2e jobはsetupジョブが完了後に実行される</span>
+          requires:
+            - setup
+      - lint:
+          <span style="color:#586e75"># lint jobはsetupジョブが完了後に実行される</span>
+          requires:
+            - setup</code></pre></div>
+<h2 id="save-cacheを使ってgo-mod-downloadの結果を保存しておく">save_cacheを使ってgo mod downloadの結果を保存しておく</h2>
+
+<p>毎回Worlflowを実行するたびにmodulesのダウンロードをするのは時間がかかる。ここで、CircleCIには前回のWorkflowで使ったデータをキャッシュしておく機能がある。</p>
+
+<ul>
+<li>Caching Dependencies | CircleCI
+
+<ul>
+<li><a href="https://circleci.com/docs/2.0/caching/">https://circleci.com/docs/2.0/caching/</a></li>
+</ul></li>
+</ul>
+
+<p><code>go.mod</code>ファイルの内容が同じ（checksumした結果が同じ）だったら前回のWorkflowでダウンロードした結果を再利用してダウンロード時間の短縮を行なう。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">jobs:
+  setup:
+    executor:
+      name: default
+    steps:
+      - checkout
+      <span style="color:#586e75"># もし前回のWorkflow時に保存したキャッシュが利用できるなら再利用する</span>
+      - restore_cache:
+          name: Restore go modules cache
+          keys:
+              - v1-mod-{{ .Branch }}-{{ checksum <span style="color:#2aa198">&#34;go.mod&#34;</span> }}
+      - run:
+          name: Vendoring
+          command: go mod download
+      <span style="color:#586e75"># ダウンロードしたmoduleをCircleCIにキャッシュとして保存しておく</span>
+      - save_cache:
+          name: Save go modules cache
+          key: v1-mod-{{ .Branch }}-{{ checksum <span style="color:#2aa198">&#34;go.mod&#34;</span> }}
+          paths:
+              - /go/pkg/mod/cache</code></pre></div>
+<p><code>go mod</code>を使ってダウンロードされるmoduleは<code>$GOPATH/pkg/mod/cache</code>に保存される。CircleCI公式のGo実行イメージの<code>$GOPATH</code>は<code>/go</code>なので<code>/go/pkg/mod/cache</code>をキャッシュすることになる。</p>
+
+<h2 id="persist-to-workspaceを使ってジョブ間でデータを共有する">persist_to_workspaceを使ってジョブ間でデータを共有する</h2>
+
+<p><code>e2e</code>ジョブの前に<code>setup</code>ジョブを実行して<code>go mod download</code>をしておくだけでは、<code>e2e</code>ジョブで<code>setup</code>ジョブがダウンロードした情報を利用することができない。
+ジョブ間でデータを共有するためには<code>persist_to_workspace</code>と<code>attach_workspace</code>を利用する。</p>
+
+<ul>
+<li>persist_to_workspace | Configuring CircleCI
+
+<ul>
+<li><a href="https://circleci.com/docs/2.0/configuration-reference/#persist_to_workspace">https://circleci.com/docs/2.0/configuration-reference/#persist_to_workspace</a></li>
+</ul></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">jobs:
+  setup:
+    executor:
+      name: default
+    steps:
+      <span style="color:#586e75"># 前述したgo mod downloadなどの処理</span>
+      - persist_to_workspace:
+          root: /go
+          paths:
+            - src
+            - bin
+            - pkg/mod/cache
+
+  e2e:
+    executor:
+      name: with_mysql
+    steps:
+      - attach_workspace:
+          at: /go
+      <span style="color:#586e75"># テストの実行、結果のアップロードなど...</span></code></pre></div>
+<p><code>setup</code>ジョブに<code>persist_to_workspace</code>を設定し、ジョブ間で共有したいデータの場所を設定しておく。<code>e2e</code>ジョブ(<code>lint</code>ジョブ)に<code>attach_workspace</code>を設定し、共有したいデータをマウントする場所を設定する。
+前述したとおり<code>$GOPATH</code>は<code>/go</code>なので、<code>/go</code>配下のデータを全て共有する。</p>
+
+<h1 id="attach-workspaceしようとするとerror-applying-workspace-layer-for-job-error-extracting-tarball-exit-status-2">attach_workspaceしようとするとError applying workspace layer for job &hellip;: Error extracting tarball &hellip;: exit status 2</h1>
+
+<p>これでうまくいくかと思いきや、実際にCircleCIを実行してみると<code>attach_workspace</code>がうまくいかなかった。</p>
+
+<ul>
+<li><a href="https://circleci.com/gh/budougumi0617/caww/13">https://circleci.com/gh/budougumi0617/caww/13</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">Downloading workspace layers
+  workflows/workspaces/2a7d4f28-c4f5-477a-90ab-190809d6e4f9/0/c5acd0fa-dc09-4e94-83b8-5e1f2e8a0e96/0/109.tar.gz - <span style="color:#2aa198">171</span> MB
+Applying workspace layers
+  c5acd0fa-dc09-4e94-83b8-5e1f2e8a0e96
+
+Error applying workspace layer <span style="color:#719e07">for</span> job c5acd0fa-dc09-4e94-83b8-5e1f2e8a0e96: Error extracting tarball /tmp/workspace-layer-c5acd0fa-dc09-4e94-83b8-5e1f2e8a0e96985056964: <span style="color:#b58900">exit</span> status <span style="color:#2aa198">2</span></code></pre></div>
+<p>ググっても、データ量が多すぎるとこのようなエラーになる、というような解説が出てくるが、171MBくらいでなることはないらしい。</p>
+
+<h1 id="ジョブをrootユーザで実行するようにすれば良い">ジョブをrootユーザで実行するようにすれば良い</h1>
+
+<p>結論から言うと、単純に<code>circleci</code>ユーザで解凍したデータを<code>root</code>ユーザ所有の<code>/go</code>ディレクトリ以下に展開しようとしていたのが原因だった。
+<code>circleci/golang</code>イメージでは、<code>/go</code>は<code>root</code>ユーザ所有らしい。</p>
+
+<p><code>docker</code>の設定に<code>user: root</code>としておくと、各Jobの実行ユーザが<code>root</code>ユーザになるので<code>attach_workspace</code>が成功するようになった。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">version: <span style="color:#2aa198">2.1</span>
+executors:
+  default:
+    docker:
+      <span style="color:#586e75"># CircleCI Go images available at: https://hub.docker.com/r/circleci/golang/</span>
+      - image: circleci/golang:<span style="color:#2aa198">1.12</span>.<span style="color:#2aa198">2</span>
+        user: root
+    working_directory: /go/src/github.com/budougumi0617/caww
+    environment:
+      - GO111MODULE: <span style="color:#2aa198">&#34;on&#34;</span></code></pre></div>
+<h1 id="完成した-circleci-config-yml">完成した.circleci/config.yml</h1>
+
+<p>以上の設定を全て行った<code>.circleci/config.yml</code>は以下のようになる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">version: <span style="color:#2aa198">2.1</span>
+executors:
+  default:
+    docker:
+      - image: circleci/golang:<span style="color:#2aa198">1.12</span>.<span style="color:#2aa198">2</span>
+        user: root
+    working_directory: /go/src/github.com/budougumi0617/caww
+    environment:
+      - GO111MODULE: <span style="color:#2aa198">&#34;on&#34;</span>
+
+jobs:
+  setup:
+    executor:
+      name: default
+    steps:
+      - checkout
+      - restore_cache:
+          name: Restore go modules cache
+          keys:
+              - v1-mod-{{ .Branch }}-{{ checksum <span style="color:#2aa198">&#34;go.mod&#34;</span> }}
+      - run:
+          name: Vendoring
+          command: go mod download
+      - save_cache:
+          name: Save go modules cache
+          key: v1-mod-{{ .Branch }}-{{ checksum <span style="color:#2aa198">&#34;go.mod&#34;</span> }}
+          paths:
+              - /go/pkg/mod/cache
+      - persist_to_workspace:
+          root: /go
+          paths:
+            - src
+            - bin
+            - pkg/mod/cache
+
+  e2e:
+    executor:
+      name: default
+    steps:
+      - attach_workspace:
+          at: /go
+      <span style="color:#586e75"># 以下テスト実行など</span>
+
+  <span style="color:#586e75"># lint</span>
+  lint:
+    executor:
+      name: default
+    steps:
+      - attach_workspace:
+          at: /go
+      <span style="color:#586e75"># 以下静的解析実行など</span>
+
+workflows:
+  build-and-test:
+    jobs:
+      - setup
+      - e2e:
+          requires:
+            - setup</code></pre></div>
+<p>実際に動いているの結果を見たい場合は以下を確認すること（GitHub上の設定には<code>MySQL</code>を使う設定なども含まれている）。</p>
+
+<ul>
+<li><a href="https://github.com/budougumi0617/caww/blob/bc7896079c715e0dfe172033a28e3392bfa18468/.circleci/config.yml">github.com/budougumi0617/.circleci/config.yml</a></li>
+<li><a href="https://circleci.com/gh/budougumi0617/caww">https://circleci.com/gh/budougumi0617/caww</a></li>
+</ul>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>publicなGitHubリポジトリにコードをプッシュしておけば、CircleCIなど多くのサービスを利用してOSS開発ができる。<br />
+積極的に利用していきたい。なお、「上記の設定をいろいろなリポジトリで毎回するのがめんどくさい」というような方には<a href="https://twitter.com/__timakin__">@<strong>timakin</strong></a>さんのCircleCI Orbを使えば簡単に設定できる。</p>
+
+<ul>
+<li><a href="https://circleci.com/orbs/registry/orb/timakin/go-module">timakin/go-module | CircleCI Orb Registry</a></li>
+</ul>
+
+<h1 id="参考">参考</h1>
+
+<ul>
+<li><a href="https://github.com/budougumi0617/caww/blob/bc7896079c715e0dfe172033a28e3392bfa18468/.circleci/config.yml">github.com/budougumi0617/.circleci/config.yml</a></li>
+<li><a href="https://circleci.com/gh/budougumi0617/caww">https://circleci.com/gh/budougumi0617/caww</a></li>
+<li><a href="https://circleci.com/docs/2.0/language-go/">Language Guide: Go | CircleCI</a></li>
+<li><a href="https://circleci.com/docs/2.0/caching/">Caching Dependencies | CircleCI</a></li>
+<li><a href="https://circleci.com/docs/2.0/configuration-reference/#persist_to_workspace">persist_to_workspace | Configuring CircleCI</a></li>
+<li><a href="https://circleci.com/orbs/registry/orb/timakin/go-module">timakin/go-module | CircleCI Orb Registry</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/01/17/try-go-on-google-cloud-functions/">BetaリリースされたGoのGoogle Cloud Functionsを試す #gcp #golangjp</a></li>
+  
+  <li><a href="/2019/04/11/shoten6/">golang.tokyoの技術書典6新刊「文Go」に「Goにおけるデータベース実践入門を寄稿しました。 #技術書典</a></li>
+  
+  <li><a href="/2019/03/24/go-create-type-check-handson/">go/typesパッケージを使って型チェックを行なうハンズオンを作った #golangtokyo</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+​<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Apr 21, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/ci">ci</a>  <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/circleci">circleci</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/04/11/shoten6/" title="golang.tokyoの技術書典6新刊「文Go」に「Goにおけるデータベース実践入門を寄稿しました。 #技術書典">golang.tokyoの技術書典6新刊「文Go」に「Goにおけるデータベース実践入門を寄稿しました。 #技術書典</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/04/21/ci_go_with_multiple_jobs_on_circleci/">[Go] CicleCI2.1でgo modのデータを共有しながら複数ジョブを実行する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/04/11/shoten6/">golang.tokyoの技術書典6新刊「文Go」に「Goにおけるデータベース実践入門を寄稿しました。 #技術書典</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/04/02/graduate-blog-mentoring-by-kakakakakku2/">@kakakakakkuさんのブログメンティーを卒業した（2回目）  #ブログメンタリング</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/03/31/go_db_unsupported_scan_storing_driver_value_type_uint8_into_type_time_time/">[Go] MySQLからScanしたときunsupported Scan, storing driver.Value type []uint8 into type *time.Timeと出てパースに失敗する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/03/27/create-codelab-page-by-claat/">claatを使ってCodelabs形式のオリジナルハンズオンを作る</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
