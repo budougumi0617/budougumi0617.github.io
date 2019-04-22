@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.53" />
+  <meta name="generator" content="Hugo 0.50" />
 
   
   
@@ -66,11 +66,15 @@
   <meta property="og:type" content="article"/>
   <meta property="og:title" content="[Go] MySQLからScanしたときunsupported Scan, storing driver.Value type []uint8 into type *time.Timeと出てパースに失敗する - My External Storage"/>
   <meta property="og:description" content="GoでDBを操作するコードを書いている。jmoiron/sqlxパッケージを使ってMySQLサーバ内のDBをを操作しようとして表題のエラーに遭遇した。
-MySQLサーバとの接続パラメータを変えることでうまくいったので解決方法をメモしておく。"/>
+MySQLサーバとの接続パラメータを変えることでうまくいったので解決方法をメモしておく。
+
+"/>
   
   <meta name="twitter:title" content="[Go] MySQLからScanしたときunsupported Scan, storing driver.Value type []uint8 into type *time.Timeと出てパースに失敗する - My External Storage"/>
   <meta name="twitter:description" content="GoでDBを操作するコードを書いている。jmoiron/sqlxパッケージを使ってMySQLサーバ内のDBをを操作しようとして表題のエラーに遭遇した。
-MySQLサーバとの接続パラメータを変えることでうまくいったので解決方法をメモしておく。"/>
+MySQLサーバとの接続パラメータを変えることでうまくいったので解決方法をメモしておく。
+
+"/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
   <meta name="twitter:creator" content="@budougumi0617"/>
@@ -188,6 +192,8 @@ MySQLサーバとの接続パラメータを変えることでうまくいった
           <p>GoでDBを操作するコードを書いている。<code>jmoiron/sqlx</code>パッケージを使ってMySQLサーバ内のDBをを操作しようとして表題のエラーに遭遇した。<br />
 MySQLサーバとの接続パラメータを変えることでうまくいったので解決方法をメモしておく。</p>
 
+<p></p>
+
 <h1 id="tl-dr">TL;DR</h1>
 
 <ul>
@@ -245,31 +251,31 @@ require (
 	UpdatedAt time.Time <span style="color:#2aa198">`db:&#34;updated_at&#34;`</span>
 }
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-	db, err <span style="color:#719e07">:=</span> sqlx.<span style="color:#268bd2">Connect</span>(<span style="color:#2aa198">&#34;mysql&#34;</span>, <span style="color:#2aa198">&#34;root:@(localhost:43306)/sqlx_development&#34;</span>)
+<span style="color:#268bd2">func</span> main() {
+	db, err <span style="color:#719e07">:=</span> sqlx.Connect(<span style="color:#2aa198">&#34;mysql&#34;</span>, <span style="color:#2aa198">&#34;root:@(localhost:43306)/sqlx_development&#34;</span>)
 	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		log.<span style="color:#268bd2">Fatalln</span>(err)
+		log.Fatalln(err)
 	}
 
-	id, err <span style="color:#719e07">:=</span> <span style="color:#268bd2">addUser</span>(db, <span style="color:#2aa198">&#34;John Doe&#34;</span>, <span style="color:#2aa198">&#34;john@example.com&#34;</span>)
+	id, err <span style="color:#719e07">:=</span> addUser(db, <span style="color:#2aa198">&#34;John Doe&#34;</span>, <span style="color:#2aa198">&#34;john@example.com&#34;</span>)
 	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		log.<span style="color:#268bd2">Fatal</span>(err)
+		log.Fatal(err)
 	}
 
 	user <span style="color:#719e07">:=</span> User{}
 	userState <span style="color:#719e07">:=</span> <span style="color:#2aa198">`SELECT * FROM user WHERE id = ?`</span>
-	err = db.<span style="color:#268bd2">QueryRowx</span>(userState, id).<span style="color:#268bd2">StructScan</span>(<span style="color:#719e07">&amp;</span>user)
+	err = db.QueryRowx(userState, id).StructScan(<span style="color:#719e07">&amp;</span>user)
 	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		log.<span style="color:#268bd2">Fatal</span>(err)
+		log.Fatal(err)
 	}
 
-	log.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;Added user was %v\n&#34;</span>, user)
+	log.Printf(<span style="color:#2aa198">&#34;Added user was %v\n&#34;</span>, user)
 }
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">addUser</span>(db <span style="color:#719e07">*</span>sqlx.DB, n, e <span style="color:#dc322f">string</span>) (<span style="color:#dc322f">int64</span>, <span style="color:#dc322f">error</span>) {
+<span style="color:#268bd2">func</span> addUser(db <span style="color:#719e07">*</span>sqlx.DB, n, e <span style="color:#dc322f">string</span>) (<span style="color:#dc322f">int64</span>, <span style="color:#dc322f">error</span>) {
 	userState <span style="color:#719e07">:=</span> <span style="color:#2aa198">`INSERT INTO user (name, email, created_at, updated_at) VALUES (?, ?, ?, ?)`</span>
-	r <span style="color:#719e07">:=</span> db.<span style="color:#268bd2">MustExec</span>(userState, n, e, time.<span style="color:#268bd2">Now</span>(), time.<span style="color:#268bd2">Now</span>())
-	<span style="color:#719e07">return</span> r.<span style="color:#268bd2">LastInsertId</span>()
+	r <span style="color:#719e07">:=</span> db.MustExec(userState, n, e, time.Now(), time.Now())
+	<span style="color:#719e07">return</span> r.LastInsertId()
 }</code></pre></div>
 <p>なお、<code>43306</code>ポートでリッスンしているMySQL内には、コード中で参照しているデータベース(<code>sqlx_development</code>)やテーブル(<code>user</code>)をすでに作成している。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">mysql<span style="color:#719e07">&gt;</span> <span style="color:#719e07">desc</span> <span style="color:#719e07">user</span>;
@@ -285,8 +291,8 @@ require (
 </span><span style="color:#586e75"></span><span style="color:#2aa198">5</span> <span style="color:#719e07">rows</span> <span style="color:#719e07">in</span> <span style="color:#719e07">set</span> (<span style="color:#2aa198">0</span>.<span style="color:#2aa198">01</span> sec)</code></pre></div>
 <p>そして前述のコードを実行すると、<code>addUser</code>関数によるレコードの書き込みはうまくいった。
 しかし、結果を<code>User</code>構造体に読み込むための<code>db.QueryRowx(userState, id).StructScan(&amp;user)</code>部分の処理は次のような出力を出して失敗してしまった。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># 読みやすさのために出力結果に改行を入れている</span>
-$ go run adduser.go
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># 読みやすさのために出力結果に改行を入れている
+</span><span style="color:#586e75"></span>$ go run adduser.go
 <span style="color:#2aa198">2019</span>/03/30 <span style="color:#2aa198">19</span>:33:37 Added user was <span style="color:#719e07">{</span><span style="color:#2aa198">6</span> John Doe john@example.com <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>    <span style="color:#2aa198">2019</span>-03-30 <span style="color:#2aa198">10</span>:33:38 +0000 UTC <span style="color:#2aa198">2019</span>-03-30 <span style="color:#2aa198">10</span>:33:38 +0000 UTC<span style="color:#719e07">}</span></code></pre></div>
 <h1 id="parsetime-true-を指定してmysqlと接続する"><code>parseTime=true</code>を指定してMySQLと接続する。</h1>
@@ -302,7 +308,7 @@ $ go run adduser.go
 </ul>
 
 <p><code>jmoiron/sqlx</code>パッケージの<code>sql.Open</code>に該当する操作は<code>sqlx.Connect</code>なので、修正は以下のようになる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">db, err <span style="color:#719e07">:=</span> sqlx.<span style="color:#268bd2">Connect</span>(<span style="color:#2aa198">&#34;mysql&#34;</span>, <span style="color:#2aa198">&#34;root:@(localhost:43306)/sqlx_development?parseTime=true&#34;</span>)</code></pre></div>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">db, err <span style="color:#719e07">:=</span> sqlx.Connect(<span style="color:#2aa198">&#34;mysql&#34;</span>, <span style="color:#2aa198">&#34;root:@(localhost:43306)/sqlx_development?parseTime=true&#34;</span>)</code></pre></div>
 <p>実際に修正したコードで再度実行したところ、今度はレコード情報を読込できた。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run adduser.go
 <span style="color:#2aa198">2019</span>/03/30 <span style="color:#2aa198">19</span>:33:37 Added user was <span style="color:#719e07">{</span><span style="color:#2aa198">6</span> John Doe john@example.com <span style="color:#2aa198">2019</span>-03-30 <span style="color:#2aa198">10</span>:33:38 +0000 UTC <span style="color:#2aa198">2019</span>-03-30 <span style="color:#2aa198">10</span>:33:38 +0000 UTC<span style="color:#719e07">}</span></code></pre></div>
