@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>正規表現の文字クラス（角括弧[]）にハイフンを含みたいときは、ハイフンを最初または最後に書く - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="正規表現,Regular Expression,grep">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.50" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/twittercard.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/twittercard.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/05/04/use-hyphens-in-regular-expression-name-classes/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="正規表現の文字クラス（角括弧[]）にハイフンを含みたいときは、ハイフンを最初または最後に書く - My External Storage"/>
+  <meta property="og:description" content="正規表現をいじっていたらハマったのでメモ。
+
+
+
+"/>
+  
+  <meta name="twitter:title" content="正規表現の文字クラス（角括弧[]）にハイフンを含みたいときは、ハイフンを最初または最後に書く - My External Storage"/>
+  <meta name="twitter:description" content="正規表現をいじっていたらハマったのでメモ。
+
+
+
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">May 4, 2019
+         - 2 minute read 
+         - <a href="https://budougumi0617.github.io/2019/05/04/use-hyphens-in-regular-expression-name-classes/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/grep/">grep </a><a class="label" href="https://budougumi0617.github.io/categories/cli/">CLI </a>
+        
+    </p>
+    <h1 class="entry-title">
+         正規表現の文字クラス（角括弧[]）にハイフンを含みたいときは、ハイフンを最初または最後に書く 
+    </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#文字クラス-でハイフン-を指定しているつもりがちゃんと判定されない">文字クラス(<code>[]</code>)でハイフン（<code>-</code>）を指定しているつもりがちゃんと判定されない</a></li>
+<li><a href="#文字クラスの中でハイフンを指定するときは最初か最後にハイフンを置かないと範囲指定扱いされてしまう">文字クラスの中でハイフンを指定するときは最初か最後にハイフンを置かないと範囲指定扱いされてしまう。</a></li>
+<li><a href="#終わりに">終わりに</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</nav>
+          
+          <p>正規表現をいじっていたらハマったのでメモ。</p>
+
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4873113598&linkId=59ba8fe3cd580af67049dcacf9c16e40"></iframe>
+
+<p></p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>文字クラス(<code>[]</code>)でハイフン（<code>-</code>）を指定しているつもりがちゃんと判定されない</li>
+<li>文字クラスの中でハイフンを指定するときは最初か最後にハイフンを置かないと範囲指定あつかいされてしまう。</li>
+</ul>
+
+<h1 id="文字クラス-でハイフン-を指定しているつもりがちゃんと判定されない">文字クラス(<code>[]</code>)でハイフン（<code>-</code>）を指定しているつもりがちゃんと判定されない</h1>
+
+<p><code>Makefile</code>の自己文書化をしていた。</p>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://postd.cc/auto-documented-makefile/" data-iframely-url="//cdn.iframe.ly/6P77kjy?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<p>上述のリンク先では以下のようなワンライナーが紹介されている。
+このワンライナーでは、序盤の<code>@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST)</code>部分で<code>Makefile</code>内の対象行を拾って後続の処理を行なっている。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">.PHONY: <span style="color:#b58900">help</span>
+
+help:
+    @grep -E <span style="color:#2aa198">&#39;^[a-zA-Z_-]+:.*?## .*$$&#39;</span> <span style="color:#719e07">$(</span>MAKEFILE_LIST<span style="color:#719e07">)</span> | sort | awk <span style="color:#2aa198">&#39;BEGIN {FS = &#34;:.*?## &#34;}; {printf &#34;\033[36m%-30s\033[0m %s\n&#34;, $$1, $$2}&#39;</span></code></pre></div>
+<p>私の<code>Makefile</code>には<code>make docker.run</code>などのようなドット（<code>.</code>）を含むコマンド定義があったが、この正規表現にドットは含まれていない。<br />
+そのため、上記の正規表現中の<code>^[a-zA-Z_-]</code>の部分を<code>^[a-zA-Z_-\.]</code>と変更したところ、ハイフンを含む行がヒットしなくなってしまった。</p>
+
+<h1 id="文字クラスの中でハイフンを指定するときは最初か最後にハイフンを置かないと範囲指定扱いされてしまう">文字クラスの中でハイフンを指定するときは最初か最後にハイフンを置かないと範囲指定扱いされてしまう。</h1>
+
+<p><code>\-</code>とエスケープをして<code>^[a-zA-Z_\-\.]</code>のように書いても当然意味がなかった。結局検索して解決することができた。一次ソース（仕様）は見つけられなかった。（正規表現の仕様はWeb上には公開されていないのだろうか？）</p>
+
+<ul>
+<li>正規表現　-ハイフン　判定
+
+<ul>
+<li><a href="http://origin8.info/blog/?p=490">http://origin8.info/blog/?p=490</a></li>
+</ul></li>
+</ul>
+
+<p>節タイトルの通り、文字クラスの中でハイフン（<code>-</code>）を指定するときは最初か最後に指定しないといけないようだ。<br />
+<code>^[a-zA-Z_-\.</code>を<code>^[a-zA-Z_.\-]</code>と書きかえることで、ハイフンを含んだ文も、ドットを含んだ文もgrepすることができる正規表現を書くことができた。</p>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>正規表現は記号が検索しにくいというところもあってなかなか調べるのが難しい（<code>[]</code>で囲う表記を文字クラスと呼ぶことも今回初めて知った）。
+オライリー本を買ってちゃんと読むべきか。</p>
+
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4873113598&linkId=59ba8fe3cd580af67049dcacf9c16e40"></iframe>
+
+<h1 id="参考">参考</h1>
+
+<ul>
+<li><a href="http://origin8.info/blog/?p=490">正規表現　-ハイフン　判定</a></li>
+<li><a href="https://docs.microsoft.com/ja-jp/dotnet/standard/base-types/regular-expression-language-quick-reference">正規表現言語 - クイック リファレンス | Microsoft Docs</a>
+
+<ul>
+<li><code>.NET</code>用のリファレンスのようだが、初歩的なところがちょうどいい文量でまとめてあったので。</li>
+</ul></li>
+<li><a href="https://regexr.com/">RegExr</a>
+
+<ul>
+<li>オンラインで正規表現を確認できる。正規表現で検索したい例文を自分で用意することもできたので便利。</li>
+</ul></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2018/04/11/git-grep-options-w-and-p/">git grepでマッチしたワードを含んだ関数名を表示する/関数スコープ全体を表示する #git</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+​<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>May 4, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/ere">ERE</a>  <a class="category" href="https://budougumi0617.github.io/tags/grep">grep</a>  <a class="category" href="https://budougumi0617.github.io/tags/cli">CLI</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/04/28/study-design-pattern-from-ory-fosite/" title="ory/fositeから読み解くGoにおけるStrategy/FactoryMethodパターン">ory/fositeから読み解くGoにおけるStrategy/FactoryMethodパターン</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/05/04/use-hyphens-in-regular-expression-name-classes/">正規表現の文字クラス（角括弧[]）にハイフンを含みたいときは、ハイフンを最初または最後に書く</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/04/28/study-design-pattern-from-ory-fosite/">ory/fositeから読み解くGoにおけるStrategy/FactoryMethodパターン</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/04/21/ci_go_with_multiple_jobs_on_circleci/">[Go] CicleCI2.1でgo modのデータを共有しながら複数ジョブを実行する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/04/11/shoten6/">golang.tokyoの技術書典6新刊「文Go」に「Goにおけるデータベース実践入門を寄稿しました。 #技術書典</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/04/02/graduate-blog-mentoring-by-kakakakakku2/">@kakakakakkuさんのブログメンティーを卒業した（2回目）  #ブログメンタリング</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
