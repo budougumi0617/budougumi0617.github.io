@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go] プリミティブ型の配列・スライスを出力するときはその型のverbが使える #golangjp - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="Go,golang">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.50" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/05/26/print-array-and-slice-with-verbs/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go] プリミティブ型の配列・スライスを出力するときはその型のverbが使える #golangjp - My External Storage"/>
+  <meta property="og:description" content="柴田さん(@yoshiki_shibata)にfmt.Printfについて教えてもらったのでメモしておく。
+
+"/>
+  
+  <meta name="twitter:title" content="[Go] プリミティブ型の配列・スライスを出力するときはその型のverbが使える #golangjp - My External Storage"/>
+  <meta name="twitter:description" content="柴田さん(@yoshiki_shibata)にfmt.Printfについて教えてもらったのでメモしておく。
+
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">May 26, 2019
+         - 2 minute read 
+         - <a href="https://budougumi0617.github.io/2019/05/26/print-array-and-slice-with-verbs/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/go/">Go </a>
+        
+    </p>
+    <h1 class="entry-title">
+         [Go] プリミティブ型の配列・スライスを出力するときはその型のverbが使える #golangjp 
+    </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#goはverbを使って好きな形式でデータをログや文字列に出力することができる">Goはverbを使って好きな形式でデータをログや文字列に出力することができる</a></li>
+<li><a href="#プリミティブ型の配列-スライスならば-その配列-スライスに対してその型に対応したヴァーブを使うことができる">プリミティブ型の配列・スライスならば、その配列・スライスに対してその型に対応したヴァーブを使うことができる</a></li>
+<li><a href="#最後に">最後に</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</nav>
+          
+          <p>柴田さん(<a href="https://twitter.com/yoshiki_shibata">@yoshiki_shibata</a>)に<code>fmt.Printf</code>について教えてもらったのでメモしておく。</p>
+
+<p></p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>配列やスライスを出力するときは<code>for</code>や<code>range</code>で出力することが多いだろう</li>
+<li>プリミティブ型の配列・スライスならば、その配列・スライスに対してその型に対応したヴァーブを使うことができる</li>
+</ul>
+
+<h1 id="goはverbを使って好きな形式でデータをログや文字列に出力することができる">Goはverbを使って好きな形式でデータをログや文字列に出力することができる</h1>
+
+<p>GoはC言語などの<code>printf</code>と同様に<code>fmt.Printf</code>関数などを用いてフォーマットした出力を生成できる。
+たとえば、文字列は<code>%s</code>や<code>%s</code>といったヴァーブ(<code>verb</code>)が用意されている。</p>
+
+<ul>
+<li>Printing  | The Go Programming Language
+
+<ul>
+<li><a href="https://golang.org/pkg/fmt/#hdr-Printing">https://golang.org/pkg/fmt/#hdr-Printing</a></li>
+</ul></li>
+</ul>
+
+<p><a href="https://play.golang.org/p/BNnQmLi3NEM">https://play.golang.org/p/BNnQmLi3NEM</a></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+	<span style="color:#2aa198">&#34;fmt&#34;</span>
+)
+
+<span style="color:#268bd2">func</span> main() {
+	h, p <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;Hello&#34;</span>, <span style="color:#2aa198">&#34;playground&#34;</span>
+	fmt.Printf(<span style="color:#2aa198">&#34;%s, %q\n&#34;</span>, h, p) <span style="color:#586e75">// Hello, &#34;playground&#34;
+</span><span style="color:#586e75"></span>}</code></pre></div>
+<p>ここで、配列やスライスを出力したいときはどうするべきだろうか。
+私はいままで<code>%v</code>やループを回して出力することが多かった。</p>
+
+<p><a href="https://play.golang.org/p/dCsmGmsWhbv">https://play.golang.org/p/dCsmGmsWhbv</a></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+	<span style="color:#2aa198">&#34;fmt&#34;</span>
+)
+
+<span style="color:#268bd2">func</span> main() {
+	sa <span style="color:#719e07">:=</span> []<span style="color:#dc322f">string</span>{<span style="color:#2aa198">&#34;a&#34;</span>, <span style="color:#2aa198">&#34;bc&#34;</span>, <span style="color:#2aa198">&#34;def&#34;</span>}
+	fmt.Printf(<span style="color:#2aa198">&#34;%v\n&#34;</span>, sa)           <span style="color:#586e75">// [a bc def]
+</span><span style="color:#586e75"></span>	<span style="color:#719e07">for</span> _, v <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> sa {
+		fmt.Printf(<span style="color:#2aa198">&#34;%s &#34;</span>, v)           <span style="color:#586e75">// a bc def
+</span><span style="color:#586e75"></span>	}
+}</code></pre></div>
+<h1 id="プリミティブ型の配列-スライスならば-その配列-スライスに対してその型に対応したヴァーブを使うことができる">プリミティブ型の配列・スライスならば、その配列・スライスに対してその型に対応したヴァーブを使うことができる</h1>
+
+<p>柴田さん(<a href="https://twitter.com/yoshiki_shibata">@yoshiki_shibata</a>)に実はもっと簡単に出力できることを教えてもらった。
+ざっくりいうと、<code>[]string</code>型のスライスなどをそのまま<code>%s</code>ひとつで出力できるということだ。</p>
+
+<p><a href="https://play.golang.org/p/J5oFCGTuDcQ">https://play.golang.org/p/J5oFCGTuDcQ</a></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+	<span style="color:#2aa198">&#34;fmt&#34;</span>
+)
+
+<span style="color:#268bd2">func</span> main() {
+	sa <span style="color:#719e07">:=</span> []<span style="color:#dc322f">string</span>{<span style="color:#2aa198">&#34;a&#34;</span>, <span style="color:#2aa198">&#34;bc&#34;</span>, <span style="color:#2aa198">&#34;def&#34;</span>}
+	da <span style="color:#719e07">:=</span> []<span style="color:#dc322f">int</span>{<span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>, <span style="color:#2aa198">3</span>, <span style="color:#2aa198">4</span>}
+	fa <span style="color:#719e07">:=</span> []<span style="color:#dc322f">float32</span>{<span style="color:#2aa198">1.23</span>, <span style="color:#2aa198">4.5678</span>}
+	fmt.Printf(<span style="color:#2aa198">&#34;%s\n&#34;</span>, sa)           <span style="color:#586e75">// [a bc def]
+</span><span style="color:#586e75"></span>	fmt.Printf(<span style="color:#2aa198">&#34;%q\n&#34;</span>, sa)           <span style="color:#586e75">// [&#34;a&#34; &#34;bc&#34; &#34;def&#34;]
+</span><span style="color:#586e75"></span>	fmt.Printf(<span style="color:#2aa198">&#34;%d\n&#34;</span>, da)           <span style="color:#586e75">// [1 2 3 4]
+</span><span style="color:#586e75"></span>	fmt.Printf(<span style="color:#2aa198">&#34;%f\n&#34;</span>, fa)           <span style="color:#586e75">// [1.230000 4.567800]
+</span><span style="color:#586e75"></span>	fmt.Printf(<span style="color:#2aa198">&#34;%1.19f\n&#34;</span>, fa)       <span style="color:#586e75">// [1.2300000190734863281 4.5678000450134277344]
+</span><span style="color:#586e75"></span>}</code></pre></div>
+<p><code>%1.19f</code>などの指定もきちんと反映されていることがわかる。
+わざわざループを回して表示を整えたりしていたこともあったが、こちらのほうがシンプルに出力できそうだ。</p>
+
+<h1 id="最後に">最後に</h1>
+
+<p>今回の内容は第27回横浜Go読書会で教えてもらった。
+勉強会は組み込み系エンジニアの方々が多いので、Go以外にもカーネル周りの苦労話や知識など毎回教えてもらっている。
+自分よりスキルのあるみなさんとあれこれ議論しながら課題本を読み進めるので大変勉強になる。</p>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://yokohama-go-reading.connpass.com/event/127180/" data-iframely-url="//cdn.iframe.ly/vafxNyK"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<h1 id="参考">参考</h1>
+
+<ul>
+<li><a href="https://golang.org/pkg/fmt/#hdr-Printing">Printing  | The Go Programming Language</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/04/28/study-design-pattern-from-ory-fosite/">ory/fositeから読み解くGoにおけるStrategy/FactoryMethodパターン</a></li>
+  
+  <li><a href="/2019/04/21/ci_go_with_multiple_jobs_on_circleci/">[Go] CicleCI2.1でgo modのデータを共有しながら複数ジョブを実行する</a></li>
+  
+  <li><a href="/2019/01/17/try-go-on-google-cloud-functions/">BetaリリースされたGoのGoogle Cloud Functionsを試す #gcp #golangjp</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+​<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>May 26, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/slice">slice</a>  <a class="category" href="https://budougumi0617.github.io/tags/verb">verb</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/05/19/gocon2019spring/" title="[補足資料] Go Conference 2019 Springでdatabase/sql入門を発表した #gocon">[補足資料] Go Conference 2019 Springでdatabase/sql入門を発表した #gocon</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/05/26/print-array-and-slice-with-verbs/">[Go] プリミティブ型の配列・スライスを出力するときはその型のverbが使える #golangjp</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/05/19/gocon2019spring/">[補足資料] Go Conference 2019 Springでdatabase/sql入門を発表した #gocon</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/05/12/pass-aws-solution-architect-associate/">15日間勉強してAWS ソリューションアーキテクト アソシエイト試験に合格した</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/05/04/use-hyphens-in-regular-expression-name-classes/">正規表現の文字クラス（角括弧[]）にハイフンを含みたいときは、ハイフンを最初または最後に書く</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/04/28/study-design-pattern-from-ory-fosite/">ory/fositeから読み解くGoにおけるStrategy/FactoryMethodパターン</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
