@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>GoのLanguage Specificationの特定の仕様の関わる処理系の実装を探す #golang - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="go,git log,golang">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.53" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/06/13/explore-go-specification-and-implementation/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="GoのLanguage Specificationの特定の仕様の関わる処理系の実装を探す #golang - My External Storage"/>
+  <meta property="og:description" content="Goの仕様はこのHTML1ページにまとまっている。
+
+
+The Go Programming Language Specification
+
+
+https://golang.org/ref/spec
+
+
+
+仕様に書いてある処理はどうやって実装されているのか調べたかった。
+Goの仕様の1文からその仕様に関係する処理系のコードを探す方法をメモしておく。"/>
+  
+  <meta name="twitter:title" content="GoのLanguage Specificationの特定の仕様の関わる処理系の実装を探す #golang - My External Storage"/>
+  <meta name="twitter:description" content="Goの仕様はこのHTML1ページにまとまっている。
+
+
+The Go Programming Language Specification
+
+
+https://golang.org/ref/spec
+
+
+
+仕様に書いてある処理はどうやって実装されているのか調べたかった。
+Goの仕様の1文からその仕様に関係する処理系のコードを探す方法をメモしておく。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Jun 13, 2019
+         - 5 minute read 
+         - <a href="https://budougumi0617.github.io/2019/06/13/explore-go-specification-and-implementation/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/go/">Go </a>
+        
+    </p>
+    <h1 class="entry-title">
+         GoのLanguage Specificationの特定の仕様の関わる処理系の実装を探す #golang 
+    </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#仕様に関連する処理系の実装を探したい">仕様に関連する処理系の実装を探したい</a></li>
+<li><a href="#goのlanguage-specificationのhtmlはgoリポジトリの-doc-ディレクトリに入っている">GoのLanguage SpecificationのHTMLはGoリポジトリの<code>doc</code>ディレクトリに入っている</a></li>
+<li><a href="#仕様が追加された日の周辺コミットログから実装の追加コミットログを探す">仕様が追加された日の周辺コミットログから実装の追加コミットログを探す</a>
+<ul>
+<li><a href="#master-ブランチにもう存在しないファイルのコミットログを見るときは-をつけて-git-log"><code>master</code>ブランチにもう存在しないファイルのコミットログを見るときは<code>--</code>をつけて<code>git log</code></a></li>
+</ul></li>
+<li><a href="#終わりに">終わりに</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</nav>
+          
+          <p>Goの仕様はこのHTML1ページにまとまっている。</p>
+
+<ul>
+<li>The Go Programming Language Specification
+
+<ul>
+<li><a href="https://golang.org/ref/spec">https://golang.org/ref/spec</a></li>
+</ul></li>
+</ul>
+
+<p>仕様に書いてある処理はどうやって実装されているのか調べたかった。<br />
+Goの仕様の1文からその仕様に関係する処理系のコードを探す方法をメモしておく。</p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>GoのLanguage Specificationに書いてある仕様の処理系の実装を探す
+
+<ul>
+<li><a href="https://golang.org/ref/spec">https://golang.org/ref/spec</a></li>
+</ul></li>
+<li>GoのLanguage SpecificationのHTMLはGoリポジトリの<code>doc</code>ディレクトリに入っている
+
+<ul>
+<li><a href="https://go.googlesource.com/go">https://go.googlesource.com/go</a></li>
+</ul></li>
+<li>Language Specificationのコミットログから仕様の追加日を知る
+
+<ul>
+<li><code>git log -L 2569,2579:./doc/go_spec.html</code></li>
+</ul></li>
+<li>仕様の追加日周辺から関連コミットを検索する
+
+<ul>
+<li><code>git log --since=&quot;2010/10/01&quot; --until=&quot;2010/10/31&quot; --grep &quot;composite&quot;</code></li>
+</ul></li>
+<li><code>master</code>ブランチにもう存在しないファイルのコミットログを見るときは<code>--</code>をつけて<code>git log</code>
+
+<ul>
+<li><code>git log --oneline -- src/cmd/gc/typecheck.c</code></li>
+</ul></li>
+</ul>
+
+<h1 id="仕様に関連する処理系の実装を探したい">仕様に関連する処理系の実装を探したい</h1>
+
+<p>標準関数などは公式の<a href="https://golang.org/pkg/">packages</a>を見れば良いのだが、
+処理系のコードを単純に<code>grep</code>で探すのは難しい。
+リポジトリのコミットログから仕様に結びつく処理系の実装を探す。</p>
+
+<p>今回は探してみた仕様は以下の部分の仕様だ。</p>
+
+<ul>
+<li>Composite literals | The Go Programming Language Specification
+
+<ul>
+<li><a href="https://golang.org/ref/spec#Composite_literals">https://golang.org/ref/spec#Composite_literals</a></li>
+</ul></li>
+</ul>
+
+<blockquote>
+<p>Within a composite literal of array, slice, or map type T, elements or map keys that are themselves composite literals may elide the respective literal type if it is identical to the element or key type of T. Similarly, elements or keys that are addresses of composite literals may elide the &amp;T when the element or key type&hellip;</p>
+</blockquote>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">[<span style="color:#719e07">...</span>]Point{{<span style="color:#2aa198">1.5</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">3.5</span>}, {<span style="color:#2aa198">0</span>, <span style="color:#2aa198">0</span>}}     <span style="color:#586e75">// same as [...]Point{Point{1.5, -3.5}, Point{0, 0}}
+</span><span style="color:#586e75"></span>[][]<span style="color:#dc322f">int</span>{{<span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>, <span style="color:#2aa198">3</span>}, {<span style="color:#2aa198">4</span>, <span style="color:#2aa198">5</span>}}          <span style="color:#586e75">// same as [][]int{[]int{1, 2, 3}, []int{4, 5}}
+</span><span style="color:#586e75"></span>[][]Point{{{<span style="color:#2aa198">0</span>, <span style="color:#2aa198">1</span>}, {<span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>}}}         <span style="color:#586e75">// same as [][]Point{[]Point{Point{0, 1}, Point{1, 2}}}
+</span><span style="color:#586e75"></span><span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]Point{<span style="color:#2aa198">&#34;orig&#34;</span>: {<span style="color:#2aa198">0</span>, <span style="color:#2aa198">0</span>}}    <span style="color:#719e07">//</span> same as <span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]Point{<span style="color:#2aa198">&#34;orig&#34;</span>: Point{<span style="color:#2aa198">0</span>, <span style="color:#2aa198">0</span>}}</code></pre></div>
+<p>必要なものはWebブラウザ、Go本体コードのリポジトリ、<code>git</code>と<code>grep</code>コマンドだけだ。</p>
+
+<h1 id="goのlanguage-specificationのhtmlはgoリポジトリの-doc-ディレクトリに入っている">GoのLanguage SpecificationのHTMLはGoリポジトリの<code>doc</code>ディレクトリに入っている</h1>
+
+<p>GitHubにもミラーされているが、本当（？）のリモートURLからGo本体のリポジトリを取得してくる。</p>
+
+<ul>
+<li>Go
+
+<ul>
+<li><a href="https://go.googlesource.com/go">https://go.googlesource.com/go</a></li>
+</ul></li>
+</ul>
+
+<p>GoのLanguage SpecificationのHTMLはGo本体のリポジトリに一緒に格納されている。</p>
+
+<p>まず、探したい仕様の行数を<code>grep</code>コマンドで確認する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ grep -n <span style="color:#2aa198">&#34;Within a composite literal of array, slice&#34;</span> ./doc/go_spec.html
+<span style="color:#2aa198">2569</span>:Within a composite literal of array, slice, or map <span style="color:#b58900">type</span> &lt;code&gt;T&lt;/code&gt;,</code></pre></div>
+<p>HTMLでは2569行目にあるらしい。</p>
+
+<ul>
+<li><a href="https://github.com/golang/go/blob/82cf8bca9cf20297bc0edf481cc530c9b3f4bf1e/doc/go_spec.html#L2569">golang/go/doc/go_spec.html#L2569</a></li>
+</ul>
+
+<p>この周辺のコミットログを探してみると、このコミットで仕様の1文が追加されたようだ。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git log --reverse  -L <span style="color:#2aa198">2569</span>,2579:./doc/go_spec.html
+commit a12141e5f4e905045dca5dff2669b64d9b93788f
+Author: Robert Griesemer &lt;gri@golang.org&gt;
+Date:   Fri Oct <span style="color:#2aa198">22</span> <span style="color:#2aa198">08</span>:58:52 <span style="color:#2aa198">2010</span> -0700
+
+    go spec: relaxed syntax <span style="color:#719e07">for</span> array, slice, and map composite literals
+
+    For elements which are themselves composite literals, the <span style="color:#b58900">type</span> may
+    be omitted <span style="color:#719e07">if</span> it is identical to the element <span style="color:#b58900">type</span> of the containing
+    composite literal.
+
+    <span style="color:#268bd2">R</span><span style="color:#719e07">=</span>r, rsc, iant, ken2
+    <span style="color:#268bd2">CC</span><span style="color:#719e07">=</span>golang-dev
+    https://golang.org/cl/2661041
+
+diff --git a/doc/go_spec.html b/doc/go_spec.html
+--- a/doc/go_spec.html
++++ b/doc/go_spec.html
+@@ -2097,0 +2098,8 @@
++Within a composite literal of array, slice, or map <span style="color:#b58900">type</span> &lt;code&gt;T&lt;/code&gt;,
++elements that are themselves composite literals may elide the respective
++literal <span style="color:#b58900">type</span> <span style="color:#719e07">if</span> it is identical to the element <span style="color:#b58900">type</span> of &lt;code&gt;T&lt;/code&gt;.
++&lt;/p&gt;
++
++&lt;pre&gt;
++<span style="color:#719e07">[</span>...<span style="color:#719e07">]</span>Point<span style="color:#719e07">{{</span><span style="color:#2aa198">1</span>.5, -3.5<span style="color:#719e07">}</span>, <span style="color:#719e07">{</span><span style="color:#2aa198">0</span>, <span style="color:#2aa198">0</span><span style="color:#719e07">}}</span>  // same as <span style="color:#719e07">[</span>...<span style="color:#719e07">]</span>Point<span style="color:#719e07">{</span>Point<span style="color:#719e07">{</span><span style="color:#2aa198">1</span>.5, -3.5<span style="color:#719e07">}</span>, Point<span style="color:#719e07">{</span><span style="color:#2aa198">0</span>, <span style="color:#2aa198">0</span><span style="color:#719e07">}}</span>
++<span style="color:#719e07">[][]</span>int<span style="color:#719e07">{{</span><span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>, <span style="color:#2aa198">3</span><span style="color:#719e07">}</span>, <span style="color:#719e07">{</span><span style="color:#2aa198">4</span>, <span style="color:#2aa198">5</span><span style="color:#719e07">}}</span>       // same as <span style="color:#719e07">[][]</span>int<span style="color:#719e07">{[]</span>int<span style="color:#719e07">{</span><span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>, <span style="color:#2aa198">3</span><span style="color:#719e07">}</span>, <span style="color:#719e07">[]</span>int<span style="color:#719e07">{</span><span style="color:#2aa198">4</span>, <span style="color:#2aa198">5</span><span style="color:#719e07">}}</span>
+
+commit 5f49456465f53f96bee03ac8cbe0d564e31576c2
+Author: Russ Cox &lt;rsc@golang.org&gt;
+Date:   Fri Dec <span style="color:#2aa198">2</span> <span style="color:#2aa198">14</span>:12:53 <span style="color:#2aa198">2011</span> -0500</code></pre></div>
+<p>Goはコミットログ中にあるURLを見れば<code>Gerrit</code>上のレビューの経過も確認できる。</p>
+
+<ul>
+<li>code review 2661041: go spec: relaxed syntax for array, slice, and map compo&hellip;
+
+<ul>
+<li><a href="https://golang.org/cl/2661041">https://golang.org/cl/2661041</a></li>
+</ul></li>
+</ul>
+
+<h1 id="仕様が追加された日の周辺コミットログから実装の追加コミットログを探す">仕様が追加された日の周辺コミットログから実装の追加コミットログを探す</h1>
+
+<p>仕様が書き足されたのは<code>Fri Dec 2 14:12:53 2011</code>だった。この日付の周辺で実装が追加されたコミットがないか探してみる。
+<code>git log</code>コマンドで日付範囲を指定し、今回の実装に関連しそうな<code>compoiste</code>をキーワードにコミットを探してみる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git log --since<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2010/10/01&#34;</span> --until<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2010/10/31&#34;</span> --grep <span style="color:#2aa198">&#34;composite&#34;</span>
+commit f613015e0eeb9560579bf40dbdb40fac5e371bbc
+Author: Robert Griesemer &lt;gri@golang.org&gt;
+Date:   Fri Oct <span style="color:#2aa198">22</span> <span style="color:#2aa198">10</span>:03:14 <span style="color:#2aa198">2010</span> -0700
+
+    go ast/parser/printer: permit elision of composite literal types <span style="color:#719e07">for</span> composite literal elements
+    gofmt: added -s flag to simplify composite literal expressions through <span style="color:#b58900">type</span> elision where possible
+
+    <span style="color:#268bd2">R</span><span style="color:#719e07">=</span>rsc
+    <span style="color:#268bd2">CC</span><span style="color:#719e07">=</span>golang-dev
+    https://golang.org/cl/2319041
+
+commit a12141e5f4e905045dca5dff2669b64d9b93788f
+Author: Robert Griesemer &lt;gri@golang.org&gt;
+Date:   Fri Oct <span style="color:#2aa198">22</span> <span style="color:#2aa198">08</span>:58:52 <span style="color:#2aa198">2010</span> -0700
+
+    go spec: relaxed syntax <span style="color:#719e07">for</span> array, slice, and map composite literals
+
+    For elements which are themselves composite literals, the <span style="color:#b58900">type</span> may
+    be omitted <span style="color:#719e07">if</span> it is identical to the element <span style="color:#b58900">type</span> of the containing
+    composite literal.
+
+    <span style="color:#268bd2">R</span><span style="color:#719e07">=</span>r, rsc, iant, ken2
+    <span style="color:#268bd2">CC</span><span style="color:#719e07">=</span>golang-dev
+    https://golang.org/cl/2661041
+
+commit 8ffc4ec5d0c3d17d633c277ba5102da838834f03
+Author: Russ Cox &lt;rsc@golang.org&gt;
+Date:   Thu Oct <span style="color:#2aa198">21</span> <span style="color:#2aa198">23</span>:17:20 <span style="color:#2aa198">2010</span> -0400
+
+    gc: implement new composite literal spec
+
+    <span style="color:#268bd2">R</span><span style="color:#719e07">=</span>ken2
+    <span style="color:#268bd2">CC</span><span style="color:#719e07">=</span>golang-dev
+    https://golang.org/cl/2350041</code></pre></div>
+<p>それぞれのコミットに書かれているレビュー記録を見てみる。</p>
+
+<ul>
+<li>code review 2350041: gc: implement new composite literal spec
+
+<ul>
+<li><a href="https://codereview.appspot.com/2350041">https://codereview.appspot.com/2350041</a></li>
+</ul></li>
+</ul>
+
+<p>(Go1.4以前はGoはセルフコンパイルではなかったので、)Cの実装ファイル（<code>src/cmd/gc/typecheck.c</code>）が見つかった。</p>
+
+<ul>
+<li>code review 2319041: go ast/parser/printer: permit elision of composite lite
+
+<ul>
+<li><a href="https://codereview.appspot.com/2319041">https://codereview.appspot.com/2319041</a></li>
+</ul></li>
+</ul>
+
+<p>こちらを見るとパーサー（<code>src/pkg/go/parser/parser.go</code> etc）の関連実装を見ることができた。</p>
+
+<h2 id="master-ブランチにもう存在しないファイルのコミットログを見るときは-をつけて-git-log"><code>master</code>ブランチにもう存在しないファイルのコミットログを見るときは<code>--</code>をつけて<code>git log</code></h2>
+
+<p>現在の実装まで探すときはここからさらにコミットログをたどっていけば良い。<br />
+<code>master</code>ブランチにもう存在しないファイルの<code>src/cmd/gc/typecheck.c</code>に関連するコミットを探したいならば、&ndash;<code>をつけて</code>git log`コマンドを実行する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git log --oneline -- src/cmd/gc/typecheck.c
+3af0d791be <span style="color:#719e07">[</span>dev.cc<span style="color:#719e07">]</span> cmd/6a, cmd/6g etc: replace C implementations with Go implementations
+5c87cf7608 cmd/gc: minor adjustments <span style="color:#719e07">for</span> C to Go translation
+4b27c9d72e cmd/gc: add .y to error about missing x in x.y
+77a2113925 cmd/gc: evaluate <span style="color:#268bd2">concrete</span> <span style="color:#719e07">==</span> interface without allocating
+eaa872009d cmd/gc: fix capturing by value <span style="color:#719e07">for</span> range statements
+0e80b2e082 cmd/gc: capture variables by value
+b581ca5956 cmd/gc: allow map index expressions in <span style="color:#719e07">for</span> range statements
+a7bb393628 cmd/gc: don&#39;t emit write barriers <span style="color:#719e07">for</span> *tmp <span style="color:#719e07">if</span> <span style="color:#268bd2">tmp</span><span style="color:#719e07">=</span>&amp;PAUTO
+8d44ede0dc cmd/gc: simplify code <span style="color:#719e07">for</span> c2go <span style="color:#719e07">(</span>more<span style="color:#719e07">)</span>
+e82003e750 cmd/gc: simplify code <span style="color:#719e07">for</span> c2go</code></pre></div>
+<p>また、GitHubのRESTに慣れているならばアドレス直打ちで同等のコミットログが見れる。</p>
+
+<ul>
+<li><a href="https://github.com/golang/go/commits/master/src/cmd/gc/typecheck.c">https://github.com/golang/go/commits/master/src/cmd/gc/typecheck.c</a></li>
+</ul>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>もともとTweetでもやもやをつぶやいていた。
+<blockquote class="twitter-tweet"><p lang="ja" dir="ltr">Goで ds := [][]int{{1, 2, 3, 4}} が許されるの、ラクなんだけどなんで許される（{ []int{1, 2, 3, 4} }って書かなくてもよい）のかよく分かってない<a href="https://t.co/atstRrjope">https://t.co/atstRrjope</a></p>&mdash; Yoichiro Shimizu (@budougumi0617) <a href="https://twitter.com/budougumi0617/status/1138626434279268352?ref_src=twsrc%5Etfw">June 12, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
+
+<p>そうしたら会社の先輩が仕様の場所を教えてくれたので、せっかくだから処理系までちゃんと読んでみようと思った。</p>
+
+<p><blockquote class="twitter-tweet"><p lang="ja" dir="ltr"><a href="https://t.co/HlOvZFgB4j">https://t.co/HlOvZFgB4j</a><br>これの後半あたりですね</p>&mdash; Yui TERASHIMA (@terashi58) <a href="https://twitter.com/terashi58/status/1138639910234017792?ref_src=twsrc%5Etfw">June 12, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
+
+<p>まだ、Goの実装部分まで追えていないが、長期に渡って開発されているリポジトリの<code>git</code>を辿る操作も勉強できてよかった。<br />
+ただ、これはGoリポジトリのコミットログが異様にきれい（1PRは1コミット、かならずコミットメッセージにPRのURLが入っている）だからできることなのかもしれない。</p>
+
+<h1 id="参考">参考</h1>
+
+<ul>
+<li><a href="https://golang.org/ref/spec#Composite_literals">Composite literals | The Go Programming Language Specification</a></li>
+<li><a href="https://codereview.appspot.com/2350041">code review 2350041: gc: implement new composite literal spec</a></li>
+<li><a href="https://codereview.appspot.com/2319041">code review 2319041: go ast/parser/printer: permit elision of composite lite</a></li>
+<li><a href="https://git-scm.com/docs/git-log">git-log - Show commit logs | git documentation</a></li>
+<li><a href="http://nafuruby.hatenablog.com/entry/2015/11/09/013901">削除したファイルの履歴を確認する</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/05/26/print-array-and-slice-with-verbs/">[Go] プリミティブ型の配列・スライスを出力するときはその型のverbが使える #golangjp</a></li>
+  
+  <li><a href="/2019/04/28/study-design-pattern-from-ory-fosite/">ory/fositeから読み解くGoにおけるStrategy/FactoryMethodパターン</a></li>
+  
+  <li><a href="/2019/04/21/ci_go_with_multiple_jobs_on_circleci/">[Go] CicleCI2.1でgo modのデータを共有しながら複数ジョブを実行する</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+​<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Jun 13, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/git">git</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/06/02/use-dynamodb-local-on-circleci/" title="DynamoDBを操作するコードをamazon/dynamodb-localコンテナとCircleCIを使ってCIする #aws">DynamoDBを操作するコードをamazon/dynamodb-localコンテナとCircleCIを使ってCIする #aws</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/06/13/explore-go-specification-and-implementation/">GoのLanguage Specificationの特定の仕様の関わる処理系の実装を探す #golang</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/06/02/use-dynamodb-local-on-circleci/">DynamoDBを操作するコードをamazon/dynamodb-localコンテナとCircleCIを使ってCIする #aws</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/05/26/print-array-and-slice-with-verbs/">[Go] プリミティブ型の配列・スライスを出力するときはその型のverbが使える #golangjp</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/05/19/gocon2019spring/">[補足資料] Go Conference 2019 Springでdatabase/sql入門を発表した #gocon</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/05/12/pass-aws-solution-architect-associate/">15日間勉強してAWS ソリューションアーキテクト アソシエイト試験に合格した</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
