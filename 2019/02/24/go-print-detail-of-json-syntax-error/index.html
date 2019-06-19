@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.53" />
+  <meta name="generator" content="Hugo 0.50" />
 
   
   
@@ -65,10 +65,12 @@
   <meta property="og:url" content="https://budougumi0617.github.io/2019/02/24/go-print-detail-of-json-syntax-error/"/>
   <meta property="og:type" content="article"/>
   <meta property="og:title" content="GoでJSONのUnmarshalがシンタックスエラーで失敗した時、エラー周辺の文字列を表示する - My External Storage"/>
-  <meta property="og:description" content="json.Unmarshalに失敗したときjson.SyntaxErrorが取得できた場合は文字列の中のどの位置でパースに失敗したのか知ることができる。"/>
+  <meta property="og:description" content="json.Unmarshalに失敗したときjson.SyntaxErrorが取得できた場合は文字列の中のどの位置でパースに失敗したのか知ることができる。
+"/>
   
   <meta name="twitter:title" content="GoでJSONのUnmarshalがシンタックスエラーで失敗した時、エラー周辺の文字列を表示する - My External Storage"/>
-  <meta name="twitter:description" content="json.Unmarshalに失敗したときjson.SyntaxErrorが取得できた場合は文字列の中のどの位置でパースに失敗したのか知ることができる。"/>
+  <meta name="twitter:description" content="json.Unmarshalに失敗したときjson.SyntaxErrorが取得できた場合は文字列の中のどの位置でパースに失敗したのか知ることができる。
+"/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
   <meta name="twitter:creator" content="@budougumi0617"/>
@@ -184,7 +186,8 @@
 </ul>
 </nav>
           
-          <p><code>json.Unmarshal</code>に失敗したとき<code>json.SyntaxError</code>が取得できた場合は文字列の中のどの位置でパースに失敗したのか知ることができる。</p>
+          <p><code>json.Unmarshal</code>に失敗したとき<code>json.SyntaxError</code>が取得できた場合は文字列の中のどの位置でパースに失敗したのか知ることができる。
+</p>
 
 <h1 id="tl-dr">TL;DR</h1>
 
@@ -223,7 +226,7 @@
 	<span style="color:#2aa198">&#34;log&#34;</span>
 )
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+<span style="color:#268bd2">func</span> main() {
 	bd <span style="color:#719e07">:=</span> []<span style="color:#b58900">byte</span>(data)
 	<span style="color:#268bd2">var</span> v <span style="color:#268bd2">struct</span> {
 		Timestamp    <span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;timestamp&#34;`</span>
@@ -231,11 +234,11 @@
 			C <span style="color:#dc322f">int</span> <span style="color:#2aa198">`json:&#34;C&#34;`</span>
 		} <span style="color:#2aa198">`json:&#34;parent_totals&#34;`</span>
 	}
-	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmarshal</span>(bd, <span style="color:#719e07">&amp;</span>v); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> json.Unmarshal(bd, <span style="color:#719e07">&amp;</span>v); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 		<span style="color:#586e75">// 2009/11/10 23:00:00 invalid character &#39;&#34;&#39; after object key:value pair
-</span><span style="color:#586e75"></span>		log.<span style="color:#268bd2">Fatal</span>(err)
+</span><span style="color:#586e75"></span>		log.Fatal(err)
 	}
-	fmt.<span style="color:#268bd2">Println</span>(v)
+	fmt.Println(v)
 }
 
 <span style="color:#586e75">// &#34;c&#34;: 52.57732&#34;, の部分に「&#34;」が足りないためinvalidなJSON文字列。
@@ -269,11 +272,11 @@
 <p><code>SyntaxError.Offset</code>と元データの文字列を使うともう少しエラーに関係する部分の情報が取得できる。試し先程のコードのエラーハンドリング部分を<code>SyntaxError.Offset</code>から前後15文字の情報も出力するようにしてみる。</p>
 
 <p><a href="https://play.golang.org/p/axUQ1WnMhvV">https://play.golang.org/p/axUQ1WnMhvV</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmarshal</span>(bd, <span style="color:#719e07">&amp;</span>v); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> json.Unmarshal(bd, <span style="color:#719e07">&amp;</span>v); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 		<span style="color:#719e07">if</span> err, ok <span style="color:#719e07">:=</span> err.(<span style="color:#719e07">*</span>json.SyntaxError); ok {
-			fmt.<span style="color:#268bd2">Println</span>(<span style="color:#b58900">string</span>(bd[err.Offset<span style="color:#719e07">-</span><span style="color:#2aa198">15</span>:err.Offset<span style="color:#719e07">+</span><span style="color:#2aa198">15</span>]))
+			fmt.Println(<span style="color:#b58900">string</span>(bd[err.Offset<span style="color:#719e07">-</span><span style="color:#2aa198">15</span>:err.Offset<span style="color:#719e07">+</span><span style="color:#2aa198">15</span>]))
 		}
-		log.<span style="color:#268bd2">Fatal</span>(err)
+		log.Fatal(err)
 	}</code></pre></div>
 <p>以下の情報が出力された。これくらいの情報があると、すぐエラーの位置がわかりやすそうだ。</p>
 
@@ -296,7 +299,7 @@
 	<span style="color:#2aa198">&#34;log&#34;</span>
 )
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+<span style="color:#268bd2">func</span> main() {
 	bd <span style="color:#719e07">:=</span> []<span style="color:#b58900">byte</span>(data)
 	<span style="color:#268bd2">var</span> v <span style="color:#268bd2">struct</span> {
 		Timestamp    <span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;timestamp&#34;`</span>
@@ -305,15 +308,15 @@
 		} <span style="color:#2aa198">`json:&#34;parent_totals&#34;`</span>
 	}
 
-	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmarshal</span>(bd, <span style="color:#719e07">&amp;</span>v); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> json.Unmarshal(bd, <span style="color:#719e07">&amp;</span>v); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 		<span style="color:#586e75">// 真にはならない
 </span><span style="color:#586e75"></span>		<span style="color:#719e07">if</span> err, ok <span style="color:#719e07">:=</span> err.(<span style="color:#719e07">*</span>json.SyntaxError); ok {
-			fmt.<span style="color:#268bd2">Println</span>(<span style="color:#b58900">string</span>(bd[err.Offset<span style="color:#719e07">-</span><span style="color:#2aa198">1</span>:]))
+			fmt.Println(<span style="color:#b58900">string</span>(bd[err.Offset<span style="color:#719e07">-</span><span style="color:#2aa198">1</span>:]))
 		}
 		<span style="color:#586e75">// 2009/11/10 23:00:00 json: cannot unmarshal string into Go struct field .C of type int
-</span><span style="color:#586e75"></span>		log.<span style="color:#268bd2">Fatal</span>(err)
+</span><span style="color:#586e75"></span>		log.Fatal(err)
 	}
-	fmt.<span style="color:#268bd2">Println</span>(v)
+	fmt.Println(v)
 }
 
 <span style="color:#586e75">// `json:&#34;C&#34;と`json:&#34;c&#34;が宣言されていない構造体でUnmarshalしようとすると失敗する正しいJSONシンタックスの文字列。
@@ -499,6 +502,12 @@
           
             
               <li class="post">
+                <a href="/2019/06/20/golangtokyo25-read-again-awesome-go-article/">[発表資料] 今改めて読み直したい Go基礎情報 その1 #golangtokyo</a>
+              </li>
+            
+          
+            
+              <li class="post">
                 <a href="/2019/06/13/explore-go-specification-and-implementation/">GoのLanguage Specificationの特定の仕様に関わる処理系の実装を探す #golang</a>
               </li>
             
@@ -518,12 +527,6 @@
             
               <li class="post">
                 <a href="/2019/05/19/gocon2019spring/">[補足資料] Go Conference 2019 Springでdatabase/sql入門を発表した #gocon</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2019/05/12/pass-aws-solution-architect-associate/">15日間勉強してAWS ソリューションアーキテクト アソシエイト試験に合格した</a>
               </li>
             
           
