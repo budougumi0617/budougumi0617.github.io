@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>textlinti/reviewdogで文書校正エラーをGitHubのプルリクエストにコメントする 2019年6月版 - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="技術書典,CircleCI,reviewdog,textlint,Re:VIEW">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.50" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/twittercard.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/twittercard.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/06/22/textlint-with-reviewdog-for-review/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="textlinti/reviewdogで文書校正エラーをGitHubのプルリクエストにコメントする 2019年6月版 - My External Storage"/>
+  <meta property="og:description" content="技術書典7に向けて、執筆用のRe:VIEWのリポジトリの準備を始めた。
+今回はCircleCIを使って文書校正を行なう設定を行なった。
+検索して出てくる情報は古い情報が多かったので2019年6月時点の設定方法をまとめる。
+
+"/>
+  
+  <meta name="twitter:title" content="textlinti/reviewdogで文書校正エラーをGitHubのプルリクエストにコメントする 2019年6月版 - My External Storage"/>
+  <meta name="twitter:description" content="技術書典7に向けて、執筆用のRe:VIEWのリポジトリの準備を始めた。
+今回はCircleCIを使って文書校正を行なう設定を行なった。
+検索して出てくる情報は古い情報が多かったので2019年6月時点の設定方法をまとめる。
+
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Jun 22, 2019
+         - 6 minute read 
+         - <a href="https://budougumi0617.github.io/2019/06/22/textlint-with-reviewdog-for-review/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/ci/">ci </a><a class="label" href="https://budougumi0617.github.io/categories/review/">review </a><a class="label" href="https://budougumi0617.github.io/categories/circleci/">circleci </a>
+        
+    </p>
+    <h1 class="entry-title">
+         textlinti/reviewdogで文書校正エラーをGitHubのプルリクエストにコメントする 2019年6月版 
+    </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#同人誌作成もciを使って自動化したい">同人誌作成もCIを使って自動化したい</a></li>
+<li><a href="#re-viewのリポジトリを作成する">Re:VIEWのリポジトリを作成する</a></li>
+<li><a href="#texlintrcを設定してローカルで文書校正できることを確認する">texlintrcを設定してローカルで文書校正できることを確認する</a></li>
+<li><a href="#reviewdogとcircleciを使ってprに対してtextlintの検出エラーをコメントするようにする">reviewdogとCircleCIを使ってPRに対してtextlintの検出エラーをコメントするようにする。</a></li>
+<li><a href="#circleci上でciを行なう準備をする">CircleCI上でCIを行なう準備をする</a>
+<ul>
+<li><a href="#reviewdogがprへコメントできるようにcircleciにgithubトークンを設定する">reviewdogがPRへコメントできるようにCircleCiにGitHubトークンを設定する</a></li>
+<li><a href="#only-build-pull-requests-設定を有効にしておく"><code>Only build pull requests</code>設定を有効にしておく</a></li>
+</ul></li>
+<li><a href="#終わりに">終わりに</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</nav>
+          
+          <p>技術書典7に向けて、執筆用のRe:VIEWのリポジトリの準備を始めた。<br />
+今回はCircleCIを使って文書校正を行なう設定を行なった。<br />
+検索して出てくる情報は古い情報が多かったので2019年6月時点の設定方法をまとめる。</p>
+
+<p></p>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://techbookfest.org/event/tbf07" data-iframely-url="//cdn.iframe.ly/yaQdGlH?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>Re:VIEW用の設定をしてPDFがビルドできる状態にする。
+
+<ul>
+<li><a href="https://github.com/TechBooster/ReVIEW-Template/tree/master">https://github.com/TechBooster/ReVIEW-Template/tree/master</a></li>
+</ul></li>
+<li>文書の校正を行う<code>textlint</code>の設定を行う</li>
+<li>CircleCI上で<code>reviewdog</code>を使って<code>texlint</code>の結果をPull Request（PR）にコメントする
+
+<ul>
+<li>v0.9.12からインストール方法が変更されている。</li>
+</ul></li>
+</ul>
+
+<p>サンプルリポジトリと実際に<code>reviewdog</code>経由で<code>textlint</code>の指摘をコメントしたPRは以下になる。</p>
+
+<ul>
+<li><p><a href="https://github.com/budougumi0617/shoten-plate">https://github.com/budougumi0617/shoten-plate</a></p></li>
+
+<li><p>Add textlint, and check reviewdog</p>
+
+<ul>
+<li><a href="https://github.com/budougumi0617/shoten-plate/pull/1">https://github.com/budougumi0617/shoten-plate/pull/1</a></li>
+</ul></li>
+</ul>
+
+<h1 id="同人誌作成もciを使って自動化したい">同人誌作成もCIを使って自動化したい</h1>
+
+<p>私は今まで2回<code>golang.tokyo</code>として技術書典に参加していた。<br />
+前回まではGitHub上で原稿（Re:VIEWファイル）を管理し、寄稿メンバー同士でPRを作って相互レビューをしていた。<br />
+CI的な設定はせずにもろもろを手作業で行なっていたが、今回はなるべく自動化したいと考えた。<br />
+そのため、まずは校正を自動で確認できるように<code>textlint</code>を使った自動化を試みた。</p>
+
+<h1 id="re-viewのリポジトリを作成する">Re:VIEWのリポジトリを作成する</h1>
+
+<p>まずは新規のRe:VIEWリポジトリを作成する。ここから最新版の構築済みRe:VIEW構成を取得する。</p>
+
+<ul>
+<li><a href="https://github.com/TechBooster/ReVIEW-Template/tree/master">https://github.com/TechBooster/ReVIEW-Template/tree/master</a></li>
+</ul>
+
+<p>サンプルのPDFファイル以外を使わせてもらう。</p>
+
+<h1 id="texlintrcを設定してローカルで文書校正できることを確認する">texlintrcを設定してローカルで文書校正できることを確認する</h1>
+
+<p><code>textlint</code>は種々の静的解析ツールのように文書に対して文法や用語の使い方をチェックするツールだ。<br />
+プラグインを使えば、Re:VIEWの文書ファイルにも適用することができる。</p>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://efcl.info/2015/09/10/introduce-textlint/" data-iframely-url="//cdn.iframe.ly/YlOR4Ea"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<p>まずは、CIの設定をする前にローカルで実行を確かめる。今回の設定は以下の記事を参考にした。</p>
+
+<iframe src="https://hatenablog-parts.com/embed?url=http%3A%2F%2Fblog.naoshihoshi.com%2Fentry%2F2018%2F10%2F15%2F113000" style="border: 0; width: 100%; height: 190px;" allowfullscreen scrolling="no" allow="autoplay; encrypted-media"></iframe>
+
+<p>設定と言っても、<code>npm</code>コマンドで必要ライブラリをインストールしたあと、<code>.textlintrc</code>ファイルを作成して校正ルールを設定すればよい。<br />
+どんなルールのオプションライブラリがあるのかは、GitHubのWikiを見る。</p>
+
+<ul>
+<li><a href="https://github.com/textlint/textlint/wiki/Collection-of-textlint-rule#rules-japanese">https://github.com/textlint/textlint/wiki/Collection-of-textlint-rule#rules-japanese</a></li>
+</ul>
+
+<p>今回はRe:VIEWで<code>textlint</code>を使うための<code>textlint-plugin-review</code>と技術書を書くための基本的なライブラリを使う。<br />
+用語の表記ゆれのチェックを行う<code>textlint-rule-prh</code>ライブラリは明示的にインストールしなくても使えるようだ（？）。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ npm install --save-dev npm install textlint <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    textlint-rule-preset-ja-technical-writing <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    textlint-plugin-review</code></pre></div>
+<p>次に設定ファイルを作成する。リポジトリルートに<code>.textlintrc</code>ファイルを以下のような内容で作成した。<br />
+<code>textlint-rule-preset-ja-technical-writing</code>は複数の校正ルールを内包しており、個別にルールのON/OFFを設定できる。</p>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/textlint-ja/textlint-rule-preset-ja-technical-writing" data-iframely-url="//cdn.iframe.ly/wGpDKUR"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+    <span style="color:#268bd2">&#34;rules&#34;</span>: {
+        <span style="color:#268bd2">&#34;preset-ja-technical-writing&#34;</span>: {
+            <span style="color:#268bd2">&#34;no-exclamation-question-mark&#34;</span>: <span style="color:#cb4b16">false</span>,
+        },
+        <span style="color:#268bd2">&#34;prh&#34;</span>: {
+            <span style="color:#268bd2">&#34;rulePaths&#34;</span>: [
+                <span style="color:#2aa198">&#34;./prh-rules/media/WEB+DB_PRESS.yml&#34;</span>
+            ]
+        }
+    },
+    <span style="color:#268bd2">&#34;plugins&#34;</span>: [
+      <span style="color:#2aa198">&#34;review&#34;</span>
+    ]
+}</code></pre></div>
+<p><code>.textlintrc</code>ファイルを作成したあとは、適当な<code>sample.re</code>ファイルを<code>articles</code>ディレクトリに作成し<code>textlint</code>コマンドを実行してみる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ./node_modules/.bin/textlint articles/sample.re
+
+/Users/budougumi0617/go/src/github.com/budougumi0617/shoten-plate/articles/sample.re
+   <span style="color:#2aa198">3</span>:4   ✓ error  <span style="color:#268bd2">はじめ</span> <span style="color:#719e07">=</span>&gt; 始め                                                                                                                                                prh
+  <span style="color:#2aa198">10</span>:15  ✓ error  <span style="color:#268bd2">することができ</span> <span style="color:#719e07">=</span>&gt; でき                                                                                                                                        prh
+  <span style="color:#2aa198">10</span>:15  ✓ error  <span style="color:#2aa198">&#34;することができるはず&#34;</span>は冗長な表現です。<span style="color:#2aa198">&#34;することが&#34;</span>を省き簡潔な表現にすると文章が明瞭になります。参考: http://qiita.com/takahi-i/items/a93dc2ff42af6b93f6e0  ja-technical-writing/ja-no-redundant-expression
+  <span style="color:#2aa198">12</span>:1   ✓ error  <span style="color:#268bd2">DockerHub</span> <span style="color:#719e07">=</span>&gt; Docker Hub                                                                                                                                       prh
+  <span style="color:#2aa198">12</span>:25  ✓ error  <span style="color:#268bd2">ツイッター</span> <span style="color:#719e07">=</span>&gt; Twitter                                                                                                                                         prh
+
+✖ <span style="color:#2aa198">5</span> problems <span style="color:#719e07">(</span><span style="color:#2aa198">5</span> errors, <span style="color:#2aa198">0</span> warnings<span style="color:#719e07">)</span>
+✓ <span style="color:#2aa198">5</span> fixable problems.
+Try to run: $ textlint --fix <span style="color:#719e07">[</span>file<span style="color:#719e07">]</span></code></pre></div>
+<p>意図通りに文書の表記ゆれなどが指摘された。</p>
+
+<h1 id="reviewdogとcircleciを使ってprに対してtextlintの検出エラーをコメントするようにする">reviewdogとCircleCIを使ってPRに対してtextlintの検出エラーをコメントするようにする。</h1>
+
+<p>ローカルで実行が確認できたので、GitHubでPRを作成した時に、<code>textlint</code>のエラーをコメントで指摘するようにする。<br />
+<code>reviewdog</code>は各種静的解析ツールの結果をコードレビューコメントとしてPRなどにコメントしてくれるツールだ。<code>textlint</code>にも対応している。</p>
+
+<ul>
+<li>reviewdog — A code review dog who keeps your codebase healthy
+
+<ul>
+<li><a href="https://medium.com/@haya14busa/reviewdog-a-code-review-dog-who-keeps-your-codebase-healthy-d957c471938b">https://medium.com/@haya14busa/reviewdog-a-code-review-dog-who-keeps-your-codebase-healthy-d957c471938b</a></li>
+</ul></li>
+</ul>
+
+<p><code>reviewdog</code>とCircleCIを使ってCIを構築する。<code>reviewdog</code>の使い方はREADMEの該当機能の説明を読めばよい。</p>
+
+<ul>
+<li>Reporter: GitHub PullRequest review comment (-reporter=github-pr-review)
+
+<ul>
+<li><a href="https://github.com/reviewdog/reviewdog#reporter-github-pullrequest-review-comment--reportergithub-pr-review">https://github.com/reviewdog/reviewdog#reporter-github-pullrequest-review-comment--reportergithub-pr-review</a></li>
+</ul></li>
+</ul>
+
+<p>利用するバージョンは2019/06/22現在最新のv0.9.12を使う。</p>
+
+<ul>
+<li>v0.9.12: Installation method change / First step to org development ready release
+
+<ul>
+<li><a href="https://github.com/reviewdog/reviewdog/releases/tag/v0.9.12">https://github.com/reviewdog/reviewdog/releases/tag/v0.9.12</a></li>
+</ul></li>
+</ul>
+
+<p>CircleCIの設定は次のブログ記事を参考にした。</p>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://blog.kokuyouwind.com/archives/1597" data-iframely-url="//cdn.iframe.ly/08z3e1d"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<p>ただしこの記事は少し古く、最新の<code>reviewdog</code>の設定方法とは異なる。<code>reviewdog</code>のv0.9.12を使ってCircleCIの設定を行なうと次のようになる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">version: <span style="color:#2aa198">2</span>
+jobs:
+  build:
+    docker:
+      - image: vvakame/review:<span style="color:#2aa198">3.1</span>
+        environment:
+          REVIEWDOG_VERSION: <span style="color:#2aa198">0.9</span>.<span style="color:#2aa198">12</span>
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - npm-cache-{{ checksum <span style="color:#2aa198">&#34;package-lock.json&#34;</span> }}
+      - run:
+          name: Setup
+          command: npm install
+      - save_cache:
+          key: npm-cache-{{ checksum <span style="color:#2aa198">&#34;package-lock.json&#34;</span> }}
+          paths:
+            - ./node_modules
+      - run:
+          name: install reviewdog
+          command: <span style="color:#2aa198">&#34;curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh| sh -s  v$REVIEWDOG_VERSION&#34;</span>
+      - run:
+          name: lint
+          command: <span style="color:#2aa198">&#34;$(npm bin)/textlint -f checkstyle articles/*.re | tee check_result&#34;</span>
+      - run:
+          name: reviewdog
+          command: <span style="color:#2aa198">&gt;
+</span><span style="color:#2aa198">              if [ -n &#34;$REVIEWDOG_GITHUB_API_TOKEN&#34; ]; then
+</span><span style="color:#2aa198">                cat check_result | ./bin/reviewdog -f=checkstyle -name=textlint -reporter=github-pr-review
+</span><span style="color:#2aa198">              fi</span>
+          when: on_fail
+      - run:
+          name: Build PDF
+          command: npm run pdf
+      - store_artifacts:
+          path: ./articles/shoten7.pdf
+          destination: shoten7.pdf</code></pre></div>
+<p>あとはCircleCI上の設定をいくつかすればよい。</p>
+
+<h1 id="circleci上でciを行なう準備をする">CircleCI上でCIを行なう準備をする</h1>
+
+<p>CircleCIで行う設定は、（対象のリポジトリへのビルドをONにするのは当然として、）<code>reviewdog</code>がPRへコメントをするときに利用するGitHubトークンの設定と、<code>Only build pull requests</code>の設定だ。</p>
+
+<h2 id="reviewdogがprへコメントできるようにcircleciにgithubトークンを設定する">reviewdogがPRへコメントできるようにCircleCiにGitHubトークンを設定する</h2>
+
+<p><code>reviewdog</code>がPRへ<code>textlint</code>の検出エラーをコメントするために必要な認証情報をCirccleCIの環境変数に登録しておく。</p>
+
+<ul>
+<li>Personal access tokens
+
+<ul>
+<li><a href="https://github.com/settings/tokens">https://github.com/settings/tokens</a></li>
+</ul></li>
+<li>Reporter: GitHub PullRequest review comment (-reporter=github-pr-review)
+
+<ul>
+<li><a href="https://github.com/reviewdog/reviewdog#reporter-github-pullrequest-review-comment--reportergithub-pr-review">https://github.com/reviewdog/reviewdog#reporter-github-pullrequest-review-comment--reportergithub-pr-review</a></li>
+</ul></li>
+</ul>
+
+<p>Public/Privateリポジトリで必要な権限は異なるので、READMEをよく読むこと。</p>
+
+<blockquote>
+<p>Go to <a href="https://github.com/settings/tokens">https://github.com/settings/tokens</a> and generate new API token.
+Check repo for private repositories or public_repo for public repositories.</p>
+</blockquote>
+
+<p>GitHubでトークンを払い出したら、<code>REVIEWDOG_GITHUB_API_TOKEN</code>という名前でCircleCIの環境変数にしておく。</p>
+
+<ul>
+<li>Environment Variables | CircleCI
+
+<ul>
+<li><code>https://circleci.com/gh/YOUR_ACCOUNT/YOUR_REPO/edit#env-vars</code></li>
+</ul></li>
+</ul>
+
+<h2 id="only-build-pull-requests-設定を有効にしておく"><code>Only build pull requests</code>設定を有効にしておく</h2>
+
+<p>PRを作ったときにCircleCIが反応するようにしておかないと、コミットをプッシュした時点でCircleCIが反応し、<code>reviewdog</code>がうまく動かない。<br />
+PRとデフォルトブランチへのプッシュにのみ反応するようにCircleCIの<code>Only build pull requests</code>設定を有効にしておく。</p>
+
+<ul>
+<li><p>Advanced Settings &gt; Only build pull requests</p>
+
+<ul>
+<li><a href="https://circleci.com/docs/2.0/oss/#only-build-pull-requests">https://circleci.com/docs/2.0/oss/#only-build-pull-requests</a></li>
+</ul></li>
+
+<li><p>Advanced Settings | CircleCI</p>
+
+<ul>
+<li><code>https://circleci.com/gh/YOUR_ACCOUNT/YOUR_REPO/edit#advanced-settings</code></li>
+</ul></li>
+</ul>
+
+<p>以上の設定をすべて完了して作成したPRが次のPRだ。</p>
+
+<ul>
+<li>Add textlint, and check reviewdog
+
+<ul>
+<li><a href="https://github.com/budougumi0617/shoten-plate/pull/1">https://github.com/budougumi0617/shoten-plate/pull/1</a></li>
+</ul></li>
+</ul>
+
+<p>意図通り、PRに<code>reviewdog</code>から<code>textlint</code>で検出したエラーがコメントされた。</p>
+
+<p><img src="/2019/06/22_reviewdog_comment.png" alt="reviewdog_comment" /></p>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>他の方の記事を真似して設定すればすぐ終わると思っていたが、一部の環境構築の方法が最近変更されていたようなので、2019年版の設定方法をまとめた。<br />
+<code>reviewdog</code>のコメント用に払い出したトークンが自分のアカウントなので、自分が指摘しているようになってしまったがここはしょうがないかなと思う。<br />
+<code>textlint</code>の設定はまだ動作確認状態なので、もう少しチューニングしておきたい。あとはPRが作成されたらそのビルド結果のPDFをGoogleDriveに自動アップロードするCIを設定しておきたい。</p>
+
+<h1 id="参考">参考</h1>
+
+<ul>
+<li><a href="https://github.com/TechBooster/ReVIEW-Template/tree/master">github.com/TechBooster/ReVIEW-Template/</a></li>
+<li><a href="https://github.com/reviewdog/reviewdog">github.com/reviewdog/reviewdog</a></li>
+<li><a href="https://medium.com/@haya14busa/reviewdog-a-code-review-dog-who-keeps-your-codebase-healthy-d957c471938b">reviewdog — A code review dog who keeps your codebase healthy</a></li>
+<li><a href="https://blog.kokuyouwind.com/archives/1597/">技術書を支える技術 | 黒曜の吹き溜まり</a></li>
+<li><a href="https://efcl.info/2015/09/10/introduce-textlint/">textlintで日本語の文章をチェックする</a></li>
+<li><a href="http://blog.naoshihoshi.com/entry/2018/10/15/113000">Re:VIEWで書いた文章の校正をCircleCIとtextlintでGitHubのPRに自動コメントする仕組み</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/06/02/use-dynamodb-local-on-circleci/">DynamoDBを操作するコードをamazon/dynamodb-localコンテナとCircleCIを使ってCIする #aws</a></li>
+  
+  <li><a href="/2019/04/21/ci_go_with_multiple_jobs_on_circleci/">[Go] CicleCI2.1でgo modのデータを共有しながら複数ジョブを実行する</a></li>
+  
+  <li><a href="/2019/04/11/shoten6/">golang.tokyoの技術書典6新刊「文Go」に「Goにおけるデータベース実践入門を寄稿しました。 #技術書典</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+​<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Jun 22, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/circleci">circleci</a>  <a class="category" href="https://budougumi0617.github.io/tags/reviedog">reviedog</a>  <a class="category" href="https://budougumi0617.github.io/tags/textlint">textlint</a>  <a class="category" href="https://budougumi0617.github.io/tags/review">review</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/06/20/golangtokyo25-read-again-awesome-go-article/" title="[発表資料] 今改めて読み直したい Go基礎情報 その1 #golangtokyo">[発表資料] 今改めて読み直したい Go基礎情報 その1 #golangtokyo</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/06/22/textlint-with-reviewdog-for-review/">textlinti/reviewdogで文書校正エラーをGitHubのプルリクエストにコメントする 2019年6月版</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/06/20/golangtokyo25-read-again-awesome-go-article/">[発表資料] 今改めて読み直したい Go基礎情報 その1 #golangtokyo</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/06/13/explore-go-specification-and-implementation/">GoのLanguage Specificationの特定の仕様に関わる処理系の実装を探す #golang</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/06/02/use-dynamodb-local-on-circleci/">DynamoDBを操作するコードをamazon/dynamodb-localコンテナとCircleCIを使ってCIする #aws</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/05/26/print-array-and-slice-with-verbs/">[Go] プリミティブ型の配列・スライスを出力するときはその型のverbが使える #golangjp</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
