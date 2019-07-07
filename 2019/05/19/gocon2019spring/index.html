@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.50" />
+  <meta name="generator" content="Hugo 0.53" />
 
   
   
@@ -68,15 +68,11 @@
   <meta property="og:description" content="Go Conference(GoCon)で「database/sql入門」というタイトルで発表してきた。
 この記事は資料中のリンクや、口頭で説明した内容の補足資料となる。
 
-
-
 "/>
   
   <meta name="twitter:title" content="[補足資料] Go Conference 2019 Springでdatabase/sql入門を発表した #gocon - My External Storage"/>
   <meta name="twitter:description" content="Go Conference(GoCon)で「database/sql入門」というタイトルで発表してきた。
 この記事は資料中のリンクや、口頭で説明した内容の補足資料となる。
-
-
 
 "/>
   <meta name="twitter:site" content="@budougumi0617"/>
@@ -203,8 +199,6 @@
 
 <p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://gocon.connpass.com/event/124530/" data-iframely-url="//cdn.iframe.ly/NRErGxT?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
 
-<p></p>
-
 <h1 id="発表資料">発表資料</h1>
 
 <script async class="speakerdeck-embed" data-id="d179faa0687c48b0800e8331117f7a81" data-ratio="1.77777777777778" src="//speakerdeck.com/assets/embed.js"></script>
@@ -292,37 +286,37 @@ pospomeさんがBOOTHで販売している<code>pospomeのサーバサイドア�
 	db  <span style="color:#719e07">*</span>sql.DB
 )
 
-<span style="color:#268bd2">func</span> main() {
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 	age <span style="color:#719e07">:=</span> <span style="color:#2aa198">27</span>
-	rows, err <span style="color:#719e07">:=</span> db.QueryContext(ctx, <span style="color:#2aa198">&#34;SELECT name FROM users WHERE age=?&#34;</span>, age)
+	rows, err <span style="color:#719e07">:=</span> db.<span style="color:#268bd2">QueryContext</span>(ctx, <span style="color:#2aa198">&#34;SELECT name FROM users WHERE age=?&#34;</span>, age)
 	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		log.Fatal(err)
+		log.<span style="color:#268bd2">Fatal</span>(err)
 	}
-	<span style="color:#719e07">defer</span> rows.Close()
+	<span style="color:#719e07">defer</span> rows.<span style="color:#268bd2">Close</span>()
 	names <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>([]<span style="color:#dc322f">string</span>, <span style="color:#2aa198">0</span>)
 
-	<span style="color:#719e07">for</span> rows.Next() {
+	<span style="color:#719e07">for</span> rows.<span style="color:#268bd2">Next</span>() {
 		<span style="color:#268bd2">var</span> name <span style="color:#dc322f">string</span>
-		<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> rows.Scan(<span style="color:#719e07">&amp;</span>name); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> rows.<span style="color:#268bd2">Scan</span>(<span style="color:#719e07">&amp;</span>name); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 			<span style="color:#586e75">// Check for a scan error.
 </span><span style="color:#586e75"></span>			<span style="color:#586e75">// Query rows will be closed with defer.
-</span><span style="color:#586e75"></span>			log.Fatal(err)
+</span><span style="color:#586e75"></span>			log.<span style="color:#268bd2">Fatal</span>(err)
 		}
 		names = <span style="color:#b58900">append</span>(names, name)
 	}
 	<span style="color:#586e75">// If the database is being written to ensure to check for Close
 </span><span style="color:#586e75"></span>	<span style="color:#586e75">// errors that may be returned from the driver. The query may
 </span><span style="color:#586e75"></span>	<span style="color:#586e75">// encounter an auto-commit error and be forced to rollback changes.
-</span><span style="color:#586e75"></span>	rerr <span style="color:#719e07">:=</span> rows.Close()
+</span><span style="color:#586e75"></span>	rerr <span style="color:#719e07">:=</span> rows.<span style="color:#268bd2">Close</span>()
 	<span style="color:#719e07">if</span> rerr <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		log.Fatal(err)
+		log.<span style="color:#268bd2">Fatal</span>(err)
 	}
 
 	<span style="color:#586e75">// Rows.Err will report the last error encountered by Rows.Scan.
-</span><span style="color:#586e75"></span>	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> rows.Err(); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		log.Fatal(err)
+</span><span style="color:#586e75"></span>	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> rows.<span style="color:#268bd2">Err</span>(); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		log.<span style="color:#268bd2">Fatal</span>(err)
 	}
-	fmt.Printf(<span style="color:#2aa198">&#34;%s are %d years old&#34;</span>, strings.Join(names, <span style="color:#2aa198">&#34;, &#34;</span>), age)
+	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s are %d years old&#34;</span>, strings.<span style="color:#268bd2">Join</span>(names, <span style="color:#2aa198">&#34;, &#34;</span>), age)
 }</code></pre></div>
 <h1 id="テストについて">テストについて</h1>
 
@@ -569,6 +563,12 @@ KeyNoteを閉じる→開くとファイルが壊れている、ということ�
           
             
               <li class="post">
+                <a href="/2019/07/07/prevent-runtime-error-by-pointer/">[Go]Sliceを含んだ構造体が等値演算子（==）でpanicを引き起こすのを回避する #golang</a>
+              </li>
+            
+          
+            
+              <li class="post">
                 <a href="/2019/06/30/review-the-unix-philosophy/">[書評] UNIXという考え方―その設計思想と哲学 を読んで「単純さ」の大切さを改めて学んだ</a>
               </li>
             
@@ -588,12 +588,6 @@ KeyNoteを閉じる→開くとファイルが壊れている、ということ�
             
               <li class="post">
                 <a href="/2019/06/13/explore-go-specification-and-implementation/">GoのLanguage Specificationの特定の仕様に関わる処理系の実装を探す #golang</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2019/06/02/use-dynamodb-local-on-circleci/">DynamoDBを操作するコードをamazon/dynamodb-localコンテナとCircleCIを使ってCIする #aws</a>
               </li>
             
           
