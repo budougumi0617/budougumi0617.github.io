@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go]Sliceを含んだ構造体が等値演算子（==）でpanicを引き起こすのを回避する #golang - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="Go,Golang">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.53" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/07/07/prevent-runtime-error-by-pointer/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go]Sliceを含んだ構造体が等値演算子（==）でpanicを引き起こすのを回避する #golang - My External Storage"/>
+  <meta property="og:description" content="Goにはcomparableが定義されておらず、比較できない型としてSlice, Mapなどがある。
+interfaceがそのような型（フィールドにそのような型を持った構造体）を値に持っていたときに==を利用するとpanicが発生する可能性がある。
+行儀の悪い構造体を定義しないテクニックがあったのでメモしておく。"/>
+  
+  <meta name="twitter:title" content="[Go]Sliceを含んだ構造体が等値演算子（==）でpanicを引き起こすのを回避する #golang - My External Storage"/>
+  <meta name="twitter:description" content="Goにはcomparableが定義されておらず、比較できない型としてSlice, Mapなどがある。
+interfaceがそのような型（フィールドにそのような型を持った構造体）を値に持っていたときに==を利用するとpanicが発生する可能性がある。
+行儀の悪い構造体を定義しないテクニックがあったのでメモしておく。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Jul 7, 2019
+         - 4 minute read 
+         - <a href="https://budougumi0617.github.io/2019/07/07/prevent-runtime-error-by-pointer/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+        
+    </p>
+    <h1 class="entry-title">
+         [Go]Sliceを含んだ構造体が等値演算子（==）でpanicを引き起こすのを回避する #golang 
+    </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#goの値はすべてがcomparableではない">Goの値はすべてがcomparableではない</a></li>
+<li><a href="#comparable-ではない値を指すインターフェースに等価演算子を使うと-runtime-error-が発生する"><code>comparable</code>ではない値を指すインターフェースに等価演算子を使うと<code>runtime error</code>が発生する</a></li>
+<li><a href="#構造体をcomparableにしてruntime-errorを回避するにはポインタを使ってフィールドを定義する">構造体をcomparableにしてruntime errorを回避するにはポインタを使ってフィールドを定義する</a></li>
+<li><a href="#終わりに">終わりに</a></li>
+</ul>
+</nav>
+          
+          <p>Goには<code>comparable</code>が定義されておらず、比較できない型として<code>Slice</code>, <code>Map</code>などがある。<br />
+<code>interface</code>がそのような型（フィールドにそのような型を持った構造体）を値に持っていたときに<code>==</code>を利用すると<code>panic</code>が発生する可能性がある。<br />
+行儀の悪い構造体を定義しないテクニックがあったのでメモしておく。</p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>Goの値はすべてが<code>comparable</code>ではない
+
+<ul>
+<li>Slice、<code>Map</code>、関数の値は<code>comparable</code>ではない</li>
+</ul></li>
+<li><code>comparable</code>ではない値を指すインターフェースに等価演算子を使うと<code>runtime error</code>が発生する</li>
+<li>構造体にSliceを含ませながら等価演算子を使いたいならばSliceのポインタで内包すれば良い
+
+<ul>
+<li>ただし当然ポインタの指し示す値の比較で等価であるか決まるようになる</li>
+</ul></li>
+</ul>
+
+<h1 id="goの値はすべてがcomparableではない">Goの値はすべてがcomparableではない</h1>
+
+<p>プログラミング言語によってはすべてのオブジェクトが<code>equality</code>を持ち、<code>comparable</code>であることもある。
+が、Goの場合そうではない。Goは仕様に<code>compareble</code>でない型があることを明記している。</p>
+
+<ul>
+<li>Comparison operators
+
+<ul>
+<li><a href="https://golang.org/ref/spec#Comparison_operators">https://golang.org/ref/spec#Comparison_operators</a></li>
+</ul></li>
+</ul>
+
+<blockquote>
+<p>Slice, map, and function values are not comparable. However, as a special case, a slice, map, or function value may be compared to the predeclared identifier nil. Comparison of pointer, channel, and interface values to nil is also allowed and follows from the general rules above.</p>
+</blockquote>
+
+<p>上記の通り、<code>not comparable</code>な値とはSliceや<code>Map</code>、<code>function</code>への値のことを指す。</p>
+
+<h1 id="comparable-ではない値を指すインターフェースに等価演算子を使うと-runtime-error-が発生する"><code>comparable</code>ではない値を指すインターフェースに等価演算子を使うと<code>runtime error</code>が発生する</h1>
+
+<p>この<code>comparable</code>性については構造体にも影響する。
+構造体が<code>not comparable</code>な型のフィールドを持つとき、その構造体も<code>not comparable</code>になる。<br />
+明示的に<code>not comparable</code>な構造体を比較しているときはビルド時にエラーになるので気づく。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"> a1 <span style="color:#719e07">:=</span> <span style="color:#268bd2">struct</span> {
+ 	Slice []<span style="color:#dc322f">string</span>
+ }{
+ 	[]<span style="color:#dc322f">string</span>{
+ 		<span style="color:#2aa198">&#34;hoge&#34;</span>,
+ 	},
+ }
+ 
+ <span style="color:#586e75">// invalid operation: a1 == a1 (struct containing []string cannot be compared)
+</span><span style="color:#586e75"></span> <span style="color:#719e07">if</span> a1 <span style="color:#719e07">==</span> a1 {
+ 	fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Same article&#34;</span>)
+ }</code></pre></div>
+<p>問題は<code>interface</code>でそのような構造体を指していたときだ。<br />
+<code>not comparable</code>な値を指した状態の<code>interface</code>値を等価演算子で比較すると、<code>runtime error</code>が発生する旨が仕様に記載されている（記載場所は上記リンクと同じ）。</p>
+
+<blockquote>
+<p>A comparison of two interface values with identical dynamic types causes a run-time panic if values of that type are not comparable. This behavior applies not only to direct interface value comparisons but also when comparing arrays of interface values or structs with interface-valued fields.</p>
+</blockquote>
+
+<p>下記のサンプルコードは<code>interface</code>を介して<code>[]string</code>を内包する構造体を比較してしまう。
+そのため、ビルドには成功するが、実行時に<code>runtime error</code>が発生する。</p>
+
+<ul>
+<li><a href="https://play.golang.org/p/FO_vwjsT7TY">https://play.golang.org/p/FO_vwjsT7TY</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://play.golang.org/p/FO_vwjsT7TY
+</span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+	<span style="color:#2aa198">&#34;fmt&#34;</span>
+)
+
+<span style="color:#268bd2">type</span> Article <span style="color:#268bd2">struct</span> {
+	Title <span style="color:#dc322f">string</span>
+	Tag   []<span style="color:#dc322f">string</span>
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+	<span style="color:#268bd2">var</span> a1 <span style="color:#268bd2">interface</span>{} = Article{
+		Title: <span style="color:#2aa198">&#34;Content Title&#34;</span>,
+		Tag: []<span style="color:#dc322f">string</span>{
+			<span style="color:#2aa198">&#34;go&#34;</span>,
+			<span style="color:#2aa198">&#34;slice&#34;</span>,
+		},
+	}
+
+	<span style="color:#268bd2">var</span> a2 <span style="color:#268bd2">interface</span>{} = Article{
+		Title: <span style="color:#2aa198">&#34;Content Title&#34;</span>,
+		Tag: []<span style="color:#dc322f">string</span>{
+			<span style="color:#2aa198">&#34;go&#34;</span>,
+			<span style="color:#2aa198">&#34;slice&#34;</span>,
+		},
+	}
+	<span style="color:#586e75">// panic: runtime error: comparing uncomparable type main.Article
+</span><span style="color:#586e75"></span>	<span style="color:#719e07">if</span> a1 <span style="color:#719e07">==</span> a2 {
+		fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Same article&#34;</span>)
+	}
+}</code></pre></div>
+<p>サンプルコードでは<code>not comparable</code>な値が入っているのは自明だが、関数やメソッドの引数を<code>interface</code>としていたとき、渡ってきた具象型が<code>comparable</code>かどうかわざわざ検証しないだろう。
+<code>error</code>インターフェースなど、具象型を意識しないでで取り扱う構造体は<code>comparable</code>な構造体にしておきたい。</p>
+
+<h1 id="構造体をcomparableにしてruntime-errorを回避するにはポインタを使ってフィールドを定義する">構造体をcomparableにしてruntime errorを回避するにはポインタを使ってフィールドを定義する</h1>
+
+<p>では具体的にどのように回避すればよいかというと、ポインタを利用することでSliceを内部で持っていたまま<code>comparable</code>な構造体にできる（Sliceの場合は配列にしてもよい）。
+サンプルコードは以下。</p>
+
+<ul>
+<li><a href="https://play.golang.org/p/6RGzUoPFrjW">https://play.golang.org/p/6RGzUoPFrjW</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://play.golang.org/p/6RGzUoPFrjW
+</span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+	<span style="color:#2aa198">&#34;fmt&#34;</span>
+)
+
+<span style="color:#268bd2">type</span> Tags <span style="color:#719e07">*</span>[]<span style="color:#dc322f">string</span>
+
+<span style="color:#268bd2">type</span> Article <span style="color:#268bd2">struct</span> {
+	Title <span style="color:#dc322f">string</span>
+	Tag   Tags
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+	<span style="color:#268bd2">var</span> a1 <span style="color:#268bd2">interface</span>{} = Article{
+		Title: <span style="color:#2aa198">&#34;Content Title&#34;</span>,
+		Tag: <span style="color:#719e07">&amp;</span>[]<span style="color:#dc322f">string</span>{
+			<span style="color:#2aa198">&#34;go&#34;</span>,
+			<span style="color:#2aa198">&#34;slice&#34;</span>,
+		},
+	}
+
+	<span style="color:#268bd2">var</span> a2 <span style="color:#268bd2">interface</span>{} = Article{
+		Title: <span style="color:#2aa198">&#34;Content Title&#34;</span>,
+		Tag: <span style="color:#719e07">&amp;</span>[]<span style="color:#dc322f">string</span>{
+			<span style="color:#2aa198">&#34;go&#34;</span>,
+			<span style="color:#2aa198">&#34;slice&#34;</span>,
+		},
+	}
+	<span style="color:#719e07">if</span> a1 <span style="color:#719e07">==</span> a2 {
+		fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Same article&#34;</span>)
+	}
+}</code></pre></div>
+<p><code>[]string</code>ではなく、<code>*[]string</code>にした構造体を宣言すると<code>runtime error</code>は解消された。<br />
+ただ、当然ポインタで比較されるようになるのでそこは注意する。
+なので、サンプルコードの<code>a1</code>と<code>a2</code>は直感的には「等価」だが、ポインタの指すSliceは別物なので「等値」ではなく<code>!=</code>になる。
+あくまで何も知らないで<code>interface</code>を経由して利用される場合の<code>runtime error</code>回避のためのテクニックなので、構造体の中身の詳細を知っているコードでは<code>reflect.DeepEqual</code>などを利用する必要がある。</p>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>業務で実際に<code>runtime error</code>が発生する可能性があったので、どうしたら回避できるのか調べたのが今回の記事になる。<br />
+「そういえば<code>pkg/errors</code>はSliceで<code>StackFrame</code>持っているはずだけど同じエラーが発生しないな？」と調べたらポインタを使っていた。<br />
+著名なOSSのコードはやはり勉強になるので使うだけでなくちゃんと読んでみないとなと改めて思った。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/pkg/errors/blob/27936f6d90f9c8e1145f11ed52ffffbfdb9e0af7/errors.go#L119-L123
+</span><span style="color:#586e75">// fundamental is an error that has a message and a stack, but no caller.
+</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> fundamental <span style="color:#268bd2">struct</span> {
+	msg <span style="color:#dc322f">string</span>
+	<span style="color:#719e07">*</span>stack <span style="color:#586e75">// type stack []uintptr
+</span><span style="color:#586e75"></span>}</code></pre></div>
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/pkg/errors" data-iframely-url="//cdn.iframe.ly/awcJrVL"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/02/08/go-slice-operator/">[Go]スライス生成時(slice operator)に使える珍しい宣言方法 #golangjp</a></li>
+  
+  <li><a href="/2019/06/20/golangtokyo25-read-again-awesome-go-article/">[発表資料] 今改めて読み直したい Go基礎情報 その1 #golangtokyo</a></li>
+  
+  <li><a href="/2019/05/26/print-array-and-slice-with-verbs/">[Go] プリミティブ型の配列・スライスを出力するときはその型のverbが使える #golangjp</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+​<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Jul 7, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/06/30/review-the-unix-philosophy/" title="[書評] UNIXという考え方―その設計思想と哲学 を読んで「単純さ」の大切さを改めて学んだ">[書評] UNIXという考え方―その設計思想と哲学 を読んで「単純さ」の大切さを改めて学んだ</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/07/07/prevent-runtime-error-by-pointer/">[Go]Sliceを含んだ構造体が等値演算子（==）でpanicを引き起こすのを回避する #golang</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/06/30/review-the-unix-philosophy/">[書評] UNIXという考え方―その設計思想と哲学 を読んで「単純さ」の大切さを改めて学んだ</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/06/22/textlint-with-reviewdog-for-review/">textlint/reviewdogで文書校正エラーをGitHubのプルリクエストにコメントする 2019年6月版</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/06/20/golangtokyo25-read-again-awesome-go-article/">[発表資料] 今改めて読み直したい Go基礎情報 その1 #golangtokyo</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/06/13/explore-go-specification-and-implementation/">GoのLanguage Specificationの特定の仕様に関わる処理系の実装を探す #golang</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+

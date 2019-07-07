@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.50" />
+  <meta name="generator" content="Hugo 0.53" />
 
   
   
@@ -65,14 +65,10 @@
   <meta property="og:url" content="https://budougumi0617.github.io/2019/05/26/print-array-and-slice-with-verbs/"/>
   <meta property="og:type" content="article"/>
   <meta property="og:title" content="[Go] プリミティブ型の配列・スライスを出力するときはその型のverbが使える #golangjp - My External Storage"/>
-  <meta property="og:description" content="柴田さん(@yoshiki_shibata)にfmt.Printfについて教えてもらったのでメモしておく。
-
-"/>
+  <meta property="og:description" content="柴田さん(@yoshiki_shibata)にfmt.Printfについて教えてもらったのでメモしておく。"/>
   
   <meta name="twitter:title" content="[Go] プリミティブ型の配列・スライスを出力するときはその型のverbが使える #golangjp - My External Storage"/>
-  <meta name="twitter:description" content="柴田さん(@yoshiki_shibata)にfmt.Printfについて教えてもらったのでメモしておく。
-
-"/>
+  <meta name="twitter:description" content="柴田さん(@yoshiki_shibata)にfmt.Printfについて教えてもらったのでメモしておく。"/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
   <meta name="twitter:creator" content="@budougumi0617"/>
@@ -189,8 +185,6 @@
           
           <p>柴田さん(<a href="https://twitter.com/yoshiki_shibata">@yoshiki_shibata</a>)に<code>fmt.Printf</code>について教えてもらったのでメモしておく。</p>
 
-<p></p>
-
 <h1 id="tl-dr">TL;DR</h1>
 
 <ul>
@@ -218,9 +212,9 @@
 	<span style="color:#2aa198">&#34;fmt&#34;</span>
 )
 
-<span style="color:#268bd2">func</span> main() {
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 	h, p <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;Hello&#34;</span>, <span style="color:#2aa198">&#34;playground&#34;</span>
-	fmt.Printf(<span style="color:#2aa198">&#34;%s, %q\n&#34;</span>, h, p) <span style="color:#586e75">// Hello, &#34;playground&#34;
+	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s, %q\n&#34;</span>, h, p) <span style="color:#586e75">// Hello, &#34;playground&#34;
 </span><span style="color:#586e75"></span>}</code></pre></div>
 <p>ここで、配列やスライスを出力したいときはどうするべきだろうか。
 私はいままで<code>%v</code>やループを回して出力することが多かった。</p>
@@ -232,11 +226,11 @@
 	<span style="color:#2aa198">&#34;fmt&#34;</span>
 )
 
-<span style="color:#268bd2">func</span> main() {
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 	sa <span style="color:#719e07">:=</span> []<span style="color:#dc322f">string</span>{<span style="color:#2aa198">&#34;a&#34;</span>, <span style="color:#2aa198">&#34;bc&#34;</span>, <span style="color:#2aa198">&#34;def&#34;</span>}
-	fmt.Printf(<span style="color:#2aa198">&#34;%v\n&#34;</span>, sa)           <span style="color:#586e75">// [a bc def]
+	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%v\n&#34;</span>, sa)           <span style="color:#586e75">// [a bc def]
 </span><span style="color:#586e75"></span>	<span style="color:#719e07">for</span> _, v <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> sa {
-		fmt.Printf(<span style="color:#2aa198">&#34;%s &#34;</span>, v)           <span style="color:#586e75">// a bc def
+		fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s &#34;</span>, v)           <span style="color:#586e75">// a bc def
 </span><span style="color:#586e75"></span>	}
 }</code></pre></div>
 <h1 id="プリミティブ型の配列-スライスならば-その配列-スライスに対してその型に対応したヴァーブを使うことができる">プリミティブ型の配列・スライスならば、その配列・スライスに対してその型に対応したヴァーブを使うことができる</h1>
@@ -251,15 +245,15 @@
 	<span style="color:#2aa198">&#34;fmt&#34;</span>
 )
 
-<span style="color:#268bd2">func</span> main() {
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 	sa <span style="color:#719e07">:=</span> []<span style="color:#dc322f">string</span>{<span style="color:#2aa198">&#34;a&#34;</span>, <span style="color:#2aa198">&#34;bc&#34;</span>, <span style="color:#2aa198">&#34;def&#34;</span>}
 	da <span style="color:#719e07">:=</span> []<span style="color:#dc322f">int</span>{<span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>, <span style="color:#2aa198">3</span>, <span style="color:#2aa198">4</span>}
 	fa <span style="color:#719e07">:=</span> []<span style="color:#dc322f">float32</span>{<span style="color:#2aa198">1.23</span>, <span style="color:#2aa198">4.5678</span>}
-	fmt.Printf(<span style="color:#2aa198">&#34;%s\n&#34;</span>, sa)           <span style="color:#586e75">// [a bc def]
-</span><span style="color:#586e75"></span>	fmt.Printf(<span style="color:#2aa198">&#34;%q\n&#34;</span>, sa)           <span style="color:#586e75">// [&#34;a&#34; &#34;bc&#34; &#34;def&#34;]
-</span><span style="color:#586e75"></span>	fmt.Printf(<span style="color:#2aa198">&#34;%d\n&#34;</span>, da)           <span style="color:#586e75">// [1 2 3 4]
-</span><span style="color:#586e75"></span>	fmt.Printf(<span style="color:#2aa198">&#34;%f\n&#34;</span>, fa)           <span style="color:#586e75">// [1.230000 4.567800]
-</span><span style="color:#586e75"></span>	fmt.Printf(<span style="color:#2aa198">&#34;%1.19f\n&#34;</span>, fa)       <span style="color:#586e75">// [1.2300000190734863281 4.5678000450134277344]
+	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s\n&#34;</span>, sa)           <span style="color:#586e75">// [a bc def]
+</span><span style="color:#586e75"></span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%q\n&#34;</span>, sa)           <span style="color:#586e75">// [&#34;a&#34; &#34;bc&#34; &#34;def&#34;]
+</span><span style="color:#586e75"></span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%d\n&#34;</span>, da)           <span style="color:#586e75">// [1 2 3 4]
+</span><span style="color:#586e75"></span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%f\n&#34;</span>, fa)           <span style="color:#586e75">// [1.230000 4.567800]
+</span><span style="color:#586e75"></span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%1.19f\n&#34;</span>, fa)       <span style="color:#586e75">// [1.2300000190734863281 4.5678000450134277344]
 </span><span style="color:#586e75"></span>}</code></pre></div>
 <p><code>%1.19f</code>などの指定もきちんと反映されていることがわかる。
 わざわざループを回して表示を整えたりしていたこともあったが、こちらのほうがシンプルに出力できそうだ。</p>
@@ -446,6 +440,12 @@
           
             
               <li class="post">
+                <a href="/2019/07/07/prevent-runtime-error-by-pointer/">[Go]Sliceを含んだ構造体が等値演算子（==）でpanicを引き起こすのを回避する #golang</a>
+              </li>
+            
+          
+            
+              <li class="post">
                 <a href="/2019/06/30/review-the-unix-philosophy/">[書評] UNIXという考え方―その設計思想と哲学 を読んで「単純さ」の大切さを改めて学んだ</a>
               </li>
             
@@ -465,12 +465,6 @@
             
               <li class="post">
                 <a href="/2019/06/13/explore-go-specification-and-implementation/">GoのLanguage Specificationの特定の仕様に関わる処理系の実装を探す #golang</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2019/06/02/use-dynamodb-local-on-circleci/">DynamoDBを操作するコードをamazon/dynamodb-localコンテナとCircleCIを使ってCIする #aws</a>
               </li>
             
           
