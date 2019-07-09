@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.53" />
+  <meta name="generator" content="Hugo 0.50" />
 
   
   
@@ -67,12 +67,16 @@
   <meta property="og:title" content="[Go]Sliceを含んだ構造体が等値演算子（==）でpanicを引き起こすのを回避する #golang - My External Storage"/>
   <meta property="og:description" content="Goにはcomparableが定義されておらず、比較できない型としてSlice, Mapなどがある。
 interfaceがそのような型（フィールドにそのような型を持った構造体）を値に持っていたときに==を利用するとpanicが発生する可能性がある。
-行儀の悪い構造体を定義しないテクニックがあったのでメモしておく。"/>
+行儀の悪い構造体を定義しないテクニックがあったのでメモしておく。
+
+"/>
   
   <meta name="twitter:title" content="[Go]Sliceを含んだ構造体が等値演算子（==）でpanicを引き起こすのを回避する #golang - My External Storage"/>
   <meta name="twitter:description" content="Goにはcomparableが定義されておらず、比較できない型としてSlice, Mapなどがある。
 interfaceがそのような型（フィールドにそのような型を持った構造体）を値に持っていたときに==を利用するとpanicが発生する可能性がある。
-行儀の悪い構造体を定義しないテクニックがあったのでメモしておく。"/>
+行儀の悪い構造体を定義しないテクニックがあったのでメモしておく。
+
+"/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
   <meta name="twitter:creator" content="@budougumi0617"/>
@@ -155,7 +159,7 @@ interfaceがそのような型（フィールドにそのような型を持っ�
 
 <header>
     <p class="meta">Jul 7, 2019
-         - 4 minute read 
+         - 5 minute read 
          - <a href="https://budougumi0617.github.io/2019/07/07/prevent-runtime-error-by-pointer/#disqus_thread">Comments</a>
 
         
@@ -184,12 +188,15 @@ interfaceがそのような型（フィールドにそのような型を持っ�
 <li><a href="#comparable-ではない値を指すインターフェースに等価演算子を使うと-runtime-error-が発生する"><code>comparable</code>ではない値を指すインターフェースに等価演算子を使うと<code>runtime error</code>が発生する</a></li>
 <li><a href="#構造体をcomparableにしてruntime-errorを回避するにはポインタを使ってフィールドを定義する">構造体をcomparableにしてruntime errorを回避するにはポインタを使ってフィールドを定義する</a></li>
 <li><a href="#終わりに">終わりに</a></li>
+<li><a href="#追記">追記</a></li>
 </ul>
 </nav>
           
           <p>Goには<code>comparable</code>が定義されておらず、比較できない型として<code>Slice</code>, <code>Map</code>などがある。<br />
 <code>interface</code>がそのような型（フィールドにそのような型を持った構造体）を値に持っていたときに<code>==</code>を利用すると<code>panic</code>が発生する可能性がある。<br />
 行儀の悪い構造体を定義しないテクニックがあったのでメモしておく。</p>
+
+<p></p>
 
 <h1 id="tl-dr">TL;DR</h1>
 
@@ -241,7 +248,7 @@ interfaceがそのような型（フィールドにそのような型を持っ�
  
  <span style="color:#586e75">// invalid operation: a1 == a1 (struct containing []string cannot be compared)
 </span><span style="color:#586e75"></span> <span style="color:#719e07">if</span> a1 <span style="color:#719e07">==</span> a1 {
- 	fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Same article&#34;</span>)
+ 	fmt.Println(<span style="color:#2aa198">&#34;Same article&#34;</span>)
  }</code></pre></div>
 <p>問題は<code>interface</code>でそのような構造体を指していたときだ。<br />
 <code>not comparable</code>な値を指した状態の<code>interface</code>値を等価演算子で比較すると、<code>runtime error</code>が発生する旨が仕様に記載されている（記載場所は上記リンクと同じ）。</p>
@@ -268,7 +275,7 @@ interfaceがそのような型（フィールドにそのような型を持っ�
 	Tag   []<span style="color:#dc322f">string</span>
 }
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+<span style="color:#268bd2">func</span> main() {
 	<span style="color:#268bd2">var</span> a1 <span style="color:#268bd2">interface</span>{} = Article{
 		Title: <span style="color:#2aa198">&#34;Content Title&#34;</span>,
 		Tag: []<span style="color:#dc322f">string</span>{
@@ -286,7 +293,7 @@ interfaceがそのような型（フィールドにそのような型を持っ�
 	}
 	<span style="color:#586e75">// panic: runtime error: comparing uncomparable type main.Article
 </span><span style="color:#586e75"></span>	<span style="color:#719e07">if</span> a1 <span style="color:#719e07">==</span> a2 {
-		fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Same article&#34;</span>)
+		fmt.Println(<span style="color:#2aa198">&#34;Same article&#34;</span>)
 	}
 }</code></pre></div>
 <p>サンプルコードでは<code>not comparable</code>な値が入っているのは自明だが、関数やメソッドの引数を<code>interface</code>としていたとき、渡ってきた具象型が<code>comparable</code>かどうかわざわざ検証しないだろう。
@@ -314,7 +321,7 @@ interfaceがそのような型（フィールドにそのような型を持っ�
 	Tag   Tags
 }
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+<span style="color:#268bd2">func</span> main() {
 	<span style="color:#268bd2">var</span> a1 <span style="color:#268bd2">interface</span>{} = Article{
 		Title: <span style="color:#2aa198">&#34;Content Title&#34;</span>,
 		Tag: <span style="color:#719e07">&amp;</span>[]<span style="color:#dc322f">string</span>{
@@ -331,7 +338,7 @@ interfaceがそのような型（フィールドにそのような型を持っ�
 		},
 	}
 	<span style="color:#719e07">if</span> a1 <span style="color:#719e07">==</span> a2 {
-		fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Same article&#34;</span>)
+		fmt.Println(<span style="color:#2aa198">&#34;Same article&#34;</span>)
 	}
 }</code></pre></div>
 <p><code>[]string</code>ではなく、<code>*[]string</code>にした構造体を宣言すると<code>runtime error</code>は解消された。<br />
@@ -351,6 +358,36 @@ interfaceがそのような型（フィールドにそのような型を持っ�
 	<span style="color:#719e07">*</span>stack <span style="color:#586e75">// type stack []uintptr
 </span><span style="color:#586e75"></span>}</code></pre></div>
 <p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/pkg/errors" data-iframely-url="//cdn.iframe.ly/awcJrVL"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<h1 id="追記">追記</h1>
+
+<p>比較する2つのオブジェクトが違う型ならば<code>runtime error</code>が発生するnot comparableなフィールドを触る前に比較が終わるので<code>runtime error</code>は発生しない。
+なので、比較可能な具象型をどちらかに置いて比較演算子を書けば<code>runtime error</code>が出ないことは保証される（<code>interface == interface</code>と比較するケースはあまりないだろう）。</p>
+
+<p><blockquote class="twitter-tweet"><p lang="ja" dir="ltr">実装まで見れてませんが、型が違えば型比較でEqualityの判定が終わるので平気なんですよね。なので比較するどちらかがcomparebleならruntime errorが出ないことは保証できます。<br>ただどう使われるかわからないライブラリ公開者は気をつけて実装したほうがいいという話です。<a href="https://t.co/5x924VN9aK">https://t.co/5x924VN9aK</a></p>&mdash; Yoichiro Shimizu (@budougumi0617) <a href="https://twitter.com/budougumi0617/status/1148715295772557313?ref_src=twsrc%5Etfw">July 9, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+	<span style="color:#2aa198">&#34;fmt&#34;</span>
+)
+
+<span style="color:#268bd2">type</span> NotCompareble []<span style="color:#dc322f">string</span>
+
+<span style="color:#268bd2">func</span> main() {
+	<span style="color:#268bd2">var</span> a <span style="color:#268bd2">interface</span>{} = []<span style="color:#dc322f">string</span>{
+		<span style="color:#2aa198">&#34;go&#34;</span>,
+		<span style="color:#2aa198">&#34;slice&#34;</span>,
+	}
+
+	<span style="color:#268bd2">var</span> b <span style="color:#268bd2">interface</span>{} = NotCompareble{
+		<span style="color:#2aa198">&#34;go&#34;</span>,
+		<span style="color:#2aa198">&#34;slice&#34;</span>,
+	}
+	<span style="color:#586e75">// not runtime error, even if each type are not comparable, because a, b are different type.
+</span><span style="color:#586e75"></span>	<span style="color:#719e07">if</span> a <span style="color:#719e07">!=</span> b {
+		fmt.Println(<span style="color:#2aa198">&#34;different object&#34;</span>)
+	}
+}</code></pre></div>
         </div>
         
 
