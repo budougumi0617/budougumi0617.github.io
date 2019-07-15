@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[発表資料] GoCon Fukuokaでgoogle/wireを使った Goらしいアーキテクチャへの取り組みを発表した #gocon - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="Go,Golang,アーキテクチャ,google/wire,wire">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.53" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/2019/07/15_ogp.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/2019/07/15_ogp.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/07/15/gocon2019summer/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[発表資料] GoCon Fukuokaでgoogle/wireを使った Goらしいアーキテクチャへの取り組みを発表した #gocon - My External Storage"/>
+  <meta property="og:description" content="GoCon &lsquo;19 Summer in Fukuokaで登壇してきたので感想と参考資料などをまとめた。"/>
+  
+  <meta name="twitter:title" content="[発表資料] GoCon Fukuokaでgoogle/wireを使った Goらしいアーキテクチャへの取り組みを発表した #gocon - My External Storage"/>
+  <meta name="twitter:description" content="GoCon &lsquo;19 Summer in Fukuokaで登壇してきたので感想と参考資料などをまとめた。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Jul 15, 2019
+         - 5 minute read 
+         - <a href="https://budougumi0617.github.io/2019/07/15/gocon2019summer/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a><a class="label" href="https://budougumi0617.github.io/categories/presentation/">presentation </a><a class="label" href="https://budougumi0617.github.io/categories/wire/">wire </a>
+        
+    </p>
+    <h1 class="entry-title">
+         [発表資料] GoCon Fukuokaでgoogle/wireを使った Goらしいアーキテクチャへの取り組みを発表した #gocon 
+    </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#資料を作る上で参考にした情報">資料を作る上で参考にした情報</a>
+<ul>
+<li><a href="#google-wireについて">google/wireについて</a></li>
+<li><a href="#goらしい設計について">Goらしい設計について</a></li>
+<li><a href="#実際のアーキテクチャ設計について">実際のアーキテクチャ設計について</a></li>
+</ul></li>
+<li><a href="#感想">感想</a>
+<ul>
+<li><a href="#自分の発表について">自分の発表について</a></li>
+<li><a href="#gocon-fukuokaについて">GoCon Fukuokaについて</a></li>
+</ul></li>
+<li><a href="#終わりに">終わりに</a></li>
+<li><a href="#関連資料">関連資料</a></li>
+</ul>
+</nav>
+          
+          <p>GoCon &lsquo;19 Summer in Fukuokaで登壇してきたので感想と参考資料などをまとめた。</p>
+
+<table>
+<thead>
+<tr>
+<th>イベント名</th>
+<th>GoConference &lsquo;19 Summer in Fukuoka</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>URL</td>
+<td><a href="https://fukuoka.gocon.jp/ja/">https://fukuoka.gocon.jp/ja/</a></td>
+</tr>
+
+<tr>
+<td>Connpass</td>
+<td><a href="https://fukuokago.connpass.com/event/130797/">https://fukuokago.connpass.com/event/130797/</a></td>
+</tr>
+
+<tr>
+<td>会場</td>
+<td>福岡市中央区天神 Fukuoka Growth Next</td>
+</tr>
+
+<tr>
+<td>日時</td>
+<td>2019/07/13（土）10:00-19:00</td>
+</tr>
+
+<tr>
+<td>ハッシュタグ</td>
+<td><a href="https://twitter.com/hashtag/gocon">#gocon</a></td>
+</tr>
+
+<tr>
+<td>Toggeter</td>
+<td><a href="https://togetter.com/li/1375799">https://togetter.com/li/1375799</a></td>
+</tr>
+</tbody>
+</table>
+
+<p>当日のスライド資料は以下となる。</p>
+
+<script async class="speakerdeck-embed" data-id="16fb9854de5f42d19d1786ba7b0d1dbe" data-ratio="1.77777777777778" src="//speakerdeck.com/assets/embed.js"></script>
+
+<h1 id="資料を作る上で参考にした情報">資料を作る上で参考にした情報</h1>
+
+<h2 id="google-wireについて">google/wireについて</h2>
+
+<p>google/wireについては公式リポジトリのドキュメントを見るのが一番良い。
+ベータリリースのため、(私の記事も含めて)ブログ記事などの情報は最新情報ではない可能性がある。
+特に6月にリリースされたv0.3.0では破壊的変更が入り、<code>wire.Struct</code>などの新しい概念も入っている。</p>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/google/wire/blob/master/docs/guide.md" data-iframely-url="//cdn.iframe.ly/X4QqTGW"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<p>日本語の記事だと以下の記事がわかりやすいと思う。</p>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://blog.ishkawa.org/2018/12/10/1544371624/" data-iframely-url="//cdn.iframe.ly/Krknhj9"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<iframe src="https://hatenablog-parts.com/embed?url=https%3A%2F%2Fdevelopers.freee.co.jp%2Fentry%2Fservice-infra-and-wire" style="border: 0; width: 100%; height: 190px;" allowfullscreen scrolling="no" allow="encrypted-media"></iframe></p>
+
+<p>また、このブログでも何回か取り上げている。</p>
+
+<ul>
+<li><a href="/tags/wire/">wireタグの記事一覧</a></li>
+</ul>
+
+<h2 id="goらしい設計について">Goらしい設計について</h2>
+
+<p>Goらしいとは「Simplicity」だと考えている。言語思想については@songmuさんがまとめてくださっている。
+（<a href="https://twitter.com/songmu">@songmu</a>さんにはGoCon当日の懇親会などでもたくさんご助言いただいた。感謝。）</p>
+
+<iframe src="https://hatenablog-parts.com/embed?url=https%3A%2F%2Femployment.en-japan.com%2Fengineerhub%2Fentry%2F2018%2F06%2F19%2F110000" style="border: 0; width: 100%; height: 190px;" allowfullscreen scrolling="no" allow="encrypted-media"></iframe>
+
+<p>また、英語でも問題ない方はGoのブランドブックや、コアメンバーであるRob Pike氏の話をみればよいだろう。</p>
+
+<ul>
+<li>Go Brand Book v1.9.5
+
+<ul>
+<li><a href="https://storage.googleapis.com/golang-assets/Go-brand-book-v1.9.5.pdf">https://storage.googleapis.com/golang-assets/Go-brand-book-v1.9.5.pdf</a></li>
+</ul></li>
+<li>Simplicity is Complicated
+
+<ul>
+<li><a href="https://talks.golang.org/2015/simplicity-is-complicated.slide#1">https://talks.golang.org/2015/simplicity-is-complicated.slide#1</a></li>
+</ul></li>
+</ul>
+
+<h2 id="実際のアーキテクチャ設計について">実際のアーキテクチャ設計について</h2>
+
+<p>ここに関してはアーキテクチャの本関連をもろもろ読み、社内の強いエンジニアの人のレイヤー構成を参考にしているとしか言えないところだ…。
+GitHubにサンプルコードを後日公開し、背景や意図を書くことにする。</p>
+
+<p>強く影響を受けている書籍などは以下の通り。</p>
+
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4048930656&linkId=46265df25801829599dc7dc7c7354de7"></iframe>
+
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4274064069&linkId=36ff223e5baa6f6bb2b90b57703a8b88"></iframe>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://booth.pm/ja/items/1045782" data-iframely-url="//cdn.iframe.ly/8L1q4X1"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<iframe src="https://hatenablog-parts.com/embed?url=https%3A%2F%2Fdevblog.thebase.in%2Fentry%2F2018%2F11%2F26%2F102401" style="border: 0; width: 100%; height: 190px;" allowfullscreen scrolling="no" allow="encrypted-media"></iframe>
+
+<h1 id="感想">感想</h1>
+
+<h2 id="自分の発表について">自分の発表について</h2>
+
+<p>今回は20分のつもりで準備をしていたが、諸々の事情で15分ほどしか時間がなかったため最後まで発表することができなかった。</p>
+
+<ul>
+<li>前の発表の発表まで押していた&amp;&amp;機材トラブルで開始が遅れていた</li>
+<li>次の発表者が福岡市長だったので予定終了時間は動かせなかった</li>
+</ul>
+
+<p>話す直前に事情はわかっていたので話す内容を調整できればよかった。<br />
+が、google/wireの認知度が予想以上に低かったりで予定以上に前半で時間を使ってしまった。<br />
+発表練習が足りなかったのは事実なので、もっと練習をしておけば対処できた。<br />
+サンプルコードも動く形にしてGitHubには公開できていないので、供養がてらブログ記事として後日公開したい。</p>
+
+<h2 id="gocon-fukuokaについて">GoCon Fukuokaについて</h2>
+
+<p>会場となったFukuoka Growth Nextは小学校の旧校舎を改装した施設で、懐かしい感じとリノベーションされた雰囲気が混在した面白い空間だった。</p>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://growth-next.com/ja/" data-iframely-url="//cdn.iframe.ly/N13S9pq?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<p>運営のみなさん、スポンサー企業の方々もとっても気合が入っており、トートバックや登壇者向けTシャツをいただけた。</p>
+
+<p><blockquote class="twitter-tweet"><p lang="ja" dir="ltr">GoCon始まるよ！！ <a href="https://twitter.com/hashtag/gocon?src=hash&amp;ref_src=twsrc%5Etfw">#gocon</a> <a href="https://twitter.com/hashtag/fukuokago?src=hash&amp;ref_src=twsrc%5Etfw">#fukuokago</a> <a href="https://t.co/K0djZYI4al">pic.twitter.com/K0djZYI4al</a></p>&mdash; Yoichiro Shimizu (@budougumi0617) <a href="https://twitter.com/budougumi0617/status/1149842855315197952?ref_src=twsrc%5Etfw">July 13, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
+
+<p>前述したとおり福岡市長も登壇し以下のような内容をプレゼンしてくださった。</p>
+
+<ul>
+<li>どんな文化を持った街なのか</li>
+<li>如何に企業活動に向いているか</li>
+<li>エンジニア（IT企業）と一緒にどう発展していきたいか</li>
+</ul>
+
+<p><blockquote class="twitter-tweet"><p lang="ja" dir="ltr">福岡はアジアの中心！博多2.5km圏内に空港、新幹線の駅、港があるぞ！ <a href="https://twitter.com/hashtag/gocon?src=hash&amp;ref_src=twsrc%5Etfw">#gocon</a></p>&mdash; Yoichiro Shimizu (@budougumi0617) <a href="https://twitter.com/budougumi0617/status/1149872643614494720?ref_src=twsrc%5Etfw">July 13, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
+
+<p>当日の市長の発表内容は既にYouTubeに公開されている。さすがだ。</p>
+
+<ul>
+<li>福岡市長高島宗一郎 GO conference&rsquo;19 summer in fukuokaに出席しました
+
+<ul>
+<li><a href="https://youtu.be/NDbg3QffW4k">https://youtu.be/NDbg3QffW4k</a></li>
+</ul></li>
+</ul>
+
+<p>午後からはチームラボさん提供の生ビールもデプロイされていた。
+懇親会では地元の学生さんらとも話すことができ、福岡の勢いは今後も続くんだろうなと思った。</p>
+
+<p><blockquote class="twitter-tweet"><p lang="ja" dir="ltr">さっぽろ＠福岡 <a href="https://twitter.com/hashtag/gocon?src=hash&amp;ref_src=twsrc%5Etfw">#gocon</a> <a href="https://t.co/eBRIS0Eji2">pic.twitter.com/eBRIS0Eji2</a></p>&mdash; Yoichiro Shimizu (@budougumi0617) <a href="https://twitter.com/budougumi0617/status/1149903218714877952?ref_src=twsrc%5Etfw">July 13, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
+
+<p>登壇者は懇親会と別にヌーラボさん提供で打ち上げで粋いかなどを食べさせていただき、朝から晩まで福岡を満喫させていただいた。
+また、懇親会のあとは<a href="https://twitter.com/hgsgtk">@hgsgtk</a>さん、<a href="https://twitter.com/po3rin">@po3rin</a>さんと念願の屋台も満喫させていただいた。</p>
+
+<p><blockquote class="twitter-tweet"><p lang="ja" dir="ltr">GoConお疲れ様でした！！！ <a href="https://twitter.com/hashtag/gocon?src=hash&amp;ref_src=twsrc%5Etfw">#gocon</a> <a href="https://twitter.com/hashtag/nulab?src=hash&amp;ref_src=twsrc%5Etfw">#nulab</a> <a href="https://twitter.com/hashtag/speakerdinner?src=hash&amp;ref_src=twsrc%5Etfw">#speakerdinner</a> <a href="https://t.co/4PexXN68mp">pic.twitter.com/4PexXN68mp</a></p>&mdash; Yoichiro Shimizu (@budougumi0617) <a href="https://twitter.com/budougumi0617/status/1150002487224459265?ref_src=twsrc%5Etfw">July 13, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
+
+<p>そして、今回は終わりにGoCon Tokyo Autumnのスケジュールも発表された。</p>
+
+<ul>
+<li>Go Conference 2019 Autumn
+
+<ul>
+<li>2019年10月28日(月) 墨田区みどりコミュニティセンター</li>
+<li><a href="https://gocon.jp/">https://gocon.jp/</a></li>
+</ul></li>
+</ul>
+
+<p><blockquote class="twitter-tweet"><p lang="en" dir="ltr">Go Conference 2019 Autumn on Oct 28th JST. CFP will open tomorrow. We welcome your proposals!! <a href="https://twitter.com/hashtag/gocon?src=hash&amp;ref_src=twsrc%5Etfw">#gocon</a> <a href="https://t.co/XLGbLoh1Kv">https://t.co/XLGbLoh1Kv</a></p>&mdash; Yoshi Yamaguchi 🇯🇵 (@ymotongpoo) <a href="https://twitter.com/ymotongpoo/status/1149965985035636737?ref_src=twsrc%5Etfw">July 13, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
+
+<p>秋もプロポーザルを出してぜひ登壇したいと思う（そして運営としても参加するので福岡に負けないようないい会にしないと）。</p>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>初めて関東以外のイベントに登壇したが、最初から最後まで楽しく過ごせたし、多くのみなさんと交流できて大変学びになり、やる気ももらえた。<br />
+私もいくつかコミュニティの運営に参加しているので今回のGoConFukuokaのように参加者・登壇者が大満足するような会をしていきたい。</p>
+
+<p>また、GoConの前日はメルカリさんの福岡オフィスからGo Open Fridayにも参加させていただき、参加者のみなさんと和気あいあいGoの悩みだとか雑談（？）をして盛り上がった。</p>
+
+<ul>
+<li>#5 Open Go Friday in Fukuoka
+
+<ul>
+<li><a href="https://mercari.connpass.com/event/136989/">https://mercari.connpass.com/event/136989/</a></li>
+</ul></li>
+</ul>
+
+<p>Go三昧で福岡を過ごしたが、振り返ってみるとラーメンもモツ鍋も食べ忘れてしまったのでぜひまた福岡に行ってリベンジしたい。</p>
+
+<h1 id="関連資料">関連資料</h1>
+
+<ul>
+<li><a href="https://fukuoka.gocon.jp/ja/">Go Conference ‘19 Summer in Fukuoka</a></li>
+<li><a href="https://mercari.connpass.com/event/136989/">#5 Open Go Friday in Fukuoka</a></li>
+<li><a href="https://speakerdeck.com/budougumi0617/gocon-fukuoka-2019-summer">google/wireを使った Goらしいアーキテクチャへの取り組み</a></li>
+<li><a href="https://github.com/google/wire">github.com/google/wire</a></li>
+<li><a href="https://blog.ishkawa.org/2018/12/10/1544371624/">Wire: Goのコード生成によるDIツール</a></li>
+<li><a href="https://developers.freee.co.jp/entry/service-infra-and-wire">freeeのマイクロサービス基盤とWire導入</a></li>
+<li><a href="https://employment.en-japan.com/engineerhub/entry/2018/06/19/110000">「Go言語らしさ」とは何か？　Simplicityの哲学を理解し、Go Wayに沿った開発を進めることの良さ</a></li>
+<li><a href="https://storage.googleapis.com/golang-assets/Go-brand-book-v1.9.5.pdf">Go Brand Book v1.9.5</a></li>
+<li><a href="https://talks.golang.org/2015/simplicity-is-complicated.slide#1">Simplicity is Complicated</a></li>
+<li><a href="https://booth.pm/ja/items/1045782">pospomeのサーバサイドアーキテクチャ（PDF版）</a></li>
+<li><a href="http://amazon.jp/dp/4048930656">Clean Architecture 達人に学ぶソフトウェアの構造と設計</a></li>
+<li><a href="http://amazon.jp/dp/4274064069">UNIXという考え方―その設計思想と哲学</a></li>
+<li><a href="https://devblog.thebase.in/entry/2018/11/26/102401">Goを運用アプリケーションに導入する際のレイヤ構造模索の旅路 | Go Conference 2018 Autumn 発表レポート</a></li>
+<li><a href="https://youtu.be/NDbg3QffW4k">福岡市長高島宗一郎 GO conference&rsquo;19 summer in fukuokaに出席しました</a></li>
+<li><a href="https://gocon.jp/">Go Conference 2019 Autumn</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2018/12/14/how-to-use-google-wire/">google/wireを使ったDIとDI関数のシグネチャについて #go</a></li>
+  
+  <li><a href="/2018/10/19/presentation-gounco-lt4/">[発表資料]go-cloudとWireを利用したDI #gounco #go</a></li>
+  
+  <li><a href="/2019/07/07/prevent-runtime-error-by-pointer/">[Go]Sliceを含んだ構造体が等値演算子（==）でpanicを引き起こすのを回避する #golang</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+​<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Jul 15, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/gocon">gocon</a>  <a class="category" href="https://budougumi0617.github.io/tags/wire">wire</a>  <a class="category" href="https://budougumi0617.github.io/tags/design">design</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/07/07/prevent-runtime-error-by-pointer/" title="[Go]Sliceを含んだ構造体が等値演算子（==）でpanicを引き起こすのを回避する #golang">[Go]Sliceを含んだ構造体が等値演算子（==）でpanicを引き起こすのを回避する #golang</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/07/15/gocon2019summer/">[発表資料] GoCon Fukuokaでgoogle/wireを使った Goらしいアーキテクチャへの取り組みを発表した #gocon</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/07/07/prevent-runtime-error-by-pointer/">[Go]Sliceを含んだ構造体が等値演算子（==）でpanicを引き起こすのを回避する #golang</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/06/30/review-the-unix-philosophy/">[書評] UNIXという考え方―その設計思想と哲学 を読んで「単純さ」の大切さを改めて学んだ</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/06/22/textlint-with-reviewdog-for-review/">textlint/reviewdogで文書校正エラーをGitHubのプルリクエストにコメントする 2019年6月版</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/06/20/golangtokyo25-read-again-awesome-go-article/">[発表資料] 今改めて読み直したい Go基礎情報 その1 #golangtokyo</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+

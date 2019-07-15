@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.50" />
+  <meta name="generator" content="Hugo 0.53" />
 
   
   
@@ -66,15 +66,11 @@
   <meta property="og:type" content="article"/>
   <meta property="og:title" content="DynamoDBを操作するコードをamazon/dynamodb-localコンテナとCircleCIを使ってCIする #aws - My External Storage"/>
   <meta property="og:description" content="DynamoDBを操作するコードをCircleCI上でテストする方法をまとめた。
-dynamodb-localをCircleCI上で起動することで、実際にDBアクセスする状態でテストが実行できる。
-
-"/>
+dynamodb-localをCircleCI上で起動することで、実際にDBアクセスする状態でテストが実行できる。"/>
   
   <meta name="twitter:title" content="DynamoDBを操作するコードをamazon/dynamodb-localコンテナとCircleCIを使ってCIする #aws - My External Storage"/>
   <meta name="twitter:description" content="DynamoDBを操作するコードをCircleCI上でテストする方法をまとめた。
-dynamodb-localをCircleCI上で起動することで、実際にDBアクセスする状態でテストが実行できる。
-
-"/>
+dynamodb-localをCircleCI上で起動することで、実際にDBアクセスする状態でテストが実行できる。"/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
   <meta name="twitter:creator" content="@budougumi0617"/>
@@ -201,8 +197,6 @@ dynamodb-localをCircleCI上で起動することで、実際にDBアクセス�
           <p>DynamoDBを操作するコードをCircleCI上でテストする方法をまとめた。<br />
 dynamodb-localをCircleCI上で起動することで、実際にDBアクセスする状態でテストが実行できる。</p>
 
-<p></p>
-
 <h1 id="tl-dr">TL;DR</h1>
 
 <ul>
@@ -267,48 +261,48 @@ DynamoDBクローンのDockerイメージがあるとのことだったので、
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// コード全体はこちら
 </span><span style="color:#586e75">// https://github.com/budougumi0617/lambda-go-dynamodb-local/blob/add-circleci/user/main_test.go
 </span><span style="color:#586e75"></span>
-<span style="color:#268bd2">func</span> TestGetUser(t <span style="color:#719e07">*</span>testing.T) {
-	ep <span style="color:#719e07">:=</span> os.Getenv(<span style="color:#2aa198">&#34;DYNAMODB_ENDPOINT&#34;</span>)
-	r <span style="color:#719e07">:=</span> os.Getenv(<span style="color:#2aa198">&#34;AWS_REGION&#34;</span>)
-	tn <span style="color:#719e07">:=</span> os.Getenv(<span style="color:#2aa198">&#34;DYNAMODB_TABLE_NAME&#34;</span>)
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">TestGetUser</span>(t <span style="color:#719e07">*</span>testing.T) {
+	ep <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;DYNAMODB_ENDPOINT&#34;</span>)
+	r <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;AWS_REGION&#34;</span>)
+	tn <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;DYNAMODB_TABLE_NAME&#34;</span>)
 
-	dyn <span style="color:#719e07">:=</span> dynamodb.New(
-		session.Must(
-			session.NewSession(
+	dyn <span style="color:#719e07">:=</span> dynamodb.<span style="color:#268bd2">New</span>(
+		session.<span style="color:#268bd2">Must</span>(
+			session.<span style="color:#268bd2">NewSession</span>(
 				<span style="color:#719e07">&amp;</span>aws.Config{
-					Endpoint: aws.String(ep),
-					Region:   aws.String(r),
+					Endpoint: aws.<span style="color:#268bd2">String</span>(ep),
+					Region:   aws.<span style="color:#268bd2">String</span>(r),
 				},
 			),
 		),
 	)
 
-	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> deleteTestData(dyn, tn); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		t.Logf(<span style="color:#2aa198">&#34;delete table failed %v\n&#34;</span>, err)
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> <span style="color:#268bd2">deleteTestData</span>(dyn, tn); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		t.<span style="color:#268bd2">Logf</span>(<span style="color:#2aa198">&#34;delete table failed %v\n&#34;</span>, err)
 	}
 
-	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> createTestData(dyn, tn); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		t.Fatalf(<span style="color:#2aa198">&#34;table created failed rr: %v\n&#34;</span>, err)
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> <span style="color:#268bd2">createTestData</span>(dyn, tn); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		t.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;table created failed rr: %v\n&#34;</span>, err)
 	}
 
-	h <span style="color:#719e07">:=</span> generateHandler(ep, r, tn)
+	h <span style="color:#719e07">:=</span> <span style="color:#268bd2">generateHandler</span>(ep, r, tn)
 	in <span style="color:#719e07">:=</span> events.APIGatewayProxyRequest{}
 	in.PathParameters = <span style="color:#b58900">make</span>(<span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]<span style="color:#dc322f">string</span>)
 	in.PathParameters[<span style="color:#2aa198">&#34;id&#34;</span>] = <span style="color:#2aa198">&#34;1&#34;</span>
 
-	res, err <span style="color:#719e07">:=</span> h(in)
+	res, err <span style="color:#719e07">:=</span> <span style="color:#268bd2">h</span>(in)
 	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		t.Fatalf(<span style="color:#2aa198">&#34;err: %v\n&#34;</span>, err)
+		t.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;err: %v\n&#34;</span>, err)
 	}
-	t.Logf(<span style="color:#2aa198">&#34;result = %+v\n&#34;</span>, res)
+	t.<span style="color:#268bd2">Logf</span>(<span style="color:#2aa198">&#34;result = %+v\n&#34;</span>, res)
 }
 
-<span style="color:#268bd2">func</span> createTestData(db <span style="color:#719e07">*</span>dynamodb.DynamoDB, tn <span style="color:#dc322f">string</span>) <span style="color:#dc322f">error</span> {
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">createTestData</span>(db <span style="color:#719e07">*</span>dynamodb.DynamoDB, tn <span style="color:#dc322f">string</span>) <span style="color:#dc322f">error</span> {
 	input <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>dynamodb.CreateTableInput{
 		<span style="color:#586e75">// ...
 </span><span style="color:#586e75"></span>	}
 
-	<span style="color:#719e07">if</span> _, err <span style="color:#719e07">:=</span> db.CreateTable(input); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+	<span style="color:#719e07">if</span> _, err <span style="color:#719e07">:=</span> db.<span style="color:#268bd2">CreateTable</span>(input); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 		<span style="color:#719e07">return</span> err
 	}
 
@@ -317,17 +311,17 @@ DynamoDBクローンのDockerイメージがあるとのことだったので、
 		<span style="color:#586e75">// ...
 </span><span style="color:#586e75"></span>	}
 
-	<span style="color:#719e07">if</span> _, err <span style="color:#719e07">:=</span> db.PutItem(putParams); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+	<span style="color:#719e07">if</span> _, err <span style="color:#719e07">:=</span> db.<span style="color:#268bd2">PutItem</span>(putParams); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 		<span style="color:#719e07">return</span> err
 	}
 	<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
 }
 
-<span style="color:#268bd2">func</span> deleteTestData(db <span style="color:#719e07">*</span>dynamodb.DynamoDB, tn <span style="color:#dc322f">string</span>) <span style="color:#dc322f">error</span> {
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">deleteTestData</span>(db <span style="color:#719e07">*</span>dynamodb.DynamoDB, tn <span style="color:#dc322f">string</span>) <span style="color:#dc322f">error</span> {
 	input <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>dynamodb.DeleteTableInput{
-		TableName: aws.String(tn),
+		TableName: aws.<span style="color:#268bd2">String</span>(tn),
 	}
-	_, err <span style="color:#719e07">:=</span> db.DeleteTable(input)
+	_, err <span style="color:#719e07">:=</span> db.<span style="color:#268bd2">DeleteTable</span>(input)
 	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 		<span style="color:#719e07">return</span> err
 	}
@@ -650,6 +644,12 @@ LambdaとDynamoDBの組み合わせは料金もほぼかからない組み合わ
           
             
               <li class="post">
+                <a href="/2019/07/15/gocon2019summer/">[発表資料] GoCon Fukuokaでgoogle/wireを使った Goらしいアーキテクチャへの取り組みを発表した #gocon</a>
+              </li>
+            
+          
+            
+              <li class="post">
                 <a href="/2019/07/07/prevent-runtime-error-by-pointer/">[Go]Sliceを含んだ構造体が等値演算子（==）でpanicを引き起こすのを回避する #golang</a>
               </li>
             
@@ -669,12 +669,6 @@ LambdaとDynamoDBの組み合わせは料金もほぼかからない組み合わ
             
               <li class="post">
                 <a href="/2019/06/20/golangtokyo25-read-again-awesome-go-article/">[発表資料] 今改めて読み直したい Go基礎情報 その1 #golangtokyo</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2019/06/13/explore-go-specification-and-implementation/">GoのLanguage Specificationの特定の仕様に関わる処理系の実装を探す #golang</a>
               </li>
             
           
