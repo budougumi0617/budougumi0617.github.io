@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go moudles] module名がgithub.com/account/repo/vXとなっているリポジトリの古いバージョンを使う #golangjp - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="Go,golang,modules">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.50" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/07/18/use-old-version-by-modules/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go moudles] module名がgithub.com/account/repo/vXとなっているリポジトリの古いバージョンを使う #golangjp - My External Storage"/>
+  <meta property="og:description" content="Go Modulesの使い方をざっくり調べたのでメモ。
+
+"/>
+  
+  <meta name="twitter:title" content="[Go moudles] module名がgithub.com/account/repo/vXとなっているリポジトリの古いバージョンを使う #golangjp - My External Storage"/>
+  <meta name="twitter:description" content="Go Modulesの使い方をざっくり調べたのでメモ。
+
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Jul 18, 2019
+         - 4 minute read 
+         - <a href="https://budougumi0617.github.io/2019/07/18/use-old-version-by-modules/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+        
+    </p>
+    <h1 class="entry-title">
+         [Go moudles] module名がgithub.com/account/repo/vXとなっているリポジトリの古いバージョンを使う #golangjp 
+    </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#go-mod内のmodule名にバージョン名が入っているリポジトリがあった">go.mod内のmodule名にバージョン名が入っているリポジトリがあった</a></li>
+<li><a href="#古いバージョンは使うときはmodファイル内で-replace-を使えばよい">古いバージョンは使うときはmodファイル内で<code>replace</code>を使えばよい</a></li>
+<li><a href="#終わりに">終わりに</a></li>
+</ul>
+</nav>
+          
+          <p>Go Modulesの使い方をざっくり調べたのでメモ。</p>
+
+<p></p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>go.mod内の<code>module</code>名にバージョン名が入っているリポジトリがあった
+
+<ul>
+<li><code>module github.com/golang-migrate/migrate/v4</code></li>
+</ul></li>
+<li>古いバージョンは使うときはmodファイル内で<code>replace</code>を使えばよい
+
+<ul>
+<li><code>replace github.com/golang-migrate/migrate/v3 latest =&gt; github.com/golang-migrate/migrate v3.5.4</code></li>
+</ul></li>
+<li>ブランチ名が<code>v1</code>のようなバージョン名だとブランチではなく、自動的に関連するリリースタグ状態を確認しにいく模様</li>
+</ul>
+
+<p>以下のコードは同じ<code>github.com/golang-migrate/migrate</code>リポジトリの各バージョンを取り込む<code>go.mod</code>ファイルだ。
+バージョンの指定を&rdquo;イイ感じ&rdquo;に判断してもらうため、ひとまずコメントのように<code>latest</code>をした。
+<code>go mod tidy</code>を実行後は依存性を正しく解決した状態になっている。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">module github.com<span style="color:#719e07">/</span>budougumi0617<span style="color:#719e07">/</span>til<span style="color:#719e07">/</span>go<span style="color:#719e07">/</span>modules<span style="color:#719e07">/</span>branch
+
+go <span style="color:#2aa198">1.12</span>
+
+<span style="color:#586e75">// go mod tidyコマンドを行う前の手動で書いたgo.modファイルの依存関係
+</span><span style="color:#586e75">//
+</span><span style="color:#586e75">// require (
+</span><span style="color:#586e75">// 	github.com/golang-migrate/migrate v1
+</span><span style="color:#586e75">// 	github.com/golang-migrate/migrate/v3 latest
+</span><span style="color:#586e75">//
+</span><span style="color:#586e75">// 	github.com/golang-migrate/migrate/v4 latest
+</span><span style="color:#586e75">// )
+</span><span style="color:#586e75">//
+</span><span style="color:#586e75">// replace github.com/golang-migrate/migrate/v3 latest =&gt; github.com/golang-migrate/migrate v3.5.4
+</span><span style="color:#586e75"></span>
+require (
+	github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate v1<span style="color:#2aa198">.3.2</span>
+	github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 v3<span style="color:#2aa198">.5.4</span>
+
+	github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v4 v4<span style="color:#2aa198">.4.0</span>
+	gopkg.in<span style="color:#719e07">/</span>mattes<span style="color:#719e07">/</span>migrate.v1 v1<span style="color:#2aa198">.3.2</span> <span style="color:#586e75">// indirect
+</span><span style="color:#586e75"></span>)
+
+replace github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 v3<span style="color:#2aa198">.5.4</span> <span style="color:#719e07">=&gt;</span> github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate v3<span style="color:#2aa198">.5.4</span><span style="color:#719e07">+</span>incompatible</code></pre></div>
+<p>なお、この記事の内容は<code>github.com/golang-migrate/migrate</code>の最新リリースが<code>v4.4.0</code>の時に検証された。
+また、goのバージョンは1.12.6である。</p>
+
+<h1 id="go-mod内のmodule名にバージョン名が入っているリポジトリがあった">go.mod内のmodule名にバージョン名が入っているリポジトリがあった</h1>
+
+<p><code>golang-migrate/migrate</code>リポジトリの<code>go.mod</code>ファイルを見ると、<code>module</code>名が<code>github.com/golang-migrate/migrate/v4</code>になっていた。
+このような状態のリポジトリで<code>v3.X.X</code>系を使いたい場合はどうすればいいのだろうか？</p>
+
+<ul>
+<li><a href="https://github.com/golang-migrate/migrate/blob/v4.4.0/go.mod">https://github.com/golang-migrate/migrate/blob/v4.4.0/go.mod</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#586e75">// https://github.com/golang-migrate/migrate/blob/v4.4.0/go.mod
+</span><span style="color:#586e75"></span>module github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v4
+
+require (
+	cloud.google.com<span style="color:#719e07">/</span>go v0<span style="color:#2aa198">.37.4</span>
+	github.com<span style="color:#719e07">/</span>aws<span style="color:#719e07">/</span>aws<span style="color:#719e07">-</span>sdk<span style="color:#719e07">-</span>go v1<span style="color:#2aa198">.17.7</span>
+	github.com<span style="color:#719e07">/</span>bitly<span style="color:#719e07">/</span>go<span style="color:#719e07">-</span>hostpool v0<span style="color:#2aa198">.0.0</span><span style="color:#719e07">-</span><span style="color:#2aa198">20171023180738</span><span style="color:#719e07">-</span>a3a6125de932 <span style="color:#586e75">// indirect
+</span><span style="color:#586e75"></span>	github.com<span style="color:#719e07">/</span>bmizerany<span style="color:#719e07">/</span>assert v0<span style="color:#2aa198">.0.0</span><span style="color:#719e07">-</span><span style="color:#2aa198">20160611221934</span><span style="color:#719e07">-</span>b7ed37b82869 <span style="color:#586e75">// indirect
+</span><span style="color:#586e75"></span>	github.com<span style="color:#719e07">/</span>cockroachdb<span style="color:#719e07">/</span>apd v1<span style="color:#2aa198">.1.0</span> <span style="color:#586e75">// indirect
+</span><span style="color:#586e75"></span>    <span style="color:#719e07">//</span> ....</code></pre></div>
+<h1 id="古いバージョンは使うときはmodファイル内で-replace-を使えばよい">古いバージョンは使うときはmodファイル内で<code>replace</code>を使えばよい</h1>
+
+<p><code>replace</code>を使うことで、任意の古いリリース状態を使うことができた。
+最初にリポジトリのタグやブランチは以下の状態になっている。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git branch -r
+  origin/HEAD -&gt; origin/master
+  origin/cli-updates
+  origin/master
+  origin/v1
+  origin/v1-gopkg</code></pre></div>
+<p>リリースタグは以下のような状態になっている（一部省略）。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git tag -l
+v1.2.0
+v1.3.0
+v1.3.1
+v1.3.2
+v3.0.0
+v3.0.0-prev0
+v3.0.0-prev1
+v3.0.0-prev2
+...
+v3.5.4
+v4.0.0
+v4.0.1
+...
+v4.4.0
+v4.5.0</code></pre></div>
+<p>このような状態のリポジトリのとき、<code>v3</code>系を利用して開発する場合は<code>replace</code>を使えば良さそうだった。
+以下のように手で編集したgo.modファイルを用意する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">module github.com<span style="color:#719e07">/</span>budougumi0617<span style="color:#719e07">/</span>til<span style="color:#719e07">/</span>go<span style="color:#719e07">/</span>modules<span style="color:#719e07">/</span>branch
+
+go <span style="color:#2aa198">1.12</span>
+
+require (
+ 	github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 latest
+)
+
+replace github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 latest <span style="color:#719e07">=&gt;</span> github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate v3<span style="color:#2aa198">.5.4</span></code></pre></div>
+<p>該当リポジトリを<code>import</code>するファイルを作成しておく。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+	<span style="color:#2aa198">&#34;fmt&#34;</span>
+
+	database3 <span style="color:#2aa198">&#34;github.com/golang-migrate/migrate/v3/database&#34;</span>
+)
+
+<span style="color:#268bd2">func</span> main() {
+	fmt.Println(database3.GenerateAdvisoryLockId(<span style="color:#2aa198">&#34;mod test&#34;</span>))
+}</code></pre></div>
+<p>この状態で<code>go mod tidy</code>を実行すれば、正しい<code>require</code>と<code>replace</code>が指定された状態の<code>go.mod</code>ファイルが作成された。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">require (
+	github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 v3<span style="color:#2aa198">.5.4</span>
+)
+
+replace github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 v3<span style="color:#2aa198">.5.4</span> <span style="color:#719e07">=&gt;</span> github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate v3<span style="color:#2aa198">.5.4</span><span style="color:#719e07">+</span>incompatible</code></pre></div>
+<p>また、<code>v1</code>ブランチを使いたいときはどうやって使うのだろう？と以下のように設定を追加してみた。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">module github.com<span style="color:#719e07">/</span>budougumi0617<span style="color:#719e07">/</span>til<span style="color:#719e07">/</span>go<span style="color:#719e07">/</span>modules<span style="color:#719e07">/</span>branch
+
+go <span style="color:#2aa198">1.12</span>
+
+require (
+	github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate v1
+	github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 latest
+)
+
+replace github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 latest <span style="color:#719e07">=&gt;</span> github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate v3<span style="color:#2aa198">.5.4</span></code></pre></div>
+<p>結果は<code>v1</code>ブランチではなく、自動的にリリースタグのほうの<code>v1</code>系が参照された。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">require (
+	github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate v1<span style="color:#2aa198">.3.2</span>
+	github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 v3<span style="color:#2aa198">.5.4</span>
+)
+
+replace github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 v3<span style="color:#2aa198">.5.4</span> <span style="color:#719e07">=&gt;</span> github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate v3<span style="color:#2aa198">.5.4</span><span style="color:#719e07">+</span>incompatible</code></pre></div>
+<p><code>v4</code>系も含めて使おうとすると、go.modは次のようになる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">module github.com<span style="color:#719e07">/</span>budougumi0617<span style="color:#719e07">/</span>til<span style="color:#719e07">/</span>go<span style="color:#719e07">/</span>modules<span style="color:#719e07">/</span>branch
+
+go <span style="color:#2aa198">1.12</span>
+
+require (
+	github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate v1<span style="color:#2aa198">.3.2</span>
+	github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 v3<span style="color:#2aa198">.5.4</span>
+
+	github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v4 v4<span style="color:#2aa198">.4.0</span>
+	gopkg.in<span style="color:#719e07">/</span>mattes<span style="color:#719e07">/</span>migrate.v1 v1<span style="color:#2aa198">.3.2</span> <span style="color:#586e75">// indirect
+</span><span style="color:#586e75"></span>)
+
+replace github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 v3<span style="color:#2aa198">.5.4</span> <span style="color:#719e07">=&gt;</span> github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate v3<span style="color:#2aa198">.5.4</span><span style="color:#719e07">+</span>incompatible</code></pre></div>
+<p>コードの中でどうやって呼ぶかというと、以下のようになる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+	<span style="color:#2aa198">&#34;fmt&#34;</span>
+
+	<span style="color:#2aa198">&#34;github.com/golang-migrate/migrate/driver&#34;</span>
+	database3 <span style="color:#2aa198">&#34;github.com/golang-migrate/migrate/v3/database&#34;</span>
+	database4 <span style="color:#2aa198">&#34;github.com/golang-migrate/migrate/v4/database&#34;</span>
+)
+
+<span style="color:#268bd2">func</span> main() {
+	fmt.Println(database3.GenerateAdvisoryLockId(<span style="color:#2aa198">&#34;mod test&#34;</span>))
+	fmt.Println(database4.GenerateAdvisoryLockId(<span style="color:#2aa198">&#34;mod test&#34;</span>))
+	fmt.Println(driver.GetDriver(<span style="color:#2aa198">&#34;mod test&#34;</span>))
+}</code></pre></div>
+<h1 id="終わりに">終わりに</h1>
+
+<p>（だいぶ前に調べていたのだが、）渋川さんのTweetをみて調べた内容をまとめた。
+挙動を見た、というレベルなのでロジック的な部分の確認は出来ていない。</p>
+
+<p><blockquote class="twitter-tweet"><p lang="ja" dir="ltr">これのgo moduleがわからん。プロジェクトのルートのgo.modのmoduleは確かにv4ってのが末尾に入っているこれで&hellip;/v4でimportできるようになる？v3ってのもreadmeにかかれているけど、これはどこにある？<a href="https://t.co/i1QHEPtBn7">https://t.co/i1QHEPtBn7</a></p>&mdash; 渋川よしき (@shibu_jp) <a href="https://twitter.com/shibu_jp/status/1146184060852563969?ref_src=twsrc%5Etfw">July 2, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
+
+<p>go.modファイルはいつも手で直接編集してしまうのだが、もっとシステマティックに編集するのはどうしたらいいんだろう？</p>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/06/20/golangtokyo25-read-again-awesome-go-article/">[発表資料] 今改めて読み直したい Go基礎情報 その1 #golangtokyo</a></li>
+  
+  <li><a href="/2019/05/26/print-array-and-slice-with-verbs/">[Go] プリミティブ型の配列・スライスを出力するときはその型のverbが使える #golangjp</a></li>
+  
+  <li><a href="/2019/04/28/study-design-pattern-from-ory-fosite/">ory/fositeから読み解くGoにおけるStrategy/FactoryMethodパターン</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+​<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Jul 18, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/modules">modules</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/07/15/gocon2019summer/" title="[発表資料] GoCon Fukuokaでgoogle/wireを使った Goらしいアーキテクチャへの取り組みを発表した #gocon">[発表資料] GoCon Fukuokaでgoogle/wireを使った Goらしいアーキテクチャへの取り組みを発表した #gocon</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/07/18/use-old-version-by-modules/">[Go moudles] module名がgithub.com/account/repo/vXとなっているリポジトリの古いバージョンを使う #golangjp</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/07/15/gocon2019summer/">[発表資料] GoCon Fukuokaでgoogle/wireを使った Goらしいアーキテクチャへの取り組みを発表した #gocon</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/07/07/prevent-runtime-error-by-pointer/">[Go]Sliceを含んだ構造体が等値演算子（==）でpanicを引き起こすのを回避する #golang</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/06/30/review-the-unix-philosophy/">[書評] UNIXという考え方―その設計思想と哲学 を読んで「単純さ」の大切さを改めて学んだ</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/06/22/textlint-with-reviewdog-for-review/">textlint/reviewdogで文書校正エラーをGitHubのプルリクエストにコメントする 2019年6月版</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
