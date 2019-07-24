@@ -45,7 +45,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.50" />
+  <meta name="generator" content="Hugo 0.53" />
 
   
   
@@ -65,10 +65,28 @@
   <meta property="og:url" content="https://budougumi0617.github.io/2019/03/24/go-create-type-check-handson/"/>
   <meta property="og:type" content="article"/>
   <meta property="og:title" content="go/typesパッケージを使って型チェックを行なうハンズオンを作った #golangtokyo - My External Storage"/>
-  <meta property="og:description" content="golang.tokyoで静的解析ハンズオンを行なうにあたり、ハンズオン資料を作成した。 ハンズオン作成時の際参考にした資料や、作る時に工夫し"/>
+  <meta property="og:description" content="golang.tokyoで静的解析ハンズオンを行なうにあたり、ハンズオン資料を作成した。
+ハンズオン作成時の際参考にした資料や、作る時に工夫した点をまとめておく。
+
+
+型チェックでインターフェースを実装しているか調べよう
+
+
+https://golangtokyo.github.io/codelab/first-step-type-check/
+
+"/>
   
   <meta name="twitter:title" content="go/typesパッケージを使って型チェックを行なうハンズオンを作った #golangtokyo - My External Storage"/>
-  <meta name="twitter:description" content="golang.tokyoで静的解析ハンズオンを行なうにあたり、ハンズオン資料を作成した。 ハンズオン作成時の際参考にした資料や、作る時に工夫し"/>
+  <meta name="twitter:description" content="golang.tokyoで静的解析ハンズオンを行なうにあたり、ハンズオン資料を作成した。
+ハンズオン作成時の際参考にした資料や、作る時に工夫した点をまとめておく。
+
+
+型チェックでインターフェースを実装しているか調べよう
+
+
+https://golangtokyo.github.io/codelab/first-step-type-check/
+
+"/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
   <meta name="twitter:creator" content="@budougumi0617"/>
@@ -198,8 +216,7 @@
 <li>型チェックでインターフェースを実装しているか調べよう
 
 <ul>
-<li><a href="https://golangtokyo.github.io/codelab/first-step-type-check/">https://golangtokyo.github.io/codelab/first-step-type-check/</a>
-</li>
+<li><a href="https://golangtokyo.github.io/codelab/first-step-type-check/">https://golangtokyo.github.io/codelab/first-step-type-check/</a></li>
 </ul></li>
 </ul>
 
@@ -363,19 +380,19 @@ Goには継承はないが、静的解析的（構文木）には「基底型」
 </span><span style="color:#2aa198">
 </span><span style="color:#2aa198">`</span>
 
-<span style="color:#268bd2">func</span> main() {
-	fset <span style="color:#719e07">:=</span> token.NewFileSet()
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+	fset <span style="color:#719e07">:=</span> token.<span style="color:#268bd2">NewFileSet</span>()
 
 	conf <span style="color:#719e07">:=</span> types.Config{
-		Importer: importer.Default(),
+		Importer: importer.<span style="color:#268bd2">Default</span>(),
 		Error: <span style="color:#268bd2">func</span>(err <span style="color:#dc322f">error</span>) {
-			fmt.Printf(<span style="color:#2aa198">&#34;!!! %#v\n&#34;</span>, err)
+			fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;!!! %#v\n&#34;</span>, err)
 		},
 	}
 
-	f, err <span style="color:#719e07">:=</span> parser.ParseFile(fset, <span style="color:#2aa198">&#34;p&#34;</span>, code, parser.ParseComments)
+	f, err <span style="color:#719e07">:=</span> parser.<span style="color:#268bd2">ParseFile</span>(fset, <span style="color:#2aa198">&#34;p&#34;</span>, code, parser.ParseComments)
 	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		log.Fatal(err)
+		log.<span style="color:#268bd2">Fatal</span>(err)
 	}
 
 	<span style="color:#586e75">// Info.ObjectOfやInfo.TypeOfのspecに書いてあるPreconditionを読んで初期化が必要なフィールドを把握しておく
@@ -385,22 +402,22 @@ Goには継承はないが、静的解析的（構文木）には「基底型」
 		<span style="color:#586e75">// Uses:  map[*ast.Ident]types.Object{},
 </span><span style="color:#586e75"></span>	}
 
-	_, err = conf.Check(<span style="color:#2aa198">&#34;p&#34;</span>, fset, []<span style="color:#719e07">*</span>ast.File{f}, info)
+	_, err = conf.<span style="color:#268bd2">Check</span>(<span style="color:#2aa198">&#34;p&#34;</span>, fset, []<span style="color:#719e07">*</span>ast.File{f}, info)
 	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		log.Fatal(err)
+		log.<span style="color:#268bd2">Fatal</span>(err)
 	}
 
 	<span style="color:#586e75">// error型の定義を取得する
-</span><span style="color:#586e75"></span>	errType <span style="color:#719e07">:=</span> types.Universe.Lookup(<span style="color:#2aa198">&#34;error&#34;</span>).Type()
+</span><span style="color:#586e75"></span>	errType <span style="color:#719e07">:=</span> types.Universe.<span style="color:#268bd2">Lookup</span>(<span style="color:#2aa198">&#34;error&#34;</span>).<span style="color:#268bd2">Type</span>()
 	<span style="color:#586e75">// error型の基底となっているインターフェースを取得する
-</span><span style="color:#586e75"></span>	it <span style="color:#719e07">:=</span> errType.Underlying().(<span style="color:#719e07">*</span>types.Interface)
+</span><span style="color:#586e75"></span>	it <span style="color:#719e07">:=</span> errType.<span style="color:#268bd2">Underlying</span>().(<span style="color:#719e07">*</span>types.Interface)
 
-	ast.Inspect(f, <span style="color:#268bd2">func</span>(n ast.Node) <span style="color:#dc322f">bool</span> {
+	ast.<span style="color:#268bd2">Inspect</span>(f, <span style="color:#268bd2">func</span>(n ast.Node) <span style="color:#dc322f">bool</span> {
 		<span style="color:#719e07">switch</span> n <span style="color:#719e07">:=</span> n.(<span style="color:#268bd2">type</span>) {
 		<span style="color:#586e75">// 識別子のみ処理する
 </span><span style="color:#586e75"></span>		<span style="color:#719e07">case</span> <span style="color:#719e07">*</span>ast.Ident:
 			<span style="color:#586e75">// types.Infoの中からtypes.Objectを取得する
-</span><span style="color:#586e75"></span>			obj <span style="color:#719e07">:=</span> info.ObjectOf(n)
+</span><span style="color:#586e75"></span>			obj <span style="color:#719e07">:=</span> info.<span style="color:#268bd2">ObjectOf</span>(n)
 			<span style="color:#719e07">if</span> obj <span style="color:#719e07">==</span> <span style="color:#cb4b16">nil</span> {
 				<span style="color:#719e07">return</span> <span style="color:#cb4b16">true</span>
 			}
@@ -408,19 +425,19 @@ Goには継承はないが、静的解析的（構文木）には「基底型」
 </span><span style="color:#586e75"></span>			<span style="color:#719e07">if</span> _, ok <span style="color:#719e07">:=</span> obj.(<span style="color:#719e07">*</span>types.TypeName); !ok {
 				<span style="color:#719e07">return</span> <span style="color:#cb4b16">true</span>
 			}
-			typ <span style="color:#719e07">:=</span> obj.Type()
+			typ <span style="color:#719e07">:=</span> obj.<span style="color:#268bd2">Type</span>()
 
 
 			<span style="color:#586e75">// 構造体か
-</span><span style="color:#586e75"></span>			<span style="color:#719e07">if</span> _, ok <span style="color:#719e07">:=</span> typ.Underlying().(<span style="color:#719e07">*</span>types.Struct); ok {
-				<span style="color:#719e07">if</span> types.Implements(typ, it) {
-					fmt.Println(fset.Position(obj.Pos()), typ, <span style="color:#2aa198">&#34;implements&#34;</span>, errType)
+</span><span style="color:#586e75"></span>			<span style="color:#719e07">if</span> _, ok <span style="color:#719e07">:=</span> typ.<span style="color:#268bd2">Underlying</span>().(<span style="color:#719e07">*</span>types.Struct); ok {
+				<span style="color:#719e07">if</span> types.<span style="color:#268bd2">Implements</span>(typ, it) {
+					fmt.<span style="color:#268bd2">Println</span>(fset.<span style="color:#268bd2">Position</span>(obj.<span style="color:#268bd2">Pos</span>()), typ, <span style="color:#2aa198">&#34;implements&#34;</span>, errType)
 					<span style="color:#719e07">return</span> <span style="color:#cb4b16">true</span>
 				}
 				<span style="color:#586e75">// ポインタ型としてerrorインターフェースを満たしていないか
-</span><span style="color:#586e75"></span>				ptr <span style="color:#719e07">:=</span> types.NewPointer(typ)
-				<span style="color:#719e07">if</span> types.Implements(ptr, it) {
-					fmt.Println(fset.Position(obj.Pos()), ptr, <span style="color:#2aa198">&#34;implements&#34;</span>, errType)
+</span><span style="color:#586e75"></span>				ptr <span style="color:#719e07">:=</span> types.<span style="color:#268bd2">NewPointer</span>(typ)
+				<span style="color:#719e07">if</span> types.<span style="color:#268bd2">Implements</span>(ptr, it) {
+					fmt.<span style="color:#268bd2">Println</span>(fset.<span style="color:#268bd2">Position</span>(obj.<span style="color:#268bd2">Pos</span>()), ptr, <span style="color:#2aa198">&#34;implements&#34;</span>, errType)
 				}
 			}
 		}
