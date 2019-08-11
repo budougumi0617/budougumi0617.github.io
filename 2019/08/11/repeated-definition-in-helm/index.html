@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Helm] 配列の要素数だけリソースを繰り返し定義する - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="k8s,Helm,Kubernetes">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.53" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/helm.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/helm.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/08/11/repeated-definition-in-helm/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Helm] 配列の要素数だけリソースを繰り返し定義する - My External Storage"/>
+  <meta property="og:description" content="Kubernetes(k8s)のパッケージマネージャとしてHelmが存在する。
+今回はHelmで独自のChartを作るときに配列の要素数だけリソースを繰り返し定義するようにしてみたのでその方法をまとめておく。
+
+
+https://helm.sh/
+"/>
+  
+  <meta name="twitter:title" content="[Helm] 配列の要素数だけリソースを繰り返し定義する - My External Storage"/>
+  <meta name="twitter:description" content="Kubernetes(k8s)のパッケージマネージャとしてHelmが存在する。
+今回はHelmで独自のChartを作るときに配列の要素数だけリソースを繰り返し定義するようにしてみたのでその方法をまとめておく。
+
+
+https://helm.sh/
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Aug 11, 2019
+         - 6 minute read 
+         - <a href="https://budougumi0617.github.io/2019/08/11/repeated-definition-in-helm/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/helm/">helm </a><a class="label" href="https://budougumi0617.github.io/categories/kubernetes/">kubernetes </a>
+        
+    </p>
+    <h1 class="entry-title">
+         [Helm] 配列の要素数だけリソースを繰り返し定義する 
+    </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a>
+<ul>
+<li><a href="#環境情報">環境情報</a></li>
+</ul></li>
+<li><a href="#背景">背景</a></li>
+<li><a href="#事前準備">事前準備</a>
+<ul>
+<li><a href="#helm-tillerの準備">helm-tillerの準備</a></li>
+<li><a href="#minikubeを使ってローカルでhelmがdry-runできるようにしておく">minikubeを使ってローカルでHelmがdry-runできるようにしておく</a></li>
+<li><a href="#ベースとなるhelmを準備する">ベースとなるHelmを準備する</a></li>
+</ul></li>
+<li><a href="#配列の要素を使って繰り返しリソースを定義する">配列の要素を使って繰り返しリソースを定義する</a>
+<ul>
+<li><a href="#helmではgoのtext-template構文を使える">HelmではGoのtext/template構文を使える</a></li>
+<li><a href="#名前付きテンプレートにしないのか">名前付きテンプレートにしないのか？</a></li>
+<li><a href="#helm-installの実行結果">helm installの実行結果</a></li>
+</ul></li>
+<li><a href="#終わりに">終わりに</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</nav>
+          
+          <p>Kubernetes(k8s)のパッケージマネージャとしてHelmが存在する。<br />
+今回はHelmで独自のChartを作るときに配列の要素数だけリソースを繰り返し定義するようにしてみたのでその方法をまとめておく。</p>
+
+<ul>
+<li><a href="https://helm.sh/">https://helm.sh/</a></li>
+</ul>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>prefix文字列を含んだ配列情報を使って名前が少し異なるリソース定義を複数作りたかった</li>
+<li>HelmはGoのtext/templateをベースにしたYAMLの定義をすることができる
+
+<ul>
+<li><a href="https://helm.sh/docs/chart_template_guide/">The Chart Template Developer’s Guide</a></li>
+<li><a href="https://golang.org/pkg/text/template/">Package template</a></li>
+</ul></li>
+<li><code>range</code>構文と<code>if</code>構文を使うことで定義できた。</li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">{{- range $i, $server := .Values.servers -}}
+{{- if ne $i <span style="color:#2aa198">0</span> }}
+---
+{{- end }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: = {{ $server }}-{{ include <span style="color:#2aa198">&#34;repeated-service.fullname&#34;</span> $ }}
+  labels:
+<span style="color:#586e75"># ...</span></code></pre></div>
+<p>なお、文中で利用しているサンプルコードは以下。</p>
+
+<ul>
+<li><a href="https://github.com/budougumi0617/til/tree/master/helm/repeated-service">https://github.com/budougumi0617/til/tree/master/helm/repeated-service</a></li>
+</ul>
+
+<h2 id="環境情報">環境情報</h2>
+
+<p>本記事で利用しているHelm関連のバージョンは以下の通り。
+helm-tillerを使っているため、k8sクラスタ上にTiller serverは存在しない。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ tiller -version
+v2.14.3
+$ helm version
+Client: &amp;version.Version<span style="color:#719e07">{</span>SemVer:<span style="color:#2aa198">&#34;v2.14.3&#34;</span>, GitCommit:<span style="color:#2aa198">&#34;0e7f3b6637f7af8fcfddb3d2941fcc7cbebb0085&#34;</span>, GitTreeState:<span style="color:#2aa198">&#34;clean&#34;</span><span style="color:#719e07">}</span>
+Error: Get http://localhost:8080/api/v1/namespaces/kube-system/pods?labelSelector<span style="color:#719e07">=</span>app%3Dhelm%2Cname%3Dtiller: dial tcp <span style="color:#719e07">[</span>::1<span style="color:#719e07">]</span>:8080: connect: connection refused
+$ minikube version
+minikube version: v1.2.0
+$ kubectl version
+Client Version: version.Info<span style="color:#719e07">{</span>Major:<span style="color:#2aa198">&#34;1&#34;</span>, Minor:<span style="color:#2aa198">&#34;10&#34;</span>, GitVersion:<span style="color:#2aa198">&#34;v1.10.7&#34;</span>, GitCommit:<span style="color:#2aa198">&#34;0c38c362511b20a098d7cd855f1314dad92c2780&#34;</span>, GitTreeState:<span style="color:#2aa198">&#34;clean&#34;</span>, BuildDate:<span style="color:#2aa198">&#34;2018-08-20T10:09:03Z&#34;</span>, GoVersion:<span style="color:#2aa198">&#34;go1.9.3&#34;</span>, Compiler:<span style="color:#2aa198">&#34;gc&#34;</span>, Platform:<span style="color:#2aa198">&#34;darwin/amd64&#34;</span><span style="color:#719e07">}</span>
+Server Version: version.Info<span style="color:#719e07">{</span>Major:<span style="color:#2aa198">&#34;1&#34;</span>, Minor:<span style="color:#2aa198">&#34;15&#34;</span>, GitVersion:<span style="color:#2aa198">&#34;v1.15.0&#34;</span>, GitCommit:<span style="color:#2aa198">&#34;e8462b5b5dc2584fdcd18e6bcfe9f1e4d970a529&#34;</span>, GitTreeState:<span style="color:#2aa198">&#34;clean&#34;</span>, BuildDate:<span style="color:#2aa198">&#34;2019-06-19T16:32:14Z&#34;</span>, GoVersion:<span style="color:#2aa198">&#34;go1.12.5&#34;</span>, Compiler:<span style="color:#2aa198">&#34;gc&#34;</span>, Platform:<span style="color:#2aa198">&#34;linux/amd64&#34;</span><span style="color:#719e07">}</span></code></pre></div>
+<h1 id="背景">背景</h1>
+
+<p>最近k8sの定義も自分が行なうことになり、Helmなどのキャッチアップを始めた。<br />
+ここで、あるコンテナイメージをk8s上で動かしたいのだが、テストの数だけ<code>Service</code>/<code>Deployment</code>を別々にしてコンテナイメージを動かしたくなった。<br />
+このテストの数は今後増えることもあるのでDRYなYAML定義をしたかった。そのため、テスト名の配列を用意して、配列の長さと同じ数だけリソースを繰り返し定義するようなHelm Chartを書きたくなった。</p>
+
+<h1 id="事前準備">事前準備</h1>
+
+<h2 id="helm-tillerの準備">helm-tillerの準備</h2>
+
+<p>必須ではないが、tillerサーバを作らないで済むようにhelm-tillerをインストールしておく。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ helm plugin install https://github.com/rimusz/helm-tiller</code></pre></div>
+<h2 id="minikubeを使ってローカルでhelmがdry-runできるようにしておく">minikubeを使ってローカルでHelmがdry-runできるようにしておく</h2>
+
+<p>Helmは<code>--dry-run</code>を使うとHelm Chartがどんなマニフェストに展開されるか確認することができる。
+しかし、<code>--dry-run</code>時にもクラスター自体は存在する必要がある。<code>minikube</code>を使うと比較的簡単にk8sクラスターをローカルPC上に作成できる（Dockerの for MacなどでKubernetesを構築しても良いかもしれない。）。</p>
+
+<ul>
+<li>Install Minikube | Kubernetes
+
+<ul>
+<li><a href="https://kubernetes.io/docs/tasks/tools/install-minikube/">https://kubernetes.io/docs/tasks/tools/install-minikube/</a></li>
+</ul></li>
+</ul>
+
+<h2 id="ベースとなるhelmを準備する">ベースとなるHelmを準備する</h2>
+
+<p>まずはじめにベースとしてChartを作成しておく。本記事では<code>helm create</code>で作成されるYAMLを例に進める。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ helm create repeated-service
+$ <span style="color:#b58900">cd</span> repeated-service</code></pre></div>
+<p><code>helm create</code>で作成される<code>templates/service.yaml</code>の内容は以下の通り。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include <span style="color:#2aa198">&#34;repeated-service.fullname&#34;</span> . }}
+  labels:
+{{ include <span style="color:#2aa198">&#34;repeated-service.labels&#34;</span> . <span style="color:#2aa198">| indent 4 }}</span>
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ include <span style="color:#2aa198">&#34;repeated-service.name&#34;</span> . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}</code></pre></div>
+<p>このYAMLを使うと、以下のようなリソース定義となる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ helm tiller run -- helm install --debug --dry-run --name sample .
+Installed Helm version v2.14.3
+Installed Tiller version v2.14.3
+
+...
+
+<span style="color:#586e75"># Source: repeated-service/templates/service.yaml</span>
+apiVersion: v1
+kind: Service
+metadata:
+  name: sample-repeated-service
+  labels:
+    app.kubernetes.io/name: repeated-service
+    helm.sh/chart: repeated-service-0.1.0
+    app.kubernetes.io/instance: sample
+    app.kubernetes.io/version: <span style="color:#2aa198">&#34;1.0&#34;</span>
+    app.kubernetes.io/managed-by: Tiller
+spec:
+  type: ClusterIP
+  ports:
+    - port: <span style="color:#2aa198">80</span>
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: repeated-service
+    app.kubernetes.io/instance: sample
+
+...</code></pre></div>
+<p>いま、<code>values.yaml</code>に以下のような配列を追加したとする。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#586e75"># values.yaml</span>
+servers:
+  - alice
+  - bob
+  - charlie
+  - dave</code></pre></div>
+<p>そして先ほどの<code>repeated-service/templates/service.yaml</code>を修正して、Valuesに定義した配列によって以下のように繰り返しマニフェストが出力される<code>service.yaml</code>を定義してみる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#586e75"># templates/service.yaml 以下のようにserversリストの要素だけServiceを出力するようにしたい。</span>
+<span style="color:#586e75"># servers[0]のalice-sample-repeated-serviceの定義</span>
+apiVersion: v1
+kind: Service
+metadata:
+  name: alice-sample-repeated-service
+<span style="color:#586e75"># ...</span>
+---
+<span style="color:#586e75"># servers[1]のbob-sample-repeated-serviceの定義</span>
+apiVersion: v1
+kind: Service
+metadata:
+  name: bob-sample-repeated-service
+<span style="color:#586e75"># ...</span>
+---
+<span style="color:#586e75"># ...</span></code></pre></div>
+<h1 id="配列の要素を使って繰り返しリソースを定義する">配列の要素を使って繰り返しリソースを定義する</h1>
+
+<p>実際に<code>Service</code>を配列分だけ宣言するように修正してみる。</p>
+
+<h2 id="helmではgoのtext-template構文を使える">HelmではGoのtext/template構文を使える</h2>
+
+<p>修正は変数とループ処理を使って行なう。Helmでループ処理などをYAMLで行なうには以下の記事を参考にする。</p>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://helm.sh/" data-iframely-url="//cdn.iframe.ly/PzLUCYM"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<p>また、HelmはGo製のツールでその記法はGoの<code>text/template</code>パッケージに準拠している。</p>
+
+<ul>
+<li>Package template
+
+<ul>
+<li><a href="https://golang.org/pkg/text/template/">https://golang.org/pkg/text/template/</a></li>
+</ul></li>
+</ul>
+
+<p>なのでこの2つの情報を使ってYAML中にループを含んだりしながら定義できる。</p>
+
+<p>実際に編集した<code>templates/service.yaml</code>は以下のようになる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="color:#719e07">+{{- range $i, $server := .Values.servers -}}
+</span><span style="color:#719e07">+{{- if ne $i 0 }}
+</span><span style="color:#719e07">+---
+</span><span style="color:#719e07">+{{- end }}
+</span><span style="color:#719e07"></span> apiVersion: v1
+ kind: Service
+ metadata:
+<span style="color:#dc322f">-  name: {{ include &#34;repeated-service.fullname&#34; . }}
+</span><span style="color:#dc322f"></span><span style="color:#719e07">+  name: = {{ $server }}-{{ include &#34;repeated-service.fullname&#34; $ }}
+</span><span style="color:#719e07"></span>   labels:
+<span style="color:#dc322f">-{{ include &#34;repeated-service.labels&#34; . | indent 4 }}
+</span><span style="color:#dc322f"></span><span style="color:#719e07">+{{ include &#34;repeated-service.labels&#34; $ | indent 4 }}
+</span><span style="color:#719e07"></span> spec:
+<span style="color:#dc322f">-  type: {{ .Values.service.type }}
+</span><span style="color:#dc322f"></span><span style="color:#719e07">+  type: {{ $.Values.service.type }}
+</span><span style="color:#719e07"></span>   ports:
+<span style="color:#dc322f">-    - port: {{ .Values.service.port }}
+</span><span style="color:#dc322f"></span><span style="color:#719e07">+    - port: {{ $.Values.service.port }}
+</span><span style="color:#719e07"></span>       targetPort: http
+       protocol: TCP
+       name: http
+   selector:
+<span style="color:#dc322f">-    app.kubernetes.io/name: {{ include &#34;repeated-service.name&#34; . }}
+</span><span style="color:#dc322f">-    app.kubernetes.io/instance: {{ .Release.Name }}
+</span><span style="color:#dc322f"></span><span style="color:#719e07">+    app.kubernetes.io/name: {{ $server }}-{{ include &#34;repeated-service.name&#34; $ }}
+</span><span style="color:#719e07">+    app.kubernetes.io/instance: {{ $server }}-{{ $.Release.Name }}
+</span><span style="color:#719e07">+{{- end -}}
+</span><span style="color:#719e07"></span></code></pre></div>
+<p><code>range</code>構文を使うと、ループ処理が行える。<code>if A == B</code>のような比較文は<code>eq</code>を使って書ける。<br />
+また、ループ処理中はスコープが変わり、<code>.</code>の参照先がループ変数になるので、<code>$</code>を使ってルートコンテキストから<code>Values</code>などを参照している。<br />
+（なお、<code>labels</code>の<code>{{ include &quot;repeated-service.labels&quot; $ | indent 4 }}</code>部分の名前付きテンプレートの利用を止めないとラベルの定義が運用的に問題だが、今回はブログ記事なので省略している）</p>
+
+<h2 id="名前付きテンプレートにしないのか">名前付きテンプレートにしないのか？</h2>
+
+<p>名前付きテンプレートを使う場合、<code>include</code>文の引数としてで渡せるオブジェクトが1つしかない。<br />
+そのため、いちいち<code>dict</code>文を使って<code>$server</code>変数、<code>Service</code>、<code>Values</code>などを1つのオブジェクトに詰め直す必要があり、冗長な書き方になるので止めている。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#586e75"># こんな書き方をしないといけなくなってしまう</span>
+{{- include <span style="color:#2aa198">&#34;repeated-service.service&#34;</span> (dict <span style="color:#2aa198">&#34;Bank&#34;</span> $bank <span style="color:#2aa198">&#34;Realease&#34;</span> .Realese <span style="color:#2aa198">&#34;Values&#34;</span> .Values) -}}
+ </code></pre></div>
+<h2 id="helm-installの実行結果">helm installの実行結果</h2>
+
+<p>実際にこの定義を使って<code>helm install --dry-run</code>してみた結果が以下。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ helm tiller run -- helm install --debug --dry-run --name sample .
+Installed Helm version v2.14.3
+Installed Tiller version v2.14.3
+Helm and Tiller are the same version!
+Starting Tiller...
+Tiller namespace: kube-system
+Running: helm install --dry-run --name sample .
+
+...
+
+<span style="color:#586e75"># Source: repeated-service/templates/service.yaml</span>
+apiVersion: v1
+kind: Service
+metadata:
+  name: <span style="color:#719e07">=</span> alice-sample-repeated-service
+  labels:
+    app.kubernetes.io/name: repeated-service
+    helm.sh/chart: repeated-service-0.1.0
+    app.kubernetes.io/instance: sample
+    app.kubernetes.io/version: <span style="color:#2aa198">&#34;1.0&#34;</span>
+    app.kubernetes.io/managed-by: Tiller
+spec:
+  type: ClusterIP
+  ports:
+    - port: <span style="color:#2aa198">80</span>
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: alice-repeated-service
+    app.kubernetes.io/instance: alice-sample
+---
+<span style="color:#586e75"># Source: repeated-service/templates/service.yaml</span>
+apiVersion: v1
+kind: Service
+metadata:
+  name: <span style="color:#719e07">=</span> bob-sample-repeated-service
+  labels:
+    app.kubernetes.io/name: repeated-service
+    helm.sh/chart: repeated-service-0.1.0
+    app.kubernetes.io/instance: sample
+    app.kubernetes.io/version: <span style="color:#2aa198">&#34;1.0&#34;</span>
+    app.kubernetes.io/managed-by: Tiller
+spec:
+  type: ClusterIP
+  ports:
+    - port: <span style="color:#2aa198">80</span>
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: bob-repeated-service
+    app.kubernetes.io/instance: bob-sample
+
+...</code></pre></div>
+<p>無事<code>.Values.servers</code>の値を使って複数の<code>Service</code>定義が作成されている。<code>Deployment</code>も同様に書き換えることでやりたいことは実現できる。</p>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>最初は名前付きテンプレートで書こうと思って試行錯誤していたのだが、本記事のように書くほうがシンプルだったのでこのようにした
+（実際公式Chartでも名前付きテンプレートへの代入で複雑な変数定義をすることはほとんどないらしい）。<br />
+まだ出来上がるマニフェストの理解などは曖昧なところがあるので引き続きk8s関連のキャッチアップを続ける。</p>
+
+<h1 id="参考">参考</h1>
+
+<ul>
+<li><a href="https://helm.sh/docs/chart_template_guide/">The Chart Template Developer’s Guide</a></li>
+<li><a href="https://golang.org/pkg/text/template/">Package template</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2018/06/29/get-started-auto-canary-analysis-by-spinnaker-with-kayenta/">Spinnakerを使ったカナリーリリースの自動評価 #spinnaker #kayenta</a></li>
+  
+  <li><a href="/2018/06/16/spinnaker-failing-with-stackdrivermetricsservice/">[Spinnaker]GKE上でhal deploy applyするとkayenta failed http://localhost:8090/spectator/metrics with &lt;urlopen error [Errno 111] Connection refused&gt; #spinnaker #kayenta</a></li>
+  
+  <li><a href="/2018/06/14/review-continuous-delivery-with-spinnaker/">Continuous Delivery With Spinnakerでマイクロサービスの継続的デリバリーの課題と解決手法を学ぶ</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+​<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Aug 11, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/k8s">k8s</a>  <a class="category" href="https://budougumi0617.github.io/tags/helm">helm</a>  <a class="category" href="https://budougumi0617.github.io/tags/kubenetes">kubenetes</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/08/04/review-mingo2/" title="[書評] 改訂2版 みんなのGo言語はGo言語入門者にも初版所有者にもオススメな1冊">[書評] 改訂2版 みんなのGo言語はGo言語入門者にも初版所有者にもオススメな1冊</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/08/11/repeated-definition-in-helm/">[Helm] 配列の要素数だけリソースを繰り返し定義する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/08/04/review-mingo2/">[書評] 改訂2版 みんなのGo言語はGo言語入門者にも初版所有者にもオススメな1冊</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/07/18/use-old-version-by-modules/">[Go moudles] module名がgithub.com/account/repo/vXとなっているリポジトリの古いバージョンを使う #golangjp</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/07/15/gocon2019summer/">[発表資料] GoCon Fukuokaでgoogle/wireを使った Goらしいアーキテクチャへの取り組みを発表した #gocon</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/07/07/prevent-runtime-error-by-pointer/">[Go]Sliceを含んだ構造体が等値演算子（==）でpanicを引き起こすのを回避する #golang</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
