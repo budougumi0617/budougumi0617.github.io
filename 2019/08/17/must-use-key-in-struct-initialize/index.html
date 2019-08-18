@@ -161,7 +161,7 @@
 
 <header>
     <p class="meta">Aug 17, 2019
-         - 3 minute read 
+         - 4 minute read 
          - <a href="https://budougumi0617.github.io/2019/08/17/must-use-key-in-struct-initialize/#disqus_thread">Comments</a>
 
         
@@ -249,7 +249,7 @@
 <li>パッケージ外で非公開フィールドの値は指定できない</li>
 </ul>
 
-<p><a href="https://play.golang.org/p/fql-HWgBMfC">https://play.golang.org/p/fql-HWgBMfC</a></p>
+<p><a href="https://play.golang.org/p/WAynji8JGkt">https://play.golang.org/p/WAynji8JGkt</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">--</span> <span style="color:#719e07">go</span>.mod <span style="color:#719e07">--</span>
 module sample
 
@@ -272,9 +272,13 @@ module sample
 
 <span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 	<span style="color:#586e75">// mk := sub.MustKey{&#34;hoge&#34;, &#34;bar&#34;} // ./main.go:9:28: too few values in sub.MustKey literal
+</span><span style="color:#586e75"></span>	<span style="color:#586e75">// mk := sub.MustKey{&#34;hoge&#34;, &#34;bar&#34;, struct{}{}} // ./main.go:10:43: implicit assignment of unexported field &#39;_hoge&#39; in sub.MustKey literal
 </span><span style="color:#586e75"></span>	mk <span style="color:#719e07">:=</span> sub.MustKey{}
 	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%v\n&#34;</span>, mk)
 }</code></pre></div>
+<p>フィールド名を省略していると、非公開フィールド以外を埋めるだけでは値が少ないとエラーになり、
+非公開フィールドの初期化も行おうとすると暗黙的に非公開フィールドを初期化しようとしてエラーになる。</p>
+
 <h1 id="非公開フィールドは-sturct-を使えばメモリサイズも増えない">非公開フィールドは<code>sturct{}</code>を使えばメモリサイズも増えない</h1>
 
 <p>このような実装は公式パッケージ内でも行われている。</p>
