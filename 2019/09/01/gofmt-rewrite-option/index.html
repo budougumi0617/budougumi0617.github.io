@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go] gofmtコマンドの-rオプションの使い方 - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="Go,Golang,gofmt">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.53" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/09/01/gofmt-rewrite-option/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go] gofmtコマンドの-rオプションの使い方 - My External Storage"/>
+  <meta property="og:description" content="Goでは標準ツールとして公式からgofmtコマンドというフォーマッタが提供されている。
+このコマンドはコードのインデントなどをフォーマットしてくれるほかに、-rオプションでASTベースの置換も行える。
+実装ベースから使い方を追ってみたのでメモする。"/>
+  
+  <meta name="twitter:title" content="[Go] gofmtコマンドの-rオプションの使い方 - My External Storage"/>
+  <meta name="twitter:description" content="Goでは標準ツールとして公式からgofmtコマンドというフォーマッタが提供されている。
+このコマンドはコードのインデントなどをフォーマットしてくれるほかに、-rオプションでASTベースの置換も行える。
+実装ベースから使い方を追ってみたのでメモする。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Sep 1, 2019
+         - 4 minute read 
+         - <a href="https://budougumi0617.github.io/2019/09/01/gofmt-rewrite-option/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+        
+    </p>
+    <h1 class="entry-title">
+         [Go] gofmtコマンドの-rオプションの使い方 
+    </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#gofmtコマンドのオプションについて">gofmtコマンドのオプションについて</a></li>
+<li><a href="#rオプションを使ったコードの置換ルール">-rオプションを使ったコードの置換ルール</a></li>
+<li><a href="#実際の実行例">実際の実行例</a></li>
+<li><a href="#終わりに">終わりに</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</nav>
+          
+          <p>Goでは標準ツールとして公式から<code>gofmt</code>コマンドというフォーマッタが提供されている。<br />
+このコマンドはコードのインデントなどをフォーマットしてくれるほかに、<code>-r</code>オプションでASTベースの置換も行える。<br />
+実装ベースから使い方を追ってみたのでメモする。</p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li><code>gofmt</code>コマンドはGoをインストールすると<code>go</code>コマンドと一緒にインストールされる公式ツール</li>
+<li>コードのフォーマットを整えてくれる他にASTベースの置換が行える</li>
+<li><code>-r</code>オプションと置換ルールを渡せばよい。
+
+<ul>
+<li><code>置換前のエクスプレッション -&gt; 置換後のエクスプレッション</code></li>
+<li>小文字一文字を使うことで置換ルールにワイルドカード指定もできる</li>
+</ul></li>
+<li><code>-s</code>オプションを使うと、スライス操作などのリファクタリングもすることができる</li>
+<li>単純にリネームしたいだけなら<code>gorename</code>コマンドのほうがよい</li>
+</ul>
+
+<p>なお、執筆時のGoのバージョンは以下の通り。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go version
+go version go1.12.9 darwin/amd64</code></pre></div>
+<h1 id="gofmtコマンドのオプションについて">gofmtコマンドのオプションについて</h1>
+
+<p><code>gofmt</code>コマンドはGoの公式コードフォーマッタだ。<code>gofmt</code>コマンドはGoをソースコードからコンパイルすると<code>go</code>コマンドと一緒にビルドされる。<br />
+インデントや改行などを規律に則って実施してくれる。<code>gofmt</code>コマンドにはただフォーマットを整える以外に置換する機能も備わっている。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ gofmt -h
+usage: gofmt <span style="color:#719e07">[</span>flags<span style="color:#719e07">]</span> <span style="color:#719e07">[</span>path ...<span style="color:#719e07">]</span>
+  -cpuprofile string
+    	write cpu profile to this file
+  -d	display diffs instead of rewriting files
+  -e	report all errors <span style="color:#719e07">(</span>not just the first <span style="color:#2aa198">10</span> on different lines<span style="color:#719e07">)</span>
+  -l	list files whose formatting differs from gofmt<span style="color:#2aa198">&#39;s
+</span><span style="color:#2aa198">  -r string
+</span><span style="color:#2aa198">    	rewrite rule (e.g., &#39;</span>a<span style="color:#719e07">[</span>b:len<span style="color:#719e07">(</span>a<span style="color:#719e07">)]</span> -&gt; a<span style="color:#719e07">[</span>b:<span style="color:#719e07">]</span>&#39;<span style="color:#719e07">)</span>
+  -s	simplify code
+  -w	write result to <span style="color:#719e07">(</span><span style="color:#b58900">source</span><span style="color:#719e07">)</span> file instead of stdout</code></pre></div>
+<p>このオプションの中で<code>-r</code>オプションが置換を実行するためのオプションだ。</p>
+
+<h1 id="rオプションを使ったコードの置換ルール">-rオプションを使ったコードの置換ルール</h1>
+
+<p>上記のコマンドラインのヘルプを見るだけではよくわからないが、<code>-r</code>オプションの利用方法の詳細はGoDocに記載されている。</p>
+
+<ul>
+<li><a href="https://golang.org/cmd/gofmt/">https://golang.org/cmd/gofmt/</a></li>
+</ul>
+
+<p>置換ルールは以下のルールに基づいて書く。</p>
+
+<ul>
+<li><code>pattern -&gt; replacement</code>という形で書く</li>
+<li><code>pattern</code>と<code>replacement</code>はGoのエクスプレッションとして正しい文字列を渡す</li>
+<li>エクスプレッション中の小文字一文字はワイルドカードとして解釈される
+
+<ul>
+<li><code>α[β:len(α)]</code>だったら<code>α</code>と<code>β</code>がワイルドカード扱いになる。</li>
+</ul></li>
+</ul>
+
+<p>実際にコードを確認してみる。<code>gofmt</code>コマンドの<code>-r</code>オプションの実装は以下にある。</p>
+
+<ul>
+<li><a href="https://github.com/golang/go/blob/d6143914e42e9373fbc02d08b224516b12807269/src/cmd/gofmt/rewrite.go">https://github.com/golang/go/blob/master/src/cmd/gofmt/rewrite.go</a></li>
+</ul>
+
+<p><code>initRewrite</code>関数をみると、たしかに<code>-&gt;</code>で文字列を分割し、それぞれがExpressionとして評価できるか確認している。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">initRewrite</span>() {
+	<span style="color:#719e07">if</span> <span style="color:#719e07">*</span>rewriteRule <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;&#34;</span> {
+		rewrite = <span style="color:#cb4b16">nil</span> <span style="color:#586e75">// disable any previous rewrite
+</span><span style="color:#586e75"></span>		<span style="color:#719e07">return</span>
+	}
+	f <span style="color:#719e07">:=</span> strings.<span style="color:#268bd2">Split</span>(<span style="color:#719e07">*</span>rewriteRule, <span style="color:#2aa198">&#34;-&gt;&#34;</span>)
+	<span style="color:#719e07">if</span> <span style="color:#b58900">len</span>(f) <span style="color:#719e07">!=</span> <span style="color:#2aa198">2</span> {
+		fmt.<span style="color:#268bd2">Fprintf</span>(os.Stderr, <span style="color:#2aa198">&#34;rewrite rule must be of the form &#39;pattern -&gt; replacement&#39;\n&#34;</span>)
+		os.<span style="color:#268bd2">Exit</span>(<span style="color:#2aa198">2</span>)
+	}
+	pattern <span style="color:#719e07">:=</span> <span style="color:#268bd2">parseExpr</span>(f[<span style="color:#2aa198">0</span>], <span style="color:#2aa198">&#34;pattern&#34;</span>)
+	replace <span style="color:#719e07">:=</span> <span style="color:#268bd2">parseExpr</span>(f[<span style="color:#2aa198">1</span>], <span style="color:#2aa198">&#34;replacement&#34;</span>)
+	rewrite = <span style="color:#268bd2">func</span>(p <span style="color:#719e07">*</span>ast.File) <span style="color:#719e07">*</span>ast.File { <span style="color:#719e07">return</span> <span style="color:#268bd2">rewriteFile</span>(pattern, replace, p) }
+}</code></pre></div>
+<p>また、<code>isWildcard</code>関数で小文字1文字か確認していた。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">isWildcard</span>(s <span style="color:#dc322f">string</span>) <span style="color:#dc322f">bool</span> {
+	<span style="color:#dc322f">rune</span>, size <span style="color:#719e07">:=</span> utf8.<span style="color:#268bd2">DecodeRuneInString</span>(s)
+	<span style="color:#719e07">return</span> size <span style="color:#719e07">==</span> <span style="color:#b58900">len</span>(s) <span style="color:#719e07">&amp;&amp;</span> unicode.<span style="color:#268bd2">IsLower</span>(<span style="color:#dc322f">rune</span>)
+}</code></pre></div>
+<h1 id="実際の実行例">実際の実行例</h1>
+
+<p>実際に<code>gofomt</code>コマンドでソースコードを置換してみる。置換前のコードは以下になる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
+
+<span style="color:#586e75">// Foo is simple function.
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Foo</span>() <span style="color:#dc322f">int</span> {
+	<span style="color:#719e07">return</span> <span style="color:#2aa198">10</span>
+}
+
+<span style="color:#586e75">// Hoge is sample Struct.
+</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> Hoge <span style="color:#268bd2">struct</span> {
+	Foo    <span style="color:#dc322f">string</span>
+	foovar <span style="color:#dc322f">int</span>
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+	foovar <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;same name&#34;</span>
+	hoge <span style="color:#719e07">:=</span> Hoge{}
+	phoge <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>Hoge{}
+	hoge.Foo = <span style="color:#2aa198">&#34;Foo&#34;</span>
+	phoge.foovar = <span style="color:#268bd2">Foo</span>()
+
+	fmt.<span style="color:#268bd2">Println</span>(hoge.Foo)
+	fmt.<span style="color:#268bd2">Println</span>(phoge.foovar)
+	fmt.<span style="color:#268bd2">Println</span>(foovar)
+}</code></pre></div>
+<p>構造体やフィールド名の置換を試みたところ、以下のように編集することができた。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">$ gofmt <span style="color:#719e07">-</span>r <span style="color:#2aa198">&#34;Foo -&gt; Bar&#34;</span> main.<span style="color:#719e07">go</span>
+<span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
+
+<span style="color:#586e75">// Foo is simple function.
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Bar</span>() <span style="color:#dc322f">int</span> {
+	<span style="color:#719e07">return</span> <span style="color:#2aa198">10</span>
+}
+
+<span style="color:#586e75">// Hoge is sample Struct.
+</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> Hoge <span style="color:#268bd2">struct</span> {
+	Bar    <span style="color:#dc322f">string</span>
+	foovar <span style="color:#dc322f">int</span>
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+	foovar <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;same name&#34;</span>
+	hoge <span style="color:#719e07">:=</span> Hoge{}
+	phoge <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>Hoge{}
+	hoge.Bar = <span style="color:#2aa198">&#34;Foo&#34;</span>
+	phoge.foovar = <span style="color:#268bd2">Bar</span>()
+
+	fmt.<span style="color:#268bd2">Println</span>(hoge.Bar)
+	fmt.<span style="color:#268bd2">Println</span>(phoge.foovar)
+	fmt.<span style="color:#268bd2">Println</span>(foovar)
+}</code></pre></div>
+<p>あくまで構造体やフィールドの置換で、<code>&quot;Foo&quot;</code>のような文字列に関しては一緒に置換されないようだ。<br />
+また、構造体コメントも変更はしてくれなかった。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">$ gofmt <span style="color:#719e07">-</span>r <span style="color:#2aa198">&#34;Hoge -&gt; Bar&#34;</span> main.<span style="color:#719e07">go</span>
+<span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
+
+<span style="color:#586e75">// Foo is simple function.
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Foo</span>() <span style="color:#dc322f">int</span> {
+	<span style="color:#719e07">return</span> <span style="color:#2aa198">10</span>
+}
+
+<span style="color:#586e75">// Hoge is sample Struct.
+</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> Bar <span style="color:#268bd2">struct</span> {
+	Foo    <span style="color:#dc322f">string</span>
+	foovar <span style="color:#dc322f">int</span>
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+	foovar <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;same name&#34;</span>
+	hoge <span style="color:#719e07">:=</span> Bar{}
+	phoge <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>Bar{}
+	hoge.Foo = <span style="color:#2aa198">&#34;Foo&#34;</span>
+	phoge.foovar = <span style="color:#268bd2">Foo</span>()
+
+	fmt.<span style="color:#268bd2">Println</span>(hoge.Foo)
+	fmt.<span style="color:#268bd2">Println</span>(phoge.foovar)
+	fmt.<span style="color:#268bd2">Println</span>(foovar)
+}</code></pre></div>
+<h1 id="終わりに">終わりに</h1>
+
+<p>今回は横浜Go読書会で改訂版みんなのGo言語を輪読している際に知った<code>gofmt</code>コマンドのオプションについて調べた。<br />
+本当はもっと実装を読み解きたかったのだが、再帰部分（<code>apply</code>や<code>match</code>関数）をちゃんと理解できなかった。いくつか作りたい静的解析ツールがあるので、時間があるときに読み直して内容を理解したい。</p>
+
+<p>なお、本記事では<code>-r</code>オプションしか触れなかったが、<code>-s</code>オプションもコードの簡単なリファクタリングをしてくれる。<br />
+実用途してはこちらのほうが扱いやすそうだ。</p>
+
+<ul>
+<li><a href="https://golang.org/cmd/gofmt/#hdr-The_simplify_command">https://golang.org/cmd/gofmt/#hdr-The_simplify_command</a></li>
+</ul>
+
+<p><code>-s</code>オプションは以下のような冗長なコードをリファクタリングしてくれる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">An array, slice, or map composite literal of the form:
+	<span style="color:#719e07">[]</span>T<span style="color:#719e07">{</span>T<span style="color:#719e07">{}</span>, T<span style="color:#719e07">{}}</span>
+will be simplified to:
+	<span style="color:#719e07">[]</span>T<span style="color:#719e07">{{}</span>, <span style="color:#719e07">{}}</span>
+
+A slice expression of the form:
+	s<span style="color:#719e07">[</span>a:len<span style="color:#719e07">(</span>s<span style="color:#719e07">)]</span>
+will be simplified to:
+	s<span style="color:#719e07">[</span>a:<span style="color:#719e07">]</span>
+
+A range of the form:
+	<span style="color:#719e07">for</span> x, <span style="color:#268bd2">_</span> <span style="color:#719e07">=</span> range v <span style="color:#719e07">{</span>...<span style="color:#719e07">}</span>
+will be simplified to:
+	<span style="color:#719e07">for</span> <span style="color:#268bd2">x</span> <span style="color:#719e07">=</span> range v <span style="color:#719e07">{</span>...<span style="color:#719e07">}</span>
+
+A range of the form:
+	<span style="color:#719e07">for</span> <span style="color:#268bd2">_</span> <span style="color:#719e07">=</span> range v <span style="color:#719e07">{</span>...<span style="color:#719e07">}</span>
+will be simplified to:
+	<span style="color:#719e07">for</span> range v <span style="color:#719e07">{</span>...<span style="color:#719e07">}</span></code></pre></div>
+<h1 id="参考">参考</h1>
+
+<ul>
+<li><a href="https://syfm.hatenablog.com/entry/2018/01/31/011117">gofmt を理解する | blog.syfm</a></li>
+<li><a href="https://golang.org/cmd/gofmt/">Command gofmt | Commands</a></li>
+<li><a href="https://mattn.kaoriya.net/software/lang/go/20150113141338.htm">golang のリファクタリングには gofmt ではなく、gorename を使おう。</a></li>
+<li><a href="https://qiita.com/ikawaha/items/73c0a1d975680276b2c7">golang のリファクタリングには gofmt が使える</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/07/15/gocon2019summer/">[発表資料] GoCon Fukuokaでgoogle/wireを使った Goらしいアーキテクチャへの取り組みを発表した #gocon</a></li>
+  
+  <li><a href="/2019/07/07/prevent-runtime-error-by-pointer/">[Go]Sliceを含んだ構造体が等値演算子（==）でpanicを引き起こすのを回避する #golang</a></li>
+  
+  <li><a href="/2019/02/08/go-slice-operator/">[Go]スライス生成時(slice operator)に使える珍しい宣言方法 #golangjp</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+​<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Sep 1, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/gofmt">gofmt</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/08/18/environmental-construction/" title="新しいMacに開発環境を構築（移行）したときに行なうこと">新しいMacに開発環境を構築（移行）したときに行なうこと</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/09/01/gofmt-rewrite-option/">[Go] gofmtコマンドの-rオプションの使い方</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/08/18/environmental-construction/">新しいMacに開発環境を構築（移行）したときに行なうこと</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/08/17/must-use-key-in-struct-initialize/">[Go] 構造体オブジェクト初期化時にフィールド名を指定することを強制する #golangjp</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/08/11/repeated-definition-in-helm/">[Helm] 配列の要素数だけリソースを繰り返し定義する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/08/04/review-mingo2/">[書評] 改訂2版 みんなのGo言語はGo言語入門者にも初版所有者にもオススメな1冊</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
