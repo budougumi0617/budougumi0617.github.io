@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>go mod tidyするとmodule ... found, but does not contain package ...エラーで失敗する - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="Go,Golang,Modules,tidy,go mod tidy">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.53" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/09/20/fix-go-mod-tidy-does-not-contain-package/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="go mod tidyするとmodule ... found, but does not contain package ...エラーで失敗する - My External Storage"/>
+  <meta property="og:description" content="go mod tidyが次のようなのエラーで失敗するとき、エラーを解決するメモ。
+$ go mod tidy
+github.com/budougumi0617/til/go/tui/promptui imports
+        github.com/manifoldco/promptui imports
+        github.com/alecthomas/gometalinter imports
+        gopkg.in/alecthomas/kingpin.v3-unstable imports
+        github.com/nicksnyder/go-i18n/i18n: module github.com/nicksnyder/go-i18n@latest (v2.0.2&#43;incompatible) found, but does not contain package github.com/nicksnyder/go-i18n/i18n
+ "/>
+  
+  <meta name="twitter:title" content="go mod tidyするとmodule ... found, but does not contain package ...エラーで失敗する - My External Storage"/>
+  <meta name="twitter:description" content="go mod tidyが次のようなのエラーで失敗するとき、エラーを解決するメモ。
+$ go mod tidy
+github.com/budougumi0617/til/go/tui/promptui imports
+        github.com/manifoldco/promptui imports
+        github.com/alecthomas/gometalinter imports
+        gopkg.in/alecthomas/kingpin.v3-unstable imports
+        github.com/nicksnyder/go-i18n/i18n: module github.com/nicksnyder/go-i18n@latest (v2.0.2&#43;incompatible) found, but does not contain package github.com/nicksnyder/go-i18n/i18n
+ "/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Sep 20, 2019
+         - 3 minute read 
+         - <a href="https://budougumi0617.github.io/2019/09/20/fix-go-mod-tidy-does-not-contain-package/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+        
+    </p>
+    <h1 class="entry-title">
+         go mod tidyするとmodule ... found, but does not contain package ...エラーで失敗する 
+    </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#エラー">エラー</a></li>
+<li><a href="#does-not-contain-package-の原因"><code>does not contain package</code>の原因</a></li>
+<li><a href="#明示的に解決に失敗するモジュールのバージョンを指定する">明示的に解決に失敗するモジュールのバージョンを指定する</a></li>
+<li><a href="#終わりに">終わりに</a></li>
+</ul>
+</nav>
+          
+          <p><code>go mod tidy</code>が次のようなのエラーで失敗するとき、エラーを解決するメモ。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go mod tidy
+github.com/budougumi0617/til/go/tui/promptui imports
+        github.com/manifoldco/promptui imports
+        github.com/alecthomas/gometalinter imports
+        gopkg.in/alecthomas/kingpin.v3-unstable imports
+        github.com/nicksnyder/go-i18n/i18n: module github.com/nicksnyder/go-i18n@latest <span style="color:#719e07">(</span>v2.0.2+incompatible<span style="color:#719e07">)</span> found, but does not contain package github.com/nicksnyder/go-i18n/i18n
+ </code></pre></div>
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li><code>go mod tidy</code>コマンドが次のエラーで失敗するようになってしまった。
+
+<ul>
+<li><code>module $MODULE_NAME@latest (v2.0.2+incompatible) found, but does not contain package MODULE_NAME</code></li>
+</ul></li>
+<li>間接依存しているパッケージ<code>v2</code>ディレクトリを作って<code>go.mod</code>ファイルを削除したのが原因</li>
+<li><code>go.mod</code>ファイル内で明示的に<code>v1</code>系のバージョンを指定すればばよい。</li>
+</ul>
+
+<p>なお、実行環境は以下。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go version
+go version go1.13 darwin/amd64</code></pre></div>
+<h1 id="エラー">エラー</h1>
+
+<p>以下のような<code>main.go</code>ファイルと、<code>go.mod</code>ファイルを用意する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+        <span style="color:#2aa198">&#34;fmt&#34;</span>
+
+        <span style="color:#2aa198">&#34;github.com/manifoldco/promptui&#34;</span>
+)
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+        fmt.<span style="color:#268bd2">Println</span>(promptui.KeyEnter)
+}</code></pre></div>
+<pre><code>module github.com/budougumi0617/til/go/tui/promptui
+
+go 1.13
+
+require (
+        github.com/BurntSushi/toml v0.3.1 // indirect
+        github.com/alecthomas/units v0.0.0-20190910110746-680d30ca3117 // indirect
+        github.com/manifoldco/promptui v0.3.2
+        gopkg.in/alecthomas/kingpin.v3-unstable v3.0.0-20180810215634-df19058c872c // indirect
+)
+ 
+</code></pre>
+
+<p>このふたつのファイルは（あまり意味のある結果ではないが、）次のように実行できる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run main.go
+<span style="color:#2aa198">13</span></code></pre></div>
+<p>ただし、<code>go mod tidy</code>をして<code>go.mod</code>ファイルと<code>go.sum</code>ファイルを整理しようとすると、以下のエラーが発生して<code>go mod tidy</code>が完了しない。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go mod tidy
+github.com/budougumi0617/til/go/tui/promptui imports
+        github.com/manifoldco/promptui imports
+        github.com/alecthomas/gometalinter imports
+        gopkg.in/alecthomas/kingpin.v3-unstable imports
+        github.com/nicksnyder/go-i18n/i18n: module github.com/nicksnyder/go-i18n@latest <span style="color:#719e07">(</span>v2.0.2+incompatible<span style="color:#719e07">)</span> found, but does not contain package github.com/nicksnyder/go-i18n/i18n
+ </code></pre></div>
+<h1 id="does-not-contain-package-の原因"><code>does not contain package</code>の原因</h1>
+
+<p>エラーの発生原因となる<code>github.com/nicksnyder/go-i18n</code>パッケージのコードを確認してみる。</p>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/nicksnyder/go-i18n" data-iframely-url="//cdn.iframe.ly/g6KJCX6"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<p>GitHubで確認すればわかるとおり、2019/09/20現在、上記のパッケージの<code>lateset</code>は<code>v2</code>ディレクトリ構成になっており、<code>go.mod</code>ファイルがなくなっている。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">tree -L <span style="color:#2aa198">1</span> <span style="color:#268bd2">$GOPATH</span>/src/github.com/nicksnyder/go-i18n
+/Users/budougumi0617/go/src/github.com/nicksnyder/go-i18n
+├── CHANGELOG.md
+├── LICENSE
+├── README.md
+├── dev.md
+└── v2
+
+<span style="color:#2aa198">1</span> directory, <span style="color:#2aa198">4</span> files</code></pre></div>
+<p>そのため、「latestには該当パッケージがない」というエラーメッセージが発生する。</p>
+
+<h1 id="明示的に解決に失敗するモジュールのバージョンを指定する">明示的に解決に失敗するモジュールのバージョンを指定する</h1>
+
+<p>これを解決するには、<code>v2</code>以降前のバージョンを明示的に指定してあげればよい。</p>
+
+<p>該当パッケージの<code>v1</code>系の最後のバージョンを確認する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">git tag -l <span style="color:#2aa198">&#34;v1.*&#34;</span>
+v1.0.0
+v1.1.0
+v1.10.0
+v1.10.1
+v1.2.0
+v1.3.0
+v1.4.0
+v1.5.0
+v1.6.0
+v1.7.0
+v1.8.0
+v1.8.1
+v1.9.0</code></pre></div>
+<p><code>v1.10.1</code>が最新だったので、これを<code>go.mod</code>ファイル内で指定する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go mod edit -require github.com/nicksnyder/go-i18n@v1.10.1
+$ cat go.mod
+module github.com/budougumi0617/til/go/tui/promptui
+
+go <span style="color:#2aa198">1</span>.13
+
+require <span style="color:#719e07">(</span>
+        github.com/BurntSushi/toml v0.3.1 // indirect
+        github.com/alecthomas/units v0.0.0-20190910110746-680d30ca3117 // indirect
+        github.com/manifoldco/promptui v0.3.2
+        github.com/nicksnyder/go-i18n v1.10.1
+        gopkg.in/alecthomas/kingpin.v3-unstable v3.0.0-20180810215634-df19058c872c // indirect
+<span style="color:#719e07">)</span>
+ </code></pre></div>
+<p>こうして明示的にバージョンを指定すると、<code>go mod tidy</code>コマンドが成功するようになる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go mod tidy
+$ cat go.mod
+module github.com/budougumi0617/til/go/tui/promptui
+
+go <span style="color:#2aa198">1</span>.13
+
+require <span style="color:#719e07">(</span>
+        github.com/BurntSushi/toml v0.3.1 // indirect
+        github.com/alecthomas/units v0.0.0-20190910110746-680d30ca3117 // indirect
+        github.com/manifoldco/promptui v0.3.2
+        github.com/nicksnyder/go-i18n v1.10.1 // indirect
+        gopkg.in/alecthomas/kingpin.v3-unstable v3.0.0-20180810215634-df19058c872c // indirect
+<span style="color:#719e07">)</span>
+ </code></pre></div>
+<h1 id="終わりに">終わりに</h1>
+
+<p>いつもエディタで直接編集してしまうが、<code>go mod edit</code>コマンドを始めて使った。<br />
+直接編集もそんなに苦労しないので、これは覚えなくてもいいかな…</p>
+
+<p>また、<code>replace</code>を使って該当パッケージを<code>v2</code>の方へ向けると<code>go mod tidy</code>コマンドのせいでビルドが失敗する<code>go.mod</code>ファイルができるようになるので、これはissueを立ててみようと思う（不適切な<code>replace</code>ならばエラーで終わってほしい）。</p>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/09/08/introduction-dev-golang-org/">Go本体の開発進捗を確認できるGo Development Dashboard</a></li>
+  
+  <li><a href="/2019/09/01/gofmt-rewrite-option/">[Go] gofmtコマンドの-rオプションの使い方</a></li>
+  
+  <li><a href="/2019/07/15/gocon2019summer/">[発表資料] GoCon Fukuokaでgoogle/wireを使った Goらしいアーキテクチャへの取り組みを発表した #gocon</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+​<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Sep 20, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/modules">modules</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/09/15/shoten7-golangtokyo/" title="golang.tokyoの技術書典7新刊「Gopherの休日2019秋」に寄稿しました #技術書典">golang.tokyoの技術書典7新刊「Gopherの休日2019秋」に寄稿しました #技術書典</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/09/20/fix-go-mod-tidy-does-not-contain-package/">go mod tidyするとmodule ... found, but does not contain package ...エラーで失敗する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/09/15/shoten7-golangtokyo/">golang.tokyoの技術書典7新刊「Gopherの休日2019秋」に寄稿しました #技術書典</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/09/08/introduction-dev-golang-org/">Go本体の開発進捗を確認できるGo Development Dashboard</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/09/01/gofmt-rewrite-option/">[Go] gofmtコマンドの-rオプションの使い方</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/08/18/environmental-construction/">新しいMacに開発環境を構築（移行）したときに行なうこと</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
