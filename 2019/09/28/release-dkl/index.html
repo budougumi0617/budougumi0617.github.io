@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[dkl] Ddocker ContainerやKubernetes Podを選択してExecするツールを作った - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="golang,Docker,Kubernetes,k8s,OSS">
+
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.53" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/twittercard.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/twittercard.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/09/28/release-dkl/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[dkl] Ddocker ContainerやKubernetes Podを選択してExecするツールを作った - My External Storage"/>
+  <meta property="og:description" content="同僚がPythonで作ったOSSをGoに移植してみた。
+$ dkl -h
+Usage of dkl:
+  -d -docker
+        list docker containers and exec selected container.
+  -k -kubernetes
+        list pods and exec selected pod.
+  -v  -version
+        print version information and quit."/>
+  
+  <meta name="twitter:title" content="[dkl] Ddocker ContainerやKubernetes Podを選択してExecするツールを作った - My External Storage"/>
+  <meta name="twitter:description" content="同僚がPythonで作ったOSSをGoに移植してみた。
+$ dkl -h
+Usage of dkl:
+  -d -docker
+        list docker containers and exec selected container.
+  -k -kubernetes
+        list pods and exec selected pod.
+  -v  -version
+        print version information and quit."/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+    <p class="meta">Sep 28, 2019
+         - 4 minute read 
+         - <a href="https://budougumi0617.github.io/2019/09/28/release-dkl/#disqus_thread">Comments</a>
+
+        
+        
+        
+            - <a class="label" href="https://budougumi0617.github.io/categories/docker/">docker </a><a class="label" href="https://budougumi0617.github.io/categories/kubernetes/">kubernetes </a><a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+        
+    </p>
+    <h1 class="entry-title">
+         [dkl] Ddocker ContainerやKubernetes Podを選択してExecするツールを作った 
+    </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#dklの概要">dklの概要</a></li>
+<li><a href="#特徴">特徴</a></li>
+<li><a href="#終わりに">終わりに</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</nav>
+          
+          <p>同僚がPythonで作ったOSSをGoに移植してみた。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ dkl -h
+Usage of dkl:
+  -d -docker
+        list docker containers and <span style="color:#b58900">exec</span> selected container.
+  -k -kubernetes
+        list pods and <span style="color:#b58900">exec</span> selected pod.
+  -v  -version
+        print version information and quit.</code></pre></div>
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>Docker ContainerやKubenetes Podにログインするには、一度起動中のContainer（Pod）を一覧する必要がある
+
+<ul>
+<li>さらに名前をコピーして<code>docker(kubectl) exec</code>コマンドを実行する必要がある</li>
+</ul></li>
+<li><code>dtt</code>コマンドは1回のコマンドで一覧を表示、<code>exec</code>コマンドで選択したContainer（Pod）にログインする。
+
+<ul>
+<li>Pythonで作られている。</li>
+</ul></li>
+<li>Goで書き直したのが<code>dkl</code>コマンド</li>
+<li><code>promptui</code>を使ったので一覧からの選択部分はリッチ</li>
+</ul>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/dkl" data-iframely-url="//cdn.iframe.ly/qGCYud2"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<p><img src="/2019/09/28_dkl_demo.gif" alt="demo" /></p>
+
+<h1 id="dklの概要">dklの概要</h1>
+
+<p>Dockerコンテナにログインしたいとき、大抵は<code>docker ps</code>コマンドを実行し、コンテナの名前を確認し、<code>docker exec</code>コマンドを実行することになる。
+これは、Kubernetes上のPodにログインするときもほぼ同様の操作になる。</p>
+
+<p><code>dkl</code>コマンドは上記をラクするために同僚がPythonで作っていたツールをGoで書き直したものだ。</p>
+
+<p><a href="https://github.com/ymizushi/dtt">https://github.com/ymizushi/dtt</a>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/ymizushi/dtt" data-iframely-url="//cdn.iframe.ly/tKMaJHE"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<p><a href="https://github.com/budougumi0617/dkl">https://github.com/budougumi0617/dkl</a>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/dkl" data-iframely-url="//cdn.iframe.ly/qGCYud2"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<p><code>dkl</code>コマンドを使うと、Dockerコンテナ（あるいはKubernetes Pod）一覧を表示し、選択したコンテナにログインすることができる。</p>
+
+<p>インストールには<code>Brew</code>を利用できる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ brew install budougum0617/tap/dkl</code></pre></div>
+<p>2019/09/28時点の使い方は次の通り。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ dkl -h
+Usage of dkl:
+  -d    list docker containers and <span style="color:#b58900">exec</span> selected container.
+  -docker
+        list docker containers and <span style="color:#b58900">exec</span> selected container.
+  -k    list pods and <span style="color:#b58900">exec</span> selected pod.
+  -kubernetes
+        list pods and <span style="color:#b58900">exec</span> selected pod.
+  -v    print version information and quit.
+  -version
+        print version information and quit.</code></pre></div>
+<p>作り込んていないので、一覧できる情報は少ないが、<code>dkl</code>コマンドを引数なしで動かすと、実行中のコンテナ一覧を表示する。
+ひとまず名前とImage情報を表示している。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ dkl
+Use the arrow keys to navigate: ↓ ↑ → ←  and / toggles search
+Docker running...?
+  🐋 /mysql <span style="color:#719e07">(</span>mysql:5.7, sha256:98455b9624a96e32b353297bb312913b6bbd62ac195cea2c7dd477209ba572d6<span style="color:#719e07">)</span>
+     /mysql8 <span style="color:#719e07">(</span>mysql:8.0, sha256:91dadee7afeebe274c51104d572ab6a2dc0ae97473f71afc57fbfd48c0ceb8aa<span style="color:#719e07">)</span>
+
+--------- Image ----------
+Name:           <span style="color:#719e07">[</span><span style="color:#2aa198">&#34;/mysql&#34;</span><span style="color:#719e07">]</span>
+Image:          mysql:5.7
+ImageID:        sha256:98455b9624a96e32b353297bb312913b6bbd62ac195cea2c7dd477209ba572d6</code></pre></div>
+<p>この中から選択したコンテナに<code>docker exec</code>コマンドを実行して、インタラクティブシェルを開始する。</p>
+
+<p>KubernetesのPodの場合は以下のような情報を表示する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">dkl -k
+Use the arrow keys to navigate: ↓ ↑ → ←  and / toggles search
+Kubernetes pod running...?
+  ⎈ nginx <span style="color:#719e07">(</span>default Running<span style="color:#719e07">)</span>
+    coredns-5c98db65d4-fxttt <span style="color:#719e07">(</span>kube-system Running<span style="color:#719e07">)</span>
+    coredns-5c98db65d4-lv9gh <span style="color:#719e07">(</span>kube-system Running<span style="color:#719e07">)</span>
+    etcd-minikube <span style="color:#719e07">(</span>kube-system Running<span style="color:#719e07">)</span>
+    kube-addon-manager-minikube <span style="color:#719e07">(</span>kube-system Running<span style="color:#719e07">)</span>
+    kube-apiserver-minikube <span style="color:#719e07">(</span>kube-system Running<span style="color:#719e07">)</span>
+    kube-controller-manager-minikube <span style="color:#719e07">(</span>kube-system Running<span style="color:#719e07">)</span>
+    kube-proxy-kchl6 <span style="color:#719e07">(</span>kube-system Running<span style="color:#719e07">)</span>
+    kube-scheduler-minikube <span style="color:#719e07">(</span>kube-system Running<span style="color:#719e07">)</span>
+    storage-provisioner <span style="color:#719e07">(</span>kube-system Running<span style="color:#719e07">)</span>
+
+--------- Pod ----------
+Name:               <span style="color:#2aa198">&#34;nginx&#34;</span>
+Namespacege:        default
+Status:             Running
+Age:                114h51m50.205832s</code></pre></div>
+<p>こちらも同様に選択したPodに<code>kubectl exec</code>コマンドを実行する。</p>
+
+<p>対象を選択する部分は<code>manifoldco/promptui</code>パッケージをそのまま利用しているので、絞り込み検索もできる。
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/manifoldco/promptui" data-iframely-url="//cdn.iframe.ly/nlTsYKh"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<p>技術書典の準備の隙間でやっていたので、雑なところもあるが、ひとまずちゃんと動くものができてよかった。</p>
+
+<h1 id="特徴">特徴</h1>
+
+<p>機能的には前述の機能しかない。Goで実装してよかった特徴としては以下があげられる。</p>
+
+<ul>
+<li>シングルバイナリ・マルチプラットフォーム提供が簡単</li>
+<li>Go Releaserを使ったので、デプロイが簡単
+
+<ul>
+<li><a href="https://hacktoberfest.digitalocean.com/">https://hacktoberfest.digitalocean.com/</a></li>
+</ul></li>
+<li><code>manifoldco/promptui</code>を使ったのでインタラクティブな絞り込みが簡単にできた</li>
+<li>DockerもKubernetesもGo SDKが公開されているので、APIの呼び出しが簡単</li>
+</ul>
+
+<p>不出来な点としては、実装を省略するため、ログインは<code>docker</code>（<code>kubectl</code>）コマンドを外部プロセスとして実行している。
+本当はSDKの<code>exec</code>用のAPIを利用したかったが、時間がたりなかった。</p>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>ひととりカタチにはなったのだが、あまり作り込めていない。
+具体的には、思いつくところだけで以下のような改善点がある。</p>
+
+<ul>
+<li>構造化が雑</li>
+<li>testableではない</li>
+<li><code>Pod</code>の<code>Age</code>で表示している時間が分かりにくい（標準パッケージだと<code>time.Duration</code>をいい感じに表示できない）</li>
+<li>実行時に<code>exec</code>で呼び出す実行コマンドの指定に<code>ls -la</code>などが指定できない</li>
+<li>ログインでは外部コマンドを実行しているので、<code>docker</code>、<code>kubectl</code>コマンドに依存している</li>
+</ul>
+
+<p>他にも作りたいOSSがあったり、来月は<code>Hacktoberfest</code>もあるのですぐにはできないが、引き続きカイゼンしていきたい。</p>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://hacktoberfest.digitalocean.com/" data-iframely-url="//cdn.iframe.ly/jZlOhKY?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<h1 id="参考">参考</h1>
+
+<ul>
+<li><a href="https://github.com/ymizushi/dtt">https://github.com/ymizushi/dtt</a></li>
+<li><a href="https://github.com/budougumi0617/dkl">https://github.com/budougumi0617/dkl</a></li>
+<li><a href="https://goreleaser.com/">https://goreleaser.com/</a></li>
+<li><a href="https://hacktoberfest.digitalocean.com/">https://hacktoberfest.digitalocean.com/</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/08/11/repeated-definition-in-helm/">[Helm] 配列の要素数だけリソースを繰り返し定義する</a></li>
+  
+  <li><a href="/2018/06/29/get-started-auto-canary-analysis-by-spinnaker-with-kayenta/">Spinnakerを使ったカナリーリリースの自動評価 #spinnaker #kayenta</a></li>
+  
+  <li><a href="/2018/06/16/spinnaker-failing-with-stackdrivermetricsservice/">[Spinnaker]GKE上でhal deploy applyするとkayenta failed http://localhost:8090/spectator/metrics with &lt;urlopen error [Errno 111] Connection refused&gt; #spinnaker #kayenta</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+​<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Sep 28, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/docker">docker</a>  <a class="category" href="https://budougumi0617.github.io/tags/kubenetes">kubenetes</a>  <a class="category" href="https://budougumi0617.github.io/tags/k8s">k8s</a>  
+    
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/09/20/fix-go-mod-tidy-does-not-contain-package/" title="go mod tidyするとmodule ... found, but does not contain package ...エラーで失敗する">go mod tidyするとmodule ... found, but does not contain package ...エラーで失敗する</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'http-budougumi0617-github-io';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/09/28/release-dkl/">[dkl] Ddocker ContainerやKubernetes Podを選択してExecするツールを作った</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/09/20/fix-go-mod-tidy-does-not-contain-package/">go mod tidyするとmodule ... found, but does not contain package ...エラーで失敗する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/09/15/shoten7-golangtokyo/">golang.tokyoの技術書典7新刊「Gopherの休日2019秋」に寄稿しました #技術書典</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/09/08/introduction-dev-golang-org/">Go本体の開発進捗を確認できるGo Development Dashboard</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/09/01/gofmt-rewrite-option/">[Go] gofmtコマンドの-rオプションの使い方</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+
+
+
+
+<script>
+  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+
+</body>
+</html>
+
