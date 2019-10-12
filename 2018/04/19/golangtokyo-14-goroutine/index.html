@@ -1,12 +1,9 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 <head>
-  <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 
   
-  <meta name="HandheldFriendly" content="True">
-  <meta name="MobileOptimized" content="320">
   <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
 
   
@@ -35,17 +32,13 @@
 
   
   
-  
 
-  
-
-  <meta name="description" content="">
+  <meta name="description" content="" />
   <meta name="keywords" content="">
-
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.53" />
+  <meta name="generator" content="Hugo 0.58.3" />
 
   
   
@@ -92,7 +85,8 @@
 <body>
 
 
-<header role="banner"><hgroup>
+<header role="banner">
+<hgroup>
   
   <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
     <h2></h2>
@@ -111,7 +105,6 @@
       
         <option value="https://budougumi0617.github.io/post/">» Archives</option>
       
-
   </select>
 </fieldset>
 
@@ -133,14 +126,12 @@
   
 </ul>
 
-
 <ul class="subscription">
   
     
         <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
     
   
-
 </ul>
 
 
@@ -156,19 +147,18 @@
         
 
 <header>
-    <p class="meta">Apr 19, 2018
-         - 9 minute read 
-         - <a href="https://budougumi0617.github.io/2018/04/19/golangtokyo-14-goroutine/#disqus_thread">Comments</a>
+  <p class="meta">Apr 19, 2018
+     - 9 minute read 
+     - <a href="https://budougumi0617.github.io/2018/04/19/golangtokyo-14-goroutine/#disqus_thread">Comments</a>
 
-        
-        
-        
-            - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a><a class="label" href="https://budougumi0617.github.io/categories/report/">report </a>
-        
-    </p>
-    <h1 class="entry-title">
-         golang.tokyo #14 ゴールーチンとチャネルによる並行処理 参加メモ #golangtokyo 
-    </h1>
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a><a class="label" href="https://budougumi0617.github.io/categories/report/">report </a>
+    
+  </p>
+  <h1 class="entry-title">
+     golang.tokyo #14 ゴールーチンとチャネルによる並行処理 参加メモ #golangtokyo 
+  </h1>
 </header>
 
 
@@ -244,12 +234,11 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
 <ul>
 <li>goroutineの実行順は保証されない。</li>
 <li><code>panic</code>したときは同じgoroutineの中にしか伝わらない。</li>
-<li>つまり、別のgoroutineで<code>panic</code>が起きたときは<code>defer</code>も動かないし、<code>recover</code>でcatch出来ない。
+
+<li><p>つまり、別のgoroutineで<code>panic</code>が起きたときは<code>defer</code>も動かないし、<code>recover</code>でcatch出来ない。</p>
 
 <ul>
-<li>例: <a href="https://play.golang.org/p/SwjvfKWQ8Aw">https://play.golang.org/p/SwjvfKWQ8Aw</a></li>
-</ul></li>
-</ul>
+<li><p>例: <a href="https://play.golang.org/p/SwjvfKWQ8Aw">https://play.golang.org/p/SwjvfKWQ8Aw</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
@@ -287,26 +276,30 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
 	<span style="color:#268bd2">A</span>()
 	fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Hello, playground&#34;</span>)
 	time.<span style="color:#268bd2">Sleep</span>(<span style="color:#2aa198">10</span> <span style="color:#719e07">*</span> time.Second) <span style="color:#586e75">// Careless waiting...
-</span><span style="color:#586e75"></span>}</code></pre></div>
-<ul>
-<li>channelは読み込み、書き込み、読み書き可能なchannelを作れる
+</span><span style="color:#586e75"></span>}</code></pre></div></li>
+</ul></li>
+
+<li><p>channelは読み込み、書き込み、読み書き可能なchannelを作れる</p>
 
 <ul>
 <li>ただ単に合図を送りたい時は空<code>struct</code>で</li>
 <li>0バイトだから</li>
 </ul></li>
-<li>channelからのmessageは<code>select</code>で受け取る
+
+<li><p>channelからのmessageは<code>select</code>で受け取る</p>
 
 <ul>
 <li>ブロックしたくないときは<code>select</code>に<code>default</code>をつける</li>
 </ul></li>
-<li>goroutineあるある。goroutineが実行されない
+
+<li><p>goroutineあるある。goroutineが実行されない</p>
 
 <ul>
 <li>Waitしていないとgoroutineが実行される前に<code>main</code>が終了している</li>
 <li><code>sync.WaitGroup</code>などを使ってWaitしよう</li>
 </ul></li>
-<li>groutineあるある。for rangeループでgoroutineを複数立ち上げて配列の処理をしたら何故か結果が全部一緒
+
+<li><p>groutineあるある。for rangeループでgoroutineを複数立ち上げて配列の処理をしたら何故か結果が全部一緒</p>
 
 <ul>
 <li>変数内容が毎回書き換えられているから。</li>
@@ -317,7 +310,8 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
 </ul></li>
 <li><code>go func(e element){...}(e)</code>などとして関数の引数で受け取ろう</li>
 </ul></li>
-<li>goroutineあるある。goroutine中で呼び出し元から受け取ったスライスに<code>append</code>したら結果がぐちゃぐちゃ
+
+<li><p>goroutineあるある。goroutine中で呼び出し元から受け取ったスライスに<code>append</code>したら結果がぐちゃぐちゃ</p>
 
 <ul>
 <li>競合している。</li>
@@ -325,14 +319,14 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
 <li>数値系は<code>sync/atomic</code></li>
 <li><code>sync.Mutex</code>か<code>sync.RWMutex</code>使うのがベター</li>
 </ul></li>
-<li>goroutineあるある。全ての処理が未完了のまま終了してgoroutineリークする。
+
+<li><p>goroutineあるある。全ての処理が未完了のまま終了してgoroutineリークする。</p>
 
 <ul>
 <li>複数goroutineの一部の結果だけ使って次に進むときは<code>context.Context</code>を使ってキャンセルしておく</li>
 <li>（スライド中の<code>http.Get</code>を待機しているところは<code>case c &lt;- result{res, err}:</code>って書かないとダメ(<code>:</code>が抜けてる)）</li>
-<li>例: <a href="https://play.golang.org/p/Ej1UGieAz77">https://play.golang.org/p/Ej1UGieAz77</a></li>
-</ul></li>
-</ul>
+
+<li><p>例: <a href="https://play.golang.org/p/Ej1UGieAz77">https://play.golang.org/p/Ej1UGieAz77</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
@@ -363,9 +357,10 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
 	<span style="color:#719e07">go</span> <span style="color:#268bd2">task</span>(ctx, <span style="color:#2aa198">10</span>, ch)
 
 	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;Return value %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch) <span style="color:#586e75">// Wait result
-</span><span style="color:#586e75"></span>}</code></pre></div>
-<ul>
-<li>便利ツール gotrace
+</span><span style="color:#586e75"></span>}</code></pre></div></li>
+</ul></li>
+
+<li><p>便利ツール gotrace</p>
 
 <ul>
 <li><a href="https://github.com/divan/gotrace">https://github.com/divan/gotrace</a></li>
@@ -412,12 +407,11 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
 <li>channel生成時に容量を指定するとバッファありchannel。</li>
 </ul></li>
 </ul></li>
-<li>channelの実体は<code>hchan</code>構造体のポインタ。ヒープメモリに配置
+
+<li><p>channelの実体は<code>hchan</code>構造体のポインタ。ヒープメモリに配置</p>
 
 <ul>
-<li><a href="https://golang.org/src/runtime/chan.go#L31">https://golang.org/src/runtime/chan.go#L31</a></li>
-</ul></li>
-</ul>
+<li><p><a href="https://golang.org/src/runtime/chan.go#L31">https://golang.org/src/runtime/chan.go#L31</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> hchan <span style="color:#268bd2">struct</span> {
 	qcount   <span style="color:#dc322f">uint</span>           <span style="color:#586e75">// total data in the queue
 </span><span style="color:#586e75"></span>	dataqsiz <span style="color:#dc322f">uint</span>           <span style="color:#586e75">// size of the circular queue
@@ -437,9 +431,10 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
 </span><span style="color:#586e75"></span>	<span style="color:#586e75">// (in particular, do not ready a G), as this can deadlock
 </span><span style="color:#586e75"></span>	<span style="color:#586e75">// with stack shrinking.
 </span><span style="color:#586e75"></span>	lock mutex
-}</code></pre></div>
-<ul>
-<li>バッファありchannel(<code>hchan</code>構造体)の主な内部実装
+}</code></pre></div></li>
+</ul></li>
+
+<li><p>バッファありchannel(<code>hchan</code>構造体)の主な内部実装</p>
 
 <ul>
 <li>データ保持用の循環リスト(配列)</li>
@@ -448,8 +443,12 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
 <li>受信待機キュー</li>
 <li>送信待機キュー</li>
 </ul></li>
-<li>channelのバッファを超える送信がされた時何が起きるか</li>
-<li>1. 送信をブロック
+
+<li><p>channelのバッファを超える送信がされた時何が起きるか</p></li>
+
+<li><ol>
+<li>送信をブロック</li>
+</ol>
 
 <ul>
 <li>スケジューラに対して止めるように指示(<code>gopark</code>)
@@ -463,7 +462,10 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
 <li><a href="https://golang.org/src/runtime/runtime2.go#275">https://golang.org/src/runtime/runtime2.go#275</a></li>
 </ul></li>
 </ul></li>
-<li>2. channelから見たブロック
+
+<li><ol>
+<li>channelから見たブロック</li>
+</ol>
 
 <ul>
 <li>goroutineの停止命令</li>
@@ -473,27 +475,39 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
 <li><a href="https://golang.org/src/runtime/runtime2.go#275">https://golang.org/src/runtime/runtime2.go#275</a></li>
 </ul></li>
 </ul></li>
-<li>3. goroutineの再開
+
+<li><ol>
+<li>goroutineの再開</li>
+</ol>
 
 <ul>
 <li>シンプルな取り出す処理</li>
 <li>送信待機キュー(<code>sudog</code>)に記録していたpendingされた送信用の値をQueue配列（<code>buf</code>）に追加</li>
 <li>送信待機キュー(<code>sudog</code>)に記録していたgoroutineを実行待ち状態にする</li>
 </ul></li>
-<li>channelの受信側がブロックする場合は何が起きるのか</li>
-<li>1. 基本的には送信側のブロックの場合と逆
+
+<li><p>channelの受信側がブロックする場合は何が起きるのか</p></li>
+
+<li><ol>
+<li>基本的には送信側のブロックの場合と逆</li>
+</ol>
 
 <ul>
 <li>（受信待機キューで似たようなことが起きるイメージ？）</li>
 </ul></li>
-<li>2. goroutineを再開する
+
+<li><ol>
+<li>goroutineを再開する</li>
+</ol>
 
 <ul>
 <li>受信待機キュー(<code>recvq</code>内の<code>sudog</code>）にある要素にデータ保持用の循環リスト(<code>buf</code>)の内容を渡す</li>
 <li>受信待機キュー(<code>recvq</code>内の<code>sudog</code>)に記録していたgoroutineを実行待ち状態にする</li>
 </ul></li>
-<li>バッファなしの場合は常にブロックが発生。基本的にはバッファありと同じ</li>
-<li><code>select</code>で使うとどうなるか
+
+<li><p>バッファなしの場合は常にブロックが発生。基本的にはバッファありと同じ</p></li>
+
+<li><p><code>select</code>で使うとどうなるか</p>
 
 <ul>
 <li>全部のchennelがロック、待ち状態になり、勝ったcaseのところから再開される</li>
@@ -660,7 +674,7 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
         <div class="addthis_inline_share_toolbox"></div>
 
         <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
-​<script type="text/javascript">
+<script type="text/javascript">
     var addthis_config = addthis_config||{};
     addthis_config.data_track_addressbar = false;
     addthis_config.data_track_clickback = false;
@@ -683,9 +697,6 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
   </p>
 
   
-  
-
-  
 
   <p class="meta">
     
@@ -700,19 +711,18 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
     
       <div id="disqus_thread"></div>
 <script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
 
-(function() {
-    
-    
-    
-    if (window.location.hostname == "localhost")
-        return;
-
-    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-    var disqus_shortname = 'http-budougumi0617-github-io';
-    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-})();
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
 </script>
 <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
@@ -811,6 +821,14 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
           
             
               <li class="post">
+                <a href="/2019/10/12/confirm-print-with-fmt-interfaces/">[Go] 独自型にfmtパッケージのインターフェースを実装して出力を制御する</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
                 <a href="/2019/10/06/imported-declared-not-used-error/">[Go]imported and not usedエラー・declared and not usedエラーとの向き合いかた</a>
               </li>
             
@@ -827,18 +845,6 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2019/09/20/fix-go-mod-tidy-does-not-contain-package/">go mod tidyするとmodule ... found, but does not contain package ...エラーで失敗する</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2019/09/15/shoten7-golangtokyo/">golang.tokyoの技術書典7新刊「Gopherの休日2019秋」に寄稿しました #技術書典</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -848,25 +854,24 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
   </div>
 </div>
 
-<footer role="contentinfo">
-  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
-  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
-</p>
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
 
-</footer>
+    
+    
+    
 
-
-
-
-
-
-<script>
-  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
-  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-  s.parentNode.insertBefore(g,s)}(document,'script'));
-</script>
-
-</body>
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
 </html>
 

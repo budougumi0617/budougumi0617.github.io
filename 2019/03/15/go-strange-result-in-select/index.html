@@ -1,12 +1,9 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 <head>
-  <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 
   
-  <meta name="HandheldFriendly" content="True">
-  <meta name="MobileOptimized" content="320">
   <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
 
   
@@ -35,17 +32,13 @@
 
   
   
-  
 
-  
-
-  <meta name="description" content="">
+  <meta name="description" content="" />
   <meta name="keywords" content="Go,並行処理,select,channel">
-
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.53" />
+  <meta name="generator" content="Hugo 0.58.3" />
 
   
   
@@ -96,7 +89,8 @@
 <body>
 
 
-<header role="banner"><hgroup>
+<header role="banner">
+<hgroup>
   
   <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
     <h2></h2>
@@ -115,7 +109,6 @@
       
         <option value="https://budougumi0617.github.io/post/">» Archives</option>
       
-
   </select>
 </fieldset>
 
@@ -137,14 +130,12 @@
   
 </ul>
 
-
 <ul class="subscription">
   
     
         <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
     
   
-
 </ul>
 
 
@@ -160,19 +151,18 @@
         
 
 <header>
-    <p class="meta">Mar 15, 2019
-         - 4 minute read 
-         - <a href="https://budougumi0617.github.io/2019/03/15/go-strange-result-in-select/#disqus_thread">Comments</a>
+  <p class="meta">Mar 15, 2019
+     - 4 minute read 
+     - <a href="https://budougumi0617.github.io/2019/03/15/go-strange-result-in-select/#disqus_thread">Comments</a>
 
-        
-        
-        
-            - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
-        
-    </p>
-    <h1 class="entry-title">
-         [Go] selectのcase文中でch &lt;- &lt;- chやch &lt;- f()をしない方が良い #golangjp #横浜go読書会 
-    </h1>
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+    
+  </p>
+  <h1 class="entry-title">
+     [Go] selectのcase文中でch &lt;- &lt;- chやch &lt;- f()をしない方が良い #golangjp #横浜go読書会 
+  </h1>
 </header>
 
 
@@ -220,8 +210,7 @@
 <code>ch1</code>や<code>ch2</code>の準備ができているときは<code>f</code>関数の戻り値を送信する。このプログラムを実行したとき、<code>called f</code>という文字列を何回出力するだろうか？（<code>f</code>関数は何回実行されるだろうか？）</p>
 
 <ul>
-<li><a href="https://play.golang.org/p/ZvypfcE-oPe">https://play.golang.org/p/ZvypfcE-oPe</a></li>
-</ul>
+<li><p><a href="https://play.golang.org/p/ZvypfcE-oPe">https://play.golang.org/p/ZvypfcE-oPe</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
@@ -252,7 +241,9 @@
 		<span style="color:#719e07">case</span> ch2 <span style="color:#719e07">&lt;-</span> <span style="color:#268bd2">f</span>():
 		}
 	}
-}</code></pre></div>
+}</code></pre></div></li>
+</ul>
+
 <p>私は<code>fmt.Printf(&quot;f return = %d\n&quot;, &lt;-ch1)</code>の時に<code>ch1</code>から値を受け取るときだけ<code>f</code>関数が呼び出されると思ったので1回と予想していた。<br />
 だが、答えは4回だ。</p>
 
@@ -272,8 +263,7 @@ done
 <p>以下のコードは別のチャネル（<code>fchX</code>）から送信された<code>int</code>を受信するチャネル（<code>chX</code>）を複数<code>select</code>文で並べて待機するコードだ。</p>
 
 <ul>
-<li><a href="https://play.golang.org/p/cdZORmhc8k7">https://play.golang.org/p/cdZORmhc8k7</a></li>
-</ul>
+<li><p><a href="https://play.golang.org/p/cdZORmhc8k7">https://play.golang.org/p/cdZORmhc8k7</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
@@ -289,7 +279,7 @@ done
 	ch2 <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#dc322f">int</span>)
 	done <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#268bd2">struct</span>{})
 
-  <span style="color:#586e75">// 1ずつインクリメントされたintを送信するチャネルを生成する関数
+<span style="color:#586e75">// 1ずつインクリメントされたintを送信するチャネルを生成する関数
 </span><span style="color:#586e75"></span>	f <span style="color:#719e07">:=</span> <span style="color:#268bd2">func</span>() <span style="color:#719e07">&lt;-</span><span style="color:#268bd2">chan</span> <span style="color:#dc322f">int</span> {
 		ch <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#dc322f">int</span>)
 		<span style="color:#719e07">go</span> <span style="color:#268bd2">func</span>() {
@@ -320,7 +310,9 @@ done
 			<span style="color:#719e07">return</span>
 		}
 	}
-}</code></pre></div>
+}</code></pre></div></li>
+</ul>
+
 <p>この実行結果は以下となる。</p>
 
 <pre><code>fch1 return = 0
@@ -377,7 +369,7 @@ fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;f
         <div class="addthis_inline_share_toolbox"></div>
 
         <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
-​<script type="text/javascript">
+<script type="text/javascript">
     var addthis_config = addthis_config||{};
     addthis_config.data_track_addressbar = false;
     addthis_config.data_track_clickback = false;
@@ -400,9 +392,6 @@ fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;f
   </p>
 
   
-  
-
-  
 
   <p class="meta">
     
@@ -417,19 +406,18 @@ fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;f
     
       <div id="disqus_thread"></div>
 <script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
 
-(function() {
-    
-    
-    
-    if (window.location.hostname == "localhost")
-        return;
-
-    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-    var disqus_shortname = 'http-budougumi0617-github-io';
-    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-})();
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
 </script>
 <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
@@ -528,6 +516,14 @@ fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;f
           
             
               <li class="post">
+                <a href="/2019/10/12/confirm-print-with-fmt-interfaces/">[Go] 独自型にfmtパッケージのインターフェースを実装して出力を制御する</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
                 <a href="/2019/10/06/imported-declared-not-used-error/">[Go]imported and not usedエラー・declared and not usedエラーとの向き合いかた</a>
               </li>
             
@@ -544,18 +540,6 @@ fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;f
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2019/09/20/fix-go-mod-tidy-does-not-contain-package/">go mod tidyするとmodule ... found, but does not contain package ...エラーで失敗する</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2019/09/15/shoten7-golangtokyo/">golang.tokyoの技術書典7新刊「Gopherの休日2019秋」に寄稿しました #技術書典</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -565,25 +549,24 @@ fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;f
   </div>
 </div>
 
-<footer role="contentinfo">
-  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
-  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
-</p>
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
 
-</footer>
+    
+    
+    
 
-
-
-
-
-
-<script>
-  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
-  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-  s.parentNode.insertBefore(g,s)}(document,'script'));
-</script>
-
-</body>
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
 </html>
 

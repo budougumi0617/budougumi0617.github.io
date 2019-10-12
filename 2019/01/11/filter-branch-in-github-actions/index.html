@@ -1,12 +1,9 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 <head>
-  <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 
   
-  <meta name="HandheldFriendly" content="True">
-  <meta name="MobileOptimized" content="320">
   <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
 
   
@@ -35,17 +32,13 @@
 
   
   
-  
 
-  
-
-  <meta name="description" content="">
+  <meta name="description" content="" />
   <meta name="keywords" content="github,actions,ci">
-
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.53" />
+  <meta name="generator" content="Hugo 0.58.3" />
 
   
   
@@ -116,7 +109,8 @@ https://github.com/features/actions/
 <body>
 
 
-<header role="banner"><hgroup>
+<header role="banner">
+<hgroup>
   
   <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
     <h2></h2>
@@ -135,7 +129,6 @@ https://github.com/features/actions/
       
         <option value="https://budougumi0617.github.io/post/">» Archives</option>
       
-
   </select>
 </fieldset>
 
@@ -157,14 +150,12 @@ https://github.com/features/actions/
   
 </ul>
 
-
 <ul class="subscription">
   
     
         <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
     
   
-
 </ul>
 
 
@@ -180,19 +171,18 @@ https://github.com/features/actions/
         
 
 <header>
-    <p class="meta">Jan 11, 2019
-         - 5 minute read 
-         - <a href="https://budougumi0617.github.io/2019/01/11/filter-branch-in-github-actions/#disqus_thread">Comments</a>
+  <p class="meta">Jan 11, 2019
+     - 5 minute read 
+     - <a href="https://budougumi0617.github.io/2019/01/11/filter-branch-in-github-actions/#disqus_thread">Comments</a>
 
-        
-        
-        
-            - <a class="label" href="https://budougumi0617.github.io/categories/github/">github </a>
-        
-    </p>
-    <h1 class="entry-title">
-         GitHub Actionsで特定のブランチのときのみワークフローを実行する #github #actions #ci 
-    </h1>
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/github/">github </a>
+    
+  </p>
+  <h1 class="entry-title">
+     GitHub Actionsで特定のブランチのときのみワークフローを実行する #github #actions #ci 
+  </h1>
 </header>
 
 
@@ -324,25 +314,25 @@ CircleCIでいうと、<code>branches only</code>相当の処理になる。</p>
 Workflow全体は以下のようになる。</p>
 
 <ul>
-<li><a href="https://github.com/budougumi0617/actions-filter-branch/blob/master/.github/main.workflow">https://github.com/budougumi0617/actions-filter-branch/blob/master/.github/main.workflow</a></li>
-</ul>
+<li><p><a href="https://github.com/budougumi0617/actions-filter-branch/blob/master/.github/main.workflow">https://github.com/budougumi0617/actions-filter-branch/blob/master/.github/main.workflow</a></p>
 
 <pre><code>workflow &quot;filter branch&quot; {
-  on = &quot;push&quot;
-  resolves = [&quot;Shell&quot;]
+on = &quot;push&quot;
+resolves = [&quot;Shell&quot;]
 }
 
 action &quot;Filters for GitHub Actions&quot; {
-  uses = &quot;actions/bin/filter@master&quot;
-  args = &quot;branch master&quot;
+uses = &quot;actions/bin/filter@master&quot;
+args = &quot;branch master&quot;
 }
 
 action &quot;Shell&quot; {
-  uses = &quot;actions/bin/sh@master&quot;
-  needs = [&quot;Filters for GitHub Actions&quot;]
-  args = [&quot;echo success&quot;]
+uses = &quot;actions/bin/sh@master&quot;
+needs = [&quot;Filters for GitHub Actions&quot;]
+args = [&quot;echo success&quot;]
 }
-</code></pre>
+</code></pre></li>
+</ul>
 
 <p><img src="/2019/01/11-workflow.png" alt="work flow" /></p>
 
@@ -390,8 +380,7 @@ action &quot;Shell&quot; {
 <p>スクリプトの中身も非常にシンプルで、<code>branch</code>スクリプトは単に<code>ref</code>スクリプトへのエイリアスだ。<code>ref</code>スクリプト自身も簡単なcase文が書かれているだけだった。</p>
 
 <ul>
-<li><a href="https://github.com/actions/bin/blob/master/filter/bin/ref">https://github.com/actions/bin/blob/master/filter/bin/ref</a></li>
-</ul>
+<li><p><a href="https://github.com/actions/bin/blob/master/filter/bin/ref">https://github.com/actions/bin/blob/master/filter/bin/ref</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#719e07">#!/bin/sh
 </span><span style="color:#719e07"></span>
 <span style="color:#b58900">set</span> -e
@@ -399,18 +388,20 @@ action &quot;Shell&quot; {
 <span style="color:#268bd2">pattern</span><span style="color:#719e07">=</span><span style="color:#268bd2">$1</span>
 
 <span style="color:#719e07">case</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$GITHUB_REF</span><span style="color:#2aa198">&#34;</span> in
-  <span style="color:#2aa198">&#34;&#34;</span><span style="color:#719e07">)</span>
-    <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;\$GITHUB_REF is not set&#34;</span>
-    <span style="color:#b58900">exit</span> <span style="color:#2aa198">1</span>
-    ;;
-  <span style="color:#268bd2">$pattern</span><span style="color:#719e07">)</span>
-    <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$GITHUB_REF</span><span style="color:#2aa198"> matches </span><span style="color:#268bd2">$pattern</span><span style="color:#2aa198">&#34;</span>
-    <span style="color:#b58900">exit</span> <span style="color:#2aa198">0</span>
-    ;;
-  *<span style="color:#719e07">)</span>
-    <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$GITHUB_REF</span><span style="color:#2aa198"> does not match </span><span style="color:#268bd2">$pattern</span><span style="color:#2aa198">&#34;</span>
-    <span style="color:#b58900">exit</span> <span style="color:#2aa198">78</span>
-<span style="color:#719e07">esac</span></code></pre></div>
+<span style="color:#2aa198">&#34;&#34;</span><span style="color:#719e07">)</span>
+<span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;\$GITHUB_REF is not set&#34;</span>
+<span style="color:#b58900">exit</span> <span style="color:#2aa198">1</span>
+;;
+<span style="color:#268bd2">$pattern</span><span style="color:#719e07">)</span>
+<span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$GITHUB_REF</span><span style="color:#2aa198"> matches </span><span style="color:#268bd2">$pattern</span><span style="color:#2aa198">&#34;</span>
+<span style="color:#b58900">exit</span> <span style="color:#2aa198">0</span>
+;;
+*<span style="color:#719e07">)</span>
+<span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$GITHUB_REF</span><span style="color:#2aa198"> does not match </span><span style="color:#268bd2">$pattern</span><span style="color:#2aa198">&#34;</span>
+<span style="color:#b58900">exit</span> <span style="color:#2aa198">78</span>
+<span style="color:#719e07">esac</span></code></pre></div></li>
+</ul>
+
 <p><code>$GITHUB_REF</code>はWorkflow実行毎に設定されている環境変数で、Workflow実行時のブランチ名やタグ名が取得できる。</p>
 
 <ul>
@@ -477,7 +468,7 @@ action &quot;Shell&quot; {
         <div class="addthis_inline_share_toolbox"></div>
 
         <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
-​<script type="text/javascript">
+<script type="text/javascript">
     var addthis_config = addthis_config||{};
     addthis_config.data_track_addressbar = false;
     addthis_config.data_track_clickback = false;
@@ -500,9 +491,6 @@ action &quot;Shell&quot; {
   </p>
 
   
-  
-
-  
 
   <p class="meta">
     
@@ -517,19 +505,18 @@ action &quot;Shell&quot; {
     
       <div id="disqus_thread"></div>
 <script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
 
-(function() {
-    
-    
-    
-    if (window.location.hostname == "localhost")
-        return;
-
-    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-    var disqus_shortname = 'http-budougumi0617-github-io';
-    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-})();
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
 </script>
 <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
@@ -628,6 +615,14 @@ action &quot;Shell&quot; {
           
             
               <li class="post">
+                <a href="/2019/10/12/confirm-print-with-fmt-interfaces/">[Go] 独自型にfmtパッケージのインターフェースを実装して出力を制御する</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
                 <a href="/2019/10/06/imported-declared-not-used-error/">[Go]imported and not usedエラー・declared and not usedエラーとの向き合いかた</a>
               </li>
             
@@ -644,18 +639,6 @@ action &quot;Shell&quot; {
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2019/09/20/fix-go-mod-tidy-does-not-contain-package/">go mod tidyするとmodule ... found, but does not contain package ...エラーで失敗する</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2019/09/15/shoten7-golangtokyo/">golang.tokyoの技術書典7新刊「Gopherの休日2019秋」に寄稿しました #技術書典</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -665,25 +648,24 @@ action &quot;Shell&quot; {
   </div>
 </div>
 
-<footer role="contentinfo">
-  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
-  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
-</p>
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
 
-</footer>
+    
+    
+    
 
-
-
-
-
-
-<script>
-  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
-  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-  s.parentNode.insertBefore(g,s)}(document,'script'));
-</script>
-
-</body>
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
 </html>
 

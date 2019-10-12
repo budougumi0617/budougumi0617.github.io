@@ -1,12 +1,9 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 <head>
-  <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 
   
-  <meta name="HandheldFriendly" content="True">
-  <meta name="MobileOptimized" content="320">
   <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
 
   
@@ -35,17 +32,13 @@
 
   
   
-  
 
-  
-
-  <meta name="description" content="">
+  <meta name="description" content="" />
   <meta name="keywords" content="CircleCI,Go,golang,継続的インテグレーション,CI">
-
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.53" />
+  <meta name="generator" content="Hugo 0.58.3" />
 
   
   
@@ -100,7 +93,8 @@ attach_workspaceを使ってジョブ間のデータ共有をするのにひと�
 <body>
 
 
-<header role="banner"><hgroup>
+<header role="banner">
+<hgroup>
   
   <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
     <h2></h2>
@@ -119,7 +113,6 @@ attach_workspaceを使ってジョブ間のデータ共有をするのにひと�
       
         <option value="https://budougumi0617.github.io/post/">» Archives</option>
       
-
   </select>
 </fieldset>
 
@@ -141,14 +134,12 @@ attach_workspaceを使ってジョブ間のデータ共有をするのにひと�
   
 </ul>
 
-
 <ul class="subscription">
   
     
         <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
     
   
-
 </ul>
 
 
@@ -164,19 +155,18 @@ attach_workspaceを使ってジョブ間のデータ共有をするのにひと�
         
 
 <header>
-    <p class="meta">Apr 21, 2019
-         - 7 minute read 
-         - <a href="https://budougumi0617.github.io/2019/04/21/ci_go_with_multiple_jobs_on_circleci/#disqus_thread">Comments</a>
+  <p class="meta">Apr 21, 2019
+     - 7 minute read 
+     - <a href="https://budougumi0617.github.io/2019/04/21/ci_go_with_multiple_jobs_on_circleci/#disqus_thread">Comments</a>
 
-        
-        
-        
-            - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a><a class="label" href="https://budougumi0617.github.io/categories/circleci/">circleci </a>
-        
-    </p>
-    <h1 class="entry-title">
-         [Go] CicleCI2.1でgo modのデータを共有しながら複数ジョブを実行する 
-    </h1>
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a><a class="label" href="https://budougumi0617.github.io/categories/circleci/">circleci </a>
+    
+  </p>
+  <h1 class="entry-title">
+     [Go] CicleCI2.1でgo modのデータを共有しながら複数ジョブを実行する 
+  </h1>
 </header>
 
 
@@ -296,7 +286,7 @@ executors:
   default:
     docker:
       <span style="color:#586e75"># CircleCI Go images available at: https://hub.docker.com/r/circleci/golang/</span>
-      - image: circleci/golang:<span style="color:#2aa198">1.12</span>.<span style="color:#2aa198">2</span>
+      - image: circleci/golang:<span style="color:#2aa198">1.12.2</span>
     working_directory: /go/src/github.com/budougumi0617/caww
     environment:
       - GO111MODULE: <span style="color:#2aa198">&#34;on&#34;</span>
@@ -379,32 +369,33 @@ workflows:
 ジョブ間でデータを共有するためには<code>persist_to_workspace</code>と<code>attach_workspace</code>を利用する。</p>
 
 <ul>
-<li>persist_to_workspace | Configuring CircleCI
+<li><p>persist_to_workspace | Configuring CircleCI</p>
 
 <ul>
-<li><a href="https://circleci.com/docs/2.0/configuration-reference/#persist_to_workspace">https://circleci.com/docs/2.0/configuration-reference/#persist_to_workspace</a></li>
+<li><p><a href="https://circleci.com/docs/2.0/configuration-reference/#persist_to_workspace">https://circleci.com/docs/2.0/configuration-reference/#persist_to_workspace</a></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">jobs:
+setup:
+executor:
+name: default
+steps:
+<span style="color:#586e75"># 前述したgo mod downloadなどの処理</span>
+- persist_to_workspace:
+  root: /go
+  paths:
+    - src
+    - bin
+    - pkg/mod/cache
+
+e2e:
+executor:
+name: with_mysql
+steps:
+- attach_workspace:
+  at: /go
+<span style="color:#586e75"># テストの実行、結果のアップロードなど...</span></code></pre></div></li>
 </ul></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">jobs:
-  setup:
-    executor:
-      name: default
-    steps:
-      <span style="color:#586e75"># 前述したgo mod downloadなどの処理</span>
-      - persist_to_workspace:
-          root: /go
-          paths:
-            - src
-            - bin
-            - pkg/mod/cache
 
-  e2e:
-    executor:
-      name: with_mysql
-    steps:
-      - attach_workspace:
-          at: /go
-      <span style="color:#586e75"># テストの実行、結果のアップロードなど...</span></code></pre></div>
 <p><code>setup</code>ジョブに<code>persist_to_workspace</code>を設定し、ジョブ間で共有したいデータの場所を設定しておく。<code>e2e</code>ジョブ(<code>lint</code>ジョブ)に<code>attach_workspace</code>を設定し、共有したいデータをマウントする場所を設定する。
 前述したとおり<code>$GOPATH</code>は<code>/go</code>なので、<code>/go</code>配下のデータを全て共有する。</p>
 
@@ -424,14 +415,15 @@ workflows:
 <p>これでうまくいくかと思いきや、実際にCircleCIを実行してみると<code>attach_workspace</code>がうまくいかなかった。</p>
 
 <ul>
-<li><a href="https://circleci.com/gh/budougumi0617/caww/13">https://circleci.com/gh/budougumi0617/caww/13</a></li>
-</ul>
+<li><p><a href="https://circleci.com/gh/budougumi0617/caww/13">https://circleci.com/gh/budougumi0617/caww/13</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">Downloading workspace layers
-  workflows/workspaces/2a7d4f28-c4f5-477a-90ab-190809d6e4f9/0/c5acd0fa-dc09-4e94-83b8-5e1f2e8a0e96/0/109.tar.gz - <span style="color:#2aa198">171</span> MB
+workflows/workspaces/2a7d4f28-c4f5-477a-90ab-190809d6e4f9/0/c5acd0fa-dc09-4e94-83b8-5e1f2e8a0e96/0/109.tar.gz - <span style="color:#2aa198">171</span> MB
 Applying workspace layers
-  c5acd0fa-dc09-4e94-83b8-5e1f2e8a0e96
+c5acd0fa-dc09-4e94-83b8-5e1f2e8a0e96
 
-Error applying workspace layer <span style="color:#719e07">for</span> job c5acd0fa-dc09-4e94-83b8-5e1f2e8a0e96: Error extracting tarball /tmp/workspace-layer-c5acd0fa-dc09-4e94-83b8-5e1f2e8a0e96985056964: <span style="color:#b58900">exit</span> status <span style="color:#2aa198">2</span></code></pre></div>
+Error applying workspace layer <span style="color:#719e07">for</span> job c5acd0fa-dc09-4e94-83b8-5e1f2e8a0e96: Error extracting tarball /tmp/workspace-layer-c5acd0fa-dc09-4e94-83b8-5e1f2e8a0e96985056964: <span style="color:#b58900">exit</span> status <span style="color:#2aa198">2</span></code></pre></div></li>
+</ul>
+
 <p>ググっても、データ量が多すぎるとこのようなエラーになる、というような解説が出てくるが、171MBくらいでなることはないらしい。</p>
 
 <h1 id="ジョブをrootユーザで実行するようにすれば良い">ジョブをrootユーザで実行するようにすれば良い</h1>
@@ -445,7 +437,7 @@ executors:
   default:
     docker:
       <span style="color:#586e75"># CircleCI Go images available at: https://hub.docker.com/r/circleci/golang/</span>
-      - image: circleci/golang:<span style="color:#2aa198">1.12</span>.<span style="color:#2aa198">2</span>
+      - image: circleci/golang:<span style="color:#2aa198">1.12.2</span>
         user: root
     working_directory: /go/src/github.com/budougumi0617/caww
     environment:
@@ -457,7 +449,7 @@ executors:
 executors:
   default:
     docker:
-      - image: circleci/golang:<span style="color:#2aa198">1.12</span>.<span style="color:#2aa198">2</span>
+      - image: circleci/golang:<span style="color:#2aa198">1.12.2</span>
         user: root
     working_directory: /go/src/github.com/budougumi0617/caww
     environment:
@@ -556,7 +548,7 @@ workflows:
         <div class="addthis_inline_share_toolbox"></div>
 
         <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
-​<script type="text/javascript">
+<script type="text/javascript">
     var addthis_config = addthis_config||{};
     addthis_config.data_track_addressbar = false;
     addthis_config.data_track_clickback = false;
@@ -579,9 +571,6 @@ workflows:
   </p>
 
   
-  
-
-  
 
   <p class="meta">
     
@@ -596,19 +585,18 @@ workflows:
     
       <div id="disqus_thread"></div>
 <script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
 
-(function() {
-    
-    
-    
-    if (window.location.hostname == "localhost")
-        return;
-
-    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-    var disqus_shortname = 'http-budougumi0617-github-io';
-    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-})();
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
 </script>
 <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
@@ -707,6 +695,14 @@ workflows:
           
             
               <li class="post">
+                <a href="/2019/10/12/confirm-print-with-fmt-interfaces/">[Go] 独自型にfmtパッケージのインターフェースを実装して出力を制御する</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
                 <a href="/2019/10/06/imported-declared-not-used-error/">[Go]imported and not usedエラー・declared and not usedエラーとの向き合いかた</a>
               </li>
             
@@ -723,18 +719,6 @@ workflows:
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2019/09/20/fix-go-mod-tidy-does-not-contain-package/">go mod tidyするとmodule ... found, but does not contain package ...エラーで失敗する</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2019/09/15/shoten7-golangtokyo/">golang.tokyoの技術書典7新刊「Gopherの休日2019秋」に寄稿しました #技術書典</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -744,25 +728,24 @@ workflows:
   </div>
 </div>
 
-<footer role="contentinfo">
-  <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
-  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
-</p>
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
 
-</footer>
+    
+    
+    
 
-
-
-
-
-
-<script>
-  var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
-  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-  s.parentNode.insertBefore(g,s)}(document,'script'));
-</script>
-
-</body>
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
 </html>
 
