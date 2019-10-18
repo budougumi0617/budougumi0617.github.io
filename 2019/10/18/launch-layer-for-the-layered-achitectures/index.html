@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go] レイヤードアーキテクチャの階層構造を守らないimportを警告するlinterを作った - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="Clean Architecture,Onion Architecture,Go,Golang,Analysis,linter">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.58.3" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/10/18/launch-layer-for-the-layered-achitectures/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go] レイヤードアーキテクチャの階層構造を守らないimportを警告するlinterを作った - My External Storage"/>
+  <meta property="og:description" content="Goでクリーンアーキテクチャ等のレイヤードアーキテクチャを実装するための静的解析ツールを作った。
+「webhandlerパッケージからusecaseパッケージを使わずに直接domainパッケージを使わないで！」というような、やってほしくないimportをエラーにできる。
+
+
+https://github.com/budougumi0617/layer
+"/>
+  
+  <meta name="twitter:title" content="[Go] レイヤードアーキテクチャの階層構造を守らないimportを警告するlinterを作った - My External Storage"/>
+  <meta name="twitter:description" content="Goでクリーンアーキテクチャ等のレイヤードアーキテクチャを実装するための静的解析ツールを作った。
+「webhandlerパッケージからusecaseパッケージを使わずに直接domainパッケージを使わないで！」というような、やってほしくないimportをエラーにできる。
+
+
+https://github.com/budougumi0617/layer
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Oct 18, 2019
+     - 5 minute read 
+     - <a href="https://budougumi0617.github.io/2019/10/18/launch-layer-for-the-layered-achitectures/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">Go </a><a class="label" href="https://budougumi0617.github.io/categories/oss/">OSS </a>
+    
+  </p>
+  <h1 class="entry-title">
+     [Go] レイヤードアーキテクチャの階層構造を守らないimportを警告するlinterを作った 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#なぜ作ったのか">なぜ作ったのか</a></li>
+<li><a href="#実装的な部分">実装的な部分</a>
+<ul>
+<li><a href="#json配列">JSON配列</a></li>
+<li><a href="#vettoolオプション対応">-vettoolオプション対応</a></li>
+<li><a href="#github-actions">GitHub Actions</a></li>
+<li><a href="#フラグの渡し方">フラグの渡し方</a></li>
+<li><a href="#テストコードは無視する">テストコードは無視する</a></li>
+</ul></li>
+<li><a href="#終わりに">終わりに</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</nav>
+          
+          <p>Goでクリーンアーキテクチャ等のレイヤードアーキテクチャを実装するための静的解析ツールを作った。<br />
+「<code>webhandler</code>パッケージから<code>usecase</code>パッケージを使わずに直接<code>domain</code>パッケージを使わないで！」というような、やってほしくない<code>import</code>をエラーにできる。</p>
+
+<ul>
+<li><a href="https://github.com/budougumi0617/layer">https://github.com/budougumi0617/layer</a></li>
+</ul>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>クリーンアーキテクチャなどのレイヤードアーキテクチャでは、利用できるパッケージに制限がある
+
+<ul>
+<li>レイヤー間の依存関係は一方向のみ</li>
+<li>同じ層、あるいは1つ下の層のパッケージしか利用してはいけない</li>
+<li><a href="https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html">https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html</a></li>
+</ul></li>
+<li>Goは循環<code>import</code>ができないので、自然に単方向依存は満たしやすい</li>
+<li>しかし、層を飛び越して、2つ下の層のパッケージを直接使うような実装は言語仕様で防げない</li>
+<li>今回作ったツールはそのような誤った<code>import</code>を静的解析で警告する</li>
+<li>パッケージ間の層の関係は実行時にJSON配列で渡すことで利用者独自の階層構造を読み込めるようにした</li>
+</ul>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/layer" data-iframely-url="//cdn.iframe.ly/5BGoxex"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<h1 id="なぜ作ったのか">なぜ作ったのか</h1>
+
+<p>クリーンアーキテクチャやオニオンアーキテクチャなど、なんらかのレイヤードアーキテクチャの類を使って実装している人は多いのではないだろうか。
+私もその中のひとりだ。</p>
+
+<ul>
+<li>The Clean Architecture
+
+<ul>
+<li><a href="https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html">https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html</a></li>
+</ul></li>
+<li>The Onion Architecture : part 1
+
+<ul>
+<li><a href="https://jeffreypalermo.com/2008/07/the-onion-architecture-part-1/">https://jeffreypalermo.com/2008/07/the-onion-architecture-part-1/</a></li>
+</ul></li>
+</ul>
+
+<p>このようなレイヤードアーキテクチャでは、利用できるパッケージに制限がある。まず大前提として単方向の依存関係があるだろう。
+また、大体の場合、各層は階層構造を持っており、それぞれのパッケージ（ライブラリ）は同じ層、あるいは1つ下の層のパッケージしか利用してはいけない。</p>
+
+<p>Goは循環<code>import</code>が言語仕様でできない。そのため、Goでこのようなレイヤードアーキテクチャを実装するとき単方向依存は自然に満たしやすい。
+しかし、層を飛び越して、2つ下の層のパッケージを直接使うような実装は言語仕様で防げない。今回作った静的解析ではそのような誤った<code>import</code>を静的解析で警告する。</p>
+
+<p>パッケージ間の層の関係は実行時にJSON配列で渡すことで利用者独自の階層構造を読み込めるようにした。
+例えば、クリーンアーキテクチャの記事に記載されている階層構造は以下のようになる。
+単純に同じ層のパッケージ名を羅列し、内包する層がある場合は内部にJSON配列をまた定義すればよい。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">[
+  <span style="color:#2aa198">&#34;externalinterfaces&#34;</span>,
+  <span style="color:#2aa198">&#34;web&#34;</span>,
+  <span style="color:#2aa198">&#34;devices&#34;</span>,
+  <span style="color:#2aa198">&#34;db&#34;</span>,
+  <span style="color:#2aa198">&#34;ui&#34;</span>,
+  [
+    <span style="color:#2aa198">&#34;controllers&#34;</span>,
+    <span style="color:#2aa198">&#34;gateways&#34;</span>,
+    <span style="color:#2aa198">&#34;presenters&#34;</span>,
+    [
+      <span style="color:#2aa198">&#34;usecases&#34;</span>,
+      [
+        <span style="color:#2aa198">&#34;entity&#34;</span>
+      ]
+    ]
+  ]
+]</code></pre></div>
+<p>（<code>&quot;</code>のエスケープがめんどくさいが、）Go1.12以上の実行環境ならば、このJSON配列を<code>-jsonlayer</code>フラグで渡すことで実行できる。
+例えば以下の実行例は、<code>web</code>パッケージから<code>controllers</code>などの一つ下の層を使わずに直接2つ下の<code>usecases</code>パッケージを参照していたときに出力されるエラーだ。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go vet -vettool<span style="color:#719e07">=</span><span style="color:#719e07">$(</span>which layer<span style="color:#719e07">)</span> -layer.jsonlayer <span style="color:#2aa198">&#34;[\&#34;externalinterfaces\&#34;, \
+</span><span style="color:#2aa198">  \&#34;web\&#34;, \&#34;devices\&#34;, \&#34;db\&#34;, \&#34;ui\&#34;, [ \&#34;controllers\&#34;, \&#34;gateways\&#34;, \&#34;presenters\&#34;, \
+</span><span style="color:#2aa198">  [ \&#34;usecases\&#34;, [ \&#34;entity\&#34; ] ] ] ]&#34;</span> ./...
+<span style="color:#586e75"># github.com/budougumi0617/clean_architecture/web</span>
+web/delete_handler.go:7:2: github.com/budougumi0617/clean_architecture/web must not include <span style="color:#2aa198">&#34;github.com/budougumi0617/clean_architecture/usecases&#34;</span></code></pre></div>
+<p><code>repository/users</code>、<code>repository/companies</code>、<code>usecase/users</code>、<code>usecase/companies</code>のようなネストしたパッケージ構成を使っていた場合もチェックするように実装してある。</p>
+
+<h1 id="実装的な部分">実装的な部分</h1>
+
+<p>実用を考えて<code>Analyzer</code>を実装したのは初めてだったが、以下のところで時間がかかった。</p>
+
+<h2 id="json配列">JSON配列</h2>
+
+<p>階層構造を定義するための<code>-jsonlayer</code>フラグの引数は、YAMLで表現するとコマンドライン引数として定義を渡しにくいと思い、JSONにしてある。
+キーもいらないと思い、JSON配列にしたが、JSON配列を<code>unmarshal</code>すると<code>[]interface{}</code>配列になる。
+そのため、独自の<code>UnmarshalJSON</code>を実装して構造体に詰めている。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// Layer expresses Layer architecture.
+</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> Layer <span style="color:#268bd2">struct</span> {
+	Packages []<span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;Packages&#34;`</span>
+	Inside   <span style="color:#719e07">*</span>Layer   <span style="color:#2aa198">`json:&#34;Inside&#34;`</span>
+	Raw      []<span style="color:#268bd2">interface</span>{}
+}
+
+<span style="color:#586e75">// UnmarshalJSON unmarshals JSON data by custom logic.
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (l <span style="color:#719e07">*</span>Layer) <span style="color:#268bd2">UnmarshalJSON</span>(data []<span style="color:#dc322f">byte</span>) <span style="color:#dc322f">error</span> {
+	<span style="color:#268bd2">var</span> raw []<span style="color:#268bd2">interface</span>{}
+	err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmarshal</span>(data, <span style="color:#719e07">&amp;</span>raw)
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		<span style="color:#719e07">return</span> err
+	}
+	<span style="color:#268bd2">fillLayer</span>(raw, l)
+
+	<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">fillLayer</span>(raw []<span style="color:#268bd2">interface</span>{}, l <span style="color:#719e07">*</span>Layer) {
+	l.Raw = raw
+	<span style="color:#719e07">for</span> _, e <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> raw {
+		<span style="color:#719e07">switch</span> e <span style="color:#719e07">:=</span> e.(<span style="color:#268bd2">type</span>) {
+		<span style="color:#719e07">case</span> <span style="color:#dc322f">string</span>:
+			l.Packages = <span style="color:#b58900">append</span>(l.Packages, e)
+		<span style="color:#719e07">case</span> []<span style="color:#268bd2">interface</span>{}:
+			i <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>Layer{}
+			<span style="color:#268bd2">fillLayer</span>(e, i)
+			l.Inside = i
+		}
+	}
+}</code></pre></div>
+<h2 id="vettoolオプション対応">-vettoolオプション対応</h2>
+
+<p><code>unitchecker</code>パッケージを使うことで、<code>go vet</code>コマンドの<code>-vettool</code>オプション経由で利用する実行バイナリになる。</p>
+
+<ul>
+<li><a href="https://godoc.org/golang.org/x/tools/go/analysis/unitchecker">https://godoc.org/golang.org/x/tools/go/analysis/unitchecker</a></li>
+</ul>
+
+<p><blockquote class="twitter-tweet"><p lang="ja" dir="ltr">今どきのイケてるGoの静的解析ツールを作りたかったらgo vet -vettoolオプション経由で動かすようにしたほうがいいのかな？</p>&mdash; Yoichiro Shimizu (@budougumi0617) <a href="https://twitter.com/budougumi0617/status/1184930409093591040?ref_src=twsrc%5Etfw">October 17, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>`</p>
+
+<p><code>go vet</code>コマンドが<code>-vettool</code>オプションを利用できるのはGo1.12以降のため、<code>main</code>パッケージの実装を<code>build constraints</code>で2種類用意しておく必要がある。
+このあたりは、<code>gostaticanalysis/sqlrows</code>と同じ構成にさせてもらった。READMEの内容もほぼ踏襲している。</p>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/gostaticanalysis/sqlrows" data-iframely-url="//cdn.iframe.ly/QxPEqNG"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<h2 id="github-actions">GitHub Actions</h2>
+
+<p>いつもはCircleCIなのだが、旬（？）なのでGitHub Actionsを使ってCIを組んでみた。慣れるまで時間がかかりそう。</p>
+
+<ul>
+<li><a href="https://github.com/budougumi0617/layer/actions">https://github.com/budougumi0617/layer/actions</a></li>
+</ul>
+
+<h2 id="フラグの渡し方">フラグの渡し方</h2>
+
+<p><code>-vettool</code>オプション用のツールにしたとき、どうやってフラグの情報を渡していいのか迷った。
+順を追って実行すればわかるのだが<code>${Analyzerの名前}.${flagの名前}</code>で該当のAnalyzerに値を渡すことができるらしい。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go vet -vettool<span style="color:#719e07">=</span><span style="color:#719e07">$(</span>which layer<span style="color:#719e07">)</span> -h
+usage: go vet <span style="color:#719e07">[</span>-n<span style="color:#719e07">]</span> <span style="color:#719e07">[</span>-x<span style="color:#719e07">]</span> <span style="color:#719e07">[</span>-vettool prog<span style="color:#719e07">]</span> <span style="color:#719e07">[</span>build flags<span style="color:#719e07">]</span> <span style="color:#719e07">[</span>vet flags<span style="color:#719e07">]</span> <span style="color:#719e07">[</span>packages<span style="color:#719e07">]</span>
+Run <span style="color:#2aa198">&#39;go help vet&#39;</span> <span style="color:#719e07">for</span> details.
+Run <span style="color:#2aa198">&#39;/Users/budougumi0617/go/bin/layer -help&#39;</span> <span style="color:#719e07">for</span> the vet tool&#39;s flags.
+
+$ layer -help
+layer is a tool <span style="color:#719e07">for</span> static analysis of Go programs.
+
+Usage of layer:
+        layer unit.cfg  <span style="color:#586e75"># execute analysis specified by config file</span>
+        layer <span style="color:#b58900">help</span>      <span style="color:#586e75"># general help</span>
+        layer <span style="color:#b58900">help</span> name <span style="color:#586e75"># help on specific analyzer and its flags</span>
+
+$ layer <span style="color:#b58900">help</span> layer
+layer: layer checks whether there are dependencies that illegal cross-border the layer structure. The layer structure is defined as a JSON array using the -jsonlayer option.
+
+Analyzer flags:
+
+  -layer.jsonlayer string
+        jsonlayer defines layer hierarchy by JSON array <span style="color:#719e07">(</span>default <span style="color:#2aa198">&#34;[ \&#34;external\&#34;,\&#34;db\&#34;,\&#34;ui\&#34;, [ \&#34;controllers\&#34;, [ \&#34;usecases\&#34;, [ \&#34;entity\&#34; ] ] ] ]&#34;</span><span style="color:#719e07">)</span></code></pre></div>
+<h2 id="テストコードは無視する">テストコードは無視する</h2>
+
+<p>さすがにテストコードまで厳密にレイヤードアーキテクチャする必要はないと思っている。
+なので、<code>_test.go</code>でファイル名が終わる場合は無視する。
+実行時唯一の情報である<a href="https://godoc.org/golang.org/x/tools/go/analysis#Pass"><code>analysis.Pass</code></a>構造体からファイル名を取得する方法は<a href="https://twitter.com/podhmo">@podhmo</a>さんの記事を参考にした。</p>
+
+<iframe src="https://hatenablog-parts.com/embed?url=https%3A%2F%2Fpod.hatenablog.com%2Fentry%2F2018%2F03%2F05%2F070458" style="border: 0; width: 100%; height: 190px;" allowfullscreen scrolling="no"></iframe>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>前々から作りたいなと思っていて、時間ができたので作ってみた。
+脳内設計は前からしていたものの、実装自体はだいたい8時間以内で完成していると思う。
+一度慣れれば問題ない部分も多いので、次の作るときはもう少しは早く終わりそうだ。
+静的解析ツール作成はインフラの準備もいらないし、言語仕様（構造）の勉強にもなるし面白い。</p>
+
+<h1 id="参考">参考</h1>
+
+<ul>
+<li><a href="https://github.com/budougumi0617/layer">https://github.com/budougumi0617/layer</a></li>
+<li><a href="https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html">The Clean Architecture</a></li>
+<li><a href="https://jeffreypalermo.com/2008/07/the-onion-architecture-part-1/">The Onion Architecture : part 1</a></li>
+<li><a href="https://godoc.org/golang.org/x/tools/go/analysis/unitchecker">unitchecker | GoDoc</a></li>
+<li><a href="https://github.com/gostaticanalysis/sqlrows">https://github.com/gostaticanalysis/sqlrows</a></li>
+<li><a href="https://pod.hatenablog.com/entry/2018/03/05/070458">goのast.Fileからファイル名を取得する方法</a></li>
+</ul>
+
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=B07FSBHS2V&linkId=c46b6daefa3b3e617c886f4bea107fc7"></iframe>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/07/15/gocon2019summer/">[発表資料] GoCon Fukuokaでgoogle/wireを使った Goらしいアーキテクチャへの取り組みを発表した #gocon</a></li>
+  
+  <li><a href="/2019/10/05/jrits-why-go-how-is-go/">[発表資料] 第138回RITS技術交流会『なぜ私たちはGoを書くのか。今あらためて考えるGo言語の良さと実際』</a></li>
+  
+  <li><a href="/2019/09/20/fix-go-mod-tidy-does-not-contain-package/">go mod tidyするとmodule ... found, but does not contain package ...エラーで失敗する</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Oct 18, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/oss">oss</a>  <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/design">design</a>  <a class="category" href="https://budougumi0617.github.io/tags/linter">linter</a>  <a class="category" href="https://budougumi0617.github.io/tags/analysis">analysis</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/10/12/confirm-print-with-fmt-interfaces/" title="[Go] 独自型にfmtパッケージのインターフェースを実装して出力を制御する">[Go] 独自型にfmtパッケージのインターフェースを実装して出力を制御する</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/10/18/launch-layer-for-the-layered-achitectures/">[Go] レイヤードアーキテクチャの階層構造を守らないimportを警告するlinterを作った</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2019/10/12/confirm-print-with-fmt-interfaces/">[Go] 独自型にfmtパッケージのインターフェースを実装して出力を制御する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/10/06/imported-declared-not-used-error/">[Go]imported and not usedエラー・declared and not usedエラーとの向き合いかた</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/10/05/jrits-why-go-how-is-go/">[発表資料] 第138回RITS技術交流会『なぜ私たちはGoを書くのか。今あらためて考えるGo言語の良さと実際』</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
