@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go] タグなし switchは switch true {...}と等しい - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="Go,golang,Go言語,swtich,Devquiz">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.58.3" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/11/10/switch-statement-in-go/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go] タグなし switchは switch true {...}と等しい - My External Storage"/>
+  <meta property="og:description" content="先日のgolang.tokyoではswitch文に関するDevquizが出題された。
+私はわかっていたつもりで乾杯の挨拶中に解説を話したが、間違えた解説だったので改めて仕様を確認した。"/>
+  
+  <meta name="twitter:title" content="[Go] タグなし switchは switch true {...}と等しい - My External Storage"/>
+  <meta name="twitter:description" content="先日のgolang.tokyoではswitch文に関するDevquizが出題された。
+私はわかっていたつもりで乾杯の挨拶中に解説を話したが、間違えた解説だったので改めて仕様を確認した。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Nov 10, 2019
+     - 3 minute read 
+     - <a href="https://budougumi0617.github.io/2019/11/10/switch-statement-in-go/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">Go </a>
+    
+  </p>
+  <h1 class="entry-title">
+     [Go] タグなし switchは switch true {...}と等しい 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#golang-tokyo-27のdevquiz">golang.tokyo #27のDevquiz</a></li>
+<li><a href="#switch文の言語仕様について">switch文の言語仕様について</a>
+<ul>
+<li><a href="#switch-内にスコープを絞ったstatementを書ける"><code>switch</code>内にスコープを絞ったStatementを書ける</a></li>
+<li><a href="#goの-switch-文は式-タグ-なしで書くことができる">Goの<code>switch</code>文は式（タグ）なしで書くことができる</a></li>
+</ul></li>
+<li><a href="#終わりに">終わりに</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</nav>
+          
+          <p>先日のgolang.tokyoでは<code>switch</code>文に関するDevquizが出題された。
+私はわかっていたつもりで乾杯の挨拶中に解説を話したが、間違えた解説だったので改めて仕様を確認した。</p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>先日のgolang.tokyoのDevquizの解説で誤った解説をしてしまった
+
+<ul>
+<li><a href="https://golangtokyo.connpass.com/event/151926/">https://golangtokyo.connpass.com/event/151926/</a></li>
+<li>Devquizは<code>switch ok := false; {...}</code>という<code>switch</code>文の挙動について</li>
+</ul></li>
+<li>Goの<code>switch</code>文は条件以外に、<code>switch</code>内にスコープを絞った<code>Statement</code>を書くことができる。
+
+<ul>
+<li><code>switch x := f(); x { ... }</code></li>
+</ul></li>
+<li>Goの<code>switch</code>文は条件（タグ）なしで書くことができる
+
+<ul>
+<li>タグなし<code>switch</code>（<code>tugless-switch</code>）は<code>switch true</code></li>
+</ul></li>
+</ul>
+
+<p>正しい答えは<a href="https://twitter.com/makki_d">@makki_d</a>さんに会場でも指摘してもらった。</p>
+
+<p><blockquote class="twitter-tweet"><p lang="ja" dir="ltr">クイズのswitch文、ok:=falseの後のセミコロンの後が空なのが味噌だよね<a href="https://twitter.com/hashtag/golangtokyo?src=hash&amp;ref_src=twsrc%5Etfw">#golangtokyo</a></p>&mdash; MakKi (@makki_d) <a href="https://twitter.com/makki_d/status/1191667339348963328?ref_src=twsrc%5Etfw">November 5, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
+
+<h1 id="golang-tokyo-27のdevquiz">golang.tokyo #27のDevquiz</h1>
+
+<p>2019/11/05に行われたgolang.tokyoの抽選では以下のDevquizが出題された。</p>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://golangtokyo.connpass.com/event/151926/" data-iframely-url="//cdn.iframe.ly/Oxh7MyA"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<ul>
+<li><p><a href="https://play.golang.org/p/mSkgdEh8hhw">https://play.golang.org/p/mSkgdEh8hhw</a></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// 以下のコードを実行すると何が出力されるか答えよ。
+</span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+<span style="color:#719e07">switch</span> ok <span style="color:#719e07">:=</span> <span style="color:#cb4b16">false</span>; {
+<span style="color:#719e07">case</span> <span style="color:#cb4b16">true</span>:
+    fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;true&#34;</span>, ok)
+<span style="color:#719e07">case</span> <span style="color:#cb4b16">false</span>:
+    fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;false&#34;</span>, ok)
+<span style="color:#719e07">default</span>:
+    fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;default&#34;</span>)
+}
+}</code></pre></div></li>
+</ul>
+
+<p>何が出力されるかというと、<code>true false</code>が出力される。<br />
+私はこれを「<code>case true</code>が常に真として評価されるから<code>true false</code>が出力される。」と解説したがそれは誤りだった。</p>
+
+<h1 id="switch文の言語仕様について">switch文の言語仕様について</h1>
+
+<p><code>switch</code>文の言語仕様は以下で確認することができる。</p>
+
+<ul>
+<li>Switch statements | The Go Programming Language Specification
+
+<ul>
+<li><a href="https://golang.org/ref/spec#Switch_statements">https://golang.org/ref/spec#Switch_statements</a></li>
+</ul></li>
+</ul>
+
+<p>Devquizの<code>switch</code>文は<code>type switch</code>ではないので、<code>ExprSwitchStmt</code>となる。</p>
+
+<pre><code>SwitchStmt = ExprSwitchStmt | TypeSwitchStmt .
+ExprSwitchStmt = &quot;switch&quot; [ SimpleStmt &quot;;&quot; ] [ Expression ] &quot;{&quot; { ExprCaseClause } &quot;}&quot; .
+
+</code></pre>
+
+<h2 id="switch-内にスコープを絞ったstatementを書ける"><code>switch</code>内にスコープを絞ったStatementを書ける</h2>
+
+<p><code>ExprSwitchStmt</code>の定義を見ればわかる通り、<code>switch</code>文は実際に<code>switch</code>文で評価したい式（<code>Expression</code>）と別に代入などの文（<code>SimpleStmt</code>）を含むことができる。</p>
+
+<p>Devquiz中の<code>switch</code>文も<code>SimpleStmt</code>として、代入式を含んでいた</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">switch</span> ok <span style="color:#719e07">:=</span> <span style="color:#cb4b16">false</span>; {</code></pre></div>
+<h2 id="goの-switch-文は式-タグ-なしで書くことができる">Goの<code>switch</code>文は式（タグ）なしで書くことができる</h2>
+
+<p>わかる人はもうわかっただろうが、Devquizの<code>switch</code>文には式が含まれていない。これはGoの文法的に間違いではない。</p>
+
+<blockquote>
+<p>There can be at most one default case and it may appear anywhere in the &ldquo;switch&rdquo; statement. A missing switch expression is equivalent to the boolean value true.</p>
+</blockquote>
+
+<p>式が含まれていない<code>switch</code>文は<code>switch true</code>として条件評価が行われる。<br />
+よって、 今回のDevquizは「<code>switch true</code>という<code>switch</code>文だったので、<code>case true:</code>という条件が真になっていた」のが正しい解説となる。<br />
+<code>switch ok := false; ok {</code>と書けば<code>ok</code>変数の値と各<code>case</code>の値が比較され、（人間がパット見考える）期待どおりの挙動となる。</p>
+
+<p>なお、<code>switch {...}</code>のような、式がない<code>switch</code>文のことを、&rdquo;タグなし<code>switch</code>&ldquo;（<code>tugless-switch</code>）と呼ぶ。<br />
+タグなし<code>switch</code>の評価が<code>switch true</code>になることはプログラミング言語Goでもしっかり明記されている。</p>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>2,3か月に1回くらいの割合でGoの言語仕様を読んでいる気がする。<br />
+Goの言語仕様は<a href="https://golang.org/ref/spec">この1ページ</a>だけだし、文中のキーワードにはリンクが付いているので勉強しやすい。<br />
+毎回忘れてやり直している気がするが、<code>Expression</code>と<code>Statement</code>の違いも頭に入ってきた。</p>
+
+<h1 id="参考">参考</h1>
+
+<ul>
+<li><a href="https://golang.org/ref/spec#Switch_statements">Switch statements | The Go Programming Language Specification</a></li>
+<li><a href="http://amazon.jp/dp/4621300253">プログラミング言語Go </a></li>
+</ul>
+
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4621300253&linkId=10cf49bd3d559f283cf07fa007e3fae7"></iframe>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/11/03/use-cache-in-github-actions/">[Go] GitHub Actionsでキャッシュ機能を使う #github</a></li>
+  
+  <li><a href="/2019/10/30/go-testing2019/">Goのtestを理解する in 2019</a></li>
+  
+  <li><a href="/2019/10/05/jrits-why-go-how-is-go/">[発表資料] 第138回RITS技術交流会『なぜ私たちはGoを書くのか。今あらためて考えるGo言語の良さと実際』</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Nov 10, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/11/03/use-cache-in-github-actions/" title="[Go] GitHub Actionsでキャッシュ機能を使う #github">[Go] GitHub Actionsでキャッシュ機能を使う #github</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/11/10/switch-statement-in-go/">[Go] タグなし switchは switch true {...}と等しい</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2019/11/03/use-cache-in-github-actions/">[Go] GitHub Actionsでキャッシュ機能を使う #github</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/10/30/go-testing2019/">Goのtestを理解する in 2019</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/10/18/launch-layer-for-the-layered-achitectures/">[Go] レイヤードアーキテクチャの階層構造を守らないimportを警告するlinterを作った</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
