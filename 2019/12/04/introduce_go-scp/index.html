@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>OWASP/Go-SCPを読んでセキュアプログラミングとGoを学ぶ - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="Go,Go言語,golang,OWASP,セキュアコーディング,セキュアプログラミング">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.58.3" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/12/04/introduce_go-scp/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="OWASP/Go-SCPを読んでセキュアプログラミングとGoを学ぶ - My External Storage"/>
+  <meta property="og:description" content="この記事はGo Advent Calendar 2019の4日目の記事になる。
+3日目は@ikawahaさんの「Goa v3 のテストをシュッとする]」だった。
+
+本記事ではOpen Web Application Security Project（OWASP)が公開しているGo-SCPリポジトリを紹介する。
+Webアプリケーションにはクロスサイトスクリプティング（XSS）やクロスサイトリクエストフォージェリ（CSRF）など、様々な脆弱性が潜む可能性がある。
+脆弱性対策の書籍としては、体系的に学ぶ 安全なWebアプリケーションの作り方（徳丸本）などが有名だろう。
+Go-SCPリポジトリにはWebアプリケーションを実装する際に必要な脆弱性の知識と、Goを使った脆弱性対策の実装方法が含まれている。
+
+
+https://github.com/OWASP/Go-SCP
+"/>
+  
+  <meta name="twitter:title" content="OWASP/Go-SCPを読んでセキュアプログラミングとGoを学ぶ - My External Storage"/>
+  <meta name="twitter:description" content="この記事はGo Advent Calendar 2019の4日目の記事になる。
+3日目は@ikawahaさんの「Goa v3 のテストをシュッとする]」だった。
+
+本記事ではOpen Web Application Security Project（OWASP)が公開しているGo-SCPリポジトリを紹介する。
+Webアプリケーションにはクロスサイトスクリプティング（XSS）やクロスサイトリクエストフォージェリ（CSRF）など、様々な脆弱性が潜む可能性がある。
+脆弱性対策の書籍としては、体系的に学ぶ 安全なWebアプリケーションの作り方（徳丸本）などが有名だろう。
+Go-SCPリポジトリにはWebアプリケーションを実装する際に必要な脆弱性の知識と、Goを使った脆弱性対策の実装方法が含まれている。
+
+
+https://github.com/OWASP/Go-SCP
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Dec 4, 2019
+     - 6 minute read 
+     - <a href="https://budougumi0617.github.io/2019/12/04/introduce_go-scp/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">Go </a>
+    
+  </p>
+  <h1 class="entry-title">
+     OWASP/Go-SCPを読んでセキュアプログラミングとGoを学ぶ 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#owasp-open-web-application-security-project-とは">OWASP（Open Web Application Security Project）とは</a></li>
+<li><a href="#owasp-go-secure-coding-practices-guide">OWASP Go Secure Coding Practices Guide</a></li>
+<li><a href="#コンテンツの内容">コンテンツの内容</a>
+<ul>
+<li><a href="#goで特有に発生する問題-webアプリケーション一般で発生する問題両方を学習することができる">Goで特有に発生する問題、Webアプリケーション一般で発生する問題両方を学習することができる</a></li>
+</ul></li>
+<li><a href="#終わりに">終わりに</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</nav>
+          
+          <p>この記事は<a href="https://qiita.com/advent-calendar/2019/go">Go Advent Calendar 2019</a>の4日目の記事になる。<br />
+3日目は<a href="https://twitter.com/ikawaha">@ikawaha</a>さんの「<a href="https://qiita.com/ikawaha/items/e0c2b3ed0fedb12f4847">Goa v3 のテストをシュッとする</a>]」だった。</p>
+
+<p>本記事ではOpen Web Application Security Project（OWASP)が公開している<code>Go-SCP</code>リポジトリを紹介する。<br />
+Webアプリケーションには<a href="https://ja.wikipedia.org/wiki/%E3%82%AF%E3%83%AD%E3%82%B9%E3%82%B5%E3%82%A4%E3%83%88%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%97%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0">クロスサイトスクリプティング（XSS）</a>や<a href="https://ja.wikipedia.org/wiki/%E3%82%AF%E3%83%AD%E3%82%B9%E3%82%B5%E3%82%A4%E3%83%88%E3%83%AA%E3%82%AF%E3%82%A8%E3%82%B9%E3%83%88%E3%83%95%E3%82%A9%E3%83%BC%E3%82%B8%E3%82%A7%E3%83%AA">クロスサイトリクエストフォージェリ（CSRF）</a>など、様々な脆弱性が潜む可能性がある。
+脆弱性対策の書籍としては、<a href="https://www.amazon.co.jp/dp/B07DVY4H3M">体系的に学ぶ 安全なWebアプリケーションの作り方（徳丸本）</a>などが有名だろう。<br />
+<code>Go-SCP</code>リポジトリにはWebアプリケーションを実装する際に必要な脆弱性の知識と、Goを使った脆弱性対策の実装方法が含まれている。</p>
+
+<ul>
+<li><a href="https://github.com/OWASP/Go-SCP">https://github.com/OWASP/Go-SCP</a></li>
+</ul>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>OWASPというWEBアプリケーションのセキュリティ啓発団体がある
+
+<ul>
+<li><a href="https://www.owasp.org">https://www.owasp.org</a></li>
+</ul></li>
+<li>Goでどのようにセキュアプログラミングをすればいいのか、をOWASPがまとめたものが<code>Go-SCP</code>リポジトリ
+
+<ul>
+<li><a href="https://www.owasp.org/index.php/OWASP_Go_Secure_Coding_Practices_Guide">https://www.owasp.org/index.php/OWASP_Go_Secure_Coding_Practices_Guide</a></li>
+<li><a href="https://github.com/OWASP/Go-SCP">https://github.com/OWASP/Go-SCP</a></li>
+</ul></li>
+<li>電子書籍が生成されており、PDFやmobi（Kindle）で読める。GitHub上でMarkdownを読むこともできる</li>
+<li>Go特有で発生する問題、Webアプリケーション一般で発生する問題両方を学習することができる</li>
+</ul>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/OWASP/Go-SCP" data-iframely-url="//cdn.iframe.ly/A9AHYEK"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<p>なお、<code>Go-SCP</code>リポジトリは<code>Creative Commons Attribution-ShareAlike 4.0 International license (CC BY-SA 4.0)</code>のライセンスで公開されている。
+そのため、本記事で引用しているサンプルコードなども同等のライセンスになる。
+また、本記事で参照している<code>Go-SCP</code>リポジトリのバージョンは2019/12/04時点最新のv2.5.6になる。</p>
+
+<ul>
+<li><a href="https://creativecommons.org/licenses/by-sa/4.0/">https://creativecommons.org/licenses/by-sa/4.0/</a></li>
+</ul>
+
+<h1 id="owasp-open-web-application-security-project-とは">OWASP（Open Web Application Security Project）とは</h1>
+
+<p>OWASPという団体が存在するのはご存知だろうか。</p>
+
+<ul>
+<li>OWASP
+
+<ul>
+<li><a href="https://www.owasp.org">https://www.owasp.org</a></li>
+</ul></li>
+</ul>
+
+<p>OWASPは、Webをはじめとするソフトウェアのセキュリティ環境の現状、またセキュアなソフトウェア開発を促進する技術・プロセスに関する情報共有と普及啓発を目的としたプロフェッショナルの集まる、オープンソース・ソフトウェアコミュニティだ（<a href="https://www.owasp.org/index.php/Japan">OSWAP Japan</a> TOPページより）。
+OWASPと書いて、「オワスプ」と読む。
+ソフトウェア全体の脆弱性やセキュリティに関する話題を取り扱っているため、Go以外のガイドも多数作成されている。</p>
+
+<ul>
+<li>OWASP Backend Security Project
+
+<ul>
+<li><a href="https://www.owasp.org/index.php/Category:OWASP_Backend_Security_Project">https://www.owasp.org/index.php/Category:OWASP_Backend_Security_Project</a></li>
+</ul></li>
+<li>OWASP .NET Project
+
+<ul>
+<li><a href="https://www.owasp.org/index.php/Category:OWASP_.NET_Project">https://www.owasp.org/index.php/Category:OWASP_.NET_Project</a></li>
+</ul></li>
+</ul>
+
+<h1 id="owasp-go-secure-coding-practices-guide">OWASP Go Secure Coding Practices Guide</h1>
+
+<p>OWASP Go Secure Coding Practices GuideはGoを使ってWeb開発を行なう際のセキュアコーディングガイドだ。</p>
+
+<ul>
+<li>OWASP Go Secure Coding Practices Guide
+
+<ul>
+<li><a href="https://www.owasp.org/index.php/OWASP_Go_Secure_Coding_Practices_Guide">https://www.owasp.org/index.php/OWASP_Go_Secure_Coding_Practices_Guide</a></li>
+</ul></li>
+</ul>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/OWASP/Go-SCP" data-iframely-url="//cdn.iframe.ly/A9AHYEK"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<p>PDF、Mobi、ePub形式でも発行されている。PDF換算だと74ページになり、そこそこのボリュームがある。更新も活発で、約2年間で25回リリースされている。</p>
+
+<ul>
+<li>PDF、Mobi、ePubファイル一覧
+
+<ul>
+<li><a href="https://github.com/OWASP/Go-SCP/tree/master/dist">https://github.com/OWASP/Go-SCP/tree/master/dist</a></li>
+</ul></li>
+</ul>
+
+<p>内容自体は<a href="https://www.owasp.org/index.php/OWASP_Secure_Coding_Practices_-_Quick_Reference_Guide">OWASP Secure Coding Practices Quick Reference Guide</a>の内容をカバーしているらしく、その内容をGoで書き直したガイドとなる。
+対象は他言語経験済レベルの開発者を想定しているらしいが、「Tour Of Goの次に読む学習素材としても良いだろう」と書いてある。</p>
+
+<h1 id="コンテンツの内容">コンテンツの内容</h1>
+
+<p>コンテンツの内容は<a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/SUMMARY.md">src/SUMMARY.md</a>に記載の通り以下の話題が網羅されている。</p>
+
+<ul>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/README.md">Introduction</a></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/input-validation/README.md">Input Validation</a>
+
+<ul>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/input-validation/validation.md">Validation</a></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/input-validation/sanitization.md">Sanitization</a></li>
+</ul></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/output-encoding/README.md">Output Encoding</a>
+
+<ul>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/output-encoding/cross-site-scripting.md">XSS - Cross-Site Scripting</a></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/output-encoding/sql-injection.md">SQL Injection</a></li>
+</ul></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/authentication-password-management/README.md">Authentication and Password Management</a>
+
+<ul>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/authentication-password-management/communicating-authentication-data.md">Communicating authentication data</a></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/authentication-password-management/validation-and-storage.md">Validation and Storage</a></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/authentication-password-management/password-policies.md">Password policies</a></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/authentication-password-management/other-guidelines.md">Other guidelines</a></li>
+</ul></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/session-management/README.md">Session Management</a></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/access-control/README.md">Access Control</a></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/cryptographic-practices/README.md">Cryptographic Practices</a>
+
+<ul>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/cryptographic-practices/pseudo-random-generators.md">Pseudo-Random Generators</a></li>
+</ul></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/error-handling-logging/README.md">Error Handling and Logging</a>
+
+<ul>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/error-handling-logging/error-handling.md">Error Handling</a></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/error-handling-logging/logging.md">Logging</a></li>
+</ul></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/data-protection/README.md">Data Protection</a></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/communication-security/README.md">Communication Security</a>
+
+<ul>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/communication-security/http-tls.md">HTTP/TLS</a></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/communication-security/websockets.md">WebSockets</a></li>
+</ul></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/system-configuration/README.md">System Configuration</a></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/database-security/README.md">Database Security</a>
+
+<ul>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/database-security/connections.md">Connections</a></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/database-security/authentication.md">Authentication</a></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/database-security/parameterized-queries.md">Parameterized Queries</a></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/database-security/stored-procedures.md">Stored Procedures</a></li>
+</ul></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/file-management/README.md">File Management</a></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/memory-management/README.md">Memory Management</a></li>
+<li>General Coding Practices
+
+<ul>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/general-coding-practices/cross-site-request-forgery.md">Cross-Site Request Forgery</a></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/general-coding-practices/regular-expressions.md">Regular Expressions</a></li>
+</ul></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/howto-contribute.md">How To Contribute</a></li>
+<li><a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/final-notes.md">Final Notes</a></li>
+</ul>
+
+<p>中身については実際に読んでいただくとして、どんな特徴があるかを簡単に紹介する。</p>
+
+<h2 id="goで特有に発生する問題-webアプリケーション一般で発生する問題両方を学習することができる">Goで特有に発生する問題、Webアプリケーション一般で発生する問題両方を学習することができる</h2>
+
+<p>実際に読んでみると、「サンプルコードがGoなだけ」ではなかった。
+Goの言語仕様や標準パッケージだからこそ起きる問題にも言及してあり、たしかにGoの文法を覚えた次に読む資料として良さそうだった。</p>
+
+<p>例えば、<a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/cryptographic-practices/pseudo-random-generators.md">疑似乱数生成の章</a>では、Go特有のSeed問題に触れられている。
+ご存知の通り、GoはSeedを設定せずに<a href="https://golang.org/pkg/math/rand/">math/rand</a>パッケージにある一連の乱数生成関数を使うと毎回同じ値が生成される。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// OWASP/Go-SCP/src/cryptographic-practices/pseudo-random-generators.md より
+</span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
+<span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;math/rand&#34;</span>
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+    fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Random Number: &#34;</span>, rand.<span style="color:#268bd2">Intn</span>(<span style="color:#2aa198">1984</span>))
+}
+
+<span style="color:#586e75">// 実行結果は毎回同じになる
+</span><span style="color:#586e75">// $ for i in {1..5}; do go run rand.go; done
+</span><span style="color:#586e75">// Random Number:  1825
+</span><span style="color:#586e75">// Random Number:  1825
+</span><span style="color:#586e75">// Random Number:  1825
+</span><span style="color:#586e75">// Random Number:  1825
+</span><span style="color:#586e75"></span><span style="color:#719e07">//</span> Random Number:  <span style="color:#2aa198">1825</span></code></pre></div>
+<p>この章では「<code>math/rand</code>パッケージではなく<a href="https://golang.org/pkg/crypto/rand/">crypto/rand</a>パッケージを使うべき理由」がサンプルコードと一緒にまとめられている。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// OWASP/Go-SCP/src/cryptographic-practices/pseudo-random-generators.md より
+</span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
+<span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;math/big&#34;</span>
+<span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;crypto/rand&#34;</span>
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+    rand, err <span style="color:#719e07">:=</span> rand.<span style="color:#268bd2">Int</span>(rand.Reader, big.<span style="color:#268bd2">NewInt</span>(<span style="color:#2aa198">1984</span>))
+    <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+        <span style="color:#b58900">panic</span>(err)
+    }
+
+    fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;Random Number: %d\n&#34;</span>, rand)
+}
+
+<span style="color:#586e75">// 毎回異なる結果になる
+</span><span style="color:#586e75">// $ for i in {1..5}; do go run rand-safe.go; done
+</span><span style="color:#586e75">// Random Number: 277
+</span><span style="color:#586e75">// Random Number: 1572
+</span><span style="color:#586e75">// Random Number: 1793
+</span><span style="color:#586e75">// Random Number: 1328
+</span><span style="color:#586e75"></span><span style="color:#719e07">//</span> Random Number: <span style="color:#2aa198">1378</span></code></pre></div>
+<p>また、<a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/output-encoding/cross-site-scripting.md">クロスサイトスクリプティング（XSS）の章</a>は次のようなシンプルなWebサーバのコードから始まる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;net/http&#34;</span>
+<span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;io&#34;</span>
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">handler</span> (w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
+    io.<span style="color:#268bd2">WriteString</span>(w, r.URL.<span style="color:#268bd2">Query</span>().<span style="color:#268bd2">Get</span>(<span style="color:#2aa198">&#34;param1&#34;</span>))
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span> () {
+    http.<span style="color:#268bd2">HandleFunc</span>(<span style="color:#2aa198">&#34;/&#34;</span>, handler)
+    http.<span style="color:#268bd2">ListenAndServe</span>(<span style="color:#2aa198">&#34;:8080&#34;</span>, <span style="color:#cb4b16">nil</span>)
+}</code></pre></div>
+<p>このサンプルコードを以下の順に改修していき、セキュアな実装を学ぶ構成になっている。</p>
+
+<ol>
+<li><code>io</code>パッケージのまま悪意のあるリクエストを受け取ってみる</li>
+<li><a href="https://golang.org/pkg/text/template/">text/template</a>パッケージを使う実装にしてみる</li>
+<li><a href="https://golang.org/pkg/html/template/">html/template</a>パッケージを使う実装にしてみる</li>
+</ol>
+
+<p>XSS自体の危険性を知りながら、Goの標準パッケージを使ってどのようにセキュアなコードを書けるのかが学べる。</p>
+
+<p>なお、<a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/general-coding-practices/cross-site-request-forgery.md">クロスサイトリクエストフォージェリ（CSRF）</a>の説明では<a href="https://github.com/gorilla/csrf">gorilla/csrf</a>パッケージが使われており、
+標準パッケージだけでは対策の実装が難しい問題についてはOSSを利用したベターな解決策も提示されている。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// OWASP/Go-SCP/src/general-coding-practices/cross-site-request-forgery.md より
+</span><span style="color:#586e75">// 日本語コメントは私が追加したものである。
+</span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+    <span style="color:#2aa198">&#34;net/http&#34;</span>
+
+    <span style="color:#2aa198">&#34;github.com/gorilla/csrf&#34;</span>
+    <span style="color:#2aa198">&#34;github.com/gorilla/mux&#34;</span>
+)
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+    r <span style="color:#719e07">:=</span> mux.<span style="color:#268bd2">NewRouter</span>()
+    r.<span style="color:#268bd2">HandleFunc</span>(<span style="color:#2aa198">&#34;/signup&#34;</span>, ShowSignupForm)
+    <span style="color:#586e75">// All POST requests without a valid token will return HTTP 403 Forbidden.
+</span><span style="color:#586e75"></span>    r.<span style="color:#268bd2">HandleFunc</span>(<span style="color:#2aa198">&#34;/signup/post&#34;</span>, SubmitSignupForm)
+
+    <span style="color:#586e75">// 生成した暗号キーをセットしておくと、gorilla/csrfがPOSTメソッドなどの際にいい感じに検証してくれる。
+</span><span style="color:#586e75"></span>    <span style="color:#586e75">// Add the middleware to your router by wrapping it.
+</span><span style="color:#586e75"></span>    http.<span style="color:#268bd2">ListenAndServe</span>(<span style="color:#2aa198">&#34;:8000&#34;</span>,
+        csrf.<span style="color:#268bd2">Protect</span>([]<span style="color:#b58900">byte</span>(<span style="color:#2aa198">&#34;32-byte-long-auth-key&#34;</span>))(r))
+    <span style="color:#586e75">// PS: Don&#39;t forget to pass csrf.Secure(false) if you&#39;re developing locally
+</span><span style="color:#586e75"></span>    <span style="color:#586e75">// over plain HTTP (just don&#39;t leave it on in production).
+</span><span style="color:#586e75"></span>}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">ShowSignupForm</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
+    <span style="color:#586e75">// Formの中にトークンを埋め込んでおく。
+</span><span style="color:#586e75"></span>    <span style="color:#586e75">// signup_form.tmpl just needs a {{ .csrfField }} template tag for
+</span><span style="color:#586e75"></span>    <span style="color:#586e75">// csrf.TemplateField to inject the CSRF token into. Easy!
+</span><span style="color:#586e75"></span>    t.<span style="color:#268bd2">ExecuteTemplate</span>(w, <span style="color:#2aa198">&#34;signup_form.tmpl&#34;</span>, <span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]<span style="color:#268bd2">interface</span>{}{
+        csrf.TemplateTag: csrf.<span style="color:#268bd2">TemplateField</span>(r),
+    })
+    <span style="color:#586e75">// We could also retrieve the token directly from csrf.Token(r) and
+</span><span style="color:#586e75"></span>    <span style="color:#586e75">// set it in the request header - w.Header.Set(&#34;X-CSRF-Token&#34;, token)
+</span><span style="color:#586e75"></span>    <span style="color:#586e75">// This is useful if you&#39;re sending JSON to clients or a front-end JavaScript
+</span><span style="color:#586e75"></span>    <span style="color:#586e75">// framework.
+</span><span style="color:#586e75"></span>}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">SubmitSignupForm</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
+    <span style="color:#586e75">// We can trust that requests making it this far have satisfied
+</span><span style="color:#586e75"></span>    <span style="color:#586e75">// our CSRF protection requirements.
+</span><span style="color:#586e75"></span>}</code></pre></div>
+<p>これら以外の章も英語が得意ならばそれぞれ10分もかからず読める量なので、スキマ時間に少しずつ読むこともできるだろう
+（私は英語が苦手なので、得意ならばもっと早く読めるかもしれない）。</p>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>簡単ではあるが、セキュアプログラミングの方法が記載されている<code>Go-SCP</code>の紹介をした。<br />
+ウェブアプリケーションフレームワーク（WAF）を使っていれば、気づかずに避けられる問題も多いかもしれない。
+が、Goの場合はWAFに頼らずシンプルな実装をしているところも多いだろうし、「XXXという処理にはこういう脆弱性が潜む可能性がある」と知っておくのも大事だろう。<br />
+<code>Go-SCP</code>リポジトリは英語だが文量もそこまで多くないので、Go・セキュアプログラミング・英語の勉強にぜひ一度目を通してみると良いだろう。</p>
+
+<p><a href="https://qiita.com/advent-calendar/2019/go">Go Advent Calendar 2019</a> 5日目は<a href="https://twitter.com/__timakin__">ちまきん</a>さんが担当される。お楽しみに！
+（今年はGoだけで毎日7記事読めるのですごい…）</p>
+
+<h1 id="参考">参考</h1>
+
+<ul>
+<li><a href="https://www.owasp.org/index.php/OWASP_Go_Secure_Coding_Practices_Guide">https://www.owasp.org/index.php/OWASP_Go_Secure_Coding_Practices_Guide</a></li>
+<li><a href="https://github.com/OWASP/Go-SCP">https://github.com/OWASP/Go-SCP</a></li>
+<li><a href="https://qiita.com/advent-calendar/2019/go">Go Advent Calendar 2019</a></li>
+<li><a href="https://www.amazon.co.jp/dp/B07DVY4H3M">体系的に学ぶ 安全なWebアプリケーションの作り方 第2版［固定版］　脆弱性が生まれる原理と対策の実践</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/11/16/goturns10-in-japan/">Go Release 10 Year Anniversary Party in Tokyo参加メモ</a></li>
+  
+  <li><a href="/2019/11/10/switch-statement-in-go/">[Go] タグなし switchは switch true {...}と等しい</a></li>
+  
+  <li><a href="/2019/11/18/resolve-golangci-lint-setting-with-vim-go/">[Go] &#34;vim-go: [golangci-lint] FAIL&#34;エラーが出てvim-goでgolangci-lintが動かない</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Dec 4, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/11/25/review_pronami_php/" title="[書評] 気づけばプロ並みPHP改訂版を読んでPHPに入門した">[書評] 気づけばプロ並みPHP改訂版を読んでPHPに入門した</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/12/04/introduce_go-scp/">OWASP/Go-SCPを読んでセキュアプログラミングとGoを学ぶ</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2019/11/25/review_pronami_php/">[書評] 気づけばプロ並みPHP改訂版を読んでPHPに入門した</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/11/18/resolve-golangci-lint-setting-with-vim-go/">[Go] &#34;vim-go: [golangci-lint] FAIL&#34;エラーが出てvim-goでgolangci-lintが動かない</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/11/16/goturns10-in-japan/">Go Release 10 Year Anniversary Party in Tokyo参加メモ</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
