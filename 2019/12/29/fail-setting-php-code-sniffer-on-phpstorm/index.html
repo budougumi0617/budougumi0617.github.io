@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>PhpStorm上でPHP_CodeSnifferのCoding Standardが見つからず、静的解析ができない - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="PhpStrom,PHP,PHP CodeSniffer">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.58.3" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/phpstorm.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/phpstorm.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/12/29/fail-setting-php-code-sniffer-on-phpstorm/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="PhpStorm上でPHP_CodeSnifferのCoding Standardが見つからず、静的解析ができない - My External Storage"/>
+  <meta property="og:description" content="PhpStormで静的解析を利用しようとしてプロジェクトを新しく設定するたびにハマっているのでメモしておく。
+Dockerを利用してPHP_CodeSnifferを使った静的解析をPhpStormで利用するときの設定がうまくいかなった。"/>
+  
+  <meta name="twitter:title" content="PhpStorm上でPHP_CodeSnifferのCoding Standardが見つからず、静的解析ができない - My External Storage"/>
+  <meta name="twitter:description" content="PhpStormで静的解析を利用しようとしてプロジェクトを新しく設定するたびにハマっているのでメモしておく。
+Dockerを利用してPHP_CodeSnifferを使った静的解析をPhpStormで利用するときの設定がうまくいかなった。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Dec 29, 2019
+     - 4 minute read 
+     - <a href="https://budougumi0617.github.io/2019/12/29/fail-setting-php-code-sniffer-on-phpstorm/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/php/">php </a>
+    
+  </p>
+  <h1 class="entry-title">
+     PhpStorm上でPHP_CodeSnifferのCoding Standardが見つからず、静的解析ができない 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#dockerとphpstormを使って開発環境を整える">DockerとPhpStormを使って開発環境を整える。</a></li>
+<li><a href="#phpstorm上でdocker上のphp環境を使って開発をする">PhpStorm上でDocker上のPHP環境を使って開発をする。</a></li>
+<li><a href="#phpstorm上でphp-codesnifferのcoding-standardが見つからない">PhpStorm上でPHP_CodeSnifferのCoding Standardが見つからない</a></li>
+<li><a href="#php-codesnifferのタイムアウトルールを30秒に延長する">PHP_CodeSnifferのタイムアウトルールを30秒に延長する</a></li>
+<li><a href="#終わりに">終わりに</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</nav>
+          
+          <p>PhpStormで静的解析を利用しようとしてプロジェクトを新しく設定するたびにハマっているのでメモしておく。<br />
+Dockerを利用してPHP_CodeSnifferを使った静的解析をPhpStormで利用するときの設定がうまくいかなった。</p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>Dockerで用意した環境を使ってPhpStormでPHP開発環境を構築していた</li>
+<li>PHP_CodeSnifferの<code>Coding Standard</code>設定が読み込めなかった
+
+<ul>
+<li>PHP_CodeSniffer自体の設定は完了していた</li>
+</ul></li>
+<li><code>Tools process timeout</code>設定を30秒にしたところ解決した。</li>
+</ul>
+
+<p>なお、本記事のバージョン情報は以下のとおり。</p>
+
+<ul>
+<li>macOS Mojave 10.14.6(Macbook Pro2016 13inch)</li>
+<li>PhpStorm 2019.3.1</li>
+<li>PHP 7.4.1</li>
+<li>docker desktop 2.1.6.0</li>
+<li>Composer 1.8.6</li>
+<li>PHP_CodeSniffer 3.5.3</li>
+</ul>
+
+<h1 id="dockerとphpstormを使って開発環境を整える">DockerとPhpStormを使って開発環境を整える。</h1>
+
+<p>PHPはマイナーバージョン間でも環境差異が大きいので、プロジェクトごとにDockerfileを用意して開発している。<br />
+Dockerの構成自体は以下のブログなどを参考にしている。</p>
+
+<iframe src="https://hatenablog-parts.com/embed?url=https%3A%2F%2Ftenkoma.hatenablog.com%2Fentry%2F2019%2F03%2F24%2F023944" style="border: 0; width: 100%; height: 190px;" allowfullscreen scrolling="no"></iframe>
+
+<p>私が使っている<code>Dockerfile</code>の記載は以下の通り（この<code>Dockerfile</code>のプロジェクトではWebフレームワークは利用していない）。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-dockerfile" data-lang="dockerfile"><span style="color:#719e07">FROM</span><span style="color:#2aa198"> php:7.4.1-cli</span>
+
+<span style="color:#719e07">RUN</span> pecl install xdebug <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span> <span style="color:#719e07">&amp;&amp;</span> docker-php-ext-enable xdebug
+
+<span style="color:#719e07">RUN</span> apt-get update <span style="color:#719e07">&amp;&amp;</span> apt-get upgrade -y <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    <span style="color:#719e07">&amp;&amp;</span> apt-get install -y --no-install-recommends git <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    <span style="color:#719e07">&amp;&amp;</span> apt-get clean <span style="color:#719e07">&amp;&amp;</span> rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/*
+
+<span style="color:#586e75"># Composer</span>
+<span style="color:#719e07">ENV</span><span style="color:#2aa198"> COMPOSER_HOME /tmp</span>
+COPY --from<span style="color:#719e07">=</span>composer:1.8.6 /usr/bin/composer /usr/bin/composer
+
+<span style="color:#719e07">RUN</span> apt-get update <span style="color:#719e07">&amp;&amp;</span> apt-get -y install <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    gosu zip unzip<span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span> <span style="color:#719e07">&amp;&amp;</span> rm -rf /var/lib/apt/lists/*
+<span style="color:#719e07">WORKDIR</span><span style="color:#2aa198"> /app</span>
+<span style="color:#719e07">CMD</span><span style="color:#2aa198"> php -S 0.0.0.0:80</span></code></pre></div>
+<p>上記の<code>Dockerfile</code>を次の<code>docker-compose.yml</code>を使って起動している。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">version: <span style="color:#2aa198">&#39;3&#39;</span>
+services:
+  php-cli:
+    build: ./docker
+    command: php -v
+    volumes:
+      - .:/app</code></pre></div>
+<p>このプロジェクトでは次の<code>composer.json</code>を用意して、テストや静的解析用のツール群もインストールしている。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+    <span style="color:#268bd2">&#34;name&#34;</span>: <span style="color:#2aa198">&#34;budougumi0617/my-php-project&#34;</span>,
+    <span style="color:#268bd2">&#34;require&#34;</span>: {
+        <span style="color:#268bd2">&#34;php&#34;</span>: <span style="color:#2aa198">&#34;&gt;=7.4.1&#34;</span>
+    },
+    <span style="color:#268bd2">&#34;require-dev&#34;</span>: {
+        <span style="color:#268bd2">&#34;squizlabs/php_codesniffer&#34;</span>: <span style="color:#2aa198">&#34;3.x&#34;</span>,
+        <span style="color:#268bd2">&#34;phpunit/phpunit&#34;</span>: <span style="color:#2aa198">&#34;^7.5&#34;</span>,
+        <span style="color:#268bd2">&#34;phpstan/phpstan&#34;</span>: <span style="color:#2aa198">&#34;^0.12&#34;</span>
+    },
+    <span style="color:#268bd2">&#34;config&#34;</span>: {
+        <span style="color:#268bd2">&#34;platform&#34;</span>: {
+            <span style="color:#268bd2">&#34;php&#34;</span>: <span style="color:#2aa198">&#34;7.4.1&#34;</span>
+        }
+    },
+    <span style="color:#268bd2">&#34;autoload&#34;</span>: {
+        <span style="color:#268bd2">&#34;psr-4&#34;</span>: {
+            <span style="color:#268bd2">&#34;&#34;</span>: <span style="color:#2aa198">&#34;src/&#34;</span>
+        }
+    },
+    <span style="color:#268bd2">&#34;autoload-dev&#34;</span>: {
+        <span style="color:#268bd2">&#34;psr-4&#34;</span>: {
+            <span style="color:#268bd2">&#34;Tests\\&#34;</span>: <span style="color:#2aa198">&#34;tests/&#34;</span>
+        }
+    }
+}</code></pre></div>
+<p>あとは、<code>docker-compose run --rm php-cli composer install</code>というように実行すればDockerで用意したPHP（とcomposer）で各種ツールやプロジェクトコードが実行できる。</p>
+
+<h1 id="phpstorm上でdocker上のphp環境を使って開発をする">PhpStorm上でDocker上のPHP環境を使って開発をする。</h1>
+
+<p>PhpStormでdocker-compose上のPHP環境を使う設定は以下の公式ページの説明に則ればよい。</p>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://pleiades.io/help/phpstorm/configuring-remote-interpreters.html" data-iframely-url="//cdn.iframe.ly/yJkxTKC?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<p>PhpStorm上でdocker composeを利用したリモートインタプリタの設定と、<code>composer install</code>コマンドの実行が終わっていれば、例えば設定の「Languages &amp; Frameworks」→「PHP」→「Test Frameworks」でもPHPUnitが認識されるようになる。
+私はPHP_CodeSnifferなどもインストールしていたので、「Quality Tools」でもツールが認識、バージョンを確認できる状態になっていた。</p>
+
+<p><img src="/2019/12/29_sniffer.png" alt="PHP_CodeSniffer動作状態" /></p>
+
+<h1 id="phpstorm上でphp-codesnifferのcoding-standardが見つからない">PhpStorm上でPHP_CodeSnifferのCoding Standardが見つからない</h1>
+
+<p>このPHP_CodeSnifferなどを利用して、コーディング中に静的解析の警告を出すには設定の「Editor」→「Inspections」で静的解析の警告ルールを有効にする必要がある。
+具体的には、「Editor」→「Inspections」→「Quality Tools」→「PHP_CodeSniffer validation」という設定だ。</p>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://pleiades.io/help/phpstorm/using-php-code-sniffer.html" data-iframely-url="//cdn.iframe.ly/Dhii1yk?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<p>ただ、今回私のPhpStormではPHP_CodeSnifferを正しく認識出来ていなかったらしく、「Coding Standard」が何も見つからず、設定が正しくできない状態になっていた。</p>
+
+<p><img src="/2019/12/29_inspections.png" alt="Coding Standardがなにも見つからない" /></p>
+
+<h1 id="php-codesnifferのタイムアウトルールを30秒に延長する">PHP_CodeSnifferのタイムアウトルールを30秒に延長する</h1>
+
+<p>エラーなども出ないのでどこを修正すればいいのか分からなかったが、結論からいうとDocker上のPHP_CodeSnifferからの結果を待つ時間を30秒にすれば無事「Coding Standard」の項目が表示されるようになった。</p>
+
+<p><img src="/2019/12/29_sniffer2.png" alt="PHP_CodeSniffer設定修正後" /></p>
+
+<p><a href="https://pleiades.io/help/phpstorm/using-php-code-sniffer.html">公式の設定ガイド</a>にも以下のような言及があった。
+デフォルトのタイムアウト設定が5秒だったので、連携ができる前にPHP_CodeSnifferのプロセスが強制終了されていたようだ。</p>
+
+<blockquote>
+<p>ツールプロセスのタイムアウトフィールドで、PhpStormがPHP_CodeSnifferからの結果を待つ時間を指定します。その結果、CPUとメモリの過剰な使用を防ぐためにプロセスが強制終了されます。</p>
+</blockquote>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>最近PHPやPythonを触るようになって、IDEや仮想環境での開発を行うようになった。新しいプロジェクト（リポジトリ）のコードを触るたびに初期設定でコケているので早く慣れていきたい。
+（Goを書くときはVimとローカルホスト上のGo（バージョン管理したことがない）で開発している。）</p>
+
+<h1 id="参考">参考</h1>
+
+<ul>
+<li><a href="https://tenkoma.hatenablog.com/entry/2019/03/24/023944">PhpStormと連携する必要最小限のDocker環境を作る | こもろぐ @tenkoma</a></li>
+<li><a href="https://pleiades.io/help/phpstorm/configuring-remote-interpreters.html">リモート PHPインタープリターの構成 - 公式ヘルプ | PhpStorm</a></li>
+<li><a href="https://pleiades.io/help/phpstorm/using-php-code-sniffer.html">PHP_CodeSniffer - 公式ヘルプ | PhpStorm</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/11/25/review_pronami_php/">[書評] 気づけばプロ並みPHP改訂版を読んでPHPに入門した</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Dec 29, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/php">php</a>  <a class="category" href="https://budougumi0617.github.io/tags/phpstorm">phpstorm</a>  <a class="category" href="https://budougumi0617.github.io/tags/php-codesniffer">php codesniffer</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/12/22/retrospective-2019/" title="2019年振り返り">2019年振り返り</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/spinnaker/" title="Spinnaker" >Spinnaker</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="その他のカテゴリー一覧" >その他のカテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/12/29/fail-setting-php-code-sniffer-on-phpstorm/">PhpStorm上でPHP_CodeSnifferのCoding Standardが見つからず、静的解析ができない</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2019/12/22/retrospective-2019/">2019年振り返り</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/12/14/retrospective-on-github-2019/">2019年振り返り(GitHub編)</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/12/04/introduce_go-scp/">OWASP/Go-SCPを読んでセキュアプログラミングとGoを学ぶ</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
