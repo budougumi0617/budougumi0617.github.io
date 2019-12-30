@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Python3.8] TypedDictとPyCharmを使うと型ヒントの圧倒的な恩恵を享受できる - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="Python3,Python3.8,TypedDict,Type Hints">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.58.3" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/twittercard.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/twittercard.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2019/12/30/introduction-typeddict/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Python3.8] TypedDictとPyCharmを使うと型ヒントの圧倒的な恩恵を享受できる - My External Storage"/>
+  <meta property="og:description" content=""/>
+  
+  <meta name="twitter:title" content="[Python3.8] TypedDictとPyCharmを使うと型ヒントの圧倒的な恩恵を享受できる - My External Storage"/>
+  <meta name="twitter:description" content=""/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Dec 30, 2019
+     - 4 minute read 
+     - <a href="https://budougumi0617.github.io/2019/12/30/introduction-typeddict/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/python/">python </a>
+    
+  </p>
+  <h1 class="entry-title">
+     [Python3.8] TypedDictとPyCharmを使うと型ヒントの圧倒的な恩恵を享受できる 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#事前準備">事前準備</a></li>
+<li><a href="#typeddictを使ったクラス定義とpyacharm">TypedDictを使ったクラス定義とPyacharm</a>
+<ul>
+<li><a href="#キーが不足していることを検知できる">キーが不足していることを検知できる</a></li>
+<li><a href="#キーの型が間違っていることを検知できる">キーの型が間違っていることを検知できる</a></li>
+<li><a href="#定義していないキーへの参照を検知できる">定義していないキーへの参照を検知できる</a></li>
+<li><a href="#valueの型情報を使って補完ができる">Valueの型情報を使って補完ができる</a></li>
+<li><a href="#終わりに">終わりに</a></li>
+</ul></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</nav>
+          
+          <p>業務でも趣味でもPythonを書くときはPython3.8を使っている。<br />
+Python3.8から使える<code>TypedDict</code>とPyCharmを組合わせた開発体験が素晴らしいので紹介する。</p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li><code>TypedDeict</code>はPEP589で提案され、Python3.8から使える型ヒント
+
+<ul>
+<li><a href="https://www.python.org/dev/peps/pep-0589/">https://www.python.org/dev/peps/pep-0589/</a></li>
+</ul></li>
+<li>辞書型のキーとセットをクラスとして厳密に定義できる</li>
+
+<li><p>PyCharmと組み合わせると以下の恩恵が受けられる</p>
+
+<ul>
+<li>オブジェクト生成時に不足キーがわかる</li>
+<li>Keyを設定するときに型が異なることがわかる</li>
+<li>Valueアクセスの際にキーが存在するかわかる</li>
+
+<li><p>Valueの型情報に対して補完が可能</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">class</span> <span style="color:#268bd2">UserDict</span>(TypedDict):
+user_name: <span style="color:#b58900">str</span>
+email: <span style="color:#b58900">str</span></code></pre></div></li>
+</ul></li>
+</ul>
+
+<p>なお、この記事は以下の環境を使っている。</p>
+
+<ul>
+<li>Python 3.8.0</li>
+<li>Pycharm 2019.3.1 PROFESSIONAL</li>
+</ul>
+
+<h1 id="事前準備">事前準備</h1>
+
+<p>Python3.8の実行環境は次のように用意する。<br />
+まず、<code>pipenv</code>や<code>pyenv</code>を事前に準備し、テスト用のディレクトリを作って<code>pipenv</code>でPython3.8環境を作っておく。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># 私はMacなのでbrewでインストール</span>
+$ brew install pipenv pyenv
+$ pipenv --python <span style="color:#2aa198">3</span>.8</code></pre></div>
+<p>Pipfileが生成できたら、PyCharmで対象ディレクトリを開く。<br />
+PycharmのPython実行環境は、Preferenceの中から「Project: xxx」→ 「Project Interpreter」を開いてPython3.8を認識している状態にしておく。</p>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://pleiades.io/help/pycharm/pipenv.html" data-iframely-url="//cdn.iframe.ly/OPsqqHm?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<h1 id="typeddictを使ったクラス定義とpyacharm">TypedDictを使ったクラス定義とPyacharm</h1>
+
+<p>最近のPythonは型ヒントを使って型付けをしているかのようにコーディングができる。</p>
+
+<ul>
+<li>typing &mdash; 型ヒントのサポート
+
+<ul>
+<li><a href="https://docs.python.org/ja/3/library/typing.html">https://docs.python.org/ja/3/library/typing.html</a></li>
+</ul></li>
+</ul>
+
+<p><code>TypedDict</code>はPEP589でPython3.8から追加された型ヒントだ。<code>TypedDict</code>を使うことで辞書型の型ヒント内容をかなり厳密に定義できる。</p>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://www.python.org/dev/peps/pep-0589/" data-iframely-url="//cdn.iframe.ly/cY6zGp1"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<p>今回はサンプルとして以下の<code>UserDict</code>クラスを定義した。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">class</span> <span style="color:#268bd2">UserDict</span>(TypedDict):
+    <span style="color:#2aa198">&#34;&#34;&#34;Typed User definition.&#34;&#34;&#34;</span>
+
+    user_name: <span style="color:#b58900">str</span>
+    email: <span style="color:#b58900">str</span></code></pre></div>
+<p>このクラスを使うと、どれくらいの型ヒント情報が得られるのかPyCharmを使って検証する。</p>
+
+<h2 id="キーが不足していることを検知できる">キーが不足していることを検知できる</h2>
+
+<p>まず、インスタンス生成時にキーの指定が不足していることを検知できる。<br />
+以下のような初期化は<code>email</code>キーの初期化が不足していると警告が出る。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">user <span style="color:#719e07">=</span> UserDict(
+    user_name<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;John Due,</span>
+)  <span style="color:#586e75"># Parameter &#39;email&#39; unfilled</span></code></pre></div>
+<p><img src="/2019/12/30_unfilled.png" alt="unfilled" /></p>
+
+<p>なお、このキーの不足の許可はクラス宣言時の<code>Tottaly</code>オプション（<code>total=False</code>）でオフにすることもできる。</p>
+
+<ul>
+<li><p>Totality</p>
+
+<ul>
+<li><p><a href="https://www.python.org/dev/peps/pep-0589/#totality">https://www.python.org/dev/peps/pep-0589/#totality</a></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">class</span> <span style="color:#268bd2">Movie</span>(TypedDict, total<span style="color:#719e07">=</span><span style="color:#268bd2">False</span>):
+name: <span style="color:#b58900">str</span>
+year: <span style="color:#b58900">int</span></code></pre></div></li>
+</ul></li>
+</ul>
+
+<h2 id="キーの型が間違っていることを検知できる">キーの型が間違っていることを検知できる</h2>
+
+<p>キーをすべて満たした初期化をしても、間違った型で要素を初期化していると警告される。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">user2 <span style="color:#719e07">=</span> UserDict(
+    user_name<span style="color:#719e07">=</span><span style="color:#2aa198">20</span>,  <span style="color:#586e75"># Expected type &#39;str&#39;, got &#39;int&#39; instead</span>
+    email<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;user@exmaple.com&#39;</span>,
+)</code></pre></div>
+<p><img src="/2019/12/30_type_error.png" alt="type error" /></p>
+
+<h2 id="定義していないキーへの参照を検知できる">定義していないキーへの参照を検知できる</h2>
+
+<p><code>TypedDict</code>を使ったクラスのインスタンスに対して、宣言時に定義しなかったキー名を指定すると警告を受ける。<br />
+辞書型にすると<code>ドット</code>でフィールドを呼び出せなくなるが、これでタイポに気づかずエラーを出してしまうことはないだろう。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">print</span>(user[<span style="color:#2aa198">&#39;phone&#39;</span>])  <span style="color:#586e75"># TypedDict &#34;UserDict&#34; has no key &#39;phone&#39;</span></code></pre></div>
+<p><img src="/2019/12/30_key_error.png" alt="key error" /></p>
+
+<h2 id="valueの型情報を使って補完ができる">Valueの型情報を使って補完ができる</h2>
+
+<p>すこし拡張した以下の<code>UserDict</code>を用意する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">from</span> datetime <span style="color:#719e07">import</span> datetime
+
+<span style="color:#719e07">class</span> <span style="color:#268bd2">UserDict</span>(TypedDict):
+    <span style="color:#2aa198">&#34;&#34;&#34;Typed User definition.&#34;&#34;&#34;</span>
+
+    user_name: <span style="color:#b58900">str</span>
+    email: <span style="color:#b58900">str</span>
+    created: datetime
+    updated: datetime</code></pre></div>
+<p><code>created</code>キーは<code>datetime</code>型なので、<code>UserDict</code>インスタンスを使って<code>user['created'].</code>と書くとそのまま<code>datetime</code>型のメソッド一覧が補完される。</p>
+
+<p><img src="/2019/12/30_completion.png" alt="method completion" /></p>
+
+<h2 id="終わりに">終わりに</h2>
+
+<p><code>TypedDict</code>は型ヒントなので、違反していても実行は出来てしまうし、IDEを使っていないと恩恵を受けられない。<br />
+しかし、Pythonというと「ゆるふわなスクリプト言語」のイメージしかなかったので、ここまで厳密にできるのは驚いた。</p>
+
+<h1 id="参考">参考</h1>
+
+<ul>
+<li><a href="https://pleiades.io/help/pycharm/pipenv.html">Pipenv環境 - 公式ヘルプ | PyCharm</a></li>
+<li><a href="https://docs.python.org/ja/3/library/typing.html">typing &mdash; 型ヒントのサポート</a></li>
+<li><a href="https://www.python.org/dev/peps/pep-0589/">PEP 589 &ndash; TypedDict: Type Hints for Dictionaries with a Fixed Set of Keys</a></li>
+<li><a href="https://pod.hatenablog.com/entry/2018/08/23/222814">mypyとTypedDictとtotalオプションについて - podhmo&rsquo;s diary</a></li>
+</ul>
+        </div>
+        
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Dec 30, 2019</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/python">python</a>  <a class="category" href="https://budougumi0617.github.io/tags/type-hints">type hints</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2019/12/29/fail-setting-php-code-sniffer-on-phpstorm/" title="PhpStorm上でPHP_CodeSnifferのCoding Standardが見つからず、静的解析ができない">PhpStorm上でPHP_CodeSnifferのCoding Standardが見つからず、静的解析ができない</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2019/12/30/introduction-typeddict/">[Python3.8] TypedDictとPyCharmを使うと型ヒントの圧倒的な恩恵を享受できる</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2019/12/29/fail-setting-php-code-sniffer-on-phpstorm/">PhpStorm上でPHP_CodeSnifferのCoding Standardが見つからず、静的解析ができない</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/12/22/retrospective-2019/">2019年振り返り</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/12/14/retrospective-on-github-2019/">2019年振り返り(GitHub編)</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2019  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
