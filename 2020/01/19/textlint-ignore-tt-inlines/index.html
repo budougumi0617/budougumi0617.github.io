@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Re:VIEW] textlintのlintエラーからttインライン命令で装飾された文字列を除外する - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="Re:VEIW,文書校正,textlint,技術書典">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.58.3" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/textlint.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/textlint.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2020/01/19/textlint-ignore-tt-inlines/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Re:VIEW] textlintのlintエラーからttインライン命令で装飾された文字列を除外する - My External Storage"/>
+  <meta property="og:description" content="Re:VIEWで文書を作成するときはtextlintを使って文書校正をしている。
+@&lt;tt&gt;{git commit --amend}のような等幅設定をしている中で、git =&gt; Git (prh)というような警告を受けたくないときに行なう設定をまとめる。"/>
+  
+  <meta name="twitter:title" content="[Re:VIEW] textlintのlintエラーからttインライン命令で装飾された文字列を除外する - My External Storage"/>
+  <meta name="twitter:description" content="Re:VIEWで文書を作成するときはtextlintを使って文書校正をしている。
+@&lt;tt&gt;{git commit --amend}のような等幅設定をしている中で、git =&gt; Git (prh)というような警告を受けたくないときに行なう設定をまとめる。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Jan 19, 2020
+     - 5 minute read 
+     - <a href="https://budougumi0617.github.io/2020/01/19/textlint-ignore-tt-inlines/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/textlint/">textlint </a><a class="label" href="https://budougumi0617.github.io/categories/review/">review </a>
+    
+  </p>
+  <h1 class="entry-title">
+     [Re:VIEW] textlintのlintエラーからttインライン命令で装飾された文字列を除外する 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#textlintが等幅フォント文字列-ttインライン命令-に対して静的解析エラーを出力してしまう">textlintが等幅フォント文字列（ttインライン命令）に対して静的解析エラーを出力してしまう</a></li>
+<li><a href="#ttインライン命令がtextlintでどのように認識されているか">ttインライン命令がtextlintでどのように認識されているか</a></li>
+<li><a href="#textlint-filter-rule-node-typesプラグインを使ってinlineノードを除外する">textlint-filter-rule-node-typesプラグインを使ってInlineノードを除外する</a></li>
+<li><a href="#終わりに">終わりに</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</nav>
+          
+          <p>Re:VIEWで文書を作成するときはtextlintを使って文書校正をしている。<br />
+<code>@&lt;tt&gt;{git commit --amend}</code>のような等幅設定をしている中で、<code>git =&gt; Git (prh)</code>というような警告を受けたくないときに行なう設定をまとめる。</p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li><code>tt</code>インライン命令で囲った文字列は静的解析の対象にしたくない
+
+<ul>
+<li><code>@&lt;tt&gt;{git commit --amend}</code>の&rdquo;git&rdquo;はコマンド名なので、&rdquo;Git`ではない</li>
+</ul></li>
+<li>Re:VIEWファイルにtextlintを使っているときは、<code>textlint-plugin-review</code>プラグインを使っているだろう。
+
+<ul>
+<li><a href="https://github.com/orangain/textlint-plugin-review">https://github.com/orangain/textlint-plugin-review</a></li>
+</ul></li>
+<li><code>textlint-plugin-review</code>プラグインでは、<code>tt</code>インライン命令は<code>Teletype</code>というSyntaxの分類にパースされる。
+
+<ul>
+<li><code>tt:      inlineTextTagParser(Syntax.Teletype)</code></li>
+</ul></li>
+<li><code>Teletype</code>はtextlint本体では<code>Inline</code>というノードタイプに分類される。
+
+<ul>
+<li><code>Teletype: 'Inline'</code></li>
+</ul></li>
+<li><code>textlint-filter-rule-node-types</code>プラグインを使って、<code>Inline</code>を静的解析対象から除外すればよい。
+
+<ul>
+<li><a href="https://github.com/textlint/textlint-filter-rule-node-types">https://github.com/textlint/textlint-filter-rule-node-types</a></li>
+</ul></li>
+<li><code>code</code>インライン命令で装飾された文字列は警告から除外されているようだ</li>
+</ul>
+
+<p>今回書いた<code>.textlintrc</code>ファイルの設定は以下の通り。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">// .textlintrc
+{
+  <span style="color:#268bd2">&#34;filters&#34;</span>: {
+    // ...
+    <span style="color:#268bd2">&#34;node-types&#34;</span>: {
+      <span style="color:#268bd2">&#34;nodeTypes&#34;</span>: [<span style="color:#2aa198">&#34;Inline&#34;</span>]
+    }
+  }
+}</code></pre></div>
+<h1 id="textlintが等幅フォント文字列-ttインライン命令-に対して静的解析エラーを出力してしまう">textlintが等幅フォント文字列（ttインライン命令）に対して静的解析エラーを出力してしまう</h1>
+
+<p>技術書典に向けてRe:VIEW形式で原稿を書くにあたり、textlintを導入している。</p>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/kmuto/review" data-iframely-url="//cdn.iframe.ly/ydUD1Nk"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<p>textlintは文書に対して静的解析を行なってくれるツールだ。プラグインでさまざまなルールを追加できて、文書校正を自動で行なってくれる。</p>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/textlint/textlint" data-iframely-url="//cdn.iframe.ly/uC7J82H"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<p>Re:VIEWではインライン命令を使って文書の装飾をする。
+コードや技術的用語を文中で書くときは等幅フォントにするため、<code>@&lt;code&gt;</code>インライン命令や<code>@&lt;tt&gt;</code>インライン命令を使う。</p>
+
+<ul>
+<li><p><a href="https://github.com/kmuto/review/blob/master/doc/format.ja.md#%E6%9B%B8%E4%BD%93">https://github.com/kmuto/review/blob/master/doc/format.ja.md#書体</a></p>
+
+<pre><code>@&lt;code&gt;{golang.org/x}という@&lt;code&gt;{import}パスから始まる準標準パッケージがあることをご存じでしょうか。
+アセンブラ別の実装が含まれており、Goのデバッガである@&lt;tt&gt;{Delve}（@&lt;tt&gt;{dlv}コマンド）@&lt;fn&gt;{delve}などで利用されています。
+</code></pre></li>
+</ul>
+
+<p><code>@tt</code>インライン命令で囲った文字列はコマンドだったりするので、textlintで静的解析の対象にしてほしくない。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cat articles/budougumi0617.re
+@&lt;code&gt;<span style="color:#719e07">{</span>git commit --amend<span style="color:#719e07">}</span>はエラーにしてほしくない。（デフォルトで無視される）
+@&lt;tt&gt;<span style="color:#719e07">{</span>git commit --amend<span style="color:#719e07">}</span>はエラーにしてほしくない。
+
+$ <span style="color:#719e07">$(</span>npm bin<span style="color:#719e07">)</span>/textlint articles/*.re
+
+/Users/budougumi0617/go/src/github.com/FOOOO/SHOTEN8/articles/budougumi0617.re
+  <span style="color:#2aa198">2</span>:7  ✓ error  <span style="color:#268bd2">git</span> <span style="color:#719e07">=</span>&gt; Git  prh
+
+✖ <span style="color:#2aa198">1</span> problem <span style="color:#719e07">(</span><span style="color:#2aa198">1</span> error, <span style="color:#2aa198">0</span> warnings<span style="color:#719e07">)</span>
+✓ <span style="color:#2aa198">1</span> fixable problem.
+Try to run: $ textlint --fix <span style="color:#719e07">[</span>file<span style="color:#719e07">]</span></code></pre></div>
+<p>上記の例の場合は、<code>git</code>コマンドに対して、（正式名称の）<code>Git</code>にしろと静的解析エラーが発生している。<br />
+<code>@&lt;code&gt;</code>インライン命令を使えば解決するのだが、せっかくなので誤検知を解消することにした。</p>
+
+<h1 id="ttインライン命令がtextlintでどのように認識されているか">ttインライン命令がtextlintでどのように認識されているか</h1>
+
+<p>Re:VIEW形式の文書をtextlintを静的解析をするときは、<code>textlint-plugin-review</code>プラグインを使っているだろう。</p>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/orangain/textlint-plugin-review" data-iframely-url="//cdn.iframe.ly/0kWQW7r"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<p><code>textlint-plugin-review</code>プラグインがどのように<code>Re:VIEW</code>形式の文書から抽象構文木（AST）を作っているのか確認してみる。<br />
+<code>textlint-plugin-review</code>プラグインでは、tt命令は<code>Teletype</code>という<code>Syntax.Teletype</code>の分類にパースされる。</p>
+
+<ul>
+<li><p><a href="https://github.com/orangain/textlint-plugin-review/blob/7d660f45a6a81a3456059ed7dfc598df253a2ca8/src/inline-parsers.js">https://github.com/orangain/textlint-plugin-review/src/inline-parsers.js</a></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#719e07">const</span> InlineParsers <span style="color:#719e07">=</span> {
+<span style="color:#586e75">// text tags
+</span><span style="color:#586e75"></span>  
+<span style="color:#586e75">// ...
+</span><span style="color:#586e75"></span>  
+tt<span style="color:#719e07">:</span>      inlineTextTagParser(Syntax.Teletype),
+  
+<span style="color:#586e75">// ...
+</span></code></pre></div></li>
+</ul>
+
+<p><code>Syntax.Teletype</code>がtextlint本体ではどういうノードとして扱われるかというと、<code>Inline</code>というノードタイプに分類される。</p>
+
+<ul>
+<li><p><a href="https://github.com/orangain/textlint-plugin-review/blob/7d660f45a6a81a3456059ed7dfc598df253a2ca8/src/mapping.js">https://github.com/orangain/textlint-plugin-review/src/mapping.js</a></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#719e07">export</span> <span style="color:#719e07">const</span> Syntax <span style="color:#719e07">=</span> {
+<span style="color:#586e75">// human readable name in ReVIEW&#39;s context =&gt; textlint name
+</span><span style="color:#586e75"></span>
+<span style="color:#586e75">// ...
+</span><span style="color:#586e75"></span>
+<span style="color:#586e75">// ReVIEW specific inline tags
+</span><span style="color:#586e75">// NOTE: &#39;Inline&#39; means review&#39;s inline tag having no special meanings, whose children are Strs.
+</span><span style="color:#586e75">//       &#39;Reference&#39; means reference to other tag, which have no child.
+</span><span style="color:#586e75">//       &#39;NonString&#39; means non-string stuffs like character number, equation, etc.
+</span><span style="color:#586e75"></span>Teletype<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;Inline&#39;</span>,
+  
+<span style="color:#586e75">// ...
+</span><span style="color:#586e75"></span>};
+</code></pre></div></li>
+</ul>
+
+<p>よって、<code>Inline</code>ノードを静的解析のルールから除外すれば良い。</p>
+
+<h1 id="textlint-filter-rule-node-typesプラグインを使ってinlineノードを除外する">textlint-filter-rule-node-typesプラグインを使ってInlineノードを除外する</h1>
+
+<p>textlintにおいて、特定のノードを静的解析のルールから除外するには、<code>textlint-filter-rule-node-types</code>プラグインを使えばよい。</p>
+
+<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/textlint/textlint-filter-rule-node-types" data-iframely-url="//cdn.iframe.ly/fg9QbXW"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+
+<p>`<code>textlint-filter-rule-node-types</code>プラグインを<code>npm install</code>したあと、<code>.textlintrc</code>を以下のようにすると、<code>Inline</code>ノードに対して静的解析が行われなくなった。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">// .textlintrc
+{
+  <span style="color:#268bd2">&#34;rules&#34;</span>: {
+    // ...
+  },
+  <span style="color:#268bd2">&#34;plugins&#34;</span>: [
+    <span style="color:#2aa198">&#34;review&#34;</span>
+  ],
+  <span style="color:#268bd2">&#34;filters&#34;</span>: {
+    // ...
+    <span style="color:#268bd2">&#34;node-types&#34;</span>: {
+      <span style="color:#268bd2">&#34;nodeTypes&#34;</span>: [<span style="color:#2aa198">&#34;Inline&#34;</span>]
+    }
+  }
+}</code></pre></div>
+<h1 id="終わりに">終わりに</h1>
+
+<p>（textlintやJavaScriptにはまったく関係はないが、）最近パーサーを書いているので、<code>textlint-plugin-review</code>プラグインの中の構造もなんとなく読むことができた。<br />
+何事も勉強したことは無駄にならない。</p>
+
+<h1 id="参考">参考</h1>
+
+<ul>
+<li><a href="https://github.com/kmuto/review/">https://github.com/kmuto/review/</a></li>
+<li><a href="https://github.com/textlint/textlint">https://github.com/textlint/textlint</a></li>
+<li><a href="https://github.com/orangain/textlint-plugin-review">https://github.com/orangain/textlint-plugin-review</a></li>
+<li><a href="https://github.com/textlint/textlint-filter-rule-node-types">https://github.com/textlint/textlint-filter-rule-node-types</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/06/22/textlint-with-reviewdog-for-review/">textlint/reviewdogで文書校正エラーをGitHubのプルリクエストにコメントする 2019年6月版</a></li>
+  
+  <li><a href="/2019/09/15/shoten7-golangtokyo/">golang.tokyoの技術書典7新刊「Gopherの休日2019秋」に寄稿しました #技術書典</a></li>
+  
+  <li><a href="/2019/04/11/shoten6/">golang.tokyoの技術書典6新刊「文Go」に「Goにおけるデータベース実践入門を寄稿しました。 #技術書典</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Jan 19, 2020</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/textlint">textlint</a>  <a class="category" href="https://budougumi0617.github.io/tags/review">review</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2020/01/11/review-ghq-handbook/" title="[書評] ghq handbookを読んでghqコマンドに再入門する">[書評] ghq handbookを読んでghqコマンドに再入門する</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2020/01/19/textlint-ignore-tt-inlines/">[Re:VIEW] textlintのlintエラーからttインライン命令で装飾された文字列を除外する</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2020/01/11/review-ghq-handbook/">[書評] ghq handbookを読んでghqコマンドに再入門する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/12/30/introduction-typeddict/">[Python3.8] TypedDictとPyCharmを使うと型ヒントの圧倒的な恩恵を享受できる</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2019/12/29/fail-setting-php-code-sniffer-on-phpstorm/">PhpStorm上でPHP_CodeSnifferのCoding Standardが見つからず、静的解析ができない</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2020  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
