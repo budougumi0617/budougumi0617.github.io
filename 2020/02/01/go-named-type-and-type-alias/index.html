@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go] Named typeとType aliasを使い分ける - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="Go,Golang,Go言語,型エイリアス,Named type">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.58.3" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2020/02/01/go-named-type-and-type-alias/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go] Named typeとType aliasを使い分ける - My External Storage"/>
+  <meta property="og:description" content="Goには既存の型に新しい名前をつける方法が2つある。
+
+
+type MyType intと宣言するNamed type
+type MyType = intと宣言するType alias
+
+
+すでにいろいろ記事はあるものの、最近数回聞かれることがあったので改めてまとめておく。"/>
+  
+  <meta name="twitter:title" content="[Go] Named typeとType aliasを使い分ける - My External Storage"/>
+  <meta name="twitter:description" content="Goには既存の型に新しい名前をつける方法が2つある。
+
+
+type MyType intと宣言するNamed type
+type MyType = intと宣言するType alias
+
+
+すでにいろいろ記事はあるものの、最近数回聞かれることがあったので改めてまとめておく。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Feb 1, 2020
+     - 4 minute read 
+     - <a href="https://budougumi0617.github.io/2020/02/01/go-named-type-and-type-alias/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">Go </a>
+    
+  </p>
+  <h1 class="entry-title">
+     [Go] Named typeとType aliasを使い分ける 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">Tl;DR</a></li>
+<li><a href="#named-type">Named type</a></li>
+<li><a href="#型エイリアス-type-alias">型エイリアス（Type alias）</a></li>
+<li><a href="#終わりに">終わりに</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</nav>
+          
+          <p>Goには既存の型に新しい名前をつける方法が2つある。</p>
+
+<ul>
+<li><code>type MyType int</code>と宣言するNamed type</li>
+<li><code>type MyType = int</code>と宣言するType alias</li>
+</ul>
+
+<p>すでにいろいろ記事はあるものの、最近数回聞かれることがあったので改めてまとめておく。</p>
+
+<h1 id="tl-dr">Tl;DR</h1>
+
+<ul>
+<li>Goには型に違う名前をつける方法がある。
+
+<ul>
+<li>Named typeとTpye alias</li>
+</ul></li>
+<li>Named typeを使うと完全に違う型として扱える
+
+<ul>
+<li>プリミティブな型に異なる型名をつけたり、メソッドを生やすこともできる</li>
+<li>Value Object的な型を簡単に作ることができる</li>
+</ul></li>
+<li>Type aliasを使うと異なる名前だが同じ型として扱われる
+
+<ul>
+<li>リファクタリングをするときに使われる</li>
+<li>型付けを利用した使い分けをしたいならば向かない</li>
+</ul></li>
+<li>基本的にNamed Typeを使えばよい。</li>
+</ul>
+
+<p>なお、この記事はGo1.13を使って検証している（正確に言うと、2020/02/01時点のGo Playgroundで検証している）。</p>
+
+<h1 id="named-type">Named type</h1>
+
+<p>Named typeはGo1.0からある機能だ。（正確な導入時期は知らないが、基本構文でできるので最初からありそうだ）。</p>
+
+<p>ある型の定義をそのまま利用して、まったく違う型として認識される新しい型を定義できる。</p>
+
+<ul>
+<li>別の型なので明示的にキャストしないと互換性がない</li>
+<li>新しいメソッドを追加できる</li>
+</ul>
+
+<p>以下のコードは<code>http.Request</code>型を使った新しい<code>MyRequest</code>型を宣言し、メソッドを追加している。</p>
+
+<ul>
+<li><p><a href="https://play.golang.org/p/cG9o7W10IjF">https://play.golang.org/p/cG9o7W10IjF</a></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+	<span style="color:#2aa198">&#34;fmt&#34;</span>
+	<span style="color:#2aa198">&#34;net/http&#34;</span>
+)
+
+<span style="color:#268bd2">type</span> MyRequest http.Request
+
+<span style="color:#268bd2">func</span> (mc MyRequest) <span style="color:#268bd2">MyFunc</span>() {
+	fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;in MyFunc&#34;</span>, mc.Host)
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">useMyRequest</span>(mc MyRequest) {
+	mc.<span style="color:#268bd2">MyFunc</span>()
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+	myReq <span style="color:#719e07">:=</span> MyRequest{Host: <span style="color:#2aa198">&#34;http://google.com&#34;</span>}
+	<span style="color:#268bd2">useMyRequest</span>(myReq)
+}</code></pre></div></li>
+</ul>
+
+<p>Named typeはプリミティブな型に対しても利用することができる。<br />
+Named typeで宣言した新しい型と元になった型には互換性がないため、Value Object的に利用することができる。</p>
+
+<p>以下の例では　ユーザー名とメールアドレスの文字列の取り扱いを間違えている。</p>
+
+<ul>
+<li><p><a href="https://play.golang.org/p/lX26gpsz21T">https://play.golang.org/p/lX26gpsz21T</a></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
+
+<span style="color:#268bd2">type</span> User <span style="color:#268bd2">struct</span> {
+	Name, Email <span style="color:#dc322f">string</span>
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">NewUser</span>(name, email <span style="color:#dc322f">string</span>) User { <span style="color:#719e07">return</span> User{Name: name, Email: email} }
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+	name <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;John Doe&#34;</span>
+	mail <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;example@foo.com&#34;</span>
+	u <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewUser</span>(mail, name) <span style="color:#586e75">// 順番を間違えている。
+</span><span style="color:#586e75"></span>	fmt.<span style="color:#268bd2">Println</span>(u.Name) <span style="color:#586e75">// example@foo.com
+</span><span style="color:#586e75"></span>}</code></pre></div></li>
+</ul>
+
+<p>Named typeを使うことで、型チェックを利用して誤った使いかたを防ぐことができる。</p>
+
+<ul>
+<li><p><a href="https://play.golang.org/p/1S7VT6lT69J">https://play.golang.org/p/1S7VT6lT69J</a></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
+
+<span style="color:#268bd2">type</span> Name <span style="color:#dc322f">string</span>
+<span style="color:#268bd2">type</span> MailAddress <span style="color:#dc322f">string</span>
+
+<span style="color:#268bd2">type</span> User <span style="color:#268bd2">struct</span> {
+	Name  Name
+	Email MailAddress
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">NewUser</span>(name Name, email MailAddress) User { <span style="color:#719e07">return</span> User{Name: name, Email: email} }
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+	name <span style="color:#719e07">:=</span> <span style="color:#268bd2">Name</span>(<span style="color:#2aa198">&#34;John Doe&#34;</span>)
+	mail <span style="color:#719e07">:=</span> <span style="color:#268bd2">MailAddress</span>(<span style="color:#2aa198">&#34;example@foo.com&#34;</span>)
+	<span style="color:#586e75">// cannot use mail (type MailAddress) as type Name in argument to NewUser
+</span><span style="color:#586e75"></span>	<span style="color:#586e75">// cannot use name (type Name) as type MailAddress in argument to NewUser
+</span><span style="color:#586e75"></span>	u <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewUser</span>(mail, name)
+	fmt.<span style="color:#268bd2">Println</span>(u.Name)
+}</code></pre></div></li>
+</ul>
+
+<p><code>type UserID int</code>、<code>type DocumentID int</code>のようにNamed typeを使っていけば、データベースまわりでIDの取り扱いをして間違えることもなくなる。<br />
+また、メソッドを追加することもできるので、バリデーションなども追加しておくこともできる。</p>
+
+<ul>
+<li><p><a href="https://play.golang.org/p/7e85wA1DPex">https://play.golang.org/p/7e85wA1DPex</a></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+	<span style="color:#2aa198">&#34;fmt&#34;</span>
+	<span style="color:#2aa198">&#34;log&#34;</span>
+)
+
+<span style="color:#268bd2">type</span> Password <span style="color:#dc322f">string</span>
+
+<span style="color:#268bd2">func</span> (p Password) <span style="color:#268bd2">Validate</span>() <span style="color:#dc322f">error</span> {
+	<span style="color:#719e07">if</span> <span style="color:#b58900">len</span>(p) &lt; <span style="color:#2aa198">16</span> {
+		<span style="color:#719e07">return</span> fmt.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;パスワードは16文字以上&#34;</span>)
+	}
+	<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
+}
+
+<span style="color:#268bd2">type</span> User <span style="color:#268bd2">struct</span> {
+	Name     <span style="color:#dc322f">string</span>
+	Password Password
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">NewUser</span>(n <span style="color:#dc322f">string</span>, pw Password) (<span style="color:#719e07">*</span>User, <span style="color:#dc322f">error</span>) {
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> pw.<span style="color:#268bd2">Validate</span>(); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>, err
+	}
+	<span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>User{n, pw}, <span style="color:#cb4b16">nil</span>
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+	n <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;John Doe&#34;</span>
+	pw <span style="color:#719e07">:=</span> <span style="color:#268bd2">Password</span>(<span style="color:#2aa198">&#34;p@ssw0rd&#34;</span>)
+	u, err <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewUser</span>(n, pw)
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		log.<span style="color:#268bd2">Fatal</span>(err) <span style="color:#586e75">// パスワードは16文字以上
+</span><span style="color:#586e75"></span>	}
+	fmt.<span style="color:#268bd2">Println</span>(u.Name)
+}</code></pre></div></li>
+</ul>
+
+<h1 id="型エイリアス-type-alias">型エイリアス（Type alias）</h1>
+
+<p>型エイリアスはGo1.9から追加された機能だ。</p>
+
+<ul>
+<li><a href="https://golang.org/doc/go1.9#language">Changes to the language  | Go 1.9 Release Notes</a></li>
+</ul>
+
+<p>型エイリアスは主に特徴を持つ。</p>
+
+<ul>
+<li>キャストせずに同じ型として利用できる</li>
+<li>エイリアスに新しいメソッドは定義できない。</li>
+</ul>
+
+<p>異なる型として利用できるようになる<code>Named type</code>と違い、型エイリアスを使った場合はまったく同じ型として利用できる。<br />
+そのため、Named Typeのような型チェックを期待してもそれは行われないので注意する。</p>
+
+<ul>
+<li><p><a href="https://play.golang.org/p/VgpS3x89-bO">https://play.golang.org/p/VgpS3x89-bO</a></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
+
+<span style="color:#268bd2">type</span> Name = <span style="color:#dc322f">string</span> <span style="color:#586e75">// type alias
+</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> MailAddress = <span style="color:#dc322f">string</span> <span style="color:#586e75">// type alias
+</span><span style="color:#586e75"></span>
+<span style="color:#268bd2">type</span> User <span style="color:#268bd2">struct</span> {
+	Name  Name
+	Email MailAddress
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">NewUser</span>(name Name, email MailAddress) User { <span style="color:#719e07">return</span> User{Name: name, Email: email} }
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+	name <span style="color:#719e07">:=</span> <span style="color:#268bd2">Name</span>(<span style="color:#2aa198">&#34;John Doe&#34;</span>)
+	mail <span style="color:#719e07">:=</span> <span style="color:#268bd2">MailAddress</span>(<span style="color:#2aa198">&#34;example@foo.com&#34;</span>)
+	u <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewUser</span>(mail, name) <span style="color:#586e75">// 型違いでコンパイルエラーにはならない！！！！！
+</span><span style="color:#586e75"></span>	fmt.<span style="color:#268bd2">Println</span>(u.Name) <span style="color:#586e75">// example@foo.com
+</span><span style="color:#586e75"></span>}</code></pre></div></li>
+</ul>
+
+<p>正直私は型エイリアスを使ったことがない。サードパーティ製のライブラリを使っていて、どうしても困るときがあったら出番なのかもしれない。</p>
+
+<p>型エイリアスを使ったリファクタリングや型エイリアスが必要な背景は公式の記事や、 <a href="https://twitter.com/tenntenn">@tenntenn</a> さんのQiitaの記事が詳しい。</p>
+
+<ul>
+<li><a href="https://talks.golang.org/2016/refactor.article">Codebase Refactoring (with help from Go)</a></li>
+<li><a href="https://qiita.com/tenntenn/items/757c249dad942b6326a9#%E3%82%B3%E3%83%B3%E3%83%86%E3%82%AD%E3%82%B9%E3%83%88%E3%81%AE%E6%AD%B4%E5%8F%B2%E3%81%AB%E3%81%BE%E3%81%A4%E3%82%8F%E3%82%8B%E3%82%A4%E3%83%B3%E3%82%BF%E3%83%95%E3%82%A7%E3%83%BC%E3%82%B9%E3%81%AE%E4%BA%92%E6%8F%9B%E6%80%A7%E3%81%A8%E5%9E%8B%E3%82%A8%E3%82%A4%E3%83%AA%E3%82%A2%E3%82%B9">コンテキストの歴史にまつわるインタフェースの互換性と型エイリアス | Google App EngineでGoのバージョンアップを行う #golang #gae</a></li>
+</ul>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p>Type aliasの説明は省略してしまったが、Named typeとType Aliasについてまとめた。<br />
+Goは型をうまく使うことで安全なコーディングをすることができる。Named typeを使えばたった一行で新しい型が宣言でき、IDや文字列などの取り間違いを防ぐことができる。</p>
+
+<h1 id="参考">参考</h1>
+
+<ul>
+<li><a href="https://golang.org/doc/go1.9#language">Changes to the language  | Go 1.9 Release Notes</a></li>
+<li><a href="https://talks.golang.org/2016/refactor.article">Codebase Refactoring (with help from Go)</a></li>
+<li><a href="https://golang.org/ref/spec#Type_declarations">Type declarations | The Go Programming Language Specification</a></li>
+<li><a href="https://www.slideshare.net/takuyaueda967/go-77689475">エキスパートGo by tenntenn| Slideshare</a></li>
+<li><a href="https://qiita.com/tenntenn/items/757c249dad942b6326a9#%E3%82%B3%E3%83%B3%E3%83%86%E3%82%AD%E3%82%B9%E3%83%88%E3%81%AE%E6%AD%B4%E5%8F%B2%E3%81%AB%E3%81%BE%E3%81%A4%E3%82%8F%E3%82%8B%E3%82%A4%E3%83%B3%E3%82%BF%E3%83%95%E3%82%A7%E3%83%BC%E3%82%B9%E3%81%AE%E4%BA%92%E6%8F%9B%E6%80%A7%E3%81%A8%E5%9E%8B%E3%82%A8%E3%82%A4%E3%83%AA%E3%82%A2%E3%82%B9">コンテキストの歴史にまつわるインタフェースの互換性と型エイリアス | Google App EngineでGoのバージョンアップを行う #golang #gae</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/10/05/jrits-why-go-how-is-go/">[発表資料] 第138回RITS技術交流会『なぜ私たちはGoを書くのか。今あらためて考えるGo言語の良さと実際』</a></li>
+  
+  <li><a href="/2019/12/04/introduce_go-scp/">OWASP/Go-SCPを読んでセキュアプログラミングとGoを学ぶ</a></li>
+  
+  <li><a href="/2019/11/16/goturns10-in-japan/">Go Release 10 Year Anniversary Party in Tokyo参加メモ</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Feb 1, 2020</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/go">Go</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2020/01/29/php-cast-original-class/" title="PHPで独自クラスを使った型キャストをおこなう方法">PHPで独自クラスを使った型キャストをおこなう方法</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2020/01/29/php-cast-original-class/">PHPで独自クラスを使った型キャストをおこなう方法</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/01/19/textlint-ignore-tt-inlines/">[Re:VIEW] textlintのlintエラーからttインライン命令で装飾された文字列を除外する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/01/11/review-ghq-handbook/">[書評] ghq handbookを読んでghqコマンドに再入門する</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2020  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
