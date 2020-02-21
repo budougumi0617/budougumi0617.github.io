@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go] context.TODO()を使って漸進的にcontext対応を始める - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="Go,Go言語,context,context.Context">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.59.1" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2020/02/21/use-context/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go] context.TODO()を使って漸進的にcontext対応を始める - My External Storage"/>
+  <meta property="og:description" content="Goではメソッドや関数の引数にcontext.Contextが含められていると何かと便利だ。
+とはいえ、最初からアプリケーションがcontext.Contextを考慮していない場合もある。
+アプリケーションを漸進的にcontext.Contextに対応させる方法を書いておく。"/>
+  
+  <meta name="twitter:title" content="[Go] context.TODO()を使って漸進的にcontext対応を始める - My External Storage"/>
+  <meta name="twitter:description" content="Goではメソッドや関数の引数にcontext.Contextが含められていると何かと便利だ。
+とはいえ、最初からアプリケーションがcontext.Contextを考慮していない場合もある。
+アプリケーションを漸進的にcontext.Contextに対応させる方法を書いておく。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Feb 21, 2020
+     - 6 minute read 
+     - <a href="https://budougumi0617.github.io/2020/02/21/use-context/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">Go </a>
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://budougumi0617.github.io/2020/02/21/use-context/">[Go] context.TODO()を使って漸進的にcontext対応を始める</a>
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#tl-dr">TL;DR</a></li>
+<li><a href="#contextパッケージとは">contextパッケージとは</a></li>
+<li><a href="#context-contextに対応させる">context.Contextに対応させる</a></li>
+<li><a href="#暫定的にcontext-contextを引数に与える場合は-context-todo-を利用する">暫定的にcontext.Contextを引数に与える場合は、context.TODO()を利用する。</a></li>
+<li><a href="#終わりに">終わりに</a></li>
+<li><a href="#参考文献">参考文献</a></li>
+</ul>
+</nav>
+          
+          <p>Goではメソッドや関数の引数に<code>context.Context</code>が含められていると何かと便利だ。<br />
+とはいえ、最初からアプリケーションが<code>context.Context</code>を考慮していない場合もある。<br />
+アプリケーションを漸進的に<code>context.Context</code>に対応させる方法を書いておく。</p>
+
+<h1 id="tl-dr">TL;DR</h1>
+
+<ul>
+<li>キャンセル通知や透過的な情報をやりとりするための仕組みが<code>context.Context</code>
+
+<ul>
+<li>ある操作のキャンセルを親gorotuineから伝える</li>
+<li>リクエストIDなどをネストしたメソッドに伝える（透過的な情報しか含めてはいけない！）</li>
+</ul></li>
+<li>運用状態のアプリケーションの各メソッドを全て<code>context.Context</code>に対応させるのは大変</li>
+<li><code>context.TODO()</code>を使って少しずつ始めよう
+
+<ul>
+<li><a href="https://golang.org/pkg/context/#TODO">https://golang.org/pkg/context/#TODO</a></li>
+</ul></li>
+<li><code>context</code>パッケージの思想を知るにはThe Go Blogか、「Go言語による並行処理」を読むといいだろう。
+
+<ul>
+<li><a href="https://blog.golang.org/context">https://blog.golang.org/context</a></li>
+<li><a href="https://www.amazon.co.jp/dp/4873118468">https://www.amazon.co.jp/dp/4873118468</a></li>
+</ul></li>
+</ul>
+
+<h1 id="contextパッケージとは">contextパッケージとは</h1>
+
+<p>Goは<code>contextt</code>パッケージというキャンセル意思や特定のデータを透過的に呼び出し先の関数に伝えるための仕組みがある。<br />
+具体的にいうと、<code>goroutine</code>による並行処理中の実行停止に利用することができる。標準パッケージやメジャーな3rdパッケージはほぼ対応している。<br />
+また、APM（Application Perfomance Monitoring）やエラー通知サービスにデータを送信するさい、リクエストIDを含めたりしたいときがあるだろう。<br />
+<code>context.Context</code>は、<code>WithValue</code>メソッドを使ってそのような本来そのメソッドのロジックに無関係の（トレースなどに利用した）透過的なデータを内包させることができる。<br />
+詳しい説明はパッケージドキュメントやThe Go Blogを読めばよいだろう。</p>
+
+<ul>
+<li><code>context</code>パッケージ
+
+<ul>
+<li><a href="https://golang.org/pkg/context/">https://golang.org/pkg/context/</a></li>
+</ul></li>
+<li>Go Concurrency Patterns: Context | The Go Blog
+
+<ul>
+<li><a href="https://blog.golang.org/context">https://blog.golang.org/context</a></li>
+</ul></li>
+</ul>
+
+<p>透過的なデータの定義（決定指針）は「4.12 contextパッケージ」の章がわかりやすい。<br />
+（Goの辞書であるプログラミング言語GoはGo1.6時代の本なので、残念ながらGo1.7で追加された<code>context</code>に関する解説はない）</p>
+
+<ul>
+<li>Go言語による並行処理
+
+<ul>
+<li><a href="https://www.amazon.co.jp/dp/4873118468">https://www.amazon.co.jp/dp/4873118468</a></li>
+</ul></li>
+</ul>
+
+<h1 id="context-contextに対応させる">context.Contextに対応させる</h1>
+
+<p>では、実際に<code>context.Context</code>を利用するメソッドにリファクタリングしていくにはどうしたらよいだろうか。
+最初は引数に<code>context.Context</code>を含めるだけから始めればよいだろう。慣例的に、<code>context.Context</code>は第一引数にする。
+（<code>context.Contextが第一引数になっていない</code>と警告するlinterも存在する）</p>
+
+<p>ここは単純にメソッドの引数を変更していくだけだ。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"> // CompanyRepository is the repository to get company resource.
+ type CompanyRepository interface {
+<span style="color:#dc322f">-       Get(CompanyID) (domain.Company, error)
+</span><span style="color:#dc322f"></span><span style="color:#719e07">+       Get(context.Context, CompanyID) (domain.Company, error)
+</span><span style="color:#719e07"></span> }
+</code></pre></div>
+<p>API呼び出し(<code>http.Request</code>構造体)や<code>database/sql</code>パッケージを使ったDB操作を行なっている場合は、その生成、呼び出しも<code>context.Context</code>に対応させると良いだろう。<br />
+<code>context.Context</code>を新しく引数に加えても、（呼び出し時に与えた<code>context.Context</code>のキャンセル処理などを実施しなければ、）何も挙動に影響を与えない。<br />
+一通り修正を終えた後に実際に<code>context.Context</code>を使ったログ生成や、キャンセル処理の実装を加えていけばよいだろう。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="color:#dc322f">-func (c *CompanyServiceClient) Get(cid CompanyID) (domain.Company, error) {
+</span><span style="color:#dc322f"></span><span style="color:#719e07">+func (c *CompanyServiceClient) Get(ctx context.Context, cid CompanyID) (domain.Company, error) {
+</span><span style="color:#719e07"></span>        url := c.URL + &#34;/companies&#34;
+
+<span style="color:#dc322f">-       req, err := http.NewRequest(&#34;GET&#34;, url, nil)
+</span><span style="color:#dc322f"></span><span style="color:#719e07">+       req, err := http.NewRequestWithContext(ctx, &#34;GET&#34;, url, nil)
+</span><span style="color:#719e07"></span>        if err != nil {
+                // ...
+</code></pre></div>
+<p>Go1.13からは<code>http.Request</code>を生成する際に、<code>context.Context</code>を含んだ<code>NewRequestWithContext</code>関数を利用できるようになっている。<br />
+<code>database/sql</code>パッケージもGo1.8から<code>Query</code>メソッドの引数に<code>context.Context</code>を含んだ<code>QueryConntext</code>メソッドなどが用意されている。</p>
+
+<ul>
+<li><code>http.NewRequestWithContext</code>
+
+<ul>
+<li><a href="https://golang.org/pkg/net/http/#NewRequestWithContext">https://golang.org/pkg/net/http/#NewRequestWithContext</a></li>
+</ul></li>
+<li><code>database/sql</code>パッケージ
+
+<ul>
+<li><a href="https://golang.org/pkg/database/sql/">https://golang.org/pkg/database/sql/</a></li>
+</ul></li>
+</ul>
+
+<p>あとはこのリファクタリングを他のメソッドにも適用していくのだが、業務で行なっているアプリケーションのリファクタリングを一気に行うのは無理だろう。<br />
+では、途中まで対応したとき、<code>context.Context</code>を引数にしためメソッドを呼び出すための<code>context.Context</code>はどこから用意すればよいのだろうか。</p>
+
+<h1 id="暫定的にcontext-contextを引数に与える場合は-context-todo-を利用する">暫定的にcontext.Contextを引数に与える場合は、context.TODO()を利用する。</h1>
+
+<p><code>context.Context</code>を生成するとき、通常は上位から受け取った<code>context.Context</code>を利用するか、<code>context.Background()</code>関数で<code>context.Context</code>を生成する。</p>
+
+<ul>
+<li><code>context.Background()</code>
+
+<ul>
+<li><a href="https://golang.org/pkg/context/#Background">https://golang.org/pkg/context/#Background</a></li>
+</ul></li>
+</ul>
+
+<p>しかし、<code>context</code>パッケージにはこのようなときのために利用する、<code>context.TODO()</code>関数が用意されている。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"> // ListEmployees gets employees in comapany.
+ func (e *EmployeesService) ListEmployees(cid CompanyID) (domain.Company, *ErrorResult) {
+<span style="color:#dc322f">-       company, err := s.CompanyRepository.Get(cid CompanyID)
+</span><span style="color:#dc322f"></span><span style="color:#719e07">+       company, err := s.CompanyRepository.Get(context.TODO(), cid CompanyID)
+</span><span style="color:#719e07"></span>        if err != nil {
+</code></pre></div>
+<p><code>context.TODO()</code>で生成される<code>context.Context</code>は関数名のとおり、一時的な<code>context.Context</code>である。
+GoDocにも「どの<code>context.Context</code>を使うかわからないとき、他の関数が対応していなくて<code>context.Context</code>が用意できないときに使ってね。」のように記載されている。</p>
+
+<ul>
+<li><code>context.TODO()</code>
+
+<ul>
+<li><a href="https://golang.org/pkg/context/#TODO">https://golang.org/pkg/context/#TODO</a></li>
+</ul></li>
+</ul>
+
+<blockquote>
+<p>TODO returns a non-nil, empty Context. Code should use context.TODO when it&rsquo;s unclear which Context to use or it is not yet available (because the surrounding function has not yet been extended to accept a Context parameter).</p>
+</blockquote>
+
+<p>あとは少しずつ<code>context.Cntext</code>を引数にとるメソッドを増やしていけば良い。</p>
+
+<h1 id="終わりに">終わりに</h1>
+
+<p><code>context.Context</code>の使い方ではなく、<code>context.Context</code>を使うための準備方法をまとめた。<br />
+<code>context.Context</code>が用意されていると、並行処理を挟むようになったとき、リクエストIDやトレーシングデータをSentryなどのエラー通知サービスやAPMへのデータを送信することが非常に簡単になる。<br />
+新しく作るアプリケーションの場合は、ひとまず対応しておいたほうが良いだろう（必ず必要になるときがくる）。<br />
+<code>context.Context</code>対応を終えたアプリケーションでどのように<code>context.Context</code>を利用していくのかもいずれまとめたい。</p>
+
+<h1 id="参考文献">参考文献</h1>
+
+<ul>
+<li><a href="https://blog.golang.org/context">Go Concurrency Patterns: Context | The Go Blog</a></li>
+<li><a href="https://www.amazon.co.jp/dp/4873118468">Go言語による並行処理</a></li>
+</ul>
+
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4873118468&linkId=727ff07e1319c560674f5751393013cb"></iframe>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/12/04/introduce_go-scp/">OWASP/Go-SCPを読んでセキュアプログラミングとGoを学ぶ</a></li>
+  
+  <li><a href="/2019/11/16/goturns10-in-japan/">Go Release 10 Year Anniversary Party in Tokyo参加メモ</a></li>
+  
+  <li><a href="/2019/11/10/switch-statement-in-go/">[Go] タグなし switchは switch true {...}と等しい</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Feb 21, 2020</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/context">context</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2020/02/10/phperkaigi2020/" title="[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+    </br>
+    主にGoについて書いています。
+    </br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2020/02/21/use-context/">[Go] context.TODO()を使って漸進的にcontext対応を始める</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/01/29/php-cast-original-class/">PHPで独自クラスを使った型キャストをおこなう方法</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2020  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
