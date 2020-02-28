@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -175,128 +175,93 @@
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#エラーが出てvim-goでgolangci-lintが動かない">エラーが出てvim-goでgolangci-lintが動かない</a></li>
-<li><a href="#原因調査-gometalinter-コマンドを直接実行してみる">原因調査： <code>:GoMetaLinter</code>コマンドを直接実行してみる</a></li>
-<li><a href="#解決方法-golangci-yml-の設定を修正する">解決方法：<code>.golangci.yml</code>の設定を修正する</a></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
-          <p>公私でGoを書くときはVimを使っている。<br />
+          <p>公私でGoを書くときはVimを使っている。<br>
 ファイル保存時に<code>golangci-lint</code>を実行するように設定しているのだが、表題のエラーが出て静的解析が実行されなかったので原因調査・解決した。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>VimでGoを書いているとき、<code>vim-go: [golangci-lint] FAIL</code>エラーがでて<code>golangci-lint</code>が失敗するようになった</li>
 <li><code>:messages</code>を見てもわからなかった</li>
 <li><code>:GoMetaLinter</code>コマンドを実行したところ、本当のエラーメッセージがわかった
-
 <ul>
 <li><code>level=error msg=&quot;Running error: --enable-all and --disable-all options must not be combined&quot;</code></li>
-</ul></li>
+</ul>
+</li>
 <li><code>.golangci.yml</code>の設定を修正して解決した</li>
 </ul>
-
 <h1 id="エラーが出てvim-goでgolangci-lintが動かない">エラーが出てvim-goでgolangci-lintが動かない</h1>
-
 <p>公私でGoを書くときはVimを使っている。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/golangci/golangci-lint" data-iframely-url="//cdn.iframe.ly/DL8d5gb?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/fatih/vim-go" data-iframely-url="//cdn.iframe.ly/Yf6623U?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
 <p>私のVimでは（<code>golangci-lint</code>を使う設定をして、）<code>GoMetaLinterAutoSaveToggle</code>オプションを有効にしているので、ファイル保存時に<code>golangci-lint</code>が実行される。</p>
-
 <ul>
 <li>GoMetaLinterAutoSaveToggle | fatih/vim-go
-
 <ul>
 <li><a href="https://github.com/fatih/vim-go/blob/56edf0c53dca497d3caea36d101b0feaf73e97e0/doc/vim-go.txt#L830">https://github.com/fatih/vim-go/blob/56edf0c53dca497d3caea36d101b0feaf73e97e0/doc/vim-go.txt#L830</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>ここで、あるGoのプロジェクトで作業しているときだけ、ファイル保存時に<code>vim-go: [golangci-lint] FAIL</code>とエラーメッセージが表示されるだけで静的解析が実行されなくなった。</p>
-
-<h1 id="原因調査-gometalinter-コマンドを直接実行してみる">原因調査： <code>:GoMetaLinter</code>コマンドを直接実行してみる</h1>
-
-<p>コマンドラインから直接<code>golangci-lint</code>コマンドを実行しても正常に実行できていた。<br />
+<h1 id="原因調査-gometalinterコマンドを直接実行してみる">原因調査： <code>:GoMetaLinter</code>コマンドを直接実行してみる</h1>
+<p>コマンドラインから直接<code>golangci-lint</code>コマンドを実行しても正常に実行できていた。<br>
 <code>:messages</code>コマンドでVimが出力しているログを見ても、何が問題で<code>golangci-lint</code>コマンドが失敗しているのかよくわからなかった。</p>
-
 <ul>
 <li>message - Vim日本語ドキュメント
-
 <ul>
 <li><a href="https://vim-jp.org/vimdoc-ja/message.html#:messages">https://vim-jp.org/vimdoc-ja/message.html#:messages</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>起動直後にファイルを保存してエラーが出た状態で<code>:messages</code>コマンドでログをみても以下の通り。</p>
-
 <pre><code>Messages maintainer: Bram Moolenaar &lt;Bram@vim.org&gt;
 &quot;main.go&quot; 100L, 2767C
 vim-go: initializing gopls
 &quot;main.go&quot; 100L, 2767C written
 vim-go: [golangci-lint] dispatched
 vim-go: [golangci-lint] FAIL
-</code></pre>
-
-<p>ここで、<code>vim-go</code>を利用しているVimでは、<code>:GoMetaLinter</code>コマンドを使うことで、明示的に<code>golangci-lint</code>を実行できる。</p>
-
+</code></pre><p>ここで、<code>vim-go</code>を利用しているVimでは、<code>:GoMetaLinter</code>コマンドを使うことで、明示的に<code>golangci-lint</code>を実行できる。</p>
 <ul>
 <li><code>:GoMetaLinter</code> | fatih/vim-go
-
 <ul>
 <li><a href="https://github.com/fatih/vim-go/blob/56edf0c53dca497d3caea36d101b0feaf73e97e0/doc/vim-go.txt#L651">https://github.com/fatih/vim-go/blob/56edf0c53dca497d3caea36d101b0feaf73e97e0/doc/vim-go.txt#L651</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p><code>:GoMetaLinter</code>コマンドを実行してみたところ、以下のようなエラーメッセージを確認することができた。</p>
-
 <pre><code>level=error msg=&quot;Running error: --enable-all and --disable-all options must not be combined&quot;
 
-</code></pre>
-
-<p>どうやら、プロジェクトに配置してある<code>.golangci.yml</code>に記載されている設定と、<code>vim-go</code>で<code>golangci-lint</code>コマンドを呼び出すときのオプションが競合しているのが原因だった。
+</code></pre><p>どうやら、プロジェクトに配置してある<code>.golangci.yml</code>に記載されている設定と、<code>vim-go</code>で<code>golangci-lint</code>コマンドを呼び出すときのオプションが競合しているのが原因だった。
 <code>vim-go</code>は<code>golangci-lint</code>コマンドを呼び出すとき以下のように実行コマンドを組み立てる。この中で、<code>--disable-all</code>オプションを指定している。</p>
-
 <ul>
-<li><p><a href="https://github.com/fatih/vim-go/blob/75fa6fe70c5b9d7f7856bc26972d9ee97d99f7db/autoload/go/lint.vim#L242-L254">https://github.com/fatih/vim-go/blob/75fa6fe70c5b9d7f7856bc26972d9ee97d99f7db/autoload/go/lint.vim#L242-L254</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-vim" data-lang="vim"><span style="color:#719e07">function</span>! s:golangcilintcmd(bin_path)
-<span style="color:#719e07">let</span> cmd = [a:bin_path]
-<span style="color:#719e07">let</span> cmd += [<span style="color:#2aa198">&#34;run&#34;</span>]
-<span style="color:#719e07">let</span> cmd += [<span style="color:#2aa198">&#34;--print-issued-lines=false&#34;</span>]
-<span style="color:#719e07">let</span> cmd += [<span style="color:#2aa198">&#39;--build-tags&#39;</span>, go#config#BuildTags()]
-<span style="color:#719e07">let</span> cmd += [<span style="color:#2aa198">&#34;--disable-all&#34;</span>]
-<span style="color:#586e75">&#34; do not use the default exclude patterns, because doing so causes golint</span>
-<span style="color:#586e75">&#34; problems about missing doc strings to be ignored and other things that</span>
-<span style="color:#586e75">&#34; golint identifies.</span>
-<span style="color:#719e07">let</span> cmd += [<span style="color:#2aa198">&#34;--exclude-use-default=false&#34;</span>]
-
-return cmd
-<span style="color:#719e07">endfunction</span></code></pre></div></li>
+<li><a href="https://github.com/fatih/vim-go/blob/75fa6fe70c5b9d7f7856bc26972d9ee97d99f7db/autoload/go/lint.vim#L242-L254">https://github.com/fatih/vim-go/blob/75fa6fe70c5b9d7f7856bc26972d9ee97d99f7db/autoload/go/lint.vim#L242-L254</a></li>
 </ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-vim" data-lang="vim"><span style="color:#719e07">function</span>! s:golangcilintcmd(bin_path)
+  <span style="color:#719e07">let</span> cmd = [a:bin_path]
+  <span style="color:#719e07">let</span> cmd += [<span style="color:#2aa198">&#34;run&#34;</span>]
+  <span style="color:#719e07">let</span> cmd += [<span style="color:#2aa198">&#34;--print-issued-lines=false&#34;</span>]
+  <span style="color:#719e07">let</span> cmd += [<span style="color:#2aa198">&#39;--build-tags&#39;</span>, go#config#BuildTags()]
+  <span style="color:#719e07">let</span> cmd += [<span style="color:#2aa198">&#34;--disable-all&#34;</span>]
+<span style="color:#586e75">  &#34; do not use the default exclude patterns, because doing so causes golint</span>
+<span style="color:#586e75">  &#34; problems about missing doc strings to be ignored and other things that</span>
+<span style="color:#586e75">  &#34; golint identifies.</span>
+  <span style="color:#719e07">let</span> cmd += [<span style="color:#2aa198">&#34;--exclude-use-default=false&#34;</span>]
 
-<p>今回、プロジェクトで設置してある<code>.golangci.yml</code>ファイルでは<code>enable-all</code>をベースに静的解析の設定を組み立てていため、<code>enable-all</code>と<code>disable-all</code>設定が競合していた。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">linters:
-  enable-all: <span style="color:#cb4b16">true</span>
-  disable:
+  return cmd
+<span style="color:#719e07">endfunction</span>
+</code></pre></div><p>今回、プロジェクトで設置してある<code>.golangci.yml</code>ファイルでは<code>enable-all</code>をベースに静的解析の設定を組み立てていため、<code>enable-all</code>と<code>disable-all</code>設定が競合していた。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">linters</span>:
+  <span style="color:#719e07">enable-all</span>: <span style="color:#cb4b16">true</span>
+  <span style="color:#719e07">disable</span>:
     - funlen
-    - dogsled</code></pre></div>
-<h1 id="解決方法-golangci-yml-の設定を修正する">解決方法：<code>.golangci.yml</code>の設定を修正する</h1>
-
+    - dogsled
+</code></pre></div><h1 id="解決方法golangciymlの設定を修正する">解決方法：<code>.golangci.yml</code>の設定を修正する</h1>
 <p>今回は以下の理由により、<code>.golangci.yml</code>側の設定方法を修正することで対応した。</p>
-
 <ul>
 <li>Vim側の<code>golangci-lint</code>コマンドの呼び出し時の設定を変更する方法がよくわからなかった</li>
 <li><code>enable-all</code>ベースで設定していると、<code>golangci-lint</code>コマンドが新しいツールをサポートしたとき、意図せず有効化される</li>
 <li><code>disable-all</code>したあと、明示的に利用する静的解析ツールを指定したほうがヒューマンリーダブルな設定になる</li>
 </ul>
-
 <p><code>golangci-lint</code>コマンドは<code>golangci-lint linters</code>コマンドでそのプロジェクト上（ディレクトリ上）の静的解析の設定を確認することができる。
 なので、一度<code>enable-all</code>ベースの設定で<code>golangci-lint linters</code>コマンドを実行し、ファイルに出力を保存しておいた。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ golangci-lint linters
@@ -308,16 +273,13 @@ deadcode: Finds unused code <span style="color:#719e07">[</span>fast: true, auto
 Disabled by your configuration linters:
 depguard: Go linter that checks <span style="color:#719e07">if</span> package imports are in a list of acceptable packages <span style="color:#719e07">[</span>fast: true, auto-fix: false<span style="color:#719e07">]</span>
 dogsled: Checks assignments with too many blank identifiers <span style="color:#719e07">(</span>e.g. x, _, _, _, :<span style="color:#719e07">=</span> f<span style="color:#719e07">())</span> <span style="color:#719e07">[</span>fast: true, auto-fix: false<span style="color:#719e07">]</span>
-...</code></pre></div>
-<p>その後、<code>disable-all</code>ベースの設定に書き直し、<code>golangci-lint linters</code>コマンドの結果が以前と同じであることを確認した。</p>
+...
 
+</code></pre></div><p>その後、<code>disable-all</code>ベースの設定に書き直し、<code>golangci-lint linters</code>コマンドの結果が以前と同じであることを確認した。</p>
 <h1 id="終わりに">終わりに</h1>
-
 <p>私のVimの設定は一応<code>golangci-lint</code>や<code>gopls</code>を利用するように設定しているのだが、一度整理したほうがよいかなと思いつつズルズル使っている。
 <a href="https://mattn.kaoriya.net/software/lang/c/20191112100330.htm">LSP系のプラグイン経由で<code>gopls</code>を実行するほうがいろいろ設定できるらしい</a>ので、一度整理しようかなあ。</p>
-
 <h1 id="参考">参考</h1>
-
 <ul>
 <li><a href="https://github.com/golangci/golangci-lint">https://github.com/golangci/golangci-lint</a></li>
 <li><a href="https://github.com/fatih/vim-go">https://github.com/fatih/vim-go</a></li>
@@ -412,9 +374,9 @@ dogsled: Checks assignments with too many blank identifiers <span style="color:#
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -492,10 +454,16 @@ dogsled: Checks assignments with too many blank identifiers <span style="color:#
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -507,12 +475,6 @@ dogsled: Checks assignments with too many blank identifiers <span style="color:#
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

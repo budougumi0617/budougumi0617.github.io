@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -172,24 +172,15 @@
           
           
             <nav id="TableOfContents">
-<ul>
-<li><a href="#所感">所感</a></li>
-<li><a href="#api-gatewayによるmicroservices化">API GatewayによるMicroservices化</a>
-<ul>
-<li><a href="#構想">構想</a></li>
-<li><a href="#設計-実装">設計・実装</a></li>
-</ul></li>
-<li><a href="#もう一度テストパターンを整理しよう">もう一度テストパターンを整理しよう</a></li>
-<li><a href="#go言語による2年半の新規プロダクト開発とその総括">Go言語による2年半の新規プロダクト開発とその総括</a></li>
-</ul>
+  <ul>
+    <li><a href="#構想">構想</a></li>
+    <li><a href="#設計実装">設計・実装</a></li>
+  </ul>
 </nav>
           
-          <p>メルカリ内でGoがどのように使われているのかを聞くため<a href="https://mercari.connpass.com/event/91306/">mercari.go #1</a>に参加してきた。<br />
+          <p>メルカリ内でGoがどのように使われているのかを聞くため<a href="https://mercari.connpass.com/event/91306/">mercari.go #1</a>に参加してきた。<br>
 詳しくは所感に書いたがいろいろな角度のGoの話を聞くことができてとても参加できてよかった。なお次回は8月を予定しているとのこと。</p>
-
-<p><blockquote class="twitter-tweet" data-lang="ja"><p lang="ja" dir="ltr">mercari.go 参加ありがとうございましたー！<br>8月くらいに第2回をやろうと思ってるのでお楽しみに！ <a href="https://twitter.com/hashtag/mercarigo?src=hash&amp;ref_src=twsrc%5Etfw">#mercarigo</a></p>&mdash; morikuni (@inukirom) <a href="https://twitter.com/inukirom/status/1014160235324325889?ref_src=twsrc%5Etfw">2018年7月3日</a></blockquote>
-<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
 <table>
 <thead>
 <tr>
@@ -197,306 +188,281 @@
 <th></th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>URL</td>
 <td><a href="https://mercari.connpass.com/event/91306/">https://mercari.connpass.com/event/91306/</a></td>
 </tr>
-
 <tr>
 <td>会場</td>
 <td>株式会社メルカリ 東京都港区六本木6-10-1(六本木ヒルズ森タワー18F)</td>
 </tr>
-
 <tr>
 <td>日時</td>
 <td>2018/07/03(木) 19:30 〜 22:00</td>
 </tr>
-
 <tr>
 <td>ハッシュタグ</td>
 <td><a href="https://twitter.com/hashtag/mercarigo">#mercarigo</a></td>
 </tr>
-
 <tr>
 <td>Togetter</td>
 <td><a href="https://togetter.com/li/1243367">https://togetter.com/li/1243367</a></td>
 </tr>
 </tbody>
 </table>
-
 <h1 id="所感">所感</h1>
-
-<p>今回は3人の方から以下の内容を聞くことができた。<br />
+<p>今回は3人の方から以下の内容を聞くことができた。<br>
 フルスクラッチで書かれているらしいGoのAPIゲートウェイのアーキテクチャ、テストのための実装の詳細、
-Go初心者から2年半Goの開発をして感じたことと、メルカリ内でのGoプロダクトについて異なるベクトルの話を3つも聞けて非常によかった。<br />
+Go初心者から2年半Goの開発をして感じたことと、メルカリ内でのGoプロダクトについて異なるベクトルの話を3つも聞けて非常によかった。<br>
 単純な実装に対する技術力だけではなく、プロダクトに対する課題解決の姿勢などにもレベルの高さを感じた。次も参加したい。</p>
-
 <ul>
 <li>MAX約56,000req/secをさばく内製API Gatewayのアーキテクチャ思想と実装、旧アーキテクチャからの移行方法について
-
 <ul>
 <li>メルカリMicroservices PlatformテームTech LeadのdeeeetさんによるAPIゲートウェイの解説</li>
 <li>なぜ自作したのか、実際にどうやって移行したのか、その背景まで聞くことができた</li>
 <li>如何に汎用性が高く拡張性に富んだAPI Gatewayにするか、けっこう踏み込んだ設計について聞くことができた</li>
-</ul></li>
+</ul>
+</li>
 <li>GoでDBを扱うWebサーバを構成するときのテスト戦略について
-
 <ul>
 <li>Goでどのように状態をDBに依存しないテストを書くのか具体的なコードを例に知ることができた</li>
 <li>やはり設計初期段階からしっかりとテストを想定したデータ構造、依存関係の整理しておくことが大事</li>
 <li>御本人は既知のアプローチと謙遜していたが、Functionalテスト(APIレベル)まで想定した実践的なServer Mockの書き方はあまりなかったのでは</li>
 <li><code>interface</code>定義しすぎるとモック書くのが辛くなるところをコードジェネレータ書いて解決するところに技術力を感じた
-
 <ul>
 <li><a href="https://github.com/Code-Hex/funcy-mock">https://github.com/Code-Hex/funcy-mock</a></li>
-</ul></li>
+</ul>
+</li>
 <li>自分でもあとでSeverMockできるようにコード書いてみよう</li>
-</ul></li>
+</ul>
+</li>
 <li>Go未経験の状態から二年半メルカリアッテのサーバーサイドをGoで開発して学んだこと。
-
 <ul>
 <li>なぜGoがいいのか、エモい部分をしっかりと言語化されていた</li>
 <li>たしかにドメインロジックに集中して書ける・（他人のコードを）読めるのがGoのいいところだと思った</li>
 <li>自分も「(自分の)Go言語(の実装力)がカバーできる問題領域」を広げていかないといけない</li>
-<li>VimからIDE(Goland)に乗り換えているらしく自分もVimなのでちょっと考えた</li>
+<li>VimからIDE(Goland)に乗り換えているらしく自分もVimなのでちょっと考えた
+<ul>
 <li>VimでGoの補完などに不満をもったことはないけれど、リファクタリングをするときはIDE使いたくなってはいる</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
+</li>
+</ul>
 <p>以下自分メモ</p>
-
 <h1 id="api-gatewayによるmicroservices化">API GatewayによるMicroservices化</h1>
-
 <p><a href="https://twitter.com/deeeet">@deeeet</a></p>
-
 <ul>
 <li><a href="https://go-talks.appspot.com/github.com/tcnksm/talks/2018/07/mercarigo/microservices-api-gateway.slide#1">https://go-talks.appspot.com/github.com/tcnksm/talks/2018/07/mercarigo/microservices-api-gateway.slide#1</a></li>
 </ul>
-
 <p>メルカリMicroservices PlatformテームTechleadのdeeeetさんによるAPIゲートウェイの解説。
 APIゲートウェイ使って実現したい世界やサービスメッシュなどについてはGCPUGで発表されていた資料などが詳しい。</p>
-
 <ul>
 <li><a href="https://speakerdeck.com/tcnksm/microservices-on-gke-at-mercari">Microservices on GKE at Mercari</a></li>
 <li><a href="/2018/04/28/gcpug-tokyo-kubernetes-engine-day-april-2018/">[k8s]GCPUG Tokyo Kubernetes Engine Day April 2018参加メモ #gcpug</a></li>
 </ul>
-
 <h2 id="構想">構想</h2>
-
 <ul>
 <li>組織成長後も開発スピードを落とさないためにモノリスアーキテクチャからマイクロサービス化を図っている</li>
 <li>APIゲートウェイのマイクロサービスの中での役割
-
 <ul>
 <li>単一エンドポイントでのRouting</li>
 <li>認証、ロギング・モニタリングなどのMiddleware(共通処理)を一括で行う</li>
 <li>Proxy, Facadeパターンを適用したモノリスからの段階的なマイクロサービス化への補助
-
 <ul>
 <li><a href="http://microservices.io/patterns/apigateway.html">Pattern: API Gateway / Backend for Front-End</a></li>
-</ul></li>
-</ul></li>
+</ul>
+</li>
+</ul>
+</li>
 <li>最大約56,000リクエスト/秒をさばくハイパフォーマンスが必要</li>
 <li>内製サービスとの連携、みんなが使える言語で拡張できることを考えGoで実装することに</li>
 <li>基本構成は前段にGoogle Load Bralancer(GLB)。API Gatewayの後ろにGKE上の各サービス</li>
 <li>API Gateway自体もGKE上にいる</li>
 </ul>
-
-<h2 id="設計-実装">設計・実装</h2>
-
+<h2 id="設計実装">設計・実装</h2>
 <ul>
 <li>Goでフルスクラッチ。Gopher friendlyであること</li>
 <li>基本的に基本パッケージで全部やる。</li>
 <li>Core as a package
-
 <ul>
 <li>JP, US, merpayなどの個別でゲートウェイを作れるようにCore部分とそれを使った具体的な実装に分離している。</li>
-</ul></li>
+</ul>
+</li>
 <li>SREがコアパッケージを実装し、Developerがそれを利用してサービスの実装を書く</li>
 <li>Excluding business logic
-
 <ul>
 <li>Coreパッケージを使った実装にはビジネスロジックは書かせないことで第二のモノリスになることを避ける</li>
-</ul></li>
+</ul>
+</li>
 <li>Middleware driven
-
 <ul>
 <li>認証・ロギングなどの共通処理はMiddlewareパターンで実装されている
-
 <ul>
 <li><a href="https://medium.com/@matryer/writing-middleware-in-golang-and-how-go-makes-it-so-much-fun-4375c1246e81">Writing middleware in #golang and how Go makes it so much fun.</a></li>
-</ul></li>
-</ul></li>
+</ul>
+</li>
+</ul>
+</li>
 <li>Protocol transformation
-
 <ul>
 <li>API定義は基本的にProtocol buffer</li>
 <li>API gatewayでHTTPを受けて中のサービス間はgRPCで通信している（構想当時はgRPCの事例も少なかったので）</li>
 <li>Developerは以下を行うことでエンドポイントを追加できる
-
 <ul>
 <li>サービスのインターフェースをProtcol bufferで定義</li>
 <li>エンドポイントの定義をAPI Gatewayの実装に追加</li>
-</ul></li>
+</ul>
+</li>
 <li>コアパッケージはエンドポイント定義を基に<code>http.Handler</code>を生成する</li>
 <li>gRPCのエラーコードの変換をしたり、Request HeaderをもとにJSONのリクエストを受け付けている</li>
-</ul></li>
+</ul>
+</li>
 <li>Request buffering
-
 <ul>
 <li><code>vulcand/oxy</code>をforkしたrate limitなど標準pkgが提供していない便利機能を提供している
-
 <ul>
 <li><a href="https://github.com/vulcand/oxy">https://github.com/vulcand/oxy</a></li>
-</ul></li>
+</ul>
+</li>
 <li>GLBはリクエストバッファリングをしないのでAPI Gatewayでバッファリングをしている</li>
 <li>メモリにリクエストを書き出して、溜まってきたらリクエストが溜まったらリクエストをバックエンドを送る</li>
-</ul></li>
+</ul>
+</li>
 <li>API GatewayへのMigration
-
 <ul>
 <li>APIのドメインはAWSのRoute53で管理されているので、Weighted Recordsで流量制御しながら1ヶ月かけて移行していった。
-
 <ul>
 <li><a href="https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/resource-record-sets-values-weighted.html#rrsets-values-weighted-weight">https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/resource-record-sets-values-weighted.html#rrsets-values-weighted-weight</a></li>
-</ul></li>
-</ul></li>
+</ul>
+</li>
+</ul>
+</li>
 <li>パフォーマンス
-
 <ul>
 <li>Datadogによる可視化、Datadog APMの分散トレーシングは行っている</li>
 <li>ProfilingはStackdriver profilierも使っている
-
 <ul>
 <li><a href="https://cloud.google.com/profiler/">https://cloud.google.com/profiler/</a></li>
-</ul></li>
+</ul>
+</li>
 <li>CPUレベルでどのファンクションにどれくらい時間が書かているか可視化できる。</li>
 <li>パフォーマンスにもそこまで影響していない</li>
 <li>Googleなどと同様に本番GatewayでProfilerを動かしている。</li>
-</ul></li>
+</ul>
+</li>
 <li>質疑応答
-
 <ul>
 <li>protoファイルどう定義している？どうサービス間で互換性を保っている？
-
 <ul>
 <li>protoファイルは一つのリポジトリで全てのprotoファイルを管理してCIでクライアントコードなどが各リポジトリに配布される</li>
-</ul></li>
+</ul>
+</li>
 <li>gRPCでデカいコールのチャンクどうしている？
-
 <ul>
 <li>例えば画像などを含んだデカいリクエストのチャンクはまだ実装していない</li>
-</ul></li>
+</ul>
+</li>
 <li>フォームやWebHookなどでURLパラメータにリクエスト内容が含まれているときどうgRPC用のリクエスト定義にマッピングしている？
-
 <ul>
 <li><code>metadata</code>経由でマッピングする予定</li>
-</ul></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
+</li>
+</ul>
 <h1 id="もう一度テストパターンを整理しよう">もう一度テストパターンを整理しよう</h1>
-
 <p><a href="https://twitter.com/codehex">@codehex</a></p>
-
 <ul>
-<li><a href="https://speakerdeck.com/codehex/mou-du-tesutopatanwozheng-li-siyou-webappbian">https://speakerdeck.com/codehex/mou-du-tesutopatanwozheng-li-siyou-webappbian</a><br /></li>
+<li><a href="https://speakerdeck.com/codehex/mou-du-tesutopatanwozheng-li-siyou-webappbian">https://speakerdeck.com/codehex/mou-du-tesutopatanwozheng-li-siyou-webappbian</a></li>
 <li><a href="https://codehex.hateblo.jp/entry/2018/07/03/211839">mercari.go #1 で「もう一度テストパターンを整理しよう」というタイトルで登壇しました</a></li>
 </ul>
-
 <p>GoにおけるWebAppのテストの実装パターンとテスタブルな設計、テストに使うmock実装について。（コードベースの話だったのでスライド中のコードを見たほうがよい）</p>
-
 <ul>
 <li>Serviceに<code>*sql.DB</code>なんかを持たせているとテストで死ぬ</li>
 <li><code>sql.DB</code>、<code>sql.Tx</code>をインターフェースによって抽象化することで実装を分離する</li>
 <li>このときinterfaceは単一責務の複数のinterfaceに分けて抽象化すること
-
 <ul>
 <li>Goのinterfaceは一つのinterfaceに複数の責務を持たせないのがベストプラクティス</li>
-</ul></li>
-<li>interfaceを引数に持つラッパーメソッドを作成し、Serviceオブジェクトにinterfaceのフィールド(具象オブジェクト)をもたせることで具象オブジェクトとロジックの密結合を防ぐことが出来る([P30(<a href="https://speakerdeck.com/codehex/mou-du-tesutopatanwozheng-li-siyou-webappbian?slide=30)]">https://speakerdeck.com/codehex/mou-du-tesutopatanwozheng-li-siyou-webappbian?slide=30)]</a>)</li>
+</ul>
+</li>
+<li>interfaceを引数に持つラッパーメソッドを作成し、Serviceオブジェクトにinterfaceのフィールド(具象オブジェクト)をもたせることで具象オブジェクトとロジックの密結合を防ぐことが出来る([P30(https://speakerdeck.com/codehex/mou-du-tesutopatanwozheng-li-siyou-webappbian?slide=30)])</li>
 <li><code>sql.Tx</code>を返すinterfaceを定義しておくとトランザクションを使うときもモック出来る。</li>
 <li>ServerのFunctional Test(APIテスト。Req/Respのテスト)はエンドポイントごとにTable Drivenつくっていく</li>
 <li>各Serviceインターフェースを満たす<code>ServerMock</code>を作成する。このときServiceの各メソッドの挙動を注入できるように設計しておくこと(<a href="https://speakerdeck.com/codehex/mou-du-tesutopatanwozheng-li-siyou-webappbian?slide=68">P68</a>)
-
 <ul>
 <li>テストケースごとにSeverの挙動を制御できる</li>
-</ul></li>
+</ul>
+</li>
 <li>擬似的に<code>context</code>などを発行するUtilsがあると便利</li>
 <li>テストケースの実行順はシャッフルすることで実行順依存の結果を排除する</li>
 <li>ServiceごとにMock定義を書くのはめんどくさいのでジェネレータも作った
-
 <ul>
 <li><a href="https://github.com/Code-Hex/funcy-mock">https://github.com/Code-Hex/funcy-mock</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="go言語による2年半の新規プロダクト開発とその総括">Go言語による2年半の新規プロダクト開発とその総括</h1>
-
 <p><a href="https://twitter.com/cowsys">@cowsys</a></p>
-
 <p><a href="https://speakerdeck.com/cowsys/goyan-yu-niyoru2nian-ban-falsexin-gui-hurotakutokai-fa-tosofalsezong-gua">https://speakerdeck.com/cowsys/goyan-yu-niyoru2nian-ban-falsexin-gui-hurotakutokai-fa-tosofalsezong-gua</a></p>
-
 <p>株式会社ソウゾウ時代に二年半メルカリアッテでGoの開発をして学んだこと。</p>
-
 <ul>
 <li>メルカリアッテ二年半で2年半バックエンドエンジニアとしてGoを書いた
-
 <ul>
 <li>それまではPHPerでGo未経験</li>
-</ul></li>
+</ul>
+</li>
 <li>4つのポイントでGoに燃えた</li>
 <li>simpleな言語仕様/思想で複雑なドメインを解決する
-
 <ul>
 <li>言語仕様が薄く、頭に入れておくべき情報がコンパクト</li>
 <li>interfaceや構造体埋め込みを利用した設計をしていれば、頭に入れておくべき情報もコンパクトで済む</li>
 <li>”モダンな実装方式を理解”するのも薄くすんだので、ドメインや周辺アーキテクチャの理解に時間を当てられた</li>
 <li>「愚直に書く」という積み重ねを着実にしていけばより複雑な問題も解決出来るようになる
-
 <ul>
 <li>実装方式が陳腐がしないため</li>
-</ul></li>
-</ul></li>
+</ul>
+</li>
+</ul>
+</li>
 <li>コンピュータリソース・Go言語のツールキットを最大限活用した、実装能力のempowerment
-
 <ul>
 <li>コンパイルやGoの各種ツール、IDEを活用して自分のアタマを本質的な問題解決にフォーカスしてアウトプットを最大化したい</li>
 <li>Golandを使って、「間違い」の混入、「思い出す」ための消費をより少なく出来ないか試している</li>
-</ul></li>
+</ul>
+</li>
 <li>High Perfomanceなプログラミング
-
 <ul>
 <li>Dave Cheney-sanのトレーニングを受けて目覚めた。
-
 <ul>
 <li><a href="https://go-talks.appspot.com/github.com/davecheney/high-performance-go-workshop/high-performance-go-workshop.slide#1">High Performance Go</a></li>
-</ul></li>
+</ul>
+</li>
 <li>ハードウェアの性能を最大限引き出すためのプログラミング</li>
-<li>&ldquo;札束&rdquo;的な解決に頼らずパフォーマンスを出すためのプログラミング</li>
-</ul></li>
+<li>&ldquo;札束&quot;的な解決に頼らずパフォーマンスを出すためのプログラミング</li>
+</ul>
+</li>
 <li>チーム開発におけるGo言語
-
 <ul>
 <li>取り巻く・利用する情報が多いほどチーム内でブレのない認識統一が出来るのは強力
-
 <ul>
 <li>型（コンパイル）による裏付け</li>
 <li>in/outが自明であること</li>
-</ul></li>
+</ul>
+</li>
 <li>消耗しなかった集中力/節約できた時間でよりプロダクト/teamとしてアウトプットが出せると感じた</li>
-</ul></li>
+</ul>
+</li>
 <li>質疑応答
-
 <ul>
 <li>逆にGoで不満があるところは？
-
 <ul>
 <li>さすがに(<code>html/template</code>pkgを使って)Web ViewをGoで書くのは辛みを感じる</li>
-</ul></li>
-</ul></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
         </div>
         
@@ -587,9 +553,9 @@ APIゲートウェイ使って実現したい世界やサービスメッシュ�
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -667,10 +633,16 @@ APIゲートウェイ使って実現したい世界やサービスメッシュ�
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -682,12 +654,6 @@ APIゲートウェイ使って実現したい世界やサービスメッシュ�
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -169,20 +169,15 @@
           
           
           
-          
-
-<p>golang.tokyo #14はgroutineとchannelの話。<br />
-@morkuniさんの発表は入門編、@knsh14さんの発表はdeep diveという感じで非常によかった。<br />
-「golangは言語仕様が簡素だからすぐ覚えられる」とよく言われるけど、並行処理に関しては結構スキルがいるイメージ。<br />
+          <p>golang.tokyo #14はgroutineとchannelの話。<br>
+@morkuniさんの発表は入門編、@knsh14さんの発表はdeep diveという感じで非常によかった。<br>
+「golangは言語仕様が簡素だからすぐ覚えられる」とよく言われるけど、並行処理に関しては結構スキルがいるイメージ。<br>
 なお、「並行処理」と「並列処理」の概念の違いはRob Pikeの以下の資料が分かりやすい。</p>
-
-<p><strong>Concurrency is not Parallelism</strong><br />
+<p><strong>Concurrency is not Parallelism</strong><br>
 <a href="https://talks.golang.org/2012/waza.slide#1">https://talks.golang.org/2012/waza.slide#1</a></p>
-
-<p>設計・実装するときにどんなことが起きるのか、どう動いているのか思い浮かぶのは重要なので、どちらの発表も非常にわかりやすくてよかった。<br />
-LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。<br />
+<p>設計・実装するときにどんなことが起きるのか、どう動いているのか思い浮かぶのは重要なので、どちらの発表も非常にわかりやすくてよかった。<br>
+LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。<br>
 以下、自分のメモ</p>
-
 <table>
 <thead>
 <tr>
@@ -190,55 +185,46 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
 <th></th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>URL</td>
 <td><a href="https://golangtokyo.connpass.com/event/82723/">https://golangtokyo.connpass.com/event/82723/</a></td>
 </tr>
-
 <tr>
 <td>会場</td>
 <td>株式会社メルカリ</td>
 </tr>
-
 <tr>
 <td>日時</td>
 <td>2018/04/16(月) 19:10 〜 22:10</td>
 </tr>
-
 <tr>
 <td>資料</td>
 <td><a href="https://golangtokyo.connpass.com/event/82723/participation">connpassイベント資料一覧</a></td>
 </tr>
-
 <tr>
 <td>ハッシュタグ</td>
 <td><a href="https://twitter.com/hashtag/golangtokyo">#golangtokyo</a></td>
 </tr>
-
 <tr>
 <td>Toggeter</td>
 <td><a href="https://togetter.com/li/1218725">https://togetter.com/li/1218725</a></td>
 </tr>
 </tbody>
 </table>
-
-<h1 id="ホリネズミでもわかるgoroutine入門-golang-tokyo-14">ホリネズミでもわかるGoroutine入門 / golang.tokyo#14</h1>
-
-<p>株式会社メルカリ/ソウゾウ 森國 泰平 / <a href="https://twitter.com/inukirom">@morikuni</a><br />
+<h1 id="ホリネズミでもわかるgoroutine入門--golangtokyo14">ホリネズミでもわかるGoroutine入門 / golang.tokyo#14</h1>
+<p>株式会社メルカリ/ソウゾウ 森國 泰平 / <a href="https://twitter.com/inukirom">@morikuni</a><br>
 <a href="https://speakerdeck.com/morikuni/golang-dot-tokyo-number-14">https://speakerdeck.com/morikuni/golang-dot-tokyo-number-14</a></p>
-
 <p>goroutine, chan, select, Wait系などのGoの平行処理に関する基本的な文法処理と注意点。</p>
-
 <ul>
 <li>goroutineの実行順は保証されない。</li>
 <li><code>panic</code>したときは同じgoroutineの中にしか伝わらない。</li>
-
-<li><p>つまり、別のgoroutineで<code>panic</code>が起きたときは<code>defer</code>も動かないし、<code>recover</code>でcatch出来ない。</p>
-
+<li>つまり、別のgoroutineで<code>panic</code>が起きたときは<code>defer</code>も動かないし、<code>recover</code>でcatch出来ない。
 <ul>
-<li><p>例: <a href="https://play.golang.org/p/SwjvfKWQ8Aw">https://play.golang.org/p/SwjvfKWQ8Aw</a></p>
+<li>例: <a href="https://play.golang.org/p/SwjvfKWQ8Aw">https://play.golang.org/p/SwjvfKWQ8Aw</a></li>
+</ul>
+</li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
@@ -276,57 +262,52 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
 	<span style="color:#268bd2">A</span>()
 	fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Hello, playground&#34;</span>)
 	time.<span style="color:#268bd2">Sleep</span>(<span style="color:#2aa198">10</span> <span style="color:#719e07">*</span> time.Second) <span style="color:#586e75">// Careless waiting...
-</span><span style="color:#586e75"></span>}</code></pre></div></li>
-</ul></li>
-
-<li><p>channelは読み込み、書き込み、読み書き可能なchannelを作れる</p>
-
+</span><span style="color:#586e75"></span>}
+</code></pre></div><ul>
+<li>channelは読み込み、書き込み、読み書き可能なchannelを作れる
 <ul>
 <li>ただ単に合図を送りたい時は空<code>struct</code>で</li>
 <li>0バイトだから</li>
-</ul></li>
-
-<li><p>channelからのmessageは<code>select</code>で受け取る</p>
-
+</ul>
+</li>
+<li>channelからのmessageは<code>select</code>で受け取る
 <ul>
 <li>ブロックしたくないときは<code>select</code>に<code>default</code>をつける</li>
-</ul></li>
-
-<li><p>goroutineあるある。goroutineが実行されない</p>
-
+</ul>
+</li>
+<li>goroutineあるある。goroutineが実行されない
 <ul>
 <li>Waitしていないとgoroutineが実行される前に<code>main</code>が終了している</li>
 <li><code>sync.WaitGroup</code>などを使ってWaitしよう</li>
-</ul></li>
-
-<li><p>groutineあるある。for rangeループでgoroutineを複数立ち上げて配列の処理をしたら何故か結果が全部一緒</p>
-
+</ul>
+</li>
+<li>groutineあるある。for rangeループでgoroutineを複数立ち上げて配列の処理をしたら何故か結果が全部一緒
 <ul>
 <li>変数内容が毎回書き換えられているから。</li>
 <li>(これはgoroutineあるあるというかfor rangeあるある？)
-
 <ul>
 <li>「<a href="https://amazon.jp/dp/4621300253">プログラミング言語Go</a> 5.6.1 警告：ループ変数の補足」を参照</li>
-</ul></li>
+</ul>
+</li>
 <li><code>go func(e element){...}(e)</code>などとして関数の引数で受け取ろう</li>
-</ul></li>
-
-<li><p>goroutineあるある。goroutine中で呼び出し元から受け取ったスライスに<code>append</code>したら結果がぐちゃぐちゃ</p>
-
+</ul>
+</li>
+<li>goroutineあるある。goroutine中で呼び出し元から受け取ったスライスに<code>append</code>したら結果がぐちゃぐちゃ
 <ul>
 <li>競合している。</li>
 <li>そもそもgoroutine使う必要があるのか検討</li>
 <li>数値系は<code>sync/atomic</code></li>
 <li><code>sync.Mutex</code>か<code>sync.RWMutex</code>使うのがベター</li>
-</ul></li>
-
-<li><p>goroutineあるある。全ての処理が未完了のまま終了してgoroutineリークする。</p>
-
+</ul>
+</li>
+<li>goroutineあるある。全ての処理が未完了のまま終了してgoroutineリークする。
 <ul>
 <li>複数goroutineの一部の結果だけ使って次に進むときは<code>context.Context</code>を使ってキャンセルしておく</li>
 <li>（スライド中の<code>http.Get</code>を待機しているところは<code>case c &lt;- result{res, err}:</code>って書かないとダメ(<code>:</code>が抜けてる)）</li>
-
-<li><p>例: <a href="https://play.golang.org/p/Ej1UGieAz77">https://play.golang.org/p/Ej1UGieAz77</a></p>
+<li>例: <a href="https://play.golang.org/p/Ej1UGieAz77">https://play.golang.org/p/Ej1UGieAz77</a></li>
+</ul>
+</li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
@@ -357,61 +338,56 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
 	<span style="color:#719e07">go</span> <span style="color:#268bd2">task</span>(ctx, <span style="color:#2aa198">10</span>, ch)
 
 	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;Return value %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch) <span style="color:#586e75">// Wait result
-</span><span style="color:#586e75"></span>}</code></pre></div></li>
-</ul></li>
-
-<li><p>便利ツール gotrace</p>
-
+</span><span style="color:#586e75"></span>}
+</code></pre></div><ul>
+<li>便利ツール gotrace
 <ul>
 <li><a href="https://github.com/divan/gotrace">https://github.com/divan/gotrace</a></li>
 <li>traceファイルを作っておくと並行状態を可視化することができる</li>
 <li>(チューニングしたgoの実行環境が必要なので）docker環境が必要</li>
 <li>masterブランチは動かないっぽいので<a href="https://github.com/divan/gotrace/tree/go18">go18</a>ブランチをチェックアウトする必要がある</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>スライドが発表を聞いていない人でもわかるようにまとまっているので、是非<a href="https://speakerdeck.com/morikuni/golang-dot-tokyo-number-14">スライドでみたほうが良い</a>と思う。</p>
-
 <p>自分はそこそこわかっているつもりだったが<code>context.Context</code>併用するサンプルコード書くらいでちょっとつまったので復習しないと…</p>
-
 <h1 id="チャネルのしくみ">チャネルのしくみ</h1>
-
-<p>KLab 株式会社 鎌田健史 / <a href="https://github.com/knsh14">@knsh14</a><br />
+<p>KLab 株式会社 鎌田健史 / <a href="https://github.com/knsh14">@knsh14</a><br>
 <a href="https://speakerdeck.com/knsh14/tiyanerufalseshi-zu-mi">https://speakerdeck.com/knsh14/tiyanerufalseshi-zu-mi</a></p>
-
 <ul>
 <li>ぜひやってほしいこと
-
 <ul>
 <li>GopherConのKavya-sanの発表を調べてみる
-
 <ul>
 <li><a href="https://www.youtube.com/watch?v=KBZlN0izeiY">[Youtube]GopherCon 2017: Kavya Joshi - Understanding Channels</a></li>
 <li><a href="https://github.com/gophercon/2017-talks/blob/master/KavyaJoshi-UnderstandingChannels/Kavya%20Joshi%20-%20Understanding%20Channels.pdf">github.com/gophercon/2017-talks/tree/master/KavyaJoshi-UnderstandingChannels</a></li>
-</ul></li>
-</ul></li>
+</ul>
+</li>
+</ul>
+</li>
 <li>channelのソースコードを読む
-
 <ul>
 <li><a href="https://golang.org/src/runtime/chan.go">https://golang.org/src/runtime/chan.go</a></li>
-</ul></li>
+</ul>
+</li>
 <li><code>channel</code>とは
-
 <ul>
 <li>goroutine間でデータをやり取りする仕組み</li>
 <li>Queueによるデータ保存、やりとりするデータの型を持つ</li>
 <li>Queueが満杯のときは処理をブロックし、<code>close(chan)</code>することで送信側の終了を受信側に伝えることも出来る</li>
 <li>バッファあり/なしがある
-
 <ul>
 <li>channel生成時に容量を指定するとバッファありchannel。</li>
-</ul></li>
-</ul></li>
-
-<li><p>channelの実体は<code>hchan</code>構造体のポインタ。ヒープメモリに配置</p>
-
+</ul>
+</li>
+</ul>
+</li>
+<li>channelの実体は<code>hchan</code>構造体のポインタ。ヒープメモリに配置
 <ul>
-<li><p><a href="https://golang.org/src/runtime/chan.go#L31">https://golang.org/src/runtime/chan.go#L31</a></p>
+<li><a href="https://golang.org/src/runtime/chan.go#L31">https://golang.org/src/runtime/chan.go#L31</a></li>
+</ul>
+</li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> hchan <span style="color:#268bd2">struct</span> {
 	qcount   <span style="color:#dc322f">uint</span>           <span style="color:#586e75">// total data in the queue
 </span><span style="color:#586e75"></span>	dataqsiz <span style="color:#dc322f">uint</span>           <span style="color:#586e75">// size of the circular queue
@@ -431,225 +407,209 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
 </span><span style="color:#586e75"></span>	<span style="color:#586e75">// (in particular, do not ready a G), as this can deadlock
 </span><span style="color:#586e75"></span>	<span style="color:#586e75">// with stack shrinking.
 </span><span style="color:#586e75"></span>	lock mutex
-}</code></pre></div></li>
-</ul></li>
-
-<li><p>バッファありchannel(<code>hchan</code>構造体)の主な内部実装</p>
-
+}
+</code></pre></div><ul>
+<li>バッファありchannel(<code>hchan</code>構造体)の主な内部実装
 <ul>
 <li>データ保持用の循環リスト(配列)</li>
 <li>データを格納する時、配列のどの位置に入れるべきかの送信用インデックス</li>
 <li>データを取り出す時、配列どの位置から出すべきかの受信用インデックス</li>
 <li>受信待機キュー</li>
 <li>送信待機キュー</li>
-</ul></li>
-
-<li><p>channelのバッファを超える送信がされた時何が起きるか</p></li>
-
-<li><ol>
+</ul>
+</li>
+<li>channelのバッファを超える送信がされた時何が起きるか</li>
+<li>
+<ol>
 <li>送信をブロック</li>
 </ol>
-
 <ul>
 <li>スケジューラに対して止めるように指示(<code>gopark</code>)
-
 <ul>
 <li><a href="https://golang.org/src/runtime/proc.go#L273">https://golang.org/src/runtime/proc.go#L273</a></li>
-</ul></li>
+</ul>
+</li>
 <li>OS Threadは対象のgoroutineを止めた後実行から外して次のgoroutine
-
 <ul>
 <li><a href="https://golang.org/src/runtime/runtime2.go#275">https://golang.org/src/runtime/runtime2.go#275</a></li>
-</ul></li>
-</ul></li>
-
-<li><ol>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<ol start="2">
 <li>channelから見たブロック</li>
 </ol>
-
 <ul>
 <li>goroutineの停止命令</li>
 <li>今のgoroutineと送信用の値を送信待機キューに保存(<code>sendq</code>内の<code>sudog</code>構造体に保存)
-
 <ul>
 <li><a href="https://golang.org/src/runtime/runtime2.go#275">https://golang.org/src/runtime/runtime2.go#275</a></li>
-</ul></li>
-</ul></li>
-
-<li><ol>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<ol start="3">
 <li>goroutineの再開</li>
 </ol>
-
 <ul>
 <li>シンプルな取り出す処理</li>
 <li>送信待機キュー(<code>sudog</code>)に記録していたpendingされた送信用の値をQueue配列（<code>buf</code>）に追加</li>
 <li>送信待機キュー(<code>sudog</code>)に記録していたgoroutineを実行待ち状態にする</li>
-</ul></li>
-
-<li><p>channelの受信側がブロックする場合は何が起きるのか</p></li>
-
-<li><ol>
+</ul>
+</li>
+<li>channelの受信側がブロックする場合は何が起きるのか</li>
+<li>
+<ol>
 <li>基本的には送信側のブロックの場合と逆</li>
 </ol>
-
 <ul>
 <li>（受信待機キューで似たようなことが起きるイメージ？）</li>
-</ul></li>
-
-<li><ol>
+</ul>
+</li>
+<li>
+<ol start="2">
 <li>goroutineを再開する</li>
 </ol>
-
 <ul>
 <li>受信待機キュー(<code>recvq</code>内の<code>sudog</code>）にある要素にデータ保持用の循環リスト(<code>buf</code>)の内容を渡す</li>
 <li>受信待機キュー(<code>recvq</code>内の<code>sudog</code>)に記録していたgoroutineを実行待ち状態にする</li>
-</ul></li>
-
-<li><p>バッファなしの場合は常にブロックが発生。基本的にはバッファありと同じ</p></li>
-
-<li><p><code>select</code>で使うとどうなるか</p>
-
+</ul>
+</li>
+<li>バッファなしの場合は常にブロックが発生。基本的にはバッファありと同じ</li>
+<li><code>select</code>で使うとどうなるか
 <ul>
 <li>全部のchennelがロック、待ち状態になり、勝ったcaseのところから再開される</li>
-</ul></li>
 </ul>
-
-<p>なんとなく使っていたchannelが実際にどういう実装になっているか図解されながら丁寧に解説されていた。<br />
-シュラスコを盛り込んだ挙動の例も妙な親しみ？とっつきやすさ？があってよかったと思う。<br />
-発表手法としても見習いたい。<br />
+</li>
+</ul>
+<p>なんとなく使っていたchannelが実際にどういう実装になっているか図解されながら丁寧に解説されていた。<br>
+シュラスコを盛り込んだ挙動の例も妙な親しみ？とっつきやすさ？があってよかったと思う。<br>
+発表手法としても見習いたい。<br>
 ちゃんとGopherConの動画を見ながらスライドも読もう。</p>
-
-<h1 id="lt1-vgo-versioned-go-prototype-golangtokyo">LT1: vgo(Versioned Go Prototype) #golangtokyo</h1>
-
-<p><a href="https://twitter.com/tanksuzuki">@Asuka Suzuki</a><br />
+<h1 id="lt1-vgoversioned-go-prototype-golangtokyo">LT1: vgo(Versioned Go Prototype) #golangtokyo</h1>
+<p><a href="https://twitter.com/tanksuzuki">@Asuka Suzuki</a><br>
 <a href="https://speakerdeck.com/tanksuzuki/vgo-versioned-go-prototype-number-golangtokyo">https://speakerdeck.com/tanksuzuki/vgo-versioned-go-prototype-number-golangtokyo</a></p>
-
 <p><a href="https://gopherize.com/">全人類をgopher化する</a>tankszukiさんの<code>vgo</code>の発表</p>
-
 <p><a href="https://gopherize.com/">https://gopherize.com/</a></p>
-
 <ul>
 <li>vgoは<a href="https://swtch.com/~rsc/">Russ Cox</a>が2018年2月に発表したgoコマンドに導入される予定のパッケージ管理機能
-
 <ul>
 <li><a href="https://research.swtch.com/vgo">https://research.swtch.com/vgo</a></li>
 <li><a href="https://github.com/golang/vgo">https://github.com/golang/vgo</a></li>
 <li><a href="https://github.com/golang/go/wiki/vgo">https://github.com/golang/go/wiki/vgo</a></li>
-</ul></li>
+</ul>
+</li>
 <li>go1.11でテクニカルレビュー、go1.12で導入予定</li>
 <li>vgoで変わること</li>
-<li>1. ビルド時に依存性解決
-
+<li>
+<ol>
+<li>ビルド時に依存性解決</li>
+</ol>
 <ul>
 <li><code>go get</code>なして<code>vgo build</code></li>
 <li><code>go.mod</code>ファイルで依存性管理</li>
 <li><code>go.mod</code>ファイル内ではセマンティックバージョニングで管理</li>
-</ul></li>
-<li>2. vendorディレクトリ不要
-
+</ul>
+</li>
+<li>
+<ol start="2">
+<li>vendorディレクトリ不要</li>
+</ol>
 <ul>
 <li><code>$GOPATH/src/v/</code>配下でバージョンごとに管理</li>
-</ul></li>
-<li>3. 破壊的変更が入る時はimport pathを変える(これは作成者の性善説？)
-
+</ul>
+</li>
+<li>
+<ol start="3">
+<li>破壊的変更が入る時はimport pathを変える(これは作成者の性善説？)</li>
+</ol>
 <ul>
 <li><strong>後方互換義務化</strong></li>
-</ul></li>
-<li>4. 可能な限り古いバージョンが選択される
-
+</ul>
+</li>
+<li>
+<ol start="4">
+<li>可能な限り古いバージョンが選択される</li>
+</ol>
 <ul>
 <li>「可能な限り最新」はビルド再現性に問題がある</li>
 <li>新しいバージョンに向けたいときは<code>go.mod</code>を編集</li>
-</ul></li>
 </ul>
-
-<p><code>vgo</code>の発表は初めて聞いた。なんだかんだドキュメント読んでいなかったので、とても助かる。<br />
+</li>
+</ul>
+<p><code>vgo</code>の発表は初めて聞いた。なんだかんだドキュメント読んでいなかったので、とても助かる。<br>
 ほぼスライドの引用になってしまったのだが、図示などがあるのでぜひスライドで詳細を確認したほうが良いと思う。</p>
-
 <p>ちなみにドキュメントの日本語訳もある</p>
-
-<p><strong>和訳: Go &amp; Versioning</strong><br />
+<p><strong>和訳: Go &amp; Versioning</strong><br>
 <a href="https://qiita.com/nekketsuuu/items/36f00484ff7c30fd2007">https://qiita.com/nekketsuuu/items/36f00484ff7c30fd2007</a></p>
-
 <h1 id="lt2-自社のメインプロダクトにgoを導入したぞ">LT2: 自社のメインプロダクトにGoを導入したぞ＋＋</h1>
-
-<p><a href="https://twitter.com/kurikazu">@kurikazu</a><br />
+<p><a href="https://twitter.com/kurikazu">@kurikazu</a><br>
 <a href="https://www.slideshare.net/kurikazu/go-94167920">https://www.slideshare.net/kurikazu/go-94167920</a></p>
-
 <p>スマホアプリのバックエンドサーバ間のAPIゲートウェイをGoでリプレースした話</p>
-
 <ul>
 <li>プロジェクトメンバーがみんなGo初心者の状態から始めた
-
 <ul>
 <li>A Tour of Goから始める</li>
-</ul></li>
+</ul>
+</li>
 <li>課題1:フレームワークの選定
-
 <ul>
 <li>使わず1から書いた</li>
 <li>言語知識が浅い状態でコード自動生成などをしても辛いだけだった</li>
-</ul></li>
+</ul>
+</li>
 <li>課題2: 正しい書き方がわからない
-
 <ul>
 <li>メンバーみんなでコードを書いてレビューすることでチームレベルを上げていった</li>
 <li>テストコードを書いていたので、理解と共にリファクタリングも出来た</li>
-</ul></li>
+</ul>
+</li>
 <li>課題3: 運用について
-
 <ul>
 <li>仕様書はMarkdown、Swagger、Drone.ioでビルド、Jenkinsでデプロイ</li>
 <li>ローリングアップデートの方法はわからなかったので、随時LBから切り離してバイナリを再起動している</li>
-</ul></li>
 </ul>
-
-<p>フレームワークを使わなかったってことはswagger定義は自動生成しているわけではない？<br />
-バイナリの再起動ということはコンテナ化まではしていない？<br />
-新しい言語への挑戦に限らず、全員のドメイン知識が低い状態で新しいプロダクトに挑戦する時のチームビルディングとしても参考になるかもしれない。<br />
+</li>
+</ul>
+<p>フレームワークを使わなかったってことはswagger定義は自動生成しているわけではない？<br>
+バイナリの再起動ということはコンテナ化まではしていない？<br>
+新しい言語への挑戦に限らず、全員のドメイン知識が低い状態で新しいプロダクトに挑戦する時のチームビルディングとしても参考になるかもしれない。<br>
 もっと詳しい話聞けたらなと思った。</p>
-
 <h1 id="lt3-linterを作ってみよう">LT3: linterを作ってみよう</h1>
-
-<p><a href="https://twitter.com/dice_zu">@daisuzu</a><br />
+<p><a href="https://twitter.com/dice_zu">@daisuzu</a><br>
 <a href="https://daisuzu.github.io/golang-tokyo-14/#1">https://daisuzu.github.io/golang-tokyo-14/#1</a></p>
-
 <p>linterを作ってみた話。</p>
-
 <p><a href="https://github.com/daisuzu/gsc">https://github.com/daisuzu/gsc</a></p>
-
 <p>現段階では<code>context.Context</code>のスコープをチェックする機能が実装済み。</p>
-
 <ul>
 <li>チーム独自ルールなども静的解析したいと思った時、既存のツールでは要求を満たせない</li>
 <li>いくつかのパッケージを使えば静的解析ツールを作ることができる
-
 <ul>
 <li><a href="https://golang.org/pkg/go/ast/">go/ast</a></li>
 <li><a href="https://golang.org/pkg/go/parser/">go/parser</a></li>
 <li><a href="https://golang.org/pkg/go/token/">go/token</a></li>
 <li><a href="https://golang.org/pkg/go/types/">go/types</a></li>
 <li><a href="https://godoc.org/golang.org/x/tools/go">golang.org/x/tools/go</a></li>
-</ul></li>
+</ul>
+</li>
 <li>とはいえlinterを作るのは面倒事が多い。
-
 <ul>
 <li>ファイル、ディレクトリ、パッケージで異なるASTの取得処理</li>
 <li>フォーマットやexit codeの処理</li>
 <li>ASTが絡むテストの用意</li>
-</ul></li>
+</ul>
+</li>
 <li><code>honnef.co/go/tools/lint</code>を使うとラク(GitHubのURLはちょっと違う)
-
 <ul>
 <li><a href="https://godoc.org/honnef.co/go/tools/lint">https://godoc.org/honnef.co/go/tools/lint</a></li>
 <li>実装、テストが（何も使わないよりは？）ラクに書ける</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p><code>honnef.co/go/tools/lint</code>初めて知った！パーサーやろうやろうとしていて全然できていないので、静的解析ツールの作成から入ると実用目的でモチベーション保ちながらできるかな？</p>
-
 <h1 id="関連">関連</h1>
-
 <ul>
 <li><a href="/2018/03/14/report-golang-tokyo-13-android-with-gomobile/">[Go]golang.tokyo #13 - Macでハンズオンアプリを動かすまでに必要だったこと #golangtokyo</a></li>
 <li><a href="/2018/01/31/golangtokyo-12/">[Go]golang.tokyo #12 参加メモ #golangtokyo</a></li>
@@ -745,9 +705,9 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -825,10 +785,16 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -840,12 +806,6 @@ LTではvgoの話を聞けたり今回も内容が盛りだくさんだった。
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

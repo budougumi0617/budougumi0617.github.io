@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -169,44 +169,33 @@
           
           
           
-          
-
-<p><a href="https://github.com/go-chi/chi">https://github.com/go-chi/chi</a></p>
-
-<p><code>go-chi/chi</code>はGolangのWebサーバを作成するときに使うシンプルなHTTPルータ。<br />
+          <p><a href="https://github.com/go-chi/chi">https://github.com/go-chi/chi</a></p>
+<p><code>go-chi/chi</code>はGolangのWebサーバを作成するときに使うシンプルなHTTPルータ。<br>
 Swagger定義ではないが、ルーティングの設定をMarkdownやJSONで動的に出力することができたのでそのメモ。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li><code>go-chi/chi</code>でHTTPルーティングを設定した<code>chi.Router</code>を作成する。</li>
 <li>Routerの設定からMarkdownを生成すると、READMEなどに貼れるルーティングのMarkdownを生成できる。
-
 <ul>
 <li><code>docgen.MarkdownRoutesDoc(router, newMarkdownOpts())</code></li>
-</ul></li>
+</ul>
+</li>
 <li>Routerの設定からJSON文字列を生成することもできる。
-
 <ul>
 <li><code>docgen.JSONRoutesDoc(router)</code></li>
-</ul></li>
+</ul>
+</li>
 <li>Markdownの場合はリンクを作成する際のURL設定などいくつかのオプションが必要</li>
 <li>正直<code>goa</code>のswagger定義の自動生成などと比べるとあまり活用できる気がしないのでおまけ程度の機能…？</li>
 </ul>
-
-<p>今回試したHTTPのルーティングの定義は以下。<br />
+<p>今回試したHTTPのルーティングの定義は以下。<br>
 <a href="https://github.com/budougumi0617/simple-json-api-by-chi/blob/master/router.go">https://github.com/budougumi0617/simple-json-api-by-chi/blob/master/router.go</a></p>
-
-<p>実際に出力したMarkdownは以下にある。<br />
+<p>実際に出力したMarkdownは以下にある。<br>
 <a href="https://github.com/budougumi0617/simple-json-api-by-chi#docgen-result-formated-by-markdown">https://github.com/budougumi0617/simple-json-api-by-chi#docgen-result-formated-by-markdown</a></p>
-
-<p>また、JSON文字列として出力した結果は以下。<br />
+<p>また、JSON文字列として出力した結果は以下。<br>
 <a href="https://github.com/budougumi0617/simple-json-api-by-chi#docgen-result-formated-by-json">https://github.com/budougumi0617/simple-json-api-by-chi#docgen-result-formated-by-json</a></p>
-
 <h1 id="自動生成のやり方">自動生成のやり方</h1>
-
-<h2 id="go-chi-chi-でhttpルーティングを設定した-chi-router-を作成する"><code>go-chi/chi</code>でHTTPルーティングを設定した<code>chi.Router</code>を作成する。</h2>
-
+<h2 id="go-chichiでhttpルーティングを設定したchirouterを作成する"><code>go-chi/chi</code>でHTTPルーティングを設定した<code>chi.Router</code>を作成する。</h2>
 <p>HTTPルーティングの設定（<code>chi.Router</code>にハンドラなどを定義していく）に特に追加で行う設定はない。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">GetTodoRouter</span>() chi.Router {
 	router <span style="color:#719e07">:=</span> chi.<span style="color:#268bd2">NewRouter</span>()
@@ -222,12 +211,10 @@ Swagger定義ではないが、ルーティングの設定をMarkdownやJSONで�
 	router.<span style="color:#268bd2">HandleFunc</span>(<span style="color:#2aa198">&#34;/todos/{todoID}&#34;</span>, TodoShow)
 	router.<span style="color:#268bd2">Post</span>(<span style="color:#2aa198">&#34;/todos&#34;</span>, TodoCreate)
 	<span style="color:#719e07">return</span> router
-}</code></pre></div>
-<h2 id="routerからmarkdownを生成する">RouterからMarkdownを生成する</h2>
-
-<p>Markdownを生成する場合はオプションを指定しておく必要がある。<br />
+}
+</code></pre></div><h2 id="routerからmarkdownを生成する">RouterからMarkdownを生成する</h2>
+<p>Markdownを生成する場合はオプションを指定しておく必要がある。<br>
 <a href="https://github.com/go-chi/docgen/blob/ac43d9a63f3b58b1e82922411d2de365d896ee72/markdown.go#L22-L37">https://github.com/go-chi/docgen/blob/ac43d9a63f3b58b1e82922411d2de365d896ee72/markdown.go#L22-L37</a></p>
-
 <pre><code>type MarkdownOpts struct {
 	// ProjectPath is the base Go import path of the project
 	ProjectPath string
@@ -244,9 +231,7 @@ Swagger定義ではないが、ルーティングの設定をMarkdownやJSONで�
 	// map[string]string{&quot;github.com/my/package/vendor/go-chi/chi/&quot;: &quot;https://github.com/go-chi/chi/blob/master/&quot;}
 	URLMap map[string]string
 }
-</code></pre>
-
-<p><code>MarkdownOpts</code>を生成したあとは<code>docgen.MarkdownRoutesDoc(r chi.Router, opts docgen.MarkdownOpts) string</code>を呼ぶだけだ。
+</code></pre><p><code>MarkdownOpts</code>を生成したあとは<code>docgen.MarkdownRoutesDoc(r chi.Router, opts docgen.MarkdownOpts) string</code>を呼ぶだけだ。
 以下のようなMarkdown文字列が得られる</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-markdown" data-lang="markdown"><span style="color:#cb4b16"># github.com/budougumi0617/simple-json-api-by-chi
 </span><span style="color:#cb4b16"></span>
@@ -261,84 +246,63 @@ Sample JSON API server by go-chi.
 <span style="color:#719e07">-</span> **/***
 	<span style="color:#719e07">-</span> _*_
 		<span style="color:#719e07">-</span> [<span style="color:#268bd2">main.Index</span>](/handler.go#L16)
-...</code></pre></div>
-<p>実際に使うと以下のようになる。</p>
-
-<hr />
-
-<h1 id="github-com-budougumi0617-simple-json-api-by-chi">github.com/budougumi0617/simple-json-api-by-chi</h1>
-
+...
+</code></pre></div><p>実際に使うと以下のようになる。</p>
+<hr>
+<h1 id="githubcombudougumi0617simple-json-api-by-chi">github.com/budougumi0617/simple-json-api-by-chi</h1>
 <p>Sample JSON API server by go-chi.</p>
-
 <h2 id="routes">Routes</h2>
-
-<p><details>
-<summary><code>/*</code></summary></p>
-
+<!-- raw HTML omitted -->
 <ul>
 <li><a href="https://github.com/go-chi/chi/blob/master/middleware/logger.go#L30">Logger</a></li>
 <li><strong>/</strong>*
-
 <ul>
 <li><em>*</em>
-
 <ul>
 <li><a href="/handler.go#L16">main.Index</a></li>
-</ul></li>
-</ul></li>
 </ul>
-
-<p></details>
-<details>
-<summary><code>/todos</code></summary></p>
-
+</li>
+</ul>
+</li>
+</ul>
+<!-- raw HTML omitted -->
 <ul>
 <li><a href="https://github.com/go-chi/chi/blob/master/middleware/logger.go#L30">Logger</a></li>
 <li><strong>/todos</strong>
-
 <ul>
 <li><em>POST</em>
-
 <ul>
 <li><a href="/handler.go#L36">main.TodoCreate</a></li>
-</ul></li>
+</ul>
+</li>
 <li><em>*</em>
-
 <ul>
 <li><a href="/handler.go#L21">main.TodoIndex</a></li>
-</ul></li>
-</ul></li>
 </ul>
-
-<p></details>
-<details>
-<summary><code>/todos/{todoID}</code></summary></p>
-
+</li>
+</ul>
+</li>
+</ul>
+<!-- raw HTML omitted -->
 <ul>
 <li><a href="https://github.com/go-chi/chi/blob/master/middleware/logger.go#L30">Logger</a></li>
 <li><strong>/todos/{todoID}</strong>
-
 <ul>
 <li><em>*</em>
-
 <ul>
 <li><a href="/handler.go#L30">main.TodoShow</a></li>
-</ul></li>
-</ul></li>
 </ul>
-
-<p></details></p>
-
+</li>
+</ul>
+</li>
+</ul>
+<!-- raw HTML omitted -->
 <p>Total # of routes: 3</p>
-
-<hr />
-
-<p>謎技術？でMarkdownなのに折りたたみなどを生成できる。GitHubのREADMEとしてもちゃんと認識できていた。<br />
-要素が意味する説明は生成されないので、予めコンテキストを共有している人同士じゃないと意味が無いかも。<br />
+<hr>
+<p>謎技術？でMarkdownなのに折りたたみなどを生成できる。GitHubのREADMEとしてもちゃんと認識できていた。<br>
+要素が意味する説明は生成されないので、予めコンテキストを共有している人同士じゃないと意味が無いかも。<br>
 GitHubのREADMEなどに貼ると、各ハンドラ定義の実装へのリンクがちゃんと貼れるのは良い感じ。(<code>main.TodoShow</code>など)</p>
-
 <h1 id="routerからjsonを生成する">RouterからJSONを生成する</h1>
-
 <p>JSONの場合は<code>docgen.JSONRoutesDoc(r chi.Router) string</code>を呼ぶだけで以下のようなJSON文字列が出力される。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">  <span style="color:#2aa198">&#34;router&#34;</span>: {
     <span style="color:#268bd2">&#34;middlewares&#34;</span>: [
@@ -365,18 +329,14 @@ GitHubのREADMEなどに貼ると、各ハンドラ定義の実装へのリン�
         }
       },
       <span style="color:#268bd2">&#34;/todos&#34;</span>: {
-        ...</code></pre></div>
-<p>vendorディレクトリに入っているmiddlewareを使った場合、pkgがそのままvendorのPATHになってしまっている。<br />
+        ...
+</code></pre></div><p>vendorディレクトリに入っているmiddlewareを使った場合、pkgがそのままvendorのPATHになってしまっている。<br>
 （Markdownの場合はオプションでマッピングすることができる。）</p>
-
 <h1 id="終わりに">終わりに</h1>
-
 <p>今回のサンプルコードは以下のリポジトリにある。</p>
-
 <p><a href="https://github.com/budougumi0617/simple-json-api-by-chi">https://github.com/budougumi0617/simple-json-api-by-chi</a></p>
-
-<p>MarkdownでRESTマッピングを生成してもメモレベルかもしれないが、自動生成したかったら<code>goa</code>なのかなーと思っていたので、ありがたい。<br />
-ドキュメントを作るためにはまず<code>chi.Router</code>を構築しなければいけないのはご愛嬌…。<br />
+<p>MarkdownでRESTマッピングを生成してもメモレベルかもしれないが、自動生成したかったら<code>goa</code>なのかなーと思っていたので、ありがたい。<br>
+ドキュメントを作るためにはまず<code>chi.Router</code>を構築しなければいけないのはご愛嬌…。<br>
 もっとちゃんと使いたかったら自分でJSONからHTMLなどに変換するコンバータを作ったほうがよいのかな？</p>
 
         </div>
@@ -468,9 +428,9 @@ GitHubのREADMEなどに貼ると、各ハンドラ定義の実装へのリン�
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -548,10 +508,16 @@ GitHubのREADMEなどに貼ると、各ハンドラ定義の実装へのリン�
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -563,12 +529,6 @@ GitHubのREADMEなどに貼ると、各ハンドラ定義の実装へのリン�
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

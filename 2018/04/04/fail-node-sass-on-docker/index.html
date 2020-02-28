@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -169,36 +169,27 @@
           
           
           
-          
-
-<p>2,3日ハマっていたのでメモ。<br />
+          <p>2,3日ハマっていたのでメモ。<br>
 Dockerでnode-SASSを使ったら以下のエラーが出て動かなかった。</p>
-
 <pre><code>sample-app    |         Module build failed: Error: Missing binding /usr/src/app/node_modules/node-sass/vendor/linux-x64-57/binding.node
 sample-app    |         Node Sass could not find a binding for your current environment: Linux 64-bit with Node.js 8.x
 sample-app    |
 sample-app    |         Found bindings for the following environments:
 sample-app    |           - OS X 64-bit with Node.js 8.x
 ...
-</code></pre>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+</code></pre><h1 id="tldr">TL;DR</h1>
 <ul>
 <li>ホストの<code>node_modules</code>ディレクトリをコンテナにマウントしてしまうとOS差異があったときに<code>node-sass</code>の依存性解決に失敗する</li>
 <li><code>node_modules</code>ディレクトリはマウントしないようにしておく
-
 <ul>
 <li><code>docker run</code>するときは<code>-v /your-project-root-in-container/node_modules</code></li>
 <li><code>docker compose</code>するときは<code>volumes</code>オプションで<code>- /your-project-root-in-container/node_modules</code></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="問題">問題</h1>
-
-<p>Reactとwebpack-dev-serverを使った開発用コンテナを作っていたが、コンテナを起動するとnode-SASSが以下のエラーで動かなかった。<br />
+<p>Reactとwebpack-dev-serverを使った開発用コンテナを作っていたが、コンテナを起動するとnode-SASSが以下のエラーで動かなかった。<br>
 編集したコードをホットリロードをしながら開発したかったので、当然ホストのReactプロジェクトディレクトリはコンテナにマウントして起動していた。</p>
-
 <pre><code>...
 sample-app    |         Entrypoint undefined = extract-text-webpack-plugin-output-filename
 sample-app    |         [./node_modules/css-loader/index.js??ref--4-1!./node_modules/sass-loader/lib/loader.js??ref--4-2!./src/css/index.scss] ./node_modules/css-loader??ref--4-1!./node_modules/sass-loader/lib/loader.js??ref--4-2!./src/css/index.scss 1.03 KiB {0} [built] [failed] [1 error]
@@ -210,39 +201,24 @@ sample-app    |
 sample-app    |         Found bindings for the following environments:
 sample-app    |           - OS X 64-bit with Node.js 8.x
 ...
-</code></pre>
-
-<p><code>Linux</code>コンテナなのにOSX用のバイナリしかなくて起動に失敗しているらしい。</p>
-
+</code></pre><p><code>Linux</code>コンテナなのにOSX用のバイナリしかなくて起動に失敗しているらしい。</p>
 <p>以下のstack overflowなどをみて<code>curl</code>コマンドでLinux用のバイナリを直接配置しておくとか、<code>npm rebuild node-sass</code>でリビルドしてしまうなどを試したのだがどれもうまくいかなかった。</p>
-
-<p><strong>Yarn not rebuilding node-sass</strong><br />
+<p><strong>Yarn not rebuilding node-sass</strong><br>
 <a href="https://github.com/yarnpkg/yarn/issues/4867">https://github.com/yarnpkg/yarn/issues/4867</a></p>
-
-<p><strong>Issue to node-sass and Docker</strong><br />
+<p><strong>Issue to node-sass and Docker</strong><br>
 <a href="https://stackoverflow.com/questions/41942769/issue-to-node-sass-and-docker">https://stackoverflow.com/questions/41942769/issue-to-node-sass-and-docker</a></p>
-
-<p><strong>Node/Docker is node-sass not finding installed bindings (via Webpack)</strong><br />
+<p><strong>Node/Docker is node-sass not finding installed bindings (via Webpack)</strong><br>
 <a href="https://stackoverflow.com/questions/49138931/node-docker-is-node-sass-not-finding-installed-bindings-via-webpack">https://stackoverflow.com/questions/49138931/node-docker-is-node-sass-not-finding-installed-bindings-via-webpack</a></p>
-
 <h1 id="解決策">解決策</h1>
-
 <p>結局正解だったのはこれ。</p>
-
-<p><strong>Docker ALPINE Linux throws node-sass missing binding error</strong><br />
+<p><strong>Docker ALPINE Linux throws node-sass missing binding error</strong><br>
 <a href="https://github.com/sass/node-sass/issues/2165#issuecomment-347043659">https://github.com/sass/node-sass/issues/2165#issuecomment-347043659</a></p>
-
 <p>プロジェクトディレクトリをまるごとマウントしていると、<code>node_modules</code>ディレクトリまでマウントしてしまう。
 そのため、<code>node_modules</code>だけはホストのディレクトリをマウントしないように指定しておく必要があった。
 その設定をしておけばわざわざ<code>npm rebuild</code>などしなくてもちゃんとLinux向けのバイナリだけが取得された状態で起動出来るようになった。</p>
-
 <p><code>docker run</code>で実行するときは以下のような指定になる。</p>
-
 <pre><code>$ docker run -it -v /proj-root-in-host:/proj-root-in-container -v /proj-root-in-container/node_modules -p 8080:8080 --rm sample-app
-</code></pre>
-
-<p><code>docker-compose.yml</code>に設定を書いておくときは以下のような指定になる。</p>
-
+</code></pre><p><code>docker-compose.yml</code>に設定を書いておくときは以下のような指定になる。</p>
 <pre><code>  sample-app:
     container_name: sample-app
     build:
@@ -252,13 +228,9 @@ sample-app    |           - OS X 64-bit with Node.js 8.x
     volumes:
       - /proj-root-in-host:/proj-root-in-container
       - /proj-root-in-container/node_modules
-</code></pre>
-
-<p>改めてdockerコマンドのオプションやdocker-compose.ymlの書き方を調べる良い機会にもなった。</p>
-
+</code></pre><p>改めてdockerコマンドのオプションやdocker-compose.ymlの書き方を調べる良い機会にもなった。</p>
 <h1 id="参考">参考</h1>
-
-<p><strong>Compose file version 3 reference|volumes</strong><br />
+<p><strong>Compose file version 3 reference|volumes</strong><br>
 <a href="https://docs.docker.com/compose/compose-file/#volumes">https://docs.docker.com/compose/compose-file/#volumes</a></p>
 
         </div>
@@ -346,9 +318,9 @@ sample-app    |           - OS X 64-bit with Node.js 8.x
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -426,10 +398,16 @@ sample-app    |           - OS X 64-bit with Node.js 8.x
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -441,12 +419,6 @@ sample-app    |           - OS X 64-bit with Node.js 8.x
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -173,21 +173,14 @@
           
           
           
-          
-
-<p>Spinnakerで自動リリース分析をするための環境構築をしている。</p>
-
-<p><strong>Try out Halyard on GKE</strong><br />
+          <p>Spinnakerで自動リリース分析をするための環境構築をしている。</p>
+<p><strong>Try out Halyard on GKE</strong><br>
 <a href="https://www.spinnaker.io/setup/quickstart/halyard-gke/">https://www.spinnaker.io/setup/quickstart/halyard-gke/</a></p>
-
-<p><strong>Set up canary support</strong><br />
+<p><strong>Set up canary support</strong><br>
 <a href="https://www.spinnaker.io/setup/canary/">https://www.spinnaker.io/setup/canary/</a></p>
-
 <p>Spinnakerの設定を変更して<code>hal deploy apply</code>したらそのままレスポンスが帰ってこなくなった。
 表題のエラー内容をloggingで見つけるまでだいぶ悩んでしまったのでメモ。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>Stackdriver周りの設定を有効にしてSpinnakerを再起動しようとしたらコマンドが終わらなくなった</li>
 <li>Stackdriver loggingでGKEコンテナのログを調べた。</li>
@@ -196,42 +189,25 @@
 <li>利用しているサービスアカウントにStackdriverとモニタリングの編集権限をつけた</li>
 <li><code>hal deploy apply</code>で再起動することを確認</li>
 </ul>
-
-<h1 id="hal-deploy-apply-が終わらない"><code>hal deploy apply</code>が終わらない</h1>
-
+<h1 id="hal-deploy-applyが終わらない"><code>hal deploy apply</code>が終わらない</h1>
 <p>Kayentaを有効にしたが、Stackdriverを有効にしていなかった。
 そのため、Stackdriver有効後Spinnakerを再起動しようと<code>hal deploy apply</code>したところ、エラーレスポンスもなくずっとコマンドが終わらなく鳴ってしまった</p>
-
 <h1 id="とりあえずgkeのコンテナのログをみる">とりあえずGKEのコンテナのログをみる。</h1>
-
 <p>何か様子がおかしくなったらまずstackdriver loggingでGKEコンテナのログを見てみる。</p>
-
 <p><a href="https://console.cloud.google.com/logs">https://console.cloud.google.com/logs</a></p>
-
-<p>ログを見るときは「リソース」がGKEコンテナになっていることを確認すること。<br />
+<p>ログを見るときは「リソース」がGKEコンテナになっていることを確認すること。<br>
 自分は「Kubernetesクラスタ」のログを見ていて（別の場所を見ていて）「エラーログがない」と勘違いしていた。</p>
-
 <p>ログを確認してみると、以下のようなエラーが繰り返し出続けていた。</p>
-
 <pre><code>2018-06-16 03:31:44.000 JST
 18:31:44 Caught &lt;HttpError 403 when requesting https://monitoring.googleapis.com/v3/projects/PROJECT_ID/timeSeries?alt=json returned &quot;User is not authorized to access the project monitoring records: Requires permission monitoring.timeSeries.create&quot;&gt;
-</code></pre>
-
-<pre><code>2018-06-16 03:35:59.000 JST
+</code></pre><pre><code>2018-06-16 03:35:59.000 JST
 18:35:59 Caught &lt;HttpError 400 when requesting https://monitoring.googleapis.com/v3/projects/PROJECT_ID/timeSeries?alt=json returned &quot;Field timeSeries[106].metricKind had an invalid value of &quot;GAUGE&quot;: Metric kind for metric custom.googleapis.com/spinnaker/clouddriver/redis.command.payloadSize.eval must be CUMULATIVE.&quot;&gt;
-</code></pre>
-
-<p>エラーを見ればなんのことはない、結局サービスアカウントの権限不足だった。<br />
+</code></pre><p>エラーを見ればなんのことはない、結局サービスアカウントの権限不足だった。<br>
 ログをもう少し漁ると、以下のようなログも見つかるはずだ。</p>
-
 <pre><code>2018-06-16 04:50:11.000 JST
 19:50:11 Using Stackdriver Credentials from &quot;/home/USER/.hal/default/staging/dependencies/926556552-gcp.json&quot;
-</code></pre>
-
-<h1 id="iamロールを修正してspinnakerを再起動する">IAMロールを修正してSpinnakerを再起動する</h1>
-
+</code></pre><h1 id="iamロールを修正してspinnakerを再起動する">IAMロールを修正してSpinnakerを再起動する</h1>
 <p>上記のjsonの中をみると紐付いているサービスアカウントのメールアドレスがわかるので、</p>
-
 <pre><code>cat .hal/default/staging/dependencies/926556552-gcp.json
 {
   &quot;type&quot;: &quot;service_account&quot;,
@@ -241,28 +217,20 @@
   &quot;client_email&quot;: &quot;gcs-service-account@???.iam.gserviceaccount.com&quot;,
   ....
 }
-</code></pre>
-
-<p>上記のサービスアカウントにモニタリング周りのIAMロールを追加で付与することでエラーは解決した。</p>
-
+</code></pre><p>上記のサービスアカウントにモニタリング周りのIAMロールを追加で付与することでエラーは解決した。</p>
 <ul>
 <li>Stackdriver Profiler エージェント</li>
 <li>モニタリング編集者</li>
 <li>Stackdriver リソース メンテナンス時間枠の編集者</li>
 </ul>
-
 <p>（正直つけすぎたかもしれない）</p>
-
 <h1 id="終わりに">終わりに</h1>
-
-<p>相変わらずIAM周りの設定でドハマりしてしまった。<br />
+<p>相変わらずIAM周りの設定でドハマりしてしまった。<br>
 普段自分はまったくインフラを直接触らないので、もう技術調査をしているときに使うサービスアカウントは最初オーナー権限にしてしまったほうが良さそうだ。</p>
-
 <h1 id="関連">関連</h1>
-
 <ul>
 <li><a href="/2018/06/14/review-continuous-delivery-with-spinnaker/">Continuous Delivery With Spinnakerでマイクロサービスの継続的デリバリーの課題と解決手法を学ぶ</a></li>
-<li><a href="/2018/06/13/403-error-when-add-google-account-for-kayenta/">hal config canary google account addすると&rdquo;Required &lsquo;compute.projects.get&rsquo; permission for&hellip;&ldquo;で403エラー #spinnaker #kayenta</a></li>
+<li><a href="/2018/06/13/403-error-when-add-google-account-for-kayenta/">hal config canary google account addすると&quot;Required &lsquo;compute.projects.get&rsquo; permission for&hellip;&ldquo;で403エラー #spinnaker #kayenta</a></li>
 <li><a href="/2018/04/27/spinnaker-introduction/">[発表資料]Spinnaker入門 #cndjp5</a></li>
 <li><a href="/2018/04/24/spinnaker-with-google-kubernetes-engine/">Spinnakerの始め方いろいろ</a></li>
 </ul>
@@ -356,9 +324,9 @@
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -436,10 +404,16 @@
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -451,12 +425,6 @@
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

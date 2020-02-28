@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -61,11 +61,10 @@
   <meta property="og:description" content="以前にDockerを使って使い捨てのMySQLを起動する方法を紹介した。今回はMySQL公式のプリセットデータを使ったMySQLコンテナを作成する。
 また、ローカルから簡単に操作するMakefileも作成した。
 
-
 budougumi0617/mysql-sakila
 
-
 https://cloud.docker.com/repository/docker/budougumi0617/mysql-sakila
+
 
 https://github.com/budougumi0617/til/blob/master/sql/Makefile
 "/>
@@ -74,11 +73,10 @@ https://github.com/budougumi0617/til/blob/master/sql/Makefile
   <meta name="twitter:description" content="以前にDockerを使って使い捨てのMySQLを起動する方法を紹介した。今回はMySQL公式のプリセットデータを使ったMySQLコンテナを作成する。
 また、ローカルから簡単に操作するMakefileも作成した。
 
-
 budougumi0617/mysql-sakila
 
-
 https://cloud.docker.com/repository/docker/budougumi0617/mysql-sakila
+
 
 https://github.com/budougumi0617/til/blob/master/sql/Makefile
 "/>
@@ -193,135 +191,96 @@ https://github.com/budougumi0617/til/blob/master/sql/Makefile
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#ある程度複雑なテーブルデータが事前投入された使い捨てのmysqlが欲しい">ある程度複雑なテーブルデータが事前投入された使い捨てのMySQLが欲しい</a></li>
-<li><a href="#サンプルデータを用意する">サンプルデータを用意する</a></li>
-<li><a href="#dockerfileを書く">Dockerfileを書く</a></li>
-<li><a href="#docker-hubに登録しておく">Docker Hubに登録しておく</a></li>
-<li><a href="#コンテナを起動してsqlの練習をするためのmakefileを作成する">コンテナを起動してSQLの練習をするためのMakefileを作成する。</a></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
           <p>以前にDockerを使って使い捨てのMySQLを起動する方法を紹介した。今回はMySQL公式のプリセットデータを使ったMySQLコンテナを作成する。
 また、ローカルから簡単に操作するMakefileも作成した。</p>
-
 <ul>
 <li>budougumi0617/mysql-sakila
-
 <ul>
 <li><a href="https://cloud.docker.com/repository/docker/budougumi0617/mysql-sakila">https://cloud.docker.com/repository/docker/budougumi0617/mysql-sakila</a></li>
-</ul></li>
+</ul>
+</li>
 <li><a href="https://github.com/budougumi0617/til/blob/master/sql/Makefile">https://github.com/budougumi0617/til/blob/master/sql/Makefile</a></li>
 </ul>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>クエリを書く素振り用に複数テーブル・複数レコードを含むMySQLコンテナイメージを作成した
-
 <ul>
 <li><a href="https://cloud.docker.com/repository/docker/budougumi0617/mysql-sakila">https://cloud.docker.com/repository/docker/budougumi0617/mysql-sakila</a></li>
 <li>テーブルやレコードなどはMySQL公式のサンプルデータを利用した
-
 <ul>
 <li><a href="https://dev.mysql.com/doc/index-other.html">https://dev.mysql.com/doc/index-other.html</a></li>
-</ul></li>
-</ul></li>
+</ul>
+</li>
+</ul>
+</li>
 <li>ローカルから簡単に操作するためにMakefileも作成した。
-
 <ul>
 <li><a href="https://github.com/budougumi0617/til/blob/master/sql/Makefile">https://github.com/budougumi0617/til/blob/master/sql/Makefile</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="ある程度複雑なテーブルデータが事前投入された使い捨てのmysqlが欲しい">ある程度複雑なテーブルデータが事前投入された使い捨てのMySQLが欲しい</h1>
-
 <p>ある程度SQLに慣れてきたので本や雑誌にある少し難しいクエリを試したくなった。
 今まではMySQLが配布している<code>world database</code>というサンプルデータを含んだDockerイメージを使っていた。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 168px; padding-bottom: 0;"><a href="https://github.com/datacharmer/test_db" data-iframely-url="//cdn.iframe.ly/wV6NcRI"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
-<iframe src="https://hatenablog-parts.com/embed?url=https%3A%2F%2Fkakakakakku.hatenablog.com%2Fentry%2F2017%2F11%2F08%2F193031" style="border: 0; width: 100%; height: 190px;" allowfullscreen scrolling="no" allow="autoplay; encrypted-media"></iframe>
-
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
 <p>だが、このデータはテーブルが3テーブルしかなく、複雑なクエリを書くことができない。テーブルを連結したりサブクエリなどを使ったクエリを練習をする場合、それなりにリレーションが張られたテーブル群が必要になる。
 毎回ローカルで自前コンテナイメージをビルドするのも面倒なので、作成したイメージをDocker Hubに登録しておくことにした。</p>
-
 <h1 id="サンプルデータを用意する">サンプルデータを用意する</h1>
-
 <p>Dockerに詰めるデータはやはりMySQL公式のサンプルデータにすることにした。
 MySQLで公開されているサンプルデータには<code>world database</code>以外にもあり、今回はテーブル数が多い<code>sakila database</code>を使う。</p>
-
 <ul>
 <li>Sakila Sample Database
-
 <ul>
 <li><a href="https://dev.mysql.com/doc/sakila/en/">https://dev.mysql.com/doc/sakila/en/</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p><code>sakira database</code>は20以上のテーブルを含んでいる。</p>
-
 <ul>
 <li>Sakila Sample Database/Structure
-
 <ul>
 <li><a href="https://dev.mysql.com/doc/sakila/en/sakila-structure.html">https://dev.mysql.com/doc/sakila/en/sakila-structure.html</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="dockerfileを書く">Dockerfileを書く</h1>
-
 <p>まず、事前データを投入したDockerイメージを作るためのDockerfileを作成する。
 コンテナ内のデータベースにデータを事前投入する方法は<a href="https://kakakakakku.hatenablog.com/entry/2017/11/08/193031">前述したブログ</a>や<a href="/2018/05/20/create-instant-mysql-by-docker/">以前に書いた記事</a>の通りで、<code>/docker-entrypoint-initdb.d</code>ディレクトリにSQLのファイルを入れておくだけだ。
 データを投入するためのSQL文(<code>sakila-data.sql</code>、<code>sakila-schema.sql</code>)は以下のページにある<code>sakila-db.zip</code>から取り出した。</p>
-
 <ul>
 <li>Other MySQL Documentation
-
 <ul>
 <li><a href="https://dev.mysql.com/doc/index-other.html">https://dev.mysql.com/doc/index-other.html</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>ただ、<code>/docker-entrypoint-initdb.d</code>ディレクトリに複数SQLファイルがあった場合、SQLの実行順序はファイル名によって決まる。
 そのため、テーブルを作成するSQL文が先に実行されるようにリネームしてコピーしている。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-dockerfile" data-lang="dockerfile"><span style="color:#719e07">FROM</span><span style="color:#2aa198"> mysql:8.0</span>
 
-COPY sakila-db/sakila-schema.sql /docker-entrypoint-initdb.d/00_sakila-schema.sql
-COPY sakila-db/sakila-data.sql /docker-entrypoint-initdb.d/01_sakila-data.sql
-COPY sakila-db/sakila.mwb /docker-entrypoint-initdb.d/sakila.mwb</code></pre></div>
-<p>上記のDockerfileと配置するSQLファイルをGitHubに公開しておく。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 168px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/mysql-sakila" data-iframely-url="//cdn.iframe.ly/Jt5MoLf"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
+<span style="color:#719e07">COPY</span> sakila-db/sakila-schema.sql /docker-entrypoint-initdb.d/00_sakila-schema.sql
+<span style="color:#719e07">COPY</span> sakila-db/sakila-data.sql /docker-entrypoint-initdb.d/01_sakila-data.sql
+<span style="color:#719e07">COPY</span> sakila-db/sakila.mwb /docker-entrypoint-initdb.d/sakila.mwb
+</code></pre></div><p>上記のDockerfileと配置するSQLファイルをGitHubに公開しておく。</p>
+<!-- raw HTML omitted -->
 <p>(リポジトリにはMySQLのバージョンを変えた2つのDockerfileが公開されている)</p>
-
 <h1 id="docker-hubに登録しておく">Docker Hubに登録しておく</h1>
-
 <p>上記のGitHubのコードからコンテナイメージを公開する。公開したイメージが以下だ。</p>
-
 <ul>
 <li><a href="https://cloud.docker.com/repository/docker/budougumi0617/mysql-sakila">https://cloud.docker.com/repository/docker/budougumi0617/mysql-sakila</a></li>
 </ul>
-
-<p>GitHubに公開しておけば、Docker Hubはコミットプッシュに連動して自動ビルドなども行なってくれる。<br />
+<p>GitHubに公開しておけば、Docker Hubはコミットプッシュに連動して自動ビルドなども行なってくれる。<br>
 上記のDockerfileを以下のビルド設定でDocker Hubに公開した。</p>
-
-<p><img src="/2019/03/20_hub_setting.png" alt="build settings" /></p>
-
+<p><img src="/2019/03/20_hub_setting.png" alt="build settings"></p>
 <p>これでGitHubの更新に合わせて、常に最新のDockerイメージを自動でビルドしてくれる。</p>
-
 <p>最低限のコマンドオプションで良ければ、以下のコマンドでDocker Hubで公開されたイメージを利用する事ができる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker run  -e <span style="color:#268bd2">MYSQL_ALLOW_EMPTY_PASSWORD</span><span style="color:#719e07">=</span>yes budougumi0617/mysql-sakila:5.7</code></pre></div>
-<h1 id="コンテナを起動してsqlの練習をするためのmakefileを作成する">コンテナを起動してSQLの練習をするためのMakefileを作成する。</h1>
-
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker run  -e <span style="color:#268bd2">MYSQL_ALLOW_EMPTY_PASSWORD</span><span style="color:#719e07">=</span>yes budougumi0617/mysql-sakila:5.7
+</code></pre></div><h1 id="コンテナを起動してsqlの練習をするためのmakefileを作成する">コンテナを起動してSQLの練習をするためのMakefileを作成する。</h1>
 <p>私はすぐコマンドを忘れて毎回ググっていたため、ローカルで実行するときのためにメモ代わりのMakefileも作成しておいた。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 168px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/til/blob/master/sql/Makefile" data-iframely-url="//cdn.iframe.ly/koYdP8y"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
+<!-- raw HTML omitted -->
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-makefile" data-lang="makefile"><span style="color:#268bd2">.PHONY</span><span style="color:#719e07">:</span> help start stop mysql exec run
 
 <span style="color:#586e75"># 引数がないときはusageを表示する
@@ -329,61 +288,58 @@ COPY sakila-db/sakila.mwb /docker-entrypoint-initdb.d/sakila.mwb</code></pre></d
 
 <span style="color:#268bd2">start</span><span style="color:#719e07">:</span> <span style="color:#586e75">## Start MySQL Conatainer
 </span><span style="color:#586e75"></span>	docker container run --rm -d -e <span style="color:#268bd2">MYSQL_ALLOW_EMPTY_PASSWORD</span><span style="color:#719e07">=</span>yes <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>		-p <span style="color:#2aa198">43306</span>:3306 --name mysql_til budougumi0617/mysql-sakila:5.7
+</span><span style="color:#cb4b16"></span>		-p 43306:3306 --name mysql_til budougumi0617/mysql-sakila:5.7
 
 <span style="color:#268bd2">stop</span><span style="color:#719e07">:</span> <span style="color:#586e75">## Terminate MySQL Container
 </span><span style="color:#586e75"></span>	docker container stop mysql_til
 
 <span style="color:#268bd2">mysql</span><span style="color:#719e07">:</span> <span style="color:#586e75">## Connect to MySQL
-</span><span style="color:#586e75"></span>	mysql -h <span style="color:#2aa198">127</span>.0.0.1 --port <span style="color:#2aa198">43306</span> -uroot -D sakila
+</span><span style="color:#586e75"></span>	mysql -h 127.0.0.1 --port <span style="color:#2aa198">43306</span> -uroot -D sakila
 
 <span style="color:#268bd2">CMD</span><span style="color:#719e07">=</span>show tables;
 <span style="color:#268bd2">exec</span><span style="color:#719e07">:</span> <span style="color:#586e75">## Execute query on MySQL ex: make exec CMD=&#34;show columns from country&#34;
-</span><span style="color:#586e75"></span>	mysql -h <span style="color:#2aa198">127</span>.0.0.1 --port <span style="color:#2aa198">43306</span> -uroot -D sakila -e <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">CMD</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
+</span><span style="color:#586e75"></span>	mysql -h 127.0.0.1 --port <span style="color:#2aa198">43306</span> -uroot -D sakila -e <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">CMD</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
 
 <span style="color:#268bd2">FILE</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;&#39;</span>
 <span style="color:#268bd2">run</span><span style="color:#719e07">:</span> <span style="color:#586e75">## Run quey from file on MySQL ex: make run FILE=./count_city.sql
-</span><span style="color:#586e75"></span>	mysql -h <span style="color:#2aa198">127</span>.0.0.1 --port <span style="color:#2aa198">43306</span> -uroot -D sakila &lt; <span style="color:#2aa198">${</span><span style="color:#268bd2">FILE</span><span style="color:#2aa198">}</span>
+</span><span style="color:#586e75"></span>	mysql -h 127.0.0.1 --port <span style="color:#2aa198">43306</span> -uroot -D sakila &lt; <span style="color:#2aa198">${</span><span style="color:#268bd2">FILE</span><span style="color:#2aa198">}</span>
 
 <span style="color:#586e75"># 各コマンドについたコメントを表示する
 </span><span style="color:#586e75"></span><span style="color:#268bd2">help</span><span style="color:#719e07">:</span> <span style="color:#586e75">## Show options
 </span><span style="color:#586e75"></span>	@grep -E <span style="color:#2aa198">&#39;^[a-zA-Z_-]+:.*?## .*$$&#39;</span> <span style="color:#719e07">$(</span>MAKEFILE_LIST<span style="color:#719e07">)</span> | awk <span style="color:#2aa198">&#39;BEGIN {FS = &#34;:.*?## &#34;}; {printf &#34;\033[36m%-15s\033[0m %s\n&#34;, $$1, $$2}&#39;</span>
-</code></pre></div>
-<p><code>3306</code>ポートは開発で利用しているMySQLでふさがっていることが多いので<code>43306</code>ポートで接続するようにしてある。<br />
+</code></pre></div><p><code>3306</code>ポートは開発で利用しているMySQLでふさがっていることが多いので<code>43306</code>ポートで接続するようにしてある。<br>
 用意した<code>make</code>コマンドの概要を書くと以下になる。</p>
-
 <ul>
 <li><code>make start</code> dockerでMySQLを起動する</li>
 <li><code>make mysql</code> <code>mysql</code>クライアントを接続する</li>
 <li><code>make exec</code> インスタントにワンコマンドだけ実行したいときに使う
-
 <ul>
 <li><code>make exec CMD=&quot;show columns from country&quot;</code>のように実行する</li>
-</ul></li>
+</ul>
+</li>
 <li><code>make run</code> ホストPC上のSQLファイルを実行する
-
 <ul>
 <li><code>make run FILE=./count_city.sql</code>のように実行する</li>
-</ul></li>
+</ul>
+</li>
 <li><code>make stop</code> コンテナを停止する。</li>
 </ul>
-
 <p>以下のようにコマンドを使うと一連のSQLの練習ができる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ make start
 docker container run --rm -d -e <span style="color:#268bd2">MYSQL_ALLOW_EMPTY_PASSWORD</span><span style="color:#719e07">=</span>yes <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>		-p <span style="color:#2aa198">43306</span>:3306 --name mysql_til budougumi0617/mysql-sakila:5.7
+</span><span style="color:#cb4b16"></span>		-p 43306:3306 --name mysql_til budougumi0617/mysql-sakila:5.7
 e5bd2a3b9edd512e95f2f7b65d422129be81a5b61808b32cb0c7268af4505f9c
 
 $ make mysql
-mysql -h <span style="color:#2aa198">127</span>.0.0.1 --port <span style="color:#2aa198">43306</span> -uroot -D sakila
+mysql -h 127.0.0.1 --port <span style="color:#2aa198">43306</span> -uroot -D sakila
 Reading table information <span style="color:#719e07">for</span> completion of table and column names
 You can turn off this feature to get a quicker startup with -A
 
 Welcome to the MySQL monitor.  Commands end with ; or <span style="color:#cb4b16">\g</span>.
 Your MySQL connection id is <span style="color:#2aa198">2</span>
-Server version: <span style="color:#2aa198">5</span>.7.25 MySQL Community Server <span style="color:#719e07">(</span>GPL<span style="color:#719e07">)</span>
+Server version: 5.7.25 MySQL Community Server <span style="color:#719e07">(</span>GPL<span style="color:#719e07">)</span>
 
-Copyright <span style="color:#719e07">(</span>c<span style="color:#719e07">)</span> <span style="color:#2aa198">2000</span>, <span style="color:#2aa198">2018</span>, Oracle and/or its affiliates. All rights reserved.
+Copyright <span style="color:#719e07">(</span>c<span style="color:#719e07">)</span> 2000, 2018, Oracle and/or its affiliates. All rights reserved.
 
 Oracle is a registered trademark of Oracle Corporation and/or its
 affiliates. Other names may be trademarks of their respective
@@ -397,7 +353,7 @@ mysql&gt; SELECT MAX<span style="color:#719e07">(</span>country.country<span sty
     -&gt;     ON country.country_id <span style="color:#719e07">=</span> city.country_id
     -&gt; GROUP BY city.country_id
     -&gt; ORDER BY count DESC
-    -&gt; LIMIT <span style="color:#2aa198">10</span>;
+    -&gt; LIMIT 10;
 +--------------------+-------+
 | name               | count |
 +--------------------+-------+
@@ -412,7 +368,7 @@ mysql&gt; SELECT MAX<span style="color:#719e07">(</span>country.country<span sty
 | Turkey             |    <span style="color:#2aa198">15</span> |
 | Indonesia          |    <span style="color:#2aa198">14</span> |
 +--------------------+-------+
-<span style="color:#2aa198">10</span> rows in <span style="color:#b58900">set</span> <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00 sec<span style="color:#719e07">)</span>
+<span style="color:#2aa198">10</span> rows in <span style="color:#b58900">set</span> <span style="color:#719e07">(</span>0.00 sec<span style="color:#719e07">)</span>
 
 mysql&gt; SELECT COUNT<span style="color:#719e07">(</span>*<span style="color:#719e07">)</span> FROM film_text;
 +----------+
@@ -420,37 +376,32 @@ mysql&gt; SELECT COUNT<span style="color:#719e07">(</span>*<span style="color:#7
 +----------+
 |     <span style="color:#2aa198">1000</span> |
 +----------+
-<span style="color:#2aa198">1</span> row in <span style="color:#b58900">set</span> <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00 sec<span style="color:#719e07">)</span></code></pre></div>
-<p>これでクエリを作る練習が捗りそうだ。</p>
-
+<span style="color:#2aa198">1</span> row in <span style="color:#b58900">set</span> <span style="color:#719e07">(</span>0.00 sec<span style="color:#719e07">)</span>
+</code></pre></div><p>これでクエリを作る練習が捗りそうだ。</p>
 <h1 id="終わりに">終わりに</h1>
-
-<p>今回はSQLの練習用のDockerコンテナを作成し、Docker Hubにも登録した。Makefileで引数を読み込む方法やDocker Hubの使い方の勉強にもなった。<br />
+<p>今回はSQLの練習用のDockerコンテナを作成し、Docker Hubにも登録した。Makefileで引数を読み込む方法やDocker Hubの使い方の勉強にもなった。<br>
 SQL関係の積読本が溜まっているので、このコンテナを使って勉強を進めたい。</p>
-
 <ul>
 <li><a href="https://cloud.docker.com/repository/docker/budougumi0617/mysql-sakila">https://cloud.docker.com/repository/docker/budougumi0617/mysql-sakila</a></li>
 </ul>
-
 <h1 id="参考">参考</h1>
-
 <ul>
 <li><a href="/2018/05/20/create-instant-mysql-by-docker/">Dockerで使い捨てのMySQL環境を用意する。事前データを投入して起動する</a></li>
 <li>事前にデータ投入をした MySQL Docker イメージを作る場合は /docker-entrypoint-initdb.d を活用すると便利
-
 <ul>
 <li><a href="https://kakakakakku.hatenablog.com/entry/2017/11/08/193031">https://kakakakakku.hatenablog.com/entry/2017/11/08/193031</a></li>
-</ul></li>
+</ul>
+</li>
 <li>Creating Repositories | Docker Hub
-
 <ul>
 <li><a href="https://docs.docker.com/docker-hub/repos/#creating-repositories">https://docs.docker.com/docker-hub/repos/#creating-repositories</a></li>
-</ul></li>
+</ul>
+</li>
 <li>Set up Automated builds | Docker Hub
-
 <ul>
 <li><a href="https://docs.docker.com/docker-hub/builds/">https://docs.docker.com/docker-hub/builds/</a></li>
-</ul></li>
+</ul>
+</li>
 </ul>
         </div>
         
@@ -541,9 +492,9 @@ SQL関係の積読本が溜まっているので、このコンテナを使っ�
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -621,10 +572,16 @@ SQL関係の積読本が溜まっているので、このコンテナを使っ�
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -636,12 +593,6 @@ SQL関係の積読本が溜まっているので、このコンテナを使っ�
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

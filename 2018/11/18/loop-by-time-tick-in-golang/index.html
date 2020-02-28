@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -170,35 +170,22 @@
           
           
             <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#n秒おきになにかする無限ループ">n秒おきになにかする無限ループ</a>
-<ul>
-<li><a href="#forループとtim-sleep-で書くとき">forループとtim.Sleep()で書くとき</a></li>
-<li><a href="#time-tickを使ってx秒おきに無限ループ">time.Tickを使ってX秒おきに無限ループ</a></li>
-</ul></li>
-<li><a href="#x秒間だけn秒おきになにかする有限ループ">x秒間だけn秒おきになにかする有限ループ</a></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
+  <ul>
+    <li><a href="#forループとtimsleepで書くとき">forループとtim.Sleep()で書くとき</a></li>
+    <li><a href="#timetickを使ってx秒おきに無限ループ">time.Tickを使ってX秒おきに無限ループ</a></li>
+  </ul>
 </nav>
           
           <p><a href="http://amazon.jp/dp/4873118468">Go言語による並行処理</a>に知らない書き方があったのでメモ。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li><code>time.Tick()</code>を<code>for range</code>で使うとスマートに無限ループが書ける</li>
 <li>x秒間だけn秒おきになにかするループは<code>time.Tick()</code>使わないほうがシンプルな気がする</li>
 </ul>
-
 <h1 id="n秒おきになにかする無限ループ">n秒おきになにかする無限ループ</h1>
-
-<h2 id="forループとtim-sleep-で書くとき">forループとtim.Sleep()で書くとき</h2>
-
+<h2 id="forループとtimsleepで書くとき">forループとtim.Sleep()で書くとき</h2>
 <p>x秒おきに何かをする無限ループを書くときこんな<code>for</code>ループを書きがちだった。
 （playgroundのサンプルコードは途中で終わるようにカウンタを入れている。）</p>
-
 <p><a href="https://play.golang.org/p/Do7e6enUu5z">https://play.golang.org/p/Do7e6enUu5z</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
@@ -212,11 +199,9 @@
 		fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Tick!!&#34;</span>)
 		time.<span style="color:#268bd2">Sleep</span>(<span style="color:#2aa198">3</span> <span style="color:#719e07">*</span> time.Millisecond)
 	}
-}</code></pre></div>
-<h2 id="time-tickを使ってx秒おきに無限ループ">time.Tickを使ってX秒おきに無限ループ</h2>
-
+}
+</code></pre></div><h2 id="timetickを使ってx秒おきに無限ループ">time.Tickを使ってX秒おきに無限ループ</h2>
 <p><code>time.Tick</code>を使えば以下のようにも書ける。</p>
-
 <p><a href="https://play.golang.org/p/VlWP05XLRGX">https://play.golang.org/p/VlWP05XLRGX</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
@@ -229,11 +214,9 @@
 	<span style="color:#719e07">for</span> <span style="color:#719e07">range</span> time.<span style="color:#268bd2">Tick</span>(<span style="color:#2aa198">3</span> <span style="color:#719e07">*</span> time.Millisecond) {
 		fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Tick!!&#34;</span>)
 	}
-}</code></pre></div>
-<h1 id="x秒間だけn秒おきになにかする有限ループ">x秒間だけn秒おきになにかする有限ループ</h1>
-
+}
+</code></pre></div><h1 id="x秒間だけn秒おきになにかする有限ループ">x秒間だけn秒おきになにかする有限ループ</h1>
 <p>特定の時間の間だけ定期的に何かをするサンプルコードもGo言語による並行処理に載っていた。</p>
-
 <p><a href="https://play.golang.org/p/O4KWXe5KQJJ">https://play.golang.org/p/O4KWXe5KQJJ</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
@@ -249,9 +232,8 @@
 		fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Tick!!&#34;</span>)
 		time.<span style="color:#268bd2">Sleep</span>(<span style="color:#2aa198">1</span> <span style="color:#719e07">*</span> time.Millisecond)
 	}
-}</code></pre></div>
-<p><code>time.Tick</code>を使うとこんな感じ？これは素直に上の書き方をしたほうがシンプルだとおもう。</p>
-
+}
+</code></pre></div><p><code>time.Tick</code>を使うとこんな感じ？これは素直に上の書き方をしたほうがシンプルだとおもう。</p>
 <p><a href="https://play.golang.org/p/8NxMqbqcmX5">https://play.golang.org/p/8NxMqbqcmX5</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
@@ -270,35 +252,32 @@
 			<span style="color:#719e07">break</span>
 		}
 	}
-}</code></pre></div>
-<h1 id="終わりに">終わりに</h1>
+}
 
+</code></pre></div><h1 id="終わりに">終わりに</h1>
 <p><code>time.Tick()</code>は内部的には<code>time.Ticker</code>を生成している。
 <code>time.Ticker</code>を使うときは明示的に<code>Stop()</code>を呼ばないとリークするらしいが、<code>time.Tick()</code>を<code>range</code>で使っている場合はループのスコープが外れればGCされるのかな？</p>
-
 <p><a href="https://golang.org/src/time/tick.go?s=1752:1785#L44">https://golang.org/src/time/tick.go?s=1752:1785#L44</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">Tick</span>(d Duration) <span style="color:#719e07">&lt;-</span><span style="color:#268bd2">chan</span> Time {
 	<span style="color:#719e07">if</span> d <span style="color:#719e07">&lt;=</span> <span style="color:#2aa198">0</span> {
 		<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
 	}
 	<span style="color:#719e07">return</span> <span style="color:#268bd2">NewTicker</span>(d).C
-}</code></pre></div>
-<h1 id="参考">参考</h1>
-
+}
+</code></pre></div><h1 id="参考">参考</h1>
 <ul>
 <li>Goで一定周期で何かを行う方法
-
 <ul>
 <li><a href="https://qiita.com/ruiu/items/1ea0c72088ad8f2b841e">https://qiita.com/ruiu/items/1ea0c72088ad8f2b841e</a></li>
-</ul></li>
+</ul>
+</li>
 <li>time.Tick() を for ループの中に書いてはいけない
-
 <ul>
 <li><a href="http://ikawaha.hateblo.jp/entry/2015/10/08/172633">http://ikawaha.hateblo.jp/entry/2015/10/08/172633</a></li>
-</ul></li>
 </ul>
-
-<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4873118468&linkId=65ce90491608995926ef69b8e0257c2a"></iframe>
+</li>
+</ul>
+<!-- raw HTML omitted -->
         </div>
         
 
@@ -388,9 +367,9 @@
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -468,10 +447,16 @@
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -483,12 +468,6 @@
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

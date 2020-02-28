@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -175,43 +175,29 @@ MySQLサーバとの接続パラメータを変えることでうまくいった
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#構造体からレコードを書き込めたのに読み込みは失敗した">構造体からレコードを書き込めたのに読み込みは失敗した</a></li>
-<li><a href="#parsetime-true-を指定してmysqlと接続する"><code>parseTime=true</code>を指定してMySQLと接続する。</a></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
-          <p>GoでDBを操作するコードを書いている。<code>jmoiron/sqlx</code>パッケージを使ってMySQLサーバ内のDBをを操作しようとして表題のエラーに遭遇した。<br />
+          <p>GoでDBを操作するコードを書いている。<code>jmoiron/sqlx</code>パッケージを使ってMySQLサーバ内のDBをを操作しようとして表題のエラーに遭遇した。<br>
 MySQLサーバとの接続パラメータを変えることでうまくいったので解決方法をメモしておく。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li><code>jmoiron/sqlx</code>パッケージを使ってスキーマに<code>datetime</code>型を持つレコードを<code>time.Time</code>型を持つ構造体に読み込もうとして失敗した
-
 <ul>
 <li><code>unsupported Scan, storing driver.Value type []uint8 into type *time.Time</code></li>
-</ul></li>
+</ul>
+</li>
 <li>（<code>sql.Open</code>相当の）<a href="https://godoc.org/github.com/jmoiron/sqlx#Connect"><code>sqlx.Connect</code></a>を使う際にオプションパラメータを指定しておくことで解決することができた
-
 <ul>
 <li><code>sqlx.Connect(&quot;mysql&quot;, &quot;root:@(localhost:43306)/sqlx_development?parseTime=true&quot;)</code></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>なお、利用したGoとMySQLのバージョンは以下。</p>
-
 <ul>
 <li>MySQL 5.7</li>
 <li>Go 1.12.1</li>
 </ul>
-
 <p>サンプルコードの<code>go.mod</code>は以下の状態。</p>
-
 <pre><code>module github.com/budougumi0617/til/go/db/sql-migrate
 
 go 1.12
@@ -221,10 +207,7 @@ require (
 	github.com/jmoiron/sqlx v1.2.0
 	google.golang.org/appengine v1.5.0 // indirect
 )
-</code></pre>
-
-<h1 id="構造体からレコードを書き込めたのに読み込みは失敗した">構造体からレコードを書き込めたのに読み込みは失敗した</h1>
-
+</code></pre><h1 id="構造体からレコードを書き込めたのに読み込みは失敗した">構造体からレコードを書き込めたのに読み込みは失敗した</h1>
 <p>自分でイチからDB操作を行なうコードを書こうと思い、以下のようなソースコードを作成した。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
@@ -270,8 +253,8 @@ require (
 	userState <span style="color:#719e07">:=</span> <span style="color:#2aa198">`INSERT INTO user (name, email, created_at, updated_at) VALUES (?, ?, ?, ?)`</span>
 	r <span style="color:#719e07">:=</span> db.<span style="color:#268bd2">MustExec</span>(userState, n, e, time.<span style="color:#268bd2">Now</span>(), time.<span style="color:#268bd2">Now</span>())
 	<span style="color:#719e07">return</span> r.<span style="color:#268bd2">LastInsertId</span>()
-}</code></pre></div>
-<p>なお、<code>43306</code>ポートでリッスンしているMySQL内には、コード中で参照しているデータベース(<code>sqlx_development</code>)やテーブル(<code>user</code>)をすでに作成している。</p>
+}
+</code></pre></div><p>なお、<code>43306</code>ポートでリッスンしているMySQL内には、コード中で参照しているデータベース(<code>sqlx_development</code>)やテーブル(<code>user</code>)をすでに作成している。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">mysql<span style="color:#719e07">&gt;</span> <span style="color:#719e07">desc</span> <span style="color:#719e07">user</span>;
 <span style="color:#719e07">+</span><span style="color:#586e75">------------+---------------------+------+-----+---------+----------------+
 </span><span style="color:#586e75"></span><span style="color:#719e07">|</span> Field      <span style="color:#719e07">|</span> <span style="color:#719e07">Type</span>                <span style="color:#719e07">|</span> <span style="color:#719e07">Null</span> <span style="color:#719e07">|</span> <span style="color:#719e07">Key</span> <span style="color:#719e07">|</span> <span style="color:#719e07">Default</span> <span style="color:#719e07">|</span> Extra          <span style="color:#719e07">|</span>
@@ -282,59 +265,53 @@ require (
 <span style="color:#719e07">|</span> created_at <span style="color:#719e07">|</span> datetime            <span style="color:#719e07">|</span> YES  <span style="color:#719e07">|</span>     <span style="color:#719e07">|</span> <span style="color:#719e07">NULL</span>    <span style="color:#719e07">|</span>                <span style="color:#719e07">|</span>
 <span style="color:#719e07">|</span> updated_at <span style="color:#719e07">|</span> datetime            <span style="color:#719e07">|</span> YES  <span style="color:#719e07">|</span>     <span style="color:#719e07">|</span> <span style="color:#719e07">NULL</span>    <span style="color:#719e07">|</span>                <span style="color:#719e07">|</span>
 <span style="color:#719e07">+</span><span style="color:#586e75">------------+---------------------+------+-----+---------+----------------+
-</span><span style="color:#586e75"></span><span style="color:#2aa198">5</span> <span style="color:#719e07">rows</span> <span style="color:#719e07">in</span> <span style="color:#719e07">set</span> (<span style="color:#2aa198">0</span>.<span style="color:#2aa198">01</span> sec)</code></pre></div>
-<p>そして前述のコードを実行すると、<code>addUser</code>関数によるレコードの書き込みはうまくいった。
+</span><span style="color:#586e75"></span><span style="color:#2aa198">5</span> <span style="color:#719e07">rows</span> <span style="color:#719e07">in</span> <span style="color:#719e07">set</span> (<span style="color:#2aa198">0</span>.<span style="color:#2aa198">01</span> sec)
+</code></pre></div><p>そして前述のコードを実行すると、<code>addUser</code>関数によるレコードの書き込みはうまくいった。
 しかし、結果を<code>User</code>構造体に読み込むための<code>db.QueryRowx(userState, id).StructScan(&amp;user)</code>部分の処理は次のような出力を出して失敗してしまった。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># 読みやすさのために出力結果に改行を入れている</span>
 $ go run adduser.go
-<span style="color:#2aa198">2019</span>/03/30 <span style="color:#2aa198">19</span>:33:37 Added user was <span style="color:#719e07">{</span><span style="color:#2aa198">6</span> John Doe john@example.com <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>    <span style="color:#2aa198">2019</span>-03-30 <span style="color:#2aa198">10</span>:33:38 +0000 UTC <span style="color:#2aa198">2019</span>-03-30 <span style="color:#2aa198">10</span>:33:38 +0000 UTC<span style="color:#719e07">}</span></code></pre></div>
-<h1 id="parsetime-true-を指定してmysqlと接続する"><code>parseTime=true</code>を指定してMySQLと接続する。</h1>
-
+2019/03/30 19:33:37 Added user was <span style="color:#719e07">{</span><span style="color:#2aa198">6</span> John Doe john@example.com <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    2019-03-30 10:33:38 +0000 UTC 2019-03-30 10:33:38 +0000 UTC<span style="color:#719e07">}</span>
+</code></pre></div><h1 id="parsetimetrueを指定してmysqlと接続する"><code>parseTime=true</code>を指定してMySQLと接続する。</h1>
 <p>調べてみたら<code>sql.Open</code>時にパラメータを指定してDB接続をすれば良いとの事だった。</p>
-
 <ul>
 <li>time.Time support
-
 <ul>
 <li><a href="https://github.com/go-sql-driver/mysql#timetime-support">https://github.com/go-sql-driver/mysql#timetime-support</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p><code>jmoiron/sqlx</code>パッケージの<code>sql.Open</code>に該当する操作は<code>sqlx.Connect</code>なので、修正は以下のようになる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">db, err <span style="color:#719e07">:=</span> sqlx.<span style="color:#268bd2">Connect</span>(<span style="color:#2aa198">&#34;mysql&#34;</span>, <span style="color:#2aa198">&#34;root:@(localhost:43306)/sqlx_development?parseTime=true&#34;</span>)</code></pre></div>
-<p>実際に修正したコードで再度実行したところ、今度はレコード情報を読込できた。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">db, err <span style="color:#719e07">:=</span> sqlx.<span style="color:#268bd2">Connect</span>(<span style="color:#2aa198">&#34;mysql&#34;</span>, <span style="color:#2aa198">&#34;root:@(localhost:43306)/sqlx_development?parseTime=true&#34;</span>)
+</code></pre></div><p>実際に修正したコードで再度実行したところ、今度はレコード情報を読込できた。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run adduser.go
-<span style="color:#2aa198">2019</span>/03/30 <span style="color:#2aa198">19</span>:33:37 Added user was <span style="color:#719e07">{</span><span style="color:#2aa198">6</span> John Doe john@example.com <span style="color:#2aa198">2019</span>-03-30 <span style="color:#2aa198">10</span>:33:38 +0000 UTC <span style="color:#2aa198">2019</span>-03-30 <span style="color:#2aa198">10</span>:33:38 +0000 UTC<span style="color:#719e07">}</span></code></pre></div>
-<h1 id="終わりに">終わりに</h1>
-
-<p>業務では既製のライブラリ化を使ってDBに接続・操作している。<br />
-そのため、DB操作に対する理解が浅く、DBを操作するコードをゼロから書いていくつもりで改めてコードを書いている（OSS使っているのでゼロではないけれど）。<br />
+2019/03/30 19:33:37 Added user was <span style="color:#719e07">{</span><span style="color:#2aa198">6</span> John Doe john@example.com 2019-03-30 10:33:38 +0000 UTC 2019-03-30 10:33:38 +0000 UTC<span style="color:#719e07">}</span>
+</code></pre></div><h1 id="終わりに">終わりに</h1>
+<p>業務では既製のライブラリ化を使ってDBに接続・操作している。<br>
+そのため、DB操作に対する理解が浅く、DBを操作するコードをゼロから書いていくつもりで改めてコードを書いている（OSS使っているのでゼロではないけれど）。<br>
 引き続きCircleCIを使ったE2Eテストの方法などを試して、後日公開する。</p>
-
 <h1 id="参考">参考</h1>
-
 <ul>
 <li>Add Scan() support for time.Time
-
 <ul>
 <li><a href="https://github.com/go-sql-driver/mysql/issues/9#issuecomment-51552649">https://github.com/go-sql-driver/mysql/issues/9#issuecomment-51552649</a></li>
-</ul></li>
+</ul>
+</li>
 <li>time.Time support
-
 <ul>
 <li><a href="https://github.com/go-sql-driver/mysql#timetime-support">https://github.com/go-sql-driver/mysql#timetime-support</a></li>
-</ul></li>
+</ul>
+</li>
 <li>github.com/jmoiron/sqlx
-
 <ul>
 <li><a href="https://github.com/jmoiron/sqlx/">https://github.com/jmoiron/sqlx/</a></li>
-</ul></li>
+</ul>
+</li>
 <li>go-sql-driver/mysql
-
 <ul>
 <li><a href="https://github.com/go-sql-driver/mysql">https://github.com/go-sql-driver/mysql</a></li>
-</ul></li>
+</ul>
+</li>
 </ul>
         </div>
         
@@ -425,9 +402,9 @@ $ go run adduser.go
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -505,10 +482,16 @@ $ go run adduser.go
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -520,12 +503,6 @@ $ go run adduser.go
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

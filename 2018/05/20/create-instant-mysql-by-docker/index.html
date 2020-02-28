@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -173,47 +173,33 @@
           
           
           
-          
-
-<p>データベースの勉強をしている。<br />
-クエリを書く練習をしたりするにはやはり実際に動いている環境がほしい。<br />
-ただ、ローカルの開発用のデータベースとは別でやりたいとか、使い捨ての環境が欲しくなるときがある。<br />
+          <p>データベースの勉強をしている。<br>
+クエリを書く練習をしたりするにはやはり実際に動いている環境がほしい。<br>
+ただ、ローカルの開発用のデータベースとは別でやりたいとか、使い捨ての環境が欲しくなるときがある。<br>
 そんなときはDockerを利用することで使い捨ての環境を用意できる。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>MySQLコンテナーをポート割り当てして起動する</li>
 <li>初期化データを投入したいときは<code>/docker-entrypoint-initdb.d</code>にデータをマウントしておく。</li>
 </ul>
-
 <p>なお、ここではDocker自体の説明はしない。
 また、初期化データの投入だけ知りたい場合は以下のページが詳しいのでそちらを見ることをおすすめする。</p>
-
-<p><strong>事前にデータ投入をした MySQL Docker イメージを作る場合は /docker-entrypoint-initdb.d を活用すると便利</strong><br />
+<p><strong>事前にデータ投入をした MySQL Docker イメージを作る場合は /docker-entrypoint-initdb.d を活用すると便利</strong><br>
 <a href="https://kakakakakku.hatenablog.com/entry/2017/11/08/193031">https://kakakakakku.hatenablog.com/entry/2017/11/08/193031</a></p>
-
 <h1 id="dockerのインストール">Dockerのインストール</h1>
-
 <p>Docker自体は以下のページから行う。</p>
-
-<p><strong>About Docker CE</strong><br />
+<p><strong>About Docker CE</strong><br>
 <a href="https://docs.docker.com/install/">https://docs.docker.com/install/</a></p>
-
 <h1 id="mysqlコンテナーの起動">MySQLコンテナーの起動</h1>
-
 <p>今回はMySQLを使ってSQL環境を作成する。
 MySQLは公式コンテナーが以下に用意されている。</p>
-
 <p><a href="https://hub.docker.com/_/mysql/">https://hub.docker.com/_/mysql/</a></p>
-
-<p>Docker自体のインストールが完了したら<code>MySQL</code>のコンテナーを起動する。<br />
+<p>Docker自体のインストールが完了したら<code>MySQL</code>のコンテナーを起動する。<br>
 以下のコマンドを実行すれば自動的にMySQL公式のコンテナーのダウンロードが開始され、内部で<code>MySQL</code>が稼働しているコンテナーが開始される。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker container run --rm -d <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  -e <span style="color:#268bd2">MYSQL_ROOT_PASSWORD</span><span style="color:#719e07">=</span>mysql <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>  -p <span style="color:#2aa198">43306</span>:3306 --name mysql mysql:5.7</code></pre></div>
-<p>大雑把にいうと、ホストマシンの43336ポートからアクセス出来る使い捨てのMySQLを<code>mysql</code>という名前でデーモン起動している。</p>
-
+</span><span style="color:#cb4b16"></span>  -p 43306:3306 --name mysql mysql:5.7
+</code></pre></div><p>大雑把にいうと、ホストマシンの43336ポートからアクセス出来る使い捨てのMySQLを<code>mysql</code>という名前でデーモン起動している。</p>
 <table>
 <thead>
 <tr>
@@ -221,62 +207,51 @@ MySQLは公式コンテナーが以下に用意されている。</p>
 <th>意味</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td><code>--rm</code></td>
 <td>コンテナー終了時に利用したデータを削除する</td>
 </tr>
-
 <tr>
 <td><code>-d</code></td>
 <td>バックプロセスとして起動する</td>
 </tr>
-
 <tr>
 <td><code>-e</code></td>
 <td>コンテナーに環境変数(<code>MYSQL_ROOT_PASSWORD</code>)を与える</td>
 </tr>
-
 <tr>
 <td><code>-p</code></td>
 <td>ホストのポートにコンテナーのポートを割り当てる</td>
 </tr>
-
 <tr>
 <td><code>--name</code></td>
 <td>実行するコンテナーに<code>mysql</code>という名前をつける</td>
 </tr>
-
 <tr>
 <td><code>mysql:5.7</code></td>
 <td><code>mysql</code>コンテナーの<code>5.7</code>タグを使う</td>
 </tr>
 </tbody>
 </table>
-
 <p>詳細は以下を確認すればわかる。</p>
-
-<p><strong>docker container</strong><br />
+<p><strong>docker container</strong><br>
 <a href="https://docs.docker.com/engine/reference/commandline/container/">https://docs.docker.com/engine/reference/commandline/container/</a></p>
-
 <p>コマンド実行後、<code>docker container ls</code>(<code>docker ps</code>)コマンドで<code>mysql</code>コンテナーが起動しているか確認する。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker container ls
 CONTAINER ID        IMAGE               COMMAND                  CREATED                  STATUS              PORTS                     NAMES
-4838ea05a813        mysql:5.7           <span style="color:#2aa198">&#34;docker-entrypoint.s…&#34;</span>   Less than a second ago   Up <span style="color:#2aa198">4</span> seconds        <span style="color:#2aa198">0</span>.0.0.0:43306-&gt;3306/tcp   mysql</code></pre></div>
-<p>これで使い捨てのMySQLが起動できた。</p>
-
+4838ea05a813        mysql:5.7           <span style="color:#2aa198">&#34;docker-entrypoint.s…&#34;</span>   Less than a second ago   Up <span style="color:#2aa198">4</span> seconds        0.0.0.0:43306-&gt;3306/tcp   mysql
+</code></pre></div><p>これで使い捨てのMySQLが起動できた。</p>
 <h1 id="mysqlへのアクセス">MySQLへのアクセス</h1>
-
 <p>上述したとおり、MySQLのコンテナーのポート(3306)をホストマシンのポート(43336)に割り当てているので、ホストマシン（自分のPC）からDBに接続できる。
 上記のコマンドの場合は接続するポートは<code>43336</code>、<code>root</code>のパスワードは<code>MYSQL_ROOT_PASSWORD</code>で指定した<code>mysql</code>になっている。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ mysql -h <span style="color:#2aa198">127</span>.0.0.1 --port <span style="color:#2aa198">43306</span> -uroot -pmysql
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ mysql -h 127.0.0.1 --port <span style="color:#2aa198">43306</span> -uroot -pmysql
 mysql: <span style="color:#719e07">[</span>Warning<span style="color:#719e07">]</span> Using a password on the <span style="color:#b58900">command</span> line interface can be insecure.
 Welcome to the MySQL monitor.  Commands end with ; or <span style="color:#cb4b16">\g</span>.
 Your MySQL connection id is <span style="color:#2aa198">2</span>
-Server version: <span style="color:#2aa198">5</span>.7.21 MySQL Community Server <span style="color:#719e07">(</span>GPL<span style="color:#719e07">)</span>
+Server version: 5.7.21 MySQL Community Server <span style="color:#719e07">(</span>GPL<span style="color:#719e07">)</span>
 
-Copyright <span style="color:#719e07">(</span>c<span style="color:#719e07">)</span> <span style="color:#2aa198">2000</span>, <span style="color:#2aa198">2016</span>, Oracle and/or its affiliates. All rights reserved.
+Copyright <span style="color:#719e07">(</span>c<span style="color:#719e07">)</span> 2000, 2016, Oracle and/or its affiliates. All rights reserved.
 
 Oracle is a registered trademark of Oracle Corporation and/or its
 affiliates. Other names may be trademarks of their respective
@@ -284,19 +259,15 @@ owners.
 
 Type <span style="color:#2aa198">&#39;help;&#39;</span> or <span style="color:#2aa198">&#39;\h&#39;</span> <span style="color:#719e07">for</span> help. Type <span style="color:#2aa198">&#39;\c&#39;</span> to clear the current input statement.
 
-mysql&gt;</code></pre></div>
-<h1 id="使い捨てのmysqlコンテナーを終了したいとき">使い捨てのMySQLコンテナーを終了したいとき</h1>
-
+mysql&gt;
+</code></pre></div><h1 id="使い捨てのmysqlコンテナーを終了したいとき">使い捨てのMySQLコンテナーを終了したいとき</h1>
 <p>利用を終了するときは以下のコマンドで完了する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker container stop mysql</code></pre></div>
-<p>前述したとおりの<code>docker container run</code>コマンドでコンテナーを起動していた場合は、
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker container stop mysql
+</code></pre></div><p>前述したとおりの<code>docker container run</code>コマンドでコンテナーを起動していた場合は、
 <code>--rm</code>オプションをつけて起動しているので、利用したコンテナは廃棄される。</p>
-
 <h1 id="色々前処理を行った状態でコンテナーを起動したい場合">色々前処理を行った状態でコンテナーを起動したい場合</h1>
-
 <p><code>CREATE TABLE</code>や事前データを投入した状態でコンテナーを起動することもできる。
 公式のMySQLコンテナーは<code>/docker-entrypoint-initdb.d</code>に<code>sql</code>ファイルや<code>gz</code>ファイルを配置することでコンテナ起動時にMySQLのデータベースを更新することができる。</p>
-
 <p>たとえば、ホストマシン上(Dockerが動いているマシン)に<code>init</code>ディレクトリを作り、テーブルを作成する<code>sql</code>ファイルとデータを投入する<code>sql</code>ファイルを作成しておく。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-SQL" data-lang="SQL">$ cat init<span style="color:#719e07">/</span><span style="color:#2aa198">01</span>_initial_db.<span style="color:#719e07">sql</span>
 <span style="color:#719e07">CREATE</span> <span style="color:#719e07">DATABASE</span> <span style="color:#719e07">IF</span> <span style="color:#719e07">NOT</span> <span style="color:#719e07">EXISTS</span> todo;
@@ -311,7 +282,7 @@ mysql&gt;</code></pre></div>
 $ cat init<span style="color:#719e07">/</span><span style="color:#2aa198">02</span>_insert_dummy.<span style="color:#719e07">sql</span>
 USE todo;
 <span style="color:#586e75">-- Insert initlal data
-</span><span style="color:#586e75"></span><span style="color:#719e07">START</span> TRANSACTION;
+</span><span style="color:#586e75"></span><span style="color:#719e07">START</span> <span style="color:#719e07">TRANSACTION</span>;
 <span style="color:#719e07">INSERT</span> <span style="color:#719e07">INTO</span> tasks(title, body) <span style="color:#719e07">VALUES</span>(<span style="color:#2aa198">&#39;First task&#39;</span>, <span style="color:#2aa198">&#39;test data1&#39;</span>);
 <span style="color:#719e07">INSERT</span> <span style="color:#719e07">INTO</span> tasks(title, body) <span style="color:#719e07">VALUES</span>(<span style="color:#2aa198">&#39;Second task&#39;</span>, <span style="color:#2aa198">&#39;test data2&#39;</span>);
 <span style="color:#719e07">INSERT</span> <span style="color:#719e07">INTO</span> tasks(title, body) <span style="color:#719e07">VALUES</span>(<span style="color:#2aa198">&#39;Third task&#39;</span>, <span style="color:#2aa198">&#39;test data3&#39;</span>);
@@ -323,16 +294,15 @@ USE todo;
 <span style="color:#719e07">INSERT</span> <span style="color:#719e07">INTO</span> tasks(title, body) <span style="color:#719e07">VALUES</span>(<span style="color:#2aa198">&#39;Dummy Data9&#39;</span>, <span style="color:#2aa198">&#39;long long long long long&#39;</span>);
 <span style="color:#719e07">INSERT</span> <span style="color:#719e07">INTO</span> tasks(title, body) <span style="color:#719e07">VALUES</span>(<span style="color:#2aa198">&#39;Dummy Data10&#39;</span>, <span style="color:#2aa198">&#39;long long long long long&#39;</span>);
 <span style="color:#719e07">INSERT</span> <span style="color:#719e07">INTO</span> tasks(title, body) <span style="color:#719e07">VALUES</span>(<span style="color:#2aa198">&#39;Dummy Data11&#39;</span>, <span style="color:#2aa198">&#39;long long long long long&#39;</span>);
-<span style="color:#719e07">COMMIT</span>;</code></pre></div>
-<p>この<code>init</code>ディレクトリを<code>/docker-entrypoint-initdb.d</code>として<code>MySQL</code>コンテナーにマウントして起動する。
+<span style="color:#719e07">COMMIT</span>;
+</code></pre></div><p>この<code>init</code>ディレクトリを<code>/docker-entrypoint-initdb.d</code>として<code>MySQL</code>コンテナーにマウントして起動する。
 <code>docker</code>コマンドで行う場合は<code>-v</code>オプションで以下のように行う。このとき<code>init</code>ディレクトリのPATHは絶対PATHで指定する必要がある。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker container run --rm -d <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  -v <span style="color:#719e07">{</span><span style="color:#268bd2">$ABSOLUTE_PATH</span><span style="color:#719e07">}</span>/init:/docker-entrypoint-initdb.d <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  -e <span style="color:#268bd2">MYSQL_ROOT_PASSWORD</span><span style="color:#719e07">=</span>mysql <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>  -p <span style="color:#2aa198">43306</span>:3306 --name mysql mysql:5.7</code></pre></div>
-<p>こうして起動した<code>mysql</code>コンテナーは常に以下のようにデータが投入されている。
+</span><span style="color:#cb4b16"></span>  -p 43306:3306 --name mysql mysql:5.7
+</code></pre></div><p>こうして起動した<code>mysql</code>コンテナーは常に以下のようにデータが投入されている。
 <code>SELECT</code>や<code>JOIN</code>の練習をするためには、最初にデータを投入しておくと良いかもしれない。</p>
-
 <pre><code>mysql -h 127.0.0.1 --port 43306 -uroot -pmysql
 mysql: [Warning] Using a password on the command line interface can be insecure.
 Welcome to the MySQL monitor.  Commands end with ; or \g.
@@ -364,28 +334,20 @@ mysql&gt; select *  from todo.tasks;
 | 11 | Dummy Data11 | long long long long long | 2018-05-20 03:02:45 | 2018-05-20 03:02:45 |
 +----+--------------+--------------------------+---------------------+---------------------+
 11 rows in set (0.00 sec)
-</code></pre>
-
-<p><code>/docker-entrypoint-initdb.d</code>の詳細は以下のリンク先に記載されている。</p>
-
+</code></pre><p><code>/docker-entrypoint-initdb.d</code>の詳細は以下のリンク先に記載されている。</p>
 <p><strong>事前にデータ投入をした MySQL Docker イメージを作る場合は /docker-entrypoint-initdb.d を活用すると便利</strong>
 <a href="https://kakakakakku.hatenablog.com/entry/2017/11/08/193031">https://kakakakakku.hatenablog.com/entry/2017/11/08/193031</a></p>
-
-<p><code>Dockerfile</code>ベースで行う場合は以下のような感じになる。<br />
+<p><code>Dockerfile</code>ベースで行う場合は以下のような感じになる。<br>
 <a href="https://github.com/budougumi0617/react-golang/tree/master/db">https://github.com/budougumi0617/react-golang/tree/master/db</a></p>
-
 <pre><code>FROM mysql:5.7
 ENV MYSQL_ALLOW_EMPTY_PASSWORD=yes
 ENV MYSQL_ROOT_PASSWORD=&quot;&quot;
 COPY ./init/01_initial_db.sql /docker-entrypoint-initdb.d/01_initial_db.sql
 COPY ./init/02_insert_dummy.sql /docker-entrypoint-initdb.d/02_insert_dummy.sql
 COPY my.cnf /etc/mysql/conf.d/my.cnf
-</code></pre>
-
-<h1 id="終わりに">終わりに</h1>
-
-<p>データベースなどの環境は、一度壊すとなかなか修復が難しい。<br />
-（そもそも修復が出来るほど簡単or詳しいならば学習など必要ないのかもしれないが）<br />
+</code></pre><h1 id="終わりに">終わりに</h1>
+<p>データベースなどの環境は、一度壊すとなかなか修復が難しい。<br>
+（そもそも修復が出来るほど簡単or詳しいならば学習など必要ないのかもしれないが）<br>
 カジュアルにいろいろ試したいときはdocker上でやるのがおすすめだ。</p>
 
         </div>
@@ -477,9 +439,9 @@ COPY my.cnf /etc/mysql/conf.d/my.cnf
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -557,10 +519,16 @@ COPY my.cnf /etc/mysql/conf.d/my.cnf
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -572,12 +540,6 @@ COPY my.cnf /etc/mysql/conf.d/my.cnf
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -176,80 +176,59 @@ arrayやインターフェイスで受け取った引数に、型をキャスト
           
           
             <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#独自クラスへの型キャストがしたい">独自クラスへの型キャストがしたい。</a></li>
-<li><a href="#独自型をキャストする方法">独自型をキャストする方法</a>
-<ul>
-<li><a href="#キャスト関数をつくり戻り値型を指定する">キャスト関数をつくり戻り値型を指定する</a></li>
-<li><a href="#7-4からはアロー関数も利用できる">7.4からはアロー関数も利用できる</a></li>
-</ul></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
+  <ul>
+    <li><a href="#キャスト関数をつくり戻り値型を指定する">キャスト関数をつくり戻り値型を指定する</a></li>
+    <li><a href="#74からはアロー関数も利用できる">7.4からはアロー関数も利用できる</a></li>
+  </ul>
 </nav>
           
-          <p>PHPで型を使って安全かつIDEの支援を受けながら開発したい。<br />
+          <p>PHPで型を使って安全かつIDEの支援を受けながら開発したい。<br>
 <code>array</code>やインターフェイスで受け取った引数に、型をキャストする方法を考えた。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>PHPはスカラー型や<code>object</code>型を使ったキャストしかサポートしていない</li>
 <li>戻り値に型を指定した関数を用意すれば独自型のキャストができる</li>
 <li>PHP7.4からはアロー関数を使った簡易関数も作れる</li>
-
-<li><p>型を指定しておくとIDEに支援もフルに受けることができる</p>
+<li>型を指定しておくとIDEに支援もフルに受けることができる</li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">final class CastObject extends ParentObject
 {
-// 型キャストを行なうだけの関数
-public static function cast($obj): self
-{
-    if (!($obj instanceof self)) {
-        throw new InvalidArgumentException(&#34;{$obj} is not instance of CastObject&#34;);
+    // 型キャストを行なうだけの関数
+    public static function cast($obj): self
+    {
+        if (!($obj instanceof self)) {
+            throw new InvalidArgumentException(&#34;{$obj} is not instance of CastObject&#34;);
+        }
+        return $obj;
     }
-    return $obj;
-}
 }
 
 // アロー関数を使ったキャスト関数
-$cast = fn($orig): CastObject =&gt; $orig;</code></pre></div></li>
-</ul>
-
-<h1 id="独自クラスへの型キャストがしたい">独自クラスへの型キャストがしたい。</h1>
-
+$cast = fn($orig): CastObject =&gt; $orig;
+</code></pre></div><h1 id="独自クラスへの型キャストがしたい">独自クラスへの型キャストがしたい。</h1>
 <p><code>php-go</code>というPHP製のGoインタプリタを作っている。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/php-go" data-iframely-url="//cdn.iframe.ly/SfTZMuB"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
-<p>インタプリタの実装をしていると、基となるインターフェイス（あるいは<code>array</code>）としてオブジェクトを受け取り、再帰的な実際の具象クラスの種類ごとに処理を切り替えるような実装を行なう。<br />
-そのような処理を再帰的に繰り返すため、少しでも意図しないロジックパスを通りそうになったら（期待する具象クラスではなかったら）即例外を発生させたい。<br />
+<!-- raw HTML omitted -->
+<p>インタプリタの実装をしていると、基となるインターフェイス（あるいは<code>array</code>）としてオブジェクトを受け取り、再帰的な実際の具象クラスの種類ごとに処理を切り替えるような実装を行なう。<br>
+そのような処理を再帰的に繰り返すため、少しでも意図しないロジックパスを通りそうになったら（期待する具象クラスではなかったら）即例外を発生させたい。<br>
 また、IDEの支援をフルに受けるためには、きちんと型をキャストしたほうがよい。</p>
-
 <h1 id="独自型をキャストする方法">独自型をキャストする方法</h1>
-
 <p><code>$casted = (MyClass)$obj;</code>のように書けば終わり、だったら簡単なのだが、PHPのキャストはスカラー型や<code>object</code>型でしか利用できない。</p>
-
 <ul>
 <li>型キャスト - Manual - PHP
-
 <ul>
 <li><a href="https://www.php.net/manual/ja/language.types.type-juggling.php#language.types.typecasting">https://www.php.net/manual/ja/language.types.type-juggling.php#language.types.typecasting</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h2 id="キャスト関数をつくり戻り値型を指定する">キャスト関数をつくり戻り値型を指定する</h2>
-
 <p>ではどうすればいいかと言うと、関数の戻り値に型を指定したキャスト用の関数を用意するのが一番簡単そうだった。</p>
-
 <ul>
 <li>PHP Cast to my class - Stackoverflow
-
 <ul>
 <li><a href="https://stackoverflow.com/a/54481076/12802174">https://stackoverflow.com/a/54481076/12802174</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>たとえば、こんな継承関係の<code>ParentObject</code>クラスと<code>CastObject</code>クラスがあったとする。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">class ParentObject{}
 
@@ -261,8 +240,8 @@ final class CastObject extends ParentObject
     {
         $this-&gt;prop = $prop;
     }
-}</code></pre></div>
-<p>あらかじめ、キャスト用の関数を用意しておく（多用するならば、クラスに<code>static</code>関数として用意すればよいだろう）。</p>
+}
+</code></pre></div><p>あらかじめ、キャスト用の関数を用意しておく（多用するならば、クラスに<code>static</code>関数として用意すればよいだろう）。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">final class CastObject extends ParentObject
 {
     public static function cast($obj): self
@@ -272,55 +251,49 @@ final class CastObject extends ParentObject
         }
         return $obj;
     }
-}</code></pre></div>
-<p>どこからか受け取った<code>ParentObject</code>オブジェクトに<code>CastObject</code>クラスをキャストしたいならば、以下のように書けばよい。</p>
+}
+</code></pre></div><p>どこからか受け取った<code>ParentObject</code>オブジェクトに<code>CastObject</code>クラスをキャストしたいならば、以下のように書けばよい。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">// どこからか受け取ったParentbjectな $obj
 if ($obj instanceof CastObject) {
     $casted = CastObject::cast($obj);
-}</code></pre></div>
-<h2 id="7-4からはアロー関数も利用できる">7.4からはアロー関数も利用できる</h2>
-
+}
+</code></pre></div><h2 id="74からはアロー関数も利用できる">7.4からはアロー関数も利用できる</h2>
 <p>PHP7.4からはアロー関数という無名関数の書き方が用意されている。</p>
-
 <ul>
 <li>アロー関数 | PHP 7.3.x から PHP 7.4.x への移行 - Manual - PHP
-
 <ul>
 <li><a href="https://www.php.net/manual/ja/migration74.new-features.php#migration74.new-features.core.arrow-functions">https://www.php.net/manual/ja/migration74.new-features.php#migration74.new-features.core.arrow-functions</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>何度も使わないようなキャストならば、その場で使い捨ての関数として宣言してもよいだろう。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">$cast = fn($orig): CastObject =&gt; $orig;
 
 // どこからか受け取ったParentbjectな $obj
 if ($obj instanceof CastObject) {
     $casted = CastObject::cast($obj);
-}</code></pre></div>
-<h1 id="終わりに">終わりに</h1>
-
-<p>明示的に型がわからなくてもメソッド呼び出しなどはエラーにならない。<br />
-ただ、IDEのサポートを受けたいならば明示的に型情報が付与されていたほうがよい。<br />
+}
+</code></pre></div><h1 id="終わりに">終わりに</h1>
+<p>明示的に型がわからなくてもメソッド呼び出しなどはエラーにならない。<br>
+ただ、IDEのサポートを受けたいならば明示的に型情報が付与されていたほうがよい。<br>
 また、型が自明だと安心して処理を続けられる。</p>
-
 <h1 id="参考">参考</h1>
-
 <ul>
 <li>型キャスト - Manual - PHP
-
 <ul>
 <li><a href="https://www.php.net/manual/ja/language.types.type-juggling.php#language.types.typecasting">https://www.php.net/manual/ja/language.types.type-juggling.php#language.types.typecasting</a></li>
-</ul></li>
+</ul>
+</li>
 <li>アロー関数 | PHP 7.3.x から PHP 7.4.x への移行 - Manual - PHP
-
 <ul>
 <li><a href="https://www.php.net/manual/ja/migration74.new-features.php#migration74.new-features.core.arrow-functions">https://www.php.net/manual/ja/migration74.new-features.php#migration74.new-features.core.arrow-functions</a></li>
-</ul></li>
+</ul>
+</li>
 <li>PHP Cast to my class - Stackoverflow
-
 <ul>
 <li><a href="https://stackoverflow.com/a/54481076/12802174">https://stackoverflow.com/a/54481076/12802174</a></li>
-</ul></li>
+</ul>
+</li>
 </ul>
         </div>
         
@@ -409,9 +382,9 @@ if ($obj instanceof CastObject) {
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -489,10 +462,16 @@ if ($obj instanceof CastObject) {
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -504,12 +483,6 @@ if ($obj instanceof CastObject) {
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

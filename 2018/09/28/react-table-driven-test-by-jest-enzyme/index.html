@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -58,19 +58,17 @@
 ステートレスなコンポーネントがちゃんと設計できていれば入出力は冪等になるので、Reactとテーブル駆動テストは非常に相性がよさそう。
 enzymeを使えばDOMアクセスも簡単だった。
 ただ、Jestのバージョンが23.0.0以上じゃないとeachメソッドが使えないので、create-react-appで作ったプロジェクトの場合はejectする必要があった。
-
 JestはJavascriptでrspecのようなテストが書けるツール。enzymeはairbnbが作成したいい感じにDOMにアクセスできるAPIライブラリ。
-
 
 Jest
 
-
 https://jestjs.io/
+
 
 enzyme
 
-
 http://airbnb.io/enzyme/
+
 
 "/>
   
@@ -79,19 +77,17 @@ http://airbnb.io/enzyme/
 ステートレスなコンポーネントがちゃんと設計できていれば入出力は冪等になるので、Reactとテーブル駆動テストは非常に相性がよさそう。
 enzymeを使えばDOMアクセスも簡単だった。
 ただ、Jestのバージョンが23.0.0以上じゃないとeachメソッドが使えないので、create-react-appで作ったプロジェクトの場合はejectする必要があった。
-
 JestはJavascriptでrspecのようなテストが書けるツール。enzymeはairbnbが作成したいい感じにDOMにアクセスできるAPIライブラリ。
-
 
 Jest
 
-
 https://jestjs.io/
+
 
 enzyme
 
-
 http://airbnb.io/enzyme/
+
 
 "/>
   <meta name="twitter:site" content="@budougumi0617"/>
@@ -193,7 +189,7 @@ http://airbnb.io/enzyme/
     
   </p>
   <h1 class="entry-title">
-    <a href="https://budougumi0617.github.io/2018/09/28/react-table-driven-test-by-jest-enzyme/">Jest( &gt;23.0.0 )、enzymeでReactのテーブル駆動テストを行う #react #test</a>
+     Jest( &gt;23.0.0 )、enzymeでReactのテーブル駆動テストを行う #react #test 
   </h1>
 </header>
 
@@ -205,39 +201,26 @@ http://airbnb.io/enzyme/
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#プロジェクトの準備">プロジェクトの準備</a></li>
-<li><a href="#jestでテーブル駆動テストを書く">Jestでテーブル駆動テストを書く</a></li>
-<li><a href="#テストを書くときのtips">テストを書くときのTips</a></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
           <p>Reactでもテーブル駆動テスト(データ駆動テスト)がしたいと思い、Jestを使ってみた。
 ステートレスなコンポーネントがちゃんと設計できていれば入出力は冪等になるので、Reactとテーブル駆動テストは非常に相性がよさそう。
 enzymeを使えばDOMアクセスも簡単だった。
 ただ、Jestのバージョンが23.0.0以上じゃないと<code>each</code>メソッドが使えないので、<code>create-react-app</code>で作ったプロジェクトの場合は<code>eject</code>する必要があった。</p>
-
 <p>JestはJavascriptで<code>rspec</code>のようなテストが書けるツール。enzymeはairbnbが作成したいい感じにDOMにアクセスできるAPIライブラリ。</p>
-
 <ul>
 <li>Jest
-
 <ul>
 <li><a href="https://jestjs.io/">https://jestjs.io/</a></li>
-</ul></li>
+</ul>
+</li>
 <li>enzyme
-
 <ul>
 <li><a href="http://airbnb.io/enzyme/">http://airbnb.io/enzyme/</a></li>
-</ul></li>
 </ul>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+</li>
+</ul>
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li><code>create-react-app</code>で作ったプロジェクトの場合は<code>eject</code>してJestをアップグレードする</li>
 <li><code>enzyme</code>を<code>yarn add</code>しておくとテストがラク</li>
@@ -245,44 +228,40 @@ enzymeを使えばDOMアクセスも簡単だった。
 <li><code>yarn test -watch</code>でホットリロードしながらテストができる</li>
 <li><code>node --inspect-brk node_modules/.bin/jest --runInBand</code>を使えばChromeコンソールでいろいろ試せる</li>
 </ul>
-
 <p>サンプルリポジトリは以下。</p>
-
 <ul>
-<li><p>tdt-react-jest-enzyme</p>
-
+<li>tdt-react-jest-enzyme
 <ul>
-<li><p><a href="https://github.com/budougumi0617/tdt-react-jest-enzyme">https://github.com/budougumi0617/tdt-react-jest-enzyme</a></p>
+<li><a href="https://github.com/budougumi0617/tdt-react-jest-enzyme">https://github.com/budougumi0617/tdt-react-jest-enzyme</a></li>
+</ul>
+</li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-react" data-lang="react"><span style="color:#268bd2">import</span> React from <span style="color:#2aa198">&#39;react&#39;</span>;
 <span style="color:#268bd2">import</span> { shallow  } from <span style="color:#2aa198">&#39;enzyme&#39;</span>;
 
 <span style="color:#268bd2">import</span> App from <span style="color:#2aa198">&#39;./App&#39;</span>;
 
 <span style="color:#268bd2">const</span> emptyProps <span style="color:#719e07">=</span>{
-text<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;test&#39;</span>
+  text<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;test&#39;</span>
 };
 
 describe(<span style="color:#2aa198">&#39;App&#39;</span>, () =&gt; {
-describe(<span style="color:#2aa198">&#39;App-title&#39;</span>, () =&gt; {
-<span style="color:#268bd2">const</span> cases <span style="color:#719e07">=</span> [
-[<span style="color:#2aa198">&#39;simple test1&#39;</span>, { text<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;Jest&#39;</span>}, <span style="color:#2aa198">&#39;Welcome to Jest&#39;</span>],
-[<span style="color:#2aa198">&#39;simple test2&#39;</span>, { text<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;enzyme&#39;</span>}, <span style="color:#2aa198">&#39;Welcome to enzyme&#39;</span>]
-];
-describe.each(cases)(<span style="color:#2aa198">&#39;change Props&#39;</span>, (title, override, expected) =&gt; {
-it(title, () =&gt; {
- <span style="color:#268bd2">const</span> customProps <span style="color:#719e07">=</span> <span style="color:#b58900">Object</span>.assign({}, emptyProps, override);
- <span style="color:#268bd2">const</span> wrapper <span style="color:#719e07">=</span> shallow(&lt;<span style="color:#268bd2">App</span> {...customProps} /&gt;);
- expect(wrapper.instance().props.text).toBe(customProps.text);
- expect(wrapper.find(<span style="color:#2aa198">&#39;.App-title&#39;</span>).text()).toBe(expected);
+  describe(<span style="color:#2aa198">&#39;App-title&#39;</span>, () =&gt; {
+    <span style="color:#268bd2">const</span> cases <span style="color:#719e07">=</span> [
+      [<span style="color:#2aa198">&#39;simple test1&#39;</span>, { text<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;Jest&#39;</span>}, <span style="color:#2aa198">&#39;Welcome to Jest&#39;</span>],
+      [<span style="color:#2aa198">&#39;simple test2&#39;</span>, { text<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;enzyme&#39;</span>}, <span style="color:#2aa198">&#39;Welcome to enzyme&#39;</span>]
+    ];
+    describe.each(cases)(<span style="color:#2aa198">&#39;change Props&#39;</span>, (title, override, expected) =&gt; {
+       it(title, () =&gt; {
+         <span style="color:#268bd2">const</span> customProps <span style="color:#719e07">=</span> <span style="color:#b58900">Object</span>.assign({}, emptyProps, override);
+         <span style="color:#268bd2">const</span> wrapper <span style="color:#719e07">=</span> shallow(&lt;<span style="color:#268bd2">App</span> {...customProps} /&gt;);
+         expect(wrapper.instance().props.text).toBe(customProps.text);
+         expect(wrapper.find(<span style="color:#2aa198">&#39;.App-title&#39;</span>).text()).toBe(expected);
+       });
+    });
+  });
 });
-});
-});
-});</code></pre></div></li>
-</ul></li>
-</ul>
-
-<p>利用した各々のバージョンは次のとおり。</p>
-
+</code></pre></div><p>利用した各々のバージョンは次のとおり。</p>
 <pre><code>$ create-react-app --version
 1.5.2
 
@@ -300,104 +279,81 @@ $ egrep &quot;react|jest|enzyme&quot; package.json
 &quot;enzyme-adapter-react-16&quot;: &quot;^1.5.0&quot;,
 &quot;react-test-renderer&quot;: &quot;^16.5.2&quot;
 ....
-</code></pre>
-
-<h1 id="プロジェクトの準備">プロジェクトの準備</h1>
-
+</code></pre><h1 id="プロジェクトの準備">プロジェクトの準備</h1>
 <p>まず、テーブル駆動テストを行うReactプロジェクトを作成する。</p>
-
 <pre><code>$ create-react-app tdt-react-jest-enzyme
-</code></pre>
-
-<p>テーブル駆動テストを利用しない場合は、このまま<code>enzyme</code>をインストールすればよい。<br />
-Jestについては<code>create-react-app</code>コマンドでプロジェクトを作成した時点でインストールされている。<br />
+</code></pre><p>テーブル駆動テストを利用しない場合は、このまま<code>enzyme</code>をインストールすればよい。<br>
+Jestについては<code>create-react-app</code>コマンドでプロジェクトを作成した時点でインストールされている。<br>
 <del>が、<code>create-react-app</code>の最新版（1.5.2）でも、プリインストールされているJestのバージョンは20.X系だった（<code>eject</code>するとわかる）。</del></p>
-
 <pre><code>&quot;jest&quot;: &quot;20.0.4&quot;,
-</code></pre>
-
-<p><del>Jestでテーブル駆動をするために必要な<code>describe.each</code>は23.X系からなので利用できない。</del></p>
-
-<hr />
-
-<p><strong>2018/10/04追記</strong><br />
-<code>create-react-app</code>の2.X系がリリースされ、デフォルトのJestも23.X系になった。<br />
-これから<code>create-react-app</code>コマンドで新規に作るプロジェクトは<code>yarn eject</code>してJestをアップデートする必要はない。<br />
+</code></pre><p><del>Jestでテーブル駆動をするために必要な<code>describe.each</code>は23.X系からなので利用できない。</del></p>
+<hr>
+<p><strong>2018/10/04追記</strong><br>
+<code>create-react-app</code>の2.X系がリリースされ、デフォルトのJestも23.X系になった。<br>
+これから<code>create-react-app</code>コマンドで新規に作るプロジェクトは<code>yarn eject</code>してJestをアップデートする必要はない。<br>
 ローカルにある<code>create-react-app</code>コマンドは<code>npm install -g create-react-app</code>で最新版に更新出来る。</p>
-
 <ul>
 <li>Create React App 2.0: Babel 7, Sass, and More
-
 <ul>
 <li><a href="https://reactjs.org/blog/2018/10/01/create-react-app-v2.html">https://reactjs.org/blog/2018/10/01/create-react-app-v2.html</a></li>
-</ul></li>
 </ul>
-
-<hr />
-
+</li>
+</ul>
+<hr>
 <ul>
 <li><code>describe.each(table)(name, fn, timeout)</code>
-
 <ul>
 <li><a href="https://jestjs.io/docs/en/api#describeeachtable-name-fn-timeout">https://jestjs.io/docs/en/api#describeeachtable-name-fn-timeout</a></li>
-</ul></li>
+</ul>
+</li>
 <li>Jest Release Notes
-
 <ul>
 <li><a href="https://github.com/facebook/jest/blob/master/CHANGELOG.md#2300">https://github.com/facebook/jest/blob/master/CHANGELOG.md#2300</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>そのため、<code>yarn eject</code>で<code>create-react-app</code>プロジェクトを解体したあと、Jestをアップグレードする。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ yarn eject
 $ yarn upgrade jest --latest
-$ yarn add -D enzyme enzyme-adapter-react-16 react-test-renderer</code></pre></div>
-<p><code>enzyme</code>は<code>create-react-app</code>のテンプレートに書いてあるとおりにインストールすれば良い。</p>
-
+$ yarn add -D enzyme enzyme-adapter-react-16 react-test-renderer
+</code></pre></div><p><code>enzyme</code>は<code>create-react-app</code>のテンプレートに書いてあるとおりにインストールすれば良い。</p>
 <ul>
-<li><p>Testing Components</p>
-
+<li>Testing Components
 <ul>
-<li><p><a href="https://github.com/facebook/create-react-app/blob/master/packages/react-scripts/template/README.md#testing-components">https://github.com/facebook/create-react-app/blob/master/packages/react-scripts/template/README.md#testing-components</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ yarn add -D enzyme enzyme-adapter-react-16 react-test-renderer</code></pre></div></li>
-</ul></li>
+<li><a href="https://github.com/facebook/create-react-app/blob/master/packages/react-scripts/template/README.md#testing-components">https://github.com/facebook/create-react-app/blob/master/packages/react-scripts/template/README.md#testing-components</a></li>
 </ul>
-
-<p>あとは<code>enzyme</code>を読み込む<code>setupTests.js</code>を作成する。</p>
+</li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ yarn add -D enzyme enzyme-adapter-react-16 react-test-renderer
+</code></pre></div><p>あとは<code>enzyme</code>を読み込む<code>setupTests.js</code>を作成する。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-react" data-lang="react"><span style="color:#268bd2">import</span> { configure } from <span style="color:#2aa198">&#39;enzyme&#39;</span>;
 <span style="color:#268bd2">import</span> Adapter from <span style="color:#2aa198">&#39;enzyme-adapter-react-16&#39;</span>;
 
-configure({ adapter<span style="color:#719e07">:</span> <span style="color:#719e07">new</span> Adapter() });</code></pre></div>
-<p>Jestが読み込むように<code>package.json</code>へ<code>&quot;setupTestFrameworkScriptFile</code>という設定を追加する。</p>
-
+configure({ adapter<span style="color:#719e07">:</span> <span style="color:#719e07">new</span> Adapter() });
+</code></pre></div><p>Jestが読み込むように<code>package.json</code>へ<code>&quot;setupTestFrameworkScriptFile</code>という設定を追加する。</p>
 <ul>
-<li><p>Jest - setupTestFrameworkScriptFile [string]</p>
-
+<li>Jest - setupTestFrameworkScriptFile [string]
 <ul>
-<li><p><a href="https://jestjs.io/docs/en/configuration.html#setuptestframeworkscriptfile-string">https://jestjs.io/docs/en/configuration.html#setuptestframeworkscriptfile-string</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff">&#34;jest&#34;: {
-...
-&#34;mjs&#34;
-],
-&#34;setupTestFrameworkScriptFile&#34;: &#34;&lt;rootDir&gt;/src/setupTests.js&#34;
-},
-</code></pre></div></li>
-</ul></li>
+<li><a href="https://jestjs.io/docs/en/configuration.html#setuptestframeworkscriptfile-string">https://jestjs.io/docs/en/configuration.html#setuptestframeworkscriptfile-string</a></li>
 </ul>
-
-<p>これでプロジェクトでテーブル駆動テストができる状態にできた。<br />
+</li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff">  &#34;jest&#34;: {
+   ...
+      &#34;mjs&#34;
+    ],
+    &#34;setupTestFrameworkScriptFile&#34;: &#34;&lt;rootDir&gt;/src/setupTests.js&#34;
+  },
+</code></pre></div><p>これでプロジェクトでテーブル駆動テストができる状態にできた。<br>
 あとは以下の命名規則に則ってテストファイルを作成して<code>yarn test</code>を実行すればテストが始まる。</p>
-
 <ul>
 <li>Jest - testRegex [string]
-
 <ul>
 <li><a href="https://jestjs.io/docs/en/configuration#testregex-string">https://jestjs.io/docs/en/configuration#testregex-string</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="jestでテーブル駆動テストを書く">Jestでテーブル駆動テストを書く</h1>
-
 <p>まず、テスト対象のコンポーネントを作成する。今回は<code>create-react-app</code>で出来た<code>src/App.js</code>を少し改良した。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-react" data-lang="react"><span style="color:#268bd2">import</span> React, { Component } from <span style="color:#2aa198">&#39;react&#39;</span>;
 <span style="color:#268bd2">import</span> PropTypes from <span style="color:#2aa198">&#39;prop-types&#39;</span>;
@@ -428,8 +384,8 @@ App.defaultProps <span style="color:#719e07">=</span> {
   text<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;React&#39;</span>
 };
 
-<span style="color:#268bd2">export</span> <span style="color:#719e07">default</span> App;</code></pre></div>
-<p>無修正だと本当にImmutableなため、<code>Props</code>をもたせて文字列が変わるようにしてある。<br />
+<span style="color:#268bd2">export</span> <span style="color:#719e07">default</span> App;
+</code></pre></div><p>無修正だと本当にImmutableなため、<code>Props</code>をもたせて文字列が変わるようにしてある。<br>
 テストは以下の通り。<code>__tests__</code>ディレクトリに入れるほうが好きだが、今回は<code>src/App.test.js</code>ファイルがあるのでそれを修正した。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-react" data-lang="react"><span style="color:#268bd2">import</span> React from <span style="color:#2aa198">&#39;react&#39;</span>;
 <span style="color:#268bd2">import</span> { shallow  } from <span style="color:#2aa198">&#39;enzyme&#39;</span>;
@@ -455,9 +411,9 @@ describe(<span style="color:#2aa198">&#39;App&#39;</span>, () =&gt; {
        });
     });
   });
-});</code></pre></div>
-<p>Rubyを書いているひとならば、<code>rspec</code>と文法が似ているのでは読みやすいのではないだろうか？<br />
-<code>cases</code>で作成したテストデータのテーブルの内容の数だけ、3回目の<code>describe</code>内が実行される。<br />
+});
+</code></pre></div><p>Rubyを書いているひとならば、<code>rspec</code>と文法が似ているのでは読みやすいのではないだろうか？<br>
+<code>cases</code>で作成したテストデータのテーブルの内容の数だけ、3回目の<code>describe</code>内が実行される。<br>
 これを<code>yarn test</code>で実行してみると、テストが2ケース実行されているのがわかる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"> PASS  src/App.test.js
   App
@@ -469,69 +425,58 @@ describe(<span style="color:#2aa198">&#39;App&#39;</span>, () =&gt; {
 Test Suites: <span style="color:#2aa198">1</span> passed, <span style="color:#2aa198">1</span> total
 Tests:       <span style="color:#2aa198">2</span> passed, <span style="color:#2aa198">2</span> total
 Snapshots:   <span style="color:#2aa198">0</span> total
-Time:        <span style="color:#2aa198">0</span>.888s, estimated 1s
-Ran all <span style="color:#b58900">test</span> suites.</code></pre></div>
-<p>Jestは<code>yarn test --watch</code>コマンドで実行するとファイル更新を検知して自動でテストを再実行してくれる。<br />
+Time:        0.888s, estimated 1s
+Ran all <span style="color:#b58900">test</span> suites.
+</code></pre></div><p>Jestは<code>yarn test --watch</code>コマンドで実行するとファイル更新を検知して自動でテストを再実行してくれる。<br>
 これでテーブル駆動テストをしながらテスト駆動開発(TDD)をすることができる。</p>
-
 <h1 id="テストを書くときのtips">テストを書くときのTips</h1>
-
-<p>enzymeはDOMコンポーネントにいろいろなアクセスをすることができる。メソッドも実行することができる。<br />
-APIリファレンスはサンプルコードも多いので、一通り眺めるとだいたいやりかたが載っている。<br />
+<p>enzymeはDOMコンポーネントにいろいろなアクセスをすることができる。メソッドも実行することができる。<br>
+APIリファレンスはサンプルコードも多いので、一通り眺めるとだいたいやりかたが載っている。<br>
 Matcherの書き方も、JestのAPIリファレンスの情報量が多いので公式を見れば良い。</p>
-
 <ul>
 <li>enzyme - API Reference
-
 <ul>
 <li><a href="http://airbnb.io/enzyme/docs/api/">http://airbnb.io/enzyme/docs/api/</a></li>
-</ul></li>
+</ul>
+</li>
 <li>Jest - Expect
-
 <ul>
 <li><a href="https://jestjs.io/docs/en/expect">https://jestjs.io/docs/en/expect</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>イマイチテストがうまく動かない、あるいは目的のデータにどうアクセスしたらいいのかわからないときは、
 以下のコマンドでデバッガを起動してREPL的に検証できる。</p>
-
 <ul>
-<li><p>Tests are Failing and You Don&rsquo;t Know Why</p>
-
+<li>Tests are Failing and You Don&rsquo;t Know Why
 <ul>
-<li><p><a href="https://jestjs.io/docs/en/troubleshooting#tests-are-failing-and-you-don-t-know-why">https://jestjs.io/docs/en/troubleshooting#tests-are-failing-and-you-don-t-know-why</a></p>
-
-<pre><code>$ node --inspect-brk node_modules/.bin/jest --runInBand
-</code></pre></li>
-</ul></li>
+<li><a href="https://jestjs.io/docs/en/troubleshooting#tests-are-failing-and-you-don-t-know-why">https://jestjs.io/docs/en/troubleshooting#tests-are-failing-and-you-don-t-know-why</a></li>
 </ul>
-
-<h1 id="終わりに">終わりに</h1>
-
-<p>普段はGoを書いているので、Reactでもテーブル駆動テスト（TDT）が書きたかった。<br />
-実際、Jestは<code>--watch</code>でホットリロードテストが書けるのでTDT+TDDでかなり実装が捗っている。<br />
-また、今回は省略したが、Flowとの併用も可能だ（おそらくTypeScriptととも）。<br />
+</li>
+</ul>
+<pre><code>$ node --inspect-brk node_modules/.bin/jest --runInBand
+</code></pre><h1 id="終わりに">終わりに</h1>
+<p>普段はGoを書いているので、Reactでもテーブル駆動テスト（TDT）が書きたかった。<br>
+実際、Jestは<code>--watch</code>でホットリロードテストが書けるのでTDT+TDDでかなり実装が捗っている。<br>
+また、今回は省略したが、Flowとの併用も可能だ（おそらくTypeScriptととも）。<br>
 Reduxなどに対するテストはまだ書いたことがないので、いずれやってみる。</p>
-
 <h1 id="参考">参考</h1>
-
 <ul>
 <li>golang/go Wiki - TableDrivenTests
-
 <ul>
 <li><a href="https://github.com/golang/go/wiki/TableDrivenTests">https://github.com/golang/go/wiki/TableDrivenTests</a></li>
-</ul></li>
+</ul>
+</li>
 <li>Jest
-
 <ul>
 <li><a href="https://jestjs.io/">https://jestjs.io/</a></li>
-</ul></li>
+</ul>
+</li>
 <li>enzyme
-
 <ul>
 <li><a href="http://airbnb.io/enzyme/">http://airbnb.io/enzyme/</a></li>
-</ul></li>
+</ul>
+</li>
 </ul>
         </div>
         
@@ -622,9 +567,9 @@ Reduxなどに対するテストはまだ書いたことがないので、いず
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -702,10 +647,16 @@ Reduxなどに対するテストはまだ書いたことがないので、いず
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -717,12 +668,6 @@ Reduxなどに対するテストはまだ書いたことがないので、いず
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

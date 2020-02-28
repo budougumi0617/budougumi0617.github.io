@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -169,26 +169,17 @@
           
           
           
-          
-
-<p>AWS LambdaでGoが正式にサポートされた！！</p>
-
-<p><strong>AWS Lambda Supports Go</strong><br />
+          <p>AWS LambdaでGoが正式にサポートされた！！</p>
+<p><strong>AWS Lambda Supports Go</strong><br>
 <a href="https://aws.amazon.com/jp/about-aws/whats-new/2018/01/aws-lambda-supports-go/">https://aws.amazon.com/jp/about-aws/whats-new/2018/01/aws-lambda-supports-go/</a></p>
-
-<p><strong>aws/aws-lambda-go</strong><br />
+<p><strong>aws/aws-lambda-go</strong><br>
 <a href="https://github.com/aws/aws-lambda-go">https://github.com/aws/aws-lambda-go</a></p>
-
 <p>2018/01/17現在、日本語版はまだだが、英語のDocsは公開されているので、それを基にGoでLambdaを動かす。</p>
-
-<p><strong>Programming Model for Authoring Lambda Functions in Go</strong><br />
+<p><strong>Programming Model for Authoring Lambda Functions in Go</strong><br>
 <a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model.html">https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model.html</a></p>
-
-<p><strong>Announcing Go Support for AWS Lambda</strong><br />
+<p><strong>Announcing Go Support for AWS Lambda</strong><br>
 <a href="https://aws.amazon.com/jp/blogs/compute/announcing-go-support-for-aws-lambda/">https://aws.amazon.com/jp/blogs/compute/announcing-go-support-for-aws-lambda/</a></p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>基本的にコードファイルひとつで実行バイナリまで作れる</li>
 <li>ハンドラ定義は5パターンのみ（<code>TIn</code>, <code>TOut</code>は<code>encoding/json</code>が使える構造体）</li>
@@ -197,8 +188,7 @@
 <li>エラー処理は<code>error</code>や<code>panic</code>など標準のものが使える</li>
 <li><code>os.Getenv</code>で環境変数の確認ができる</li>
 </ul>
-
-<p>実装したコードは以下<br />
+<p>実装したコードは以下<br>
 <a href="https://github.com/budougumi0617/sandbox-aws-lambda-go/blob/master/hello-lambda/main.go">https://github.com/budougumi0617/sandbox-aws-lambda-go/blob/master/hello-lambda/main.go</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
@@ -230,55 +220,47 @@
 
 <span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 	lambda.<span style="color:#268bd2">Start</span>(HelloLambdaHandler)
-}</code></pre></div>
-<h1 id="前提-準備">前提・準備</h1>
-
+}
+</code></pre></div><h1 id="前提準備">前提・準備</h1>
 <p>とりあえず動かすだけなのでzipでLambdaにコードをアップしてテストイベントで実行してみる。
 事前に空のLambda関数を作っておく。自分の設定は以下。</p>
-
 <ul>
 <li>コードエントリタイプ
-
 <ul>
 <li>.ZIPファイルをアップロード</li>
-</ul></li>
+</ul>
+</li>
 <li>ランタイム
-
 <ul>
 <li>Go 1.x</li>
-</ul></li>
+</ul>
+</li>
 <li>ハンドラ
-
 <ul>
 <li>main</li>
-</ul></li>
+</ul>
+</li>
 <li>実行ロール
-
 <ul>
 <li><a href="https://console.aws.amazon.com/iam/home?region=ap-northeast-1#/roles">IAM</a>で空のロールを作っておきそれを使う</li>
-</ul></li>
-
-<li><p>テストイベント</p>
-
-<ul>
-<li><p>イベントテンプレートの<code>AWS Config Change Triggered Rule</code>の値を少し変えたものを用意した。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
-<span style="color:#268bd2">&#34;configRuleId&#34;</span>: <span style="color:#2aa198">&#34;config-rule-0123456&#34;</span>,
-<span style="color:#268bd2">&#34;version&#34;</span>: <span style="color:#2aa198">&#34;6.17&#34;</span>,
-<span style="color:#268bd2">&#34;configRuleName&#34;</span>: ...
-}</code></pre></div></li>
-</ul></li>
 </ul>
-
-<p>もろもろのGoの開発環境は済んでいると想定する。</p>
-
-<h1 id="ハンドラ定義は5パターンのみ-tin-tout-は-encoding-json-が使える構造体">ハンドラ定義は5パターンのみ（<code>TIn</code>, <code>TOut</code>は<code>encoding/json</code>が使える構造体）</h1>
-
-<p><strong>Lambda Function Handler (Go)</strong><br />
+</li>
+<li>テストイベント
+<ul>
+<li>イベントテンプレートの<code>AWS Config Change Triggered Rule</code>の値を少し変えたものを用意した。</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+  <span style="color:#268bd2">&#34;configRuleId&#34;</span>: <span style="color:#2aa198">&#34;config-rule-0123456&#34;</span>,
+  <span style="color:#268bd2">&#34;version&#34;</span>: <span style="color:#2aa198">&#34;6.17&#34;</span>,
+  <span style="color:#268bd2">&#34;configRuleName&#34;</span>: ...
+}
+</code></pre></div><p>もろもろのGoの開発環境は済んでいると想定する。</p>
+<h1 id="ハンドラ定義は5パターンのみtin-toutはencodingjsonが使える構造体">ハンドラ定義は5パターンのみ（<code>TIn</code>, <code>TOut</code>は<code>encoding/json</code>が使える構造体）</h1>
+<p><strong>Lambda Function Handler (Go)</strong><br>
 <a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-handler-types.html">https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-handler-types.html</a></p>
-
 <p>ハンドラには<code>context.Context</code>やイベント情報が渡される。定義出来るパターンは以下。</p>
-
 <ul>
 <li><code>func ()</code></li>
 <li><code>func () error</code></li>
@@ -289,14 +271,11 @@
 <li><code>func (context.Context) (TOut, error)</code></li>
 <li><code>func (context.Context, TIn) (TOut, error)</code></li>
 </ul>
-
-<p>引数は0〜2個まで。引数を指定するときは<code>context.Context</code>を第一引数にするのが必須。<br />
-戻り値も0〜2個。最終戻り値は<code>error</code>になる形。<br />
-<code>TIn</code>と<code>TOut</code>は<code>encoding/json</code>で<code>Unmarshal</code>できる必要がある。<br />
+<p>引数は0〜2個まで。引数を指定するときは<code>context.Context</code>を第一引数にするのが必須。<br>
+戻り値も0〜2個。最終戻り値は<code>error</code>になる形。<br>
+<code>TIn</code>と<code>TOut</code>は<code>encoding/json</code>で<code>Unmarshal</code>できる必要がある。<br>
 AWS内のイベントは既に構造体が定義されているので、それをつかえる。</p>
-
 <p><a href="https://godoc.org/github.com/aws/aws-lambda-go/events">https://godoc.org/github.com/aws/aws-lambda-go/events</a></p>
-
 <p>今回は<code>events.ConfigEvent</code>を使ってみた。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> events
 
@@ -304,39 +283,32 @@ AWS内のイベントは既に構造体が定義されているので、それ�
 </span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> ConfigEvent <span style="color:#268bd2">struct</span> {
   <span style="color:#719e07">...</span>
   Version          <span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;version&#34;`</span>
-}</code></pre></div>
-<h1 id="渡される-context-の中には-lambdacontext-が入っている">渡される<code>Context</code>の中には<code>LambdaContext</code>が入っている</h1>
-
-<p><strong>The Context Object (Go)</strong><br />
+}
+</code></pre></div><h1 id="渡されるcontextの中にはlambdacontextが入っている">渡される<code>Context</code>の中には<code>LambdaContext</code>が入っている</h1>
+<p><strong>The Context Object (Go)</strong><br>
 <a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-context.html">https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-context.html</a></p>
-
 <p><a href="https://godoc.org/github.com/aws/aws-lambda-go/lambdacontext">https://godoc.org/github.com/aws/aws-lambda-go/lambdacontext</a></p>
-
 <p>ハンドラに渡される<code>context.Context</code>の中には、<code>LambdaContext</code>が入っていて、AWSの情報がよしなに入っている。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	lc, ok <span style="color:#719e07">:=</span> lambdacontext.<span style="color:#268bd2">FromContext</span>(ctx)
 	<span style="color:#719e07">if</span> !ok {
 		<span style="color:#719e07">return</span> <span style="color:#2aa198">&#34;&#34;</span>, errors.<span style="color:#268bd2">New</span>(<span style="color:#2aa198">&#34;Cannot find LambdaContext&#34;</span>)
 	}
-	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;InvokedFunctionArn = %s\n&#34;</span>, lc.InvokedFunctionArn) <span style="color:#719e07">//</span> InvokedFunctionArn = arn:aws:lambda:ap<span style="color:#719e07">-</span>no<span style="color:#719e07">...</span></code></pre></div>
-<p><a href="https://godoc.org/github.com/aws/aws-lambda-go/lambdacontext#NewContext">lambdacontext.NewContext</a>を使って
+	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;InvokedFunctionArn = %s\n&#34;</span>, lc.InvokedFunctionArn) <span style="color:#586e75">// InvokedFunctionArn = arn:aws:lambda:ap-no...
+</span><span style="color:#586e75"></span>
+</code></pre></div><p><a href="https://godoc.org/github.com/aws/aws-lambda-go/lambdacontext#NewContext">lambdacontext.NewContext</a>を使って
 自分で<code>Context</code>の中に<code>LambdaContext</code>を入れることも出来る(ハンドラ内でgoroutine回したりする時用？)</p>
-
-<h1 id="ログは-fmt-や-log-を使っていればよしなにしてくれる">ログは<code>fmt</code>や<code>log</code>を使っていればよしなにしてくれる</h1>
-
-<p><strong>Logging (Go）</strong><br />
+<h1 id="ログはfmtやlogを使っていればよしなにしてくれる">ログは<code>fmt</code>や<code>log</code>を使っていればよしなにしてくれる</h1>
+<p><strong>Logging (Go）</strong><br>
 <a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-logging.html">https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-logging.html</a></p>
-
 <p>ログは他の言語で実装したとき同様標準出力に出力すれば<code>CloudWatch</code>に保存される。<code>log</code>を使えばタイムスタンプを付与しておく事もできる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">log.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;log:InvokedFunctionArn = %s\n&#34;</span>, lc.InvokedFunctionArn) <span style="color:#586e75">// 2018/01/16 23:07:46 log:Invoked...
-</span><span style="color:#586e75"></span>fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;fmt:InvokedFunctionArn = %s\n&#34;</span>, lc.InvokedFunctionArn) <span style="color:#719e07">//</span> fmt:Invoked<span style="color:#719e07">...</span></code></pre></div>
-<h1 id="エラー処理は-erro-や-panic-など標準のものが使える">エラー処理は<code>erro</code>や<code>panic</code>など標準のものが使える</h1>
-
-<p><strong>Function Errors (Go)</strong><br />
+</span><span style="color:#586e75"></span>fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;fmt:InvokedFunctionArn = %s\n&#34;</span>, lc.InvokedFunctionArn) <span style="color:#586e75">// fmt:Invoked...
+</span><span style="color:#586e75"></span>
+</code></pre></div><h1 id="エラー処理はerroやpanicなど標準のものが使える">エラー処理は<code>erro</code>や<code>panic</code>など標準のものが使える</h1>
+<p><strong>Function Errors (Go)</strong><br>
 <a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-errors.html">https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-errors.html</a></p>
-
 <p>エラー処理は普通のGoとあまり変わらないようだ。ちゃんと試せてはいない。
 <code>panic</code>を仕込むとStackTraceなども取れるらしい？</p>
-
 <p>以下、上記公式の内容を引用。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
     <span style="color:#268bd2">&#34;errorMessage&#34;</span>: <span style="color:#2aa198">&#34;Something went wrong&#34;</span>,
@@ -350,36 +322,25 @@ AWS内のイベントは既に構造体が定義されているので、それ�
  ...
 
     ]
-}</code></pre></div>
-<h1 id="os-getenv-で環境変数の確認ができる"><code>os.Getenv</code>で環境変数の確認ができる</h1>
-
-<p><strong>Using Environment Variables (Go)</strong><br />
+}
+</code></pre></div><h1 id="osgetenvで環境変数の確認ができる"><code>os.Getenv</code>で環境変数の確認ができる</h1>
+<p><strong>Using Environment Variables (Go)</strong><br>
 <a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-env-variables.html">https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-env-variables.html</a></p>
-
 <p>他の言語と同様、<code>os.Getenv</code>で環境変数を取得できる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;\&#34;%s\&#34; executes on \&#34;%s\&#34;.\n&#34;</span>, os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;LAMBDA_TASK_ROOT&#34;</span>), os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;AWS_EXECUTION_ENV&#34;</span>))  <span style="color:#719e07">//</span> <span style="color:#2aa198">&#34;/var/task&#34;</span> executes on <span style="color:#2aa198">&#34;&#34;</span>.</code></pre></div>
-<p>ちなみに<code>AWS_EXECUTION_ENV</code>がどうなるか書いてなかったので、興味本位で見ようと思ったら本当に設定されてなかった（？）</p>
-
-<p><strong>Environment Variables Available to Lambda Functions</strong><br />
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;\&#34;%s\&#34; executes on \&#34;%s\&#34;.\n&#34;</span>, os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;LAMBDA_TASK_ROOT&#34;</span>), os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;AWS_EXECUTION_ENV&#34;</span>))  <span style="color:#586e75">// &#34;/var/task&#34; executes on &#34;&#34;.
+</span></code></pre></div><p>ちなみに<code>AWS_EXECUTION_ENV</code>がどうなるか書いてなかったので、興味本位で見ようと思ったら本当に設定されてなかった（？）</p>
+<p><strong>Environment Variables Available to Lambda Functions</strong><br>
 <a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/current-supported-versions.html#lambda-environment-variables">https://docs.aws.amazon.com/en_us/lambda/latest/dg/current-supported-versions.html#lambda-environment-variables</a></p>
-
 <p>2018/01/17現在、用意されている内容はこれくらい。</p>
-
-<h1 id="デプロイ-動作確認">デプロイ・動作確認</h1>
-
-<p>上記内容を全て実装したのが、冒頭に記載した以下のリンク先のコード<br />
+<h1 id="デプロイ動作確認">デプロイ・動作確認</h1>
+<p>上記内容を全て実装したのが、冒頭に記載した以下のリンク先のコード<br>
 <a href="https://github.com/budougumi0617/sandbox-aws-lambda-go/blob/master/hello-lambda/main.go">https://github.com/budougumi0617/sandbox-aws-lambda-go/blob/master/hello-lambda/main.go</a></p>
-
 <p>これをAWS Lambda上で動かしてみる。Goの(一番簡単な方法をする)場合はビルドしてzipに入れてアップするだけ。
 Linux用にビルドするのと、「前提・準備」で設定した「ハンドラ」と同じ名前のバイナリをするところだけ注意する。
 これをLambdaのWebコンソールからアップロードすれば実行できる</p>
-
 <pre><code>$ GOOS=linux go build -o main
 $ zip deployment.zip main
-</code></pre>
-
-<p>作成したテストイベントで実行した結果がこちら。</p>
-
+</code></pre><p>作成したテストイベントで実行した結果がこちら。</p>
 <pre><code>START RequestId: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXX Version: $LATEST
 2018/01/16 23:07:46 log:InvokedFunctionArn = arn:aws:lambda:ap-northeast-1:XXXXXXXXXXXXXX:function:myFirstLambda
 fmt:InvokedFunctionArn = arn:aws:lambda:ap-northeast-1:XXXXXXXXXXXX:function:myFirstLambda
@@ -387,51 +348,35 @@ fmt:InvokedFunctionArn = arn:aws:lambda:ap-northeast-1:XXXXXXXXXXXX:function:myF
 2018/01/16 23:14:26 &quot;/var/task&quot; executes on &quot;&quot;.
 END RequestId: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXX
 REPORT RequestId: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXX	Duration: 0.59 ms	Billed Duration: 100 ms 	Memory Size: 128 MB	Max Memory Used: 27 MB
-</code></pre>
-
-<p><img src="/2018/01/result-my_first_lambda.png" alt="Lambdaの実行結果" /></p>
-
+</code></pre><p><img src="/2018/01/result-my_first_lambda.png" alt="Lambdaの実行結果"></p>
 <p>動いた！<code>LambdaContext</code>の中身も確認できている。</p>
-
 <h1 id="終わりに">終わりに</h1>
-
 <p>この発表を聞いて初めてAWSの無料枠に入ったレベルだったので、今回はひとつのLambda内に閉じた実装だけ確かめた。
 Goでの実装はコードひとつだけでビルドできるので、非常に簡単だった。
-(正直コーディングの時間より<a href="https://aws.amazon.com/jp/register-flow/">初回登録</a>時の電話認証のほうが時間かかっている。)<br />
-自分はあまりクラウドに詳しくないのだが、これくらい小さく始められるのは嬉しい。CloudWatchにログ流したり、別のサービスのイベント拾ったり、少しずつ視野を広げられそう。<br />
+(正直コーディングの時間より<a href="https://aws.amazon.com/jp/register-flow/">初回登録</a>時の電話認証のほうが時間かかっている。)<br>
+自分はあまりクラウドに詳しくないのだが、これくらい小さく始められるのは嬉しい。CloudWatchにログ流したり、別のサービスのイベント拾ったり、少しずつ視野を広げられそう。<br>
 設定ファイルを置けばAWS CodePipelineなどを使って自動デプロイなども出来るらしいので、後日確かめてみたい。
 (冒頭の<a href="https://aws.amazon.com/jp/blogs/compute/announcing-go-support-for-aws-lambda/">ブログ</a>に詳しく書かれている。)</p>
-
-<p><strong>Creating a Deployment Package (Go）</strong><br />
+<p><strong>Creating a Deployment Package (Go）</strong><br>
 <a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/lambda-go-how-to-create-deployment-package.html">https://docs.aws.amazon.com/en_us/lambda/latest/dg/lambda-go-how-to-create-deployment-package.html</a></p>
-
 <h1 id="参考">参考</h1>
-
-<p><strong>aws/aws-lambda-go</strong><br />
+<p><strong>aws/aws-lambda-go</strong><br>
 <a href="https://github.com/aws/aws-lambda-go">https://github.com/aws/aws-lambda-go</a></p>
-
-<p><strong>GoDoc:aws/aws-lambda-go</strong><br />
+<p><strong>GoDoc:aws/aws-lambda-go</strong><br>
 <a href="https://godoc.org/github.com/aws/aws-lambda-go">https://godoc.org/github.com/aws/aws-lambda-go</a></p>
-
-<p><strong>AWS Lambda Supports Go</strong><br />
+<p><strong>AWS Lambda Supports Go</strong><br>
 <a href="https://aws.amazon.com/jp/about-aws/whats-new/2018/01/aws-lambda-supports-go/">https://aws.amazon.com/jp/about-aws/whats-new/2018/01/aws-lambda-supports-go/</a></p>
-
-<p><strong>Announcing Go Support for AWS Lambda</strong><br />
+<p><strong>Announcing Go Support for AWS Lambda</strong><br>
 <a href="https://aws.amazon.com/jp/blogs/compute/announcing-go-support-for-aws-lambda/">https://aws.amazon.com/jp/blogs/compute/announcing-go-support-for-aws-lambda/</a></p>
-
-<p><strong>Programming Model for Authoring Lambda Functions in Go</strong><br />
+<p><strong>Programming Model for Authoring Lambda Functions in Go</strong><br>
 <a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model.html">https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model.html</a></p>
-
-<p><strong>Creating a Deployment Package (Go）</strong><br />
+<p><strong>Creating a Deployment Package (Go）</strong><br>
 <a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/lambda-go-how-to-create-deployment-package.html">https://docs.aws.amazon.com/en_us/lambda/latest/dg/lambda-go-how-to-create-deployment-package.html</a></p>
-
-<p><strong>AWS SAMを利用してGolangなLambdaをデプロイする</strong><br />
+<p><strong>AWS SAMを利用してGolangなLambdaをデプロイする</strong><br>
 <a href="https://qiita.com/ikeisuke/items/3c0c422888ae8ae09831">https://qiita.com/ikeisuke/items/3c0c422888ae8ae09831</a></p>
-
-<p><strong>awsのlamdaがGo言語対応したので雑にsampleを動かしてみる</strong><br />
+<p><strong>awsのlamdaがGo言語対応したので雑にsampleを動かしてみる</strong><br>
 <a href="https://qiita.com/ieee0824/items/5bf3f9649f2378c6f2e5">https://qiita.com/ieee0824/items/5bf3f9649f2378c6f2e5</a></p>
-
-<p><strong>budougumi0617/sandbox-aws-lambda-go</strong><br />
+<p><strong>budougumi0617/sandbox-aws-lambda-go</strong><br>
 <a href="https://github.com/budougumi0617/sandbox-aws-lambda-go">https://github.com/budougumi0617/sandbox-aws-lambda-go</a></p>
 
         </div>
@@ -523,9 +468,9 @@ Goでの実装はコードひとつだけでビルドできるので、非常に
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -603,10 +548,16 @@ Goでの実装はコードひとつだけでビルドできるので、非常に
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -618,12 +569,6 @@ Goでの実装はコードひとつだけでビルドできるので、非常に
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

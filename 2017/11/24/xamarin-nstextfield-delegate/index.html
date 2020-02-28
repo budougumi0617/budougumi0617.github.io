@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -169,28 +169,18 @@
           
           
           
-          
-
-<p>知っているとすぐ出来るけど、知らないとちょっと時間がかかるシリーズ。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+          <p>知っているとすぐ出来るけど、知らないとちょっと時間がかかるシリーズ。</p>
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li><code>Xamarin.Mac</code>で<code>C#</code>側で文字入力のイベントを検出する</li>
 <li>その1。<code>NSTextField.value</code>への<code>string</code>のプロパティをデータバインドする</li>
 <li>その2。<code>NSTextFieldDelegate</code>を実装したクラスを<code>NSTextField.Delegate</code>に紐付けておく</li>
 </ul>
-
-<h1 id="nstextfield-や-nssecuretextfield-の変更を検知したい"><code>NStextField</code>や<code>NSSecureTextField</code>の変更を検知したい。</h1>
-
+<h1 id="nstextfieldやnssecuretextfieldの変更を検知したい"><code>NStextField</code>や<code>NSSecureTextField</code>の変更を検知したい。</h1>
 <p><code>Xamarin.Mac</code>で<code>NSTextField</code>や<code>NSSecureTextField</code>などに対する文字列入力イベントを検知し、処理を行う。その1のほうが直感的だしシンプル。</p>
-
-<h2 id="その1-nstextfield-value-への-string-のプロパティをデータバインドする">その1。<code>NSTextField.value</code>への<code>string</code>のプロパティをデータバインドする</h2>
-
+<h2 id="その1nstextfieldvalueへのstringのプロパティをデータバインドする">その1。<code>NSTextField.value</code>への<code>string</code>のプロパティをデータバインドする</h2>
 <p>普通に <code>NSTextField</code>の<code>value</code>に<code>string</code>のプロパティをデータバインドするだけでOKだった。データバインドのやり方は公式ページを参照のこと。</p>
-
 <p><a href="https://developer.xamarin.com/guides/mac/application_fundamentals/databinding/#Simple_Data_Binding">Data Binding and Key-Value Coding|Simple Data Binding</a></p>
-
 <p><code>ViewController</code>に<code>string</code>のプロパティを作る。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#586e75">// ViewController.cs
 </span><span style="color:#586e75"></span>    <span style="color:#dc322f">string</span> _password = <span style="color:#2aa198">&#34;&#34;</span>;
@@ -206,26 +196,16 @@
             DidChangeValue(nameof(Password));
         }
     }
-</code></pre></div>
-<p><code>XCode</code>で対象の<code>NSTextField</code>の<code>Bindings Inspector</code>でプロパティを紐付ける。</p>
-
-<p><img src="/2017/11/data-bind.png" alt="XCode見たNSTextFieldのBindings Inspector" /></p>
-
+</code></pre></div><p><code>XCode</code>で対象の<code>NSTextField</code>の<code>Bindings Inspector</code>でプロパティを紐付ける。</p>
+<p><img src="/2017/11/data-bind.png" alt="XCode見たNSTextFieldのBindings Inspector"></p>
 <p>文字が一文字編集されるたびにプロパティの<code>Setter</code>が呼ばれる。</p>
-
-<h2 id="その2-nstextfielddelegate-を実装したクラスを-nstextfield-delegate-に紐付けておく">その2。<code>NSTextFieldDelegate</code>を実装したクラスを<code>NSTextField.Delegate</code>に紐付けておく</h2>
-
+<h2 id="その2nstextfielddelegateを実装したクラスをnstextfielddelegateに紐付けておく">その2。<code>NSTextFieldDelegate</code>を実装したクラスを<code>NSTextField.Delegate</code>に紐付けておく</h2>
 <p>基本的には通常の<code>Cocoa App</code>プログラミングと同様のことを<code>C#</code>で実施するだけ。</p>
-
 <p><a href="https://blog.piyo.tech/posts/2015-07-30-080500">NSTextFieldで入力を検出する</a></p>
-
 <p>事前準備として、文字入力を検出したい<code>NSTextField</code>などのプロパティを<code>XCode</code>から<code>C#</code>のクラスへ自動生成しておく。
 方法はXamarin公式ページの以下のセクションから「Synchronizing Changes with Xcode」までを行うことで作成できる。</p>
-
 <p><a href="https://developer.xamarin.com/guides/mac/getting_started/hello,_mac/#Outlets_and_Actions">Hello, Mac|Outlets and Actions</a></p>
-
 <p>日本語で読みたい方はこちら</p>
-
 <p><a href="https://qiita.com/toshi0607/items/34b3e04f9ad24a5d0153#outlet%E3%81%A8action">Xamarin.Macを初めて触る人に贈る、Xamarin公式 Hello, Mac の日本語訳記事</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#586e75">// ViewController.designer.cs
 </span><span style="color:#586e75"></span>[Register(&#34;ViewController&#34;)]
@@ -234,9 +214,7 @@
     [Outlet]
     AppKit.NSTextField TextField { <span style="color:#719e07">get</span>; <span style="color:#719e07">set</span>; }
 }
-</code></pre></div>
-<p>検出時に行いたい処理を<code>NSTextFieldDelegate</code>継承クラスに実装する。</p>
-
+</code></pre></div><p>検出時に行いたい処理を<code>NSTextFieldDelegate</code>継承クラスに実装する。</p>
 <p><a href="https://developer.xamarin.com/api/type/MonoMac.AppKit.NSTextFieldDelegate/">https://developer.xamarin.com/api/type/MonoMac.AppKit.NSTextFieldDelegate/</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#719e07">public</span> <span style="color:#719e07">class</span> <span style="color:#268bd2">MyDeleGate</span> : AppKit.NSTextFieldDelegate{
     <span style="color:#719e07">public</span> <span style="color:#719e07">override</span> <span style="color:#719e07">void</span> Changed(NSNotification notification)
@@ -245,8 +223,7 @@
 </span><span style="color:#586e75"></span>        Console.WriteLine(<span style="color:#2aa198">&#34;Changed.&#34;</span>);
     }
 }
-</code></pre></div>
-<p>あとはこの<code>Delegate</code>インスタンスを`NSTextFieldなどに紐付けて終わり。</p>
+</code></pre></div><p>あとはこの<code>Delegate</code>インスタンスを`NSTextFieldなどに紐付けて終わり。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#586e75">// ViewController.cs
 </span><span style="color:#586e75"></span><span style="color:#719e07">public</span> <span style="color:#719e07">partial</span> <span style="color:#719e07">class</span> <span style="color:#268bd2">ViewController</span> : AppKit.NSViewController
 {        
@@ -255,9 +232,7 @@
         TextField.Delegate = <span style="color:#719e07">new</span> MyDeleGate();
     }
 }
-</code></pre></div>
-<hr />
-
+</code></pre></div><hr>
 <p>そこそこ調べてまずその2の方法を見つけた。そのあとその1でも出来ることに気づいたのでかなり遠回りしてしまった。
 普通のCocoaでもその1の方法できると思うのだけど、<code>Delegate</code>使ったほうがいいシーンってどんなときなんだろう？</p>
 
@@ -348,9 +323,9 @@
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -428,10 +403,16 @@
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -443,12 +424,6 @@
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

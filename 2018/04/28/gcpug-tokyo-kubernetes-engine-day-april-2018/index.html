@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -169,10 +169,7 @@
           
           
           
-          
-
-<p>GCPUGに行ってMercariのマイクロサービス環境、有識者方のGKEパネルディスカッションを聞いてきたので参加メモ。</p>
-
+          <p>GCPUGに行ってMercariのマイクロサービス環境、有識者方のGKEパネルディスカッションを聞いてきたので参加メモ。</p>
 <table>
 <thead>
 <tr>
@@ -180,42 +177,33 @@
 <th></th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>URL</td>
 <td><a href="https://gcpug-tokyo.connpass.com/event/81224/">https://gcpug-tokyo.connpass.com/event/81224/</a></td>
 </tr>
-
 <tr>
 <td>会場</td>
 <td>六本木ヒルズ 森タワー 18F メルカリ</td>
 </tr>
-
 <tr>
 <td>日時</td>
 <td>2018/04/26(木)19:00 〜 22:00</td>
 </tr>
-
 <tr>
 <td>資料</td>
 <td><a href="https://speakerdeck.com/tcnksm/microservices-on-gke-at-mercari">Microservices on GKE at Mercari</a></td>
 </tr>
-
 <tr>
 <td>ハッシュタグ</td>
 <td><a href="https://twitter.com/hashtag/gcpug">#gcpug</a></td>
 </tr>
 </tbody>
 </table>
-
 <h1 id="microservices-on-gke-at-mercari">Microservices On GKE At Mercari</h1>
-
-<p><a href="https://twitter.com/deeeet">@deeet</a><br />
+<p><a href="https://twitter.com/deeeet">@deeet</a><br>
 <a href="https://speakerdeck.com/tcnksm/microservices-on-gke-at-mercari">https://speakerdeck.com/tcnksm/microservices-on-gke-at-mercari</a></p>
-
 <h2 id="なぜmicroserviceを目指すのか">なぜMicroserviceを目指すのか。</h2>
-
 <ul>
 <li>最初はモノリスなシステムでよい。最初はむしろそのほうがラク。</li>
 <li>ビジネス、機能、組織の成長、そのなかでモノリスのシステムが肥大化していく</li>
@@ -224,35 +212,29 @@
 <li>コードのオーナーシップの低下、コミュニケーションのオーバーヘッドも発生してくる</li>
 <li>これらの問題を解決するためにマイクロサービス化していく</li>
 </ul>
-
 <h2 id="マイクロサービス">マイクロサービス</h2>
-
 <ul>
 <li>マイクロサービスはアプリケーションの構成を疎結合かつ各々の境界を定義した小さなサービスの集合体として構成する。</li>
 <li>個別の小サービスなのでテスト、アイソレーション、デプロイもらく、</li>
 </ul>
-
 <h3 id="マイクロサービスへの移行">マイクロサービスへの移行</h3>
-
 <ul>
 <li>Gatewayパターン、Stranglerパターンを利用することで少しずつ移管していく。</li>
 <li><a href="http://microservices.io/patterns/apigateway.html">API Gateway Pattern</a>
-
 <ul>
 <li>システムへのアクセスを全てAPIゲートウェイ経由にする</li>
 <li>システムの利用者側はモノリスからなのか切り出されたサービスからなのか意識せずにシステムにアクセスできる</li>
-</ul></li>
+</ul>
+</li>
 <li><a href="https://docs.microsoft.com/ja-jp/azure/architecture/patterns/strangler">Strangler Pattern</a>
-
 <ul>
 <li>あるサービス、コンポーネントにファサード(プロキシ）をかぶせる</li>
 <li>ファサードで機能の実現、あるいは別のサービスの機能を利用するようにする</li>
 <li>利用者側はファサードから先がどのように置き換わっているか意識することはない</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h2 id="メルカリのマイクロサービス構成">メルカリのマイクロサービス構成</h2>
-
 <ul>
 <li>既存のモノリスサービスはさくらインターネットの専用DCを使っている</li>
 <li>新しく作ったAPIゲートウェイやマイクロサービスは全てGCP上にある。</li>
@@ -263,9 +245,7 @@
 <li>各言語ごとのデプロイの仕方をつくるとかめんどくさい。</li>
 <li>インフラからみて「コンテナをデプロイする」という抽象レベルで各サービスのオペレーションが出来る</li>
 </ul>
-
-<h2 id="grpc-protocoll-buffers">gRPC(Protocoll Buffers)</h2>
-
+<h2 id="grpcprotocoll-buffers">gRPC(Protocoll Buffers)</h2>
 <ul>
 <li><a href="https://grpc.io/">https://grpc.io/</a></li>
 <li>データをシリアライズして高速なRPCを実現するプロトコル。</li>
@@ -273,32 +253,26 @@
 <li>APIゲートウェイと各マイクロサービスはGKE上に展開され、gRPCで通信している。</li>
 <li>gRPCを利用することでREST疲れやJSONを使っていたときのバリデーション(<code>1</code>?<code>&quot;1&quot;</code>?)の心配は不要になる</li>
 </ul>
-
 <h2 id="spinnaker">Spinnaker</h2>
-
 <ul>
 <li><a href="https://www.spinnaker.io/reference/providers/kubernetes-v2/">https://www.spinnaker.io/reference/providers/kubernetes-v2/</a></li>
 <li>継続的デリバリーツール。GUIでパイプラインの可視化、K8sクラスター上へカナリーリリースなどができる。</li>
 <li>デプロイはCircleCIでビルドしたコンテナをSpinnakerでデプロイしている</li>
 <li><a href="https://www.spinnaker.io/reference/providers/kubernetes-v2/">k8s Provider V2</a>を使うとYAMLでデプロイ設定の指定も可能</li>
 <li>Kayentaを使えばカナリリースをスコア化し自動カナリーリリースも出来る
-
 <ul>
 <li><a href="https://medium.com/netflix-techblog/automated-canary-analysis-at-netflix-with-kayenta-3260bc7acc69">Automated Canary Analysis at Netflix with Kayenta</a></li>
-</ul></li>
 </ul>
-
-<h2 id="istio-サービスメッシュ">Istio(サービスメッシュ)</h2>
-
+</li>
+</ul>
+<h2 id="istioサービスメッシュ">Istio(サービスメッシュ)</h2>
 <ul>
 <li><a href="https://istio.io/">https://istio.io/</a></li>
 <li>マイクロサービス間を仲介、もろもろの処理をしてくれるサービスメッシュを実現するOSS</li>
 <li>Istioを使えば、サービス間のリクエストをサイドカーパターンで注入したEnvoyで制御してくれる</li>
 <li>認証とか、<a href="http://microservices.io/patterns/reliability/circuit-breaker.html">サーキットブレーカー</a>とか。</li>
 </ul>
-
 <h2 id="gke">GKE</h2>
-
 <ul>
 <li>基本的に一カ国でひとつのプロダクションクラスター。</li>
 <li>日本は開発用クラスターはあるけど、今後はProductionクラスターひとつにまとめたい。</li>
@@ -308,9 +282,7 @@
 <li>それぞれのネームスペースにRBACつけていきたい（まだ）</li>
 <li>GCPのIAMはだいぶざっくりしているので、サービスごとにGCPプロジェクトを作りIAMアサイン。</li>
 </ul>
-
 <h2 id="terraform">Terraform</h2>
-
 <ul>
 <li><a href="https://www.terraform.io/">https://www.terraform.io/</a></li>
 <li>マネージドクラウドも含めてInfrastructure as Codeが出来る</li>
@@ -318,9 +290,7 @@
 <li>連用専用のRepoで管理。PR作ると自動でCIがTeraformの構成に則ってオペレーションしてくれる</li>
 <li>スクリプトで<code>new</code>とかするとすぐGCPプロジェクトが作れる状態</li>
 </ul>
-
 <h2 id="logging">Logging</h2>
-
 <ul>
 <li>Stackdriverにまとめて<a href="https://www.datadoghq.com/">Datadog</a>を使っている。</li>
 <li>全員が全部のログを見れるのは好ましくない</li>
@@ -328,68 +298,52 @@
 <li>基本的に<a href="https://www.datadoghq.com/">Datadog</a>を使っている。</li>
 <li>Datadog + Logmaticを検証中</li>
 </ul>
-
 <h2 id="external-dns-with-cloud-dns">External DNS with Cloud DNS</h2>
-
 <ul>
 <li><a href="https://github.com/kubernetes-incubator/external-dns">https://github.com/kubernetes-incubator/external-dns</a></li>
 <li>Ingressを作るとExternal DNSが自動でDNSに登録してくれる</li>
 </ul>
-
 <h2 id="heptio-ark-with-cloud-storage">Heptio Ark with Cloud Storage</h2>
-
 <ul>
 <li><a href="https://heptio.com/products/#heptio-ark">https://heptio.com/products/#heptio-ark</a></li>
 <li>k8sのボリュームの中身をGCSにもろもろバックアップ</li>
 </ul>
-
-<h2 id="non-gcp-gcpを使っていない部分">Non GCP(GCPを使っていない部分)</h2>
-
+<h2 id="non-gcpgcpを使っていない部分">Non GCP(GCPを使っていない部分)</h2>
 <ul>
 <li>Google Container Builder使わずCircle CIでビルドしている</li>
 <li>もろもろに通知したり連携しようとするとCircleCIのほうがラク</li>
 <li>Stackdriver Monitoringは使わずDataDog。連携しやすいし</li>
 <li>Stackdriver Error Reportigも使わずcentory</li>
 <li>Gremlinを検証中。GUIでカオスな問題を発生させることができる。
-
 <ul>
 <li><a href="https://www.gremlin.com/">https://www.gremlin.com/</a></li>
-<li><a href="https://www.infoq.com/jp/news/2018/01/gremlin-chaos-engineering">Gremlinが&rdquo;Resilience as a Service&rdquo;のSaaSプラットフォームをリリース</a></li>
-</ul></li>
+<li><a href="https://www.infoq.com/jp/news/2018/01/gremlin-chaos-engineering">Gremlinが&quot;Resilience as a Service&quot;のSaaSプラットフォームをリリース</a></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="gke-パネルディスカッション">GKE パネルディスカッション</h1>
-
 <p>覚えている内容&amp;&amp;印象的だったものについて</p>
-
-<h2 id="開発者はどこまで責任をもつんだろう-プログラム-dockerfile">開発者はどこまで責任をもつんだろう？プログラム？Dockerfile?</h2>
-
+<h2 id="開発者はどこまで責任をもつんだろうプログラムdockerfile">開発者はどこまで責任をもつんだろう？プログラム？Dockerfile?</h2>
 <ul>
 <li>会社規模感による？結構いろいろだった。</li>
 </ul>
-
 <h2 id="clusterの数どうしてる">Clusterの数どうしてる？</h2>
-
 <ul>
 <li>こちらもいろいろだった。GoogleのBorgはワンクラスターということはそれがよいのだろうか？</li>
 <li>どのみちセキュリティなどでクラスター内で住み分けをするのならば、Prod/Devの住み分けもできるよね。みたいな意見も。</li>
 </ul>
-
 <h2 id="データベースとかk8sにのっけている">データベースとかk8sにのっけている？</h2>
-
 <ul>
 <li>メルカリは基本的にマネージドつかってる。Redisはk8sに載っているけど今日マネージドRedis出たしそっちにうつりたい。
-
 <ul>
 <li><a href="https://cloud.google.com/memorystore/">CLOUD MEMORYSTORE BETA</a></li>
-</ul></li>
+</ul>
+</li>
 <li>いろんな人のリポジトリ見るとk8s上にミドルウェアに載せている人多そう。</li>
 <li>基本ミドルウェアは載せたくないけど、ゲームのマスターデータとかは載せちゃおうかなと思ったりはする。</li>
 <li>RabbitMQを動かしたいと思っている。Cloud pub/subはACQ？が短いからMQ動かしたい。</li>
 </ul>
-
 <h2 id="ログとかどうしている">ログとかどうしている？</h2>
-
 <ul>
 <li>Stackdriverだけのひとたちもいる。足りない機能もあるけどGCPでまとめておきたい気持ち</li>
 <li>メトリクスとかまではみていないけど、CPUパフォーマンスとかくらいは見ている。</li>
@@ -397,16 +351,12 @@
 <li>Datadogに最近コンテナマップってのが出たのでそれが便利。</li>
 <li>クラスターが多いとDataDog便利。</li>
 </ul>
-
 <h2 id="istioをprodで動かしている">Istioをprodで動かしている？</h2>
-
 <ul>
 <li>いなかった。。。</li>
 <li>カオステストはSpinnaker使ってるとカオスモンキーと連携できるし。</li>
 </ul>
-
 <h2 id="セキュリティで気をつけていることは">セキュリティで気をつけていることは？</h2>
-
 <ul>
 <li>クラスターレベルだとノードにログインできるのはSREだけ。</li>
 <li>ネームスペースごとのセキュリティをやりたい。</li>
@@ -415,93 +365,69 @@
 <li>ひたすらYouTubeでGoogleの動画を見るのがいい</li>
 <li>PodにSSHで入られても最小限にしておくとか、GCBの脆弱性診断でコンテナーの脆弱性検知するとか。</li>
 </ul>
-
 <h2 id="コンテナについて">コンテナについて</h2>
-
 <ul>
 <li>イメージの脆弱性もみたほうがよい。GCBの脆弱性診断はかなりよい</li>
 <li>コンテナーは基本軽くしたほうがよい。中身が少ない == 脆弱性も減るしデプロイ速くなる</li>
 <li>マルチステージビルドで軽くするのがマスト
-
 <ul>
 <li><a href="https://docs.docker.com/develop/develop-images/multistage-build/">https://docs.docker.com/develop/develop-images/multistage-build/</a></li>
-</ul></li>
 </ul>
-
-<h2 id="ingressでhttp-s-lb使ってる">IngressでHTTP(S) LB使ってる？</h2>
-
+</li>
+</ul>
+<h2 id="ingressでhttps-lb使ってる">IngressでHTTP(S) LB使ってる？</h2>
 <ul>
 <li>Ingress使ってるひとがおおい。HTTPSのプロトコルの</li>
 <li>Ingress使うとヘルスチェックでハマる。</li>
 <li>デフォルトだと<code>/</code>ルートの200レスポンス。Readinessを設定しておくとそっちにGETして手探してくれる。</li>
 <li>あとでReadiness probe付け足してもIngressを作り直さないと反映されない…</li>
 </ul>
-
 <h2 id="cluster-autoscalerとhorizontal-pod-autoscalerとか使ってる">Cluster AutoscalerとHorizontal Pod Autoscalerとか使ってる？</h2>
-
 <ul>
 <li>縮退がめっちゃ遅い。。Nodeに乗ってない状態でもなくなってくれないような。</li>
 <li>ゲームのような一瞬でスパイクするようなサービスの場合は去年のkubeconの基調講演とか見るといいかも？YouTubeに転がっているはず。</li>
 </ul>
-
 <h2 id="gkeのk8sのバージョンアップはどうしている">GKEのk8sのバージョンアップはどうしている？</h2>
-
 <ul>
 <li>頻繁にアップグレードして「久しぶりにアップグレードするから怖い」っていう状況を作らないのほうがよいかも。</li>
 <li>GKEは枯れていないのでちゃんと追従していないと振り落とされてしまう。</li>
 </ul>
-
-<h2 id="ci-cdはどれ使ってる">CI/CDはどれ使ってる</h2>
-
+<h2 id="cicdはどれ使ってる">CI/CDはどれ使ってる</h2>
 <ul>
 <li>GCBとかJenkins。Cloud function使って通知とか出来るし（大変だけど）</li>
 <li>Docker enterpriseでk8s使っている人、今日はあまりいない。。。</li>
 <li>Spinnakerのエラーは辛い。halコマンドで入れていればエラーログが多少見えるけど、Javaのエラーが読める人がいないと辛い。</li>
 </ul>
-
-<h2 id="appengineのようなバージョンurlの仕組み-どう用意している">AppEngineのようなバージョンURLの仕組み。どう用意している？</h2>
-
+<h2 id="appengineのようなバージョンurlの仕組みどう用意している">AppEngineのようなバージョンURLの仕組み。どう用意している？</h2>
 <ul>
 <li>Istioでやる予定。</li>
 <li>Istioで出来るならIstioの事例待つ…deeeetさんはよ…</li>
 <li>ゲームだとクライアントアプリ2バージョン対応しないといけないので、クライアントアプリ側でバージョンURLとか分けたいかも。</li>
 </ul>
-
 <h2 id="jenkins-xってどうなの">Jenkins Xってどうなの？</h2>
-
 <ul>
 <li>人柱もとむ。</li>
 </ul>
-
 <h2 id="木曜深夜2時にやっているkubernetes-community-meeting参加している人">木曜深夜2時にやっているKubernetes Community Meeting参加している人？</h2>
-
 <ul>
 <li><a href="https://kubernetes.io/community/">https://kubernetes.io/community/</a></li>
 <li>よくわからん。謎だ。</li>
 </ul>
-
 <h2 id="gke以外のマネージドk8sサービスを追いかけている人">GKE以外のマネージドk8sサービスを追いかけている人？</h2>
-
 <ul>
 <li>AWS Ffagateが実現するとすごいけど、どうなるのかなーー。</li>
 </ul>
-
 <h2 id="node-poolどうしている">Node Poolどうしている？</h2>
-
 <ul>
 <li>バージョンとかでノードプール分けるならばブルーグリーンすればよいのでは</li>
 <li>ハードが限定されるとかマシンレベルで事情があるときにノードプールで分けるとか。</li>
 </ul>
-
 <h1 id="感想">感想</h1>
-
-<p>Kubernetesの関連・周辺エコシステムや運用についての知見が盛りだくさんだった。<br />
-SpinnakerやIstioは名前を聴くけどまだあまり運用実績は日本になさそう？<br />
-k8sだけではなくて、大規模システムのマイクロサービス化について非常に参考になった。<br />
+<p>Kubernetesの関連・周辺エコシステムや運用についての知見が盛りだくさんだった。<br>
+SpinnakerやIstioは名前を聴くけどまだあまり運用実績は日本になさそう？<br>
+k8sだけではなくて、大規模システムのマイクロサービス化について非常に参考になった。<br>
 個人で遊んでいるとRBACとかただ難しいだけなんだけど、ベンダーサービス(IAM etc)に依存せずにk8s上だけでセキュリティ構築するのには重要になっていくのかな？</p>
-
 <h1 id="関連">関連</h1>
-
 <ul>
 <li><a href="/2018/02/05/gcpug-container-builder-day/">GCPUG Tokyo Container Builder Day February 2018 #gcpug 参加メモ</a></li>
 <li><a href="/2018/04/27/spinnaker-introduction/">[発表資料]Spinnaker入門 #cndjp5</a></li>
@@ -596,9 +522,9 @@ k8sだけではなくて、大規模システムのマイクロサービス化�
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -676,10 +602,16 @@ k8sだけではなくて、大規模システムのマイクロサービス化�
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -691,12 +623,6 @@ k8sだけではなくて、大規模システムのマイクロサービス化�
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

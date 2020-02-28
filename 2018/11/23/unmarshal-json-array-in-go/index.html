@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -173,21 +173,11 @@
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#json配列をうまくunmarshalできない">JSON配列をうまくUnmarshalできない</a></li>
-<li><a href="#構造体に-unmarshaljson-byte-error-を定義する">構造体に<code>UnmarshalJSON([]byte) error</code>を定義する</a></li>
-<li><a href="#interface-で受けて強引にパースしていく"><code>[]interface{}</code>で受けて強引にパースしていく</a></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
           <p>以下のようなJSONデータはGoではパースしずらい。
 理由は、配列に複数の型が含まれていてGoの配列としては<code>[]interface{}</code>にするしかないことと、名前(<code>key</code>)が設定されていないのでマッピングしにくいからだ。
 これを無理やりUnmarshalしたときのメモ。</p>
-
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
   <span style="color:#268bd2">&#34;totals&#34;</span>: [
     <span style="color:#2aa198">1</span>,
@@ -196,16 +186,13 @@
     <span style="color:#2aa198">&#34;42.85714&#34;</span>,
     <span style="color:#2aa198">4</span>
   ]
-}</code></pre></div>
-<h1 id="tl-dr">TL;DR</h1>
-
+}
+</code></pre></div><h1 id="tldr">TL;DR</h1>
 <ul>
 <li>Goは構造体の<code>UnmarshalJSON</code>を独自実装すると、Unmarshal時の挙動も独自定義できる</li>
 <li>JSON配列は<code>Unmarshal</code>すると<code>[]interface{}</code>となるので一つ一つ型キャストすれば値が取れる</li>
 </ul>
-
 <p>最初にコードだけ書いておくと以下になる。</p>
-
 <p><a href="https://play.golang.org/p/dB01YLzxExL">https://play.golang.org/p/dB01YLzxExL</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
@@ -276,9 +263,9 @@
 	<span style="color:#719e07">if</span> got.Totals <span style="color:#719e07">!=</span> want {
 		t.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;want:\n%+v\nbut, got:\n%#v&#34;</span>, want, got.Totals)
 	}
-}</code></pre></div>
-<h1 id="json配列をうまくunmarshalできない">JSON配列をうまくUnmarshalできない</h1>
+}
 
+</code></pre></div><h1 id="json配列をうまくunmarshalできない">JSON配列をうまくUnmarshalできない</h1>
 <p>Goで3rdパーティのAPIクライアントを書こうとしたら、以下のような<code>totals</code>配列を含んだJSONデータを出力されていた。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
   <span style="color:#268bd2">&#34;totals&#34;</span>: [
@@ -288,56 +275,46 @@
     <span style="color:#2aa198">&#34;42.85714&#34;</span>,
     <span style="color:#2aa198">4</span>
   ]
-}</code></pre></div>
-<p>GoでJSONデータをUnmarshalするときは通常は構造体のフィールドにタグをつけてマッピングすることでUnmarshalしていく。</p>
+}
+</code></pre></div><p>GoでJSONデータをUnmarshalするときは通常は構造体のフィールドにタグをつけてマッピングすることでUnmarshalしていく。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> User <span style="color:#268bd2">struct</span> {
 	Name      <span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;name&#34;`</span>
 	Email     <span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;email&#34;`</span>
-}</code></pre></div>
-<p>が、今回<code>totals</code>はオブジェクトではなく配列なので<code>Key</code>が設定されていない。また、intと文字列が混じる配列のため、単純な<code>[]int</code>でも受けられない。
+}
+</code></pre></div><p>が、今回<code>totals</code>はオブジェクトではなく配列なので<code>Key</code>が設定されていない。また、intと文字列が混じる配列のため、単純な<code>[]int</code>でも受けられない。
 そのため別手段で強引に構造体に<code>Unmarshal</code>することにした。</p>
-
-<h1 id="構造体に-unmarshaljson-byte-error-を定義する">構造体に<code>UnmarshalJSON([]byte) error</code>を定義する</h1>
-
+<h1 id="構造体にunmarshaljsonbyte-errorを定義する">構造体に<code>UnmarshalJSON([]byte) error</code>を定義する</h1>
 <p>まず、最終的に<code>totals</code>配列のデータを格納する構造体を定義する（一部省略）。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// TotalsArray defines totals responses.
 </span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> TotalsArray <span style="color:#268bd2">struct</span> {
 	Files         <span style="color:#dc322f">int</span>
 	CoverageRatio <span style="color:#dc322f">string</span>
-}</code></pre></div>
-<p>（配列に<code>key</code>はないが、腕力で何番目のデータが何を意味するのかは解析済…）</p>
-
+}
+</code></pre></div><p>（配列に<code>key</code>はないが、腕力で何番目のデータが何を意味するのかは解析済…）</p>
 <p>Goは構造体が<code>Unmarshaler</code>インターフェースを実装していればそれを使ってUnmarshalを行なう。</p>
-
 <p><a href="https://golang.org/pkg/encoding/json/#Unmarshaler">https://golang.org/pkg/encoding/json/#Unmarshaler</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Unmarshaler <span style="color:#268bd2">interface</span> {
         <span style="color:#268bd2">UnmarshalJSON</span>([]<span style="color:#dc322f">byte</span>) <span style="color:#dc322f">error</span>
-}</code></pre></div>
-<p>なので、<code>TotalsArray</code>に<code>UnmarshalJSON([]byte) error</code>を実装する。</p>
-
-<h1 id="interface-で受けて強引にパースしていく"><code>[]interface{}</code>で受けて強引にパースしていく</h1>
-
+}
+</code></pre></div><p>なので、<code>TotalsArray</code>に<code>UnmarshalJSON([]byte) error</code>を実装する。</p>
+<h1 id="interface">`[]interface</h1>
 <p><code>UnmarshalJSON([]byte) error</code>内で配列をパースしていく。
 <code>totals</code>は複数型のデータを持っているため、単純な<code>[]int</code>のような配列では受けることができない。
 そのため、一度<code>[]interface{}</code>で受けて、中身を型キャストして構造体に当てはめていく。<code>interface{}</code>オブジェクトとして<code>Unmarshal</code>すると、JSONデータは以下のように解釈される。</p>
-
 <ul>
-<li><p>encoding/json/#Unmarshal</p>
-
+<li>encoding/json/#Unmarshal
 <ul>
-<li><p><a href="https://golang.org/pkg/encoding/json/#Unmarshal">https://golang.org/pkg/encoding/json/#Unmarshal</a></p>
-
+<li><a href="https://golang.org/pkg/encoding/json/#Unmarshal">https://golang.org/pkg/encoding/json/#Unmarshal</a></li>
+</ul>
+</li>
+</ul>
 <pre><code>bool, for JSON booleans
 float64, for JSON numbers
 string, for JSON strings
 []interface{}, for JSON arrays
 map[string]interface{}, for JSON objects
 nil for JSON null
-</code></pre></li>
-</ul></li>
-</ul>
-
-<p>今回は<code>[]interface{}</code>の何番目がどんなデータかわかっているので、以下のようにタイプキャストして構造体のフィールドに取得した情報を代入していく。</p>
+</code></pre><p>今回は<code>[]interface{}</code>の何番目がどんなデータかわかっているので、以下のようにタイプキャストして構造体のフィールドに取得した情報を代入していく。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// UnmarshalJSON はエラーハンドリングを省略した簡易コード
 </span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (ta <span style="color:#719e07">*</span>TotalsArray) <span style="color:#268bd2">UnmarshalJSON</span>(data []<span style="color:#dc322f">byte</span>) <span style="color:#dc322f">error</span> {
 	<span style="color:#268bd2">var</span> arr <span style="color:#268bd2">interface</span>{}
@@ -353,33 +330,29 @@ nil for JSON null
 	ta.CoverageRatio = c
 
 	<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
-}</code></pre></div>
-<p>あとはこの<code>TotalsArray</code>を使ってJSONをUnmarshalすればよい。</p>
+}
+</code></pre></div><p>あとはこの<code>TotalsArray</code>を使ってJSONをUnmarshalすればよい。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">var</span> got <span style="color:#268bd2">struct</span> {
 				Totals TotalsArray <span style="color:#2aa198">`json:&#34;totals&#34;`</span>
 			}
 
-json.<span style="color:#268bd2">Unmarshal</span>(data, <span style="color:#719e07">&amp;</span>got)</code></pre></div>
-<h1 id="終わりに">終わりに</h1>
-
+json.<span style="color:#268bd2">Unmarshal</span>(data, <span style="color:#719e07">&amp;</span>got)
+</code></pre></div><h1 id="終わりに">終わりに</h1>
 <p>自分でAPIを設計するときはこんなJSONを出力するのは辞めよう。利用者がその値の意味を理解できない可能性があるし、配列内の順序が変わっていたとしても利用者は気づくことができないのでAPI間でバグが混入する可能性が高い。</p>
-
 <h1 id="参考">参考</h1>
-
 <ul>
 <li>JSON and Go
-
 <ul>
 <li><a href="https://blog.golang.org/json-and-go">https://blog.golang.org/json-and-go</a></li>
-</ul></li>
+</ul>
+</li>
 <li>encoding/json/#Unmarshal
-
 <ul>
 <li><a href="https://golang.org/pkg/encoding/json/#Unmarshal">https://golang.org/pkg/encoding/json/#Unmarshal</a></li>
-</ul></li>
 </ul>
-
-<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=B00LGJTXT8&linkId=8a84541627790149dbb0561368fbfafc"></iframe>
+</li>
+</ul>
+<!-- raw HTML omitted -->
         </div>
         
 
@@ -469,9 +442,9 @@ json.<span style="color:#268bd2">Unmarshal</span>(data, <span style="color:#719e
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -549,10 +522,16 @@ json.<span style="color:#268bd2">Unmarshal</span>(data, <span style="color:#719e
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -564,12 +543,6 @@ json.<span style="color:#268bd2">Unmarshal</span>(data, <span style="color:#719e
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

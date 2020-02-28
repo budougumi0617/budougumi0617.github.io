@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -169,11 +169,8 @@
           
           
           
-          
-
-<p>オラクル<a href="https://twitter.com/hhiroshell">@hhiroshell</a>さん主催のcndjp。
+          <p>オラクル<a href="https://twitter.com/hhiroshell">@hhiroshell</a>さん主催のcndjp。
 今回はKubernetes(k8s)のネットワーク構成について、そしてIstioの概要とそれを利用したサービスメッシュ構成のハンズオンを行った。</p>
-
 <table>
 <thead>
 <tr>
@@ -181,241 +178,182 @@
 <th></th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>URL</td>
 <td><a href="https://cnd.connpass.com/event/79999/">https://cnd.connpass.com/event/79999/</a></td>
 </tr>
-
 <tr>
 <td>会場</td>
 <td>オラクル青山センター</td>
 </tr>
-
 <tr>
 <td>日時</td>
 <td>2018/03/28(水) 18:30 〜 20:30</td>
 </tr>
-
 <tr>
 <td>資料1</td>
 <td><a href="https://speakerdeck.com/hhiroshell/kubernetes-network-deep-dive/">Kubernetes Network Deep Dive!</a></td>
 </tr>
-
 <tr>
 <td>資料2</td>
 <td><a href="https://speakerdeck.com/hhiroshell/istioru-men">Istio入門</a></td>
 </tr>
-
 <tr>
 <td>資料3</td>
 <td><a href="https://github.com/oracle-japan/cndjp4">ハンズオン資料</a></td>
 </tr>
-
 <tr>
 <td>ハッシュタグ</td>
 <td><a href="https://twitter.com/search?q=%23cndjp4">cndjp4</a></td>
 </tr>
 </tbody>
 </table>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>k8sのクラスターネットワークは３つのレイヤに分けて考えるとわかりやすい
-
 <ul>
 <li>Pod Network</li>
 <li>Service Network</li>
 <li>クラスタ外への公開</li>
-</ul></li>
+</ul>
+</li>
 <li>Istioを利用してサービスメッシュ構成を作成する
-
 <ul>
 <li>サービスメッシュの概要とそのメリット</li>
 <li>Istio概要</li>
-</ul></li>
 </ul>
-
-<h1 id="k8sクラスター-ネットワークの全体像">k8sクラスター・ネットワークの全体像</h1>
-
+</li>
+</ul>
+<h1 id="k8sクラスターネットワークの全体像">k8sクラスター・ネットワークの全体像</h1>
 <p>前半はk8sのクラスターネットワークについての勉強だった。</p>
-
 <h2 id="pod-network">Pod Network</h2>
-
 <p>コンテナの実行環境に対してk8sは以下のネットワーク構成を必要とする
 （このネットワーク構成はk8s自体の機能ではない）</p>
-
 <ul>
 <li>全てのコンテナがNATなしで他のコンテナと通信可能</li>
 <li>全てのノードがNATなしで他のコンテナと通信可能</li>
 <li>コンテナが自分のIPを参照するとき、そのIPは他のコンテナから見たときと同じでないと行けない。</li>
 </ul>
-
 <p>同じPod内のコンテナは同じIPになるので、Pod内のコンテナはそれぞれ異なるPort番号が割り当てられる。
 他のコンテナとPort番号がバッティングした場合はコンテナを立ち上げることができない。</p>
-
 <p>上記の条件の実現方式はFlannelやAdvanced Routing(GCE)などが提供されている。</p>
-
 <p><a href="https://kubernetes.io/docs/concepts/cluster-administration/networking/">https://kubernetes.io/docs/concepts/cluster-administration/networking/</a></p>
-
 <h2 id="service-network">Service Network</h2>
-
 <p>複数Podに対するルーティングやロードバランシングを実現するのがService Network。
 KubernetesオブジェクトでいうとServiceオブジェクトが該当する。
 k8sのServiceはLabelに応じてルーティングするPodを識別するが、Nodeのiptables、kube-proxyによって成り立っている。</p>
-
 <ul>
-<li>PodとServiceの間には、EndpointというLabel Selectorに当てはまるPodのIP、Portの対を保持するリソースが存在する。</li>
-
-<li><p>kube-proxyがServiceとEndpointの設定をWatchして各Nodeのiptablesを更新する</p></li>
-
-<li><p><a href="https://speakerdeck.com/apstndb/kubernetes-false-service-hatoudong-iteirufalseka">GKE/Kubernetes の Service はどう動いているのか</a></p></li>
+<li>
+<p>PodとServiceの間には、EndpointというLabel Selectorに当てはまるPodのIP、Portの対を保持するリソースが存在する。</p>
+</li>
+<li>
+<p>kube-proxyがServiceとEndpointの設定をWatchして各Nodeのiptablesを更新する</p>
+</li>
+<li>
+<p><a href="https://speakerdeck.com/apstndb/kubernetes-false-service-hatoudong-iteirufalseka">GKE/Kubernetes の Service はどう動いているのか</a></p>
+</li>
 </ul>
-
 <h2 id="クラスター外への公開">クラスター外への公開</h2>
-
 <p>k8sクラスターをクラスター外部に公開するときはいくつか方法がある</p>
-
 <ul>
 <li>ServiceのNodePortタイプを利用する</li>
 <li>ServiceのLoadBalancerタイプを利用する</li>
 <li>Ingress(beta)を利用する</li>
 </ul>
-
 <p>外部からの通信をうけたk8sのクラスターはiptablesによって接続先を変更し、Pod Networkで後の通信を処理する。</p>
-
 <h3 id="serviceのnodeport">ServiceのNodePort</h3>
-
 <p>単純に対象のPodを外部に公開する口を作成する。</p>
-
 <p><a href="https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport">Service|NodePort</a></p>
-
 <h3 id="serviceのloadbalancer">ServiceのLoadBalancer</h3>
-
 <p>クラウドプロバイダが提供するLBの自動構成を利用することができる。</p>
-
 <p>GCP, AWS, Azure, OpenStackで利用する際のYAMLの書き方は以下の公式ページに書いてある。
 (AWSだけやけに詳しい)</p>
-
 <p><a href="https://kubernetes.io/docs/concepts/services-networking/service/#type-loadbalancer">Service|LoadBalancer</a></p>
-
-<p><del><a href="https://speakerdeck.com/hhiroshell/kubernetes-network-deep-dive/">勉強会の資料(P46)</a>には「Serviceオブジェクト以上のことはLBに設定することはできない（(OSIの？)L3-L4相当)と書いてあるが、k8sの公式を見るとSSLの設定やアクセスログの設定もできそう。</del><br />
-<a href="https://kubernetes.io/docs/concepts/services-networking/service/#ssl-support-on-aws">SSL support on AWS</a><br />
+<p><del><a href="https://speakerdeck.com/hhiroshell/kubernetes-network-deep-dive/">勉強会の資料(P46)</a>には「Serviceオブジェクト以上のことはLBに設定することはできない（(OSIの？)L3-L4相当)と書いてあるが、k8sの公式を見るとSSLの設定やアクセスログの設定もできそう。</del><br>
+<a href="https://kubernetes.io/docs/concepts/services-networking/service/#ssl-support-on-aws">SSL support on AWS</a><br>
 <a href="https://kubernetes.io/docs/concepts/services-networking/service/#elb-access-logs-on-aws">ELB Access Logs on AWS</a></p>
-
 <p>2018/04/02 21:39 Slackで@hhiroshellさんに質問して回答を頂いた。すぐ回答いただけて大変ありがたい。</p>
-
 <ul>
 <li>TLS/SSlについて
-
 <ul>
 <li>あくまでクラウドベンダーのLBサービスに機能を移譲した時に副次的な効果（ある意味副作用？）でSSL/TLSが着くだけで、ServiceオブジェクトとしてSSL/TLSの責務を持とうとしているわけではない。</li>
-</ul></li>
+</ul>
+</li>
 <li>アクセスログについて
-
 <ul>
 <li>ロギングはルーティングの話とは直接関係ないので、Serivce(L3,L4)だからといってロギングが範囲外になるというわけではない。「IPヘッダやTCPヘッダ等をつかったルーティングまでしかできない」ことを指して「L3-L4相当」と言っている。</li>
-</ul></li>
 </ul>
-
-<h3 id="ingress-beta-を利用する">Ingress(beta)を利用する</h3>
-
+</li>
+</ul>
+<h3 id="ingressbetaを利用する">Ingress(beta)を利用する</h3>
 <p>IngressはL7 LoadBalancing を行なうリソース。SSL/TLS終端なども利用することができる。
 Ingressオブジェクトに構成情報を記載してIngress Controllerによってプロビジョニングを行う。</p>
-
-<p><a href="https://kubernetes.io/docs/concepts/services-networking/ingress/">Ingress</a><br />
+<p><a href="https://kubernetes.io/docs/concepts/services-networking/ingress/">Ingress</a><br>
 <a href="https://www.nginx.com/resources/glossary/layer-7-load-balancing/">WHAT IS LAYER 7 LOAD BALANCING?</a></p>
-
 <h2 id="ハンズオン">ハンズオン</h2>
-
 <p><a href="https://github.com/oracle-japan/cndjp4/blob/master/docs/handson1.md">https://github.com/oracle-japan/cndjp4/blob/master/docs/handson1.md</a></p>
-
 <p>ハンズオンでは作成したServiceオブジェクトを作成したあとEndpointの設定を確認し、<code>NGINX Ingress Controller</code>を利用したサービスの外部公開などを試した。</p>
-
 <h1 id="istio入門">Istio入門</h1>
-
 <p>後半はIstioについて紹介していただたいた。</p>
-
 <h2 id="サービスメッシュの概要とそのメリット">サービスメッシュの概要とそのメリット</h2>
-
 <p>まずIstioが提供するサービスメッシュの機能とはなにか。
 サービスメッシュとはマイクロサービス同士を接続するときに利用するミドルウェア。RESTにおけるmiddlewareパターン、gRPCにおけるInterceptorパターンをマイクロサービス間で実現すること。
 セキュリティ、ロードバランシング、ロギングなど、分散システム間に必要だがアプリケーションの本来の機能とは関係ない機能を適用することができる。</p>
-
 <h2 id="istioとは">Istioとは</h2>
-
 <p><a href="https://istio.io/">https://istio.io/</a></p>
-
 <p>Istioはサービスメッシュの機能を実装するオープンソース。意外とCNCFのプロダクトではない(内部で利用しているEnvoyはCNCFのプロダクト）。
 サービスメッシュを提供するOSSとしては他に<a href="https://linkerd.io/">Linkerd</a>などもある。</p>
-
 <h3 id="アーキテクチャ概要">アーキテクチャ概要</h3>
-
 <p><a href="https://istio.io/docs/concepts/what-is-istio/overview.html#architecture">https://istio.io/docs/concepts/what-is-istio/overview.html#architecture</a></p>
-
 <p>Istioは主に4種類のコンポーネントから構成される。</p>
-
 <ul>
 <li>Envoy
-
 <ul>
 <li>各Podにサイドカーパターンで注入される。これがPod間のトラフィックの仲介を行う。</li>
-</ul></li>
+</ul>
+</li>
 <li>Mixer
-
 <ul>
 <li>Envoyに適用するポリシーを提供しトラフィックの収集を行う</li>
-</ul></li>
+</ul>
+</li>
 <li>Pilot
-
 <ul>
 <li>Envoyを通してA/Bテストやカナリーデプロイメントやタイムアウト、リトライ回数などの高度なトラフィック管理を行う。</li>
-</ul></li>
+</ul>
+</li>
 <li>Istio-Auth
-
 <ul>
 <li>マイクロサービス間で利用する認証のための各種情報を提供する</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>Istioを使うことでサービス間の障害に対する対応やカナリーデプロイメントが簡単に適用できる</p>
-
 <ul>
 <li>リトライパターン</li>
 <li>サーキットブレーカーパターン</li>
 <li>バルクヘッドパターン</li>
 <li>カナリーデプロイメント</li>
 </ul>
-
 <h2 id="ハンズオン-1">ハンズオン</h2>
-
 <p><a href="https://github.com/oracle-japan/cndjp4/blob/master/docs/handson2.md">https://github.com/oracle-japan/cndjp4/blob/master/docs/handson2.md</a></p>
-
 <p>ハンズオンではIstio管理下にバージョンが異なるEnvoyを注入したサンプルアプリのPodを起動し、Istioによるトラフィック流量制御を行った。</p>
-
 <p>また、公式サイトの以下のハンズオンが良いとのこと</p>
-
 <ul>
 <li><a href="https://istio.io/docs/tasks/traffic-management/">トラフィックの管理</a></li>
 <li><a href="https://istio.io/docs/tasks/policy-enforcement/">ポリシーの適用</a></li>
 <li><a href="https://istio.io/docs/tasks/telemetry/">メトリック、ログ、トレース情報の収集</a></li>
 <li><a href="https://istio.io/docs/tasks/security/">セキュリティ</a></li>
 </ul>
-
 <h1 id="感想">感想</h1>
-
 <p>今回はk8sがコマンドの裏で実行しているネットワークの内部構成やサービスメッシュについて学ぶことができた。
 内部的にはiptablesを使っていたりと、昔からの技術、自分の知っている技術の上で成り立っていることを知ることが出来て、別にk8sもまったく新しい技術ではなく、既存技術から地続きで出来ているサービスであることを知れてよかった。</p>
-
 <p>Istioはローカルで実行するには最低でも4GB以上のメモリを利用するらしく、学習するにはそれなりのマシンスペックを用意する必要があるとのこと。
 認証や障害時の復旧は自分で実装するのはかなり難儀なため、こういったサービスメッシュの機能は積極的に利用していきたい。
 そしてOSI参照モデルのレイヤー層を聞いてもすぐにピンと来ない自分がいるのでこういった基礎、ちゃんと復習しないといけないなと思った。
 また、買ったまま積読になっている入門Kubernetesを早く読まなきゃという気持ちになった。</p>
-
 <h1 id="参考">参考</h1>
-
 <ul>
 <li><a href="https://speakerdeck.com/apstndb/kubernetes-false-service-hatoudong-iteirufalseka">GKE/Kubernetes の Service はどう動いているのか</a></li>
 <li><a href="https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport">Kubernetes|Service|NodePort</a></li>
@@ -516,9 +454,9 @@ Ingressオブジェクトに構成情報を記載してIngress Controllerによ�
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -596,10 +534,16 @@ Ingressオブジェクトに構成情報を記載してIngress Controllerによ�
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -611,12 +555,6 @@ Ingressオブジェクトに構成情報を記載してIngress Controllerによ�
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

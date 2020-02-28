@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -169,47 +169,29 @@
           
           
           
-          
-
-<p>git 2.17にすると使える(？)<code>-W</code>オプション(とついでに<code>-p</code>)が便利すぎたのでメモ。<br />
+          <p>git 2.17にすると使える(？)<code>-W</code>オプション(とついでに<code>-p</code>)が便利すぎたのでメモ。<br>
 2018/04/11現在、Macならば<code>brew upgrade git</code>で2.1.7に更新できる。</p>
-
-<p><strong>Git 2.17 is now available</strong><br />
+<p><strong>Git 2.17 is now available</strong><br>
 <a href="https://blog.github.com/2018-04-05-git-217-released/">https://blog.github.com/2018-04-05-git-217-released/</a></p>
-
 <p>（？なのは <a href="https://git-scm.com/docs/git-grep/">https://git-scm.com/docs/git-grep/</a> を見ると2.15とかでも使えそうな気配がするから）</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li><code>git grep -W</code>で検索結果にマッチしたワードを含む関数スコープを全て表示してくれる</li>
 <li><code>git grep -p</code>で検索結果にマッチしたワードを含んだ関数の名前を表示してくれる</li>
 </ul>
-
 <h1 id="git-grep"><code>git grep</code></h1>
-
 <p><a href="https://git-scm.com/docs/git-grep/">https://git-scm.com/docs/git-grep/</a></p>
-
 <p><code>git grep</code>サブコマンドを使うと<code>git</code>リポジトリで管理しているファイルを対象にgrepを実行してくれる。
 (<code>git</code>で管理されない)<code>vendor</code>ディレクトリや<code>node_modules</code>ディレクトリは無視してくれるので便利。</p>
-
-<h1 id="git-grep-w-で検索結果にマッチしたワードを含む関数スコープ全体を表示する"><code>git grep -W</code>で検索結果にマッチしたワードを含む関数スコープ全体を表示する</h1>
-
+<h1 id="git-grep--wで検索結果にマッチしたワードを含む関数スコープ全体を表示する"><code>git grep -W</code>で検索結果にマッチしたワードを含む関数スコープ全体を表示する</h1>
 <p><code>-W</code>(<code>--function-context</code>)オプションをつかうとマッチしたワードが含まれる関数スコープを表示してくれる。</p>
-
 <pre><code>    -W, --function-context
                           show the surrounding function
-</code></pre>
-
-<p>試した感じGoとReactはいい感じで関数を表示してくれた。</p>
-
+</code></pre><p>試した感じGoとReactはいい感じで関数を表示してくれた。</p>
 <p>普通にgrepするとマッチした行だけしかわからないが、</p>
-
 <pre><code>$ git grep -i hello front/src/*.js
 front/src/app.js:      &lt;h1&gt;Hello, React-golang!&lt;/h1&gt;
-</code></pre>
-
-<p><code>-W</code>オプションを使うと関数全体を表示してくれる。</p>
+</code></pre><p><code>-W</code>オプションを使うと関数全体を表示してくれる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">git grep -i -W hello front/src/*.js
 front/src/app.js<span style="color:#719e07">=</span>class App extends React.Component <span style="color:#719e07">{</span>
 front/src/app.js-  render<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
@@ -217,8 +199,8 @@ front/src/app.js-    <span style="color:#719e07">return</span> <span style="colo
 front/src/app.js:      &lt;h1&gt;Hello, React-golang!&lt;/h1&gt;
 front/src/app.js-    <span style="color:#719e07">)</span>;
 front/src/app.js-  <span style="color:#719e07">}</span>
-front/src/app.js-<span style="color:#719e07">}</span></code></pre></div>
-<p>Goでもこんな感じ。</p>
+front/src/app.js-<span style="color:#719e07">}</span>
+</code></pre></div><p>Goでもこんな感じ。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git grep -i -W hello backend/**/*.go
 backend/main.go<span style="color:#719e07">=</span>func handler<span style="color:#719e07">(</span>w http.ResponseWriter, r *http.Request<span style="color:#719e07">)</span> <span style="color:#719e07">{</span>
 backend/main.go-        dump, err :<span style="color:#719e07">=</span> httputil.DumpRequest<span style="color:#719e07">(</span>r, <span style="color:#b58900">true</span><span style="color:#719e07">)</span>
@@ -228,40 +210,29 @@ backend/main.go-                <span style="color:#719e07">return</span>
 backend/main.go-        <span style="color:#719e07">}</span>
 backend/main.go-        fmt.Println<span style="color:#719e07">(</span>string<span style="color:#719e07">(</span>dump<span style="color:#719e07">))</span>
 backend/main.go:        fmt.Fprintf<span style="color:#719e07">(</span>w, <span style="color:#2aa198">&#34;&lt;html&gt;&lt;body&gt;hello&lt;/body&gt;&lt;/html&gt;\n&#34;</span><span style="color:#719e07">)</span>
-backend/main.go-<span style="color:#719e07">}</span></code></pre></div>
-<h1 id="git-grep-p-で検索結果にマッチしたワードを含む関数の名前を表示する"><code>git grep -p</code>で検索結果にマッチしたワードを含む関数の名前を表示する</h1>
-
+backend/main.go-<span style="color:#719e07">}</span>
+</code></pre></div><h1 id="git-grep--pで検索結果にマッチしたワードを含む関数の名前を表示する"><code>git grep -p</code>で検索結果にマッチしたワードを含む関数の名前を表示する</h1>
 <p><code>-p</code>(<code>--show-function</code>)オプションを使うと関数名を表示してくれる。
 IDEがあれば関数名だけわかれば十分だし、リファクタリング対象や呼び出し元(呼び出し先)を探すときなどはこちらが便利かも。</p>
-
 <pre><code>    -p, --show-function   show a line with the function name before matches
-</code></pre>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git grep -i -p hello front/src/*.js
+</code></pre><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git grep -i -p hello front/src/*.js
 front/src/app.js<span style="color:#719e07">=</span>class App extends React.Component <span style="color:#719e07">{</span>
-front/src/app.js:      &lt;h1&gt;Hello, React-golang!&lt;/h1&gt;</code></pre></div>
-<p>Goでやってもこんな感じ。</p>
+front/src/app.js:      &lt;h1&gt;Hello, React-golang!&lt;/h1&gt;
+</code></pre></div><p>Goでやってもこんな感じ。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git grep -i -p hello backend/**/*.go
 backend/main.go<span style="color:#719e07">=</span>func handler<span style="color:#719e07">(</span>w http.ResponseWriter, r *http.Request<span style="color:#719e07">)</span> <span style="color:#719e07">{</span>
-backend/main.go:        fmt.Fprintf<span style="color:#719e07">(</span>w, <span style="color:#2aa198">&#34;&lt;html&gt;&lt;body&gt;hello&lt;/body&gt;&lt;/html&gt;\n&#34;</span><span style="color:#719e07">)</span></code></pre></div>
-<h1 id="終わりに">終わりに</h1>
-
+backend/main.go:        fmt.Fprintf<span style="color:#719e07">(</span>w, <span style="color:#2aa198">&#34;&lt;html&gt;&lt;body&gt;hello&lt;/body&gt;&lt;/html&gt;\n&#34;</span><span style="color:#719e07">)</span>
+</code></pre></div><h1 id="終わりに">終わりに</h1>
 <p>@deeeetさんのTweeetをみて調べてみたら今回の便利なオプションを見つけてしまった。</p>
-
-<p><blockquote class="twitter-tweet" data-partner="tweetdeck"><p lang="en" dir="ltr">Grepping with function context looks nice! / “Git 2.17 is now available | The GitHub Blog” <a href="https://t.co/OfE1RyJKNB">https://t.co/OfE1RyJKNB</a></p>&mdash; Taichi Nakashima (@deeeet) <a href="https://twitter.com/deeeet/status/982782674002571264?ref_src=twsrc%5Etfw">April 8, 2018</a></blockquote>
-<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
 <p>冒頭にも書いたとおり、<code>git grep</code>コマンドはgit管理のファイルのみを検索ターゲットとしてくれる。
 逆に言うとそれくらいしかあまりメリットを感じていなかったので結局<code>egrep</code>コマンドを多用していた。
 (<code>grep</code>でも<code>--exclude-dir=&quot;.git&quot; --exclude-dir=&quot;vendor&quot;</code>とかつければ変わらない。実行履歴からコマンド引き回せばタイプもしなくて済むし)
 前後の行を見たくて今まで<code>-A</code>とか<code>-B</code>を微調整しながらgrepしていたので<code>-W</code>で一気に見れたり、関数名が拾えるのはすごい便利だ。
 関数スコープがでかいコードが混ざると<code>-W</code>がうざったくなるので、関数を小さく作るいい癖もつきそう。</p>
-
 <p>何気なく使っているツールを少し調べるだけでも生産性は上げられるなと改めて痛感。</p>
-
 <h2 id="発展途上なところ">発展途上なところ</h2>
-
 <p>とは言え、言語最適化されていないためグローバルなスコープでワードがマッチすると期待した結果とは異なる表示になる。</p>
-
 <p>たとえば、<code>-W</code>オプションを使っている時にGoのファイルの関数コメントとマッチしたときはファイル冒頭の<code>import</code>文まで結果が表示された。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">git grep -W TODO backend/**/*.go
 backend/mysql/mysql.go<span style="color:#719e07">=</span>import <span style="color:#719e07">(</span>
@@ -275,7 +246,8 @@ backend/mysql/mysql.go- _ <span style="color:#2aa198">&#34;github.com/jinzhu/gor
 backend/mysql/mysql.go-<span style="color:#719e07">)</span>
 backend/mysql/mysql.go-
 backend/mysql/mysql.go:// Task TODO
-backend/mysql/mysql.go-// http://doc.gorm.io/models.html</code></pre></div>
+backend/mysql/mysql.go-// http://doc.gorm.io/models.html
+</code></pre></div>
         </div>
         
 
@@ -354,9 +326,9 @@ backend/mysql/mysql.go-// http://doc.gorm.io/models.html</code></pre></div>
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -434,10 +406,16 @@ backend/mysql/mysql.go-// http://doc.gorm.io/models.html</code></pre></div>
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -449,12 +427,6 @@ backend/mysql/mysql.go-// http://doc.gorm.io/models.html</code></pre></div>
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

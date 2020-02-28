@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -60,14 +60,12 @@
   <meta property="og:title" content="Goのtestingを理解する in 2018 - quickサブパッケージ編 #go - My External Storage"/>
   <meta property="og:description" content="この記事は以下の記事で触れなかったtesting/quickパッケージについてまとめる。
 
-
 Goのtestを理解する in 2018 #go
 Goのtestingを理解する in 2018 - Examples編 #go
 "/>
   
   <meta name="twitter:title" content="Goのtestingを理解する in 2018 - quickサブパッケージ編 #go - My External Storage"/>
   <meta name="twitter:description" content="この記事は以下の記事で触れなかったtesting/quickパッケージについてまとめる。
-
 
 Goのtestを理解する in 2018 #go
 Goのtestingを理解する in 2018 - Examples編 #go
@@ -184,54 +182,40 @@ Goのtestingを理解する in 2018 - Examples編 #go
           
           
             <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#quick-checkequal関数">quick.CheckEqual関数</a>
-<ul>
-<li><a href="#quick-checkerror">quick.CheckError</a></li>
-</ul></li>
-<li><a href="#quick-checkequal">quick.CheckEqual</a>
-<ul>
-<li><a href="#quick-checkequalerror">quick.CheckEqualError</a></li>
-</ul></li>
-<li><a href="#quick-value">quick.Value</a></li>
-<li><a href="#generatorインターフェース">Generatorインターフェース</a></li>
-<li><a href="#参考">参考</a></li>
-<li><a href="#関連">関連</a></li>
-</ul>
+  <ul>
+    <li><a href="#quickcheckerror">quick.CheckError</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#quickcheckequalerror">quick.CheckEqualError</a></li>
+  </ul>
 </nav>
           
           <p>この記事は以下の記事で触れなかった<code>testing/quick</code>パッケージについてまとめる。</p>
-
 <ul>
 <li><a href="/2018/08/19/go-testing2018">Goのtestを理解する in 2018 #go</a></li>
 <li><a href="/2018/08/30/go-testing2018-examples/">Goのtestingを理解する in 2018 - Examples編 #go</a></li>
 </ul>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>testing/quickパッケージ
-
 <ul>
 <li><a href="https://golang.org/pkg/testing/quick/">https://golang.org/pkg/testing/quick/</a></li>
-</ul></li>
+</ul>
+</li>
 <li><code>testing/quick</code>パッケージはランダムテストを行う</li>
 <li>新旧メソッドを比較するデグレ確認にも使うことができる。</li>
 </ul>
-
-<h1 id="quick-checkequal関数">quick.CheckEqual関数</h1>
-
+<h1 id="quickcheckequal関数">quick.CheckEqual関数</h1>
 <ul>
 <li><a href="https://golang.org/pkg/testing/quick/#Check">https://golang.org/pkg/testing/quick/#Check</a></li>
 </ul>
-
 <p><code>func Check(f interface{}, config *Config) error</code>は与えられた関数<code>f</code>に対してランダムテストを行う。
 <code>f</code>の引数が構造体や文字列でもある程度は融通してランダムな引数を用意してくれる。
 また、<code>f</code>は戻り値が<code>bool</code>である必要があるので、必要に応じてラップ関数を作る。</p>
-
 <ul>
-<li><p><a href="https://play.golang.org/p/ovZM2kkwHBK">https://play.golang.org/p/ovZM2kkwHBK</a></p>
+<li><a href="https://play.golang.org/p/ovZM2kkwHBK">https://play.golang.org/p/ovZM2kkwHBK</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> MyInt <span style="color:#268bd2">struct</span> {
 	V <span style="color:#dc322f">int</span>
 	X <span style="color:#dc322f">string</span>
@@ -250,13 +234,11 @@ Goのtestingを理解する in 2018 - Examples編 #go
 	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> quick.<span style="color:#268bd2">Check</span>(f, <span style="color:#cb4b16">nil</span>); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 		t.<span style="color:#268bd2">Error</span>(err.<span style="color:#268bd2">Error</span>())
 	}
-}</code></pre></div></li>
-</ul>
-
-<p>第二引数の<code>quick.Config</code>を指定すれば、試行回数や与える引数の範囲、ランダムシードなどを設定できる。</p>
-
+}
+</code></pre></div><p>第二引数の<code>quick.Config</code>を指定すれば、試行回数や与える引数の範囲、ランダムシードなどを設定できる。</p>
 <ul>
-<li><p><a href="https://play.golang.org/p/8nPw0pgUkN3">https://play.golang.org/p/8nPw0pgUkN3</a></p>
+<li><a href="https://play.golang.org/p/8nPw0pgUkN3">https://play.golang.org/p/8nPw0pgUkN3</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	cfg <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>quick.Config{
 		<span style="color:#586e75">// 試行回数
 </span><span style="color:#586e75"></span>		MaxCount: <span style="color:#2aa198">10</span>,
@@ -271,35 +253,28 @@ Goのtestingを理解する in 2018 - Examples編 #go
 
 	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> quick.<span style="color:#268bd2">Check</span>(f, cfg); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 		t.<span style="color:#268bd2">Error</span>(err.<span style="color:#268bd2">Error</span>())
-	}</code></pre></div></li>
-</ul>
-
-<h2 id="quick-checkerror">quick.CheckError</h2>
-
+	}
+</code></pre></div><h2 id="quickcheckerror">quick.CheckError</h2>
 <p><code>quick.Check</code>関数が戻す<code>Error</code>は<code>quick.CheckError</code>型のポインタなので、任意の情報も取得できる。</p>
-
 <ul>
-<li><p><a href="https://golang.org/pkg/testing/quick/#CheckError">https://golang.org/pkg/testing/quick/#CheckError</a></p>
+<li><a href="https://golang.org/pkg/testing/quick/#CheckError">https://golang.org/pkg/testing/quick/#CheckError</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> quick.<span style="color:#268bd2">Check</span>(f, <span style="color:#cb4b16">nil</span>); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 		<span style="color:#719e07">if</span> ce, ok <span style="color:#719e07">:=</span> err.(<span style="color:#719e07">*</span>quick.CheckError); ok {
 			t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;Try count = %d, In %#v, Out %s\n&#34;</span>, ce.Count, ce.In, ce)
 		} <span style="color:#719e07">else</span> {
 			t.<span style="color:#268bd2">Error</span>(err)
 		}
-	}</code></pre></div></li>
-</ul>
-
-<h1 id="quick-checkequal">quick.CheckEqual</h1>
-
+	}
+</code></pre></div><h1 id="quickcheckequal">quick.CheckEqual</h1>
 <ul>
 <li><a href="https://golang.org/pkg/testing/quick/#CheckEqual">https://golang.org/pkg/testing/quick/#CheckEqual</a></li>
 </ul>
-
-<p><code>quick.CheckEqual</code>関数は2つの関数に対して乱数テストを実施し、出力結果に変化がないか確認をできる。
+<p><code> quick.CheckEqual</code>関数は2つの関数に対して乱数テストを実施し、出力結果に変化がないか確認をできる。
 Go本体のコードでは例えば<code>sync.Map</code>の挙動の確認に利用されている。</p>
-
 <ul>
-<li><p><a href="https://github.com/golang/go/blob/67ac554d7978eb93f3dfe7a819c67948dd291d88/src/sync/map_test.go#L99-L109">https://github.com/golang/go/blob/67ac554d7978eb93f3dfe7a819c67948dd291d88/src/sync/map_test.go#L99-L109</a></p>
+<li><a href="https://github.com/golang/go/blob/67ac554d7978eb93f3dfe7a819c67948dd291d88/src/sync/map_test.go#L99-L109">https://github.com/golang/go/blob/67ac554d7978eb93f3dfe7a819c67948dd291d88/src/sync/map_test.go#L99-L109</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestMapMatchesRWMutex</span>(t <span style="color:#719e07">*</span>testing.T) {
 	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> quick.<span style="color:#268bd2">CheckEqual</span>(applyMap, applyRWMutexMap, <span style="color:#cb4b16">nil</span>); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 		t.<span style="color:#268bd2">Error</span>(err)
@@ -310,32 +285,28 @@ Go本体のコードでは例えば<code>sync.Map</code>の挙動の確認に利
 	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> quick.<span style="color:#268bd2">CheckEqual</span>(applyMap, applyDeepCopyMap, <span style="color:#cb4b16">nil</span>); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 		t.<span style="color:#268bd2">Error</span>(err)
 	}
-}</code></pre></div></li>
-</ul>
-
-<h2 id="quick-checkequalerror">quick.CheckEqualError</h2>
-
+}
+</code></pre></div><h2 id="quickcheckequalerror">quick.CheckEqualError</h2>
 <ul>
 <li><a href="https://golang.org/pkg/testing/quick/#CheckEqualError">https://golang.org/pkg/testing/quick/#CheckEqualError</a></li>
 </ul>
-
 <p><code>quick.CheckEqual</code>関数が戻す<code>Error</code>も<code>quick.CheckEqualError</code>として定義されているので、結果が不一致なときの各情報を取得できる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> CheckEqualError <span style="color:#268bd2">struct</span> {
         CheckError
         Out1 []<span style="color:#268bd2">interface</span>{}
         Out2 []<span style="color:#268bd2">interface</span>{}
-}</code></pre></div>
-<h1 id="quick-value">quick.Value</h1>
-
+}
+</code></pre></div><h1 id="quickvalue">quick.Value</h1>
 <p>ただ単にランダムな値が欲しい場合は、<code>quick.Value</code>関数で生成できる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// 乱数整数を生成する
 </span><span style="color:#586e75"></span>ri, _ <span style="color:#719e07">:=</span> quick.<span style="color:#268bd2">Value</span>(reflect.<span style="color:#268bd2">TypeOf</span>([]<span style="color:#dc322f">int</span>{}), rand.<span style="color:#268bd2">New</span>(rand.<span style="color:#268bd2">NewSource</span>(<span style="color:#2aa198">0</span>)))
 <span style="color:#586e75">// 乱数整数スライスを生成する
-</span><span style="color:#586e75"></span>ris, _ <span style="color:#719e07">:=</span> quick.<span style="color:#268bd2">Value</span>(reflect.<span style="color:#268bd2">TypeOf</span>([]<span style="color:#dc322f">int</span>{}), rand.<span style="color:#268bd2">New</span>(rand.<span style="color:#268bd2">NewSource</span>(<span style="color:#2aa198">0</span>)))</code></pre></div>
-<h1 id="generatorインターフェース">Generatorインターフェース</h1>
-
-<p><code>Generator</code>インターフェースを実装していれば、独自定義した型も<code>quick.Value</code>の引数に利用できる。
-- <a href="https://play.golang.org/p/8HRbhNYBsnu">https://play.golang.org/p/8HRbhNYBsnu</a></p>
+</span><span style="color:#586e75"></span>ris, _ <span style="color:#719e07">:=</span> quick.<span style="color:#268bd2">Value</span>(reflect.<span style="color:#268bd2">TypeOf</span>([]<span style="color:#dc322f">int</span>{}), rand.<span style="color:#268bd2">New</span>(rand.<span style="color:#268bd2">NewSource</span>(<span style="color:#2aa198">0</span>)))
+</code></pre></div><h1 id="generatorインターフェース">Generatorインターフェース</h1>
+<p><code>Generator</code>インターフェースを実装していれば、独自定義した型も<code>quick.Value</code>の引数に利用できる。</p>
+<ul>
+<li><a href="https://play.golang.org/p/8HRbhNYBsnu">https://play.golang.org/p/8HRbhNYBsnu</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Foo <span style="color:#268bd2">struct</span>{}
 
 <span style="color:#268bd2">func</span> (f <span style="color:#719e07">*</span>Foo) <span style="color:#268bd2">Generate</span>(rand <span style="color:#719e07">*</span>rand.Rand, size <span style="color:#dc322f">int</span>) reflect.Value {
@@ -345,29 +316,26 @@ Go本体のコードでは例えば<code>sync.Map</code>の挙動の確認に利
 
 <span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 	v, ok <span style="color:#719e07">:=</span> quick.<span style="color:#268bd2">Value</span>(reflect.<span style="color:#268bd2">TypeOf</span>([]<span style="color:#719e07">*</span>Foo{}), rand.<span style="color:#268bd2">New</span>(rand.<span style="color:#268bd2">NewSource</span>(<span style="color:#2aa198">0</span>)))
-}</code></pre></div>
-<h1 id="参考">参考</h1>
-
+}
+</code></pre></div><h1 id="参考">参考</h1>
 <ul>
 <li>GoでQuickCheckをする
-
 <ul>
 <li><a href="https://ymotongpoo.hatenablog.com/entry/2012/11/30/155846">https://ymotongpoo.hatenablog.com/entry/2012/11/30/155846</a></li>
-</ul></li>
+</ul>
+</li>
 <li>Goでテストを書く(テストの実装パターン集) - QuickCheck(testing/quick)でブラックボックステストをする
-
 <ul>
 <li><a href="https://qiita.com/atotto/items/f6b8c773264a3183a53c#quickchecktestingquick%E3%81%A7%E3%83%96%E3%83%A9%E3%83%83%E3%82%AF%E3%83%9C%E3%83%83%E3%82%AF%E3%82%B9%E3%83%86%E3%82%B9%E3%83%88%E3%82%92%E3%81%99%E3%82%8B">https://qiita.com/atotto/items/f6b8c773264a3183a53c#quickchecktestingquick%E3%81%A7%E3%83%96%E3%83%A9%E3%83%83%E3%82%AF%E3%83%9C%E3%83%83%E3%82%AF%E3%82%B9%E3%83%86%E3%82%B9%E3%83%88%E3%82%92%E3%81%99%E3%82%8B</a></li>
-</ul></li>
-<li>Goのtesting/quickを簡単に触ってみる
-
-<ul>
-<li><a href="http://kamenasu.blogspot.com/2015/04/go-testing-quick.html)">http://kamenasu.blogspot.com/2015/04/go-testing-quick.html)</a></li>
-</ul></li>
 </ul>
-
+</li>
+<li>Goのtesting/quickを簡単に触ってみる
+<ul>
+<li><a href="http://kamenasu.blogspot.com/2015/04/go-testing-quick.html">http://kamenasu.blogspot.com/2015/04/go-testing-quick.html</a>)</li>
+</ul>
+</li>
+</ul>
 <h1 id="関連">関連</h1>
-
 <ul>
 <li><a href="/2018/08/19/go-testing2018">Goのtestを理解する in 2018 #go</a></li>
 <li><a href="/2018/08/30/go-testing2018-examples/">Goのtestingを理解する in 2018 - Examples編 #go</a></li>
@@ -462,9 +430,9 @@ Go本体のコードでは例えば<code>sync.Map</code>の挙動の確認に利
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -542,10 +510,16 @@ Go本体のコードでは例えば<code>sync.Map</code>の挙動の確認に利
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -557,12 +531,6 @@ Go本体のコードでは例えば<code>sync.Map</code>の挙動の確認に利
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

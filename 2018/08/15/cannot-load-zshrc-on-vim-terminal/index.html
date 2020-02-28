@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -171,35 +171,22 @@ zshはログインシェル時とインタラクティブシェル時でロー�
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#vimの-terminalコマンドでzshを開くと-zshrcが読み込まれない">Vimの:terminalコマンドでzshを開くと.zshrcが読み込まれない</a></li>
-<li><a href="#原因-zdotdir-配下に設定ファイルがなかったから">原因:<code>$ZDOTDIR</code>配下に設定ファイルがなかったから</a></li>
-<li><a href="#解決方法-zdotdir-配下に-zshrc-へのリンクを貼る">解決方法 <code>$ZDOTDIR</code>配下に<code>.zshrc</code>へのリンクを貼る</a></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#関連">関連</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
           <p>自分の<code>.zshrc</code>配置が悪かったのでメモ。
 zshはログインシェル時とインタラクティブシェル時でロードされるディレクトリが異なる。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>zshはログインシェル時とインタラクティブシェル時でロードされるディレクトリが異なる
-
 <ul>
 <li><a href="http://zsh.sourceforge.net/Doc/Release/Files.html">http://zsh.sourceforge.net/Doc/Release/Files.html</a></li>
-</ul></li>
+</ul>
+</li>
 <li>Vimの<code>:terminal</code>コマンドではインタラクティブシェルモードで起動される</li>
 <li>インタラクティブシェルモードでは<code>$HOME/.zshrc</code>などは読まれない</li>
 <li><code>$ZDOTDIR</code>内に<code>.zshrc</code>などを配置することで回避できる</li>
 </ul>
-
-<h1 id="vimの-terminalコマンドでzshを開くと-zshrcが読み込まれない">Vimの:terminalコマンドでzshを開くと.zshrcが読み込まれない</h1>
-
+<h1 id="vimのterminalコマンドでzshを開くとzshrcが読み込まれない">Vimの:terminalコマンドでzshを開くと.zshrcが読み込まれない</h1>
 <p>会社のMacを入れ替えたので、一通り環境を移行した。
 <a href="https://github.com/budougumi0617/dotfiles/">dotfiles</a>運用していたので、だいたい簡単に終わったのだが、Vimで<code>:terminal</code>コマンドを使うとzshが設定ファイルを読み込んでくれなかった。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">This is the Z Shell configuration <span style="color:#719e07">function</span> <span style="color:#719e07">for</span> new users,
@@ -213,50 +200,38 @@ You can:
 
 <span style="color:#719e07">(</span>q<span style="color:#719e07">)</span>  Quit and <span style="color:#719e07">do</span> nothing.  The <span style="color:#719e07">function</span> will be run again next time.
 
-<span style="color:#719e07">(</span><span style="color:#2aa198">0</span><span style="color:#719e07">)</span>  Exit, creating the file ~/.zsh/.zshrc containing just a comment.
+<span style="color:#719e07">(</span>0<span style="color:#719e07">)</span>  Exit, creating the file ~/.zsh/.zshrc containing just a comment.
      That will prevent this <span style="color:#719e07">function</span> being run again.
 
-<span style="color:#719e07">(</span><span style="color:#2aa198">1</span><span style="color:#719e07">)</span>  Continue to the main menu.
+<span style="color:#719e07">(</span>1<span style="color:#719e07">)</span>  Continue to the main menu.
 
---- Type one of the keys in parentheses ---</code></pre></div>
-<h1 id="原因-zdotdir-配下に設定ファイルがなかったから">原因:<code>$ZDOTDIR</code>配下に設定ファイルがなかったから</h1>
-
+--- Type one of the keys in parentheses ---
+</code></pre></div><h1 id="原因zdotdir配下に設定ファイルがなかったから">原因:<code>$ZDOTDIR</code>配下に設定ファイルがなかったから</h1>
 <p>どうやらzshはログインシェルとして起動したときと、コマンドから起動するインタラクティブシェルで設定ファイルの読み方が違うらしい。</p>
-
 <p><a href="http://zsh.sourceforge.net/Doc/Release/Files.html">http://zsh.sourceforge.net/Doc/Release/Files.html</a></p>
-
 <blockquote>
 <p>Commands are then read from $ZDOTDIR/.zshenv. If the shell is a login shell, commands are read from /etc/zprofile and then $ZDOTDIR/.zprofile. Then, if the shell is interactive, commands are read from /etc/zshrc and then $ZDOTDIR/.zshrc. Finally, if the shell is a login shell, /etc/zlogin and $ZDOTDIR/.zlogin are read.</p>
-
+</blockquote>
+<blockquote>
 <p>If ZDOTDIR is unset, HOME is used instead. Files listed above as being in /etc may be in another directory, depending on the installation.</p>
 </blockquote>
-
 <p>自分の場合は、<code>$ZDOTDIR</code>は<code>~/.zsh</code>だった（<code>.zshrc</code>内で設定している部分を消してもここになる気がする）。
 たしかに<code>$ZDOTDIR</code>はそこに<code>.zshrc</code>などを配置していなかった。</p>
-
-<h1 id="解決方法-zdotdir-配下に-zshrc-へのリンクを貼る">解決方法 <code>$ZDOTDIR</code>配下に<code>.zshrc</code>へのリンクを貼る</h1>
-
+<h1 id="解決方法-zdotdir配下にzshrcへのリンクを貼る">解決方法 <code>$ZDOTDIR</code>配下に<code>.zshrc</code>へのリンクを貼る</h1>
 <p>コピペしてファイルを配置するのはメンテ性が良くないので<code>ln -s</code>コマンドで絶対パスのリンクを貼って解決した。</p>
-
 <pre><code>ln -s /Users/budougumi0617/.homesick/repos/dotfiles/home/.zshrc ~/.zsh/
 ln -s /Users/budougumi0617/.homesick/repos/dotfiles/home/.zshenv ~/.zsh/
-</code></pre>
-
-<h1 id="終わりに">終わりに</h1>
-
-<p>いろいろアップデートしていたら、こちらの事象も起きてだいぶ時間がかかってしまった。<br />
+</code></pre><h1 id="終わりに">終わりに</h1>
+<p>いろいろアップデートしていたら、こちらの事象も起きてだいぶ時間がかかってしまった。<br>
 なんにせよ、Vimは悪くなかったので疑って申し訳ない気持ち。</p>
-
 <ul>
 <li>macOS を10.13.5にアップデートしたらターミナルが死んだ
-
 <ul>
 <li><a href="https://qiita.com/Kansei/items/4029a0dff197039c5e78">https://qiita.com/Kansei/items/4029a0dff197039c5e78</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="関連">関連</h1>
-
 <ul>
 <li><a href="https://budougumi0617.github.io/2018/06/20/setting-vim-gitgutter-column-shows-always/">未修正ファイルでもvim-gitgutter列を表示して差分表示で画面をガタガタさせない #vim #git</a></li>
 <li><a href="https://budougumi0617.github.io/2018/05/30/debug-go-by-vim-go-and-delve/">[Go]vim-goとDelveでVim上からGoのデバッグを行う #vim #golang</a></li>
@@ -350,9 +325,9 @@ ln -s /Users/budougumi0617/.homesick/repos/dotfiles/home/.zshenv ~/.zsh/
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -430,10 +405,16 @@ ln -s /Users/budougumi0617/.homesick/repos/dotfiles/home/.zshenv ~/.zsh/
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -445,12 +426,6 @@ ln -s /Users/budougumi0617/.homesick/repos/dotfiles/home/.zshenv ~/.zsh/
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

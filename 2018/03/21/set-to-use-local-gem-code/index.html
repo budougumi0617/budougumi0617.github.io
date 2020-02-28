@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -169,67 +169,49 @@
           
           
           
-          
-
-<p>Railsのプロダクトが参照しているgemを修正しながら開発する必要が出てきた。<br />
+          <p>Railsのプロダクトが参照しているgemを修正しながら開発する必要が出てきた。<br>
 ローカルで編集して未コミット状態のコードを含んだの<code>gem</code>を<code>bundle install</code>する方法をまとめる。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li><code>bundle install</code>するときローカルで修正中の<code>gem</code>のコードを取り込むようにしたい。</li>
 <li>その1 Gemfileの設定に<code>path: '../path/to/target_gem'</code>を追加する</li>
 <li>その2 <code>bundle config</code>を使う</li>
 </ul>
-
 <h1 id="やりかた-その1-gemfileを変更する">やりかた その1 Gemfileを変更する</h1>
-
-<p>変更した<code>Gemfile</code>をコミットしないように注意できるならば<code>Gemfile</code>を直接変更する。<br />
-ローカルのコードを参照するには<code>Gemfile</code>内の対象の<code>gem</code>のインストール定義に<code>path:</code>を追加してファイルパスを与えるだけ。<br />
+<p>変更した<code>Gemfile</code>をコミットしないように注意できるならば<code>Gemfile</code>を直接変更する。<br>
+ローカルのコードを参照するには<code>Gemfile</code>内の対象の<code>gem</code>のインストール定義に<code>path:</code>を追加してファイルパスを与えるだけ。<br>
 <code>git:</code>でリポジトリを明示的に参照している場合はその参照は消しておく。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"># Gemfile内にあるローカルのコードを参照してほしいgemの定義
 <span style="color:#dc322f">-  gem &#39;target_gem&#39;, git: &#39;ssh://git@github.com/USER/target_gem.git&#39;
 </span><span style="color:#dc322f"></span><span style="color:#719e07">+  gem &#39;target_gem&#39;, path: &#39;/path/to/target_gem&#39;
-</span></code></pre></div>
-<p>あとは通常通りにgemを再取得する。</p>
+</span></code></pre></div><p>あとは通常通りにgemを再取得する。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ bundle clean
-$ bundle install --path vendor/bundle</code></pre></div>
-<h1 id="やりかた-その2-bundlerの設定を変更しておく">やりかた その2 bundlerの設定を変更しておく</h1>
-
-<p>bundlerの設定で、ローカルのコードを見るようにしておくことができる。<br />
+$ bundle install --path vendor/bundle
+</code></pre></div><h1 id="やりかた-その2-bundlerの設定を変更しておく">やりかた その2 bundlerの設定を変更しておく</h1>
+<p>bundlerの設定で、ローカルのコードを見るようにしておくことができる。<br>
 <code>Gemfile</code>があるディレクトリで以下のように行う。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ bundle config --local local.target_gem  /path/to/target_gem</code></pre></div>
-<p><code>gem</code>のコードの編集状態のチェックが有効になっているとめんどくさいのでoffにする。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ bundle config --local disable_local_branch_check true</code></pre></div>
-<p>あとは「その1」同様に通常通りにgemを再取得する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ bundle config --local local.target_gem  /path/to/target_gem
+</code></pre></div><p><code>gem</code>のコードの編集状態のチェックが有効になっているとめんどくさいのでoffにする。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ bundle config --local disable_local_branch_check <span style="color:#b58900">true</span>
+</code></pre></div><p>あとは「その1」同様に通常通りにgemを再取得する。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ bundle clean
-$ bundle install --path vendor/bundle</code></pre></div>
-<p>こちらの場合、用がすんだらbunderの設定を元にもどすこと</p>
-
+$ bundle install --path vendor/bundle
+</code></pre></div><p>こちらの場合、用がすんだらbunderの設定を元にもどすこと</p>
 <pre><code>$ bundle config --delete local.target_gem
 $ bundle config --delete disable_local_branch_check
-</code></pre>
-
-<h1 id="終わりに">終わりに</h1>
-
-<p><code>Gemfile</code>の変更をコミットしないように気をつけるのか、終わった後<code>bundle config</code>を忘れないように気をつけるのか、どちらのほうがラクかは個人のお好みで。<br />
+</code></pre><h1 id="終わりに">終わりに</h1>
+<p><code>Gemfile</code>の変更をコミットしないように気をつけるのか、終わった後<code>bundle config</code>を忘れないように気をつけるのか、どちらのほうがラクかは個人のお好みで。<br>
 今設定してある<code>bundle</code>の設定は<code>bundle config</code>で確認できる。また、<code>bundle config --delete</code>はglobalな設定かlocalな設定かは見てくれないみたい。。。</p>
-
 <pre><code>$ bandle config --help
 ...
 Executing bundle config --delete &lt;name&gt; will delete the configuration in both local and global sources. Not compatible with --global or --local flag.
 ...
-</code></pre>
-
-<h1 id="参考">参考</h1>
-
-<p><strong>Work against local gems without modifying your Gemfile</strong><br />
+</code></pre><h1 id="参考">参考</h1>
+<p><strong>Work against local gems without modifying your Gemfile</strong><br>
 <a href="https://coderwall.com/p/tqdrhq/work-against-local-gems-without-modifying-your-gemfile">https://coderwall.com/p/tqdrhq/work-against-local-gems-without-modifying-your-gemfile</a></p>
-
-<p><strong>bundle config</strong><br />
+<p><strong>bundle config</strong><br>
 <a href="http://bundler.io/v1.16/bundle_config.html">http://bundler.io/v1.16/bundle_config.html</a></p>
-
-<p><strong>bundle config ローカルGitリポジトリ</strong><br />
+<p><strong>bundle config ローカルGitリポジトリ</strong><br>
 <a href="http://ruby.studio-kingdom.com/bundler/bundle_config/#local_git_repos">http://ruby.studio-kingdom.com/bundler/bundle_config/#local_git_repos</a></p>
 
         </div>
@@ -319,9 +301,9 @@ Executing bundle config --delete &lt;name&gt; will delete the configuration in b
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -399,10 +381,16 @@ Executing bundle config --delete &lt;name&gt; will delete the configuration in b
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -414,12 +402,6 @@ Executing bundle config --delete &lt;name&gt; will delete the configuration in b
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

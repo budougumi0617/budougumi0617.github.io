@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -169,16 +169,11 @@
           
           
           
-          
-
-<p>SpinnakerはKubenetesクラスターへの継続的デリバリーを可能とするOSSだ。<br />
+          <p>SpinnakerはKubenetesクラスターへの継続的デリバリーを可能とするOSSだ。<br>
 Kayenataを有効化することで、カナリーリリースの自動スコアリングも可能とする。</p>
-
-<p><strong>Introducing Kayenta: An open automated canary analysis tool from Google and Netflix</strong><br />
+<p><strong>Introducing Kayenta: An open automated canary analysis tool from Google and Netflix</strong><br>
 <a href="https://cloudplatform.googleblog.com/2018/04/introducing-Kayenta-an-open-automated-canary-analysis-tool-from-Google-and-Netflix.html">https://cloudplatform.googleblog.com/2018/04/introducing-Kayenta-an-open-automated-canary-analysis-tool-from-Google-and-Netflix.html</a></p>
-
 <p>しかし2018/06/13現在、少なくともv1.7.0ではCanary Analytics(Kayenta)はデフォルトで無効化されている。</p>
-
 <p>今回はSpinnakerのKayentaを有効化する途中、GCP用の設定をしようとして以下のエラーが出たときのメモ。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">budougumi0617@budougumi0617-halyard:~$ hal config canary google account add my-google-account <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>&gt;   --project budougumi0617-spinnaker6 <span style="color:#cb4b16">\
@@ -193,7 +188,7 @@ Problems in default.canary:
 ! ERROR Failed to load project <span style="color:#2aa198">&#34;budougumi0617-spinnaker6&#34;</span>: <span style="color:#2aa198">403</span>
   Forbidden
 <span style="color:#719e07">{</span>
-  <span style="color:#2aa198">&#34;code&#34;</span> : <span style="color:#2aa198">403</span>,
+  <span style="color:#2aa198">&#34;code&#34;</span> : 403,
   <span style="color:#2aa198">&#34;errors&#34;</span> : <span style="color:#719e07">[</span> <span style="color:#719e07">{</span>
     <span style="color:#2aa198">&#34;domain&#34;</span> : <span style="color:#2aa198">&#34;global&#34;</span>,
 <span style="color:#2aa198">&#34;message&#34;</span> : <span style="color:#2aa198">&#34;Required &#39;compute.projects.get&#39; permission for
@@ -205,29 +200,21 @@ Problems in default.canary:
 <span style="color:#719e07">}</span>.
 
 - Failed to add canary account my-google-account <span style="color:#719e07">for</span> service
-  integration Google.</code></pre></div>
-<h1 id="tl-dr">TL;DR</h1>
-
+  integration Google.
+</code></pre></div><h1 id="tldr">TL;DR</h1>
 <ul>
 <li><a href="https://www.spinnaker.io/setup/canary/">Set up canary support</a>のQuick start通りにやると403エラーが出る</li>
 <li>Service Account(SA)に<code>roles/compute.viewer</code>ロールを付与すれば解決できる</li>
 <li>似たような権限エラーのときは<a href="https://cloud.google.com/compute/docs/access/iam">IAMロール一覧</a>で必要なロールを探してSAに付与する</li>
 </ul>
-
 <h1 id="前提条件">前提条件</h1>
-
 <p>Google Kubernetes Engine(GKE)上にv1.7.0のSpinnakerを一度起動している。</p>
-
 <p>Spinnaker自体は以下のquickstart通りにhalyardインスタンスを構成する方法で起動した。</p>
-
-<p><strong>Try out Halyard on GKE</strong><br />
+<p><strong>Try out Halyard on GKE</strong><br>
 <a href="https://www.spinnaker.io/setup/quickstart/halyard-gke/">https://www.spinnaker.io/setup/quickstart/halyard-gke/</a></p>
-
 <p>Spinnakerを起動できたら、以下の手順に則ってKayentaの設定を有効化する。</p>
-
-<p><strong>Set up canary support</strong><br />
+<p><strong>Set up canary support</strong><br>
 <a href="https://www.spinnaker.io/setup/canary/">https://www.spinnaker.io/setup/canary/</a></p>
-
 <p>しかし、Stack Driverなどのログ閲覧用のアカウントを作成する途中以下のようなエラーが出てしまった。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">budougumi0617@budougumi0617-halyard:~$ hal config canary google account add my-google-account <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>&gt;   --project budougumi0617-spinnaker6 <span style="color:#cb4b16">\
@@ -242,7 +229,7 @@ Problems in default.canary:
 ! ERROR Failed to load project <span style="color:#2aa198">&#34;budougumi0617-spinnaker6&#34;</span>: <span style="color:#2aa198">403</span>
   Forbidden
 <span style="color:#719e07">{</span>
-  <span style="color:#2aa198">&#34;code&#34;</span> : <span style="color:#2aa198">403</span>,
+  <span style="color:#2aa198">&#34;code&#34;</span> : 403,
   <span style="color:#2aa198">&#34;errors&#34;</span> : <span style="color:#719e07">[</span> <span style="color:#719e07">{</span>
     <span style="color:#2aa198">&#34;domain&#34;</span> : <span style="color:#2aa198">&#34;global&#34;</span>,
 <span style="color:#2aa198">&#34;message&#34;</span> : <span style="color:#2aa198">&#34;Required &#39;compute.projects.get&#39; permission for
@@ -254,20 +241,15 @@ Problems in default.canary:
 <span style="color:#719e07">}</span>.
 
 - Failed to add canary account my-google-account <span style="color:#719e07">for</span> service
-  integration Google.</code></pre></div>
-<h1 id="使うservice-account事前に-roles-compute-viewer-ロールを付与しておく">使うService Account事前に<code>roles/compute.viewer</code>ロールを付与しておく</h1>
-
+  integration Google.
+</code></pre></div><h1 id="使うservice-account事前にrolescomputeviewerロールを付与しておく">使うService Account事前に<code>roles/compute.viewer</code>ロールを付与しておく</h1>
 <p>エラーは(<code>--json-path</code>オプションで参照している)Service Account(SA)に必要なパーミッションを付与していないのが原因だった。
 <a href="https://www.spinnaker.io/setup/quickstart/halyard-gke/">Try out Halyard on GKE</a>の通りにHalyardサーバーを構成している場合、
 上記のコマンドで指定しているJSONのSAは<code>gcs-service-account</code>という名前になっているはずなので、それにIAMのロールを付与する。</p>
-
 <p><code>compute.projects.get</code>パーミッションを持つ最小権限のロールを以下のページから探す。</p>
-
-<p><strong>Compute Engine IAM Roles</strong><br />
+<p><strong>Compute Engine IAM Roles</strong><br>
 <a href="https://cloud.google.com/compute/docs/access/iam">https://cloud.google.com/compute/docs/access/iam</a></p>
-
 <p>そうすると、どうやら<a href="https://cloud.google.com/compute/docs/access/iam#compute_viewer_role">roles/compute.viewer</a>が最小権限のロールなので、これを利用することにする。</p>
-
 <p>自分はHalyardサーバにIAMの編集権限をつけていなかったのでローカルPCで以下の操作を行った。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#268bd2">GCS_SA</span><span style="color:#719e07">=</span>gcs-service-account
 <span style="color:#268bd2">GCS_SA_EMAIL</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>gcloud iam service-accounts list <span style="color:#cb4b16">\
@@ -276,8 +258,8 @@ Problems in default.canary:
 
 gcloud projects add-iam-policy-binding budougumi0617-spinnaker6 <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>    --member serviceAccount:<span style="color:#268bd2">$GCS_SA_EMAIL</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>    --role roles/compute.viewer</code></pre></div>
-<p>上記の操作を行ったあと、再び<code>hal</code>コマンドを実行すると以下のようにCanary(Kayenta)用のGCPアカウントを作成できた。</p>
+</span><span style="color:#cb4b16"></span>    --role roles/compute.viewer
+</code></pre></div><p>上記の操作を行ったあと、再び<code>hal</code>コマンドを実行すると以下のようにCanary(Kayenta)用のGCPアカウントを作成できた。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">budougumi0617@budougumi0617-halyard:~$ hal config canary google account add my-google-account <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  --project budougumi0617-spinnaker6  <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  --json-path ~/.gcp/gcp.json
@@ -288,21 +270,17 @@ gcloud projects add-iam-policy-binding budougumi0617-spinnaker6 <span style="col
 + Add the my-google-account canary account to google service integration
   Success
 + Successfully added canary account my-google-account <span style="color:#719e07">for</span> service
-  integration Google.</code></pre></div>
-<p>ちなみに<code>my-google-account</code>というのはGCP上の設定とは関係ないので、Spinnaker上で自分が区別できる名前ならば何でも良い（はず）。</p>
-
+  integration Google.
+</code></pre></div><p>ちなみに<code>my-google-account</code>というのはGCP上の設定とは関係ないので、Spinnaker上で自分が区別できる名前ならば何でも良い（はず）。</p>
 <h1 id="終わりに">終わりに</h1>
-
-<p>自分はSREやインフラエンジニアでないので、クラウドサービスのIAMやKubernetesのRBACらへんをいまいちわかっていなかったが、GCPのIAMとService Accountの概念をすこしわかってきた気がする。<br />
+<p>自分はSREやインフラエンジニアでないので、クラウドサービスのIAMやKubernetesのRBACらへんをいまいちわかっていなかったが、GCPのIAMとService Accountの概念をすこしわかってきた気がする。<br>
 とはいえ、技術調査のときは使うService Accountに最初からフルコントロールをつけた状態でやったほうが無駄に消耗しなくてよさそうだ。</p>
-
 <h1 id="関連">関連</h1>
-
 <ul>
 <li><a href="/2018/04/22/how-to-start-spinnaker/">Spinnakerの始め方いろいろ</a></li>
 <li><a href="/2018/04/27/spinnaker-introduction/">[発表資料]Spinnaker入門 #cndjp5</a></li>
 <li><a href="/2018/04/24/spinnaker-with-google-kubernetes-engine/">GKEでSpinnakerを使ったKubernetesの継続的デリバリーを試してみた</a></li>
-<li><a href="/2018/06/16/spinnaker-failing-with-stackdrivermetricsservice/">[Spinnaker]GKE上でhal deploy applyするとkayenta failed http://localhost:8090/spectator/metrics with <urlopen error [Errno 111] Connection refused> #spinnaker #kayenta</a></li>
+<li><a href="/2018/06/16/spinnaker-failing-with-stackdrivermetricsservice/">[Spinnaker]GKE上でhal deploy applyするとkayenta failed http://localhost:8090/spectator/metrics with &lt;urlopen error [Errno 111] Connection refused&gt; #spinnaker #kayenta</a></li>
 </ul>
 
         </div>
@@ -394,9 +372,9 @@ gcloud projects add-iam-policy-binding budougumi0617-spinnaker6 <span style="col
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -474,10 +452,16 @@ gcloud projects add-iam-policy-binding budougumi0617-spinnaker6 <span style="col
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -489,12 +473,6 @@ gcloud projects add-iam-policy-binding budougumi0617-spinnaker6 <span style="col
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

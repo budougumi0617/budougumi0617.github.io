@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -169,10 +169,7 @@
           
           
           
-          
-
-<p>Cloud Native Developers JP(cndjp) の第6回目に参加してきたので、自分メモ。</p>
-
+          <p>Cloud Native Developers JP(cndjp) の第6回目に参加してきたので、自分メモ。</p>
 <table>
 <thead>
 <tr>
@@ -180,246 +177,193 @@
 <th></th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>URL</td>
 <td><a href="https://cnd.connpass.com/event/89854/">https://cnd.connpass.com/event/89854/</a></td>
 </tr>
-
 <tr>
 <td>会場</td>
 <td>オラクル青山センター 13F セミナールーム</td>
 </tr>
-
 <tr>
 <td>日時</td>
 <td>2018/06/14(木) 18:30 〜 21:30</td>
 </tr>
-
 <tr>
 <td>資料1</td>
 <td><a href="https://speakerdeck.com/hhiroshell/kubernetesying-yong">Kubernetes応用</a></td>
 </tr>
-
 <tr>
 <td>資料2</td>
 <td><a href="https://speakerdeck.com/hhiroshell/kubernetesmaniatuku">Kubernetesマニアック</a></td>
 </tr>
-
 <tr>
 <td>ハッシュタグ</td>
 <td><a href="https://twitter.com/hashtag/cndjp">#cndjp</a></td>
 </tr>
 </tbody>
 </table>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <p>知っていると便利あるいはハマらないKubernetes(k8s)の細かい設定を学ぶことができた。</p>
-
 <ul>
 <li>Podの起動時と終了時に行われる・行える処理
-
 <ul>
 <li>InitContainerによる初期化処理を指定できる</li>
 <li>Container Lifecycle Hooksによる終了時と開始時にフック処理</li>
 <li>Liveness/Readiness Probesによる稼働監視</li>
-</ul></li>
+</ul>
+</li>
 <li>Podに対する制限の付与
-
 <ul>
 <li>Resource Limit/Request リソースに対するコンテナの要件や制限を指定</li>
 <li>Resource Quota namespace単位でリソース使用量の制限</li>
 <li>Pod Security Policy セキュリティ関係の制約</li>
 <li>Network Policy 他のエンドポイントに通信を行うときのポリシー</li>
-</ul></li>
+</ul>
+</li>
 <li>Podの配置先の制御
-
 <ul>
 <li>nodeSelector Nodeに貼ったLablelで配置先を制御</li>
 <li>Node Affinity nodeSelectorより条件の表現力が高い</li>
 <li>Pod Affinity 他のPodの稼働状況で新たなPodの配置先を制御</li>
 <li>Taint/Toleration Nodeに条件を設定して特定の条件を満たしたPodだけスケジューリング</li>
-</ul></li>
+</ul>
+</li>
 <li>Kubernetesの拡張
-
 <ul>
 <li>独自Objectを定義・利用することができる</li>
 <li>プラグインを利用することでNetwork、DeviceやStorageの拡張ができる</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="所感">所感</h1>
-
-<p>終了後「入門k8s」を一通り眺め直したが、どれも書いていないことばかりだったので「こういう事ができる」と知れることができて良かった。<br />
-Pod起動時に前処理を挟むのは環境変数などの設定などで絶対使いたくなる気がする。<br />
-また、ポリシーの付与は組織として多種なサービスをKubernetes上で構築するときに必要になるのかなと思った。<br />
+<p>終了後「入門k8s」を一通り眺め直したが、どれも書いていないことばかりだったので「こういう事ができる」と知れることができて良かった。<br>
+Pod起動時に前処理を挟むのは環境変数などの設定などで絶対使いたくなる気がする。<br>
+また、ポリシーの付与は組織として多種なサービスをKubernetes上で構築するときに必要になるのかなと思った。<br>
 プラグインなどの仕組みがあるおかげでk8sはOSSとして複数のベンダー、デバイス上で動かすことができるのだろう。</p>
-
 <p>以下、概要と関連リンクのメモ</p>
-
-<h1 id="podの起動時と終了時に行われる-行える処理">Podの起動時と終了時に行われる・行える処理</h1>
-
+<h1 id="podの起動時と終了時に行われる行える処理">Podの起動時と終了時に行われる・行える処理</h1>
 <h2 id="pod-phase">Pod Phase</h2>
-
 <p><a href="https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-phase">https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-phase</a></p>
-
 <ul>
 <li>Podの状態を示す<code>PodStatus</code>には<code>phase</code>フィールドがある</li>
 <li><code>phase</code>には起動前の<code>Pending</code>フェーズと起動したことを示す<code>Running</code>フェーズが存在する</li>
 <li><code>Pending</code>フェーズでPodの作成やNodeへの配置が行われる</li>
 <li><code>Running</code>フェーズでコンテナのENTRY POINTなどの起動が始まる</li>
 </ul>
-
-<h2 id="pending-フェーズでできること"><code>Pending</code>フェーズでできること</h2>
-
+<h2 id="pendingフェーズでできること"><code>Pending</code>フェーズでできること</h2>
 <p><code>Pending</code>フェーズでInitContainersという前処理用のコンテナが起動している。</p>
-
 <h3 id="init-containers">Init Containers</h3>
-
 <p><a href="https://kubernetes.io/docs/concepts/workloads/pods/init-containers/">https://kubernetes.io/docs/concepts/workloads/pods/init-containers/</a></p>
-
 <ul>
 <li>InitContainerはユーザーが用意しなくても動いているものもある</li>
 <li>InitContainerは複数使うこともできる。その場合はシーケンシャルに実行される</li>
 <li>IPアドレスの収集や外部サービスとの接続を待機するなどの処理を行う</li>
 </ul>
-
-<h2 id="running-フェーズでできること"><code>Running</code>フェーズでできること</h2>
-
+<h2 id="runningフェーズでできること"><code>Running</code>フェーズでできること</h2>
 <p>Container Lifecycle Hookを使うとコンテナの生成、破棄をフックして特定の処理が実行できる。</p>
-
 <h3 id="container-lifecycle-hooks">Container Lifecycle Hooks</h3>
-
 <p><a href="https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/">https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/</a></p>
-
 <ul>
 <li><code>PostStart hook</code>でコンテナ生成時の処理を定義できる</li>
 <li><code>PreStop hook</code>でコンテナ終了前の処理を定義できる
-
 <ul>
 <li>それぞれスクリプトを動かす<code>Exec</code>と特定のリクエストを発行する<code>HTTP</code>の2種類を指定できる</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h3 id="container-probes">Container Probes</h3>
-
-<p><a href="https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes">https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes</a><br />
+<p><a href="https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes">https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes</a><br>
 <a href="https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/">https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/</a></p>
-
 <p>コンテナの起動が成功したのか、コンテナが正しく動いているかの監視定義を決められる。</p>
-
 <ul>
 <li><code>Readiness probe</code> コンテナがトラフィックを受け入れられる状態になったかの判定する
-
 <ul>
 <li>コンテナの起動 = サービスレディではないため</li>
-</ul></li>
-<li><code>Liveness probe</code> コンテナが&rdquo;生きている&rdquo;か確認するための条件
-
+</ul>
+</li>
+<li><code>Liveness probe</code> コンテナが&quot;生きている&quot;か確認するための条件
 <ul>
 <li>コンテナインスタンスがあってもサービスが稼働しているかはわからない</li>
-</ul></li>
+</ul>
+</li>
 <li>それぞれ<code>Manifest</code>に条件を指定することができる
-
 <ul>
 <li><code>ExecAction</code> 指定したコマンドが終了コード0で終わるか</li>
 <li><code>HTTPGetAction</code> 指定のエンドポイントが200ステータスを返すか</li>
 <li><code>TCPSocketAction</code> TCPソケットのコネクションを張れるか</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h3 id="廃棄のときに行える処理">廃棄のときに行える処理</h3>
-
-<p><strong>Kubernetes: 詳解 Pods の終了</strong><br />
+<p><strong>Kubernetes: 詳解 Pods の終了</strong><br>
 <a href="https://qiita.com/superbrothers/items/3ac78daba3560ea406b2">https://qiita.com/superbrothers/items/3ac78daba3560ea406b2</a></p>
-
 <ul>
 <li>Podの終了イベントが起きたとき
-
 <ul>
 <li><code>Service</code>の<code>Endpoint</code>リストから除外され、Trafficが送られなくなる</li>
 <li><code>Prestop hook</code>が起動される。</li>
-</ul></li>
+</ul>
+</li>
 <li><code>PreStop hook</code>が終わらないときはSIGTERM or SIGKILLで強制終了になってしまうこともある。
-
 <ul>
 <li>どちらのシグナルで終了するかは<code>gracePeriodSecconds</code>で決まる</li>
 <li>決め打ちでシグナルを実装しないこと</li>
 <li><code>Manifest</code>で指定したり<code>kubectl</code>から指定可能</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="ポリシーによる制御">ポリシーによる制御</h1>
-
 <p>Podに適用できるポリシーは主に4つ</p>
-
 <h2 id="resource-limits-resource-requests">Resource limits/ Resource requests</h2>
-
 <p><a href="https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#resource-requests-and-limits-of-pod-and-container">https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#resource-requests-and-limits-of-pod-and-container</a></p>
-
 <ul>
 <li>消費リソースの上限/下限を設定できる
-
 <ul>
 <li>CPU</li>
-</ul></li>
+</ul>
+</li>
 <li>配置前
-
 <ul>
 <li>内包するコンテナ群のRsource requestの合計をまかなえる余剰がないNodeにはPodがスケジューリングされない</li>
-</ul></li>
+</ul>
+</li>
 <li>配置後
-
 <ul>
 <li>limitを超えないように設定することができる</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h2 id="local-ephemeral-storage">Local Ephemeral Storage</h2>
-
 <p><a href="https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#local-ephemeral-storage">https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#local-ephemeral-storage</a></p>
-
 <ul>
 <li>Nodeのrootパーティションの利用量に対してLimit/requestを設定できる</li>
 </ul>
-
 <h2 id="extended-resource">Extended Resource</h2>
-
 <p><a href="https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#extended-resources">https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#extended-resources</a></p>
-
 <ul>
 <li>k8sが未サポートの独自管理したいリソースを追加できる。
-
 <ul>
 <li>GPUとか。</li>
 <li>Nodeごとに指定することもできる</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h2 id="resource-quota">Resource Quota</h2>
-
 <p><a href="https://kubernetes.io/docs/concepts/policy/resource-quotas/">https://kubernetes.io/docs/concepts/policy/resource-quotas/</a></p>
-
 <ul>
 <li><code>namespace</code>単位で設定可能なリソース使用量の制限</li>
 </ul>
-
 <h2 id="pod-security-policy">Pod Security Policy</h2>
-
 <p><a href="https://kubernetes.io/docs/concepts/policy/pod-security-policy/">https://kubernetes.io/docs/concepts/policy/pod-security-policy/</a></p>
-
 <ul>
 <li>コンテナ内にいろいろポリシーを制限することができる</li>
 <li>チームでクラスターを共有する運用でユーザーごとにできることを制限したいとき</li>
 <li><code>plivileged</code>なコンテナを作成する操作はクラスター管理者のみに許可(監視系のコンテナを各Nodeにするなど）</li>
 </ul>
-
 <h2 id="network-policies">Network Policies</h2>
-
 <p><a href="https://kubernetes.io/docs/concepts/services-networking/network-policies/">https://kubernetes.io/docs/concepts/services-networking/network-policies/</a></p>
-
 <ul>
 <li>Podが他のエンドポイントに通信を行うときのポリシーを設定</li>
 <li>Network Policyリソースを作成することで有効化する</li>
@@ -427,106 +371,87 @@ Pod起動時に前処理を挟むのは環境変数などの設定などで絶�
 <li>例えば<code>flannel</code>単体では使えず、Calicoと組みあわせる必要がある。</li>
 <li><code>Istio</code>を使っているとそのまま使うことができる。</li>
 </ul>
-
 <h1 id="podの配置の制御">Podの配置の制御</h1>
-
 <p><a href="https://kubernetes.io/docs/concepts/configuration/assign-pod-node/">https://kubernetes.io/docs/concepts/configuration/assign-pod-node/</a></p>
-
 <h2 id="nodeselector">nodeSelector</h2>
-
 <p><a href="https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector">https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector</a></p>
-
 <ul>
 <li>Nodeにあらかじめ指定されたラベルにマッチするNodeからPodが配置される</li>
 <li>暗黙的にNodeに設定されているLabelもある。マネージドサービスを使っていると特に。</li>
 </ul>
-
-<h2 id="node-affinity-anti-affinity">Node Affinity/anti-Affinity</h2>
-
+<h2 id="node-affinityanti-affinity">Node Affinity/anti-Affinity</h2>
 <p><a href="https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity">https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity</a></p>
-
 <ul>
 <li>妥協的に配置したり、PodのLabelを条件に使える</li>
 <li>あるLabelがついているPodと同じNodeには載せないとか。</li>
 <li>required/preferredの条件がある。</li>
 <li>preferredにはweightを指定することができて、weightの合計値が大きいほどそのNodeに配置されやすい。</li>
 </ul>
-
 <h2 id="pod-affinity">Pod Affinity</h2>
-
 <ul>
-<li>すでに稼働しているPodに基づいて新しいPodを配置する条件にできる
-
-<ul>
+<li>すでに稼働しているPodに基づいて新しいPodを配置する条件にできる</li>
 <li>例えば、Redisクラスターを分散配置したり、クライアントアプリをredisコンテナと同じ場所に乗せたり。</li>
-</ul></li>
 </ul>
-
 <h2 id="taintとtoleration">TaintとToleration</h2>
-
 <p><a href="https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/">https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/</a></p>
-
 <ul>
 <li>TaintsはNodeに設定される値。TolerationsはPodに指定する値</li>
 <li>それぞれの条件がマッチするPodだけNodeに乗る。</li>
 <li>例えば、特定のユーザーだけにNodeを使わせたいケース</li>
 <li>例えば、特殊なHWを必要なPodだけに使わせるケース</li>
 </ul>
-
 <h1 id="kubernetesの拡張">Kubernetesの拡張</h1>
-
 <ul>
 <li>ほとんどのケースでは、<code>Deployment</code>などの<code>Controller</code>オブジェクトを作成することにより、結果的にPodが作成される。</li>
 <li>各オブジェクトに対応する<code>Controller</code>がある。</li>
 <li>目的にユースケースに合わせて、Podをよしなに制御してくれるのが標準Controller</li>
-<li><code>Deployment</code>, <code>ReplicaSet</code>などの標準Controllerを動かしているデーモンプロセスがcontroller-manager
-
-<ul>
+<li><code>Deployment</code>, <code>ReplicaSet</code>などの標準Controllerを動かしているデーモンプロセスがcontroller-manager</li>
 <li>Custom Controllerを作れば独自オブエジェクトが作れる</li>
-</ul></li>
 </ul>
-
 <h2 id="custom-resourceとkubernetes-apiの拡張">Custom ResourceとKubernetes APIの拡張</h2>
-
-<p><a href="https://kubernetes.io/docs/tasks/access-kubernetes-api/extend-api-custom-resource-definitions/">https://kubernetes.io/docs/tasks/access-kubernetes-api/extend-api-custom-resource-definitions/</a><br />
+<p><a href="https://kubernetes.io/docs/tasks/access-kubernetes-api/extend-api-custom-resource-definitions/">https://kubernetes.io/docs/tasks/access-kubernetes-api/extend-api-custom-resource-definitions/</a><br>
 <a href="https://www.ianlewis.org/jp/extending-kubernetes-ja">https://www.ianlewis.org/jp/extending-kubernetes-ja</a></p>
-
 <ul>
 <li>kubernetesに独自のリソースを追加して利用することができる。
-
 <ul>
 <li>Kubernetes APIの拡張</li>
 <li>Custom Objectの作成</li>
 <li>Custom Controllerの拡張</li>
-</ul></li>
+</ul>
+</li>
 <li>Kubernetes APIの拡張には二通りの方法がある
-
 <ul>
-<li>CustomResourceDefiinition(CRD)</li>
+<li>CustomResourceDefiinition(CRD)
+<ul>
 <li>独自のリソースタイプをAPI Serverに登録することCustom Objectを取り扱えるようになる</li>
-<li>Aggregation Layerの追加</li>
+</ul>
+</li>
+<li>Aggregation Layerの追加
+<ul>
 <li>標準API serverと独立した独自のAPI機能をクラスターに追加できる</li>
-</ul></li>
+</ul>
+</li>
+</ul>
+</li>
 <li>Custom Objectの作成
-
 <ul>
 <li><code>Manifest</code>を定義する</li>
-</ul></li>
-<li>Custom Controllerの拡張
-
-<ul>
-<li>コードジェネレータを使えばCustom Controllerで利用するクライアントライブラリの一部を自動生成できる</li>
-<li><a href="https://github.com/kubernetes/code-generator">https://github.com/kubernetes/code-generator</a></li>
-</ul></li>
 </ul>
-
-<p><strong>KubernetesのCRD(Custom Resource Definition)とカスタムコントローラーの作成</strong><br />
+</li>
+<li>Custom Controllerの拡張
+<ul>
+<li>コードジェネレータを使えばCustom Controllerで利用するクライアントライブラリの一部を自動生成できる
+<ul>
+<li><a href="https://github.com/kubernetes/code-generator">https://github.com/kubernetes/code-generator</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>KubernetesのCRD(Custom Resource Definition)とカスタムコントローラーの作成</strong><br>
 <a href="https://qiita.com/__Attsun__/items/785008ef970ad82c679c">https://qiita.com/__Attsun__/items/785008ef970ad82c679c</a></p>
-
 <h2 id="インフラの拡張">インフラの拡張</h2>
-
 <p><a href="https://kubernetes.io/docs/concepts/extend-kubernetes/extend-cluster/">https://kubernetes.io/docs/concepts/extend-kubernetes/extend-cluster/</a></p>
-
 <ul>
 <li>特殊なデバイスを利用するための拡張ができる</li>
 <li>Device PluginやNetwork Pluginとか</li>
@@ -534,45 +459,49 @@ Pod起動時に前処理を挟むのは環境変数などの設定などで絶�
 <li>k8sのDevice Pluginを有効化</li>
 <li>Podからデバイスの利用を宣言</li>
 <li>Network Plugin(CNI)
-
 <ul>
 <li>CNCFのプロジェクトとして仕様策定が進んでいる</li>
 <li><a href="https://www.cncf.io/blog/2017/05/23/cncf-hosts-container-networkinpg-interface-cni/">https://www.cncf.io/blog/2017/05/23/cncf-hosts-container-networkinpg-interface-cni/</a></li>
-</ul></li>
+</ul>
+</li>
 <li>Network Plugin(kubenet)
-
 <ul>
 <li><a href="https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins/">https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins/</a></li>
 <li>GKEなどでクラスターを生成すると自動で構成される</li>
-</ul></li>
 </ul>
-
-<h1 id="container-runtime-interface-cri">Container Runtime Interface(CRI)</h1>
-
+</li>
+</ul>
+<h1 id="container-runtime-interfacecri">Container Runtime Interface(CRI)</h1>
 <p><a href="https://github.com/kubernetes/kubernetes/blob/242a97307b34076d5d8f5bbeb154fa4d97c9ef1d/docs/devel/container-runtime-interface.md">https://github.com/kubernetes/kubernetes/blob/242a97307b34076d5d8f5bbeb154fa4d97c9ef1d/docs/devel/container-runtime-interface.md</a></p>
-
 <ul>
 <li>kubeletからPod及びContainerを操作するための共通インターフェース</li>
 <li>cri-oはOCI標準に準拠したランタイムを実行する仕組み</li>
 </ul>
-
 <h1 id="その他の拡張">その他の拡張</h1>
-
 <ul>
 <li>スケジューリングの制御周り
-
 <ul>
-<li>Configure Multiple Schedulers</li>
+<li>Configure Multiple Schedulers
+<ul>
 <li><a href="https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/">https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/</a></li>
-</ul></li>
+</ul>
+</li>
+</ul>
+</li>
 <li>オートスケーリングやストレージのプラグインもできる。
-
 <ul>
-<li>Horizontal Pod Autoscaler</li>
+<li>Horizontal Pod Autoscaler
+<ul>
 <li><a href="https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/">https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/</a></li>
-<li>Introducing Container Storage Interface (CSI) Alpha for Kubernetes</li>
+</ul>
+</li>
+<li>Introducing Container Storage Interface (CSI) Alpha for Kubernetes
+<ul>
 <li><a href="https://kubernetes.io/blog/2018/01/introducing-container-storage-interface/">https://kubernetes.io/blog/2018/01/introducing-container-storage-interface/</a></li>
-</ul></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -664,9 +593,9 @@ Pod起動時に前処理を挟むのは環境変数などの設定などで絶�
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -744,10 +673,16 @@ Pod起動時に前処理を挟むのは環境変数などの設定などで絶�
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -759,12 +694,6 @@ Pod起動時に前処理を挟むのは環境変数などの設定などで絶�
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

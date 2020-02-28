@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -61,14 +61,12 @@
   <meta property="og:description" content="Kubernetes(k8s)のパッケージマネージャとしてHelmが存在する。
 今回はHelmで独自のChartを作るときに配列の要素数だけリソースを繰り返し定義するようにしてみたのでその方法をまとめておく。
 
-
 https://helm.sh/
 "/>
   
   <meta name="twitter:title" content="[Helm] 配列の要素数だけリソースを繰り返し定義する - My External Storage"/>
   <meta name="twitter:description" content="Kubernetes(k8s)のパッケージマネージャとしてHelmが存在する。
 今回はHelmで独自のChartを作るときに配列の要素数だけリソースを繰り返し定義するようにしてみたのでその方法をまとめておく。
-
 
 https://helm.sh/
 "/>
@@ -184,68 +182,54 @@ https://helm.sh/
           
           
             <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a>
-<ul>
-<li><a href="#環境情報">環境情報</a></li>
-</ul></li>
-<li><a href="#背景">背景</a></li>
-<li><a href="#事前準備">事前準備</a>
-<ul>
-<li><a href="#helm-tillerの準備">helm-tillerの準備</a></li>
-<li><a href="#minikubeを使ってローカルでhelmがdry-runできるようにしておく">minikubeを使ってローカルでHelmがdry-runできるようにしておく</a></li>
-<li><a href="#ベースとなるhelmを準備する">ベースとなるHelmを準備する</a></li>
-</ul></li>
-<li><a href="#配列の要素を使って繰り返しリソースを定義する">配列の要素を使って繰り返しリソースを定義する</a>
-<ul>
-<li><a href="#helmではgoのtext-template構文を使える">HelmではGoのtext/template構文を使える</a></li>
-<li><a href="#名前付きテンプレートにしないのか">名前付きテンプレートにしないのか？</a></li>
-<li><a href="#helm-installの実行結果">helm installの実行結果</a></li>
-</ul></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
+  <ul>
+    <li><a href="#環境情報">環境情報</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#helm-tillerの準備">helm-tillerの準備</a></li>
+    <li><a href="#minikubeを使ってローカルでhelmがdry-runできるようにしておく">minikubeを使ってローカルでHelmがdry-runできるようにしておく</a></li>
+    <li><a href="#ベースとなるhelmを準備する">ベースとなるHelmを準備する</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#helmではgoのtexttemplate構文を使える">HelmではGoのtext/template構文を使える</a></li>
+    <li><a href="#名前付きテンプレートにしないのか">名前付きテンプレートにしないのか？</a></li>
+    <li><a href="#helm-installの実行結果">helm installの実行結果</a></li>
+  </ul>
 </nav>
           
-          <p>Kubernetes(k8s)のパッケージマネージャとしてHelmが存在する。<br />
+          <p>Kubernetes(k8s)のパッケージマネージャとしてHelmが存在する。<br>
 今回はHelmで独自のChartを作るときに配列の要素数だけリソースを繰り返し定義するようにしてみたのでその方法をまとめておく。</p>
-
 <ul>
 <li><a href="https://helm.sh/">https://helm.sh/</a></li>
 </ul>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>prefix文字列を含んだ配列情報を使って名前が少し異なるリソース定義を複数作りたかった</li>
 <li>HelmはGoのtext/templateをベースにしたYAMLの定義をすることができる
-
 <ul>
 <li><a href="https://helm.sh/docs/chart_template_guide/">The Chart Template Developer’s Guide</a></li>
 <li><a href="https://golang.org/pkg/text/template/">Package template</a></li>
-</ul></li>
-
-<li><p><code>range</code>構文と<code>if</code>構文を使うことで定義できた。</p>
+</ul>
+</li>
+<li><code>range</code>構文と<code>if</code>構文を使うことで定義できた。</li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">{{- range $i, $server := .Values.servers -}}
 {{- if ne $i <span style="color:#2aa198">0</span> }}
 ---
 {{- end }}
-apiVersion: v1
-kind: Service
-metadata:
-name: = {{ $server }}-{{ include <span style="color:#2aa198">&#34;repeated-service.fullname&#34;</span> $ }}
-labels:
-<span style="color:#586e75"># ...</span></code></pre></div></li>
-</ul>
-
-<p>なお、文中で利用しているサンプルコードは以下。</p>
-
+<span style="color:#719e07">apiVersion</span>: v1
+<span style="color:#719e07">kind</span>: Service
+<span style="color:#719e07">metadata</span>:
+  <span style="color:#719e07">name</span>: = {{ $server }}-{{ include <span style="color:#2aa198">&#34;repeated-service.fullname&#34;</span> $ }}
+  <span style="color:#719e07">labels</span>:
+<span style="color:#586e75"># ...</span>
+</code></pre></div><p>なお、文中で利用しているサンプルコードは以下。</p>
 <ul>
 <li><a href="https://github.com/budougumi0617/til/tree/master/helm/repeated-service">https://github.com/budougumi0617/til/tree/master/helm/repeated-service</a></li>
 </ul>
-
 <h2 id="環境情報">環境情報</h2>
-
 <p>本記事で利用しているHelm関連のバージョンは以下の通り。
 helm-tillerを使っているため、k8sクラスタ上にTiller serverは存在しない。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ tiller -version
@@ -257,55 +241,48 @@ $ minikube version
 minikube version: v1.2.0
 $ kubectl version
 Client Version: version.Info<span style="color:#719e07">{</span>Major:<span style="color:#2aa198">&#34;1&#34;</span>, Minor:<span style="color:#2aa198">&#34;10&#34;</span>, GitVersion:<span style="color:#2aa198">&#34;v1.10.7&#34;</span>, GitCommit:<span style="color:#2aa198">&#34;0c38c362511b20a098d7cd855f1314dad92c2780&#34;</span>, GitTreeState:<span style="color:#2aa198">&#34;clean&#34;</span>, BuildDate:<span style="color:#2aa198">&#34;2018-08-20T10:09:03Z&#34;</span>, GoVersion:<span style="color:#2aa198">&#34;go1.9.3&#34;</span>, Compiler:<span style="color:#2aa198">&#34;gc&#34;</span>, Platform:<span style="color:#2aa198">&#34;darwin/amd64&#34;</span><span style="color:#719e07">}</span>
-Server Version: version.Info<span style="color:#719e07">{</span>Major:<span style="color:#2aa198">&#34;1&#34;</span>, Minor:<span style="color:#2aa198">&#34;15&#34;</span>, GitVersion:<span style="color:#2aa198">&#34;v1.15.0&#34;</span>, GitCommit:<span style="color:#2aa198">&#34;e8462b5b5dc2584fdcd18e6bcfe9f1e4d970a529&#34;</span>, GitTreeState:<span style="color:#2aa198">&#34;clean&#34;</span>, BuildDate:<span style="color:#2aa198">&#34;2019-06-19T16:32:14Z&#34;</span>, GoVersion:<span style="color:#2aa198">&#34;go1.12.5&#34;</span>, Compiler:<span style="color:#2aa198">&#34;gc&#34;</span>, Platform:<span style="color:#2aa198">&#34;linux/amd64&#34;</span><span style="color:#719e07">}</span></code></pre></div>
-<h1 id="背景">背景</h1>
+Server Version: version.Info<span style="color:#719e07">{</span>Major:<span style="color:#2aa198">&#34;1&#34;</span>, Minor:<span style="color:#2aa198">&#34;15&#34;</span>, GitVersion:<span style="color:#2aa198">&#34;v1.15.0&#34;</span>, GitCommit:<span style="color:#2aa198">&#34;e8462b5b5dc2584fdcd18e6bcfe9f1e4d970a529&#34;</span>, GitTreeState:<span style="color:#2aa198">&#34;clean&#34;</span>, BuildDate:<span style="color:#2aa198">&#34;2019-06-19T16:32:14Z&#34;</span>, GoVersion:<span style="color:#2aa198">&#34;go1.12.5&#34;</span>, Compiler:<span style="color:#2aa198">&#34;gc&#34;</span>, Platform:<span style="color:#2aa198">&#34;linux/amd64&#34;</span><span style="color:#719e07">}</span>
 
-<p>最近k8sの定義も自分が行なうことになり、Helmなどのキャッチアップを始めた。<br />
-ここで、あるコンテナイメージをk8s上で動かしたいのだが、テストの数だけ<code>Service</code>/<code>Deployment</code>を別々にしてコンテナイメージを動かしたくなった。<br />
+</code></pre></div><h1 id="背景">背景</h1>
+<p>最近k8sの定義も自分が行なうことになり、Helmなどのキャッチアップを始めた。<br>
+ここで、あるコンテナイメージをk8s上で動かしたいのだが、テストの数だけ<code>Service</code>/<code>Deployment</code>を別々にしてコンテナイメージを動かしたくなった。<br>
 このテストの数は今後増えることもあるのでDRYなYAML定義をしたかった。そのため、テスト名の配列を用意して、配列の長さと同じ数だけリソースを繰り返し定義するようなHelm Chartを書きたくなった。</p>
-
 <h1 id="事前準備">事前準備</h1>
-
 <h2 id="helm-tillerの準備">helm-tillerの準備</h2>
-
 <p>必須ではないが、tillerサーバを作らないで済むようにhelm-tillerをインストールしておく。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ helm plugin install https://github.com/rimusz/helm-tiller</code></pre></div>
-<h2 id="minikubeを使ってローカルでhelmがdry-runできるようにしておく">minikubeを使ってローカルでHelmがdry-runできるようにしておく</h2>
-
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ helm plugin install https://github.com/rimusz/helm-tiller
+</code></pre></div><h2 id="minikubeを使ってローカルでhelmがdry-runできるようにしておく">minikubeを使ってローカルでHelmがdry-runできるようにしておく</h2>
 <p>Helmは<code>--dry-run</code>を使うとHelm Chartがどんなマニフェストに展開されるか確認することができる。
 しかし、<code>--dry-run</code>時にもクラスター自体は存在する必要がある。<code>minikube</code>を使うと比較的簡単にk8sクラスターをローカルPC上に作成できる（Dockerの for MacなどでKubernetesを構築しても良いかもしれない。）。</p>
-
 <ul>
 <li>Install Minikube | Kubernetes
-
 <ul>
 <li><a href="https://kubernetes.io/docs/tasks/tools/install-minikube/">https://kubernetes.io/docs/tasks/tools/install-minikube/</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h2 id="ベースとなるhelmを準備する">ベースとなるHelmを準備する</h2>
-
 <p>まずはじめにベースとしてChartを作成しておく。本記事では<code>helm create</code>で作成されるYAMLを例に進める。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ helm create repeated-service
-$ <span style="color:#b58900">cd</span> repeated-service</code></pre></div>
-<p><code>helm create</code>で作成される<code>templates/service.yaml</code>の内容は以下の通り。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">apiVersion: v1
-kind: Service
-metadata:
-  name: {{ include <span style="color:#2aa198">&#34;repeated-service.fullname&#34;</span> . }}
-  labels:
+$ <span style="color:#b58900">cd</span> repeated-service
+</code></pre></div><p><code>helm create</code>で作成される<code>templates/service.yaml</code>の内容は以下の通り。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">apiVersion</span>: v1
+<span style="color:#719e07">kind</span>: Service
+<span style="color:#719e07">metadata</span>:
+  <span style="color:#719e07">name</span>: {{ include <span style="color:#2aa198">&#34;repeated-service.fullname&#34;</span> . }}
+  <span style="color:#719e07">labels</span>:
 {{ include <span style="color:#2aa198">&#34;repeated-service.labels&#34;</span> . | indent <span style="color:#2aa198">4</span> }}
-spec:
-  type: {{ .Values.service.type }}
-  ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
-  selector:
-    app.kubernetes.io/name: {{ include <span style="color:#2aa198">&#34;repeated-service.name&#34;</span> . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}</code></pre></div>
-<p>このYAMLを使うと、以下のようなリソース定義となる。</p>
+<span style="color:#719e07">spec</span>:
+  <span style="color:#719e07">type</span>: {{ .Values.service.type }}
+  <span style="color:#719e07">ports</span>:
+    - <span style="color:#719e07">port</span>: {{ .Values.service.port }}
+      <span style="color:#719e07">targetPort</span>: http
+      <span style="color:#719e07">protocol</span>: TCP
+      <span style="color:#719e07">name</span>: http
+  <span style="color:#719e07">selector</span>:
+    <span style="color:#719e07">app.kubernetes.io/name</span>: {{ include <span style="color:#2aa198">&#34;repeated-service.name&#34;</span> . }}
+    <span style="color:#719e07">app.kubernetes.io/instance</span>: {{ .Release.Name }}
+</code></pre></div><p>このYAMLを使うと、以下のようなリソース定義となる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ helm tiller run -- helm install --debug --dry-run --name sample .
 Installed Helm version v2.14.3
 Installed Tiller version v2.14.3
@@ -334,53 +311,46 @@ spec:
     app.kubernetes.io/name: repeated-service
     app.kubernetes.io/instance: sample
 
-...</code></pre></div>
-<p>いま、<code>values.yaml</code>に以下のような配列を追加したとする。</p>
+...
+
+</code></pre></div><p>いま、<code>values.yaml</code>に以下のような配列を追加したとする。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#586e75"># values.yaml</span>
-servers:
+<span style="color:#719e07">servers</span>:
   - alice
   - bob
   - charlie
-  - dave</code></pre></div>
-<p>そして先ほどの<code>repeated-service/templates/service.yaml</code>を修正して、Valuesに定義した配列によって以下のように繰り返しマニフェストが出力される<code>service.yaml</code>を定義してみる。</p>
+  - dave
+</code></pre></div><p>そして先ほどの<code>repeated-service/templates/service.yaml</code>を修正して、Valuesに定義した配列によって以下のように繰り返しマニフェストが出力される<code>service.yaml</code>を定義してみる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#586e75"># templates/service.yaml 以下のようにserversリストの要素だけServiceを出力するようにしたい。</span>
 <span style="color:#586e75"># servers[0]のalice-sample-repeated-serviceの定義</span>
-apiVersion: v1
-kind: Service
-metadata:
-  name: alice-sample-repeated-service
+<span style="color:#719e07">apiVersion</span>: v1
+<span style="color:#719e07">kind</span>: Service
+<span style="color:#719e07">metadata</span>:
+  <span style="color:#719e07">name</span>: alice-sample-repeated-service
 <span style="color:#586e75"># ...</span>
 ---
 <span style="color:#586e75"># servers[1]のbob-sample-repeated-serviceの定義</span>
-apiVersion: v1
-kind: Service
-metadata:
-  name: bob-sample-repeated-service
+<span style="color:#719e07">apiVersion</span>: v1
+<span style="color:#719e07">kind</span>: Service
+<span style="color:#719e07">metadata</span>:
+  <span style="color:#719e07">name</span>: bob-sample-repeated-service
 <span style="color:#586e75"># ...</span>
 ---
-<span style="color:#586e75"># ...</span></code></pre></div>
-<h1 id="配列の要素を使って繰り返しリソースを定義する">配列の要素を使って繰り返しリソースを定義する</h1>
-
+<span style="color:#586e75"># ...</span>
+</code></pre></div><h1 id="配列の要素を使って繰り返しリソースを定義する">配列の要素を使って繰り返しリソースを定義する</h1>
 <p>実際に<code>Service</code>を配列分だけ宣言するように修正してみる。</p>
-
-<h2 id="helmではgoのtext-template構文を使える">HelmではGoのtext/template構文を使える</h2>
-
+<h2 id="helmではgoのtexttemplate構文を使える">HelmではGoのtext/template構文を使える</h2>
 <p>修正は変数とループ処理を使って行なう。Helmでループ処理などをYAMLで行なうには以下の記事を参考にする。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://helm.sh/" data-iframely-url="//cdn.iframe.ly/PzLUCYM"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
 <p>また、HelmはGo製のツールでその記法はGoの<code>text/template</code>パッケージに準拠している。</p>
-
 <ul>
 <li>Package template
-
 <ul>
 <li><a href="https://golang.org/pkg/text/template/">https://golang.org/pkg/text/template/</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>なのでこの2つの情報を使ってYAML中にループを含んだりしながら定義できる。</p>
-
 <p>実際に編集した<code>templates/service.yaml</code>は以下のようになる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="color:#719e07">+{{- range $i, $server := .Values.servers -}}
 </span><span style="color:#719e07">+{{- if ne $i 0 }}
@@ -409,20 +379,16 @@ metadata:
 </span><span style="color:#dc322f"></span><span style="color:#719e07">+    app.kubernetes.io/name: {{ $server }}-{{ include &#34;repeated-service.name&#34; $ }}
 </span><span style="color:#719e07">+    app.kubernetes.io/instance: {{ $server }}-{{ $.Release.Name }}
 </span><span style="color:#719e07">+{{- end -}}
-</span></code></pre></div>
-<p><code>range</code>構文を使うと、ループ処理が行える。<code>if A == B</code>のような比較文は<code>eq</code>を使って書ける。<br />
-また、ループ処理中はスコープが変わり、<code>.</code>の参照先がループ変数になるので、<code>$</code>を使ってルートコンテキストから<code>Values</code>などを参照している。<br />
+</span></code></pre></div><p><code>range</code>構文を使うと、ループ処理が行える。<code>if A == B</code>のような比較文は<code>eq</code>を使って書ける。<br>
+また、ループ処理中はスコープが変わり、<code>.</code>の参照先がループ変数になるので、<code>$</code>を使ってルートコンテキストから<code>Values</code>などを参照している。<br>
 （なお、<code>labels</code>の<code>{{ include &quot;repeated-service.labels&quot; $ | indent 4 }}</code>部分の名前付きテンプレートの利用を止めないとラベルの定義が運用的に問題だが、今回はブログ記事なので省略している）</p>
-
 <h2 id="名前付きテンプレートにしないのか">名前付きテンプレートにしないのか？</h2>
-
-<p>名前付きテンプレートを使う場合、<code>include</code>文の引数としてで渡せるオブジェクトが1つしかない。<br />
+<p>名前付きテンプレートを使う場合、<code>include</code>文の引数としてで渡せるオブジェクトが1つしかない。<br>
 そのため、いちいち<code>dict</code>文を使って<code>$server</code>変数、<code>Service</code>、<code>Values</code>などを1つのオブジェクトに詰め直す必要があり、冗長な書き方になるので止めている。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#586e75"># こんな書き方をしないといけなくなってしまう</span>
 {{- include <span style="color:#2aa198">&#34;repeated-service.service&#34;</span> (dict <span style="color:#2aa198">&#34;Bank&#34;</span> $bank <span style="color:#2aa198">&#34;Realease&#34;</span> .Realese <span style="color:#2aa198">&#34;Values&#34;</span> .Values) -}}
- </code></pre></div>
-<h2 id="helm-installの実行結果">helm installの実行結果</h2>
-
+ 
+</code></pre></div><h2 id="helm-installの実行結果">helm installの実行結果</h2>
 <p>実際にこの定義を使って<code>helm install --dry-run</code>してみた結果が以下。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ helm tiller run -- helm install --debug --dry-run --name sample .
 Installed Helm version v2.14.3
@@ -478,17 +444,14 @@ spec:
     app.kubernetes.io/name: bob-repeated-service
     app.kubernetes.io/instance: bob-sample
 
-...</code></pre></div>
-<p>無事<code>.Values.servers</code>の値を使って複数の<code>Service</code>定義が作成されている。<code>Deployment</code>も同様に書き換えることでやりたいことは実現できる。</p>
+...
 
+</code></pre></div><p>無事<code>.Values.servers</code>の値を使って複数の<code>Service</code>定義が作成されている。<code>Deployment</code>も同様に書き換えることでやりたいことは実現できる。</p>
 <h1 id="終わりに">終わりに</h1>
-
 <p>最初は名前付きテンプレートで書こうと思って試行錯誤していたのだが、本記事のように書くほうがシンプルだったのでこのようにした
-（実際公式Chartでも名前付きテンプレートへの代入で複雑な変数定義をすることはほとんどないらしい）。<br />
+（実際公式Chartでも名前付きテンプレートへの代入で複雑な変数定義をすることはほとんどないらしい）。<br>
 まだ出来上がるマニフェストの理解などは曖昧なところがあるので引き続きk8s関連のキャッチアップを続ける。</p>
-
 <h1 id="参考">参考</h1>
-
 <ul>
 <li><a href="https://helm.sh/docs/chart_template_guide/">The Chart Template Developer’s Guide</a></li>
 <li><a href="https://golang.org/pkg/text/template/">Package template</a></li>
@@ -582,9 +545,9 @@ spec:
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -662,10 +625,16 @@ spec:
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -677,12 +646,6 @@ spec:
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

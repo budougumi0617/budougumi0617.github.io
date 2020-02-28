@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -173,47 +173,30 @@
           
           
           
-          
-
-<p>VimでGoを使う人は大半の人が<code>vim-go</code>プラグインをインストールしているだろう。</p>
-
-<p><strong>fatih/vim-go</strong><br />
+          <p>VimでGoを使う人は大半の人が<code>vim-go</code>プラグインをインストールしているだろう。</p>
+<p><strong>fatih/vim-go</strong><br>
 <a href="https://github.com/fatih/vim-go">https://github.com/fatih/vim-go</a></p>
-
-<p>今年の3月、ついに<code>vim-go</code>が<code>delve</code>をサポートした（他のVimプラグインを使えばすでにVimから使えたようだが）。<br />
+<p>今年の3月、ついに<code>vim-go</code>が<code>delve</code>をサポートした（他のVimプラグインを使えばすでにVimから使えたようだが）。<br>
 VimからGoのプログラムをデバッグする方法をまとめる。</p>
-
 <p><a href="https://github.com/fatih/vim-go/blob/master/CHANGELOG.md#117---march-27-2018">https://github.com/fatih/vim-go/blob/master/CHANGELOG.md#117---march-27-2018</a></p>
-
 <pre><code>1.17 - (March 27, 2018)
 FEATURES:
 Debugger support! Add integrated support for the delve debugger. Use :GoInstallBinaries to install dlv, and see :help go-debug to get started. [GH-1390]
-</code></pre>
-
-<p>なお、<code>vim-go</code>はチュートリアルを読めば大半の機能を理解することが出来るが、最近追加された機能まではチュートリアルに載っていない。</p>
-
-<p><strong>fatih/vim-go-tutorial</strong><br />
+</code></pre><p>なお、<code>vim-go</code>はチュートリアルを読めば大半の機能を理解することが出来るが、最近追加された機能まではチュートリアルに載っていない。</p>
+<p><strong>fatih/vim-go-tutorial</strong><br>
 <a href="https://github.com/fatih/vim-go-tutorial">https://github.com/fatih/vim-go-tutorial</a></p>
-
 <p><a href="https://twitter.com/hnakamur2">@hnakamur2</a>さんが日本語翻訳版も公開してくれている。</p>
-
-<p><strong>hnakamur/vim-go-tutorial-ja</strong><br />
+<p><strong>hnakamur/vim-go-tutorial-ja</strong><br>
 <a href="https://github.com/hnakamur/vim-go-tutorial-ja">https://github.com/hnakamur/vim-go-tutorial-ja</a></p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li><code>vim-go</code>のデバッグ機能をヘルプからまとめた</li>
 </ul>
-
-<p>ほぼヘルプのコマンドを動かした通りなので、英語に抵抗がないならば、Vimを開いて<code>:h go-debug</code>とすれば良い。<br />
+<p>ほぼヘルプのコマンドを動かした通りなので、英語に抵抗がないならば、Vimを開いて<code>:h go-debug</code>とすれば良い。<br>
 見つからない場合は<code>vim-go</code>が古い状態になっている。</p>
-
 <p><a href="https://github.com/fatih/vim-go/blob/7ac1e62fa30d84946e93a3820bb6cf6a431186ed/doc/vim-go.txt#L1872">https://github.com/fatih/vim-go/blob/7ac1e62fa30d84946e93a3820bb6cf6a431186ed/doc/vim-go.txt#L1872</a></p>
-
-<p>なお、今回基本的なデバッグ用語(ブレークポイント、ステップインなど)の説明は省略する。<br />
+<p>なお、今回基本的なデバッグ用語(ブレークポイント、ステップインなど)の説明は省略する。<br>
 以下のgif動画は以下の操作を行った際の画面を記録したものである。</p>
-
 <ul>
 <li><code>Vim</code>を起動</li>
 <li>デバッグモードを開始</li>
@@ -224,27 +207,19 @@ Debugger support! Add integrated support for the delve debugger. Use :GoInstallB
 <li>実行中の変数の中身をデバッグプリント</li>
 <li>デバッグモードを終了</li>
 </ul>
-
-<p><img src="/2018/05/delve.gif" alt="vim-debug-demo" /></p>
-
+<p><img src="/2018/05/delve.gif" alt="vim-debug-demo"></p>
 <h1 id="事前準備">事前準備</h1>
-
-<p>まずは最新版のvim-goに更新しておく。<code>vim-go</code>の<code>delve</code>周りに5月に一度更新が入っているので最新版を取得しておいたほうがよい。<br />
+<p>まずは最新版のvim-goに更新しておく。<code>vim-go</code>の<code>delve</code>周りに5月に一度更新が入っているので最新版を取得しておいたほうがよい。<br>
 dein.vimでpluginをアップデートするときは<code>vim</code>を起動して以下のコマンドを実行する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-vim" data-lang="vim">:call dein#update()</code></pre></div>
-<p><code>:h go-debug</code>と入力して<code>DEBUGGER</code>のヘルプが表示されたならば<code>vim-go</code>でデバッグが出来るようになっている。</p>
-
-<p><code>delve</code>が動くことも確認しておこう。ターミナルで一通り動くことを確認しておいたほうが良い。<br />
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-vim" data-lang="vim">:call dein#update()
+</code></pre></div><p><code>:h go-debug</code>と入力して<code>DEBUGGER</code>のヘルプが表示されたならば<code>vim-go</code>でデバッグが出来るようになっている。</p>
+<p><code>delve</code>が動くことも確認しておこう。ターミナルで一通り動くことを確認しておいたほうが良い。<br>
 自分の場合、Macで使うとdelveの起動は出来てもデバッグの開始に失敗することがあった。</p>
-
 <ul>
-<li><a href="/2017/12/24/activate-delve-on-mac/">[Go]MacのVSCodeでGoのデバッグを試すと&rdquo;unexpected fault address&hellip;&ldquo;エラーになる</a></li>
+<li><a href="/2017/12/24/activate-delve-on-mac/">[Go]MacのVSCodeでGoのデバッグを試すと&quot;unexpected fault address&hellip;&ldquo;エラーになる</a></li>
 </ul>
-
 <h1 id="vim上でのデバッグ">Vim上でのデバッグ</h1>
-
 <p>今回のデバッグ対象のサンプルとして次のコードを利用した。</p>
-
 <p><a href="https://github.com/budougumi0617/gopl/blob/master/ch01/ex02/echo.go">https://github.com/budougumi0617/gopl/blob/master/ch01/ex02/echo.go</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
@@ -262,41 +237,28 @@ dein.vimでpluginをアップデートするときは<code>vim</code>を起動�
 		s <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;[&#34;</span> <span style="color:#719e07">+</span> strconv.<span style="color:#268bd2">Itoa</span>(index) <span style="color:#719e07">+</span> <span style="color:#2aa198">&#34;] &#34;</span> <span style="color:#719e07">+</span> arg <span style="color:#586e75">// Convert integert to string
 </span><span style="color:#586e75"></span>		fmt.<span style="color:#268bd2">Fprintln</span>(out, s)
 	}
-}</code></pre></div>
-<p>ローカルにある上記のコードをリポジトリルート上をカレントディレクトリとして<code>vim</code>で開いた。</p>
+}
+</code></pre></div><p>ローカルにある上記のコードをリポジトリルート上をカレントディレクトリとして<code>vim</code>で開いた。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">cd</span> <span style="color:#268bd2">$GOPATH</span>/src/github.com/budougumi0617/gopl/
-$ vim ch01/ex02/echo.go</code></pre></div>
-<h1 id="godebugstart-デバッグを開始する"><code>:GoDebugStart</code> デバッグを開始する</h1>
-
+$ vim ch01/ex02/echo.go
+</code></pre></div><h1 id="godebugstart-デバッグを開始する"><code>:GoDebugStart</code> デバッグを開始する</h1>
 <p>まず、デバッグモードの起動の仕方だ。
 デバッグを開始するときは以下のように<code>:GoDebugStart</code>を実行する。(testをデバッグする場合は<code>:GoDebugTest</code>)</p>
-
 <pre><code>:GoDebugStart [pkg] [program-args]
-</code></pre>
-
-<p>たとえば、今回の例の場合はデバッグ対象のパッケージがカレントディレクトリではないので、以下のようになる。</p>
-
+</code></pre><p>たとえば、今回の例の場合はデバッグ対象のパッケージがカレントディレクトリではないので、以下のようになる。</p>
 <pre><code>:GoDebugStart ./ch01/ex02 test test2
-</code></pre>
-
-<p>デバッグ実行時にプログラムへ引数やフラグを渡すときはパッケージ名のあとに指定する。<br />
+</code></pre><p>デバッグ実行時にプログラムへ引数やフラグを渡すときはパッケージ名のあとに指定する。<br>
 ブレークポイントを指定していた場合、そこでプログラムが止まった状態でデバッグモードに移行しているはずだ。</p>
-
-<p><img src="/2018/05/go-debug-start.png" alt="GoDebugStart" />
+<p><img src="/2018/05/go-debug-start.png" alt="GoDebugStart">
 また、もしここでデバッグモードの起動に失敗する場合、<code>:messages</code>を実行することで起動時のログを確認することができる。</p>
-
-<h1 id="godebugbreakpoint-ブレークポイントを設定する"><code>:GoDebugBreakpoint</code> | ブレークポイントを設定する</h1>
-
+<h1 id="godebugbreakpoint--ブレークポイントを設定する"><code>:GoDebugBreakpoint</code> | ブレークポイントを設定する</h1>
 <p>次に、ブレークポイントを設定する。なお、ブレークポイントの設置はデバッグモードに入る前に実施することも出来る。
 ブレークポイントを設定したい行の上にカーソルを移動して<code>:GoDebugBreakpoint</code>を実行するか、
 ブレークポイントを設定した<code>LINE_NUM</code>行目を引数にして<code>:GoDebugBreakpoint $LINE_NUM</code>と実行する。
 成功すると、左端に<code>&gt;</code>とマーキングがされる。
 ブレークポイントを解除したい場合はやはりカーソルを該当行に置くか、引数で指定して<code>:GoDebugBreakpoint</code>を実行する。</p>
-
 <h1 id="デバッガで挙動を確認する">デバッガで挙動を確認する</h1>
-
 <p>デバッグモード起動後は一般的なデバッグのようにステップ実行することが出来る。それぞれのコマンドにはデフォルトでキーバインドも設定されている。</p>
-
 <table>
 <thead>
 <tr>
@@ -305,38 +267,32 @@ $ vim ch01/ex02/echo.go</code></pre></div>
 <th>説明</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td><code>:GoDebugContinue</code></td>
 <td>F5</td>
 <td>ブレークポイントまでプログラムを実行する</td>
 </tr>
-
 <tr>
 <td><code>:GoDebugNext</code></td>
 <td>F10</td>
 <td>ステップオーバー実行。プログラム未開始時は<code>:GoDebugContinue</code>相当</td>
 </tr>
-
 <tr>
 <td><code>:GoDebugStep</code></td>
 <td>F11</td>
 <td>ステップイン実行。プログラム未開始時は<code>:GoDebugContinue</code>相当</td>
 </tr>
-
 <tr>
 <td><code>:GoDebugStepOut</code></td>
 <td>なし</td>
 <td>ステップアウト実行</td>
 </tr>
-
 <tr>
 <td><code>:GoDebugSet</code></td>
 <td>なし</td>
 <td><code>delve</code>がサポートしている一部のプリミティブ型に値をセットできる</td>
 </tr>
-
 <tr>
 <td><code>:GoDebugPrint</code></td>
 <td>F6</td>
@@ -344,38 +300,24 @@ $ vim ch01/ex02/echo.go</code></pre></div>
 </tr>
 </tbody>
 </table>
-
 <p>デバッグ中は右下のウインドウでログや出力情報を確認することができる。</p>
-
-<p><img src="/2018/05/go-debug-print.png" alt="GoDebugPrint" /></p>
-
+<p><img src="/2018/05/go-debug-print.png" alt="GoDebugPrint"></p>
 <h1 id="変数の情報を確認する">変数の情報を確認する</h1>
-
 <p>左下のウインドウに変数情報が表示されている。配列情報はその変数にカーソルを合わせてエンターを押下すれば情報を展開することも出来る。</p>
-
 <h1 id="スタック情報を確認する">スタック情報を確認する</h1>
-
 <p>左のウインドウはスタック情報であり、変数名と同様に、確認したいスタック名でエンターをクリックすれば、呼び出し元の情報を確認することも可能。</p>
-
-<h1 id="godebugrestart-デバッグを再開始する"><code>:GoDebugRestart</code> | デバッグを再開始する</h1>
-
+<h1 id="godebugrestart--デバッグを再開始する"><code>:GoDebugRestart</code> | デバッグを再開始する</h1>
 <p>ブレークポイントなどを不用意に通過してしまった場合はリスタートすることもできる。</p>
-
-<h1 id="godebugstop-デバッグを終了する"><code>:GoDebugStop</code> | デバッグを終了する</h1>
-
+<h1 id="godebugstop--デバッグを終了する"><code>:GoDebugStop</code> | デバッグを終了する</h1>
 <p>デバッグを終了する場合は<code>:GoDebugStop</code>を実行する。
 デバッグ用のウインドウやブレークポイント情報がすべて取り除かれ、通常表示のVimに戻るはずだ。</p>
-
 <h1 id="終わりに">終わりに</h1>
-
 <p>以上で<code>Vim-go</code>と<code>delve</code>でデバッグする方法をまとめた。
 UIに関しては<code>delve</code>をそのまま使うより、圧倒的にvim-goのほうがリッチだった気がする。
 ますますVimでGoを書くのが楽しくなった。</p>
-
 <h1 id="その他のdelveの記事">その他のDelveの記事</h1>
-
 <ul>
-<li><a href="/2017/12/24/activate-delve-on-mac/">[Go]MacのVSCodeでGoのデバッグを試すと&rdquo;unexpected fault address&hellip;&ldquo;エラーになる</a></li>
+<li><a href="/2017/12/24/activate-delve-on-mac/">[Go]MacのVSCodeでGoのデバッグを試すと&quot;unexpected fault address&hellip;&ldquo;エラーになる</a></li>
 <li><a href="/2018/04/08/debug-by-delve/">Goのデバッガ(Delve)のいろいろな起動のしかた(引数を渡して起動、起動中のプロセスにアタッチして起動 etc&hellip;)</a></li>
 </ul>
 
@@ -468,9 +410,9 @@ UIに関しては<code>delve</code>をそのまま使うより、圧倒的にvim
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -548,10 +490,16 @@ UIに関しては<code>delve</code>をそのまま使うより、圧倒的にvim
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -563,12 +511,6 @@ UIに関しては<code>delve</code>をそのまま使うより、圧倒的にvim
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

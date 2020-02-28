@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -61,11 +61,10 @@
   <meta property="og:description" content="golang.tokyoで静的解析ハンズオンを行なうにあたり、ハンズオン資料を作成した。
 ハンズオン作成時の際参考にした資料や、作る時に工夫した点をまとめておく。
 
-
 型チェックでインターフェースを実装しているか調べよう
 
-
 https://golangtokyo.github.io/codelab/first-step-type-check/
+
 
 "/>
   
@@ -73,11 +72,10 @@ https://golangtokyo.github.io/codelab/first-step-type-check/
   <meta name="twitter:description" content="golang.tokyoで静的解析ハンズオンを行なうにあたり、ハンズオン資料を作成した。
 ハンズオン作成時の際参考にした資料や、作る時に工夫した点をまとめておく。
 
-
 型チェックでインターフェースを実装しているか調べよう
 
-
 https://golangtokyo.github.io/codelab/first-step-type-check/
+
 
 "/>
   <meta name="twitter:site" content="@budougumi0617"/>
@@ -192,53 +190,40 @@ https://golangtokyo.github.io/codelab/first-step-type-check/
           
           
             <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#なぜ作ったのか">なぜ作ったのか</a></li>
-<li><a href="#参考にした記事">参考にした記事</a>
-<ul>
-<li><a href="#go-typesのgodoc">go/typesのGodoc</a></li>
-<li><a href="#goのためのgo">GoのためのGo</a></li>
-<li><a href="#go-types-the-go-type-checker">go/types: The Go Type Checker</a></li>
-<li><a href="#静的解析で型を扱う-golang">静的解析で型を扱う #golang</a></li>
-<li><a href="#goでstructの定義を見てあれこれするのに-ast-fileを直接見るよりtypes-packageを参照したほうが楽-かもしれない">goでstructの定義を見てあれこれするのに、ast.Fileを直接見るよりtypes.Packageを参照したほうが楽(かもしれない)</a></li>
-</ul></li>
-<li><a href="#作る時に工夫したこと">作る時に工夫したこと</a></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#参考url">参考URL</a></li>
-</ul>
+  <ul>
+    <li><a href="#gotypesのgodoc">go/typesのGodoc</a></li>
+    <li><a href="#goのためのgo">GoのためのGo</a></li>
+    <li><a href="#gotypes-the-go-type-checker">go/types: The Go Type Checker</a></li>
+    <li><a href="#静的解析で型を扱う-golang">静的解析で型を扱う #golang</a></li>
+    <li><a href="#goでstructの定義を見てあれこれするのにastfileを直接見るよりtypespackageを参照したほうが楽かもしれない">goでstructの定義を見てあれこれするのに、ast.Fileを直接見るよりtypes.Packageを参照したほうが楽(かもしれない)</a></li>
+  </ul>
 </nav>
           
-          <p>golang.tokyoで静的解析ハンズオンを行なうにあたり、ハンズオン資料を作成した。<br />
+          <p>golang.tokyoで静的解析ハンズオンを行なうにあたり、ハンズオン資料を作成した。<br>
 ハンズオン作成時の際参考にした資料や、作る時に工夫した点をまとめておく。</p>
-
 <ul>
 <li>型チェックでインターフェースを実装しているか調べよう
-
 <ul>
 <li><a href="https://golangtokyo.github.io/codelab/first-step-type-check/">https://golangtokyo.github.io/codelab/first-step-type-check/</a></li>
-</ul></li>
 </ul>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+</li>
+</ul>
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li><code>go/types</code>パッケージを使った型チェックを勉強するハンズオンを作った
-
 <ul>
 <li><a href="https://golangtokyo.github.io/codelab/first-step-type-check">型チェックでインターフェースを実装しているか調べよう</a></li>
-</ul></li>
+</ul>
+</li>
 <li>ハンズオンを作るにあたって以下のWEBサイト・記事が大変参考になった</li>
 <li>資料を作る際はひたすらPlayGroundで以下のようなサンプルコードを回していた
-
 <ul>
 <li><a href="https://play.golang.org/p/DltIoOjroh2">https://play.golang.org/p/DltIoOjroh2</a></li>
-</ul></li>
+</ul>
+</li>
 <li>静的解析を勉強して「Goにおける型」の概念を知ることができた。言語仕様に対する理解も深めることができてオススメ。</li>
 </ul>
-
 <p>なお、静的解析ハンズオン自体の情報は以下になる。</p>
-
 <table>
 <thead>
 <tr>
@@ -246,104 +231,77 @@ https://golangtokyo.github.io/codelab/first-step-type-check/
 <th>golang.tokyo #22+Okayama.go/Sendai.go</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>URL</td>
 <td><a href="https://golangtokyo.connpass.com/event/122263/">https://golangtokyo.connpass.com/event/122263/</a></td>
 </tr>
-
 <tr>
 <td>会場</td>
 <td>freee株式会社 東京都品川区西五反田2-8-1(五反田ファーストビル 9F)</td>
 </tr>
-
 <tr>
 <td>日時</td>
 <td>2019/03/23（土）13:00 〜 17:00</td>
 </tr>
-
 <tr>
 <td>ハッシュタグ</td>
 <td><a href="https://twitter.com/hashtag/golangtokyo">#golangtokyo</a></td>
 </tr>
 </tbody>
 </table>
-
 <h1 id="なぜ作ったのか">なぜ作ったのか</h1>
-
-<p>今回golang.tokyoで静的解析のハンズオンをすることになった。<br />
-golang.tokyoでは以前から静的解析を含めたハンズオンを提供していたが型チェック（<code>go/types</code>）についてのハンズオンはまだなかった。<br />
+<p>今回golang.tokyoで静的解析のハンズオンをすることになった。<br>
+golang.tokyoでは以前から静的解析を含めたハンズオンを提供していたが型チェック（<code>go/types</code>）についてのハンズオンはまだなかった。<br>
 私自身今年のはじめあたりから静的解析を初めたが、まだ<code>go/types</code>パッケージはあまり触ったことがなかったのでこの機会に学習することにした。</p>
-
 <h1 id="参考にした記事">参考にした記事</h1>
-
-<p>今回の資料を作るにあたって以下の記事を参考にした。また、そもそもとして、ハンズオン資料のネタ出しは<a href="https://twitter.com/tenntenn">@tenntenn</a>さんにしてもらった。<br />
+<p>今回の資料を作るにあたって以下の記事を参考にした。また、そもそもとして、ハンズオン資料のネタ出しは<a href="https://twitter.com/tenntenn">@tenntenn</a>さんにしてもらった。<br>
 （全てのネタをハンズオンに含めることはできなかったのだが、）自分にとっていい具合にストレッチした課題（ネタ）だった。圧倒的に感謝！</p>
-
-<h2 id="go-typesのgodoc">go/typesのGodoc</h2>
-
+<h2 id="gotypesのgodoc">go/typesのGodoc</h2>
 <ul>
 <li><a href="https://golang.org/pkg/go/types/">https://golang.org/pkg/go/types/</a></li>
 </ul>
-
 <p>当たり前だが<code>go/types</code>のGo Doc。<code>types.Info</code>構造体などを使うときは一度Go Docを読んでExamplesを動かしておいたほうが圧倒的に理解が進むと思う。</p>
-
 <ul>
 <li><a href="https://golang.org/pkg/go/types/#Info">https://golang.org/pkg/go/types/#Info</a></li>
 </ul>
-
 <h2 id="goのためのgo">GoのためのGo</h2>
-
 <ul>
 <li><a href="https://motemen.github.io/go-for-go-book">https://motemen.github.io/go-for-go-book</a></li>
 </ul>
-
-<p><a href="https://twitter.com/motemen">@motemen</a>さんが書いている静的解析全般の解説記事。日本語で<code>go/ast</code>パッケージや<code>go/types</code>パッケージの内容がまとめてあって大変ありがたい。<br />
-また、資料内にある<a href="https://motemen.github.io/go-for-go-book/#ast_node%E3%81%AE%E9%9A%8E%E5%B1%A4">Appendix A: ast.Nodeの階層</a>などが大変参考になった。<br />
-Go Docはたどりやすいし実際のコードもワンクリックで辿れるのでとても読みやすいのだが、インターフェースと具象型の関係などを調べることができない（ダックタイピングなので当然といえば当然）。<br />
+<p><a href="https://twitter.com/motemen">@motemen</a>さんが書いている静的解析全般の解説記事。日本語で<code>go/ast</code>パッケージや<code>go/types</code>パッケージの内容がまとめてあって大変ありがたい。<br>
+また、資料内にある<a href="https://motemen.github.io/go-for-go-book/#ast_node%E3%81%AE%E9%9A%8E%E5%B1%A4">Appendix A: ast.Nodeの階層</a>などが大変参考になった。<br>
+Go Docはたどりやすいし実際のコードもワンクリックで辿れるのでとても読みやすいのだが、インターフェースと具象型の関係などを調べることができない（ダックタイピングなので当然といえば当然）。<br>
 なので、「この型を取りたいときはどのインターフェースから辿れたいいのいかな？」などを調べるときにとても重宝した。</p>
-
 <ul>
 <li><a href="https://motemen.github.io/go-for-go-book/#ast_node%E3%81%AE%E9%9A%8E%E5%B1%A4">Appendix A: ast.Nodeの階層</a></li>
 <li><a href="https://motemen.github.io/go-for-go-book/#types_object%E3%81%AE%E9%9A%8E%E5%B1%A4">Appendix B: types.Objectの階層</a></li>
 <li><a href="https://motemen.github.io/go-for-go-book/#types_type%E3%81%AE%E9%9A%8E%E5%B1%A4">Appendix C: types.Typeの階層</a></li>
 </ul>
-
-<h2 id="go-types-the-go-type-checker">go/types: The Go Type Checker</h2>
-
+<h2 id="gotypes-the-go-type-checker">go/types: The Go Type Checker</h2>
 <ul>
 <li><a href="https://github.com/golang/example/tree/master/gotypes">https://github.com/golang/example/tree/master/gotypes</a></li>
 </ul>
-
 <p><code>godoc -analysis</code>などGoの静的解析部分の設計者であり、<a href="http://amazon.jp/dp/4621300253">プログラミング言語Go</a>執筆者のAlan Donovan氏による<code>go/types</code>パッケージの解説。
 英語が読めないのでちゃんと全部は読めていないのだが、サンプルコードも大量にありわかりやすい。</p>
-
 <h2 id="静的解析で型を扱う-golang">静的解析で型を扱う #golang</h2>
-
 <ul>
 <li><a href="https://qiita.com/tenntenn/items/dfc112ae7bb8c9703ab9">https://qiita.com/tenntenn/items/dfc112ae7bb8c9703ab9</a></li>
 </ul>
-
 <p><a href="https://twitter.com/tenntenn">@tenntenn</a>さんが書いた型の記事。
-Goには継承はないが、静的解析的（構文木）には「基底型」という概念がある。<code>error</code>型の基底型を取り出す方法、基底型の概念を学べた。<br />
-インターフェースを実装しているか？などの比較処理なども書いてあり、ハンズオン中のコードはだいぶこの記事から作られている。<br />
+Goには継承はないが、静的解析的（構文木）には「基底型」という概念がある。<code>error</code>型の基底型を取り出す方法、基底型の概念を学べた。<br>
+インターフェースを実装しているか？などの比較処理なども書いてあり、ハンズオン中のコードはだいぶこの記事から作られている。<br>
 今回ハンズオン資料を作るにあたって一番の自分にとっての収穫は基底型という概念とGoの中の型の概念を知れたところが大きい。</p>
-
-<h2 id="goでstructの定義を見てあれこれするのに-ast-fileを直接見るよりtypes-packageを参照したほうが楽-かもしれない">goでstructの定義を見てあれこれするのに、ast.Fileを直接見るよりtypes.Packageを参照したほうが楽(かもしれない)</h2>
-
+<h2 id="goでstructの定義を見てあれこれするのにastfileを直接見るよりtypespackageを参照したほうが楽かもしれない">goでstructの定義を見てあれこれするのに、ast.Fileを直接見るよりtypes.Packageを参照したほうが楽(かもしれない)</h2>
 <ul>
 <li><a href="https://pod.hatenablog.com/entry/2018/02/04/145615">https://pod.hatenablog.com/entry/2018/02/04/145615</a></li>
 </ul>
-
-<p><a href="https://twitter.com/podhmo">@podhmo</a>さんが書いた<code>types.Object</code>の概観の記事。<br />
-最初は<code>types.Object</code>と<code>types.Type</code>の違いもよくわかっていなかったので全体感を感じられてよかった。<br />
-あと、記事の最後に添付されている<a href="https://gist.github.com/podhmo/85aec6afb53df58d35f4264fa756b952"><code>gist</code></a>のサンプルコードがいい感じの分量のコードで理解が捗った。<br />
+<p><a href="https://twitter.com/podhmo">@podhmo</a>さんが書いた<code>types.Object</code>の概観の記事。<br>
+最初は<code>types.Object</code>と<code>types.Type</code>の違いもよくわかっていなかったので全体感を感じられてよかった。<br>
+あと、記事の最後に添付されている<a href="https://gist.github.com/podhmo/85aec6afb53df58d35f4264fa756b952"><code>gist</code></a>のサンプルコードがいい感じの分量のコードで理解が捗った。<br>
 なんだかんだ静的解析をするときはひたすら動かしてキャストを繰り返したり挙動を確認するしかないので、このサンプルコードをベースにPlaygroudをいろいろ動かしてみて理解を進めた。</p>
-
 <h1 id="作る時に工夫したこと">作る時に工夫したこと</h1>
-
-<p>私は動かさないとわからないタイプだったのでひたすらPlaygroudでサンプルコードを動かして理解していた。<br />
+<p>私は動かさないとわからないタイプだったのでひたすらPlaygroudでサンプルコードを動かして理解していた。<br>
 具体的には下記のようなコードをちょっとずつ変えながらひたすらデバッグプリントをしたりしていた。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
@@ -443,58 +401,51 @@ Goには継承はないが、静的解析的（構文木）には「基底型」
 		}
 		<span style="color:#719e07">return</span> <span style="color:#cb4b16">true</span>
 	})
-}</code></pre></div>
-<p>今は<a href="https://godoc.org/golang.org/x/tools/go/analysis"><code>x/tools/go/analysis</code></a>パッケージもあるので、<code>analysistest</code>パッケージを使ってひたすらテストを実行しても良いかも知れない。</p>
-
+}
+</code></pre></div><p>今は<a href="https://godoc.org/golang.org/x/tools/go/analysis"><code>x/tools/go/analysis</code></a>パッケージもあるので、<code>analysistest</code>パッケージを使ってひたすらテストを実行しても良いかも知れない。</p>
 <h1 id="終わりに">終わりに</h1>
-
 <ul>
 <li>型チェックでインターフェースを実装しているか調べよう
-
 <ul>
 <li><a href="https://golangtokyo.github.io/codelab/first-step-type-check/">https://golangtokyo.github.io/codelab/first-step-type-check/</a></li>
-</ul></li>
 </ul>
-
-<p>今回はgolang.tokyoに寄稿したハンズオン資料作成時のいろいろを自分用にまとめた。今後は実際に静的解析ツールを作るのと、もっと静的解析について勉強をしていきたい。<br />
-本当はanalysisパッケージを使ってCLIツールを作るまでやりたかったのだが、自分の力量不足でできなかったので、そのようなハンズオン資料もいずれ作っていきたい。<br />
-静的解析を勉強すると言語仕様についての理解も進んでいくことがわかったので以前以上にやる気も出てきた。<br />
+</li>
+</ul>
+<p>今回はgolang.tokyoに寄稿したハンズオン資料作成時のいろいろを自分用にまとめた。今後は実際に静的解析ツールを作るのと、もっと静的解析について勉強をしていきたい。<br>
+本当はanalysisパッケージを使ってCLIツールを作るまでやりたかったのだが、自分の力量不足でできなかったので、そのようなハンズオン資料もいずれ作っていきたい。<br>
+静的解析を勉強すると言語仕様についての理解も進んでいくことがわかったので以前以上にやる気も出てきた。<br>
 また、ハンズオン資料の作成で使っているCodlabsのツールはとても使い勝手がいいので、ツールの使い方を紹介する記事を後日書いておく。</p>
-
 <p>ちなみにハンズオン資料の不備などは以下で受け付けているので、間違いやわかりにくいところがあったらぜひ登録していただけると幸い。</p>
-
 <ul>
 <li><a href="https://github.com/golangtokyo/codelab/issues">https://github.com/golangtokyo/codelab/issues</a></li>
 </ul>
-
 <h1 id="参考url">参考URL</h1>
-
 <ul>
 <li>go/typesパッケージ
-
 <ul>
 <li><a href="https://golang.org/pkg/go/types">https://golang.org/pkg/go/types</a></li>
-</ul></li>
+</ul>
+</li>
 <li>go/types: The Go Type Checker
-
 <ul>
 <li><a href="https://github.com/golang/example/tree/master/gotypes">https://github.com/golang/example/tree/master/gotypes</a></li>
-</ul></li>
+</ul>
+</li>
 <li>GoのためのGo
-
 <ul>
 <li><a href="https://motemen.github.io/go-for-go-book/">https://motemen.github.io/go-for-go-book/</a></li>
-</ul></li>
+</ul>
+</li>
 <li>静的解析で型を扱う #golang
-
 <ul>
 <li><a href="https://qiita.com/tenntenn/items/dfc112ae7bb8c9703ab9">https://qiita.com/tenntenn/items/dfc112ae7bb8c9703ab9</a></li>
-</ul></li>
+</ul>
+</li>
 <li>goでstructの定義を見てあれこれするのに、ast.Fileを直接見るよりtypes.Packageを参照したほうが楽(かもしれない)
-
 <ul>
 <li><a href="https://pod.hatenablog.com/entry/2018/02/04/145615">https://pod.hatenablog.com/entry/2018/02/04/145615</a></li>
-</ul></li>
+</ul>
+</li>
 </ul>
         </div>
         
@@ -585,9 +536,9 @@ Goには継承はないが、静的解析的（構文木）には「基底型」
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -665,10 +616,16 @@ Goには継承はないが、静的解析的（構文木）には「基底型」
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -680,12 +637,6 @@ Goには継承はないが、静的解析的（構文木）には「基底型」
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

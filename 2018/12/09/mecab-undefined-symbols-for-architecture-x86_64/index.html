@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -171,27 +171,17 @@ bluele/mecab-golangをimportしている(CGOの設定が必要だった）のが
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#undefined-symbols-for-architecture-x86-64">Undefined symbols for architecture x86_64</a></li>
-<li><a href="#環境変数を設定してgo-getをやり直す">環境変数を設定してgo getをやり直す</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
           <p>他の方のリポジトリにビルドすると表題のエラーが出てしまった。
 <code>bluele/mecab-golang</code>をimportしている(CGOの設定が必要だった）のが原因だったのでメモしておく。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li><code>bluele/mecab-golang</code>を<code>import</code>するリポジトリの場合は<code>go get</code>・<code>dep</code>などの<code>import</code>解決だけでは不十分</li>
 <li>Macの場合は<code>brew install mecab</code>で<code>mecab</code>をインストールする</li>
 <li>環境変数を設定しておく必要がある。<code>CGO_LDFLAGS</code>を設定してビルドをすれば問題ない</li>
 </ul>
-
-<h1 id="undefined-symbols-for-architecture-x86-64">Undefined symbols for architecture x86_64</h1>
-
+<h1 id="undefined-symbols-for-architecture-x86_64">Undefined symbols for architecture x86_64</h1>
 <p><code>git clone</code>、<code>go get ./...</code>後のあるリポジトリのtestを実行しようとしたところ、以下のエラーが出てしまった。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span>
 <span style="color:#586e75"># github.com/bluele/mecab-golang</span>
@@ -204,40 +194,37 @@ Undefined symbols <span style="color:#719e07">for</span> architecture x86_64:
 
 ld: symbol<span style="color:#719e07">(</span>s<span style="color:#719e07">)</span> not found <span style="color:#719e07">for</span> architecture x86_64
 clang: error: linker <span style="color:#b58900">command</span> failed with <span style="color:#b58900">exit</span> code <span style="color:#2aa198">1</span> <span style="color:#719e07">(</span>use -v to see invocation<span style="color:#719e07">)</span>
-FAIL	github.com/budougumi0617/mecab-project <span style="color:#719e07">[</span>build failed<span style="color:#719e07">]</span></code></pre></div>
-<p>どうやら<code>import</code>している<code>bluele/mecab-golang</code>が<code>mecab</code>関係のCGO関数をきちんと呼べていないのが原因のようだった。</p>
-
+FAIL	github.com/budougumi0617/mecab-project <span style="color:#719e07">[</span>build failed<span style="color:#719e07">]</span>
+</code></pre></div><p>どうやら<code>import</code>している<code>bluele/mecab-golang</code>が<code>mecab</code>関係のCGO関数をきちんと呼べていないのが原因のようだった。</p>
 <h1 id="環境変数を設定してgo-getをやり直す">環境変数を設定してgo getをやり直す</h1>
-
 <p>解決方法は<code>bluele/mecab-golang</code>のREADMEを見ればすぐにわかった。</p>
-
 <ul>
 <li>Getting started | bluele/mecab-golang
-
 <ul>
 <li><a href="https://github.com/bluele/mecab-golang#getting-started">https://github.com/bluele/mecab-golang#getting-started</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>MacOSの場合はbrew経由で<code>mecab</code>と<code>mecab-config</code>をインストールできる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ brew install mecab
 $ which mecab
 /usr/local/bin/mecab
 $ which mecab-config
-/usr/local/bin/mecab-config</code></pre></div>
-<p>インストール後は<code>bluele/mecab-golang</code>のREADME通りに環境変数を設定すればよい。
+/usr/local/bin/mecab-config
+</code></pre></div><p>インストール後は<code>bluele/mecab-golang</code>のREADME通りに環境変数を設定すればよい。
 不要かもしれないが、私は<code>go get</code>もやり直しておいた。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">export</span> <span style="color:#268bd2">CGO_LDFLAGS</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;`mecab-config --libs`&#34;</span>
 $ <span style="color:#b58900">export</span> <span style="color:#268bd2">CGO_CFLAGS</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;-I`mecab-config --inc-dir`&#34;</span>
-$ go get -u github.com/bluele/mecab-golang</code></pre></div>
-<p>とはいえ、<code>mecab</code>以外のCGOの設定などもあって<code>export</code>で設定はしたくないという人（自分）もいるだろう。
+$ go get -u github.com/bluele/mecab-golang
+</code></pre></div><p>とはいえ、<code>mecab</code>以外のCGOの設定などもあって<code>export</code>で設定はしたくないという人（自分）もいるだろう。
 そのような人は以下のようにコマンド実行時に<code>CGO_LDFLAGS</code>を渡せばよい。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#268bd2">CGO_LDFLAGS</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;`mecab-config --libs`&#34;</span> go <span style="color:#b58900">test</span>
 PASS
-ok  	github.com/budougumi0617/mecab-project	<span style="color:#2aa198">0</span>.018s</code></pre></div>
-<p>ちなみに<code>mecab-config --libs</code>が出力する結果は以下だった。</p>
+ok  	github.com/budougumi0617/mecab-project	0.018s
+</code></pre></div><p>ちなみに<code>mecab-config --libs</code>が出力する結果は以下だった。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ mecab-config --libs
--L/usr/local/Cellar/mecab/0.996/lib -lmecab -lstdc++</code></pre></div>
+-L/usr/local/Cellar/mecab/0.996/lib -lmecab -lstdc++
+</code></pre></div>
         </div>
         
 
@@ -327,9 +314,9 @@ ok  	github.com/budougumi0617/mecab-project	<span style="color:#2aa198">0</span>
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -407,10 +394,16 @@ ok  	github.com/budougumi0617/mecab-project	<span style="color:#2aa198">0</span>
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -422,12 +415,6 @@ ok  	github.com/budougumi0617/mecab-project	<span style="color:#2aa198">0</span>
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -61,16 +61,15 @@
   <meta property="og:description" content="これはGo Advent Calendar 2018の14日目の記事となる。
 この記事ではGoogleが提供するGoのDependency Injection(DI、依存性の注入)ツールであるWireを使ったDIの概要と、Wireで利用可能なDI関数の戻り値シグネチャのパターンを紹介する。
 
-
 github.com/google/wire
-
 
 https://github.com/google/wire
 
+
 Compile-time Dependency Injection With Go Cloud&rsquo;s Wire | The Go blog
 
-
 https://blog.golang.org/wire
+
 
 "/>
   
@@ -78,16 +77,15 @@ https://blog.golang.org/wire
   <meta name="twitter:description" content="これはGo Advent Calendar 2018の14日目の記事となる。
 この記事ではGoogleが提供するGoのDependency Injection(DI、依存性の注入)ツールであるWireを使ったDIの概要と、Wireで利用可能なDI関数の戻り値シグネチャのパターンを紹介する。
 
-
 github.com/google/wire
-
 
 https://github.com/google/wire
 
+
 Compile-time Dependency Injection With Go Cloud&rsquo;s Wire | The Go blog
 
-
 https://blog.golang.org/wire
+
 
 "/>
   <meta name="twitter:site" content="@budougumi0617"/>
@@ -202,75 +200,61 @@ https://blog.golang.org/wire
           
           
             <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#wireについて">Wireについて</a>
-<ul>
-<li><a href="#wireを使ったdiパーツの定義">Wireを使ったDIパーツの定義</a></li>
-<li><a href="#wireを使ったdiの宣言">Wireを使ったDIの宣言</a></li>
-<li><a href="#wireを使ってdiの自動生成">Wireを使ってDIの自動生成</a></li>
-</ul></li>
-<li><a href="#wireコマンドで利用できるdi関数の戻り値シグネチャ">wireコマンドで利用できるDI関数の戻り値シグネチャ</a>
-<ul>
-<li><a href="#func-object">func() Object</a></li>
-<li><a href="#func-object-error">func() (Object, error)</a></li>
-<li><a href="#func-object-func">func() (Object, func())</a></li>
-<li><a href="#func-object-func-error">func() (Object, func(), error)</a></li>
-</ul></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#参考">参考</a></li>
-<li><a href="#関連">関連</a></li>
-</ul>
+  <ul>
+    <li><a href="#wireを使ったdiパーツの定義">Wireを使ったDIパーツの定義</a></li>
+    <li><a href="#wireを使ったdiの宣言">Wireを使ったDIの宣言</a></li>
+    <li><a href="#wireを使ってdiの自動生成">Wireを使ってDIの自動生成</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#func-object">func() Object</a></li>
+    <li><a href="#func-object-error">func() (Object, error)</a></li>
+    <li><a href="#func-object-func">func() (Object, func())</a></li>
+    <li><a href="#func-object-func-error">func() (Object, func(), error)</a></li>
+  </ul>
 </nav>
           
-          <p>これは<a href="https://qiita.com/advent-calendar/2018/go">Go Advent Calendar 2018</a>の14日目の記事となる。<br />
+          <p>これは<a href="https://qiita.com/advent-calendar/2018/go">Go Advent Calendar 2018</a>の14日目の記事となる。<br>
 この記事ではGoogleが提供するGoのDependency Injection(DI、依存性の注入)ツールであるWireを使ったDIの概要と、Wireで利用可能なDI関数の戻り値シグネチャのパターンを紹介する。</p>
-
 <ul>
 <li>github.com/google/wire
-
 <ul>
 <li><a href="https://github.com/google/wire">https://github.com/google/wire</a></li>
-</ul></li>
+</ul>
+</li>
 <li>Compile-time Dependency Injection With Go Cloud&rsquo;s Wire | The Go blog
-
 <ul>
 <li><a href="https://blog.golang.org/wire">https://blog.golang.org/wire</a></li>
-</ul></li>
 </ul>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+</li>
+</ul>
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>WireコマンドはGoogle謹製のGoでDI（依存性の注入）を行なうツール
-
 <ul>
 <li><a href="https://github.com/google/wire">https://github.com/google/wire</a></li>
 <li>依存の注入・初期化、依存の注入・初期化を繰り返して多階層になるDIコードも自動生成できる</li>
-</ul></li>
+</ul>
+</li>
 <li>DIで利用できる関数の戻り値のパターンは4種類（引数は任意）
-
 <ul>
 <li>func() Object</li>
 <li>func() (Object, error)</li>
 <li>func() (Object, func())</li>
 <li>func() (Object, func(), error)</li>
-</ul></li>
+</ul>
+</li>
 <li>Wireを利用すると疎なpkg構成とDIコードの自動生成を享受できる</li>
 </ul>
-
 <h1 id="wireについて">Wireについて</h1>
-
 <p>WireはGoogleが<a href="https://github.com/google/go-cloud">go-cloud</a>のリポジトリを公開したときに同梱されていたDIツールだ。
 <a href="https://github.com/google/go-cloud/pull/831">2018年12月</a>にWireだけ別のリポジトリに分離され、独立して管理されるようになった。
 次節から説明する<code>wire</code>pkgを使ったDIパーツ・組み合わせの定義に対して<code>go get</code>で入手できる<code>wire</code>コマンドを実行するとDIの初期化コードを自動生成できる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get github.com/google/wire/cmd/wire
 $ wire -h
-usage: wire <span style="color:#719e07">[</span>gen|diff|show|check<span style="color:#719e07">]</span> <span style="color:#719e07">[</span>...<span style="color:#719e07">]</span></code></pre></div>
-<h2 id="wireを使ったdiパーツの定義">Wireを使ったDIパーツの定義</h2>
-
+usage: wire <span style="color:#719e07">[</span>gen|diff|show|check<span style="color:#719e07">]</span> <span style="color:#719e07">[</span>...<span style="color:#719e07">]</span>
+</code></pre></div><h2 id="wireを使ったdiパーツの定義">Wireを使ったDIパーツの定義</h2>
 <p>Wireを使ったDIを利用するにはまず<code>wire.NewSet</code>を使ってDIのパーツ(Provider)を定義する必要がある。</p>
-
 <p>（コードは<a href="https://github.com/google/wire/blob/master/docs/guide.md#defining-providers">Defining Providers | Wire User Guide</a>より抜粋）</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> foobarbaz
 
@@ -310,13 +294,10 @@ usage: wire <span style="color:#719e07">[</span>gen|diff|show|check<span style="
 
 <span style="color:#586e75">// wireを使ってFoo | Bar | Bazを提供するDIセットを定義する。
 </span><span style="color:#586e75">// Bazを取得するときは別にcontext.Contextを用意する必要がある。
-</span><span style="color:#586e75"></span><span style="color:#268bd2">var</span> SuperSet = wire.<span style="color:#268bd2">NewSet</span>(ProvideFoo, ProvideBar, ProvideBaz)</code></pre></div>
-<p>上記のサンプルコードの最後で定義しているのがWireの仕組み内でProviderと呼ばれるもので、このProviderを複数組み合わせることでDIの初期化をしていく。</p>
-
+</span><span style="color:#586e75"></span><span style="color:#268bd2">var</span> SuperSet = wire.<span style="color:#268bd2">NewSet</span>(ProvideFoo, ProvideBar, ProvideBaz)
+</code></pre></div><p>上記のサンプルコードの最後で定義しているのがWireの仕組み内でProviderと呼ばれるもので、このProviderを複数組み合わせることでDIの初期化をしていく。</p>
 <h2 id="wireを使ったdiの宣言">Wireを使ったDIの宣言</h2>
-
 <p><code>wire.Build</code>を使って依存性を収入するオブジェクトの構成（Injector）を定義する。</p>
-
 <p><a href="https://github.com/google/wire/blob/master/docs/guide.md#injectors">Injectors | Wire User Guide</a>より</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// +build wireinject
 </span><span style="color:#586e75">// このコードはgo buildには含まない
@@ -332,8 +313,8 @@ usage: wire <span style="color:#719e07">[</span>gen|diff|show|check<span style="
 </span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">initializeBaz</span>(ctx context.Context) (foobarbaz.Baz, <span style="color:#dc322f">error</span>) {
     wire.<span style="color:#268bd2">Build</span>(foobarbaz.SuperSet)
     <span style="color:#719e07">return</span> foobarbaz.Baz{}, <span style="color:#cb4b16">nil</span>
-}</code></pre></div>
-<p>この例では<code>Baz</code>オブジェクトを生成する関数を定義している。
+}
+</code></pre></div><p>この例では<code>Baz</code>オブジェクトを生成する関数を定義している。
 前述の中で定義した<code>SuperSet</code>に含まれる<code>Baz</code>オブジェクトを生成する関数（<code>ProvideBar</code>）に必要な<code>context.Context</code>が<code>SuperSet</code>内の関数から用意できないため、<code>initializeBaz</code>の引数から<code>context.Context</code>を与えている。
 なお、「あるSetからXXXオブジェクトを生成するためにはどんなオブジェクトを用意すればいいのか？」は<code>wire show</code>コマンドを使えば簡単に調べることができる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ wire show
@@ -345,12 +326,10 @@ Outputs given no inputs: <span style="color:#586e75"># 特に用意せずにSupe
                 at /Users/budougumi0617/go/src/github.com/budougumi0617/foobarbaz/foobarbaz.go:15:6
 Outputs given context.Context: <span style="color:#586e75"># context.Contextを与えれば生成できるオブジェクト</span>
         github.com/budougumi0617/foobarbaz.Baz
-                at /Users/budougumi0617/go/src/github.com/budougumi0617/foobarbaz/foobarbaz.go:33:6</code></pre></div>
-<h2 id="wireを使ってdiの自動生成">Wireを使ってDIの自動生成</h2>
-
+                at /Users/budougumi0617/go/src/github.com/budougumi0617/foobarbaz/foobarbaz.go:33:6
+</code></pre></div><h2 id="wireを使ってdiの自動生成">Wireを使ってDIの自動生成</h2>
 <p>先程の<code>initializeBaz</code>から実際に<code>go build</code>時に利用するDIコードを自動生成する。
 <code>wire gen</code>コマンドを使って<code>initializeBaz</code>から自動生成されたコードが以下。</p>
-
 <p><a href="https://github.com/google/wire/blob/master/docs/guide.md#injectors">Injectors | Wire User Guide</a>より</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// Code generated by Wire. DO NOT EDIT.
 </span><span style="color:#586e75"></span>
@@ -371,24 +350,21 @@ Outputs given context.Context: <span style="color:#586e75"># context.Contextを�
         <span style="color:#719e07">return</span> <span style="color:#2aa198">0</span>, err
     }
     <span style="color:#719e07">return</span> baz, <span style="color:#cb4b16">nil</span>
-}</code></pre></div>
-<p>こうして<code>wire gen</code>コマンドを使うと、DI済みのオブジェクトを作成するコードを自動生成してくれる。
+}
+</code></pre></div><p>こうして<code>wire gen</code>コマンドを使うと、DI済みのオブジェクトを作成するコードを自動生成してくれる。
 この<code>wire gen</code>を使ったDIのよいところは以下だと感じている。</p>
-
 <ul>
 <li>必要な依存関係を含めておけばwireが適切な順序でオブジェクト生成、DIを繰り返すコードを自動生成してくれる
-
 <ul>
 <li>不足している場合は<code>wire gen</code>時に何が足りないかエラー出力してくれる</li>
-</ul></li>
+</ul>
+</li>
 <li>コード上の仕組みはシンプルなので後からでも導入できる。また逆に脱却も用意</li>
 <li>「ただオブジェクト間の依存性を解決するだけ」という人間が行なう必要が無いコードをWireに一存できる</li>
 </ul>
-
 <p>最後の利点については、例えば<code>go-cloud</code>のサンプルコードを見るとその効果がわかりやすい。
 <code>go-cloud</code>のサンプルコードではGCPを利用したWebサービスのDIをWireのInjectorの仕組みを使って以下のように設定している。
 詳細は説明しないが、<code>Bucket</code>や<code>Cloud SQL</code>、<code>Stackdriver</code>の依存性を注入したWebサーバーオブジェクト(<code>*application</code>）を生成するDIの定義だ。</p>
-
 <p><a href="https://github.com/google/go-cloud/blob/3c405e2532f18716f030e35b1e99c2dffcb92a6e/samples/guestbook/inject_gcp.go#L37-L50">/github.com/google/go-cloud/samples/guestbook/inject_gcp.go</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// setupGCP is a Wire injector function that sets up the application using GCP.
 </span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">setupGCP</span>(ctx context.Context, flags <span style="color:#719e07">*</span>cliFlags) (<span style="color:#719e07">*</span>application, <span style="color:#268bd2">func</span>(), <span style="color:#dc322f">error</span>) {
@@ -403,108 +379,81 @@ Outputs given context.Context: <span style="color:#586e75"># context.Contextを�
         gcpSQLParams,
     )
     <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>, <span style="color:#cb4b16">nil</span>, <span style="color:#cb4b16">nil</span>
-}</code></pre></div>
-<p>この<code>setupGCP</code>から<code>wire gen</code>コマンドを使って実際にビルドで利用するDIコードを自動生成すると、70行近いDIコードが自動生成される（コードの掲載は省略する）。</p>
-
+}
+</code></pre></div><p>この<code>setupGCP</code>から<code>wire gen</code>コマンドを使って実際にビルドで利用するDIコードを自動生成すると、70行近いDIコードが自動生成される（コードの掲載は省略する）。</p>
 <p><a href="https://github.com/google/go-cloud/blob/3c405e2532f18716f030e35b1e99c2dffcb92a6e/samples/guestbook/wire_gen.go#L105-L171">https://github.com/google/go-cloud/samples/guestbook/wire_gen.go#L105-L171</a></p>
-
 <p>依存関係が変更あるいは追加されるたびにこのような依存関係を自動で再生成してくれるのは非常にありがたい。
 （再生成前に<code>wire diff</code>コマンドを使って自動生成コードの差分を確認することも可能だ。）</p>
-
 <h1 id="wireコマンドで利用できるdi関数の戻り値シグネチャ">wireコマンドで利用できるDI関数の戻り値シグネチャ</h1>
-
 <p>上記のようにDIを定義するWireだが、Provider（<code>wire.NewSet</code>）で利用できるDI定義の関数には条件がある。
 （依存するオブジェクトは生成する各々のオブジェクトで異なるので当然だが、）関数の引数には制限はないが、戻り値のシグネチャは４パターンしか認められていない。</p>
-
 <h2 id="func-object">func() Object</h2>
-
 <p>１つ目は単純にDI済みのオブジェクトのみを返すパターンだ。</p>
-
 <p>例: <a href="https://github.com/google/go-cloud/blob/129201bb98c1758a383cd059f0b5fe8d7920c9fa/gcp/gcp.go#L79">github.com/google/go-cloud/gcp/gcp.go#L79</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">CredentialsTokenSource</span>(creds <span style="color:#719e07">*</span>google.Credentials) TokenSource</code></pre></div>
-<h2 id="func-object-error">func() (Object, error)</h2>
-
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">CredentialsTokenSource</span>(creds <span style="color:#719e07">*</span>google.Credentials) TokenSource
+</code></pre></div><h2 id="func-object-error">func() (Object, error)</h2>
 <p>２つ目はDIに失敗したときに<code>error</code>を返す戻り値パターンだ。<code>error</code>を返すDI関数が<code>wire.Build</code>に含まれている場合は、自動生成後のコード内で適切にエラーハンドリングするコードを生成してくれる。</p>
-
 <p>例: <a href="https://github.com/google/go-cloud/blob/129201bb98c1758a383cd059f0b5fe8d7920c9fa/gcp/gcp.go#L70">github.com/google/go-cloud/gcp/gcp.go#L70</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">DefaultCredentials</span>(ctx context.Context) (<span style="color:#719e07">*</span>google.Credentials, <span style="color:#dc322f">error</span>)</code></pre></div>
-<h2 id="func-object-func">func() (Object, func())</h2>
-
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">DefaultCredentials</span>(ctx context.Context) (<span style="color:#719e07">*</span>google.Credentials, <span style="color:#dc322f">error</span>)
+</code></pre></div><h2 id="func-object-func">func() (Object, func())</h2>
 <p>３つ目は廃棄前に何らかのクリーンアップ処理が必要なDI済みのオブジェクトを生成する関数に対応するパターン。
 例えば<code>*sql.DB</code>オブジェクトを生成する関数を用意するとして、<code>db.close</code>をクリーンアップ関数として返しておく。
 そうすると、自動生成されたDIコードの中で<code>err != nil</code>だったとき適切にクリーンアップが行われる。</p>
-
 <p>例: <a href="https://github.com/google/go-cloud/blob/129201bb98c1758a383cd059f0b5fe8d7920c9fa/samples/guestbook/main.go#L313">https://github.com/google/go-cloud/samples/guestbook/main.go#L313</a></p>
-
 <pre><code>func appHealthChecks(db *sql.DB) ([]health.Checker, func())
-</code></pre>
-
-<h2 id="func-object-func-error">func() (Object, func(), error)</h2>
-
+</code></pre><h2 id="func-object-func-error">func() (Object, func(), error)</h2>
 <p>４つ目は異常がなかったときはDIオブジェクトとクリーンアップ関数を返し、異常時は<code>error</code>を返すパターン。
 実際に定義する際は３つめのパターンよりこの宣言になることのほうが多いだろう。</p>
-
 <p>例: <a href="https://github.com/google/go-cloud/blob/129201bb98c1758a383cd059f0b5fe8d7920c9fa/mysql/rdsmysql/rdsmysql.go#L60">https://github.com/google/go-cloud/mysql/rdsmysql/rdsmysql.go#L60</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">appHealthChecks</span>(db <span style="color:#719e07">*</span>sql.DB) ([]health.Checker, <span style="color:#268bd2">func</span>())</code></pre></div>
-<p>どれも<code>XXX</code>構造体に対して<code>NewXXX</code>関数を定義するときに利用されるパターンだ。なので、既存コードの<code>New</code>関数を使って<code>wire.NewSet</code>を定義していけば既存のプロジェクトでもすぐに利用を開始できる。</p>
-
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">appHealthChecks</span>(db <span style="color:#719e07">*</span>sql.DB) ([]health.Checker, <span style="color:#268bd2">func</span>())
+</code></pre></div><p>どれも<code>XXX</code>構造体に対して<code>NewXXX</code>関数を定義するときに利用されるパターンだ。なので、既存コードの<code>New</code>関数を使って<code>wire.NewSet</code>を定義していけば既存のプロジェクトでもすぐに利用を開始できる。</p>
 <h1 id="終わりに">終わりに</h1>
-
 <p>今回は<code>Wire</code>を使ったDIの利点と<code>Wire</code>で利用可能なDI関数の戻り値パターンを紹介した。
 プリミティブな値を引数・戻り値に含む関数を使ってDIをするときは型エイリアスを適切に切っておく、などいくつかのプラクティスがあるのだが、それらはWireのリポジトリのdocsを確認すればよい。</p>
-
 <ul>
 <li>Best Practices
-
 <ul>
 <li><a href="https://github.com/google/wire/blob/master/docs/best-practices.md">https://github.com/google/wire/blob/master/docs/best-practices.md</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>実際にWireを使ったサンプルコードについては以下を参照するといいと思う。</p>
-
 <ul>
 <li><a href="https://github.com/google/go-cloud/tree/master/samples/guestbook">https://github.com/google/go-cloud/tree/master/samples/guestbook</a></li>
 <li><a href="https://github.com/terashi58/wire-example">https://github.com/terashi58/wire-example</a></li>
 </ul>
-
 <p>なお、プロダクトで利用している事例は私の同僚のterashiさんが書いた以下のブログ記事が詳しい。</p>
-
 <ul>
 <li>freeeのマイクロサービス基盤とWire導入
-
 <ul>
 <li><a href="https://developers.freee.co.jp/entry/service-infra-and-wire">https://developers.freee.co.jp/entry/service-infra-and-wire</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="参考">参考</h1>
-
 <ul>
 <li>google/wire
-
 <ul>
 <li><a href="https://github.com/google/wire">https://github.com/google/wire</a></li>
-</ul></li>
+</ul>
+</li>
 <li>google/go-cloud
-
 <ul>
 <li><a href="https://github.com/google/go-cloud">https://github.com/google/go-cloud</a></li>
-</ul></li>
+</ul>
+</li>
 <li>Compile-time Dependency Injection With Go Cloud&rsquo;s Wire
-
 <ul>
 <li><a href="https://blog.golang.org/wire">https://blog.golang.org/wire</a></li>
-</ul></li>
+</ul>
+</li>
 <li>freeeのマイクロサービス基盤とWire導入
-
 <ul>
 <li><a href="https://developers.freee.co.jp/entry/service-infra-and-wire">https://developers.freee.co.jp/entry/service-infra-and-wire</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="関連">関連</h1>
-
 <ul>
 <li><a href="/2018/10/19/presentation-gounco-lt4/">[発表資料]go-cloudとWireを利用したDI #gounco #go</a></li>
 </ul>
@@ -597,9 +546,9 @@ Outputs given context.Context: <span style="color:#586e75"># context.Contextを�
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -677,10 +626,16 @@ Outputs given context.Context: <span style="color:#586e75"># context.Contextを�
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -692,12 +647,6 @@ Outputs given context.Context: <span style="color:#586e75"># context.Contextを�
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

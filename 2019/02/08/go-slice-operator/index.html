@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -173,128 +173,90 @@
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#スライス">スライス</a></li>
-<li><a href="#スライス演算子-slice-operator">スライス演算子(<em>slice operator)</em></a></li>
-<li><a href="#スライス演算子の省略記法">スライス演算子の省略記法</a></li>
-<li><a href="#3-index記法でスライス演算子利用時でも容量を指定する">3-INDEX記法でスライス演算子利用時でも容量を指定する</a></li>
-<li><a href="#最後に">最後に</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
           <p>Goにおけるスライス演算子(<em>slice operator</em>)を改めて調べ直し、3-INDEX記法などを学んだ。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>スライスは<code>make</code>などのほかにスライス演算子(<em>slice operator</em>)による初期化も存在する</li>
 <li>スライス演算子でもcapacityを指定することができる。</li>
-
-<li><p>他にも珍しいスライスの宣言方法があった。</p>
+<li>他にも珍しいスライスの宣言方法があった。</li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">arr <span style="color:#719e07">:=</span> [<span style="color:#719e07">...</span>]<span style="color:#dc322f">int</span>{<span style="color:#2aa198">0</span>, <span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>, <span style="color:#2aa198">3</span>, <span style="color:#2aa198">4</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">6</span>, <span style="color:#2aa198">7</span>, <span style="color:#2aa198">8</span>, <span style="color:#2aa198">9</span>}
 
 s <span style="color:#719e07">:=</span> arr[<span style="color:#2aa198">2</span>:<span style="color:#2aa198">5</span>]           <span style="color:#586e75">// s = [2 3 4] cap(s) = 8
 </span><span style="color:#586e75"></span>s = arr[<span style="color:#2aa198">2</span>:<span style="color:#2aa198">5</span>:<span style="color:#2aa198">7</span>]          <span style="color:#586e75">// s = [2 3 4] cap(s) = 5
 </span><span style="color:#586e75"></span>s = arr[:<span style="color:#2aa198">0</span>]             <span style="color:#586e75">// s = []      cap(s) = 10
 </span><span style="color:#586e75"></span>s = arr[:<span style="color:#2aa198">0</span>:<span style="color:#2aa198">7</span>]           <span style="color:#586e75">// s = []      cap(s) = 7
-</span><span style="color:#586e75"></span>s = <span style="color:#b58900">make</span>([]<span style="color:#dc322f">int</span>, <span style="color:#2aa198">10</span>)[:<span style="color:#2aa198">5</span>] <span style="color:#719e07">//</span> [<span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span>]  <span style="color:#268bd2">make</span> ([]<span style="color:#dc322f">int</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">10</span>)と同じ</code></pre></div></li>
-</ul>
-
-<p>記事中のサンプルコードをまとめたplaygroundは以下。</p>
-
+</span><span style="color:#586e75"></span>s = <span style="color:#b58900">make</span>([]<span style="color:#dc322f">int</span>, <span style="color:#2aa198">10</span>)[:<span style="color:#2aa198">5</span>] <span style="color:#586e75">// [0 0 0 0 0]  make ([]int, 5, 10)と同じ
+</span></code></pre></div><p>記事中のサンプルコードをまとめたplaygroundは以下。</p>
 <ul>
 <li><a href="https://play.golang.org/p/rS6SU9m5v2F">https://play.golang.org/p/rS6SU9m5v2F</a></li>
 </ul>
-
 <h1 id="スライス">スライス</h1>
-
 <p>Goにおけるスライスは、基底配列(<em>underlying array</em>)の要素の部分列（あるいは全部）へアクセスする軽量なデータ構造だ。</p>
-
 <ul>
 <li>Slice expressions | The Go Programming Language Specification
-
 <ul>
 <li><a href="https://golang.org/ref/spec#Slice_expressions">https://golang.org/ref/spec#Slice_expressions</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>詳細なデータ構造についてはGo Blogが参考になる。</p>
-
 <ul>
 <li>Go Slices: usage and internals | The Go Blog
-
 <ul>
 <li><a href="https://blog.golang.org/go-slices-usage-and-internals">https://blog.golang.org/go-slices-usage-and-internals</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>スライスは大雑把に以下のような情報を持つ。容量を超える数の値が入る場合はメモリアロケーションが走る。</p>
-
 <ul>
 <li>基底配列の特定の場所を指すポインタ。スライスの先頭要素になる場所</li>
 <li>長さ。スライスにふくまれている値の数。<code>len</code>関数で取得できる値</li>
 <li>容量(<em>capacity</em>)。そのスライスの最大容量。<code>cap</code>関数で取得できる値</li>
 </ul>
-
 <p>まったく新しいスライスを宣言するときは<code>make</code>などを使う。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#b58900">make</span>([]<span style="color:#dc322f">int</span>, <span style="color:#2aa198">5</span>)       <span style="color:#586e75">// [0 0 0 0 0]
 </span><span style="color:#586e75"></span><span style="color:#b58900">make</span>([]<span style="color:#dc322f">int</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">10</span>)   <span style="color:#586e75">// [0 0 0 0 0] あらかじめ容量が10ある
 </span><span style="color:#586e75"></span>[]<span style="color:#dc322f">int</span>{}              <span style="color:#586e75">// [0 0 0 0 0]
-</span><span style="color:#586e75"></span>[]<span style="color:#dc322f">int</span>{<span style="color:#2aa198">3</span>:<span style="color:#2aa198">2</span>, <span style="color:#2aa198">5</span>:<span style="color:#2aa198">1</span>}      <span style="color:#719e07">//</span> [<span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> <span style="color:#2aa198">2</span> <span style="color:#2aa198">0</span> <span style="color:#2aa198">1</span>]</code></pre></div>
-<p>詳細はプログラミング言語Go 4.2スライスに記載されている（上記も大半が引用）。</p>
-
-<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4621300253&linkId=d133cb0683bd924a3f87eb96c455af48"></iframe>
-
-<h1 id="スライス演算子-slice-operator">スライス演算子(<em>slice operator)</em></h1>
-
+</span><span style="color:#586e75"></span>[]<span style="color:#dc322f">int</span>{<span style="color:#2aa198">3</span>:<span style="color:#2aa198">2</span>, <span style="color:#2aa198">5</span>:<span style="color:#2aa198">1</span>}      <span style="color:#586e75">// [0 0 0 2 0 1]
+</span></code></pre></div><p>詳細はプログラミング言語Go 4.2スライスに記載されている（上記も大半が引用）。</p>
+<!-- raw HTML omitted -->
+<h1 id="スライス演算子slice-operator">スライス演算子(<em>slice operator)</em></h1>
 <p>そしてある配列（あるいは別のスライス）から新たなスライスを生成するのがスライス演算子(<em>slice operator</em>)だ。
 基底配列（あるいは別のスライス）のオブジェクト<code>array</code>に対して<code>array[1:2]</code>のように宣言する。</p>
-
 <p>例えば以下のようにスライス演算子でスライスを生成すると、各情報は以下のようになる。</p>
-
 <pre><code>	arr := [...]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} // array(not slice)
 	s := arr[2:5]                                 // slice operator a[ low : high ]
 
 	fmt.Println(&quot;s =&quot;, s)        // s = [2 3 4]
 	fmt.Println(&quot;len =&quot;, len(s)) // len = 3
 	fmt.Println(&quot;cap =&quot;, cap(s)) // cap = 8
-</code></pre>
-
-<p>上記の例でいうと、「基底配列の2番目の要素」(<code>law</code>)から「基底配列の(5-1)番目の要素」(<code>high</code>)までのスライスが用意される。
+</code></pre><p>上記の例でいうと、「基底配列の2番目の要素」(<code>law</code>)から「基底配列の(5-1)番目の要素」(<code>high</code>)までのスライスが用意される。
 容量は基底配列（あるいは元のスライス）で決まるので、<code>基底配列の長さ - スライスの開始位置(len(arr) - low))</code>になる。</p>
-
 <h1 id="スライス演算子の省略記法">スライス演算子の省略記法</h1>
-
 <p>スライス演算子では<code>low</code>や<code>high</code>を明示的に書かずに省略することができる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">a[<span style="color:#2aa198">2</span>:]  <span style="color:#586e75">// a[2 : len(a)] と書くのと同じ
 </span><span style="color:#586e75"></span>a[:<span style="color:#2aa198">3</span>]  <span style="color:#586e75">// a[0 : 3] と書くのと同じ
-</span><span style="color:#586e75"></span>a[:]   <span style="color:#719e07">//</span> a[<span style="color:#2aa198">0</span> : <span style="color:#b58900">len</span>(a)] と書くのと同じ</code></pre></div>
-<h1 id="3-index記法でスライス演算子利用時でも容量を指定する">3-INDEX記法でスライス演算子利用時でも容量を指定する</h1>
-
+</span><span style="color:#586e75"></span>a[:]   <span style="color:#586e75">// a[0 : len(a)] と書くのと同じ
+</span></code></pre></div><h1 id="3-index記法でスライス演算子利用時でも容量を指定する">3-INDEX記法でスライス演算子利用時でも容量を指定する</h1>
 <p>あまり見ない気がするが、3つインデックスを指定する方法も存在する。</p>
-
 <ul>
 <li>Three-index slices | Go 1.2 Release Notes
-
 <ul>
 <li><a href="https://golang.org/doc/go1.2#three_index">https://golang.org/doc/go1.2#three_index</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p><code>make</code>を使ってスライスを生成するとき(<code>make([]int, len, cap)</code>)のように、容量を3つ目の値として指定する。</p>
-
 <pre><code>arr := [...]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 
 
 s = arr[2:5:7]
 fmt.Println(&quot;s =&quot;, s)        // s = [2 3 4]
 fmt.Println(&quot;len =&quot;, len(s)) // len = 3
 fmt.Println(&quot;cap =&quot;, cap(s)) // cap = 5
-</code></pre>
-
-<p>3-INDEX記法でも最初のパラメータだけを省略することができる。2番目と3番目のパラメータは省略することができなくなる。</p>
+</code></pre><p>3-INDEX記法でも最初のパラメータだけを省略することができる。2番目と3番目のパラメータは省略することができなくなる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">arr <span style="color:#719e07">:=</span> [<span style="color:#719e07">...</span>]<span style="color:#dc322f">int</span>{<span style="color:#2aa198">0</span>, <span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>, <span style="color:#2aa198">3</span>, <span style="color:#2aa198">4</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">6</span>, <span style="color:#2aa198">7</span>, <span style="color:#2aa198">8</span>, <span style="color:#2aa198">9</span>}
 
 s = arr[:<span style="color:#2aa198">0</span>:<span style="color:#2aa198">7</span>]
@@ -304,39 +266,33 @@ fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;
 </span><span style="color:#586e75"></span>
 <span style="color:#586e75">// s = arr[::7]              // middle index required in 3-index slice
 </span><span style="color:#586e75">// s = arr[:5:]              // final index required in 3-index slice
-</span><span style="color:#586e75"></span><span style="color:#719e07">//</span> s = arr[<span style="color:#2aa198">5</span>:<span style="color:#2aa198">7</span>:<span style="color:#2aa198">5</span>]            <span style="color:#719e07">//</span> invalid slice index: <span style="color:#2aa198">7</span> &gt; <span style="color:#2aa198">5</span></code></pre></div>
-<h1 id="最後に">最後に</h1>
-
+</span><span style="color:#586e75">// s = arr[5:7:5]            // invalid slice index: 7 &gt; 5
+</span></code></pre></div><h1 id="最後に">最後に</h1>
 <p>スライスの宣言について仕様を再確認していたら結構知らなかったことがあったので、まとめた。
 3-INDEX記法はいつから入ったんだ？と思ったが1.2からだったのでほぼ最初から入っていたのに使ったことがなかった。
 普段メモリアロケーションなど細部を気をつけてコーディングできていないので状況に応じては使えるようになった（そんな状況がいつあるか？はちょっと想像できていないが…）。
 基底配列(<em>underlying array</em>)や<code>a[low:high]</code>という書き方を <em>slice operator</em> と呼ぶこともわかってよかった。ただ、今回調べていて一番びっくりした書き方は以下だったりする。</p>
-
 <pre><code>// [0 0 0 0 0] make ([]int, 5, 10)と同じ
 make([]int, 10)[:5]
-</code></pre>
-
-<h1 id="参考">参考</h1>
-
+</code></pre><h1 id="参考">参考</h1>
 <ul>
 <li>Slice expressions | The Go Programming Language Specification
-
 <ul>
 <li><a href="https://golang.org/ref/spec#Slice_expressions">https://golang.org/ref/spec#Slice_expressions</a></li>
-</ul></li>
+</ul>
+</li>
 <li>Three-index slices | Go 1.2 Release Notes
-
 <ul>
 <li><a href="https://golang.org/doc/go1.2#three_index">https://golang.org/doc/go1.2#three_index</a></li>
-</ul></li>
+</ul>
+</li>
 <li>Go Slices: usage and internals | The Go Blog
-
 <ul>
 <li><a href="https://blog.golang.org/go-slices-usage-and-internals">https://blog.golang.org/go-slices-usage-and-internals</a></li>
-</ul></li>
 </ul>
-
-<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4621300253&linkId=d133cb0683bd924a3f87eb96c455af48"></iframe>
+</li>
+</ul>
+<!-- raw HTML omitted -->
         </div>
         
 
@@ -426,9 +382,9 @@ make([]int, 10)[:5]
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -506,10 +462,16 @@ make([]int, 10)[:5]
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -521,12 +483,6 @@ make([]int, 10)[:5]
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

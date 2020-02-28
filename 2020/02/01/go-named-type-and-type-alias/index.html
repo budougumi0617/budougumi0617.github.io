@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -60,20 +60,16 @@
   <meta property="og:title" content="[Go] Named typeとType aliasを使い分ける - My External Storage"/>
   <meta property="og:description" content="Goには既存の型に新しい名前をつける方法が2つある。
 
-
 type MyType intと宣言するNamed type
 type MyType = intと宣言するType alias
-
 
 すでにいろいろ記事はあるものの、最近数回聞かれることがあったので改めてまとめておく。"/>
   
   <meta name="twitter:title" content="[Go] Named typeとType aliasを使い分ける - My External Storage"/>
   <meta name="twitter:description" content="Goには既存の型に新しい名前をつける方法が2つある。
 
-
 type MyType intと宣言するNamed type
 type MyType = intと宣言するType alias
-
 
 すでにいろいろ記事はあるものの、最近数回聞かれることがあったので改めてまとめておく。"/>
   <meta name="twitter:site" content="@budougumi0617"/>
@@ -187,65 +183,47 @@ type MyType = intと宣言するType alias
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">Tl;DR</a></li>
-<li><a href="#named-type">Named type</a></li>
-<li><a href="#型エイリアス-type-alias">型エイリアス（Type alias）</a></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
           <p>Goには既存の型に新しい名前をつける方法が2つある。</p>
-
 <ul>
 <li><code>type MyType int</code>と宣言するNamed type</li>
 <li><code>type MyType = int</code>と宣言するType alias</li>
 </ul>
-
 <p>すでにいろいろ記事はあるものの、最近数回聞かれることがあったので改めてまとめておく。</p>
-
-<h1 id="tl-dr">Tl;DR</h1>
-
+<h1 id="tldr">Tl;DR</h1>
 <ul>
 <li>Goには型に違う名前をつける方法がある。
-
 <ul>
 <li>Named typeとType alias</li>
-</ul></li>
+</ul>
+</li>
 <li>Named typeを使うと完全に違う型として扱える
-
 <ul>
 <li>プリミティブな型に異なる型名をつけたり、メソッドを生やすこともできる</li>
 <li>Value Object的な型を簡単に作ることができる</li>
-</ul></li>
+</ul>
+</li>
 <li>Type aliasを使うと異なる名前だが同じ型として扱われる
-
 <ul>
 <li>リファクタリングをするときに使われる</li>
 <li>型付けを利用した使い分けをしたいならば向かない</li>
-</ul></li>
+</ul>
+</li>
 <li>基本的にNamed Typeを使えばよい。</li>
 </ul>
-
 <p>なお、この記事はGo1.13を使って検証している（正確に言うと、2020/02/01時点のGo Playgroundで検証している）。</p>
-
 <h1 id="named-type">Named type</h1>
-
 <p>Named typeはGo1.0からある機能だ。（正確な導入時期は知らないが、基本構文でできるので最初からありそうだ）。</p>
-
 <p>ある型の定義をそのまま利用して、まったく違う型として認識される新しい型を定義できる。</p>
-
 <ul>
 <li>別の型なので明示的にキャストしないと互換性がない</li>
 <li>新しいメソッドを追加できる</li>
 </ul>
-
 <p>以下のコードは<code>http.Request</code>型を使った新しい<code>MyRequest</code>型を宣言し、メソッドを追加している。</p>
-
 <ul>
-<li><p><a href="https://play.golang.org/p/cG9o7W10IjF">https://play.golang.org/p/cG9o7W10IjF</a></p>
+<li><a href="https://play.golang.org/p/cG9o7W10IjF">https://play.golang.org/p/cG9o7W10IjF</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
@@ -266,16 +244,13 @@ type MyType = intと宣言するType alias
 <span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 	myReq <span style="color:#719e07">:=</span> MyRequest{Host: <span style="color:#2aa198">&#34;http://google.com&#34;</span>}
 	<span style="color:#268bd2">useMyRequest</span>(myReq)
-}</code></pre></div></li>
-</ul>
-
-<p>Named typeはプリミティブな型に対しても利用することができる。<br />
+}
+</code></pre></div><p>Named typeはプリミティブな型に対しても利用することができる。<br>
 Named typeで宣言した新しい型と元になった型には互換性がないため、Value Object的に利用することができる。</p>
-
 <p>以下の例では　ユーザー名とメールアドレスの文字列の取り扱いを間違えている。</p>
-
 <ul>
-<li><p><a href="https://play.golang.org/p/lX26gpsz21T">https://play.golang.org/p/lX26gpsz21T</a></p>
+<li><a href="https://play.golang.org/p/lX26gpsz21T">https://play.golang.org/p/lX26gpsz21T</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
@@ -291,13 +266,11 @@ Named typeで宣言した新しい型と元になった型には互換性がな�
 	mail <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;example@foo.com&#34;</span>
 	u <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewUser</span>(mail, name) <span style="color:#586e75">// 順番を間違えている。
 </span><span style="color:#586e75"></span>	fmt.<span style="color:#268bd2">Println</span>(u.Name) <span style="color:#586e75">// example@foo.com
-</span><span style="color:#586e75"></span>}</code></pre></div></li>
-</ul>
-
-<p>Named typeを使うことで、型チェックを利用して誤った使いかたを防ぐことができる。</p>
-
+</span><span style="color:#586e75"></span>}
+</code></pre></div><p>Named typeを使うことで、型チェックを利用して誤った使いかたを防ぐことができる。</p>
 <ul>
-<li><p><a href="https://play.golang.org/p/1S7VT6lT69J">https://play.golang.org/p/1S7VT6lT69J</a></p>
+<li><a href="https://play.golang.org/p/1S7VT6lT69J">https://play.golang.org/p/1S7VT6lT69J</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
@@ -319,14 +292,13 @@ Named typeで宣言した新しい型と元になった型には互換性がな�
 </span><span style="color:#586e75"></span>	<span style="color:#586e75">// cannot use name (type Name) as type MailAddress in argument to NewUser
 </span><span style="color:#586e75"></span>	u <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewUser</span>(mail, name)
 	fmt.<span style="color:#268bd2">Println</span>(u.Name)
-}</code></pre></div></li>
-</ul>
+}
 
-<p><code>type UserID int</code>、<code>type DocumentID int</code>のようにNamed typeを使っていけば、データベースまわりでIDの取り扱いをして間違えることもなくなる。<br />
+</code></pre></div><p><code>type UserID int</code>、<code>type DocumentID int</code>のようにNamed typeを使っていけば、データベースまわりでIDの取り扱いをして間違えることもなくなる。<br>
 また、メソッドを追加することもできるので、バリデーションなども追加しておくこともできる。</p>
-
 <ul>
-<li><p><a href="https://play.golang.org/p/7e85wA1DPex">https://play.golang.org/p/7e85wA1DPex</a></p>
+<li><a href="https://play.golang.org/p/7e85wA1DPex">https://play.golang.org/p/7e85wA1DPex</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
@@ -363,29 +335,22 @@ Named typeで宣言した新しい型と元になった型には互換性がな�
 		log.<span style="color:#268bd2">Fatal</span>(err) <span style="color:#586e75">// パスワードは16文字以上
 </span><span style="color:#586e75"></span>	}
 	fmt.<span style="color:#268bd2">Println</span>(u.Name)
-}</code></pre></div></li>
-</ul>
-
-<h1 id="型エイリアス-type-alias">型エイリアス（Type alias）</h1>
-
+}
+</code></pre></div><h1 id="型エイリアスtype-alias">型エイリアス（Type alias）</h1>
 <p>型エイリアスはGo1.9から追加された機能だ。</p>
-
 <ul>
 <li><a href="https://golang.org/doc/go1.9#language">Changes to the language  | Go 1.9 Release Notes</a></li>
 </ul>
-
 <p>型エイリアスは主に特徴を持つ。</p>
-
 <ul>
 <li>キャストせずに同じ型として利用できる</li>
 <li>エイリアスに新しいメソッドは定義できない。</li>
 </ul>
-
-<p>異なる型として利用できるようになる<code>Named type</code>と違い、型エイリアスを使った場合はまったく同じ型として利用できる。<br />
+<p>異なる型として利用できるようになる<code>Named type</code>と違い、型エイリアスを使った場合はまったく同じ型として利用できる。<br>
 そのため、Named Typeのような型チェックを期待してもそれは行われないので注意する。</p>
-
 <ul>
-<li><p><a href="https://play.golang.org/p/VgpS3x89-bO">https://play.golang.org/p/VgpS3x89-bO</a></p>
+<li><a href="https://play.golang.org/p/VgpS3x89-bO">https://play.golang.org/p/VgpS3x89-bO</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
@@ -405,25 +370,17 @@ Named typeで宣言した新しい型と元になった型には互換性がな�
 	mail <span style="color:#719e07">:=</span> <span style="color:#268bd2">MailAddress</span>(<span style="color:#2aa198">&#34;example@foo.com&#34;</span>)
 	u <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewUser</span>(mail, name) <span style="color:#586e75">// 型違いでコンパイルエラーにはならない！！！！！
 </span><span style="color:#586e75"></span>	fmt.<span style="color:#268bd2">Println</span>(u.Name) <span style="color:#586e75">// example@foo.com
-</span><span style="color:#586e75"></span>}</code></pre></div></li>
-</ul>
-
-<p>正直私は型エイリアスを使ったことがない。サードパーティ製のライブラリを使っていて、どうしても困るときがあったら出番なのかもしれない。</p>
-
+</span><span style="color:#586e75"></span>}
+</code></pre></div><p>正直私は型エイリアスを使ったことがない。サードパーティ製のライブラリを使っていて、どうしても困るときがあったら出番なのかもしれない。</p>
 <p>型エイリアスを使ったリファクタリングや型エイリアスが必要な背景は公式の記事や、 <a href="https://twitter.com/tenntenn">@tenntenn</a> さんのQiitaの記事が詳しい。</p>
-
 <ul>
 <li><a href="https://talks.golang.org/2016/refactor.article">Codebase Refactoring (with help from Go)</a></li>
 <li><a href="https://qiita.com/tenntenn/items/757c249dad942b6326a9#%E3%82%B3%E3%83%B3%E3%83%86%E3%82%AD%E3%82%B9%E3%83%88%E3%81%AE%E6%AD%B4%E5%8F%B2%E3%81%AB%E3%81%BE%E3%81%A4%E3%82%8F%E3%82%8B%E3%82%A4%E3%83%B3%E3%82%BF%E3%83%95%E3%82%A7%E3%83%BC%E3%82%B9%E3%81%AE%E4%BA%92%E6%8F%9B%E6%80%A7%E3%81%A8%E5%9E%8B%E3%82%A8%E3%82%A4%E3%83%AA%E3%82%A2%E3%82%B9">コンテキストの歴史にまつわるインタフェースの互換性と型エイリアス | Google App EngineでGoのバージョンアップを行う #golang #gae</a></li>
 </ul>
-
 <h1 id="終わりに">終わりに</h1>
-
-<p>Type aliasの説明は省略してしまったが、Named typeとType Aliasについてまとめた。<br />
+<p>Type aliasの説明は省略してしまったが、Named typeとType Aliasについてまとめた。<br>
 Goは型をうまく使うことで安全なコーディングをすることができる。Named typeを使えばたった一行で新しい型が宣言でき、IDや文字列などの取り間違いを防ぐことができる。</p>
-
 <h1 id="参考">参考</h1>
-
 <ul>
 <li><a href="https://golang.org/doc/go1.9#language">Changes to the language  | Go 1.9 Release Notes</a></li>
 <li><a href="https://talks.golang.org/2016/refactor.article">Codebase Refactoring (with help from Go)</a></li>
@@ -520,9 +477,9 @@ Goは型をうまく使うことで安全なコーディングをすることが
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -600,10 +557,16 @@ Goは型をうまく使うことで安全なコーディングをすることが
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -615,12 +578,6 @@ Goは型をうまく使うことで安全なコーディングをすることが
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

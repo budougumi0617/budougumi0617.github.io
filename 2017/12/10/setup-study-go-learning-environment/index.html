@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -169,15 +169,10 @@
           
           
           
-          
-
-<p><a href="http://amzn.to/2kNkTlZ">Goならわかるシステムプログラミング</a>の写経、練習問題を解くにあたり、<code>Go</code>の軽いCI環境を作った。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+          <p><a href="http://amzn.to/2kNkTlZ">Goならわかるシステムプログラミング</a>の写経、練習問題を解くにあたり、<code>Go</code>の軽いCI環境を作った。</p>
+<h1 id="tldr">TL;DR</h1>
 <p>自己学習や写経だと、レビューしてもらう(第三者の評価を得る)機会がない。それでも、自分の書いたコードに最低限の品質担保をする。
 基本的にPublicリポジトリならば全て無料。</p>
-
 <ul>
 <li><code>GitHub</code>にプッシュするたびに<code>CircleCI</code>で自動ビルドを行う。</li>
 <li>ビルド時にリポジトリに同梱されているテストを自動で実行する。</li>
@@ -185,93 +180,62 @@
 <li>静的解析の結果を<code>Go ReportCard</code>で可視化する。</li>
 <li>バッジで各サービスの結果がわかる。</li>
 </ul>
-
 <p>以下の設定は次のリポジトリに対して行った。</p>
-
 <p><a href="https://github.com/budougumi0617/gsp">https://github.com/budougumi0617/gsp</a></p>
-
 <p>設定中に出てくる<code>budougumi0617/gsp</code>という部分は各自のリポジトリに合わせて修正していただきたい。</p>
-
-<h1 id="github-にプッシュするたびに-circleci-で自動ビルドを行う"><code>GitHub</code>にプッシュするたびに<code>CircleCI</code>で自動ビルドを行う</h1>
-
+<h1 id="githubにプッシュするたびにcircleciで自動ビルドを行う"><code>GitHub</code>にプッシュするたびに<code>CircleCI</code>で自動ビルドを行う</h1>
 <p>今回はCircleCI2.0を使ってみる。まずCircleCIでリポジトリに対するビルドを有効にする。
 CircleCIにログイン後、左のメニューから「Projects」を選び「Add Project」ボタンをクリックする。</p>
-
-<p><img src="/2017/12/circleci_add_project.png" alt="circleci_add_project" /></p>
-
+<p><img src="/2017/12/circleci_add_project.png" alt="circleci_add_project"></p>
 <p>Go用の設定を選んで「Start Building」ボタンをクリックすると、とりあえずビルドが実行される。
 これでプッシュのたびに自動ビルドが始まる。</p>
-
-<p><img src="/2017/12/circleci_start_building.png" alt="circleci_start_building" /></p>
-
+<p><img src="/2017/12/circleci_start_building.png" alt="circleci_start_building"></p>
 <h1 id="ビルド時にリポジトリに同梱されているテストプロジェクトが自動で実行される">ビルド時にリポジトリに同梱されているテストプロジェクトが自動で実行される。</h1>
-
 <p>次に自分のリポジトリに<code>.circleci/config.yml</code>を作る。内容は<code>CircleCI</code>の<code>Go</code>用のサンプル設定ファイルとほぼ同じ。</p>
-
-<p>ちゃんとしたCircleCi2.0のGoの設定をしたい場合は以下のQiita記事が参考になりそう。<br />
+<p>ちゃんとしたCircleCi2.0のGoの設定をしたい場合は以下のQiita記事が参考になりそう。<br>
 <a href="https://qiita.com/tomiyan/items/6142113011243c5b5cd1">CircleCI2.0を使ってGoで開発したツールをLint,UT,ビルドしてGithubにリリースする</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml"><span style="color:#586e75"># Golang CircleCI 2.0 configuration file</span>
 <span style="color:#586e75">#</span>
 <span style="color:#586e75"># Check https://circleci.com/docs/2.0/language-go/ for more details</span>
-version: <span style="color:#2aa198">2</span>
-jobs:
-  build:
-    docker:
-      - image: circleci/golang:<span style="color:#2aa198">1.9</span>
+<span style="color:#719e07">version</span>: <span style="color:#2aa198">2</span>
+<span style="color:#719e07">jobs</span>:
+  <span style="color:#719e07">build</span>:
+    <span style="color:#719e07">docker</span>:
+      - <span style="color:#719e07">image</span>: circleci/golang:<span style="color:#2aa198">1.9</span>
 
-    working_directory: /go/src/github.com/budougumi0617/gsp
-    steps:
+    <span style="color:#719e07">working_directory</span>: /go/src/github.com/budougumi0617/gsp
+    <span style="color:#719e07">steps</span>:
       - checkout
 
       <span style="color:#586e75"># specify any bash command here prefixed with `run: `</span>
-      - run: go get github.com/pierrre/gotestcover
-      - run: gotestcover -coverprofile=coverage.txt ./...
-      - run: bash &lt;(curl -s https://codecov.io/bash)</code></pre></div>
-<p><code>working_directory</code>は自分のリポジトリ名にする。
+      - <span style="color:#719e07">run</span>: go get github.com/pierrre/gotestcover
+      - <span style="color:#719e07">run</span>: gotestcover -coverprofile=coverage.txt ./...
+      - <span style="color:#719e07">run</span>: bash &lt;(curl -s https://codecov.io/bash)
+</code></pre></div><p><code>working_directory</code>は自分のリポジトリ名にする。
 <code>gotestcover</code>は複数パッケージのテストカバレッジをいい感じにまとめてくれる。写経などをしていると、リポジトリの中に複数パッケージが出来るので。
 <code>gotestcover</code>でまとめたテストカバレッジの結果は<code>Codecov</code>のスクリプトを実行すれば自動的にCodecovに送信される。</p>
-
-<h1 id="テストのカバレッジを計測し-codecov-で結果を可視化する">テストのカバレッジを計測し、<code>Codecov</code>で結果を可視化する。</h1>
-
+<h1 id="テストのカバレッジを計測しcodecovで結果を可視化する">テストのカバレッジを計測し、<code>Codecov</code>で結果を可視化する。</h1>
 <p>上記設定をしたあと、以下のようなURLを確認すればカバレッジの結果が表示されるはずだ。</p>
-
 <p><a href="https://codecov.io/gh/budougumi0617/gsp">https://codecov.io/gh/budougumi0617/gsp</a></p>
-
-<h1 id="静的解析の結果を-go-reportcard-で可視化する">静的解析の結果を<code>Go ReportCard</code>で可視化する。</h1>
-
+<h1 id="静的解析の結果をgo-reportcardで可視化する">静的解析の結果を<code>Go ReportCard</code>で可視化する。</h1>
 <p><code>Go ReportCard</code>はもろもろのgo toolの静的解析の結果や、複雑度、スペルミスまで解析してくれる。</p>
-
 <p><a href="https://goreportcard.com/">https://goreportcard.com/</a></p>
-
 <p>TOPページから自分のリポジトリのパスを入力して「Generate Report」しよう。</p>
-
 <p>リポジトリを作ってから時間が経っているならば、既にページが存在しているかもしれない。</p>
-
 <p><a href="https://goreportcard.com/report/github.com/budougumi0617/gsp">https://goreportcard.com/report/github.com/budougumi0617/gsp</a></p>
-
 <h1 id="バッジで各サービスの結果がわかる">バッジで各サービスの結果がわかる。</h1>
-
 <p>あとはREADMEにもろもろのサービスのバッジのリンクをつけておけば完成だ。</p>
-
 <p>CircleCIは以下のようなURLからリンクを発行できる。</p>
-
-<p><a href="https://circleci.com/gh/{USER_NAME}/{REPO_NAME}/edit#badges">https://circleci.com/gh/{USER_NAME}/{REPO_NAME}/edit#badges</a></p>
-
+<p><a href="https://circleci.com/gh/%7BUSER_NAME%7D/%7BREPO_NAME%7D/edit#badges">https://circleci.com/gh/{USER_NAME}/{REPO_NAME}/edit#badges</a></p>
 <p>Codecovは以下のようなリンクから。</p>
-
-<p><a href="https://codecov.io/gh/{USER_NAME}/{REPO_NAME}/settings/badge">https://codecov.io/gh/{USER_NAME}/{REPO_NAME}/settings/badge</a></p>
-
+<p><a href="https://codecov.io/gh/%7BUSER_NAME%7D/%7BREPO_NAME%7D/settings/badge">https://codecov.io/gh/{USER_NAME}/{REPO_NAME}/settings/badge</a></p>
 <p>Go ReportCardはページのバッジをクリックするとリンクが表示される。</p>
-
-<p><img src="/2017/12/get_badge_link.png" alt="Get Badge" /></p>
-
+<p><img src="/2017/12/get_badge_link.png" alt="Get Badge"></p>
 <h1 id="余談">余談</h1>
-
 <p>以前は<code>CodeClimate</code>も使っていたのだが、今はバッジで<code>Go</code>のリポジトリの静的解析結果は表示してくれないようだ。
-<a href="https://codeclimate.com/">https://codeclimate.com/</a><br />
-<a href="https://docs.codeclimate.com/docs/supported-languages-for-maintainability">Supported Languages for Maintainability</a><br />
+<a href="https://codeclimate.com/">https://codeclimate.com/</a><br>
+<a href="https://docs.codeclimate.com/docs/supported-languages-for-maintainability">Supported Languages for Maintainability</a><br>
 Pluginにもろもろを書けば、Issueという形で<code>go lint</code>などの結果は管理してくれる。</p>
-
 <p><a href="https://docs.codeclimate.com/docs/list-of-engines">Available Analysis Plugins</a></p>
 
         </div>
@@ -352,9 +316,9 @@ Pluginにもろもろを書けば、Issueという形で<code>go lint</code>な�
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -432,10 +396,16 @@ Pluginにもろもろを書けば、Issueという形で<code>go lint</code>な�
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -447,12 +417,6 @@ Pluginにもろもろを書けば、Issueという形で<code>go lint</code>な�
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -60,9 +60,7 @@
   <meta property="og:title" content="HugoでOGP(Facebook用のアイキャッチ画像)を設定する #hugo - My External Storage"/>
   <meta property="og:description" content="Hugoで各記事にThe Open Graph protocol(OGP)を設定したときのメモ。
 
-
 The Open Graph protocol
-
 
 http://ogp.me/
 
@@ -73,9 +71,7 @@ http://ogp.me/
   <meta name="twitter:title" content="HugoでOGP(Facebook用のアイキャッチ画像)を設定する #hugo - My External Storage"/>
   <meta name="twitter:description" content="Hugoで各記事にThe Open Graph protocol(OGP)を設定したときのメモ。
 
-
 The Open Graph protocol
-
 
 http://ogp.me/
 
@@ -193,164 +189,126 @@ http://ogp.me/
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#facebookでシェアされた場合に必要なozgpを設定する">Facebookでシェアされた場合に必要なOZGPを設定する</a></li>
-<li><a href="#hugoのcustom-twitter-card-htmlを修正する">Hugoのcustom_twitter_card.htmlを修正する</a></li>
-<li><a href="#対応後はシェアデバッガーで確認する">対応後はシェアデバッガーで確認する</a></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#参考">参考</a></li>
-<li><a href="#関連">関連</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
           <p>Hugoで各記事にThe Open Graph protocol(OGP)を設定したときのメモ。</p>
-
 <ul>
 <li>The Open Graph protocol
-
 <ul>
 <li><a href="http://ogp.me/">http://ogp.me/</a></li>
-</ul></li>
 </ul>
-
-<p><img src="/2019/01/05-ogp.png" alt="ogp" /></p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+</li>
+</ul>
+<p><img src="/2019/01/05-ogp.png" alt="ogp"></p>
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>Facebookでシェアされたときのアイキャッチ画像などはThe Open Graph protocolで設定できる</li>
 <li>ヘッダーに<code>&lt;meta property=&quot;og:xxx&quot;...&gt;</code>と設定すればよい</li>
 <li>Twitter Cardの情報と同じなので、Hugoの場合はcustom_twitter_card.htmlを変更しておけばよい</li>
 <li>Facebookに開発者登録をしておけばシェアデバッガーで設定状態を確認することが出来る
-
 <ul>
 <li><a href="https://developers.facebook.com/tools/debug/sharing/">https://developers.facebook.com/tools/debug/sharing/</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="facebookでシェアされた場合に必要なozgpを設定する">Facebookでシェアされた場合に必要なOZGPを設定する</h1>
-
 <p>先日以下の記事でTwitterで投稿されたときにアイキャッチ画像が表示されるようにTwitter Cardを設定した。</p>
-
 <ul>
 <li><a href="/2019/01/04/set-twitter-image-in-hugo-blog/">Hugoのブログ記事にTwitter Card(アイキャッチ画像)を設定する</a></li>
 </ul>
-
 <p>今回はFacebookに投稿されたときにアイキャッチ画像が表示されるように、The Open Graph protocol(OGP)の設定をする。OGPの仕様の詳細は以下のサイトで確認できる。</p>
-
 <ul>
 <li>The Open Graph protocol
-
 <ul>
 <li><a href="http://ogp.me/">http://ogp.me/</a></li>
-</ul></li>
 </ul>
-
-<h1 id="hugoのcustom-twitter-card-htmlを修正する">Hugoのcustom_twitter_card.htmlを修正する</h1>
-
+</li>
+</ul>
+<h1 id="hugoのcustom_twitter_cardhtmlを修正する">Hugoのcustom_twitter_card.htmlを修正する</h1>
 <p>Hugoの場合、対応方法はTwitter Cardに対応したときとほぼ同じだ。layouts/partials/custom_twitter_card.htmlを用意して、ヘッダーにメタ情報を埋め込む。
 custom_twitter_card.htmlに埋め込むのはTwitter Cardに埋め込む情報とほとんど同じデータを利用するためだ。</p>
-
 <ul>
 <li>Partial Templates
-
 <ul>
 <li><a href="https://gohugo.io/templates/partials/">https://gohugo.io/templates/partials/</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p><code>+</code>をつけた行がOGPの対応で変更した内容だ。ほとんどTwitter Cardの情報をメタ属性を変更して流用しているだけだ。気をつける点としては<code>name</code>属性ではなく、<code>property</code>属性で指定しないと認識されない。</p>
-
 <ul>
-<li><p><a href="https://github.com/budougumi0617/blog/compare/a222edb...d5136027de10b66419de4add943f6808386eadde">layouts/partials/custom_twitter_card.htmlの編集結果</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-html" data-lang="html"><span style="color:#586e75">&lt;!-- Modified from _internal/twitter_card.html --&gt;</span>
-{{ if .IsPage }}
-{{ with .Params.twitterImage }}
+<li><a href="https://github.com/budougumi0617/blog/compare/a222edb...d5136027de10b66419de4add943f6808386eadde">layouts/partials/custom_twitter_card.htmlの編集結果</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-html" data-lang="html">  <span style="color:#586e75">&lt;!-- Modified from _internal/twitter_card.html --&gt;</span>
+  {{ if .IsPage }}
+    {{ with .Params.twitterImage }}
 +   <span style="color:#586e75">&lt;!-- The Open Graph protocol data --&gt;</span>
 +     &lt;<span style="color:#268bd2">meta</span> property<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;og:image&#34;</span> content<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;{{ print $.Site.BaseURL . }}&#34;</span>/&gt;
-<span style="color:#586e75">&lt;!-- Twitter summary card with large image must be at least 280x150px --&gt;</span>
-  &lt;<span style="color:#268bd2">meta</span> name<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;twitter:card&#34;</span> content<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;summary_large_image&#34;</span>/&gt;
-  &lt;<span style="color:#268bd2">meta</span> name<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;twitter:image:src&#34;</span> content<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;{{ print $.Site.BaseURL . }}&#34;</span>/&gt;
-{{ else }}
-  &lt;<span style="color:#268bd2">meta</span> name<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;twitter:card&#34;</span> content<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;summary&#34;</span>/&gt;
-{{ end }}
+    <span style="color:#586e75">&lt;!-- Twitter summary card with large image must be at least 280x150px --&gt;</span>
+      &lt;<span style="color:#268bd2">meta</span> name<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;twitter:card&#34;</span> content<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;summary_large_image&#34;</span>/&gt;
+      &lt;<span style="color:#268bd2">meta</span> name<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;twitter:image:src&#34;</span> content<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;{{ print $.Site.BaseURL . }}&#34;</span>/&gt;
+    {{ else }}
+      &lt;<span style="color:#268bd2">meta</span> name<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;twitter:card&#34;</span> content<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;summary&#34;</span>/&gt;
+    {{ end }}
 +   <span style="color:#586e75">&lt;!-- The Open Graph protocol data --&gt;</span>
 +   &lt;<span style="color:#268bd2">meta</span> property<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;og:url&#34;</span> content<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;{{ $.Permalink }}&#34;</span>/&gt;
 +   &lt;<span style="color:#268bd2">meta</span> property<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;og:type&#34;</span> content<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;article&#34;</span>/&gt;
 +   &lt;<span style="color:#268bd2">meta</span> property<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;og:title&#34;</span> content<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;{{ .Title }}&#34;</span>/&gt;
 +   &lt;<span style="color:#268bd2">meta</span> property<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;og:description&#34;</span> content<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;{{ with .Description }}{{ . }}{{ else }}{{ if .IsPage }}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}&#34;</span>/&gt;
-<span style="color:#586e75">&lt;!-- Twitter Card data --&gt;</span>
-&lt;<span style="color:#268bd2">meta</span> name<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;twitter:title&#34;</span> content<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;{{ .Title }}&#34;</span>/&gt;
-&lt;<span style="color:#268bd2">meta</span> name<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;twitter:description&#34;</span> content<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;{{ with .Description }}{{ . }}{{ else }}{{ if .IsPage }}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}&#34;</span>/&gt;
-  {{ with .Site.Params.twitterCardSite }}&lt;<span style="color:#268bd2">meta</span> name<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;twitter:site&#34;</span> content<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;@{{ . }}&#34;</span>/&gt;{{ end }}
-{{ with .Site.Params.twitterCardDomain }}&lt;<span style="color:#268bd2">meta</span> name<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;twitter:domain&#34;</span> content<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;{{ . }}&#34;</span>/&gt;{{ end }}
-{{ with .Site.Params.twitterCardAuthor }}&lt;<span style="color:#268bd2">meta</span> name<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;twitter:creator&#34;</span> content<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;@{{ . }}&#34;</span>/&gt;{{ end }}
-{{ end }}</code></pre></div></li>
-</ul>
-
-<h1 id="対応後はシェアデバッガーで確認する">対応後はシェアデバッガーで確認する</h1>
-
+    <span style="color:#586e75">&lt;!-- Twitter Card data --&gt;</span>
+    &lt;<span style="color:#268bd2">meta</span> name<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;twitter:title&#34;</span> content<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;{{ .Title }}&#34;</span>/&gt;
+    &lt;<span style="color:#268bd2">meta</span> name<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;twitter:description&#34;</span> content<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;{{ with .Description }}{{ . }}{{ else }}{{ if .IsPage }}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}&#34;</span>/&gt;
+      {{ with .Site.Params.twitterCardSite }}&lt;<span style="color:#268bd2">meta</span> name<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;twitter:site&#34;</span> content<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;@{{ . }}&#34;</span>/&gt;{{ end }}
+    {{ with .Site.Params.twitterCardDomain }}&lt;<span style="color:#268bd2">meta</span> name<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;twitter:domain&#34;</span> content<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;{{ . }}&#34;</span>/&gt;{{ end }}
+    {{ with .Site.Params.twitterCardAuthor }}&lt;<span style="color:#268bd2">meta</span> name<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;twitter:creator&#34;</span> content<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;@{{ . }}&#34;</span>/&gt;{{ end }}
+  {{ end }}
+</code></pre></div><h1 id="対応後はシェアデバッガーで確認する">対応後はシェアデバッガーで確認する</h1>
 <p>上記の対応が正しくできているかは、シェアデバッガーを使って確認出来る。シェアデバッガーは以下のURLから利用できる。調べたいページのリンクを入力してデバッグボタンをクリックするだけだ。</p>
-
 <ul>
 <li>シェアデバッガー
-
 <ul>
 <li><a href="https://developers.facebook.com/tools/debug/sharing/">https://developers.facebook.com/tools/debug/sharing/</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>シェアデバッガーの利用にはFacebookへの開発者登録が必要なので、以下のページから行う(私は遠いはるか昔に登録していたので今回登録フローはせずに利用できた)。</p>
-
 <ul>
 <li>Facebook for Developers
-
 <ul>
 <li><a href="https://developers.facebook.com/">https://developers.facebook.com/</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>Web上のデータを更新してシェアデバッガーで確認したところ、正しく対応できたことが確認できた。</p>
-
-<p><img src="/2019/01/05-ogp.png" alt="ogp" /></p>
-
+<p><img src="/2019/01/05-ogp.png" alt="ogp"></p>
 <h1 id="終わりに">終わりに</h1>
-
 <p>添付したスクショをよく見てもらうとわかるが、実は「次のプロパティは必須です: fb:app_id」というシェアデバッガーのエラーは消えていない。
-調査してみると、fb:app_idがついているとFBのAPIを利用できるようになる == FBの解析機能(どれくらい&rdquo;いいね&rdquo;されたとか)を使えるようになるらしい。が、今回は個人のブログでそこまでマーケティングなどは気にしていないので対応を保留した。</p>
-
+調査してみると、fb:app_idがついているとFBのAPIを利用できるようになる == FBの解析機能(どれくらい&quot;いいね&quot;されたとか)を使えるようになるらしい。が、今回は個人のブログでそこまでマーケティングなどは気にしていないので対応を保留した。</p>
 <ul>
 <li>アプリ開発
-
 <ul>
 <li><a href="https://developers.facebook.com/docs/apps#register">https://developers.facebook.com/docs/apps#register</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="参考">参考</h1>
-
 <ul>
 <li>The Open Graph protocol
-
 <ul>
 <li><a href="http://ogp.me/">http://ogp.me/</a></li>
-</ul></li>
+</ul>
+</li>
 <li>シェアデバッガー
-
 <ul>
 <li><a href="https://developers.facebook.com/tools/debug/sharing/">https://developers.facebook.com/tools/debug/sharing/</a></li>
-</ul></li>
+</ul>
+</li>
 <li>アプリ開発
-
 <ul>
 <li><a href="https://developers.facebook.com/docs/apps#register">https://developers.facebook.com/docs/apps#register</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="関連">関連</h1>
-
 <ul>
 <li><a href="/2019/01/04/set-twitter-image-in-hugo-blog/">Hugoのブログ記事にTwitter Card(アイキャッチ画像)を設定する</a></li>
 </ul>
@@ -441,9 +399,9 @@ custom_twitter_card.htmlに埋め込むのはTwitter Cardに埋め込む情報�
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -521,10 +479,16 @@ custom_twitter_card.htmlに埋め込むのはTwitter Cardに埋め込む情報�
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -536,12 +500,6 @@ custom_twitter_card.htmlに埋め込むのはTwitter Cardに埋め込む情報�
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

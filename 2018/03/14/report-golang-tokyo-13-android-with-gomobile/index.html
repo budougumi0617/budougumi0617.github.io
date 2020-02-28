@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -169,11 +169,8 @@
           
           
           
-          
-
-<p>golang.tokyo #13の参加メモ。今回のgolang.tokyoはgomobileハンズオンだった。
+          <p>golang.tokyo #13の参加メモ。今回のgolang.tokyoはgomobileハンズオンだった。
 自分は今回半分運営お手伝いとして参加していて、前半にあった技術の説明は聴けていないので、ハンズオンでデモアプリを動かすまでに必要だったことをメモしておく。</p>
-
 <table>
 <thead>
 <tr>
@@ -181,57 +178,42 @@
 <th></th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>URL</td>
 <td><a href="https://golangtokyo.connpass.com/event/79039/">https://golangtokyo.connpass.com/event/79039/</a></td>
 </tr>
-
 <tr>
 <td>会場</td>
 <td>株式会社Gunosy(六本木ヒルズ森タワー25階)</td>
 </tr>
-
 <tr>
 <td>日時</td>
 <td>2018/03/09(金)19:10 〜 22:00</td>
 </tr>
-
 <tr>
 <td>資料</td>
 <td><a href="https://docs.google.com/presentation/d/1rHwNMweNlqohkAsUlAwWEZx5wxcRm10KR1p5UxTPaaA/edit#slide=id.p">gomobileハンズオン</a></td>
 </tr>
 </tbody>
 </table>
-
 <h1 id="gomobileとは">gomobileとは</h1>
-
 <p><a href="https://github.com/golang/go/wiki/Mobile">https://github.com/golang/go/wiki/Mobile</a></p>
-
 <p>gomobileはGoのコードをAndroid(Java)/iOS(Obje-C/Swift)向けのライブラリとしてビルドするツール。</p>
-
 <h1 id="ハンズオンの内容">ハンズオンの内容</h1>
-
 <p><a href="https://github.com/golangtokyo/gomopost">https://github.com/golangtokyo/gomopost</a></p>
-
 <p>今回はGoで書かれたチャットクライアントAPIライブラリをAndroidから呼ぶハンズオン内容だった。
 基本的にコードは全て用意されていて、Android Studioでデバッグ実行すればよいだけなのだが、
 Androidのデバッグ環境を整えるまでがだいぶ難関だった（といってもGoは慣れているだけだったかもしれない。</p>
-
 <h1 id="前提">前提</h1>
-
 <p>自分は以下の状態のMacで臨んだ。</p>
-
 <ul>
 <li>GoのもろもろGOPATHなりPATH通しなりの環境構築は済んでいる</li>
 <li>Android関係の環境構築は当日まで一切やってない</li>
 <li>諸々の事情でMacのJavaの環境はだいぶ汚れている</li>
 </ul>
-
-<p>また、今回のハンズオンで使う<code>golangtokyo/gomopost</code>で指定されているAndroidのSDK versionは26。<br />
+<p>また、今回のハンズオンで使う<code>golangtokyo/gomopost</code>で指定されているAndroidのSDK versionは26。<br>
 <a href="https://github.com/golangtokyo/gomopost/blob/2d55f51ad3c9e30b1841452354303a053672254f/android/app/build.gradle#L3-L12">https://github.com/golangtokyo/gomopost/blob/2d55f51ad3c9e30b1841452354303a053672254f/android/app/build.gradle#L3-L12</a></p>
-
 <pre><code>android {
     compileSdkVersion 26
     defaultConfig {
@@ -243,63 +225,45 @@ Androidのデバッグ環境を整えるまでがだいぶ難関だった（と�
         testInstrumentationRunner &quot;android.support.test.runner.AndroidJUnitRunner&quot;
     }
     ...
-</code></pre>
-
-<h1 id="android側の準備">Android側の準備</h1>
-
+</code></pre><h1 id="android側の準備">Android側の準備</h1>
 <p>まずAndroid Studioの環境構築を行っておく。</p>
-
 <h2 id="android-studioのインストール">Android Studioのインストール</h2>
-
-<p>Android Studioのインストールページは以下。<br />
+<p>Android Studioのインストールページは以下。<br>
 <a href="https://developer.android.com/studio/install.html">https://developer.android.com/studio/install.html</a></p>
-
-<p>Install中にSDKのバージョンを選択できる場合は26(Android 8.0(Oreo))を選択しておく（自分はここで27をインストールしてしまった）。<br />
+<p>Install中にSDKのバージョンを選択できる場合は26(Android 8.0(Oreo))を選択しておく（自分はここで27をインストールしてしまった）。<br>
 インストールが終わったらAndroid Studioを起動してアップデートを走らせておく</p>
-
-<h2 id="android-sdk-ndkのインストール">Android SDK/NDKのインストール</h2>
-
-<p>Android Studio(Intelli J)は「Cmd+Shift+A」でいろいろ検索ができる。<br />
-起動しているAndroid Studioで「Cmd+Shift+A」を実行して検索ウインドウをだしたら「SDK Location」を検索する。<br />
+<h2 id="android-sdkndkのインストール">Android SDK/NDKのインストール</h2>
+<p>Android Studio(Intelli J)は「Cmd+Shift+A」でいろいろ検索ができる。<br>
+起動しているAndroid Studioで「Cmd+Shift+A」を実行して検索ウインドウをだしたら「SDK Location」を検索する。<br>
 こうすると「Preference」ウインドウ内の「Android SDK」項目が開く。ここで以下を実施する</p>
-
 <ul>
 <li>あとで使うので、「SDK Location」を覚えておく（Macは「/Users/${USER}/Library/Android/sdk」みたいな感じだと思う）</li>
 <li>「SDK Platform」タブ内の「Android 8.0(Oreo)」がインストールされていなかった場合はインストールする</li>
 <li>「SDK Tools」タブ内の「NDK」をチェックしてインストールしておく</li>
 </ul>
-
-<h2 id="android-homeの設定">$ANDROID_HOMEの設定</h2>
-
+<h2 id="android_homeの設定">$ANDROID_HOMEの設定</h2>
 <p>$ANDROID_HOMEという環境変数が設定されている必要がある。これは前述の「SDK Location」と同じでよいので、そこに書いてあったPATHを指定しておく。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b58900">export</span> <span style="color:#268bd2">ANDROID_HOME</span><span style="color:#719e07">=</span>/Users/budougumi0617/Library/Android/sdk</code></pre></div>
-<h2 id="エミュレーターの準備">エミュレーターの準備</h2>
-
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b58900">export</span> <span style="color:#268bd2">ANDROID_HOME</span><span style="color:#719e07">=</span>/Users/budougumi0617/Library/Android/sdk
+</code></pre></div><h2 id="エミュレーターの準備">エミュレーターの準備</h2>
 <p>次にデバッグ用のAndroidエミュレータを作っておく。</p>
-
 <ul>
 <li>起動しているAndroid Studioで「Cmd+Shift+A」を実行して検索ウインドウを出す</li>
 <li>「AVD Manager」を検索して「Andorid Virtual Device Manager」ウインドウを表示する</li>
 <li>「Create Virtual Device&hellip;」ボタンをクリックして、API 26のエミュレータを作成する</li>
 </ul>
-
 <p>エミュレータにはそこそこマシンスペックが必要になるので、自分は「Nexus 5X」で作った。</p>
-
 <h2 id="javaのライブラリの状態をキレイにしておく">Javaのライブラリの状態をキレイにしておく。</h2>
-
 <p>後々<code>gomobile bind</code>コマンドをするときに自分の汚れた環境だとハマった。もろもろのJARファイルを裏でごにょごにょしているらしく、
 ローカルに入っているJARファイルの権限をキレイにしておく必要がある。自分のPCでは以下を行った。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">echo</span> <span style="color:#268bd2">$USER</span>
 budougumi0617
-$ sudo chown budougumi0617 /Library/Java/Extensions/*.jar</code></pre></div>
-<h2 id="goの準備">Goの準備</h2>
-
+$ sudo chown budougumi0617 /Library/Java/Extensions/*.jar
+</code></pre></div><h2 id="goの準備">Goの準備</h2>
 <p>ここまでくればあとは資料とgomopostのREADME通りにやれば大丈夫。</p>
-
 <ul>
 <li><a href="https://docs.google.com/presentation/d/1rHwNMweNlqohkAsUlAwWEZx5wxcRm10KR1p5UxTPaaA/edit#slide=id.p">gomobileハンズオン</a></li>
-
-<li><p><a href="https://github.com/golangtokyo/gomopost">https://github.com/golangtokyo/gomopost</a></p>
+<li><a href="https://github.com/golangtokyo/gomopost">https://github.com/golangtokyo/gomopost</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># gomobileをダウンロードしてくる</span>
 $ go get -u golang.org/x/mobile/cmd/gomobile
 
@@ -312,26 +276,19 @@ $ go get -u github.com/golangtokyo/gomopost
 $ <span style="color:#b58900">cd</span> <span style="color:#268bd2">$GOPATH</span>/src/github.com/golangtokyo/gomopost
 
 <span style="color:#586e75"># Android用のAARファイルが出来るか確認</span>
-$ gomobile <span style="color:#b58900">bind</span> -v github.com/golangtokyo/gomopost</code></pre></div></li>
-</ul>
-
-<p>これでうまくいくならば、あとは以下でOK</p>
-
+$ gomobile <span style="color:#b58900">bind</span> -v github.com/golangtokyo/gomopost
+</code></pre></div><p>これでうまくいくならば、あとは以下でOK</p>
 <ul>
 <li><code>golangtokyo/gomopost</code>ディレクトリで<code>make</code>コマンドを実行する</li>
 <li>Android Studioを開いて、「File」メニューから「Open」で<code>golangtokyo/gomopost/android</code>ディレクトリを開く</li>
 <li>Android Studio上で右上の緑色の三角ボタンをクリック or 「Ctrl+R」を実行する</li>
 <li>作成したAPI 26のエミュレータを選んでデバッグを開始する</li>
 </ul>
-
 <p>そうすると、チャットアプリが起動するはずだ
 （チャットの動作確認にはチャットサーバが必要）</p>
-
 <h2 id="終わりに">終わりに</h2>
-
 <p>Androidはほとんど触ったことなかったので、だいぶ手間取った。
 当日はSDKまではダウンロードしていたのだが、NDK、適切なAPIレベルのSDKを再インストールでハンズオンの時間をほとんど使ってしまった。事前準備何事も大事。</p>
-
 <p>とはいえGo側の準備はそれほどめんどくさく無いはずなので、モバイルアプリ作成者がGoのライブラリを取り入れるのはそれほどハードルが高くなさそう。サーバーサイドでよく話題になるGoだが、モバイルにも活躍の場が広がっていくとおもしろいなあ</p>
 
         </div>
@@ -423,9 +380,9 @@ $ gomobile <span style="color:#b58900">bind</span> -v github.com/golangtokyo/gom
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -503,10 +460,16 @@ $ gomobile <span style="color:#b58900">bind</span> -v github.com/golangtokyo/gom
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -518,12 +481,6 @@ $ gomobile <span style="color:#b58900">bind</span> -v github.com/golangtokyo/gom
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

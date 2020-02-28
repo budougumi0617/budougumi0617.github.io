@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -169,11 +169,8 @@
           
           
           
-          
-
-<p>今年はGoogle Cloud Platform(GCP)を使ってみようと思っているので、<a href="https://gcpug.jp/">GCPUG</a>の勉強会に参加してきた。<br />
+          <p>今年はGoogle Cloud Platform(GCP)を使ってみようと思っているので、<a href="https://gcpug.jp/">GCPUG</a>の勉強会に参加してきた。<br>
 02/05はGoogle Container Builder(GCB)の話だった。</p>
-
 <table>
 <thead>
 <tr>
@@ -181,264 +178,215 @@
 <th></th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>URL</td>
 <td><a href="https://gcpug-tokyo.connpass.com/event/75961/">https://gcpug-tokyo.connpass.com/event/75961/</a></td>
 </tr>
-
 <tr>
 <td>会場</td>
 <td>六本木ヒルズ 森タワー 18F メルカリ</td>
 </tr>
-
 <tr>
 <td>日時</td>
 <td>2018/02/05(月) 19:00 〜 21:30</td>
 </tr>
-
 <tr>
 <td>ハッシュタグ</td>
 <td><a href="https://twitter.com/search?q=%23gcpug">#gcpug</a></td>
 </tr>
 </tbody>
 </table>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>Google Cloud BuilderはシンプルなコンテナーイメージをビルドするGCPのサービス
-
 <ul>
 <li><a href="https://cloud.google.com/container-builder/?hl=ja">https://cloud.google.com/container-builder/?hl=ja</a></li>
-</ul></li>
+</ul>
+</li>
 <li>１日120分も無料でビルドできる</li>
 <li>シンプルにコンテナをビルドするだけ。GCP使っていなかったり、テストや複雑なビルドをしたいならば他のCIのほうが良いかも</li>
 <li>ビルドの1ステップ1ステップをステップごとに異なるビルド用のコンテナの上で<code>docker run</code>していることを理解してないとハマる
-
 <ul>
 <li><a href="https://github.com/GoogleCloudPlatform/cloud-builders">https://github.com/GoogleCloudPlatform/cloud-builders</a></li>
-</ul></li>
+</ul>
+</li>
 <li>GCPのドキュメントは基本的にAPIリファレンスを読むとわかりやすい。人間用のドキュメントを読んでいてもあまりわからない。</li>
 <li>GCPUGのGCPノウハウは以下のリポジトリにある
-
 <ul>
 <li><a href="https://github.com/gcpug/nouhau">https://github.com/gcpug/nouhau</a></li>
-</ul></li>
+</ul>
+</li>
 <li>もっと話したい人はGCPUG Slack #g-tools_jaチャンネルで
-
 <ul>
 <li><a href="https://gcpug.jp/join">https://gcpug.jp/join</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="cloud-tools-introduction-by-sinmetal">Cloud Tools Introduction by sinmetal</h1>
-
-<p><a href="https://goo.gl/6WVrR5">https://goo.gl/6WVrR5</a><br />
+<p><a href="https://goo.gl/6WVrR5">https://goo.gl/6WVrR5</a><br>
 <a href="https://twitter.com/sinmetal">@sinmetal</a></p>
-
 <p>GCPのサービスの中でToolカテゴリは４つある。その中の2つの話</p>
-
 <ul>
 <li><a href="https://cloud.google.com/container-registry/?hl=ja">Google Cntainer Registry(GCR)</a></li>
 <li><a href="https://cloud.google.com/source-repositories/?hl=ja">Google Source Repositories</a></li>
 </ul>
-
 <h2 id="google-container-builder">Google Container Builder</h2>
-
 <ul>
 <li>Build Triggerと併用すれば簡単なCIも出来る。Container Registoryに成果物のイメージとビルドログがでてくる。
-
 <ul>
 <li>他のCIのようにビルドするブランチを指定したり、ブランチ別のビルドも設定出来る。</li>
-</ul></li>
+</ul>
+</li>
 <li>毎日120分無料でビルドできる。</li>
 <li>ビルドソースはSource Resistories、GitHub、GitBucketから取得、もしくはローカルからtarにしてプッシュできる（GitLabは非対応）</li>
 <li>ビルドステップはDockerfile, cloud.yamlで定義する</li>
 <li><strong>1ステップ1ステップを毎回新しいコンテナで実行するのが特徴</strong></li>
 <li>ツールは公式で用意されているコンテナイメージで使ったほうがよい。
-
 <ul>
 <li><a href="https://github.com/GoogleCloudPlatform/cloud-builders">https://github.com/GoogleCloudPlatform/cloud-builders</a></li>
-</ul></li>
+</ul>
+</li>
 <li><code>gcloud bulds submit</code>コマンドでローカルから実行できる
-
 <ul>
 <li><a href="https://cloud.google.com/container-builder/docs/concepts/overview#using_the_gcloud_command-line_tool">Container Builder の概要 - gcloud コマンドライン ツールの使用</a></li>
-</ul></li>
+</ul>
+</li>
 <li><strong>fビルド行為をローカルで実行して動作確認することもできる</strong>
-
 <ul>
 <li><a href="https://cloud.google.com/container-builder/docs/concepts/overview#running_builds_locally">Container Builder の概要 - ローカルでのビルドの実行</a></li>
-</ul></li>
+</ul>
+</li>
 <li>認証情報などをCloud KMSと連携して扱えるのも魅力</li>
 <li>サードツールへの通知やビルドステータスによるマージブロックなどしたかったらPub/Sub、Functionsなどと組み合わせて自作する必要がある
-
 <ul>
 <li>（Slack通知についてはLTの方が触れていたので後述）</li>
-</ul></li>
 </ul>
-
-<h2 id="google-cntainer-registr-gcr">Google Cntainer Registr(GCR)</h2>
-
+</li>
+</ul>
+<h2 id="google-cntainer-registrgcr">Google Cntainer Registr(GCR)</h2>
 <ul>
 <li>GCRは非公開のDockerレジストリ。</li>
 <li>GCPのIAMと連携してコンテナイメージを管理できる</li>
 <li>実際に作成されたコンテナイメージはストレージの中にある</li>
 </ul>
-
 <h2 id="google-source-resistories">Google Source Resistories</h2>
-
 <ul>
 <li>Private Git Repository。それ以上でも以下でもない。</li>
 <li>Issue管理やPull Request機能といった機能はない</li>
 <li>Cloud Debuggerと連携することができる</li>
 <li>GitHub レポジトリや Bitbucket レポジトリとも連携できる</li>
 </ul>
-
 <h2 id="終わりに">終わりに</h2>
-
 <p>この辺の話をしたいときは<a href="https://gcpug.jp/join">GCPUG Slack</a> #g-tools_jaで！</p>
-
-<p>GCBに限らずGCPUGのノウハウはこのリポジトリで共有されている<br />
+<p>GCBに限らずGCPUGのノウハウはこのリポジトリで共有されている<br>
 <a href="https://github.com/gcpug/nouhau">https://github.com/gcpug/nouhau</a></p>
-
 <h1 id="google-container-builder-と友だちになるまで">Google Container Builder と友だちになるまで</h1>
-
-<p><a href="https://www.slideshare.net/lestrrat/google-container-builder-87244724">https://www.slideshare.net/lestrrat/google-container-builder-87244724</a><br />
+<p><a href="https://www.slideshare.net/lestrrat/google-container-builder-87244724">https://www.slideshare.net/lestrrat/google-container-builder-87244724</a><br>
 <a href="https://twitter.com/lestrrat">@lestrrat</a></p>
-
 <ul>
 <li>GCBは基本的にGoogle Container Resistoryにコンテナを突っ込むためにビルドするサービス</li>
 <li>以下の３つの理由がないと使わないほうが良い。ちゃんとテストを流したいなどがあるなら別のCIを使ったほうがよい
-
 <ul>
 <li>コンテナイメージをビルドしたい（だけ）</li>
 <li>GCP上にリソースが全部ある</li>
 <li>もうリモートデバッグしたくない</li>
-</ul></li>
 </ul>
-
-<h2 id="gitlabにあるmonorepoをgcbでgcr-ioにデプロイするときの知見">GitlabにあるmonorepoをGCBでgcr.ioにデプロイするときの知見</h2>
-
+</li>
+</ul>
+<h2 id="gitlabにあるmonorepoをgcbでgcrioにデプロイするときの知見">GitlabにあるmonorepoをGCBでgcr.ioにデプロイするときの知見</h2>
 <ul>
 <li>GitlabにあるmonorepoをGCBでビルドすることに。テストは別で行っていて、デプロイ先はgcr.ioだった</li>
 <li>(GitLabは連携できないので)ローカルで<code>google cloud builds</code>コマンドをすると指定したフォルダーがtarになって送信される。（最初のステップに必要なものだけあればよい）
-
 <ul>
 <li>全部ストレージに保存されるからデカイmonorepoあげるとヤバい。</li>
-</ul></li>
-
-<li><p><code>cloud.yaml</code>を使ってビルドする。GCBのビルドは以下のイメージ</p>
+</ul>
+</li>
+<li><code>cloud.yaml</code>を使ってビルドする。GCBのビルドは以下のイメージ</li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">for</span> step in config.steps
-docker run step.image step.args
-done</code></pre></div></li>
-
-<li><p>ビルドで使うイメージは基本的に公式イメージで。ただし1コマンドだけ実行しているようでもラッパースクリプトが動いているので注意</p></li>
-
-<li><p>各ステップで情報を引き回したいときは<code>Volume</code>でコンテナにマウントした中に保存しておく</p></li>
-
-<li><p>デバッグしたいときは<code>entorypoint</code>でbashを動かす。APIリファレンスまで見に行かないと載ってない</p>
-
+  docker run step.image step.args
+done
+</code></pre></div><ul>
+<li>ビルドで使うイメージは基本的に公式イメージで。ただし1コマンドだけ実行しているようでもラッパースクリプトが動いているので注意</li>
+<li>各ステップで情報を引き回したいときは<code>Volume</code>でコンテナにマウントした中に保存しておく</li>
+<li>デバッグしたいときは<code>entorypoint</code>でbashを動かす。APIリファレンスまで見に行かないと載ってない
 <ul>
 <li><a href="https://cloud.google.com/container-builder/docs/api/reference/rest/v1/projects.builds#buildstep">https://cloud.google.com/container-builder/docs/api/reference/rest/v1/projects.builds#buildstep</a></li>
-</ul></li>
-
-<li><p>どうしてもひとつのステップで複数のコマンドを使いたいときは自作コンテナでビルドする</p>
-
+</ul>
+</li>
+<li>どうしてもひとつのステップで複数のコマンドを使いたいときは自作コンテナでビルドする
 <ul>
 <li>gcloud、helm、kubectl&hellip;なんてことは<a href="https://github.com/GoogleCloudPlatform/cloud-builders">公式ビルド用コンテナ</a>ではできない</li>
 <li>gcr.ioに上げておけば自作コンテナイメージでビルドもできる</li>
-</ul></li>
-
-<li><p>困ったらローカルで実行してみるのが一番。クラウド上と同じ挙動をしてくれた</p>
-
+</ul>
+</li>
+<li>困ったらローカルで実行してみるのが一番。クラウド上と同じ挙動をしてくれた
 <ul>
 <li><a href="https://github.com/GoogleCloudPlatform/container-builder-local">https://github.com/GoogleCloudPlatform/container-builder-local</a></li>
-</ul></li>
-
-<li><p>googleのドキュメントは基本的にAPIリファレンスを読むとわかりやすい。人間用のドキュメントを読んでいてもあまりわからない。</p></li>
 </ul>
-
+</li>
+<li>googleのドキュメントは基本的にAPIリファレンスを読むとわかりやすい。人間用のドキュメントを読んでいてもあまりわからない。</li>
+</ul>
 <h1 id="lt">LT</h1>
-
 <h2 id="gitlab-runnerの話">GitLab Runnerの話</h2>
-
 <p><a href="https://twitter.com/tn961ir">@tn961ir(tnir)</a></p>
-
 <ul>
 <li><a href="https://docs.gitlab.com/runner/">GitLab Runner</a></li>
 <li>GitLabもGoogle Cloud Resitoryを使っていたが今は<a href="https://docs.gitlab.com/ce/user/project/container_registry.html">GitLab Container Registry</a></li>
 <li>どちらもベンダーロックインを避けられる。スレーブを用意すればマルチOSでビルドできるのもGitLab Runnerの魅力</li>
 <li>GCE上で実行した場合はStack Driverとも連携出来る。
-
 <ul>
 <li><a href="https://gitlab.com/rweda/stackdriver-gitlab-ci">https://gitlab.com/rweda/stackdriver-gitlab-ci</a></li>
-</ul></li>
+</ul>
+</li>
 <li>GitLab実践ガイドも最近発売されたとのこと
-
 <ul>
 <li><a href="https://book.impress.co.jp/books/1116101163">https://book.impress.co.jp/books/1116101163</a></li>
-</ul></li>
 </ul>
-
-<hr />
-
+</li>
+</ul>
+<hr>
 <h2 id="google-cloud-builderとslack連携の話">Google Cloud BuilderとSlack連携の話</h2>
-
 <p><a href="https://twitter.com/yoshikai_">@yoshikai_</a></p>
-
 <ul>
 <li>GCBのStatusをSlack通知</li>
 <li>GCBのビルドステータスが変化したときに通知がいく。Slack以外はGCPのサービスで実現できる</li>
 <li>GCB -&gt; Pub/Sub -&gt; Funstionsという流れでSlackに通知する。それぞれが有効になっていればGCPのWeb UIから設定可能</li>
 <li>詳細は公式チュートリアルがある
-
 <ul>
 <li><a href="https://cloud.google.com/container-builder/docs/tutorials/configuring-third-party-notifications?hl=ja">サードパーティサービスの通知の設定</a></li>
-</ul></li>
+</ul>
+</li>
 <li>公式チュートリアルのFuctionsのままだと<code>build.id</code>だけで何の結果だかわからないのでもう少し作り込む必要があり。
-
 <ul>
 <li><a href="https://twitter.com/apstndb/status/960487534500356096">Tweet</a>によると、この辺叩けば出来るんじゃないかとのこと <a href="https://cloud.google.com/container-builder/docs/api/reference/rest/v1/projects.builds/get?hl=en">Method: projects.builds.get</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>google assistantアプリもリリースしているらしい。</p>
-
-<p><blockquote class="twitter-tweet" data-lang="ja"><p lang="ja" dir="ltr">えいえい おこった？💕 <a href="https://twitter.com/hashtag/gcpug?src=hash&amp;ref_src=twsrc%5Etfw">#gcpug</a> <a href="https://t.co/UkbhWpZMYe">pic.twitter.com/UkbhWpZMYe</a></p>&mdash; みゅず (@mu248321) <a href="https://twitter.com/mu248321/status/960488259565465600?ref_src=twsrc%5Etfw">2018年2月5日</a></blockquote>
-<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
-
-<p><strong>怒ってないよ - Google Assitant アプリ</strong><br />
+<!-- raw HTML omitted -->
+<p><strong>怒ってないよ - Google Assitant アプリ</strong><br>
 <a href="https://assistant.google.com/services/a/uid/0000001a6f41b0be?hl=ja">https://assistant.google.com/services/a/uid/0000001a6f41b0be?hl=ja</a></p>
-
 <p>クソアプリって名前はリジェクトくらうとのこと。</p>
-
 <h1 id="参加して">参加して</h1>
-
-<p>GCPUG主催イベント初参加だった。悪い言い方をするとGCBは他のCIツールと比べて機能が少ないようだ。<br />
-ただ、コンテナイメージのビルドするのにステップごとに新しいコンテナを利用するという仕組みはすごい新鮮で驚きだった。<br />
-ビルド自体をステップごとにコンポーネント化するという考えは複雑化や属人化を避けることも可能なのかな？<br />
-GKEの上でGoのアプリでも動かしたいなと思っているので、ある程度使いこなせてきたらデプロイ用のコンテナ生成をGCBでやってみるのもいいのかもしれない。<br />
-GCPは結構ドキュメントの日本語がちゃんとされていて、これから動かし始めようと思っている英語が不得意の自分的には（パット見）結構安心していたのだが、けっこう大事なところが書かれていなかったりするらしい。<br />
-困ったらAPIリファレンスまで読んでみる、という本筋以外の知見も得られて良かった。<br />
+<p>GCPUG主催イベント初参加だった。悪い言い方をするとGCBは他のCIツールと比べて機能が少ないようだ。<br>
+ただ、コンテナイメージのビルドするのにステップごとに新しいコンテナを利用するという仕組みはすごい新鮮で驚きだった。<br>
+ビルド自体をステップごとにコンポーネント化するという考えは複雑化や属人化を避けることも可能なのかな？<br>
+GKEの上でGoのアプリでも動かしたいなと思っているので、ある程度使いこなせてきたらデプロイ用のコンテナ生成をGCBでやってみるのもいいのかもしれない。<br>
+GCPは結構ドキュメントの日本語がちゃんとされていて、これから動かし始めようと思っている英語が不得意の自分的には（パット見）結構安心していたのだが、けっこう大事なところが書かれていなかったりするらしい。<br>
+困ったらAPIリファレンスまで読んでみる、という本筋以外の知見も得られて良かった。<br>
 （某窓の会社のリファレンスサイトもサンプルリポジトリのコードみないと使い物にならないので、個人的にはまあそんなものなのかなとも思っている）</p>
-
-<p>Circle CI2.0もローカルでビルドを実行して試せるが、クラウド上の挙動を再現できていないこともあると会社の人が言っていた気がする。<br />
+<p>Circle CI2.0もローカルでビルドを実行して試せるが、クラウド上の挙動を再現できていないこともあると会社の人が言っていた気がする。<br>
 （自分も使っているが、<code>go test</code>してCodecovに結果流すくらいはローカルで出来る）</p>
-
-<p><strong>Using the CircleCI Command Line Interface (CLI)</strong><br />
+<p><strong>Using the CircleCI Command Line Interface (CLI)</strong><br>
 <a href="https://circleci.com/docs/2.0/local-jobs/">https://circleci.com/docs/2.0/local-jobs/</a></p>
-
 <p>他にも以下のカンファレンスついても案内があった。</p>
-
-<p><strong>JAPAN CONTAINER DAYS V18.04</strong><br />
-2018.04.19(Thu)<br />
+<p><strong>JAPAN CONTAINER DAYS V18.04</strong><br>
+2018.04.19(Thu)<br>
 <a href="http://containerdays.jp/">http://containerdays.jp/</a></p>
-
-<p><strong>builderscon tokyo 2018</strong><br />
-2018年9月6日(木), 2018年9月7日(金), 2018年9月8日(土)<br />
+<p><strong>builderscon tokyo 2018</strong><br>
+2018年9月6日(木), 2018年9月7日(金), 2018年9月8日(土)<br>
 <a href="http://2018.tokyo.builderscon.io/">http://2018.tokyo.builderscon.io/</a></p>
 
         </div>
@@ -519,9 +467,9 @@ GCPは結構ドキュメントの日本語がちゃんとされていて、こ�
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -599,10 +547,16 @@ GCPは結構ドキュメントの日本語がちゃんとされていて、こ�
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -614,12 +568,6 @@ GCPは結構ドキュメントの日本語がちゃんとされていて、こ�
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

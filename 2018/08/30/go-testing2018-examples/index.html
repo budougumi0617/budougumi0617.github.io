@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -60,13 +60,11 @@
   <meta property="og:title" content="Goのtestingを理解する in 2018 - Examples編 #go - My External Storage"/>
   <meta property="og:description" content="この記事は以下の記事で触れなかったExamplesについてまとめる。
 
-
 Goのtestを理解する in 2018 #go
 "/>
   
   <meta name="twitter:title" content="Goのtestingを理解する in 2018 - Examples編 #go - My External Storage"/>
   <meta name="twitter:description" content="この記事は以下の記事で触れなかったExamplesについてまとめる。
-
 
 Goのtestを理解する in 2018 #go
 "/>
@@ -181,59 +179,39 @@ Goのtestを理解する in 2018 #go
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#testable-examples">Testable Examples</a></li>
-<li><a href="#examplesケースの命名規則">Examplesケースの命名規則</a></li>
-<li><a href="#実行方法">実行方法</a></li>
-<li><a href="#ランダムオーダーな出力を確認する">ランダムオーダーな出力を確認する</a></li>
-<li><a href="#godocへの記載結果を確認する">GoDocへの記載結果を確認する</a></li>
-<li><a href="#参考">参考</a></li>
-<li><a href="#関連">関連</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
           <p>この記事は以下の記事で触れなかったExamplesについてまとめる。</p>
-
 <ul>
 <li><a href="/2018/08/19/go-testing2018">Goのtestを理解する in 2018 #go</a></li>
 </ul>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>出力結果を確認するExamplesテストを書くことができる
-
 <ul>
 <li><code>ExampleXXXX</code>という引数なしメソッド内に記載する</li>
-</ul></li>
+</ul>
+</li>
 <li>ExamplesテストはGoDocにも一緒に出力される
-
 <ul>
 <li>メソッド名によってGoDocで出力される場所を制御できる</li>
-</ul></li>
+</ul>
+</li>
 <li>Go1.7からはランダムな出力順序の結果もテスト出来るようになった
-
 <ul>
 <li><code>Unordered output:</code>をキーワードに期待出力結果を記載する</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>なお、本記事に関連するサンプルリポジトリは以下。</p>
-
 <ul>
 <li><a href="https://github.com/budougumi0617/go-testing">https://github.com/budougumi0617/go-testing</a></li>
 </ul>
-
 <h1 id="testable-examples">Testable Examples</h1>
-
 <p>Goでは通常のテストの他に、出力を確認する<code>Examples</code>テストを書くことが出来る。</p>
-
 <ul>
 <li><a href="https://blog.golang.org/examples">https://blog.golang.org/examples</a></li>
 </ul>
-
 <p>Examplesテストも通常のテストと同じく<code>xxx_test.go</code>というファイル内に記載する。テスト関数の名前は<code>Example</code>で始め、引数は必要ない。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  <span style="color:#586e75">// Person is sumple struct.
 </span><span style="color:#586e75"></span>  <span style="color:#268bd2">type</span> Person <span style="color:#268bd2">struct</span> {
@@ -252,12 +230,10 @@ Goのtestを理解する in 2018 #go
 
       <span style="color:#586e75">// Output:
 </span><span style="color:#586e75"></span>      <span style="color:#586e75">// name Alice, age 12
-</span><span style="color:#586e75"></span>  }</code></pre></div>
-<h1 id="examplesケースの命名規則">Examplesケースの命名規則</h1>
-
-<p>Examplesのテストメソッドは以下の命名規則で宣言する。<br />
+</span><span style="color:#586e75"></span>  }
+</code></pre></div><h1 id="examplesケースの命名規則">Examplesケースの命名規則</h1>
+<p>Examplesのテストメソッドは以下の命名規則で宣言する。<br>
 命名規則を守ることで、後述するようにGoDoc内の特定の場所に配置することが出来る。</p>
-
 <table>
 <thead>
 <tr>
@@ -265,70 +241,62 @@ Goのtestを理解する in 2018 #go
 <th>配置される場所</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td><code>Example()</code></td>
 <td>パッケージのOverviewに記載される</td>
 </tr>
-
 <tr>
 <td><code>ExampleXxx()</code></td>
 <td><code>Xxxx</code>関数、あるいは<code>Xxxx</code>構造体・インターフェースに記載される</td>
 </tr>
-
 <tr>
 <td><code>ExampleXxx_Foo()</code></td>
 <td><code>Xxxx</code>構造体の<code>Foo</code>メソッドに記載される</td>
 </tr>
-
 <tr>
 <td><code>ExampleXxx_Foo_one()</code></td>
 <td><code>Xxxx</code>構造体の<code>Foo</code>メソッドに複数Examplesを書きたい時</td>
 </tr>
 </tbody>
 </table>
-
-<p>メソッドの場合はアンダースコアで構造体名とメソッド名を結ぶ。<br />
+<p>メソッドの場合はアンダースコアで構造体名とメソッド名を結ぶ。<br>
 特定の同じ関数（メソッド）や構造体のExamplesを書くときの識別文字は小文字で始める。</p>
-
 <h1 id="実行方法">実行方法</h1>
-
-<p>Examplesテストも通常のテストケースと一緒に実行されるため、<code>go test</code>コマンドで実行できる。<br />
+<p>Examplesテストも通常のテストケースと一緒に実行されるため、<code>go test</code>コマンドで実行できる。<br>
 通常のテストを実行せずに、Examplesテストだけ実行したい場合は<code>-run</code>オプションを利用すればよい。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> . -v
 <span style="color:#719e07">===</span> RUN   TestPerson
---- PASS: TestPerson <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
+--- PASS: TestPerson <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
 <span style="color:#719e07">===</span> RUN   Example
---- PASS: Example <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
+--- PASS: Example <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
 <span style="color:#719e07">===</span> RUN   ExampleNewPerson
---- PASS: ExampleNewPerson <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
+--- PASS: ExampleNewPerson <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
 <span style="color:#719e07">===</span> RUN   ExamplePerson
---- PASS: ExamplePerson <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
+--- PASS: ExamplePerson <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
 <span style="color:#719e07">===</span> RUN   ExamplePerson_String
---- PASS: ExamplePerson_String <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
+--- PASS: ExamplePerson_String <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
 <span style="color:#719e07">===</span> RUN   ExamplePerson_String_bob
---- PASS: ExamplePerson_String_bob <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
+--- PASS: ExamplePerson_String_bob <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
 PASS
 ok  	github.com/budougumi0617/go-testing/e	<span style="color:#719e07">(</span>cached<span style="color:#719e07">)</span>
 
 $ go <span style="color:#b58900">test</span> . -v -run<span style="color:#719e07">=</span>Example*
 <span style="color:#719e07">===</span> RUN   Example
---- PASS: Example <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
+--- PASS: Example <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
 <span style="color:#719e07">===</span> RUN   ExampleNewPerson
---- PASS: ExampleNewPerson <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
+--- PASS: ExampleNewPerson <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
 <span style="color:#719e07">===</span> RUN   ExamplePerson
---- PASS: ExamplePerson <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
+--- PASS: ExamplePerson <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
 <span style="color:#719e07">===</span> RUN   ExamplePerson_String
---- PASS: ExamplePerson_String <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
+--- PASS: ExamplePerson_String <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
 <span style="color:#719e07">===</span> RUN   ExamplePerson_String_bob
---- PASS: ExamplePerson_String_bob <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
+--- PASS: ExamplePerson_String_bob <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
 PASS
-ok  	github.com/budougumi0617/go-testing/e	<span style="color:#719e07">(</span>cached<span style="color:#719e07">)</span></code></pre></div>
-<h1 id="ランダムオーダーな出力を確認する">ランダムオーダーな出力を確認する</h1>
-
-<p>Go1.7以降からランダムな出力結果を確認するための<code>Unordered output:</code>が追加されている。<br />
-Goの<code>map</code>は言語仕様上イテレート時に返る結果の順序を保証していないし、実際にランダムな順序で返される。<br />
+ok  	github.com/budougumi0617/go-testing/e	<span style="color:#719e07">(</span>cached<span style="color:#719e07">)</span>
+</code></pre></div><h1 id="ランダムオーダーな出力を確認する">ランダムオーダーな出力を確認する</h1>
+<p>Go1.7以降からランダムな出力結果を確認するための<code>Unordered output:</code>が追加されている。<br>
+Goの<code>map</code>は言語仕様上イテレート時に返る結果の順序を保証していないし、実際にランダムな順序で返される。<br>
 そのようなランダム要素が含まれる期待出力については、<code>Unordered output:</code>を使って期待出力結果を書いていおくと、順序に関係なく結果を評価できる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  <span style="color:#268bd2">func</span> <span style="color:#268bd2">Example</span>() {
       ps <span style="color:#719e07">:=</span> <span style="color:#268bd2">map</span>[<span style="color:#dc322f">int</span>]<span style="color:#719e07">*</span>e.Person{
@@ -345,34 +313,27 @@ Goの<code>map</code>は言語仕様上イテレート時に返る結果の順�
 </span><span style="color:#586e75"></span>      <span style="color:#586e75">// name Alice, age 12
 </span><span style="color:#586e75"></span>      <span style="color:#586e75">// name Chris, age 15
 </span><span style="color:#586e75"></span>      <span style="color:#586e75">// name Bob, age 10
-</span><span style="color:#586e75"></span>  }</code></pre></div>
-<h1 id="godocへの記載結果を確認する">GoDocへの記載結果を確認する</h1>
-
+</span><span style="color:#586e75"></span>  }
+</code></pre></div><h1 id="godocへの記載結果を確認する">GoDocへの記載結果を確認する</h1>
 <p>ローカルでGoDocのサーバを起動すれば、ExamplesがどのようにGoDocに展開されるか確認することが出来る。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ godoc -http<span style="color:#719e07">=</span>:6060</code></pre></div>
-<p>ローカルの<code>$GOPATH</code>以下のコード量によるが、少し待ってwebブラウザでアクセスすると、GoDocの具合を確認することができる。</p>
-
-<p><img src="/2018/08/30_godoc.png" alt="godoc" /></p>
-
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ godoc -http<span style="color:#719e07">=</span>:6060
+</code></pre></div><p>ローカルの<code>$GOPATH</code>以下のコード量によるが、少し待ってwebブラウザでアクセスすると、GoDocの具合を確認することができる。</p>
+<p><img src="/2018/08/30_godoc.png" alt="godoc"></p>
 <p>なお、GoDoc自体の書き方は<a href="https://twitter.com/shibu_jp">渋川さん</a>の<a href="https://qiita.com/shibukawa/items/8c70fdd1972fad76a5ce">記事</a>が詳しい。</p>
-
 <h1 id="参考">参考</h1>
-
 <ul>
 <li>Testable Examples in Go
-
 <ul>
 <li><a href="https://blog.golang.org/examples">https://blog.golang.org/examples</a></li>
-</ul></li>
+</ul>
+</li>
 <li>チョットできるGoプログラマーになるための詳解GoDoc
-
 <ul>
 <li><a href="https://qiita.com/shibukawa/items/8c70fdd1972fad76a5ce">https://qiita.com/shibukawa/items/8c70fdd1972fad76a5ce</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="関連">関連</h1>
-
 <ul>
 <li><a href="/2018/08/19/go-testing2018">Goのtestを理解する in 2018 #go</a></li>
 <li><a href="/2018/09/05/go-testing2018-quick">Goのtestingを理解する in 2018 - quickサブパッケージ編 #go</a></li>
@@ -467,9 +428,9 @@ Goの<code>map</code>は言語仕様上イテレート時に返る結果の順�
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -547,10 +508,16 @@ Goの<code>map</code>は言語仕様上イテレート時に返る結果の順�
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -562,12 +529,6 @@ Goの<code>map</code>は言語仕様上イテレート時に返る結果の順�
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

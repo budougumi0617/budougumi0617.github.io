@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -173,44 +173,31 @@
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#チャネルを使ったselectのcase文中で-関数を呼び出した結果でチャネルへの送信をしないほうがよい">チャネルを使ったselectのcase文中で、関数を呼び出した結果でチャネルへの送信をしないほうがよい</a></li>
-<li><a href="#チャネルを使ったselectのcase文中で-別のチャネルから受信した結果でチャネルへの送信をしないほうがよい">チャネルを使ったselectのcase文中で、別のチャネルから受信した結果でチャネルへの送信をしないほうがよい</a></li>
-<li><a href="#最後に">最後に</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
           <p>簡潔にまとめられなかったので式表現をそのままタイトルに書いてしまったが、分かっていないとエンバグしそうな挙動を見つけたのでメモしておく。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>チャネルを使ったselectのcase文中で、関数を呼び出した結果でチャネルへの送信をしないほうがよい</li>
 <li>チャネルを使ったselectのcase文中で、別のチャネルから受信した結果でチャネルへの送信をしないほうがよい</li>
 </ul>
-
 <p>文章で書くとわかりにくいのだが、コードで書くと以下のような処理を書くのは避けたほうがよい、というのが主題だ。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"> <span style="color:#719e07">select</span> {
  <span style="color:#719e07">case</span> ch1 <span style="color:#719e07">&lt;-</span> <span style="color:#268bd2">f</span>(): <span style="color:#586e75">// チャネルへ関数を呼び出した結果を送信する
 </span><span style="color:#586e75"></span> <span style="color:#719e07">case</span> ch1 <span style="color:#719e07">&lt;-</span> <span style="color:#719e07">&lt;-</span> ch2: <span style="color:#586e75">// チャネルへ別のチャネルからの受信結果を送信する
-</span><span style="color:#586e75"></span> }</code></pre></div>
-<p>なお、検証環境は以下。</p>
-
+</span><span style="color:#586e75"></span> }
+</code></pre></div><p>なお、検証環境は以下。</p>
 <ul>
 <li><code>go version go1.12 darwin/amd64</code></li>
 <li><a href="https://play.golang.org/">https://play.golang.org/</a> （2019/03/15時点）</li>
 </ul>
-
-<h1 id="チャネルを使ったselectのcase文中で-関数を呼び出した結果でチャネルへの送信をしないほうがよい">チャネルを使ったselectのcase文中で、関数を呼び出した結果でチャネルへの送信をしないほうがよい</h1>
-
-<p>まずselect文のcaseで関数呼び出しをしているときを検証した。<br />
-以下の処理は<code>done</code>チャネルに通知が入るまで無限ループが行われるコードだ。<br />
+<h1 id="チャネルを使ったselectのcase文中で関数を呼び出した結果でチャネルへの送信をしないほうがよい">チャネルを使ったselectのcase文中で、関数を呼び出した結果でチャネルへの送信をしないほうがよい</h1>
+<p>まずselect文のcaseで関数呼び出しをしているときを検証した。<br>
+以下の処理は<code>done</code>チャネルに通知が入るまで無限ループが行われるコードだ。<br>
 <code>ch1</code>や<code>ch2</code>の準備ができているときは<code>f</code>関数の戻り値を送信する。このプログラムを実行したとき、<code>called f</code>という文字列を何回出力するだろうか？（<code>f</code>関数は何回実行されるだろうか？）</p>
-
 <ul>
-<li><p><a href="https://play.golang.org/p/ZvypfcE-oPe">https://play.golang.org/p/ZvypfcE-oPe</a></p>
+<li><a href="https://play.golang.org/p/ZvypfcE-oPe">https://play.golang.org/p/ZvypfcE-oPe</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
@@ -241,29 +228,22 @@
 		<span style="color:#719e07">case</span> ch2 <span style="color:#719e07">&lt;-</span> <span style="color:#268bd2">f</span>():
 		}
 	}
-}</code></pre></div></li>
-</ul>
-
-<p>私は<code>fmt.Printf(&quot;f return = %d\n&quot;, &lt;-ch1)</code>の時に<code>ch1</code>から値を受け取るときだけ<code>f</code>関数が呼び出されると思ったので1回と予想していた。<br />
+}
+</code></pre></div><p>私は<code>fmt.Printf(&quot;f return = %d\n&quot;, &lt;-ch1)</code>の時に<code>ch1</code>から値を受け取るときだけ<code>f</code>関数が呼び出されると思ったので1回と予想していた。<br>
 だが、答えは4回だ。</p>
-
 <pre><code>called f
 called f
 f return = 1
 called f
 called f
 done
-</code></pre>
-
-<p>どうやら<strong><code>select</code>文に突入した時点でチャネルへの送信文(<code>channel &lt;- XXXX</code>)の右辺(<code>XXXX</code>)が実行されなかった<code>case</code>も含めて確定的に行われてしまう</strong>らしい。<br />
+</code></pre><p>どうやら<strong><code>select</code>文に突入した時点でチャネルへの送信文(<code>channel &lt;- XXXX</code>)の右辺(<code>XXXX</code>)が実行されなかった<code>case</code>も含めて確定的に行われてしまう</strong>らしい。<br>
 この挙動はselectのcase文でチャネルからの受信式(<code>&lt;-channel</code>)を使っても同様に発生する。</p>
-
-<h1 id="チャネルを使ったselectのcase文中で-別のチャネルから受信した結果でチャネルへの送信をしないほうがよい">チャネルを使ったselectのcase文中で、別のチャネルから受信した結果でチャネルへの送信をしないほうがよい</h1>
-
+<h1 id="チャネルを使ったselectのcase文中で別のチャネルから受信した結果でチャネルへの送信をしないほうがよい">チャネルを使ったselectのcase文中で、別のチャネルから受信した結果でチャネルへの送信をしないほうがよい</h1>
 <p>以下のコードは別のチャネル（<code>fchX</code>）から送信された<code>int</code>を受信するチャネル（<code>chX</code>）を複数<code>select</code>文で並べて待機するコードだ。</p>
-
 <ul>
-<li><p><a href="https://play.golang.org/p/cdZORmhc8k7">https://play.golang.org/p/cdZORmhc8k7</a></p>
+<li><a href="https://play.golang.org/p/cdZORmhc8k7">https://play.golang.org/p/cdZORmhc8k7</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
@@ -279,7 +259,7 @@ done
 	ch2 <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#dc322f">int</span>)
 	done <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#268bd2">struct</span>{})
 
-<span style="color:#586e75">// 1ずつインクリメントされたintを送信するチャネルを生成する関数
+  <span style="color:#586e75">// 1ずつインクリメントされたintを送信するチャネルを生成する関数
 </span><span style="color:#586e75"></span>	f <span style="color:#719e07">:=</span> <span style="color:#268bd2">func</span>() <span style="color:#719e07">&lt;-</span><span style="color:#268bd2">chan</span> <span style="color:#dc322f">int</span> {
 		ch <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#dc322f">int</span>)
 		<span style="color:#719e07">go</span> <span style="color:#268bd2">func</span>() {
@@ -310,46 +290,37 @@ done
 			<span style="color:#719e07">return</span>
 		}
 	}
-}</code></pre></div></li>
-</ul>
-
-<p>この実行結果は以下となる。</p>
-
+}
+</code></pre></div><p>この実行結果は以下となる。</p>
 <pre><code>fch1 return = 0
 fch2 return = 1
 fch1 return = 2
 done
-</code></pre>
-
-<p>標準出力している部分のコードを確認する。</p>
+</code></pre><p>標準出力している部分のコードを確認する。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;fch1 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch1)
 fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;fch2 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch2)
-fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;fch1 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch1)</code></pre></div>
-<p>最初の<code>fmt.Printf(&quot;fch1 return = %d\n&quot;, &lt;-ch1)</code>の結果は<code>0</code>だ。<code>ch1</code>への入力の<code>fch1</code>（<code>f()</code>で生成したチャネル）は<code>0</code>からインクメントされた整数を返すチャネルなので、期待通りだ。
+fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;fch1 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch1)
+</code></pre></div><p>最初の<code>fmt.Printf(&quot;fch1 return = %d\n&quot;, &lt;-ch1)</code>の結果は<code>0</code>だ。<code>ch1</code>への入力の<code>fch1</code>（<code>f()</code>で生成したチャネル）は<code>0</code>からインクメントされた整数を返すチャネルなので、期待通りだ。
 だが、<code>fmt.Printf(&quot;fch2 return = %d\n&quot;, &lt;-ch2)</code>は<code>ch2</code>(<code>fch2</code>)から初めて値を取り出すので<code>0</code>を期待したいところだが、<code>1</code>が出力される。
 また、二回目の<code>fmt.Printf(&quot;fch1 return = %d\n&quot;, &lt;-ch1)</code>では<code>ch1</code>(<code>fch1</code>)に対する二度目の取得なので、<code>1</code>が出てくるのを期待するのだが、<code>2</code>が出てくる。</p>
-
 <p><code>select</code>で実行されたなかった時でも<code>case</code>中の右辺が評価されてしまうので、
 <strong><code>fch2</code>から<code>ch2</code>へ渡されたはずの<code>0</code>や、<code>fch1</code>から<code>ch1</code>に渡されたはずの<code>1</code>はどこか虚空に消えてしまった</strong>ようだ…</p>
-
 <h1 id="最後に">最後に</h1>
-
-<p><code>select</code>の<code>case</code>中に関数呼び出しやチャネルからの受信をしていると思わぬ挙動をしてしまうことをまとめた。<br />
+<p><code>select</code>の<code>case</code>中に関数呼び出しやチャネルからの受信をしていると思わぬ挙動をしてしまうことをまとめた。<br>
 今回の内容は<a href="https://yokohama-go-reading.connpass.com/event/120344/">第25回横浜Go読書会</a>に参加中に話題になったことをまとめた内容である。
-具体的な仕様や実装までは追えなかったので実動作についてのみのまとめになってしまった。<br />
+具体的な仕様や実装までは追えなかったので実動作についてのみのまとめになってしまった。<br>
 本当ならば実際にGoの実装のどの部分でこのような挙動を実現しているかなどちゃんと調べていきたい。</p>
-
 <ul>
 <li>横浜Go読書会
-
 <ul>
 <li><a href="https://yokohama-go-reading.connpass.com/">https://yokohama-go-reading.connpass.com/</a></li>
-</ul></li>
+</ul>
+</li>
 <li>Select statements | The Go Programming Language Specification
-
 <ul>
 <li><a href="https://golang.org/ref/spec#Select_statements">https://golang.org/ref/spec#Select_statements</a></li>
-</ul></li>
+</ul>
+</li>
 </ul>
         </div>
         
@@ -440,9 +411,9 @@ fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;f
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -520,10 +491,16 @@ fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;f
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -535,12 +512,6 @@ fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;f
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

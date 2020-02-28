@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -177,60 +177,42 @@ interfaceがそのような型（フィールドにそのような型を持っ�
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#goの値はすべてがcomparableではない">Goの値はすべてがcomparableではない</a></li>
-<li><a href="#comparable-ではない値を指すインターフェースに等価演算子を使うと-runtime-error-が発生する"><code>comparable</code>ではない値を指すインターフェースに等価演算子を使うと<code>runtime error</code>が発生する</a></li>
-<li><a href="#構造体をcomparableにしてruntime-errorを回避するにはポインタを使ってフィールドを定義する">構造体をcomparableにしてruntime errorを回避するにはポインタを使ってフィールドを定義する</a></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#追記">追記</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
-          <p>Goには<code>comparable</code>が定義されておらず、比較できない型として<code>Slice</code>, <code>Map</code>などがある。<br />
-<code>interface</code>がそのような型（フィールドにそのような型を持った構造体）を値に持っていたときに<code>==</code>を利用すると<code>panic</code>が発生する可能性がある。<br />
+          <p>Goには<code>comparable</code>が定義されておらず、比較できない型として<code>Slice</code>, <code>Map</code>などがある。<br>
+<code>interface</code>がそのような型（フィールドにそのような型を持った構造体）を値に持っていたときに<code>==</code>を利用すると<code>panic</code>が発生する可能性がある。<br>
 行儀の悪い構造体を定義しないテクニックがあったのでメモしておく。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>Goの値はすべてが<code>comparable</code>ではない
-
 <ul>
 <li>Slice、<code>Map</code>、関数の値は<code>comparable</code>ではない</li>
-</ul></li>
+</ul>
+</li>
 <li><code>comparable</code>ではない値を指すインターフェースに等価演算子を使うと<code>runtime error</code>が発生する</li>
 <li>構造体にSliceを含ませながら等価演算子を使いたいならばSliceのポインタで内包すれば良い
-
 <ul>
 <li>ただし当然ポインタの指し示す値の比較で等価であるか決まるようになる</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="goの値はすべてがcomparableではない">Goの値はすべてがcomparableではない</h1>
-
 <p>プログラミング言語によってはすべてのオブジェクトが<code>equality</code>を持ち、<code>comparable</code>であることもある。
 が、Goの場合そうではない。Goは仕様に<code>compareble</code>でない型があることを明記している。</p>
-
 <ul>
 <li>Comparison operators
-
 <ul>
 <li><a href="https://golang.org/ref/spec#Comparison_operators">https://golang.org/ref/spec#Comparison_operators</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <blockquote>
 <p>Slice, map, and function values are not comparable. However, as a special case, a slice, map, or function value may be compared to the predeclared identifier nil. Comparison of pointer, channel, and interface values to nil is also allowed and follows from the general rules above.</p>
 </blockquote>
-
 <p>上記の通り、<code>not comparable</code>な値とはSliceや<code>Map</code>、<code>function</code>への値のことを指す。</p>
-
-<h1 id="comparable-ではない値を指すインターフェースに等価演算子を使うと-runtime-error-が発生する"><code>comparable</code>ではない値を指すインターフェースに等価演算子を使うと<code>runtime error</code>が発生する</h1>
-
+<h1 id="comparableではない値を指すインターフェースに等価演算子を使うとruntime-errorが発生する"><code>comparable</code>ではない値を指すインターフェースに等価演算子を使うと<code>runtime error</code>が発生する</h1>
 <p>この<code>comparable</code>性については構造体にも影響する。
-構造体が<code>not comparable</code>な型のフィールドを持つとき、その構造体も<code>not comparable</code>になる。<br />
+構造体が<code>not comparable</code>な型のフィールドを持つとき、その構造体も<code>not comparable</code>になる。<br>
 明示的に<code>not comparable</code>な構造体を比較しているときはビルド時にエラーになるので気づく。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"> a1 <span style="color:#719e07">:=</span> <span style="color:#268bd2">struct</span> {
  	Slice []<span style="color:#dc322f">string</span>
@@ -243,19 +225,17 @@ interfaceがそのような型（フィールドにそのような型を持っ�
  <span style="color:#586e75">// invalid operation: a1 == a1 (struct containing []string cannot be compared)
 </span><span style="color:#586e75"></span> <span style="color:#719e07">if</span> a1 <span style="color:#719e07">==</span> a1 {
  	fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Same article&#34;</span>)
- }</code></pre></div>
-<p>問題は<code>interface</code>でそのような構造体を指していたときだ。<br />
+ }
+</code></pre></div><p>問題は<code>interface</code>でそのような構造体を指していたときだ。<br>
 <code>not comparable</code>な値を指した状態の<code>interface</code>値を等価演算子で比較すると、<code>runtime error</code>が発生する旨が仕様に記載されている（記載場所は上記リンクと同じ）。</p>
-
 <blockquote>
 <p>A comparison of two interface values with identical dynamic types causes a run-time panic if values of that type are not comparable. This behavior applies not only to direct interface value comparisons but also when comparing arrays of interface values or structs with interface-valued fields.</p>
 </blockquote>
-
 <p>下記のサンプルコードは<code>interface</code>を介して<code>[]string</code>を内包する構造体を比較してしまう。
 そのため、ビルドには成功するが、実行時に<code>runtime error</code>が発生する。</p>
-
 <ul>
-<li><p><a href="https://play.golang.org/p/FO_vwjsT7TY">https://play.golang.org/p/FO_vwjsT7TY</a></p>
+<li><a href="https://play.golang.org/p/FO_vwjsT7TY">https://play.golang.org/p/FO_vwjsT7TY</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://play.golang.org/p/FO_vwjsT7TY
 </span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
 
@@ -288,19 +268,15 @@ interfaceがそのような型（フィールドにそのような型を持っ�
 </span><span style="color:#586e75"></span>	<span style="color:#719e07">if</span> a1 <span style="color:#719e07">==</span> a2 {
 		fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Same article&#34;</span>)
 	}
-}</code></pre></div></li>
-</ul>
-
-<p>サンプルコードでは<code>not comparable</code>な値が入っているのは自明だが、関数やメソッドの引数を<code>interface</code>としていたとき、渡ってきた具象型が<code>comparable</code>かどうかわざわざ検証しないだろう。
+}
+</code></pre></div><p>サンプルコードでは<code>not comparable</code>な値が入っているのは自明だが、関数やメソッドの引数を<code>interface</code>としていたとき、渡ってきた具象型が<code>comparable</code>かどうかわざわざ検証しないだろう。
 <code>error</code>インターフェースなど、具象型を意識しないでで取り扱う構造体は<code>comparable</code>な構造体にしておきたい。</p>
-
 <h1 id="構造体をcomparableにしてruntime-errorを回避するにはポインタを使ってフィールドを定義する">構造体をcomparableにしてruntime errorを回避するにはポインタを使ってフィールドを定義する</h1>
-
 <p>では具体的にどのように回避すればよいかというと、ポインタを利用することでSliceを内部で持っていたまま<code>comparable</code>な構造体にできる（Sliceの場合は配列にしてもよい）。
 サンプルコードは以下。</p>
-
 <ul>
-<li><p><a href="https://play.golang.org/p/6RGzUoPFrjW">https://play.golang.org/p/6RGzUoPFrjW</a></p>
+<li><a href="https://play.golang.org/p/6RGzUoPFrjW">https://play.golang.org/p/6RGzUoPFrjW</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://play.golang.org/p/6RGzUoPFrjW
 </span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
 
@@ -334,36 +310,29 @@ interfaceがそのような型（フィールドにそのような型を持っ�
 	<span style="color:#719e07">if</span> a1 <span style="color:#719e07">==</span> a2 {
 		fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Same article&#34;</span>)
 	}
-}</code></pre></div></li>
-</ul>
-
-<p><code>[]string</code>ではなく、<code>*[]string</code>にした構造体を宣言すると<code>runtime error</code>は解消された。<br />
+}
+</code></pre></div><p><code>[]string</code>ではなく、<code>*[]string</code>にした構造体を宣言すると<code>runtime error</code>は解消された。<br>
 ただ、当然ポインタで比較されるようになるのでそこは注意する。
 なので、サンプルコードの<code>a1</code>と<code>a2</code>は直感的には「等価」だが、ポインタの指すSliceは別物なので「等値」ではなく<code>!=</code>になる。
 あくまで何も知らないで<code>interface</code>を経由して利用される場合の<code>runtime error</code>回避のためのテクニックなので、構造体の中身の詳細を知っているコードでは<code>reflect.DeepEqual</code>などを利用する必要がある。</p>
-
 <h1 id="終わりに">終わりに</h1>
-
-<p>業務で実際に<code>runtime error</code>が発生する可能性があったので、どうしたら回避できるのか調べたのが今回の記事になる。<br />
-「そういえば<code>pkg/errors</code>はSliceで<code>StackFrame</code>持っているはずだけど同じエラーが発生しないな？」と調べたらポインタを使っていた。<br />
+<p>業務で実際に<code>runtime error</code>が発生する可能性があったので、どうしたら回避できるのか調べたのが今回の記事になる。<br>
+「そういえば<code>pkg/errors</code>はSliceで<code>StackFrame</code>持っているはずだけど同じエラーが発生しないな？」と調べたらポインタを使っていた。<br>
 著名なOSSのコードはやはり勉強になるので使うだけでなくちゃんと読んでみないとなと改めて思った。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/pkg/errors/blob/27936f6d90f9c8e1145f11ed52ffffbfdb9e0af7/errors.go#L119-L123
 </span><span style="color:#586e75">// fundamental is an error that has a message and a stack, but no caller.
 </span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> fundamental <span style="color:#268bd2">struct</span> {
 	msg <span style="color:#dc322f">string</span>
 	<span style="color:#719e07">*</span>stack <span style="color:#586e75">// type stack []uintptr
-</span><span style="color:#586e75"></span>}</code></pre></div>
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/pkg/errors" data-iframely-url="//cdn.iframe.ly/awcJrVL"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
+</span><span style="color:#586e75"></span>}
+</code></pre></div><!-- raw HTML omitted -->
 <h1 id="追記">追記</h1>
-
 <p>比較する2つのオブジェクトが違う型ならば<code>runtime error</code>が発生するnot comparableなフィールドを触る前に比較が終わるので<code>runtime error</code>は発生しない。
 なので、比較可能な具象型をどちらかに置いて比較演算子を書けば<code>runtime error</code>が出ないことは保証される（<code>interface == interface</code>と比較するケースはあまりないだろう）。</p>
-
-<p><blockquote class="twitter-tweet"><p lang="ja" dir="ltr">実装まで見れてませんが、型が違えば型比較でEqualityの判定が終わるので平気なんですよね。なので比較するどちらかがcomparebleならruntime errorが出ないことは保証できます。<br>ただどう使われるかわからないライブラリ公開者は気をつけて実装したほうがいいという話です。<a href="https://t.co/5x924VN9aK">https://t.co/5x924VN9aK</a></p>&mdash; Yoichiro Shimizu (@budougumi0617) <a href="https://twitter.com/budougumi0617/status/1148715295772557313?ref_src=twsrc%5Etfw">July 9, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
 <ul>
-<li><p><a href="https://play.golang.org/p/Ygi0f5GQIV3">https://play.golang.org/p/Ygi0f5GQIV3</a></p>
+<li><a href="https://play.golang.org/p/Ygi0f5GQIV3">https://play.golang.org/p/Ygi0f5GQIV3</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://play.golang.org/p/Ygi0f5GQIV3
 </span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
 
@@ -387,8 +356,8 @@ interfaceがそのような型（フィールドにそのような型を持っ�
 </span><span style="color:#586e75"></span>	<span style="color:#719e07">if</span> a <span style="color:#719e07">!=</span> b {
 		fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;different object&#34;</span>)
 	}
-}</code></pre></div></li>
-</ul>
+}
+</code></pre></div>
         </div>
         
 
@@ -478,9 +447,9 @@ interfaceがそのような型（フィールドにそのような型を持っ�
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -558,10 +527,16 @@ interfaceがそのような型（フィールドにそのような型を持っ�
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -573,12 +548,6 @@ interfaceがそのような型（フィールドにそのような型を持っ�
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

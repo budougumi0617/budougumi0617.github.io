@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -60,13 +60,11 @@
   <meta property="og:title" content="Goのtestingを理解する in 2018 - iotestサブパッケージ編 #go - My External Storage"/>
   <meta property="og:description" content="この記事は以下の記事で触れなかったtesting/iotestについて触れる。
 
-
 Goのtestを理解する in 2018 #go
 "/>
   
   <meta name="twitter:title" content="Goのtestingを理解する in 2018 - iotestサブパッケージ編 #go - My External Storage"/>
   <meta name="twitter:description" content="この記事は以下の記事で触れなかったtesting/iotestについて触れる。
-
 
 Goのtestを理解する in 2018 #go
 "/>
@@ -181,49 +179,31 @@ Goのtestを理解する in 2018 #go
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#func-dataerrreader-r-io-reader-io-reader">func DataErrReader(r io.Reader) io.Reader</a></li>
-<li><a href="#func-halfreader-r-io-reader-io-reader">func HalfReader(r io.Reader) io.Reader</a></li>
-<li><a href="#func-onebytereader-r-io-reader-io-reader">func OneByteReader(r io.Reader) io.Reader</a></li>
-<li><a href="#func-timeoutreader-r-io-reader-io-reader">func TimeoutReader(r io.Reader) io.Reader</a></li>
-<li><a href="#func-truncatewriter-w-io-writer-n-int64-io-writer">func TruncateWriter(w io.Writer, n int64) io.Writer</a></li>
-<li><a href="#func-newwritelogger-prefix-string-w-io-writer-io-writer">func NewWriteLogger(prefix string, w io.Writer) io.Writer</a></li>
-<li><a href="#参考">参考</a></li>
-<li><a href="#関連">関連</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
           <p>この記事は以下の記事で触れなかった<code>testing/iotest</code>について触れる。</p>
-
 <ul>
 <li><a href="/2018/08/19/go-testing2018">Goのtestを理解する in 2018 #go</a></li>
 </ul>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>testing/iotestパッケージ
-
 <ul>
 <li><a href="https://golang.org/pkg/testing/iotest/">https://golang.org/pkg/testing/iotest/</a></li>
-</ul></li>
+</ul>
+</li>
 <li><code>testing/iotest</code>パッケージは<code>io.Reader</code>/<code>io.Writer</code>のテスト用のラッパーを提供する</li>
 <li>エッジケースな挙動あるいはエラーを戻すラッパーと入出力をフックするラッパーが定義されている</li>
 <li>入出力周りのテストヘルパーを書くときの参考にもなる</li>
 </ul>
-
-<h1 id="func-dataerrreader-r-io-reader-io-reader">func DataErrReader(r io.Reader) io.Reader</h1>
-
+<h1 id="func-dataerrreaderr-ioreader-ioreader">func DataErrReader(r io.Reader) io.Reader</h1>
 <ul>
 <li><a href="https://golang.org/pkg/testing/iotest/#DataErrReader">https://golang.org/pkg/testing/iotest/#DataErrReader</a></li>
 </ul>
-
 <p><code>DataErrReader</code>は<code>Read(p []byte) (n int, err error)</code>メソッドを呼んだとき最後に<code>n != 0, err = io.EOF</code>を返す<code>io.Reader</code>オブジェクトを戻す。</p>
-
 <ul>
-<li><p><a href="https://play.golang.org/p/e3eSeyirp_i">https://play.golang.org/p/e3eSeyirp_i</a></p>
+<li><a href="https://play.golang.org/p/e3eSeyirp_i">https://play.golang.org/p/e3eSeyirp_i</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	orign <span style="color:#719e07">:=</span> []<span style="color:#b58900">byte</span>(<span style="color:#2aa198">&#34;Hello\nbyte.Reader\n&#34;</span>)
 	<span style="color:#268bd2">type</span> want <span style="color:#268bd2">struct</span> {
 		n         <span style="color:#dc322f">int</span>
@@ -265,27 +245,22 @@ Goのtestを理解する in 2018 #go
 				}
 			}
 		})
-	}</code></pre></div></li>
-</ul>
-
-<p>通常、<code>io.Reader</code>インターフェースの実装には、<code>err == io.EOF</code>のとき<code>n = 0</code>かつその前の読み込みで全てのデータの読み込みが終了していることを想定するだろう。<br />
-<code>DataErrReader</code>でラップした<code>io.Reader</code>のオブジェクトは読み込みが終わった時、<code>io.EOF</code>と読み込んだデータを同時に返す。<br />
+	}
+</code></pre></div><p>通常、<code>io.Reader</code>インターフェースの実装には、<code>err == io.EOF</code>のとき<code>n = 0</code>かつその前の読み込みで全てのデータの読み込みが終了していることを想定するだろう。<br>
+<code>DataErrReader</code>でラップした<code>io.Reader</code>のオブジェクトは読み込みが終わった時、<code>io.EOF</code>と読み込んだデータを同時に返す。<br>
 「そのような実装を想定しないといけないことがあるのか？」というと、<code>http.Get</code>がそのような動きをするらしい。</p>
-
 <ul>
 <li>Go言語のHTTPリクエストのレスポンスボディーとEOF
-
 <ul>
 <li><a href="https://itchyny.hatenablog.com/entry/2017/12/12/170000">https://itchyny.hatenablog.com/entry/2017/12/12/170000</a></li>
-</ul></li>
 </ul>
-
-<h1 id="func-halfreader-r-io-reader-io-reader">func HalfReader(r io.Reader) io.Reader</h1>
-
+</li>
+</ul>
+<h1 id="func-halfreaderr-ioreader-ioreader">func HalfReader(r io.Reader) io.Reader</h1>
 <p><a href="https://golang.org/pkg/testing/iotest/#HalfReader">https://golang.org/pkg/testing/iotest/#HalfReader</a></p>
-
 <ul>
-<li><p><a href="https://play.golang.org/p/7OBG8uUJu1B">https://play.golang.org/p/7OBG8uUJu1B</a></p>
+<li><a href="https://play.golang.org/p/7OBG8uUJu1B">https://play.golang.org/p/7OBG8uUJu1B</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	orign <span style="color:#719e07">:=</span> []<span style="color:#b58900">byte</span>(<span style="color:#2aa198">&#34;Hello\nbyte.Reader\n&#34;</span>)
 	<span style="color:#268bd2">type</span> want <span style="color:#268bd2">struct</span> {
 		<span style="color:#586e75">// DataErrReaderのサンプルコードと同じなので省略
@@ -315,19 +290,16 @@ Goのtestを理解する in 2018 #go
 			<span style="color:#586e75">// DataErrReaderのサンプルコードと同じなので省略
 </span><span style="color:#586e75"></span>		})
 	}
-}</code></pre></div></li>
-</ul>
+}
 
-<h1 id="func-onebytereader-r-io-reader-io-reader">func OneByteReader(r io.Reader) io.Reader</h1>
-
+</code></pre></div><h1 id="func-onebytereaderr-ioreader-ioreader">func OneByteReader(r io.Reader) io.Reader</h1>
 <ul>
 <li><a href="https://golang.org/pkg/testing/iotest/#OneByteReader">https://golang.org/pkg/testing/iotest/#OneByteReader</a></li>
 </ul>
-
 <p><code>OneByteReader</code>はその名の通り、常に1バイトしか読みこまない<code>io.Reader</code>を返す。</p>
-
 <ul>
-<li><p><a href="https://play.golang.org/p/b-GVUag2eSN">https://play.golang.org/p/b-GVUag2eSN</a></p>
+<li><a href="https://play.golang.org/p/b-GVUag2eSN">https://play.golang.org/p/b-GVUag2eSN</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	orign <span style="color:#719e07">:=</span> []<span style="color:#b58900">byte</span>(<span style="color:#2aa198">&#34;Hello\nbyte.Reader\n&#34;</span>)
 	<span style="color:#268bd2">type</span> want <span style="color:#268bd2">struct</span> {
 		<span style="color:#586e75">// DataErrReaderのサンプルコードと同じなので省略
@@ -368,19 +340,15 @@ Goのtestを理解する in 2018 #go
 		t.<span style="color:#268bd2">Run</span>(tt.subject, <span style="color:#268bd2">func</span>(t <span style="color:#719e07">*</span>testing.T) {
 			<span style="color:#586e75">// DataErrReaderのサンプルコードと同じなので省略
 </span><span style="color:#586e75"></span>		})
-	}</code></pre></div></li>
-</ul>
-
-<h1 id="func-timeoutreader-r-io-reader-io-reader">func TimeoutReader(r io.Reader) io.Reader</h1>
-
+	}
+</code></pre></div><h1 id="func-timeoutreaderr-ioreader-ioreader">func TimeoutReader(r io.Reader) io.Reader</h1>
 <ul>
 <li><a href="https://golang.org/pkg/testing/iotest/#TimeoutReader">https://golang.org/pkg/testing/iotest/#TimeoutReader</a></li>
 </ul>
-
 <p><code>TimeoutReader</code>は二回目の<code>Read</code>呼び出し時にエラーが発生する。返されるエラーは<code>iotest</code>パッケージ内に定義されている。</p>
-
 <ul>
-<li><p><a href="https://play.golang.org/p/dnwZwG5NyzG">https://play.golang.org/p/dnwZwG5NyzG</a></p>
+<li><a href="https://play.golang.org/p/dnwZwG5NyzG">https://play.golang.org/p/dnwZwG5NyzG</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	orign <span style="color:#719e07">:=</span> []<span style="color:#b58900">byte</span>(<span style="color:#2aa198">&#34;Hello\nbyte.Reader\n&#34;</span>)
 	<span style="color:#268bd2">type</span> want <span style="color:#268bd2">struct</span> {
 		<span style="color:#586e75">// DataErrReaderのサンプルコードと同じなので省略
@@ -403,22 +371,21 @@ Goのtestを理解する in 2018 #go
 		t.<span style="color:#268bd2">Run</span>(tt.subject, <span style="color:#268bd2">func</span>(t <span style="color:#719e07">*</span>testing.T) {
 			<span style="color:#586e75">// DataErrReaderのサンプルコードと同じなので省略
 </span><span style="color:#586e75"></span>		})
-	}</code></pre></div></li>
-</ul>
-
-<h1 id="func-truncatewriter-w-io-writer-n-int64-io-writer">func TruncateWriter(w io.Writer, n int64) io.Writer</h1>
-
+	}
+</code></pre></div><h1 id="func-truncatewriterw-iowriter-n-int64-iowriter">func TruncateWriter(w io.Writer, n int64) io.Writer</h1>
 <ul>
 <li><a href="https://golang.org/pkg/testing/iotest/#TruncateWriter">https://golang.org/pkg/testing/iotest/#TruncateWriter</a></li>
 </ul>
-
 <p><code>TruncateWriter</code>は第二引数で指定されたバイト数だけしか<code>w</code>に書き込こまない<code>io.Writer</code>オブジェクトを返す。
 一定以上書き込めない出力先を生成するのに利用できる。</p>
-
 <ul>
-<li><p><a href="https://github.com/golang/go/blob/50bd1c4d4eb4fac8ddeb5f063c099daccfb71b26/src/archive/tar/writer_test.go#L487">https://github.com/golang/go/blob/50bd1c4d4eb4fac8ddeb5f063c099daccfb71b26/src/archive/tar/writer_test.go#L487</a></p></li>
-
-<li><p><a href="https://play.golang.org/p/GvFtBx2rPcu">https://play.golang.org/p/GvFtBx2rPcu</a></p>
+<li>
+<p><a href="https://github.com/golang/go/blob/50bd1c4d4eb4fac8ddeb5f063c099daccfb71b26/src/archive/tar/writer_test.go#L487">https://github.com/golang/go/blob/50bd1c4d4eb4fac8ddeb5f063c099daccfb71b26/src/archive/tar/writer_test.go#L487</a></p>
+</li>
+<li>
+<p><a href="https://play.golang.org/p/GvFtBx2rPcu">https://play.golang.org/p/GvFtBx2rPcu</a></p>
+</li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#268bd2">func</span> <span style="color:#268bd2">TestTruncateWriter</span>(t <span style="color:#719e07">*</span>testing.T) {
 	orign <span style="color:#719e07">:=</span> []<span style="color:#b58900">byte</span>(<span style="color:#2aa198">&#34;Hello\nbyte.Reader\n&#34;</span>)
 	wants <span style="color:#719e07">:=</span> []<span style="color:#268bd2">struct</span> {
@@ -438,40 +405,32 @@ Goのtestを理解する in 2018 #go
 			t.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;want %#v, but got = %#v\n&#34;</span>, want.buf, <span style="color:#b58900">string</span>(got))
 		}
 	}
-}</code></pre></div></li>
-</ul>
-
-<h1 id="func-newwritelogger-prefix-string-w-io-writer-io-writer">func NewWriteLogger(prefix string, w io.Writer) io.Writer</h1>
-
+}
+</code></pre></div><h1 id="func-newwriteloggerprefix-string-w-iowriter-iowriter">func NewWriteLogger(prefix string, w io.Writer) io.Writer</h1>
 <ul>
 <li><a href="https://golang.org/pkg/testing/iotest/#NewWriteLogger">https://golang.org/pkg/testing/iotest/#NewWriteLogger</a></li>
 <li><a href="https://golang.org/pkg/testing/iotest/#NewReadLogger">https://golang.org/pkg/testing/iotest/#NewReadLogger</a></li>
 </ul>
-
 <p><code>NewWriteLogger</code>/<code>NewReadLogger</code>は書き込んだ(読み込んだ)結果をログ出力にフックする<code>io.Writer</code>(<code>io.Reader</code>)を返す。</p>
-
 <p>たとえば、先ほどの<code>TestTruncateWriter</code>テストに<code>NewWriteLogger</code>を挟むと、</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">		w = iotest.<span style="color:#268bd2">NewWriteLogger</span>(<span style="color:#2aa198">&#34;Hook write&#34;</span>, w)</code></pre></div>
-<p><code>io.Writer</code>に書き込んだタイミングでその内容を16進数でログに出力する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">		w = iotest.<span style="color:#268bd2">NewWriteLogger</span>(<span style="color:#2aa198">&#34;Hook write&#34;</span>, w)
+</code></pre></div><p><code>io.Writer</code>に書き込んだタイミングでその内容を16進数でログに出力する。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">go <span style="color:#b58900">test</span> ./iotest -v -run <span style="color:#268bd2">TestTruncateWriter</span>
 <span style="color:#719e07">===</span> RUN   TestTruncateWriter
-<span style="color:#2aa198">2018</span>/09/09 <span style="color:#2aa198">21</span>:48:13 Hook write 48656c6c6f0a627974652e5265616465720a
-<span style="color:#2aa198">2018</span>/09/09 <span style="color:#2aa198">21</span>:48:13 Hook write 48656c6c6f0a627974652e5265616465720a
---- PASS: TestTruncateWriter <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
+2018/09/09 21:48:13 Hook write 48656c6c6f0a627974652e5265616465720a
+2018/09/09 21:48:13 Hook write 48656c6c6f0a627974652e5265616465720a
+--- PASS: TestTruncateWriter <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
 PASS
-ok  	github.com/budougumi0617/go-testing/iotest	<span style="color:#2aa198">0</span>.009s</code></pre></div>
-<h1 id="参考">参考</h1>
-
+ok  	github.com/budougumi0617/go-testing/iotest	0.009s
+</code></pre></div><h1 id="参考">参考</h1>
 <ul>
 <li>Go言語のHTTPリクエストのレスポンスボディーとEOF
-
 <ul>
 <li><a href="https://itchyny.hatenablog.com/entry/2017/12/12/170000">https://itchyny.hatenablog.com/entry/2017/12/12/170000</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="関連">関連</h1>
-
 <ul>
 <li><a href="/2018/08/19/go-testing2018">Goのtestを理解する in 2018 #go</a></li>
 <li><a href="/2018/08/30/go-testing2018-examples/">Goのtestingを理解する in 2018 - Examples編 #go</a></li>
@@ -566,9 +525,9 @@ ok  	github.com/budougumi0617/go-testing/iotest	<span style="color:#2aa198">0</s
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -646,10 +605,16 @@ ok  	github.com/budougumi0617/go-testing/iotest	<span style="color:#2aa198">0</s
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -661,12 +626,6 @@ ok  	github.com/budougumi0617/go-testing/iotest	<span style="color:#2aa198">0</s
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -176,231 +176,175 @@
           
           
             <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#dotofileの設定">dotofileの設定</a>
-<ul>
-<li><a href="#環境変数の設定">環境変数の設定</a></li>
-<li><a href="#gitconfigの設定">gitconfigの設定</a></li>
-</ul></li>
-<li><a href="#zshの設定">Zshの設定</a></li>
-<li><a href="#vimの設定">Vimの設定</a></li>
-<li><a href="#vs-codeの設定">VS Codeの設定</a></li>
-<li><a href="#brewで管理しているアプリ">Brewで管理しているアプリ</a></li>
-<li><a href="#macosの設定">macOSの設定</a></li>
-<li><a href="#clipyの設定">clipyの設定</a></li>
-<li><a href="#itunesでやっておくこと">iTunesでやっておくこと</a></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
+  <ul>
+    <li><a href="#環境変数の設定">環境変数の設定</a></li>
+    <li><a href="#gitconfigの設定">gitconfigの設定</a></li>
+  </ul>
 </nav>
           
           <p>最近開発用のMacの入れ替えを行なったので、新しいPCを使うときに行なう環境構築のメモ。
 ブログ記事を書くときは一般的な内容になるよう心がけているが、今回は自分用のメモになっている。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li><code>dotfiles</code>リポジトリを作っておくと便利
-
 <ul>
 <li>私は加えて<code>homeshick</code>を使っている</li>
 <li><a href="https://github.com/andsens/homeshick">https://github.com/andsens/homeshick</a></li>
 <li>VimやZshの設定はこれでひきつぐ</li>
 <li>会社用のgitの設定は別ファイルにしておいて<code>.gitconfig</code>ファイル内で<code>include</code>を使ってロードするようにしておく</li>
 <li>機密情報を含んだ環境変数も別ファイルにして<code>source</code>で読み込むようにしておく</li>
-</ul></li>
+</ul>
+</li>
 <li>Brewでインストールしたアプリや設定は<code>brew bundle</code>で引き継げる</li>
 <li>VS Codeの設定の引き継ぎはCode Settings Syncを使う
-
 <ul>
 <li><a href="https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync">https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync</a></li>
-</ul></li>
+</ul>
+</li>
 <li>MacOSの設定もApple Scriptにしておいたほうが良い。
-
 <ul>
 <li>caps lockを変更する、キーリピートを最速にする、など</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>なお、個別のプラグインなどの紹介などはしていない。私の開発用の設定は以下のリポジトリにある。</p>
-
 <ul>
 <li><a href="https://github.com/budougumi0617/dotfiles">https://github.com/budougumi0617/dotfiles</a></li>
 </ul>
-
 <h1 id="dotofileの設定">dotofileの設定</h1>
-
 <p>各種設定ファイルはGitHub上で管理している。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/dotfiles" data-iframely-url="//cdn.iframe.ly/1nz9RRz"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
 <p><code>homeshick</code>というCLIツールを使うと簡単にホームディレクリに<code>symlink</code>ができるのでラクだ。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/andsens/homeshick" data-iframely-url="//cdn.iframe.ly/xi21H7X"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
 <p>以下の流れで設定が終わる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">git clone https://github.com/andsens/homeshick.git <span style="color:#268bd2">$HOME</span>/.homesick/repos/homeshick
 <span style="color:#b58900">source</span> <span style="color:#268bd2">$HOME</span>/.bashrc
-homeshick clone https://github.com/budougumi0617/dotfiles.git</code></pre></div>
-<h2 id="環境変数の設定">環境変数の設定</h2>
-
+homeshick clone https://github.com/budougumi0617/dotfiles.git
+</code></pre></div><h2 id="環境変数の設定">環境変数の設定</h2>
 <p>ドットファイルはGitHubで管理する…と言っても、GitHubにアップロードできないトークン情報などを環境変数に書いて<code>export</code>したりしていると思う。
 私の場合そういう環境変数は<code>.bashrc</code>に記載している。<code>.zshrc</code>の中で<code>source</code>を使って<code>.bashrc</code>を読み込む（ファイル名が<code>.bashrc</code>の必要はないのだけれど）。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cat ~/.zshrc
 ...
 <span style="color:#b58900">source</span> ~/.bashrc
-...</code></pre></div>
-<h2 id="gitconfigの設定">gitconfigの設定</h2>
-
+...
+</code></pre></div><h2 id="gitconfigの設定">gitconfigの設定</h2>
 <p>会社のリポジトリに個人のメールアドレスでコミットしたくなかったり、会社で使うときだけ必要な設定がある。
 <code>gitconfig</code>は<code>include</code>という別のファイルの設定を<code>import</code>できる設定があるので、これを最後に書いておく。</p>
-
 <ul>
-<li><p><a href="https://git-scm.com/docs/git-config#_includes">https://git-scm.com/docs/git-config#_includes</a></p>
-
+<li><a href="https://git-scm.com/docs/git-config#_includes">https://git-scm.com/docs/git-config#_includes</a></li>
+</ul>
 <pre><code>$ cat ~/.gitconfig
 [user]
-name = budougumi0617
+  name = budougumi0617
 ...
 [include]
-path = .gitconfig.local
-</code></pre></li>
-</ul>
-
-<p>私の場合は、<code>.gitconfig.local</code>ファイルがホームディレクトリにあればそこに書いてある設定で諸々の設定を上書きするようにしてある。
+  path = .gitconfig.local
+</code></pre><p>私の場合は、<code>.gitconfig.local</code>ファイルがホームディレクトリにあればそこに書いてある設定で諸々の設定を上書きするようにしてある。
 最近は<code>includeif</code>もあるらしいので、好きなほうを使えば良いと思う。</p>
-
 <ul>
 <li><a href="https://qiita.com/knt45/items/51b8a8645f36fb0a6d01">gitconfigのincludeが便利</a></li>
 <li><a href="https://qiita.com/Ancient_Scapes/items/64f239f89d25a3b9f520">[git] gitconfigで会社用アカウントと個人用アカウントを楽に使い分けする</a></li>
 </ul>
-
 <h1 id="zshの設定">Zshの設定</h1>
-
 <p>プラグインマネージャを使って<code>.zshrc</code>を書いたら<code>dotfiles</code>リポジトリに保存しておく。
 私は<code>zplugin</code>を使うようにした。新しいPCで<code>dotfiles</code>を<code>clone</code>、ホームディレクトリに<code>.zshrc</code>を置いたら、<code>zplugin</code>をインストールし、デフォルトシェルを<code>zsh</code>に変えておく（<code>macOS</code>のデフォルトシェルはそのうちZshになるらしいが）</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># https://github.com/zdharma/zplugin#installation</span>
 $ sh -c <span style="color:#2aa198">&#34;</span><span style="color:#719e07">$(</span>curl -fsSL https://raw.githubusercontent.com/zdharma/zplugin/master/doc/install.sh<span style="color:#719e07">)</span><span style="color:#2aa198">&#34;</span>
-$ chsh -s /usr/local/bin/zsh</code></pre></div>
-<p>あとは次回ターミナル起動時に各種プラグインが自動でダウンロードされる。</p>
+$ chsh -s /usr/local/bin/zsh
 
+</code></pre></div><p>あとは次回ターミナル起動時に各種プラグインが自動でダウンロードされる。</p>
 <p>ターミナルの表示をいじっているので、<code>SourceCodePro+Powerline+Awesome+Regular.ttf</code>をインストールしないと文字化けする。</p>
-
 <ul>
 <li><a href="https://github.com/Falkor/dotfiles/blob/master/fonts/SourceCodePro%2BPowerline%2BAwesome%2BRegular.ttf">Falkor/dotfiles/fonts/SourceCodePro+Powerline+Awesome+Regular.ttf</a></li>
 </ul>
-
 <p>通常のPowerlineフォントはここにある。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/powerline/fonts" data-iframely-url="//cdn.iframe.ly/TebRSQf"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
 <h1 id="vimの設定">Vimの設定</h1>
-
 <p><code>dein.vim</code>でプラグイン管理しているので、Vimの初回起動時にもろもろインストールされる。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/Shougo/dein.vim" data-iframely-url="//cdn.iframe.ly/QjBrr1T"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
 <p>一部のプラグインが依存しているpythonのプラグインだけ手動でインストールする必要がある。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ pip3 install pynvim</code></pre></div>
-<h1 id="vs-codeの設定">VS Codeの設定</h1>
-
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ pip3 install pynvim
+</code></pre></div><h1 id="vs-codeの設定">VS Codeの設定</h1>
 <p>VS Codeの設定は<code>Sync</code>プラグインを使ってGist経由で共有できる。
 予め古いPCで「Upload Your Settings」をしておく。
 プラグインインストール時に古いPCで連携していたGistを選択して「Download your Settings」を行えば、他のインストールしていたプラグインやスニペットなどの設定が全て引き継がれる。</p>
-
 <ul>
 <li>Settings Sync | VisualStudio Marketplace</li>
 <li><a href="https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync">https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync</a></li>
 </ul>
-
 <h1 id="brewで管理しているアプリ">Brewで管理しているアプリ</h1>
-
 <p>Mac利用者はHomeBrewでアプリを管理していることが多いと思う。HomeBrewは<code>.Brewfile</code>にインストールしたアプリリストを保存して新しいPCに移行できる。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://qiita.com/vochicong/items/f20afc89a6847cd58f0f" data-iframely-url="//cdn.iframe.ly/LVRBYFg"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
 <p><code>fzf</code>、<code>peco</code>、<code>jq</code>、<code>tmux</code>などの便利ツールはこのステップでインストールが終わる。
 HomeBrew経由でインストールしていれば、GUIアプリもこれでインストールが完了する。</p>
-
 <h1 id="macosの設定">macOSの設定</h1>
-
 <p>Apple Scriptを使えば各種設定も自動化できるらしいのだが、私はまだそこまでできていないので、もろもろ手動で設定している。
 私がやる設定変更は以下</p>
-
 <ul>
 <li><code>xcode-select --install</code>
-
 <ul>
 <li>お作法…</li>
-</ul></li>
+</ul>
+</li>
 <li>ディスプレイを増やしてショートカット割当をする
-
 <ul>
 <li><a href="https://qiita.com/saboyutaka/items/d6cfd2a2b60f1a374d60">macOSでディスプレイ1枚で作業する技術</a></li>
 <li>便利なので知ってからずっとやっている。</li>
-</ul></li>
+</ul>
+</li>
 <li><code>caps lock</code>を<code>ctrl</code>に変更する
-
 <ul>
 <li><a href="http://inforati.jp/apple/mac-tips-techniques/system-hints/how-to-disable-caps-lock-key-of-mac.html">Mac OS XでCaps Lockキーを無効化したり、他の修飾キーに入れ替えたりする方法</a></li>
 <li>caps lockがなくて困ったことが一度もないのに、なんであんないい位置にあるのだろうか？</li>
-</ul></li>
+</ul>
+</li>
 <li><code>⌘英かな</code>のインストール
-
 <ul>
 <li><a href="https://ei-kana.appspot.com/">https://ei-kana.appspot.com/</a></li>
 <li>USキーボードなので。macOSの設定でcaps lockがいじれるのでKarabinerは止めてしまった。</li>
-</ul></li>
+</ul>
+</li>
 <li><code>mini calendar</code>のインストール
-
 <ul>
-<li><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://apps.apple.com/us/app/mini-calendar/id1088779979?mt=12" data-iframely-url="//cdn.iframe.ly/CRI7zJQ?media=0"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></li>
+<li>
+<!-- raw HTML omitted -->
+</li>
 <li><a href="https://loumo.jp/wp/archive/20160809120027/">Mac のメニューバーやドックからカレンダーを確認できる Mini Calendar</a></li>
 <li>さっとカレンダー見れて便利</li>
 <li>メニューバーの並びは<code>command</code>キーをクリックしながらドラッグアンドドロップで変更できる</li>
-</ul></li>
+</ul>
+</li>
 <li><code>Clipy</code>のインストール
-
 <ul>
 <li><a href="https://clipy-app.com/">https://clipy-app.com/</a></li>
-</ul></li>
+</ul>
+</li>
 <li>Touch BarからSiriを消す
-
 <ul>
 <li>システム環境設定→キーボード→Touch Barをカスタマイズ</li>
 <li>初期配置だと<code>delete</code>をクリックするときにたまに誤タッチしてめんどくさい</li>
-</ul></li>
+</ul>
+</li>
 <li>キーリピートなどを最速にする
-
 <ul>
 <li>これしないとVimが不便</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="clipyの設定">clipyの設定</h1>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="http://clipy-app.com/" data-iframely-url="//cdn.iframe.ly/Ey4fpUS"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
 <p>クリップボードにバッファをもたせたり、スニペットを登録できるので、clipyというソフトを使っている。
 調査に使うSQLクエリや、JIRAなどに記載するお決まり文句などをスニペットに登録しておくと便利だ。
 古いPCのClipyの「スニペットの編集」画面からスニペットをXMLでエクスポートして引き継げる。</p>
-
 <h1 id="itunesでやっておくこと">iTunesでやっておくこと</h1>
-
 <p>iTunesは1アカウントで利用できるデバイス数に制限がある。古いPCを処分する前に連携を解除するのを忘れないこと。</p>
-
 <p>移行前のPCでiTunesのメニューから「アカウント」→「認証」→「このPCの認証を解除」</p>
-
 <h1 id="終わりに">終わりに</h1>
-
-<p><code>dotfiles</code>があったので比較的ラクに環境構築が終わった。<br />
-今回、フォントインストールを間違えていてずっとiTerm2の文字化けにハマっていたので、書き起こしておくことにした。<br />
-ただ、Macの設定は全部手動でやったので、Apple Scriptに落とし込んでおいたほうが良さそうだ。<br />
+<p><code>dotfiles</code>があったので比較的ラクに環境構築が終わった。<br>
+今回、フォントインストールを間違えていてずっとiTerm2の文字化けにハマっていたので、書き起こしておくことにした。<br>
+ただ、Macの設定は全部手動でやったので、Apple Scriptに落とし込んでおいたほうが良さそうだ。<br>
 自分用のメモだがどなたかの参考になれば幸い。また、「これはこうすればもっと簡単に自動化できるよ！」というのをご存知の方がいらっしゃったら教えていただけると嬉しい。</p>
-
 <h1 id="参考">参考</h1>
-
 <ul>
 <li><a href="https://qiita.com/b4b4r07/items/b70178e021bef12cd4a2">最強の dotfiles 駆動開発と GitHub で管理する運用方法</a></li>
 <li><a href="https://github.com/zdharma/zplugin">https://github.com/zdharma/zplugin</a></li>
@@ -504,9 +448,9 @@ HomeBrew経由でインストールしていれば、GUIアプリもこれでイ
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -584,10 +528,16 @@ HomeBrew経由でインストールしていれば、GUIアプリもこれでイ
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -599,12 +549,6 @@ HomeBrew経由でインストールしていれば、GUIアプリもこれでイ
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

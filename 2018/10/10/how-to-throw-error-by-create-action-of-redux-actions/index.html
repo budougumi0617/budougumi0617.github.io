@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -58,11 +58,10 @@
 が、エラーがあったときのAtionはどう作ればよいのだろう。
 よく読めば公式に書いてあるのだが、直接的なコードはなかったのでメモ。
 
-
 createAction(s) | API Reference | redux-actions
 
-
 https://redux-actions.js.org/api/createaction
+
 
 "/>
   
@@ -71,11 +70,10 @@ https://redux-actions.js.org/api/createaction
 が、エラーがあったときのAtionはどう作ればよいのだろう。
 よく読めば公式に書いてあるのだが、直接的なコードはなかったのでメモ。
 
-
 createAction(s) | API Reference | redux-actions
 
-
 https://redux-actions.js.org/api/createaction
+
 
 "/>
   <meta name="twitter:site" content="@budougumi0617"/>
@@ -189,154 +187,125 @@ https://redux-actions.js.org/api/createaction
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#fsa準拠のアクションを作る">FSA準拠のアクションを作る</a></li>
-<li><a href="#redux-actionsのcreateactionでactionを作る">redux-actionsのcreateActionでActionを作る</a></li>
-<li><a href="#createactionで-type-foo-payload-error-error-true-なオブジェクトを返す">createActionで{type=FOO, payload=Error, error=true}なオブジェクトを返す</a></li>
-<li><a href="#最後に">最後に</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
-          <p>redux-actionsを使うと、Flux Standard Action(FSA)に則った<code>Action</code>を簡単に作れる。<br />
-が、エラーがあったときのAtionはどう作ればよいのだろう。<br />
+          <p>redux-actionsを使うと、Flux Standard Action(FSA)に則った<code>Action</code>を簡単に作れる。<br>
+が、エラーがあったときのAtionはどう作ればよいのだろう。<br>
 よく読めば公式に書いてあるのだが、直接的なコードはなかったのでメモ。</p>
-
 <ul>
 <li>createAction(s) | API Reference | redux-actions
-
 <ul>
 <li><a href="https://redux-actions.js.org/api/createaction">https://redux-actions.js.org/api/createaction</a></li>
-</ul></li>
 </ul>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+</li>
+</ul>
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>FSAはActionの型を定義している。
-
 <ul>
 <li><a href="https://github.com/redux-utilities/flux-standard-action#actions">https://github.com/redux-utilities/flux-standard-action#actions</a></li>
-</ul></li>
+</ul>
+</li>
 <li><code>createAction(type, payloadCreator)</code>は通常自動的に<code>{type=FOO, payload=returnValue}</code>なオブジェクトを返す</li>
-
-<li><p><code>payloadCreater</code>が<code>Error</code>を返したときは自動的に<code>{type=FOO, payload=Error, error=true}</code>なオブジェクトを返す</p>
-
+<li><code>payloadCreater</code>が<code>Error</code>を返したときは自動的に<code>{type=FOO, payload=Error, error=true}</code>なオブジェクトを返す
 <ul>
-<li><p><a href="https://github.com/redux-utilities/redux-actions/blob/51de3891278dc03713d917d636f1508c0c80d44f/src/createAction.js#L29-L31">https://github.com/redux-utilities/redux-actions/blob/51de3891278dc03713d917d636f1508c0c80d44f/src/createAction.js#L29-L31</a></p>
+<li><a href="https://github.com/redux-utilities/redux-actions/blob/51de3891278dc03713d917d636f1508c0c80d44f/src/createAction.js#L29-L31">https://github.com/redux-utilities/redux-actions/blob/51de3891278dc03713d917d636f1508c0c80d44f/src/createAction.js#L29-L31</a></li>
+</ul>
+</li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-react" data-lang="react"><span style="color:#586e75">// 通常は{type=&#34;READ_EVENTS&#34;, payload=response.data}なActionが生成される。
 </span><span style="color:#586e75">// 例外発生時は{type=&#34;READ_EVENTS&#34;, payload=Error, error=true}なActionが生成される。
 </span><span style="color:#586e75"></span><span style="color:#268bd2">export</span> <span style="color:#268bd2">const</span> readEvents <span style="color:#719e07">=</span> createAction(<span style="color:#2aa198">&#34;READ_EVENTS&#34;</span>, () =&gt;
-axios.get(<span style="color:#586e75">`</span><span style="color:#2aa198">${</span>RESOURCE_URL<span style="color:#2aa198">}</span><span style="color:#586e75">`</span>).then(response =&gt; {
-<span style="color:#719e07">return</span> response.data;
-})
-);</code></pre></div></li>
-</ul></li>
-</ul>
-
-<p>動作する文中のサンプルコードのプロジェクトは以下になる。</p>
-
+  axios.get(<span style="color:#586e75">`</span><span style="color:#2aa198">${</span>RESOURCE_URL<span style="color:#2aa198">}</span><span style="color:#586e75">`</span>).then(response =&gt; {
+    <span style="color:#719e07">return</span> response.data;
+  })
+);
+</code></pre></div><p>動作する文中のサンプルコードのプロジェクトは以下になる。</p>
 <ul>
 <li><a href="https://github.com/budougumi0617/sandbox-react/tree/067c5d78f046eb7caa62e0f3f68f8a222ef2b261">https://github.com/budougumi0617/sandbox-react/tree/067c5d78f046eb7caa62e0f3f68f8a222ef2b261</a></li>
 </ul>
-
 <p>利用するredux-actionsのバージョンは2.6.1。各ライブラリのバージョンの詳細は以下のファイルを参照のこと。</p>
-
 <ul>
 <li><a href="https://github.com/budougumi0617/sandbox-react/blob/067c5d78f046eb7caa62e0f3f68f8a222ef2b261/package.json">https://github.com/budougumi0617/sandbox-react/blob/067c5d78f046eb7caa62e0f3f68f8a222ef2b261/package.json</a></li>
 </ul>
-
 <h1 id="fsa準拠のアクションを作る">FSA準拠のアクションを作る</h1>
-
 <p>Flux Standard ActionはReact + Redux(Flux)で利用するActionの形を定めている。</p>
-
 <ul>
 <li>Actions | Flux Standard Action
-
 <ul>
 <li><a href="https://github.com/redux-utilities/flux-standard-action#actions">https://github.com/redux-utilities/flux-standard-action#actions</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>Flowtypeの記法で型を書くと、<code>Action</code>は以下のような型になる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-react" data-lang="react"><span style="color:#268bd2">export</span> type ActionT&lt;<span style="color:#268bd2">A</span>: Action, P&gt; <span style="color:#719e07">=</span> {<span style="color:#719e07">|</span>
   type<span style="color:#719e07">:</span> A,
   payload<span style="color:#719e07">?:</span> P <span style="color:#719e07">|</span> <span style="color:#b58900">Error</span>,
   error<span style="color:#719e07">?:</span> <span style="color:#268bd2">boolean</span>,
   meta<span style="color:#719e07">?:</span> mixed
-<span style="color:#719e07">|</span>};</code></pre></div>
-<table>
+<span style="color:#719e07">|</span>};
+</code></pre></div><table>
 <thead>
 <tr>
 <th>プロパティ名</th>
 <th>意味</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>type</td>
 <td>Actionを識別する一意な文字列</td>
 </tr>
-
 <tr>
 <td>payload</td>
 <td>ロジックの結果、もしくは<code>Error</code>。Optional</td>
 </tr>
-
 <tr>
 <td>error</td>
 <td>処理が失敗した場合<code>true</code>を返す真偽値。Optional</td>
 </tr>
-
 <tr>
 <td>meta</td>
 <td>ロジックの結果には無関係なデータ。Optional</td>
 </tr>
 </tbody>
 </table>
-
 <h1 id="redux-actionsのcreateactionでactionを作る">redux-actionsのcreateActionでActionを作る</h1>
-
-<p>Redux利用時はredux-actionsの<code>createAction(type, payloadCreator)</code>を使うと、この<code>Action</code>を簡単に作れる。<br />
-第一引数に<code>type</code>に相当する情報、第二引数には<code>payload</code>に入れる情報を返す関数を渡す(引数が２つでない<code>createAction</code>もある)。<br />
+<p>Redux利用時はredux-actionsの<code>createAction(type, payloadCreator)</code>を使うと、この<code>Action</code>を簡単に作れる。<br>
+第一引数に<code>type</code>に相当する情報、第二引数には<code>payload</code>に入れる情報を返す関数を渡す(引数が２つでない<code>createAction</code>もある)。<br>
 <code>redux-promise</code>などと組み合わせると非同期処理も含めることができる。</p>
-
 <ul>
-<li><p>redux-actions</p>
-
+<li>
+<p>redux-actions</p>
 <ul>
 <li><a href="https://github.com/redux-utilities/redux-actions">https://github.com/redux-utilities/redux-actions</a></li>
-</ul></li>
-
-<li><p>createAction(s) | API Reference | redux-actions</p>
-
+</ul>
+</li>
+<li>
+<p>createAction(s) | API Reference | redux-actions</p>
 <ul>
-<li><p><a href="https://redux-actions.js.org/api/createaction">https://redux-actions.js.org/api/createaction</a></p>
+<li><a href="https://redux-actions.js.org/api/createaction">https://redux-actions.js.org/api/createaction</a></li>
+</ul>
+</li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-react" data-lang="react"><span style="color:#268bd2">import</span> axios from <span style="color:#2aa198">&#39;axios&#39;</span>;
 <span style="color:#268bd2">import</span> { createAction } from <span style="color:#2aa198">&#39;redux-actions&#39;</span>;
 
 <span style="color:#268bd2">export</span> type ReadEventsAction <span style="color:#719e07">=</span> {
-type<span style="color:#719e07">:</span> <span style="color:#719e07">typeof</span> ReadEvents,
-payload<span style="color:#719e07">?:</span> EventMap <span style="color:#719e07">|</span> <span style="color:#b58900">Error</span>,
-error<span style="color:#719e07">?:</span> <span style="color:#268bd2">boolean</span>
+  type<span style="color:#719e07">:</span> <span style="color:#719e07">typeof</span> ReadEvents,
+  payload<span style="color:#719e07">?:</span> EventMap <span style="color:#719e07">|</span> <span style="color:#b58900">Error</span>,
+  error<span style="color:#719e07">?:</span> <span style="color:#268bd2">boolean</span>
 };
 
 <span style="color:#586e75">// 通常は{type=&#34;READ_EVENTS&#34;, payload=response.data}なActionが生成される。
 </span><span style="color:#586e75">// 例外発生時は{type=&#34;READ_EVENTS&#34;, payload=Error, error=true}なActionが生成される。
 </span><span style="color:#586e75"></span><span style="color:#268bd2">export</span> <span style="color:#268bd2">const</span> readEvents<span style="color:#719e07">:</span> <span style="color:#719e07">void</span> =&gt; ReadEventsAction <span style="color:#719e07">=</span> createAction(<span style="color:#2aa198">&#34;READ_EVENTS&#34;</span>, () =&gt;
-axios.get(<span style="color:#586e75">`</span><span style="color:#2aa198">${</span>RESOURCE_URL<span style="color:#2aa198">}</span><span style="color:#586e75">`</span>).then(response =&gt; {
-<span style="color:#719e07">return</span> response.data;
-})
-);</code></pre></div></li>
-</ul></li>
-</ul>
-
-<h1 id="createactionで-type-foo-payload-error-error-true-なオブジェクトを返す">createActionで{type=FOO, payload=Error, error=true}なオブジェクトを返す</h1>
-
-<p>上記のサンプルコードのコメントに書いたが、内部でエラーが発生すれば自動的に<code>Action</code>のなかの<code>error</code>が<code>true</code>になる。<br />
+  axios.get(<span style="color:#586e75">`</span><span style="color:#2aa198">${</span>RESOURCE_URL<span style="color:#2aa198">}</span><span style="color:#586e75">`</span>).then(response =&gt; {
+    <span style="color:#719e07">return</span> response.data;
+  })
+);
+</code></pre></div><h1 id="createactionで">createActionで</h1>
+<p>上記のサンプルコードのコメントに書いたが、内部でエラーが発生すれば自動的に<code>Action</code>のなかの<code>error</code>が<code>true</code>になる。<br>
 <code>reducer</code>の中で使える<code>handleAction</code>関数も用意されているので、<code>error = true</code>のときの処理を<code>throw</code>に書けばよい。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-react" data-lang="react"><span style="color:#268bd2">import</span> { handleActions, type ActionType } from <span style="color:#2aa198">&#39;redux-actions&#39;</span>;
 
@@ -360,64 +329,56 @@ axios.get(<span style="color:#586e75">`</span><span style="color:#2aa198">${</sp
     }
   },
   initialState
-);</code></pre></div>
-<h1 id="最後に">最後に</h1>
+);
 
-<p>&ldquo;<code>redux-actions</code>を使えばいい感じに処理してくれる&rdquo;のを期待して使ってみたが、ここまでもろもろ処理してくれると思っていなかった。<br />
-ずっと「<code>createAction</code>は<code>payload</code>の値は操作できるけど、<code>error</code>を<code>true</code>にするにはどうするんだろう？」とハマっていた。<br />
+</code></pre></div><h1 id="最後に">最後に</h1>
+<p>&ldquo;<code>redux-actions</code>を使えばいい感じに処理してくれる&quot;のを期待して使ってみたが、ここまでもろもろ処理してくれると思っていなかった。<br>
+ずっと「<code>createAction</code>は<code>payload</code>の値は操作できるけど、<code>error</code>を<code>true</code>にするにはどうするんだろう？」とハマっていた。<br>
 ちゃんとドキュメントを読んでいなかったのが原因。とは言え、以下のように書いてあってもなんかピンと来ない気がする。</p>
-
 <ul>
 <li>createAction(type, payloadCreator)
-
 <ul>
 <li><a href="https://redux-actions.js.org/api/createaction#createactiontype-payloadcreator">https://redux-actions.js.org/api/createaction#createactiontype-payloadcreator</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <blockquote>
 <p>NOTE: If payload is an instance of an Error object, payloadCreator will not be called.</p>
 </blockquote>
-
 <p><code>payloadCreator</code>を呼ばないと<code>payload</code>インスタンスはわからないと思うのだが&hellip;<code>createAction(type)</code>の説明から続いているのだろうか。</p>
-
 <ul>
 <li>createAction(type)
-
 <ul>
 <li><a href="https://redux-actions.js.org/api/createaction#createactiontype">https://redux-actions.js.org/api/createaction#createactiontype</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <blockquote>
 <p>If the payload is an instance of an Error object, redux-actions will automatically set action.error to true.</p>
 </blockquote>
-
 <p>こっちの一文はわかりやすい。</p>
-
 <h1 id="参考">参考</h1>
-
 <ul>
 <li>Flux Standard Action(FSA)
-
 <ul>
 <li><a href="https://github.com/redux-utilities/flux-standard-action#actions">https://github.com/redux-utilities/flux-standard-action#actions</a></li>
-</ul></li>
+</ul>
+</li>
 <li>redux-actions
-
 <ul>
 <li><a href="https://github.com/redux-utilities/redux-actions">https://github.com/redux-utilities/redux-actions</a></li>
-</ul></li>
+</ul>
+</li>
 <li>createAction(s) | API Reference | redux-actions
-
 <ul>
 <li><a href="https://redux-actions.js.org/api/createaction">https://redux-actions.js.org/api/createaction</a></li>
-</ul></li>
+</ul>
+</li>
 <li>createAction.js
-
 <ul>
 <li><a href="https://github.com/redux-utilities/redux-actions/blob/master/src/createAction.js">https://github.com/redux-utilities/redux-actions/blob/master/src/createAction.js</a></li>
-</ul></li>
+</ul>
+</li>
 </ul>
         </div>
         
@@ -506,9 +467,9 @@ axios.get(<span style="color:#586e75">`</span><span style="color:#2aa198">${</sp
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -586,10 +547,16 @@ axios.get(<span style="color:#586e75">`</span><span style="color:#2aa198">${</sp
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -601,12 +568,6 @@ axios.get(<span style="color:#586e75">`</span><span style="color:#2aa198">${</sp
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

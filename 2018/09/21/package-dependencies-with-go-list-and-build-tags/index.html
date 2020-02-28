@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -172,39 +172,25 @@
           
           
             <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#ソースコードの事前準備">ソースコードの事前準備</a>
-<ul>
-<li><a href="#サブパッケージをimportするファイルにビルドタグをつける">サブパッケージをimportするファイルにビルドタグをつける</a></li>
-</ul></li>
-<li><a href="#go-listで依存パッケージの一覧を取得する">go listで依存パッケージの一覧を取得する</a></li>
-<li><a href="#go-buildして依存を確認する">go buildして依存を確認する</a></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
+  <ul>
+    <li><a href="#サブパッケージをimportするファイルにビルドタグをつける">サブパッケージをimportするファイルにビルドタグをつける</a></li>
+  </ul>
 </nav>
           
-          <p>今更だがGoでビルドタグで依存パッケージをどう制御できるのか確認した。<br />
+          <p>今更だがGoでビルドタグで依存パッケージをどう制御できるのか確認した。<br>
 また、依存パッケージの一覧を確認するのには<code>go list</code>コマンドの使い方を調べた。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li><code>go list -f '{{join .Deps &quot;\n&quot;}}'</code>コマンドで依存パッケージの情報を取得できる</li>
 <li><code>go</code>コマンドは<code>go build</code>/<code>go test</code>コマンド以外のときもビルドタグに基づいた結果を出力する</li>
 <li>ビルドタグによってビルドに含まれないコードの依存パッケージはビルドにも含まれない</li>
 </ul>
-
 <p>確認で利用したソースコードは以下。</p>
-
 <ul>
 <li><a href="https://github.com/budougumi0617/sandbox-go-cloud/tree/679665ce3573ad2f83642e2613a95424c1647456">https://github.com/budougumi0617/sandbox-go-cloud@679665c</a></li>
 </ul>
-
 <h1 id="ソースコードの事前準備">ソースコードの事前準備</h1>
-
-<p>確認では以下の構成のソースコードを作成した。<br />
+<p>確認では以下の構成のソースコードを作成した。<br>
 簡易の構成だが、AWS関係のパッケージに依存した<code>aws</code>パッケージと、GCP関係のパッケージに依存した<code>gcp</code>パッケージがある。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ tree
 .
@@ -217,27 +203,23 @@
 │   └── setup.go  <span style="color:#586e75"># GCP SDKに依存しているコード</span>
 ├── gcp.go        <span style="color:#586e75"># gcpタグ付きのコード</span>
 ├── main.go
-└── sandbox-go-cloud</code></pre></div>
-<p><code>main.go</code>では<code>test()</code>関数を呼ぶ。</p>
+└── sandbox-go-cloud
+</code></pre></div><p><code>main.go</code>では<code>test()</code>関数を呼ぶ。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 	<span style="color:#586e75">// tags=gcpのときはgcp.goのtest()が呼ばれる
 </span><span style="color:#586e75"></span>	<span style="color:#586e75">// tagsがなければaws.goのtest()が呼ばれる
 </span><span style="color:#586e75"></span>	<span style="color:#268bd2">test</span>()
-}</code></pre></div>
-<p><code>test()</code>関数は<code>./aws.go</code>と<code>./gcp.go</code>に定義した。<br />
+}
+</code></pre></div><p><code>test()</code>関数は<code>./aws.go</code>と<code>./gcp.go</code>に定義した。<br>
 ２つのファイルはビルドタグによって必ず片方しかビルドに含まれないので、同じ関数があっても矛盾しない。</p>
-
 <h2 id="サブパッケージをimportするファイルにビルドタグをつける">サブパッケージをimportするファイルにビルドタグをつける</h2>
-
 <ul>
 <li><a href="https://golang.org/pkg/go/build/#hdr-Build_Constraints">https://golang.org/pkg/go/build/#hdr-Build_Constraints</a></li>
 </ul>
-
-<p>Goは他言語の<code>#ifdef</code>のように、ビルドタグを使ってファイル単位でビルドスイッチを定義することができる。<br />
+<p>Goは他言語の<code>#ifdef</code>のように、ビルドタグを使ってファイル単位でビルドスイッチを定義することができる。<br>
 利用するときはファイルの先頭に<code>// +build</code>から始まるビルドタグを書く。必ず二行目は空行にする必要がある。複数のビルドタグを付けることも可能。</p>
-
 <p><code>gcp.go</code>は<code>gcp</code>タグがついている時にしかビルドに含まれないファイルになる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// +build gcp
 </span><span style="color:#586e75"></span>
@@ -250,8 +232,8 @@
 
 <span style="color:#268bd2">func</span> <span style="color:#268bd2">test</span>() {
 	gcp.<span style="color:#268bd2">Print</span>()
-}</code></pre></div>
-<p>ビルドタグの定義には倫理式も使えるので、<code>aws.go</code>は<code>gcp</code>タグがついて「いない」時にビルドに含まれるファイルになる。</p>
+}
+</code></pre></div><p>ビルドタグの定義には倫理式も使えるので、<code>aws.go</code>は<code>gcp</code>タグがついて「いない」時にビルドに含まれるファイルになる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// +build !gcp
 </span><span style="color:#586e75"></span>
 <span style="color:#719e07">package</span> main
@@ -263,29 +245,25 @@
 
 <span style="color:#268bd2">func</span> <span style="color:#268bd2">test</span>() {
 	aws.<span style="color:#268bd2">Print</span>()
-}</code></pre></div>
-<p>ビルドタグの定義により、<code>aws.go</code>と<code>gcp.go</code>はビルド時にいずれしか含まれない。それぞれ別のサブパッケージに依存している。<br />
+}
+</code></pre></div><p>ビルドタグの定義により、<code>aws.go</code>と<code>gcp.go</code>はビルド時にいずれしか含まれない。それぞれ別のサブパッケージに依存している。<br>
 また、今回は結果をわかりやすくするため、GCP関係の依存パッケージをローカルから取り除いている。（GCP関係の依存があるとパッケージが見つからずにビルドが失敗する）</p>
-
 <h1 id="go-listで依存パッケージの一覧を取得する">go listで依存パッケージの一覧を取得する</h1>
-
 <ul>
 <li><a href="https://golang.org/cmd/go/#hdr-List_packages_or_modules">https://golang.org/cmd/go/#hdr-List_packages_or_modules</a></li>
 </ul>
-
-<p><code>go list</code>コマンドは<code>text/template</code>のようなコマンドオプションを使うと、出力情報を制御できる。<br />
+<p><code>go list</code>コマンドは<code>text/template</code>のようなコマンドオプションを使うと、出力情報を制御できる。<br>
 また、<code>go</code>コマンドは<code>go build</code>や<code>go test</code>コマンド以外のときもビルドタグに基づいた結果を出力する。</p>
-
-<p>まず、<code>gcp</code>タグ無しで依存パッケージの一覧を出力する。<br />
-<code>go list</code>コマンドでは<a href="https://qiita.com/suin/items/edf59157ba010c04b50e">こちら</a>の記事を参考に標準パッケージ以外の依存パッケージを出力するようにしている。<br />
+<p>まず、<code>gcp</code>タグ無しで依存パッケージの一覧を出力する。<br>
+<code>go list</code>コマンドでは<a href="https://qiita.com/suin/items/edf59157ba010c04b50e">こちら</a>の記事を参考に標準パッケージ以外の依存パッケージを出力するようにしている。<br>
 結果はたしかにAWS関係の依存のみ出力された。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go list -f <span style="color:#2aa198">&#39;{{join .Deps &#34;\n&#34;}}&#39;</span> | xargs go list -f <span style="color:#2aa198">&#39;{{if not .Standard}}{{.ImportPath}}{{end}}&#39;</span>
 github.com/aws/aws-sdk-go/aws
 github.com/aws/aws-sdk-go/aws/awserr
 ...
-github.com/google/go-cloud/blob/s3blob</code></pre></div>
-<p><code>gcp</code>タグをつけて<code>go list</code>コマンドを実行する。<br />
-(GCP関連のパッケージは<code>go get</code>していないのでエラーが出ているが、）GCP関連のパッケージへの依存を確認できた。<br />
+github.com/google/go-cloud/blob/s3blob
+</code></pre></div><p><code>gcp</code>タグをつけて<code>go list</code>コマンドを実行する。<br>
+(GCP関連のパッケージは<code>go get</code>していないのでエラーが出ているが、）GCP関連のパッケージへの依存を確認できた。<br>
 また、AWS関係の依存はなくなっていた。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go list -tags<span style="color:#719e07">=</span>gcp -f <span style="color:#2aa198">&#39;{{join .Deps &#34;\n&#34;}}&#39;</span> | xargs go list -f <span style="color:#2aa198">&#39;{{if not .Standard}}{{.ImportPath}}{{end}}&#39;</span>
 can&#39;t load package: package cloud.google.com/go/storage: cannot find package <span style="color:#2aa198">&#34;cloud.google.com/go/storage&#34;</span> in any of:
@@ -293,12 +271,11 @@ can&#39;t load package: package cloud.google.com/go/storage: cannot find package
 	/Users/shimizu-yoichiro/go/src/cloud.google.com/go/storage <span style="color:#719e07">(</span>from <span style="color:#268bd2">$GOPATH</span><span style="color:#719e07">)</span>
 ...
 github.com/google/go-cloud/gcp
-github.com/google/go-cloud/wire</code></pre></div>
-<h1 id="go-buildして依存を確認する">go buildして依存を確認する</h1>
-
+github.com/google/go-cloud/wire
+</code></pre></div><h1 id="go-buildして依存を確認する">go buildして依存を確認する</h1>
 <p>今度は実際にビルドしてみる。ビルドタグがないときのビルドはAWS関係のパッケージにしか依存関係がないはずなので成功する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go build</code></pre></div>
-<p>ビルドタグを付与してビルドすると、GCP関係のパッケージが見つからずビルドエラーになる。<br />
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go build
+</code></pre></div><p>ビルドタグを付与してビルドすると、GCP関係のパッケージが見つからずビルドエラーになる。<br>
 ビルドタグで依存パッケージを制御することができた。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go build -tags<span style="color:#719e07">=</span>gcp
 ../../google/go-cloud/blob/gcsblob/gcsblob.go:31:2: cannot find package <span style="color:#2aa198">&#34;cloud.google.com/go/storage&#34;</span> in any of:
@@ -306,36 +283,31 @@ github.com/google/go-cloud/wire</code></pre></div>
 	/Users/shimizu-yoichiro/go/src/cloud.google.com/go/storage <span style="color:#719e07">(</span>from <span style="color:#268bd2">$GOPATH</span><span style="color:#719e07">)</span>
 ../../google/go-cloud/gcp/gcp.go:24:2: cannot find package <span style="color:#2aa198">&#34;golang.org/x/oauth2&#34;</span> in any of:
 	/usr/local/opt/go/libexec/src/golang.org/x/oauth2 <span style="color:#719e07">(</span>from <span style="color:#268bd2">$GOROOT</span><span style="color:#719e07">)</span>
-...</code></pre></div>
-<h1 id="終わりに">終わりに</h1>
-
-<p>今回はビルドタグを使って、依存パッケージを切り替えることを確認した。<br />
+...
+</code></pre></div><h1 id="終わりに">終わりに</h1>
+<p>今回はビルドタグを使って、依存パッケージを切り替えることを確認した。<br>
 なぜこんなことをしているかたというと、go-cloudやDependency Injectionの検証をしていたから。この辺は別の場所で公開する。</p>
-
 <ul>
 <li><a href="https://godoc.org/github.com/google/go-cloud">https://godoc.org/github.com/google/go-cloud</a></li>
 </ul>
-
 <p>また、<code>go list</code>はオプションをつけて実行しないと大した情報が出てこないので、使うときは<code>-f</code>オプションをちゃんと使ったほうがよさそう。</p>
-
 <h1 id="参考">参考</h1>
-
 <ul>
 <li>Package build | Build Constraints
-
 <ul>
 <li><a href="https://golang.org/pkg/go/build/#hdr-Build_Constraints">https://golang.org/pkg/go/build/#hdr-Build_Constraints</a></li>
-</ul></li>
+</ul>
+</li>
 <li>Command Go | List packages or modules
-
 <ul>
 <li><a href="https://golang.org/cmd/go/#hdr-List_packages_or_modules">https://golang.org/cmd/go/#hdr-List_packages_or_modules</a></li>
-</ul></li>
+</ul>
+</li>
 <li>Go言語: 依存するパッケージ一覧を調べたい
-
 <ul>
 <li><a href="https://qiita.com/suin/items/edf59157ba010c04b50e">https://qiita.com/suin/items/edf59157ba010c04b50e</a></li>
-</ul></li>
+</ul>
+</li>
 </ul>
         </div>
         
@@ -426,9 +398,9 @@ github.com/google/go-cloud/wire</code></pre></div>
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -506,10 +478,16 @@ github.com/google/go-cloud/wire</code></pre></div>
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -521,12 +499,6 @@ github.com/google/go-cloud/wire</code></pre></div>
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

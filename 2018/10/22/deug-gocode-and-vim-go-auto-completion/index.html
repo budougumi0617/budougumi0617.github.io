@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -173,55 +173,35 @@
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#vim-goの自動補完が効かなくなった">vim-goの自動補完が効かなくなった</a></li>
-<li><a href="#gocodeの挙動を確認する">gocodeの挙動を確認する</a></li>
-<li><a href="#終わりに">終わりに</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
-          <p><code>goimports</code>などが更新されていたので、<code>vim-go</code>で<code>GoUpdateBinaries</code>コマンドを実行したら<code>vim</code>で自動補完が効かなくなった。<br />
-結局はgocodeの調子が悪いことが多いので、原因の調べ方をまとめる。<br />
+          <p><code>goimports</code>などが更新されていたので、<code>vim-go</code>で<code>GoUpdateBinaries</code>コマンドを実行したら<code>vim</code>で自動補完が効かなくなった。<br>
+結局はgocodeの調子が悪いことが多いので、原因の調べ方をまとめる。<br>
 （今回の場合は <code>let g:go_gocode_propose_source = 0</code> で解決した。）</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>vim-goの自動補完に正しい候補がでなくなった</li>
 <li><code>gocode</code>を<code>gocode exit</code>したあと<code>gocode -debug -s</code>で再起動する</li>
 <li>vimも再起動して適当なGoファイルをいじっていると、<code>gocode</code>のデバッグ出力が確認できる</li>
 <li>今回は<code>vimrc</code>ファイルに<code>let g:go_gocode_propose_source = 0</code>を加えることで解決した。</li>
 </ul>
-
 <p>なおvimバージョンは以下。</p>
-
 <pre><code>VIM - Vi IMproved 8.1 (2018 May 18, compiled Aug 15 2018 08:48:39)
 macOS version
-</code></pre>
-
-<p><code>gocode</code>は以下のコミットハッシュの状態(<a href="https://github.com/mdempsky/gocode/pull/71">#71</a>がマージされた状態)
+</code></pre><p><code>gocode</code>は以下のコミットハッシュの状態(<a href="https://github.com/mdempsky/gocode/pull/71">#71</a>がマージされた状態)
 <a href="https://github.com/mdempsky/gocode/tree/22f3bf7a9256a30885d7cd46da4657cc878f3f4f">https://github.com/mdempsky/gocode/tree/22f3bf7a9256a30885d7cd46da4657cc878f3f4f</a></p>
-
 <h1 id="vim-goの自動補完が効かなくなった">vim-goの自動補完が効かなくなった</h1>
-
-<p><code>goimports</code>や<code>golint</code>が更新されていたので、更新しようとした。<br />
-私はひとつひとつ更新するのが面倒なので、vimで<code>GoUpdateBinaries</code>コマンドを実行することで全て更新している。<br />
-今回、コマンド実行後<code>vim-go</code>で自動補完が動かなくなってしまった。<br />
+<p><code>goimports</code>や<code>golint</code>が更新されていたので、更新しようとした。<br>
+私はひとつひとつ更新するのが面倒なので、vimで<code>GoUpdateBinaries</code>コマンドを実行することで全て更新している。<br>
+今回、コマンド実行後<code>vim-go</code>で自動補完が動かなくなってしまった。<br>
 <code>vim-go</code>を更新すれば直るか？と思い(自分は<code>dein</code>を使っているので、)<code>call dein#update()</code>してみたがそれでもダメだった。</p>
-
 <h1 id="gocodeの挙動を確認する">gocodeの挙動を確認する</h1>
-
-<p>2018/10/20時点の<code>vim-go</code>は内部で<code>gocode</code>を利用することで自動補完を実施している。<br />
+<p>2018/10/20時点の<code>vim-go</code>は内部で<code>gocode</code>を利用することで自動補完を実施している。<br>
 <code>gocode exit</code>してバックプロセスを再起動(vimでGo触ってると再度起動する)しても直らなかった。</p>
-
-<p>vim自体がロギングしているログは<code>messages</code>で確認することができるが、<code>messages</code>では<code>gocode</code>が出力しているログは確認できない。<br />
-なので、<code>gocode</code>をデバッグモードで起動して確認した。<code>gocode</code>は<code>gocode exit</code>で一度終了したあと、<code>gocode -debug -s</code>と実行することでデバッグ出力をターミナルに出力する状態で起動できる。<br />
+<p>vim自体がロギングしているログは<code>messages</code>で確認することができるが、<code>messages</code>では<code>gocode</code>が出力しているログは確認できない。<br>
+なので、<code>gocode</code>をデバッグモードで起動して確認した。<code>gocode</code>は<code>gocode exit</code>で一度終了したあと、<code>gocode -debug -s</code>と実行することでデバッグ出力をターミナルに出力する状態で起動できる。<br>
 あとはこの状態でvimを操作するとgocodeからデバッグログが出力される。</p>
-
 <p>今回は以下のようなデバッグ出力が出力された。</p>
-
 <pre><code>$ gocode -debug -s
 ...
 2018/10/20 16:25:27 Error parsing input file (outer block):
@@ -231,24 +211,19 @@ macOS version
 2018/10/20 16:25:27  /Users/budougumi0617/go/src/github.com/budougumi0617/sample_repo/foo/no_complete.go:36:3: expected ';', found 'EOF'
 2018/10/20 16:25:27  /Users/budougumi0617/go/src/github.com/budougumi0617/sample_repo/foo/no_complete.go:36:3: expected '}', found 'EOF'
 2018/10/20 16:25:27  /Users/budougumi0617/go/src/github.com/budougumi0617/sample_repo/foo/no_complete.go:36:3: missing ',' in argument list
-</code></pre>
-
-<p>ログを頼ったり、<code>gocode</code>の更新を確認したところ<code>source</code>オプションの有無で挙動が変わるらしく、以下のオプションを<code>vimrc</code>に書いたところ直った。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-vimrc" data-lang="vimrc"><span style="color:#719e07">let</span> g:go_gocode_propose_source = <span style="color:#2aa198">0</span></code></pre></div>
-<p>今回の原因は<code>gocode</code>でこの変更が入ったからのようだ。</p>
-
+</code></pre><p>ログを頼ったり、<code>gocode</code>の更新を確認したところ<code>source</code>オプションの有無で挙動が変わるらしく、以下のオプションを<code>vimrc</code>に書いたところ直った。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-vimrc" data-lang="vimrc"><span style="color:#719e07">let</span> g:go_gocode_propose_source = <span style="color:#2aa198">0</span>
+</code></pre></div><p>今回の原因は<code>gocode</code>でこの変更が入ったからのようだ。</p>
 <ul>
 <li>cache packages to improve speed
-
 <ul>
 <li><a href="https://github.com/mdempsky/gocode/pull/71">https://github.com/mdempsky/gocode/pull/71</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="終わりに">終わりに</h1>
-
-<p>おそらく<code>vim-go</code>側も対応入ると思うので、しばらくは<code>vim-go</code>と<code>gocode</code>をこまめに更新したほうが良いのかもしれない。<br />
-直すまで半日くらいVSCodeで作業していたのだが、VSCode(+vimプラグイン)でGo書くのもなかなか良かった。<br />
+<p>おそらく<code>vim-go</code>側も対応入ると思うので、しばらくは<code>vim-go</code>と<code>gocode</code>をこまめに更新したほうが良いのかもしれない。<br>
+直すまで半日くらいVSCodeで作業していたのだが、VSCode(+vimプラグイン)でGo書くのもなかなか良かった。<br>
 けどやっぱりvimのほうがシンプルで好きだ。</p>
         </div>
         
@@ -339,9 +314,9 @@ macOS version
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -419,10 +394,16 @@ macOS version
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -434,12 +415,6 @@ macOS version
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

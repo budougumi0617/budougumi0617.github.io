@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -176,87 +176,64 @@ dynamodb-localをCircleCI上で起動することで、実際にDBアクセス�
           
           
             <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#はじめに">はじめに</a></li>
-<li><a href="#circleciで実行するテストコード">CircleCIで実行するテストコード</a>
-<ul>
-<li><a href="#ローカルに起動したdynamodbを使ってテストを実行する">ローカルに起動したDynamoDBを使ってテストを実行する</a></li>
-</ul></li>
-<li><a href="#circleciの設定">CircleCIの設定</a>
-<ul>
-<li><a href="#circleciでamazon-dynamodb-localイメージを起動する">CircleCIでamazon/dynamodb-localイメージを起動する</a></li>
-<li><a href="#aws-access-key-idとaws-secret-access-keyを設定する">AWS_ACCESS_KEY_IDとAWS_SECRET_ACCESS_KEYを設定する</a></li>
-<li><a href="#ncコマンドで疎通を確認する">ncコマンドで疎通を確認する</a></li>
-</ul></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
+  <ul>
+    <li><a href="#ローカルに起動したdynamodbを使ってテストを実行する">ローカルに起動したDynamoDBを使ってテストを実行する</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#circleciでamazondynamodb-localイメージを起動する">CircleCIでamazon/dynamodb-localイメージを起動する</a></li>
+    <li><a href="#aws_access_key_idとaws_secret_access_keyを設定する">AWS_ACCESS_KEY_IDとAWS_SECRET_ACCESS_KEYを設定する</a></li>
+    <li><a href="#ncコマンドで疎通を確認する">ncコマンドで疎通を確認する</a></li>
+  </ul>
 </nav>
           
-          <p>DynamoDBを操作するコードをCircleCI上でテストする方法をまとめた。<br />
+          <p>DynamoDBを操作するコードをCircleCI上でテストする方法をまとめた。<br>
 dynamodb-localをCircleCI上で起動することで、実際にDBアクセスする状態でテストが実行できる。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>AWSはローカル環境で動作確認できるようにDynamoDBを起動できるコンテナを配布している
-
 <ul>
 <li><a href="https://hub.docker.com/r/amazon/dynamodb-local/">https://hub.docker.com/r/amazon/dynamodb-local/</a></li>
-</ul></li>
+</ul>
+</li>
 <li>このコンテナを使ってオフラインでDybamoDBを使ったテストを実行できる</li>
 <li>CircleCI上でもこのコンテナを起動して、DynamoDBを使ったCIを定義した
-
 <ul>
 <li>ダミーで良いので<code>AWS_ACCESS_KEY_ID</code>と<code>AWS_SECRET_ACCESS_KEY</code>を設定しておく</li>
 <li>念のためテスト実行前に<code>nc</code>コマンドでDynamoDBと疎通できるまで待機するようにした</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>なお、サンプルコードは以下になる。
 GoのLambdaからDynamoDBを操作することを想定している。</p>
-
 <ul>
 <li>budougumi0617/lambda-go-dynamodb-local
-
 <ul>
 <li><a href="https://github.com/budougumi0617/lambda-go-dynamodb-local/tree/add-circleci">https://github.com/budougumi0617/lambda-go-dynamodb-local/tree/add-circleci</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>CircleCIの実行結果はこちら。</p>
-
 <ul>
 <li><a href="https://circleci.com/gh/budougumi0617/lambda-go-dynamodb-local/7">https://circleci.com/gh/budougumi0617/lambda-go-dynamodb-local/7</a></li>
 </ul>
-
 <h1 id="はじめに">はじめに</h1>
-
 <p>DynamoDBはAWSが提供するNoSQL DBだ。Lambdaなどと組み合わせて使われることも多い。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://aws.amazon.com/jp/dynamodb/" data-iframely-url="//cdn.iframe.ly/O3qqkDe?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
-<p>LambdaとDyanamoDBを使ったコードを書こうと思ったのだが、できればローカルで動作確認が完了すると嬉しい。<br />
+<!-- raw HTML omitted -->
+<p>LambdaとDyanamoDBを使ったコードを書こうと思ったのだが、できればローカルで動作確認が完了すると嬉しい。<br>
 DynamoDBクローンのDockerイメージがあるとのことだったので、こちらを利用することにした。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://aws.amazon.com/jp/about-aws/whats-new/2018/08/use-amazon-dynamodb-local-more-easily-with-the-new-docker-image/" data-iframely-url="//cdn.iframe.ly/R0M5dLT?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
 <p>開発するにあたり、CircleCI上のテストでもこのDockerイメージを使うことにした。</p>
-
 <h1 id="circleciで実行するテストコード">CircleCIで実行するテストコード</h1>
-
 <p>まず、CircleCIで実行するリポジトリは以下になる。</p>
-
 <ul>
 <li>budougumi0617/lambda-go-dynamodb-local
-
 <ul>
 <li><a href="https://github.com/budougumi0617/lambda-go-dynamodb-local/tree/add-circleci">https://github.com/budougumi0617/lambda-go-dynamodb-local/tree/add-circleci</a></li>
-</ul></li>
 </ul>
-
-<p>Goで書かれたテストコードはこちら。テスト対象のコードを実行する前にDynamo DB上にテーブルを作成、作成したテーブルにアイテムを保存しておく。<br />
+</li>
+</ul>
+<p>Goで書かれたテストコードはこちら。テスト対象のコードを実行する前にDynamo DB上にテーブルを作成、作成したテーブルにアイテムを保存しておく。<br>
 また、呼び出しているテスト対象のコード自体はDynamoDB上からアイテムを取得するコードだ。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// コード全体はこちら
 </span><span style="color:#586e75">// https://github.com/budougumi0617/lambda-go-dynamodb-local/blob/add-circleci/user/main_test.go
@@ -326,14 +303,11 @@ DynamoDBクローンのDockerイメージがあるとのことだったので、
 		<span style="color:#719e07">return</span> err
 	}
 	<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
-}</code></pre></div>
-<p>このコードをモックを使わずCircleCI上で実行する。</p>
-
+}
+</code></pre></div><p>このコードをモックを使わずCircleCI上で実行する。</p>
 <h2 id="ローカルに起動したdynamodbを使ってテストを実行する">ローカルに起動したDynamoDBを使ってテストを実行する</h2>
-
 <p>ちなみに、<code>amazon/dynamodb-local</code>コンテナを使えばローカルにDynamoDBを起動することもできる。
 ローカルのDynamoDBを使って上記のテストコードを実行するときは以下のようになる。</p>
-
 <pre><code>$ cat docker-compose.yaml
 version: '3'
 
@@ -346,57 +320,54 @@ services:
 $ docker-compose up -d
 $ DYNAMODB_ENDPOINT=&quot;http://localhost:18000&quot; go test ./...
 
-</code></pre>
-
-<h1 id="circleciの設定">CircleCIの設定</h1>
-
+</code></pre><h1 id="circleciの設定">CircleCIの設定</h1>
 <p>CircleCIの設定は以下のようになる。関連する設定部分はこのを個別に解説を入れる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#586e75"># https://github.com/budougumi0617/lambda-go-dynamodb-local/blob/add-circleci/.circleci/config.yml</span>
 
-version: <span style="color:#2aa198">2.1</span>
-executors:
-  default:
-    docker:
+<span style="color:#719e07">version</span>: <span style="color:#2aa198">2.1</span>
+<span style="color:#719e07">executors</span>:
+  <span style="color:#719e07">default</span>:
+    <span style="color:#719e07">docker</span>:
       <span style="color:#586e75"># CircleCI Go images available at: https://hub.docker.com/r/circleci/golang/</span>
-      - image: circleci/golang:<span style="color:#2aa198">1.12.5</span>
-      - image: amazon/dynamodb-local
+      - <span style="color:#719e07">image</span>: circleci/golang:<span style="color:#2aa198">1.12.5</span>
+      - <span style="color:#719e07">image</span>: amazon/dynamodb-local
 
-    working_directory: /go/src/github.com/budougumi0617/lambda-go-dynamodb-local
+    <span style="color:#719e07">working_directory</span>: /go/src/github.com/budougumi0617/lambda-go-dynamodb-local
 
     <span style="color:#586e75"># Environment values for all container</span>
-    environment:
-      - GO111MODULE: <span style="color:#2aa198">&#34;on&#34;</span>
-      - TEST_RESULTS: /tmp/test-results <span style="color:#586e75"># path to where test results will be saved</span>
-      - AWS_REGION: <span style="color:#2aa198">&#34;test-region&#34;</span>
-      - DYNAMODB_ENDPOINT: <span style="color:#2aa198">&#34;http://localhost:8000&#34;</span>
-      - DYNAMODB_TABLE_NAME: <span style="color:#2aa198">&#34;User&#34;</span>
+    <span style="color:#719e07">environment</span>:
+      - <span style="color:#719e07">GO111MODULE</span>: <span style="color:#2aa198">&#34;on&#34;</span>
+      - <span style="color:#719e07">TEST_RESULTS</span>: /tmp/test-results <span style="color:#586e75"># path to where test results will be saved</span>
+      - <span style="color:#719e07">AWS_REGION</span>: <span style="color:#2aa198">&#34;test-region&#34;</span>
+      - <span style="color:#719e07">DYNAMODB_ENDPOINT</span>: <span style="color:#2aa198">&#34;http://localhost:8000&#34;</span>
+      - <span style="color:#719e07">DYNAMODB_TABLE_NAME</span>: <span style="color:#2aa198">&#34;User&#34;</span>
 
-jobs:
-  test:
-    executor:
-      name: default
-    steps:
+<span style="color:#719e07">jobs</span>:
+  <span style="color:#719e07">test</span>:
+    <span style="color:#719e07">executor</span>:
+      <span style="color:#719e07">name</span>: default
+    <span style="color:#719e07">steps</span>:
       - checkout
-      - run: mkdir -p $TEST_RESULTS
-      - restore_cache:
-          name: Restore go modules cache
-          keys:
+      - <span style="color:#719e07">run</span>: mkdir -p $TEST_RESULTS
+      - <span style="color:#719e07">restore_cache</span>:
+          <span style="color:#719e07">name</span>: Restore go modules cache
+          <span style="color:#719e07">keys</span>:
               - v1-mod-{{ .Branch }}-{{ checksum <span style="color:#2aa198">&#34;go.mod&#34;</span> }}
-      - run:
-          name: Vendoring
-          command: go mod download
+      - <span style="color:#719e07">run</span>:
+          <span style="color:#719e07">name</span>: Vendoring
+          <span style="color:#719e07">command</span>: go mod download
       <span style="color:#586e75"># カバレッジの集計などをするためのツールのインストール</span>
-      - run:
-          name: Install test report tool
-          command: go get github.com/jstemmer/go-junit-report
-      - save_cache:
-          name: Save go modules cache
-          key: v1-mod-{{ .Branch }}-{{ checksum <span style="color:#2aa198">&#34;go.mod&#34;</span> }}
-          paths:
+      - <span style="color:#719e07">run</span>:
+          <span style="color:#719e07">name</span>: Install test report tool
+          <span style="color:#719e07">command</span>: go get github.com/jstemmer/go-junit-report
+      - <span style="color:#719e07">save_cache</span>:
+          <span style="color:#719e07">name</span>: Save go modules cache
+          <span style="color:#719e07">key</span>: v1-mod-{{ .Branch }}-{{ checksum <span style="color:#2aa198">&#34;go.mod&#34;</span> }}
+          <span style="color:#719e07">paths</span>:
               - /go/pkg/mod/cache
-      - run:
-          name: Wait for DynamoDB
-          command: <span style="color:#2aa198">|
+      - <span style="color:#719e07">run</span>:
+          <span style="color:#719e07">name</span>: Wait for DynamoDB
+          <span style="color:#719e07">command</span>: <span style="color:#2aa198">|
 </span><span style="color:#2aa198">            for i in `seq 1 10`;</span>
             do
               nc -z localhost <span style="color:#2aa198">8000</span> <span style="color:#719e07">&amp;&amp;</span> echo Success <span style="color:#719e07">&amp;&amp;</span> exit <span style="color:#2aa198">0</span>
@@ -404,69 +375,60 @@ jobs:
               sleep <span style="color:#2aa198">1</span>
             done
             echo Failed waiting for DyanmoDB Local <span style="color:#719e07">&amp;&amp;</span> exit <span style="color:#2aa198">1</span>
-      - run:
-          name: Run all unit tests
-          command: <span style="color:#2aa198">|
+      - <span style="color:#719e07">run</span>:
+          <span style="color:#719e07">name</span>: Run all unit tests
+          <span style="color:#719e07">command</span>: <span style="color:#2aa198">|
 </span><span style="color:#2aa198">            trap &#34;go-junit-report &lt;${TEST_RESULTS}/go-test.out &gt; ${TEST_RESULTS}/go-test-report.xml&#34; EXIT</span>
             go test ./... | tee ${TEST_RESULTS}/go-test.out
-      - store_artifacts:
-          path: /tmp/test-results
-          destination: raw-test-output
-      - store_test_results:
-          path: /tmp/test-results
+      - <span style="color:#719e07">store_artifacts</span>:
+          <span style="color:#719e07">path</span>: /tmp/test-results
+          <span style="color:#719e07">destination</span>: raw-test-output
+      - <span style="color:#719e07">store_test_results</span>:
+          <span style="color:#719e07">path</span>: /tmp/test-results
 
-workflows:
-  build-and-test:
-    jobs:
-      - test</code></pre></div>
-<h2 id="circleciでamazon-dynamodb-localイメージを起動する">CircleCIでamazon/dynamodb-localイメージを起動する</h2>
-
-<p>CircleCIは一連のジョブを実行するイメージの他にDBなどのサブイメージを起動できる。<br />
+<span style="color:#719e07">workflows</span>:
+  <span style="color:#719e07">build-and-test</span>:
+    <span style="color:#719e07">jobs</span>:
+      - test
+</code></pre></div><h2 id="circleciでamazondynamodb-localイメージを起動する">CircleCIでamazon/dynamodb-localイメージを起動する</h2>
+<p>CircleCIは一連のジョブを実行するイメージの他にDBなどのサブイメージを起動できる。<br>
 メインイメージからサブイメージへのアクセスは<code>localhost</code>経由で可能だ。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">executors:
-  default:
-    docker:
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">executors</span>:
+  <span style="color:#719e07">default</span>:
+    <span style="color:#719e07">docker</span>:
       <span style="color:#586e75"># CircleCI Go images available at: https://hub.docker.com/r/circleci/golang/</span>
-      - image: circleci/golang:<span style="color:#2aa198">1.12.5</span>
-      - image: amazon/dynamodb-local
+      - <span style="color:#719e07">image</span>: circleci/golang:<span style="color:#2aa198">1.12.5</span>
+      - <span style="color:#719e07">image</span>: amazon/dynamodb-local
     <span style="color:#586e75"># Environment values for all container</span>
-    environment:
-      - DYNAMODB_ENDPOINT: <span style="color:#2aa198">&#34;http://localhost:8000&#34;</span></code></pre></div>
-<h2 id="aws-access-key-idとaws-secret-access-keyを設定する">AWS_ACCESS_KEY_IDとAWS_SECRET_ACCESS_KEYを設定する</h2>
-
-<p>CircleCIのリポジトリの設定にある<code>Environment Variables</code>で<code>AWS_ACCESS_KEY_ID</code>と<code>AWS_SECRET_ACCESS_KEY</code>を設定しておく。<br />
+    <span style="color:#719e07">environment</span>:
+      - <span style="color:#719e07">DYNAMODB_ENDPOINT</span>: <span style="color:#2aa198">&#34;http://localhost:8000&#34;</span>
+</code></pre></div><h2 id="aws_access_key_idとaws_secret_access_keyを設定する">AWS_ACCESS_KEY_IDとAWS_SECRET_ACCESS_KEYを設定する</h2>
+<p>CircleCIのリポジトリの設定にある<code>Environment Variables</code>で<code>AWS_ACCESS_KEY_ID</code>と<code>AWS_SECRET_ACCESS_KEY</code>を設定しておく。<br>
 <code>dynamodb-local</code>は起動時と接続時に認証情報を内部で利用している。実際にAWSにアクセスできる有効な文字列でなくていいので、認証情報を設定しておく必要がある。</p>
-
 <h2 id="ncコマンドで疎通を確認する">ncコマンドで疎通を確認する</h2>
-
-<p>MySQLなどは<code>dockerize</code>コマンドを使うのだが、<code>dockerize</code>コマンドで<code>http</code>プロトコルの確認をするときは<code>200</code>ステータスが必要になる。<br />
-<code>dynamodb-local</code>への疎通確認を<code>http</code>プロトコルで行なうと認証をつけないと<code>400</code>エラーになるため、今回は利用をやめた。<br />
+<p>MySQLなどは<code>dockerize</code>コマンドを使うのだが、<code>dockerize</code>コマンドで<code>http</code>プロトコルの確認をするときは<code>200</code>ステータスが必要になる。<br>
+<code>dynamodb-local</code>への疎通確認を<code>http</code>プロトコルで行なうと認証をつけないと<code>400</code>エラーになるため、今回は利用をやめた。<br>
 そのため、今回は単純にポートがリッスンしていることを確認する<code>nc</code>コマンドを使った。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">      - run:
-          name: Wait for DynamoDB
-          command: <span style="color:#2aa198">|
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">      - <span style="color:#719e07">run</span>:
+          <span style="color:#719e07">name</span>: Wait for DynamoDB
+          <span style="color:#719e07">command</span>: <span style="color:#2aa198">|
 </span><span style="color:#2aa198">            for i in `seq 1 10`;</span>
             do
               nc -z localhost <span style="color:#2aa198">8000</span> <span style="color:#719e07">&amp;&amp;</span> echo Success <span style="color:#719e07">&amp;&amp;</span> exit <span style="color:#2aa198">0</span>
               echo -n .
               sleep <span style="color:#2aa198">1</span>
             done
-            echo Failed waiting for DyanmoDB Local <span style="color:#719e07">&amp;&amp;</span> exit <span style="color:#2aa198">1</span></code></pre></div>
-<p>以上の設定を行えば、CircleCI上でDynamoDBを利用したテストを実行できる。</p>
-
+            echo Failed waiting for DyanmoDB Local <span style="color:#719e07">&amp;&amp;</span> exit <span style="color:#2aa198">1</span>
+</code></pre></div><p>以上の設定を行えば、CircleCI上でDynamoDBを利用したテストを実行できる。</p>
 <ul>
 <li><a href="https://circleci.com/gh/budougumi0617/lambda-go-dynamodb-local/7">https://circleci.com/gh/budougumi0617/lambda-go-dynamodb-local/7</a></li>
 </ul>
-
 <h1 id="終わりに">終わりに</h1>
-
-<p>今回は<code>amazon/dynamodb-local</code>コンテナを使ってCircleCIでDynamoDBを操作するテストを実行した。<br />
-<code>dynamodb-local.jar</code>をCircleCI上で起動して同様の操作をする記事はあったのだが、このためだけにJavaの環境を用意するのは他の言語を使って開発しているときは少しめんどくさい。<br />
-今回の記事はCircleCIの設定を調べるよりローカルでうまくDynamoDBと疎通するコードを作るほうが難しかった（正確にいうと、<code>sam local start-api</code>コマンドで実行したLambdaから<code>dynamodb-local</code>で起動したDynamoDBにアクセスするのに苦戦していた）。<br />
+<p>今回は<code>amazon/dynamodb-local</code>コンテナを使ってCircleCIでDynamoDBを操作するテストを実行した。<br>
+<code>dynamodb-local.jar</code>をCircleCI上で起動して同様の操作をする記事はあったのだが、このためだけにJavaの環境を用意するのは他の言語を使って開発しているときは少しめんどくさい。<br>
+今回の記事はCircleCIの設定を調べるよりローカルでうまくDynamoDBと疎通するコードを作るほうが難しかった（正確にいうと、<code>sam local start-api</code>コマンドで実行したLambdaから<code>dynamodb-local</code>で起動したDynamoDBにアクセスするのに苦戦していた）。<br>
 LambdaとDynamoDBの組み合わせは料金もほぼかからない組み合わせのため、もう少し勉強しておくつもりだ。</p>
-
 <h1 id="参考">参考</h1>
-
 <ul>
 <li><a href="https://github.com/budougumi0617/lambda-go-dynamodb-local/tree/add-circleci">budougumi0617/lambda-go-dynamodb-local</a></li>
 <li><a href="https://hub.docker.com/r/amazon/dynamodb-local/">amazon/dynamodb-local | DockerHub</a></li>
@@ -564,9 +526,9 @@ LambdaとDynamoDBの組み合わせは料金もほぼかからない組み合わ
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -644,10 +606,16 @@ LambdaとDynamoDBの組み合わせは料金もほぼかからない組み合わ
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -659,12 +627,6 @@ LambdaとDynamoDBの組み合わせは料金もほぼかからない組み合わ
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -173,54 +173,37 @@
           
           
           
-          
-
-<p>Rails本の写経を<code>docker-compose</code>で行なったときのTips。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+          <p>Rails本の写経を<code>docker-compose</code>で行なったときのTips。</p>
+<h1 id="tldr">TL;DR</h1>
 <p><code>docker-compose</code>で作ったRubyOnRailsコンテナで<code>binding.pry</code>によるデバッグを行えるようにする。</p>
-
 <h1 id="前提">前提</h1>
-
 <p><code>docker-compose</code>でRails、Spring用のコンテナなど、複数コンテナを起動する形のRails環境を構築した。基本構成は以下の記事に習っている。</p>
-
 <p><a href="http://qiita.com/kawasin73/items/2253523be18e5afd994f">高速に開発できる Docker + Rails開発環境のテンプレートを作った</a></p>
-
 <h1 id="事前準備">事前準備</h1>
-
 <p>Railsをデバッグ実行するために必要な設定ファイルの準備をする。</p>
-
 <p>コンテナの標準入出力にアタッチするために、Dockerの設定をしておく。</p>
-
 <p><a href="https://github.com/budougumi0617/RubyTraining/blob/master/baukis/docker-compose.yml#L18">docker-compose.yml</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">services:
-  rails: <span style="color:#719e07">&amp;app_base</span>
-    tty: <span style="color:#cb4b16">true</span>
-    stdin_open: <span style="color:#cb4b16">true</span></code></pre></div>
-<p>ブレークポイントを貼るための<code>binding.pry</code>をするためのGemを追加する。
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">services</span>:
+  <span style="color:#719e07">rails</span>: <span style="color:#719e07">&amp;app_base</span>
+    <span style="color:#719e07">tty</span>: <span style="color:#cb4b16">true</span>
+    <span style="color:#719e07">stdin_open</span>: <span style="color:#cb4b16">true</span>
+</code></pre></div><p>ブレークポイントを貼るための<code>binding.pry</code>をするためのGemを追加する。
 Gemfileは<code>pry-rails</code>の他に<code>pry-byebug</code>も追加しておくとステップ実行が出来る。</p>
-
 <p><a href="https://github.com/budougumi0617/RubyTraining/blob/master/baukis/Gemfile#L38">Gemfile</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-gemfile" data-lang="gemfile">group :development, :test do
-  gem &#39;pry-rails&#39;
-  gem &#39;pry-byebug&#39;
-end</code></pre></div>
-<p>Railsプロジェクトのrootディレクトリに<code>.pryrc</code>ファイルを配置しておけばデバッグ中に利用できるエイリアスが貼れる。（他のも色の設定とか出来るらしい）</p>
-
+<pre><code class="language-gemfile" data-lang="gemfile">group :development, :test do
+  gem 'pry-rails'
+  gem 'pry-byebug'
+end
+</code></pre><p>Railsプロジェクトのrootディレクトリに<code>.pryrc</code>ファイルを配置しておけばデバッグ中に利用できるエイリアスが貼れる。（他のも色の設定とか出来るらしい）</p>
 <p><a href="https://github.com/budougumi0617/RubyTraining/blob/master/baukis/.pryrc">.pryrc</a></p>
-
 <pre><code>if defined?(PryByebug)
   Pry.commands.alias_command 'c', 'continue'
   Pry.commands.alias_command 's', 'step'
   Pry.commands.alias_command 'n', 'next'
   Pry.commands.alias_command 'f', 'finish'
 end
-</code></pre>
-
-<p>デバッグしたいメソッドに<code>binding.pry</code>の記載をして、<code>docker-compose up</code>コマンドでRailsを起動して、該当メソッドが実行される操作を行う。
+</code></pre><p>デバッグしたいメソッドに<code>binding.pry</code>の記載をして、<code>docker-compose up</code>コマンドでRailsを起動して、該当メソッドが実行される操作を行う。
 出力がこんな状態になれば<code>pry</code>でデバッグが開始できる状態になっている。</p>
-
 <pre><code>rails_1   | From: /app/app/controllers/staff/customers_controller.rb @ line 4 Staff::CustomersController#index:
 rails_1   |
 rails_1   |     2: def index
@@ -228,39 +211,25 @@ rails_1   |     3:   binding.pry
 rails_1   |  =&gt; 4:   @search_form = Staff::CustomerSearchForm.new(params[:search])
 rails_1   |     5:   @customers = @search_form.search.page(params[:page])
 rails_1   |     6: end
-</code></pre>
-
-<h1 id="操作">操作</h1>
-
+</code></pre><h1 id="操作">操作</h1>
 <p>上記を行うと、<code>binding.pry</code>が記載された場所で実行がストップしている状態になっている。ここからRailsが実行されているコンテナにアタッチする。
 まずアタッチするRailsコンテナを<code>docker ps</code>コマンドで調べる。</p>
-
 <pre><code>$ docker ps
 CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                    NAMES
 7fdf3a1fd61c        baukis_rails        &quot;prehook 'ruby -v'...&quot;   5 seconds ago       Up 4 seconds        0.0.0.0:3333-&gt;3000/tcp   baukis_rails_1 # attachしたいのはこれ
 cb68afd353c8        baukis_spring       &quot;prehook 'ruby -v'...&quot;   5 seconds ago       Up 4 seconds                                 baukis_spring_1
 7b86e4f07b20        postgres:9.6.2      &quot;docker-entrypoint...&quot;   6 seconds ago       Up 7 seconds        0.0.0.0:5432-&gt;5432/tcp   baukis_db_1
-</code></pre>
-
-<p>その後、<code>docker attach</code>コマンドでコンテナに接続する。反応が無いように見えるときはエンターキーを押下すれば<code>pry</code>が始まる。</p>
-
+</code></pre><p>その後、<code>docker attach</code>コマンドでコンテナに接続する。反応が無いように見えるときはエンターキーを押下すれば<code>pry</code>が始まる。</p>
 <pre><code>$ docker attach baukis_krails_1 # docker psコマンドの結果のNAMEに書いてあった名前
 [1] pry(#&lt;Staff::CustomersController&gt;)&gt;
 [2] pry(#&lt;Staff::CustomersController&gt;)&gt;
-</code></pre>
-
-<h1 id="デバッグを終了するとき">デバッグを終了するとき</h1>
-
+</code></pre><h1 id="デバッグを終了するとき">デバッグを終了するとき</h1>
 <p>pry自体は<code>quit</code>コマンドで終了できる。そのあと、
 <strong><code>Ctrl + C</code>などでdockerの接続を終了すると、コンテナ自体が終了してしまう。</strong>
 デタッチするときは<code>Ctrl-P Ctrl-Q</code>で抜ける。</p>
-
 <h1 id="参考">参考</h1>
-
 <p><a href="http://qiita.com/kawasin73/items/2253523be18e5afd994f">高速に開発できる Docker + Rails開発環境のテンプレートを作った</a></p>
-
 <p><a href="http://tech.withsin.net/2015/09/30/docker-container-detach/">Dockerコンテナからのデタッチ</a></p>
-
 <p><a href="http://qiita.com/AknYk416/items/6f0bec58712edaf4940e">pry-byebugでrubyをデバッグする</a></p>
 
         </div>
@@ -341,9 +310,9 @@ cb68afd353c8        baukis_spring       &quot;prehook 'ruby -v'...&quot;   5 sec
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -421,10 +390,16 @@ cb68afd353c8        baukis_spring       &quot;prehook 'ruby -v'...&quot;   5 sec
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -436,12 +411,6 @@ cb68afd353c8        baukis_spring       &quot;prehook 'ruby -v'...&quot;   5 sec
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

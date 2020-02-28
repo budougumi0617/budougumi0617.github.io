@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -175,71 +175,57 @@
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#stringメソッドやgostringメソッドを実装してprint出力の結果を整形する">StringメソッドやGoStringメソッドを実装してPrint出力の結果を整形する。</a></li>
-<li><a href="#stringerインターフェースなどを実装した型をフィールドに持つ構造体の出力">Stringerインターフェースなどを実装した型をフィールドに持つ構造体の出力</a></li>
-<li><a href="#マスキングなどに使えそう">マスキングなどに使えそう。</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
-          <p><code>fmt</code>パッケージには<code>fmt.Printf</code>の出力を任意に変更できるインターフェースが定義されている。<br />
+          <p><code>fmt</code>パッケージには<code>fmt.Printf</code>の出力を任意に変更できるインターフェースが定義されている。<br>
 各インターフェースを満たす独自型をフィールドに持つ構造体の出力がどうなるのか確認し、任意の型の出力を制御できるか確認してみた。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li><code>fmt.Printf</code>関数はPrint verbによって出力形式を変更できる
-
 <ul>
 <li><a href="https://golang.org/pkg/fmt/#hdr-Printing">https://golang.org/pkg/fmt/#hdr-Printing</a></li>
-</ul></li>
+</ul>
+</li>
 <li><code>fmt</code>パッケージのインターフェースを実装すると出力を制御できる
-
 <ul>
 <li><code>fmt.Stringer</code>インターフェース
-
 <ul>
 <li><a href="https://golang.org/pkg/fmt/#Stringer">https://golang.org/pkg/fmt/#Stringer</a></li>
-</ul></li>
+</ul>
+</li>
 <li><code>fmt.GoStringer</code>インターフェース
-
 <ul>
 <li><a href="https://golang.org/pkg/fmt/#GoStringer">https://golang.org/pkg/fmt/#GoStringer</a></li>
-</ul></li>
+</ul>
+</li>
 <li><code>fmt.Formatter</code>インターフェース
-
 <ul>
 <li><a href="https://golang.org/pkg/fmt/#Formatter">https://golang.org/pkg/fmt/#Formatter</a></li>
-</ul></li>
-</ul></li>
+</ul>
+</li>
+</ul>
+</li>
 <li>インターフェースを実装した独自型は構造体に含まれても出力が制御できる</li>
 <li>これを使えば独自型の出力に任意のマスキング処理や追加情報を付与できそう
-
 <ul>
 <li><a href="https://play.golang.org/p/zHvg22dxkX_N">https://play.golang.org/p/zHvg22dxkX_N</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="stringメソッドやgostringメソッドを実装してprint出力の結果を整形する">StringメソッドやGoStringメソッドを実装してPrint出力の結果を整形する。</h1>
-
 <p>Goは他の言語と同じように<code>fmt.Printf</code>関数でPrint verbを使うことで出力される情報量を制御できる。</p>
-
 <ul>
 <li>Printing | fmt package
-
 <ul>
 <li><a href="https://golang.org/pkg/fmt/#hdr-Printing">https://golang.org/pkg/fmt/#hdr-Printing</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>例えば、<code>string</code>型は<code>%s</code>で表示し、構造体は<code>%v</code>を使う。<code>%+v</code>を使うと構造体フィールド名も一緒に出力される。
 これらの出力は<code>fmt</code>パッケージに定義されているインターフェースを実装することで、任意の出力形式に変更できる。</p>
-
 <ul>
-<li><p><a href="https://play.golang.org/p/EWOEsNcmd3Z">https://play.golang.org/p/EWOEsNcmd3Z</a></p>
+<li><a href="https://play.golang.org/p/EWOEsNcmd3Z">https://play.golang.org/p/EWOEsNcmd3Z</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
@@ -264,24 +250,20 @@
 	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;ms by %%v\t=\t%+v\n&#34;</span>, ms)
 	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;ms by %%+v\t=\t%v\n&#34;</span>, ms)
 	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;ms by %%#v\t=\t%#v\n&#34;</span>, ms)
-}</code></pre></div></li>
-</ul>
-
-<p>例えば、上のコードの<code>MyString</code>型は<code>fmt.Stringer</code>インターフェースと、<code>fmt.GoStringer</code>インターフェースを実装している。</p>
-
+}
+</code></pre></div><p>例えば、上のコードの<code>MyString</code>型は<code>fmt.Stringer</code>インターフェースと、<code>fmt.GoStringer</code>インターフェースを実装している。</p>
 <ul>
 <li><code>fmt.Stringer</code>インターフェース
-
 <ul>
 <li><a href="https://golang.org/pkg/fmt/#Stringer">https://golang.org/pkg/fmt/#Stringer</a></li>
-</ul></li>
+</ul>
+</li>
 <li><code>fmt.GoStringer</code>インターフェース
-
 <ul>
 <li><a href="https://golang.org/pkg/fmt/#GoStringer">https://golang.org/pkg/fmt/#GoStringer</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>そのため、<code>fmt.Printf</code>関数で対応した<code>Print verb</code>を使って出力すると、以下のような出力結果となる。
 <code>String</code>メソッドや<code>GoString</code>メソッドの実装結果が出力されているのがわかる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> -v fmt_test.go
@@ -291,29 +273,24 @@ ms by %s	<span style="color:#719e07">=</span>	<span style="color:#719e07">return
 ms by %v	<span style="color:#719e07">=</span>	<span style="color:#719e07">return</span> from String<span style="color:#719e07">()</span>
 ms by %+v	<span style="color:#719e07">=</span>	<span style="color:#719e07">return</span> from String<span style="color:#719e07">()</span>
 ms by %#v	<span style="color:#719e07">=</span>	<span style="color:#719e07">return</span> from GoString<span style="color:#719e07">()</span>
---- PASS: TestMyString <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
-PASS</code></pre></div>
-<p><code>fmt.Formatter</code>インターフェースを実装すれば<code>%s</code>や<code>%v</code>以外の<code>verb</code>の出力結果を変更できる。</p>
-
+--- PASS: TestMyString <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
+PASS
+</code></pre></div><p><code>fmt.Formatter</code>インターフェースを実装すれば<code>%s</code>や<code>%v</code>以外の<code>verb</code>の出力結果を変更できる。</p>
 <ul>
 <li><code>fmt.Formatter</code>インターフェース
-
 <ul>
 <li><a href="https://golang.org/pkg/fmt/#Formatter">https://golang.org/pkg/fmt/#Formatter</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>具体的な詳細は@tenntennさんのQiitaの記事を見ればよいだろう。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://qiita.com/tenntenn/items/453a09c4c6d7f580d0ab" data-iframely-url="//cdn.iframe.ly/m4WA0zK?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
 <h1 id="stringerインターフェースなどを実装した型をフィールドに持つ構造体の出力">Stringerインターフェースなどを実装した型をフィールドに持つ構造体の出力</h1>
-
 <p>では、構造体のフィールドにこのように出力形式を変更している型を指定するとどのように出力されるのだろう？
 結論から言うと、型に実装した<code>Stringer</code>インターフェースの内容に沿った出力がされた。</p>
-
 <ul>
-<li><p><a href="https://play.golang.org/p/RdddeJVB7jb">https://play.golang.org/p/RdddeJVB7jb</a></p>
+<li><a href="https://play.golang.org/p/RdddeJVB7jb">https://play.golang.org/p/RdddeJVB7jb</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
@@ -343,10 +320,8 @@ PASS</code></pre></div>
 	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;root by %%v\t=\t%+v\n&#34;</span>, root)
 	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;root by %%+v\t=\t%v\n&#34;</span>, root)
 	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;root by %%#v\t=\t%#v\n&#34;</span>, root)
-}</code></pre></div></li>
-</ul>
-
-<p>上記の<code>Root</code>構造体はフィールドに<code>MyString</code>型を持つ。<code>Root</code>オブジェクトの出力は<code>MyString</code>型に実装された<code>String</code>メソッドなどを反映した内容になっている。</p>
+}
+</code></pre></div><p>上記の<code>Root</code>構造体はフィールドに<code>MyString</code>型を持つ。<code>Root</code>オブジェクトの出力は<code>MyString</code>型に実装された<code>String</code>メソッドなどを反映した内容になっている。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> -v fmt_test.go
 <span style="color:#719e07">===</span> RUN   TestRoot
 <span style="color:#719e07">{</span><span style="color:#719e07">return</span> from String<span style="color:#719e07">()}</span>
@@ -355,15 +330,14 @@ root by %s	<span style="color:#719e07">=</span>	<span style="color:#719e07">{</s
 root by %v	<span style="color:#719e07">=</span>	<span style="color:#719e07">{</span>RootField:return from String<span style="color:#719e07">()}</span>
 root by %+v	<span style="color:#719e07">=</span>	<span style="color:#719e07">{</span><span style="color:#719e07">return</span> from String<span style="color:#719e07">()}</span>
 root by %#v	<span style="color:#719e07">=</span>	main.Root<span style="color:#719e07">{</span>RootField:return from GoString<span style="color:#719e07">()}</span>
---- PASS: TestRoot <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
-PASS</code></pre></div>
-<h1 id="マスキングなどに使えそう">マスキングなどに使えそう。</h1>
-
+--- PASS: TestRoot <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
+PASS
+</code></pre></div><h1 id="マスキングなどに使えそう">マスキングなどに使えそう。</h1>
 <p>ではこの機能をどう使うのか？間接的にも実装したインタフェースの結果が反映されるので、マスキングなどに使えそうだ。
 例えば、アプリケーションを作成するとき、パスワードなどの機密情報はそのままログ出力されてほしくない。</p>
-
 <ul>
-<li><p><a href="https://play.golang.org/p/zHvg22dxkX_N">https://play.golang.org/p/zHvg22dxkX_N</a></p>
+<li><a href="https://play.golang.org/p/zHvg22dxkX_N">https://play.golang.org/p/zHvg22dxkX_N</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
@@ -396,10 +370,8 @@ PASS</code></pre></div>
 	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;cr by %%v\t=\t%+v\n&#34;</span>, cr)
 	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;cr by %%+v\t=\t%v\n&#34;</span>, cr)
 	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;cr by %%#v\t=\t%#v\n&#34;</span>, cr)
-}</code></pre></div></li>
-</ul>
-
-<p><code>GoStringer</code>インターフェースを実装していないので、<code>%#v</code> verbを使った出力はマスキングできていないが、他の出力についてはマスキングができている。<br />
+}
+</code></pre></div><p><code>GoStringer</code>インターフェースを実装していないので、<code>%#v</code> verbを使った出力はマスキングできていないが、他の出力についてはマスキングができている。<br>
 ロガーなどでマスキングを仕込むより、<code>Password</code>型などの独自型でマスキングを定義したほうが漏れがなくマスキングを行えそうだ。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> -v fmt_test.go
 <span style="color:#719e07">===</span> RUN   TestPassword
@@ -408,31 +380,30 @@ cr by %s	<span style="color:#719e07">=</span>	<span style="color:#719e07">{</spa
 cr by %v	<span style="color:#719e07">=</span>	<span style="color:#719e07">{</span>ID:budougumi0617 Password:XXXXet<span style="color:#719e07">}</span>
 cr by %+v	<span style="color:#719e07">=</span>	<span style="color:#719e07">{</span>budougumi0617 XXXXet<span style="color:#719e07">}</span>
 cr by %#v	<span style="color:#719e07">=</span>	main.Credential<span style="color:#719e07">{</span>ID:<span style="color:#2aa198">&#34;budougumi0617&#34;</span>, Password:<span style="color:#2aa198">&#34;secret&#34;</span><span style="color:#719e07">}</span>
---- PASS: TestPassword <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
-PASS</code></pre></div>
-<h1 id="参考">参考</h1>
-
+--- PASS: TestPassword <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
+PASS
+</code></pre></div><h1 id="参考">参考</h1>
 <ul>
 <li>fmt.Formatterを実装して%vや%+vをカスタマイズしたり、%3🍺みたいな書式をつくってみよう #golang
-
 <ul>
 <li><a href="https://qiita.com/tenntenn/items/453a09c4c6d7f580d0ab">https://qiita.com/tenntenn/items/453a09c4c6d7f580d0ab</a></li>
-</ul></li>
+</ul>
+</li>
 <li><code>fmt.Stringer</code>インターフェース
-
 <ul>
 <li><a href="https://golang.org/pkg/fmt/#Stringer">https://golang.org/pkg/fmt/#Stringer</a></li>
-</ul></li>
+</ul>
+</li>
 <li><code>fmt.GoStringer</code>インターフェース
-
 <ul>
 <li><a href="https://golang.org/pkg/fmt/#GoStringer">https://golang.org/pkg/fmt/#GoStringer</a></li>
-</ul></li>
+</ul>
+</li>
 <li><code>fmt.Formatter</code>インターフェース
-
 <ul>
 <li><a href="https://golang.org/pkg/fmt/#Formatter">https://golang.org/pkg/fmt/#Formatter</a></li>
-</ul></li>
+</ul>
+</li>
 </ul>
         </div>
         
@@ -523,9 +494,9 @@ PASS</code></pre></div>
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -603,10 +574,16 @@ PASS</code></pre></div>
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -618,12 +595,6 @@ PASS</code></pre></div>
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -169,50 +169,39 @@
           
           
           
-          
-
-<p>Macの<code>Visual Studio Code</code>(以下<code>VSCode</code>)を使って<code>Go</code>のコードの中で<code>Syscall</code>が呼ばれるまでをデバッグで確認したかったが、ステップインを使うと、<code>unexpected fault address...</code>で失敗していた。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+          <p>Macの<code>Visual Studio Code</code>(以下<code>VSCode</code>)を使って<code>Go</code>のコードの中で<code>Syscall</code>が呼ばれるまでをデバッグで確認したかったが、ステップインを使うと、<code>unexpected fault address...</code>で失敗していた。</p>
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>MacのVSCodeで<code>Delve</code>でGoのデバッグを開始してステップインしようとすると、<code>unexpected fault address</code>と出る</li>
 <li><code>Delve</code>を再インストールしたら直った。
-
 <ul>
 <li>GitHubから<code>derekparker/delve</code>を取得して<code>make install</code>でインストールし直す</li>
-</ul></li>
+</ul>
+</li>
 <li><code>which dlv</code>で古い<code>dlv</code>を見ていたら削除しておくこと</li>
 </ul>
-
 <h1 id="macにdelveを正しくインストールする">MacにDelveを正しくインストールする。</h1>
-
-<p>MacでDelveを利用するには、証明書の設定が必要になる。<br />
+<p>MacでDelveを利用するには、証明書の設定が必要になる。<br>
 <code>usr/bin/dlv</code>があったのでdelveのインストールを終えていたと思っていたのだけど、ちゃんと設定できていなかったらしい。<code>brew</code>よりも直接インストールしたほうがラクそうだったので以下の方法で再設定した。</p>
-
 <h2 id="1-delveのコードを取得する">1. Delveのコードを取得する</h2>
-
 <p><code>ghq get</code>なり<code>git clone</code>で<code>delve</code>のソースコードを取得する。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ghq get git@github.com:derekparker/delve.git
 または
-$ git clone git@github.com:derekparker/delve.git</code></pre></div>
-<h2 id="2-delveをインストールする">2. Delveをインストールする</h2>
-
+$ git clone git@github.com:derekparker/delve.git
+</code></pre></div><h2 id="2-delveをインストールする">2. Delveをインストールする</h2>
 <p>コードからならば<code>make</code>を使うだけですぐインストールできる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">cd</span> <span style="color:#2aa198">${</span><span style="color:#268bd2">DELVE_REPO_DIR</span><span style="color:#2aa198">}</span>
 $ make install
-scripts/gencert.sh <span style="color:#719e07">||</span> <span style="color:#719e07">(</span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;An error occurred when generating and installing a new certicate&#34;</span>; <span style="color:#b58900">exit</span> <span style="color:#2aa198">1</span><span style="color:#719e07">)</span>
+scripts/gencert.sh <span style="color:#719e07">||</span> <span style="color:#719e07">(</span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;An error occurred when generating and installing a new certicate&#34;</span>; <span style="color:#b58900">exit</span> 1<span style="color:#719e07">)</span>
 go install -ldflags<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;-s -X main.Build=1758...&#34;</span> github.com/derekparker/delve/cmd/dlv
-codesign -s <span style="color:#2aa198">&#34;dlv-cert&#34;</span>  /Users/budougumi0617/go/bin/dlv</code></pre></div>
-<p>自分の場合は<code>/Users/budougumi0617/go/bin/</code>ディレクトリにバイナリが出来た。</p>
-
-<h1 id="3-which-dlv-で古い-dlv-を見ていたら削除しておく">3. <code>which dlv</code>で古い<code>dlv</code>を見ていたら削除しておく</h1>
-
+codesign -s <span style="color:#2aa198">&#34;dlv-cert&#34;</span>  /Users/budougumi0617/go/bin/dlv
+</code></pre></div><p>自分の場合は<code>/Users/budougumi0617/go/bin/</code>ディレクトリにバイナリが出来た。</p>
+<h1 id="3-which-dlvで古いdlvを見ていたら削除しておく">3. <code>which dlv</code>で古い<code>dlv</code>を見ていたら削除しておく</h1>
 <p><code>PATH</code>の設定の仕方によっては、先ほどできた<code>dlv</code>がまだ参照されていないかもしれない。<code>which</code>コマンドで先ほどのディレクトリ以下の<code>dlv</code>が参照されるようになっているか確認し、別のバイナリが呼ばれているならば削除しておく。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ which dlv
 /usr/local/bin/dlv
-$ rm /usr/local/bin/dlv</code></pre></div>
-<p>これでVScodeを再起動し、改めてデバッグを実行してみるとちゃんとデバッグが可能になった。</p>
+$ rm /usr/local/bin/dlv
+</code></pre></div><p>これでVScodeを再起動し、改めてデバッグを実行してみるとちゃんとデバッグが可能になった。</p>
 
         </div>
         
@@ -303,9 +292,9 @@ $ rm /usr/local/bin/dlv</code></pre></div>
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -383,10 +372,16 @@ $ rm /usr/local/bin/dlv</code></pre></div>
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -398,12 +393,6 @@ $ rm /usr/local/bin/dlv</code></pre></div>
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

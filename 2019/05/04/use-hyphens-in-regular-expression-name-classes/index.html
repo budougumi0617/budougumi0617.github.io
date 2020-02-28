@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -59,12 +59,10 @@
   <meta property="og:type" content="article"/>
   <meta property="og:title" content="正規表現の文字クラス（角括弧[]）にハイフンを含みたいときは、ハイフンを最初または最後に書く - My External Storage"/>
   <meta property="og:description" content="正規表現をいじっていたらハマったのでメモ。
-
 "/>
   
   <meta name="twitter:title" content="正規表現の文字クラス（角括弧[]）にハイフンを含みたいときは、ハイフンを最初または最後に書く - My External Storage"/>
   <meta name="twitter:description" content="正規表現をいじっていたらハマったのでメモ。
-
 "/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
@@ -177,78 +175,54 @@
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#文字クラス-でハイフン-を指定しているつもりがちゃんと判定されない">文字クラス(<code>[]</code>)でハイフン（<code>-</code>）を指定しているつもりがちゃんと判定されない</a></li>
-<li><a href="#文字クラスの中でハイフンを指定するときは最初か最後にハイフンを置かないと範囲指定扱いされてしまう">文字クラスの中でハイフンを指定するときは最初か最後にハイフンを置かないと範囲指定扱いされてしまう。</a></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
           <p>正規表現をいじっていたらハマったのでメモ。</p>
-
-<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4873113598&linkId=59ba8fe3cd580af67049dcacf9c16e40"></iframe>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<!-- raw HTML omitted -->
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>文字クラス(<code>[]</code>)でハイフン（<code>-</code>）を指定しているつもりがちゃんと判定されない</li>
 <li>文字クラスの中でハイフンを指定するときは最初か最後にハイフンを置かないと範囲指定あつかいされてしまう。</li>
 </ul>
-
-<h1 id="文字クラス-でハイフン-を指定しているつもりがちゃんと判定されない">文字クラス(<code>[]</code>)でハイフン（<code>-</code>）を指定しているつもりがちゃんと判定されない</h1>
-
+<h1 id="文字クラスでハイフン-を指定しているつもりがちゃんと判定されない">文字クラス(<code>[]</code>)でハイフン（<code>-</code>）を指定しているつもりがちゃんと判定されない</h1>
 <p><code>Makefile</code>の自己文書化をしていた。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://postd.cc/auto-documented-makefile/" data-iframely-url="//cdn.iframe.ly/6P77kjy?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
 <p>上述のリンク先では以下のようなワンライナーが紹介されている。
 このワンライナーでは、序盤の<code>@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST)</code>部分で<code>Makefile</code>内の対象行を拾って後続の処理を行なっている。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">.PHONY: <span style="color:#b58900">help</span>
 
 help:
-    @grep -E <span style="color:#2aa198">&#39;^[a-zA-Z_-]+:.*?## .*$$&#39;</span> <span style="color:#719e07">$(</span>MAKEFILE_LIST<span style="color:#719e07">)</span> | sort | awk <span style="color:#2aa198">&#39;BEGIN {FS = &#34;:.*?## &#34;}; {printf &#34;\033[36m%-30s\033[0m %s\n&#34;, $$1, $$2}&#39;</span></code></pre></div>
-<p>私の<code>Makefile</code>には<code>make docker.run</code>などのようなドット（<code>.</code>）を含むコマンド定義があったが、この正規表現にドットは含まれていない。<br />
+    @grep -E <span style="color:#2aa198">&#39;^[a-zA-Z_-]+:.*?## .*$$&#39;</span> <span style="color:#719e07">$(</span>MAKEFILE_LIST<span style="color:#719e07">)</span> | sort | awk <span style="color:#2aa198">&#39;BEGIN {FS = &#34;:.*?## &#34;}; {printf &#34;\033[36m%-30s\033[0m %s\n&#34;, $$1, $$2}&#39;</span>
+</code></pre></div><p>私の<code>Makefile</code>には<code>make docker.run</code>などのようなドット（<code>.</code>）を含むコマンド定義があったが、この正規表現にドットは含まれていない。<br>
 そのため、上記の正規表現中の<code>^[a-zA-Z_-]</code>の部分を<code>^[a-zA-Z_-\.]</code>と変更したところ、ハイフンを含む行がヒットしなくなってしまった。</p>
-
 <h1 id="文字クラスの中でハイフンを指定するときは最初か最後にハイフンを置かないと範囲指定扱いされてしまう">文字クラスの中でハイフンを指定するときは最初か最後にハイフンを置かないと範囲指定扱いされてしまう。</h1>
-
 <p><code>\-</code>とエスケープをして<code>^[a-zA-Z_\-\.]</code>のように書いても当然意味がなかった。結局検索して解決することができた。一次ソース（仕様）は見つけられなかった。（正規表現の仕様はWeb上には公開されていないのだろうか？）</p>
-
 <ul>
 <li>正規表現　-ハイフン　判定
-
 <ul>
 <li><a href="http://origin8.info/blog/?p=490">http://origin8.info/blog/?p=490</a></li>
-</ul></li>
 </ul>
-
-<p>節タイトルの通り、文字クラスの中でハイフン（<code>-</code>）を指定するときは最初か最後に指定しないといけないようだ。<br />
+</li>
+</ul>
+<p>節タイトルの通り、文字クラスの中でハイフン（<code>-</code>）を指定するときは最初か最後に指定しないといけないようだ。<br>
 <code>^[a-zA-Z_-\.</code>を<code>^[a-zA-Z_.\-]</code>と書きかえることで、ハイフンを含んだ文も、ドットを含んだ文もgrepすることができる正規表現を書くことができた。</p>
-
 <h1 id="終わりに">終わりに</h1>
-
 <p>正規表現は記号が検索しにくいというところもあってなかなか調べるのが難しい（<code>[]</code>で囲う表記を文字クラスと呼ぶことも今回初めて知った）。
 オライリー本を買ってちゃんと読むべきか。</p>
-
-<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4873113598&linkId=59ba8fe3cd580af67049dcacf9c16e40"></iframe>
-
+<!-- raw HTML omitted -->
 <h1 id="参考">参考</h1>
-
 <ul>
 <li><a href="http://origin8.info/blog/?p=490">正規表現　-ハイフン　判定</a></li>
 <li><a href="https://docs.microsoft.com/ja-jp/dotnet/standard/base-types/regular-expression-language-quick-reference">正規表現言語 - クイック リファレンス | Microsoft Docs</a>
-
 <ul>
 <li><code>.NET</code>用のリファレンスのようだが、初歩的なところがちょうどいい文量でまとめてあったので。</li>
-</ul></li>
+</ul>
+</li>
 <li><a href="https://regexr.com/">RegExr</a>
-
 <ul>
 <li>オンラインで正規表現を確認できる。正規表現で検索したい例文を自分で用意することもできたので便利。</li>
-</ul></li>
+</ul>
+</li>
 </ul>
         </div>
         
@@ -335,9 +309,9 @@ help:
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -415,10 +389,16 @@ help:
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -430,12 +410,6 @@ help:
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -169,55 +169,41 @@
           
           
           
-          
-
-<p><a href="/2018/01/01/hello-grpc-go/">前回</a>のgRPCのクイックスタートをやったときにサーバーリフレクションのことがよくわからなかった。サーバーリフレクションにもチュートリアルがあったのでやってみた。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+          <p><a href="/2018/01/01/hello-grpc-go/">前回</a>のgRPCのクイックスタートをやったときにサーバーリフレクションのことがよくわからなかった。サーバーリフレクションにもチュートリアルがあったのでやってみた。</p>
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>サーバーリフレクションを使うと実行中のサーバからプロトコルバッファーの定義を取得したり、実行出来るようになる。</li>
 <li>Goで利用するには、<code>grpc.NewServer()</code>のあとで通常のプロトコルバッファーの<code>Register</code>をした後<code>reflection.Register</code>メソッドを呼ぶだけ</li>
 <li><a href="https://github.com/grpc/grpc-go/blob/master/Documentation/server-reflection-tutorial.md">チュートリアル</a>の手順通りに行うとc++のクライアントからサーバのプロトコルバッファーを確認することができる。</li>
 </ul>
-
 <h1 id="server-reflectionとは">Server Reflectionとは</h1>
-
-<p><strong>GRPC Server Reflection Protocol</strong><br />
+<p><strong>GRPC Server Reflection Protocol</strong><br>
 <a href="https://github.com/grpc/grpc/blob/master/doc/server-reflection.md">https://github.com/grpc/grpc/blob/master/doc/server-reflection.md</a></p>
-
 <p>サーバーリフレクションはクライアントのコマンドラインからgRPCの定義の取得あるいは実行を可能にするgRPCサーバの拡張機能。サーバーリフレクションによって<code>curl</code>ライクなことがgRPCサーバでも実現できる。</p>
-
 <h1 id="server-reflection-tutorial">Server Reflection Tutorial</h1>
-
-<p><strong>gRPC Server Reflection Tutorial</strong><br />
+<p><strong>gRPC Server Reflection Tutorial</strong><br>
 <a href="https://github.com/grpc/grpc-go/blob/master/Documentation/server-reflection-tutorial.md">https://github.com/grpc/grpc-go/blob/master/Documentation/server-reflection-tutorial.md</a></p>
-
-<h2 id="grpc-cliのビルド">grpc_cliのビルド</h2>
-
+<h2 id="grpc_cliのビルド">grpc_cliのビルド</h2>
 <p>サーバ側の<code>Server Reflection</code>情報を確認するためのクライアントツールを用意する。実装は<code>c++</code>のみ提供されているようだ。<code>grpc/grpc</code>リポジトリを取得してクライアントツールをビルドする。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git clone https://github.com/grpc/grpc
 $ <span style="color:#b58900">cd</span> grpc
-$ make grpc_cli</code></pre></div>
-<p>サーバーリフレクションのチュートリアルにはこれしか書かれていないが、依存ライブラリがあるのでそちらのインストールもする。<br />
+$ make grpc_cli
+</code></pre></div><p>サーバーリフレクションのチュートリアルにはこれしか書かれていないが、依存ライブラリがあるのでそちらのインストールもする。<br>
 自分の場合はMacOSなので以下を行ったあとビルドできた。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git submodule update --init
 $ brew install autoconf automake libtool shtool
-$ brew install gflags</code></pre></div>
-<p>もし動かなかったり、他のOS環境の場合は、<code>make run_dep_checks</code>コマンドでビルド環境が整っているか確認する。または、以下のページで他に依存しているものが無いか確認する。</p>
-
+$ brew install gflags
+</code></pre></div><p>もし動かなかったり、他のOS環境の場合は、<code>make run_dep_checks</code>コマンドでビルド環境が整っているか確認する。または、以下のページで他に依存しているものが無いか確認する。</p>
 <p><a href="https://github.com/grpc/grpc/blob/master/INSTALL.md">https://github.com/grpc/grpc/blob/master/INSTALL.md</a></p>
-
-<h2 id="サーバーに対してgprc-cliを使ってみる">サーバーに対してgprc_cliを使ってみる</h2>
-
+<h2 id="サーバーに対してgprc_cliを使ってみる">サーバーに対してgprc_cliを使ってみる</h2>
 <p><code>grpc_cli</code>のビルドが終わったり<code>google.golang.org/grpc</code>リポジトリで、サンプルのhelloworldサーバーを立ち上げておく。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run examples/helloworld/greeter_server/main.go</code></pre></div>
-<p>helloworldサーバーは<code>git clone</code>した直後でも、<code>reflection.Register</code>が既に呼ばれている。（以下の実行結果はクイックスタートのチュートリアルを行ったあとのサーバのコードなので、<code>SayHelloAgain</code>メソッドが追加されている)</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run examples/helloworld/greeter_server/main.go
+</code></pre></div><p>helloworldサーバーは<code>git clone</code>した直後でも、<code>reflection.Register</code>が既に呼ばれている。（以下の実行結果はクイックスタートのチュートリアルを行ったあとのサーバのコードなので、<code>SayHelloAgain</code>メソッドが追加されている)</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">s <span style="color:#719e07">:=</span> grpc.<span style="color:#268bd2">NewServer</span>()
 pb.<span style="color:#268bd2">RegisterGreeterServer</span>(s, <span style="color:#719e07">&amp;</span>server{})
 <span style="color:#586e75">// Register reflection service on gRPC server.
-</span><span style="color:#586e75"></span>reflection.<span style="color:#268bd2">Register</span>(s)</code></pre></div>
-<p>あとは立ち上げたサーバーに向けて<code>grpc_cli ls</code>コマンドを実行すると、プロトコルバッファーが取得できる。</p>
+</span><span style="color:#586e75"></span>reflection.<span style="color:#268bd2">Register</span>(s)
+</code></pre></div><p>あとは立ち上げたサーバーに向けて<code>grpc_cli ls</code>コマンドを実行すると、プロトコルバッファーが取得できる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">./bins/opt/grpc_cli ls localhost:50051 -l
 filename: helloworld.proto
 package: helloworld;
@@ -230,26 +216,18 @@ filename: grpc_reflection_v1alpha/reflection.proto
 package: grpc.reflection.v1alpha;
 service ServerReflection <span style="color:#719e07">{</span>
   rpc ServerReflectionInfo<span style="color:#719e07">(</span>stream grpc.reflection.v1alpha.ServerReflectionRequest<span style="color:#719e07">)</span> returns <span style="color:#719e07">(</span>stream grpc.reflection.v1alpha.ServerReflectionResponse<span style="color:#719e07">)</span> <span style="color:#719e07">{}</span>
-<span style="color:#719e07">}</span></code></pre></div>
-<p><code>call</code>オプションでメソッドを実行させることもできた。</p>
-
+<span style="color:#719e07">}</span>
+</code></pre></div><p><code>call</code>オプションでメソッドを実行させることもできた。</p>
 <pre><code>$ ./bins/opt/grpc_cli call localhost:50051 SayHelloAgain &quot;name: 'gRPC CLI'&quot;
 connecting to localhost:50051
 message: &quot;Hello again gRPC CLI&quot;
 
 Rpc succeeded with OK status
-</code></pre>
-
-<h2 id="チュートリアルを終えて">チュートリアルを終えて</h2>
-
+</code></pre><h2 id="チュートリアルを終えて">チュートリアルを終えて</h2>
 <p>reflectionパッケージにはRegisterメソッドしかない。</p>
-
 <p><a href="https://godoc.org/google.golang.org/grpc/reflection">https://godoc.org/google.golang.org/grpc/reflection</a></p>
-
 <p>現状<code>Go</code>のコードで直接リフレクションデータを取得できるようにはなっていないっぽいが、<code>grpc_reflection_v1alpha</code>にリフレクション結果の構造体定義がもろもろされている（<code>grpc_cli ls</code>コマンドの結果にも含まれている）。後々<code>Go</code>のコードからでも扱えるようになるのかな？</p>
-
 <p><a href="https://godoc.org/google.golang.org/grpc/reflection/grpc_reflection_v1alpha">https://godoc.org/google.golang.org/grpc/reflection/grpc_reflection_v1alpha</a></p>
-
 <p><code>grpc_cli</code>のコマンドのusageでオプションを見ると、もろもろの認証情報も付加できるようなので、本番用に構築したgRPCサーバでも利用できそう。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">./bins/opt/grpc_cli ls
 
@@ -264,26 +242,19 @@ List services
     --outfile                ; Output filename <span style="color:#719e07">(</span>defaults to stdout<span style="color:#719e07">)</span>
     --enable_ssl             ; Set whether to use tls
     --use_auth               ; Set whether to create default google credentials
-    --access_token           ; Set the access token in metadata, overrides --use_auth</code></pre></div>
-<h1 id="参考url">参考URL</h1>
-
-<p><strong>GRPC Server Reflection Protocol</strong><br />
+    --access_token           ; Set the access token in metadata, overrides --use_auth
+</code></pre></div><h1 id="参考url">参考URL</h1>
+<p><strong>GRPC Server Reflection Protocol</strong><br>
 <a href="https://github.com/grpc/grpc/blob/master/doc/server-reflection.md">https://github.com/grpc/grpc/blob/master/doc/server-reflection.md</a></p>
-
-<p><strong>gRPC Server Reflection Tutorial</strong><br />
+<p><strong>gRPC Server Reflection Tutorial</strong><br>
 <a href="https://github.com/grpc/grpc-go/blob/master/Documentation/server-reflection-tutorial.md">https://github.com/grpc/grpc-go/blob/master/Documentation/server-reflection-tutorial.md</a></p>
-
-<p><strong>GoDoc:google.golang.org/grpc/reflection</strong><br />
+<p><strong>GoDoc:google.golang.org/grpc/reflection</strong><br>
 <a href="https://godoc.org/google.golang.org/grpc/reflection">https://godoc.org/google.golang.org/grpc/reflection</a></p>
-
-<p><strong>GoDoc:google.golang.org/grpc/reflection/grpc_reflection_v1alpha</strong><br />
+<p><strong>GoDoc:google.golang.org/grpc/reflection/grpc_reflection_v1alpha</strong><br>
 <a href="https://godoc.org/google.golang.org/grpc/reflection/grpc_reflection_v1alpha">https://godoc.org/google.golang.org/grpc/reflection/grpc_reflection_v1alpha</a></p>
-
-<p><strong>gRPC Service discovery with Server Reflection and gRPC CLI in Go</strong><br />
+<p><strong>gRPC Service discovery with Server Reflection and gRPC CLI in Go</strong><br>
 <a href="https://www.goheroe.org/2017/08/19/grpc-service-discovery-with-server-reflection-and-grpc-cli-in-go/">https://www.goheroe.org/2017/08/19/grpc-service-discovery-with-server-reflection-and-grpc-cli-in-go/</a></p>
-
 <h1 id="grpc関連の記事">gRPC関連の記事</h1>
-
 <ul>
 <li><a href="/2018/01/01/hello-grpc-go/">[Go]gRPCのGo Quick Startをやってみた。</a></li>
 <li><a href="/2018/01/14/grpc-basics-go/">[Go]gRPC Basics: GoからgRPCのストリーミングRPCを理解する</a></li>
@@ -380,9 +351,9 @@ List services
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -460,10 +431,16 @@ List services
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -475,12 +452,6 @@ List services
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

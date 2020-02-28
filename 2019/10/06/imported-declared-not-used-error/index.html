@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -62,7 +62,6 @@
 結論から書くと、やはり「単純さや簡潔性を保つため」が動機になるのだと思う。
 なお、このブログでは敬体は使わない方針なので、常体なのはご容赦願いたい。
 
-
 そういや &ldquo;imported and not used&rdquo; &ldquo;declared and not used&rdquo; でコンパイル通らなくなるのはどういう哲学なんだろうこれ。
 "/>
   
@@ -70,7 +69,6 @@
   <meta name="twitter:description" content="先日の登壇資料にブコメでコメントいただいていたので私の考えを述べたいと思う。
 結論から書くと、やはり「単純さや簡潔性を保つため」が動機になるのだと思う。
 なお、このブログでは敬体は使わない方針なので、常体なのはご容赦願いたい。
-
 
 そういや &ldquo;imported and not used&rdquo; &ldquo;declared and not used&rdquo; でコンパイル通らなくなるのはどういう哲学なんだろうこれ。
 "/>
@@ -186,34 +184,25 @@
           
           
             <nav id="TableOfContents">
-<ul>
-<li><a href="#imported-and-not-used-エラー">&ldquo;imported and not used&rdquo;エラー</a>
-<ul>
-<li><a href="#imported-and-not-used-エラーに対する向き合いかた">&ldquo;imported and not used&rdquo;エラーに対する向き合いかた</a></li>
-<li><a href="#imported-and-not-used-エラーの対処方法">&ldquo;imported and not used&rdquo;エラーの対処方法</a></li>
-</ul></li>
-<li><a href="#declared-and-not-used-エラー">&ldquo;declared and not used&rdquo;エラー</a>
-<ul>
-<li><a href="#declared-and-not-used-エラーに対する向き合いかた">&ldquo;declared and not used&rdquo;エラーに対する向き合いかた</a></li>
-<li><a href="#declared-and-not-used-エラーの対処方法">&ldquo;declared and not used&rdquo;エラーの対処方法</a></li>
-</ul></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
+  <ul>
+    <li><a href="#imported-and-not-usedエラーに対する向き合いかた">&ldquo;imported and not used&quot;エラーに対する向き合いかた</a></li>
+    <li><a href="#imported-and-not-usedエラーの対処方法">&ldquo;imported and not used&quot;エラーの対処方法</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#declared-and-not-usedエラーに対する向き合いかた">&ldquo;declared and not used&quot;エラーに対する向き合いかた</a></li>
+    <li><a href="#declared-and-not-usedエラーの対処方法">&ldquo;declared and not used&quot;エラーの対処方法</a></li>
+  </ul>
 </nav>
           
-          <p><a href="/2019/10/05/jrits-why-go-how-is-go/">先日の登壇資料</a>に<a href="https://b.hatena.ne.jp/entry/4675383655814438370/comment/murishinai">ブコメでコメント</a>いただいていたので私の考えを述べたいと思う。<br />
-結論から書くと、やはり「単純さや簡潔性を保つため」が動機になるのだと思う。<br />
+          <p><a href="/2019/10/05/jrits-why-go-how-is-go/">先日の登壇資料</a>に<a href="https://b.hatena.ne.jp/entry/4675383655814438370/comment/murishinai">ブコメでコメント</a>いただいていたので私の考えを述べたいと思う。<br>
+結論から書くと、やはり「単純さや簡潔性を保つため」が動機になるのだと思う。<br>
 なお、このブログでは敬体は使わない方針なので、常体なのはご容赦願いたい。</p>
-
 <blockquote>
 <p>そういや &ldquo;imported and not used&rdquo; &ldquo;declared and not used&rdquo; でコンパイル通らなくなるのはどういう哲学なんだろうこれ。</p>
 </blockquote>
-
-<h1 id="imported-and-not-used-エラー">&ldquo;imported and not used&rdquo;エラー</h1>
-
+<h1 id="imported-and-not-usedエラー">&ldquo;imported and not used&quot;エラー</h1>
 <p><code>imported and not used</code>は依存していないパッケージを<code>import</code>していたときに発生するエラーだ。</p>
-
 <p>次のようなコードを実行しようとすると、<code>./prog.go:5:2: imported and not used: &quot;log&quot;</code>というエラーが発生する。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
@@ -224,13 +213,11 @@
 
 <span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 	fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Hello, playground&#34;</span>)
-}</code></pre></div>
-<h2 id="imported-and-not-used-エラーに対する向き合いかた">&ldquo;imported and not used&rdquo;エラーに対する向き合いかた</h2>
-
+}
+</code></pre></div><h2 id="imported-and-not-usedエラーに対する向き合いかた">&ldquo;imported and not used&quot;エラーに対する向き合いかた</h2>
 <p>まず、設計論としてあるパッケージが依存するパッケージは少ないほうがよいだろう。依存先のパッケージが他のパッケージに依存していた場合、さらに依存先が増えてしまう。
 また、ビルドでもそうだろう。不要なコードを<code>import</code>して、使わないコードをビルドに含めるのはビルド時間の増大と、バイナリサイズの肥大化を招くだろう。
 単純性・簡潔性を考えたときに、不要なパッケージに依存するデメリットは大きい。</p>
-
 <p>唯一の例外例として、「直接依存していないが、そのパッケージの<code>init</code>関数を実行する必要がある」場合がある。具体的に言うと、データベースに接続したいときの各種ドライバーパッケージなどだ。
 そのような場合は<code>blank import</code>で<code>import</code>する。こうすると、コード上そのパッケージを利用していなくても<code>imported and not used</code>エラーは発生しない。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">import</span> (
@@ -240,51 +227,43 @@
 
 <span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 	db, err <span style="color:#719e07">:=</span> sql.<span style="color:#268bd2">Open</span>(<span style="color:#2aa198">&#34;mysql&#34;</span>, <span style="color:#2aa198">&#34;user:password@/dbname&#34;</span>)
-}</code></pre></div>
-<ul>
+}
+</code></pre></div><ul>
 <li>Import declarations | The Go Programming Language Specification
-
 <ul>
 <li><a href="https://golang.org/ref/spec#Import_declarations">https://golang.org/ref/spec#Import_declarations</a></li>
-</ul></li>
 </ul>
-
-<h2 id="imported-and-not-used-エラーの対処方法">&ldquo;imported and not used&rdquo;エラーの対処方法</h2>
-
+</li>
+</ul>
+<h2 id="imported-and-not-usedエラーの対処方法">&ldquo;imported and not used&quot;エラーの対処方法</h2>
 <p>エディタやIDEを正しく設定していると<code>imported and not used</code>エラーにはほとんど遭遇することはない。
 <code>goimports</code>コマンドという<code>import</code>文を整理するコマンドがある。インストール方法は次の通り。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get golang.org/x/tools/cmd/goimports</code></pre></div>
-<p>これを使うと不要な<code>import</code>文は削除される。</p>
-
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get golang.org/x/tools/cmd/goimports
+</code></pre></div><p>これを使うと不要な<code>import</code>文は削除される。</p>
 <p>たとえば利用していない<code>log</code>パッケージを<code>import</code>している<code>go</code>ファイルに対して<code>goimports</code>コマンドを実行すると、以下の通り。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"> $ goimports -d three_index.go
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ goimports -d three_index.go
 diff -u three_index.go.orig three_index.go
---- three_index.go.orig <span style="color:#2aa198">2019</span>-10-06 <span style="color:#2aa198">09</span>:42:41.000000000 +0900
-+++ three_index.go      <span style="color:#2aa198">2019</span>-10-06 <span style="color:#2aa198">09</span>:42:41.000000000 +0900
+--- three_index.go.orig 2019-10-06 09:42:41.000000000 +0900
++++ three_index.go      2019-10-06 09:42:41.000000000 +0900
 @@ -3,7 +3,6 @@
 
- import <span style="color:#719e07">(</span>
-        <span style="color:#2aa198">&#34;fmt&#34;</span>
+import <span style="color:#719e07">(</span>
+       <span style="color:#2aa198">&#34;fmt&#34;</span>
 -       <span style="color:#2aa198">&#34;log&#34;</span>
- <span style="color:#719e07">)</span>
+<span style="color:#719e07">)</span>
 
- func main<span style="color:#719e07">()</span> <span style="color:#719e07">{</span></code></pre></div>
-<p><code>-w</code>オプションを使えばそのままファイルを上書きしてくれる。
+func main<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+</code></pre></div><p><code>-w</code>オプションを使えばそのままファイルを上書きしてくれる。
 ただ、<code>goimports</code>コマンドをそのまま利用している人は少ないだろう。
 エディタやIDEを使っていれば、ファイル保存時に<code>goimports</code>コマンドを自動的に実行してくれるはずだ。
 なので、<code>imported and not used</code>エラーを見ることは通常ほとんどないと思う。
 「あとで使うから<code>import</code>しておいたのにファイル保存したときに消えちゃった！」という失敗のほうが多い。</p>
-
-<p>VS Codeの場合は<code>go</code>プラグインを使って所定のオプションを有効にしていれば自動で<code>goimports</code>コマンドが実行されるだろう。
-<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://code.visualstudio.com/docs/languages/go" data-iframely-url="//cdn.iframe.ly/Dr68YV0?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
-<p>Vimで<code>vim-go</code>プラグインを使っている場合は、<code>go_fmt_autosave</code>オプションが有効になっていて、<code>go_fmt_command</code>オプションに<code>goimports</code>をしておけば、ファイル保存時に自動実行される。
-<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/fatih/vim-go/blob/80e475965eb7e4d52e049d7055b7053c8175a78d/doc/vim-go.txt" data-iframely-url="//cdn.iframe.ly/uLTqTZb?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
-<h1 id="declared-and-not-used-エラー">&ldquo;declared and not used&rdquo;エラー</h1>
-
+<p>VS Codeの場合は<code>go</code>プラグインを使って所定のオプションを有効にしていれば自動で<code>goimports</code>コマンドが実行されるだろう。</p>
+<!-- raw HTML omitted -->
+<p>Vimで<code>vim-go</code>プラグインを使っている場合は、<code>go_fmt_autosave</code>オプションが有効になっていて、<code>go_fmt_command</code>オプションに<code>goimports</code>をしておけば、ファイル保存時に自動実行される。</p>
+<!-- raw HTML omitted -->
+<h1 id="declared-and-not-usedエラー">&ldquo;declared and not used&quot;エラー</h1>
 <p><code>declared and not used</code>エラーは関数やメソッド内で利用されていない変数があった場合のエラーだ。</p>
-
 <p>次のようなコードは<code>unused</code>変数が利用されていないので、<code>./prog.go:8:6: unused declared and not used</code>というエラーが発生する。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
@@ -295,51 +274,41 @@ diff -u three_index.go.orig three_index.go
 <span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 	<span style="color:#268bd2">var</span> unused <span style="color:#dc322f">int</span>
 	fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Hello, playground&#34;</span>)
-}</code></pre></div>
-<h2 id="declared-and-not-used-エラーに対する向き合いかた">&ldquo;declared and not used&rdquo;エラーに対する向き合いかた</h2>
-
+}
+</code></pre></div><h2 id="declared-and-not-usedエラーに対する向き合いかた">&ldquo;declared and not used&quot;エラーに対する向き合いかた</h2>
 <p>不必要な変数を定義しておくのは明瞭性や可読性を下げるのではないだろうか。
 将来的に使うかもしれないのだろうが、今使っていないならば消しておくのが単純性を保つ秘訣だろう。
 （これらの原則は関数や機能レベルの話だろうが、）<code>KISSの原則</code>や<code>YAGNI</code>の考え方が近いのだろうか？</p>
-
 <ul>
 <li>KISSの原則
-
 <ul>
 <li><a href="https://ja.wikipedia.org/wiki/KISS%E3%81%AE%E5%8E%9F%E5%89%87">https://ja.wikipedia.org/wiki/KISS%E3%81%AE%E5%8E%9F%E5%89%87</a></li>
-</ul></li>
+</ul>
+</li>
 <li>YAGNI
-
 <ul>
 <li><a href="https://ja.wikipedia.org/wiki/YAGNI">https://ja.wikipedia.org/wiki/YAGNI</a></li>
-</ul></li>
 </ul>
-
-<h2 id="declared-and-not-used-エラーの対処方法">&ldquo;declared and not used&rdquo;エラーの対処方法</h2>
-
+</li>
+</ul>
+<h2 id="declared-and-not-usedエラーの対処方法">&ldquo;declared and not used&quot;エラーの対処方法</h2>
 <p><code>declared and not used</code>エラーは該当の変数名や行数が一緒に出力されているので、言われたとおりに消してしまえばいいと思う。</p>
-
 <p>「ある関数の戻り値の中に使わない値がある」場合に<code>declared and not used</code>エラーが出る場合は<code>_</code>で受け取れば問題ない。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// func StdCopy(dstout, dsterr io.Writer, src io.Reader) (written int64, err error)
 </span><span style="color:#586e75">// 戻り値のint64は利用しない場合
 </span><span style="color:#586e75"></span>_, err = stdcopy.<span style="color:#268bd2">StdCopy</span>(<span style="color:#719e07">&amp;</span>outBuf, <span style="color:#719e07">&amp;</span>errBuf, aresp.Reader)
 <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 	<span style="color:#719e07">return</span> err
-}</code></pre></div>
-<p>逆に<code>declared and not used</code>エラーは関数やメソッド内の未使用変数にしか発生しないエラーだ。
+}
+</code></pre></div><p>逆に<code>declared and not used</code>エラーは関数やメソッド内の未使用変数にしか発生しないエラーだ。
 「不要な<code>package</code>変数などもエラーで教えてほしい」というさらにストイックな人もいるだろう。
 そういう場合は、<code>golanci-lint</code>などで3rdパーティ製のlinterを利用すればよい。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/golangci/awesome-go-linters" data-iframely-url="//cdn.iframe.ly/GUoaq26"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
 <h1 id="終わりに">終わりに</h1>
-
-<p>やはり「単純さや簡潔性を保つため」が動機になるのだと思う。<br />
+<p>やはり「単純さや簡潔性を保つため」が動機になるのだと思う。<br>
 私としてはGoに慣れていると他の言語で不要な<code>import</code>や<code>using</code>があるほうが気になってしまう…
 途中参考として書いた<code>YAGNI</code>などはうろ覚えだったので個人的に復習が必要だと感じた。</p>
-
 <h1 id="参考">参考</h1>
-
 <ul>
 <li><a href="https://speakerdeck.com/budougumi0617/why-go-how-is-go">第138回RITS技術交流会 / Why Go? How is Go?</a></li>
 <li><a href="https://github.com/golang/tools/tree/master/cmd/goimports">golang.org/x/tools/cmd/goimports</a></li>
@@ -438,9 +407,9 @@ diff -u three_index.go.orig three_index.go
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -518,10 +487,16 @@ diff -u three_index.go.orig three_index.go
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -533,12 +508,6 @@ diff -u three_index.go.orig three_index.go
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

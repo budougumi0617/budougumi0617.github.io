@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -175,35 +175,21 @@ Dockerを利用してPHP_CodeSnifferを使った静的解析をPhpStormで利用
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#dockerとphpstormを使って開発環境を整える">DockerとPhpStormを使って開発環境を整える。</a></li>
-<li><a href="#phpstorm上でdocker上のphp環境を使って開発をする">PhpStorm上でDocker上のPHP環境を使って開発をする。</a></li>
-<li><a href="#phpstorm上でphp-codesnifferのcoding-standardが見つからない">PhpStorm上でPHP_CodeSnifferのCoding Standardが見つからない</a></li>
-<li><a href="#php-codesnifferのタイムアウトルールを30秒に延長する">PHP_CodeSnifferのタイムアウトルールを30秒に延長する</a></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
-          <p>PhpStormで静的解析を利用しようとしてプロジェクトを新しく設定するたびにハマっているのでメモしておく。<br />
+          <p>PhpStormで静的解析を利用しようとしてプロジェクトを新しく設定するたびにハマっているのでメモしておく。<br>
 Dockerを利用してPHP_CodeSnifferを使った静的解析をPhpStormで利用するときの設定がうまくいかなった。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>Dockerで用意した環境を使ってPhpStormでPHP開発環境を構築していた</li>
 <li>PHP_CodeSnifferの<code>Coding Standard</code>設定が読み込めなかった
-
 <ul>
 <li>PHP_CodeSniffer自体の設定は完了していた</li>
-</ul></li>
+</ul>
+</li>
 <li><code>Tools process timeout</code>設定を30秒にしたところ解決した。</li>
 </ul>
-
 <p>なお、本記事のバージョン情報は以下のとおり。</p>
-
 <ul>
 <li>macOS Mojave 10.14.6(Macbook Pro2016 13inch)</li>
 <li>PhpStorm 2019.3.1</li>
@@ -212,14 +198,10 @@ Dockerを利用してPHP_CodeSnifferを使った静的解析をPhpStormで利用
 <li>Composer 1.8.6</li>
 <li>PHP_CodeSniffer 3.5.3</li>
 </ul>
-
 <h1 id="dockerとphpstormを使って開発環境を整える">DockerとPhpStormを使って開発環境を整える。</h1>
-
-<p>PHPはマイナーバージョン間でも環境差異が大きいので、プロジェクトごとにDockerfileを用意して開発している。<br />
+<p>PHPはマイナーバージョン間でも環境差異が大きいので、プロジェクトごとにDockerfileを用意して開発している。<br>
 Dockerの構成自体は以下のブログなどを参考にしている。</p>
-
-<iframe src="https://hatenablog-parts.com/embed?url=https%3A%2F%2Ftenkoma.hatenablog.com%2Fentry%2F2019%2F03%2F24%2F023944" style="border: 0; width: 100%; height: 190px;" allowfullscreen scrolling="no"></iframe>
-
+<!-- raw HTML omitted -->
 <p>私が使っている<code>Dockerfile</code>の記載は以下の通り（この<code>Dockerfile</code>のプロジェクトではWebフレームワークは利用していない）。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-dockerfile" data-lang="dockerfile"><span style="color:#719e07">FROM</span><span style="color:#2aa198"> php:7.4.1-cli</span>
 
@@ -231,23 +213,23 @@ Dockerの構成自体は以下のブログなどを参考にしている。</p>
 </span><span style="color:#cb4b16"></span>    <span style="color:#719e07">&amp;&amp;</span> apt-get clean <span style="color:#719e07">&amp;&amp;</span> rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/*
 
 <span style="color:#586e75"># Composer</span>
-<span style="color:#719e07">ENV</span><span style="color:#2aa198"> COMPOSER_HOME /tmp</span>
-COPY --from<span style="color:#719e07">=</span>composer:1.8.6 /usr/bin/composer /usr/bin/composer
+<span style="color:#719e07">ENV</span> COMPOSER_HOME /tmp
+<span style="color:#719e07">COPY</span> --from<span style="color:#719e07">=</span>composer:1.8.6 /usr/bin/composer /usr/bin/composer
 
 <span style="color:#719e07">RUN</span> apt-get update <span style="color:#719e07">&amp;&amp;</span> apt-get -y install <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>    gosu zip unzip<span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span> <span style="color:#719e07">&amp;&amp;</span> rm -rf /var/lib/apt/lists/*
 <span style="color:#719e07">WORKDIR</span><span style="color:#2aa198"> /app</span>
-<span style="color:#719e07">CMD</span><span style="color:#2aa198"> php -S 0.0.0.0:80</span></code></pre></div>
-<p>上記の<code>Dockerfile</code>を次の<code>docker-compose.yml</code>を使って起動している。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">version: <span style="color:#2aa198">&#39;3&#39;</span>
-services:
-  php-cli:
-    build: ./docker
-    command: php -v
-    volumes:
-      - .:/app</code></pre></div>
-<p>このプロジェクトでは次の<code>composer.json</code>を用意して、テストや静的解析用のツール群もインストールしている。</p>
+<span style="color:#719e07">CMD</span> php -S 0.0.0.0:80
+</code></pre></div><p>上記の<code>Dockerfile</code>を次の<code>docker-compose.yml</code>を使って起動している。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">version</span>: <span style="color:#2aa198">&#39;3&#39;</span>
+<span style="color:#719e07">services</span>:
+  <span style="color:#719e07">php-cli</span>:
+    <span style="color:#719e07">build</span>: ./docker
+    <span style="color:#719e07">command</span>: php -v
+    <span style="color:#719e07">volumes</span>:
+      - .:/app
+</code></pre></div><p>このプロジェクトでは次の<code>composer.json</code>を用意して、テストや静的解析用のツール群もインストールしている。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
     <span style="color:#268bd2">&#34;name&#34;</span>: <span style="color:#2aa198">&#34;budougumi0617/my-php-project&#34;</span>,
     <span style="color:#268bd2">&#34;require&#34;</span>: {
@@ -273,51 +255,32 @@ services:
             <span style="color:#268bd2">&#34;Tests\\&#34;</span>: <span style="color:#2aa198">&#34;tests/&#34;</span>
         }
     }
-}</code></pre></div>
-<p>あとは、<code>docker-compose run --rm php-cli composer install</code>というように実行すればDockerで用意したPHP（とcomposer）で各種ツールやプロジェクトコードが実行できる。</p>
-
+}
+</code></pre></div><p>あとは、<code>docker-compose run --rm php-cli composer install</code>というように実行すればDockerで用意したPHP（とcomposer）で各種ツールやプロジェクトコードが実行できる。</p>
 <h1 id="phpstorm上でdocker上のphp環境を使って開発をする">PhpStorm上でDocker上のPHP環境を使って開発をする。</h1>
-
 <p>PhpStormでdocker-compose上のPHP環境を使う設定は以下の公式ページの説明に則ればよい。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://pleiades.io/help/phpstorm/configuring-remote-interpreters.html" data-iframely-url="//cdn.iframe.ly/yJkxTKC?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
 <p>PhpStorm上でdocker composeを利用したリモートインタプリタの設定と、<code>composer install</code>コマンドの実行が終わっていれば、例えば設定の「Languages &amp; Frameworks」→「PHP」→「Test Frameworks」でもPHPUnitが認識されるようになる。
 私はPHP_CodeSnifferなどもインストールしていたので、「Quality Tools」でもツールが認識、バージョンを確認できる状態になっていた。</p>
-
-<p><img src="/2019/12/29_sniffer.png" alt="PHP_CodeSniffer動作状態" /></p>
-
-<h1 id="phpstorm上でphp-codesnifferのcoding-standardが見つからない">PhpStorm上でPHP_CodeSnifferのCoding Standardが見つからない</h1>
-
+<p><img src="/2019/12/29_sniffer.png" alt="PHP_CodeSniffer動作状態"></p>
+<h1 id="phpstorm上でphp_codesnifferのcoding-standardが見つからない">PhpStorm上でPHP_CodeSnifferのCoding Standardが見つからない</h1>
 <p>このPHP_CodeSnifferなどを利用して、コーディング中に静的解析の警告を出すには設定の「Editor」→「Inspections」で静的解析の警告ルールを有効にする必要がある。
 具体的には、「Editor」→「Inspections」→「Quality Tools」→「PHP_CodeSniffer validation」という設定だ。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://pleiades.io/help/phpstorm/using-php-code-sniffer.html" data-iframely-url="//cdn.iframe.ly/Dhii1yk?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
 <p>ただ、今回私のPhpStormではPHP_CodeSnifferを正しく認識出来ていなかったらしく、「Coding Standard」が何も見つからず、設定が正しくできない状態になっていた。</p>
-
-<p><img src="/2019/12/29_inspections.png" alt="Coding Standardがなにも見つからない" /></p>
-
-<h1 id="php-codesnifferのタイムアウトルールを30秒に延長する">PHP_CodeSnifferのタイムアウトルールを30秒に延長する</h1>
-
+<p><img src="/2019/12/29_inspections.png" alt="Coding Standardがなにも見つからない"></p>
+<h1 id="php_codesnifferのタイムアウトルールを30秒に延長する">PHP_CodeSnifferのタイムアウトルールを30秒に延長する</h1>
 <p>エラーなども出ないのでどこを修正すればいいのか分からなかったが、結論からいうとDocker上のPHP_CodeSnifferからの結果を待つ時間を30秒にすれば無事「Coding Standard」の項目が表示されるようになった。</p>
-
-<p><img src="/2019/12/29_sniffer2.png" alt="PHP_CodeSniffer設定修正後" /></p>
-
+<p><img src="/2019/12/29_sniffer2.png" alt="PHP_CodeSniffer設定修正後"></p>
 <p><a href="https://pleiades.io/help/phpstorm/using-php-code-sniffer.html">公式の設定ガイド</a>にも以下のような言及があった。
 デフォルトのタイムアウト設定が5秒だったので、連携ができる前にPHP_CodeSnifferのプロセスが強制終了されていたようだ。</p>
-
 <blockquote>
 <p>ツールプロセスのタイムアウトフィールドで、PhpStormがPHP_CodeSnifferからの結果を待つ時間を指定します。その結果、CPUとメモリの過剰な使用を防ぐためにプロセスが強制終了されます。</p>
 </blockquote>
-
 <h1 id="終わりに">終わりに</h1>
-
 <p>最近PHPやPythonを触るようになって、IDEや仮想環境での開発を行うようになった。新しいプロジェクト（リポジトリ）のコードを触るたびに初期設定でコケているので早く慣れていきたい。
 （Goを書くときはVimとローカルホスト上のGo（バージョン管理したことがない）で開発している。）</p>
-
 <h1 id="参考">参考</h1>
-
 <ul>
 <li><a href="https://tenkoma.hatenablog.com/entry/2019/03/24/023944">PhpStormと連携する必要最小限のDocker環境を作る | こもろぐ @tenkoma</a></li>
 <li><a href="https://pleiades.io/help/phpstorm/configuring-remote-interpreters.html">リモート PHPインタープリターの構成 - 公式ヘルプ | PhpStorm</a></li>
@@ -408,9 +371,9 @@ services:
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -488,10 +451,16 @@ services:
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -503,12 +472,6 @@ services:
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

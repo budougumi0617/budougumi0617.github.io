@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -173,38 +173,24 @@
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#goはverbを使って好きな形式でデータをログや文字列に出力することができる">Goはverbを使って好きな形式でデータをログや文字列に出力することができる</a></li>
-<li><a href="#プリミティブ型の配列-スライスならば-その配列-スライスに対してその型に対応したヴァーブを使うことができる">プリミティブ型の配列・スライスならば、その配列・スライスに対してその型に対応したヴァーブを使うことができる</a></li>
-<li><a href="#最後に">最後に</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
           <p>柴田さん(<a href="https://twitter.com/yoshiki_shibata">@yoshiki_shibata</a>)に<code>fmt.Printf</code>について教えてもらったのでメモしておく。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>配列やスライスを出力するときは<code>for</code>や<code>range</code>で出力することが多いだろう</li>
 <li>プリミティブ型の配列・スライスならば、その配列・スライスに対してその型に対応したヴァーブを使うことができる</li>
 </ul>
-
 <h1 id="goはverbを使って好きな形式でデータをログや文字列に出力することができる">Goはverbを使って好きな形式でデータをログや文字列に出力することができる</h1>
-
 <p>GoはC言語などの<code>printf</code>と同様に<code>fmt.Printf</code>関数などを用いてフォーマットした出力を生成できる。
 たとえば、文字列は<code>%s</code>や<code>%s</code>といったヴァーブ(<code>verb</code>)が用意されている。</p>
-
 <ul>
 <li>Printing  | The Go Programming Language
-
 <ul>
 <li><a href="https://golang.org/pkg/fmt/#hdr-Printing">https://golang.org/pkg/fmt/#hdr-Printing</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p><a href="https://play.golang.org/p/BNnQmLi3NEM">https://play.golang.org/p/BNnQmLi3NEM</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
@@ -215,10 +201,9 @@
 <span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 	h, p <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;Hello&#34;</span>, <span style="color:#2aa198">&#34;playground&#34;</span>
 	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s, %q\n&#34;</span>, h, p) <span style="color:#586e75">// Hello, &#34;playground&#34;
-</span><span style="color:#586e75"></span>}</code></pre></div>
-<p>ここで、配列やスライスを出力したいときはどうするべきだろうか。
+</span><span style="color:#586e75"></span>}
+</code></pre></div><p>ここで、配列やスライスを出力したいときはどうするべきだろうか。
 私はいままで<code>%v</code>やループを回して出力することが多かった。</p>
-
 <p><a href="https://play.golang.org/p/dCsmGmsWhbv">https://play.golang.org/p/dCsmGmsWhbv</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
@@ -232,12 +217,10 @@
 </span><span style="color:#586e75"></span>	<span style="color:#719e07">for</span> _, v <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> sa {
 		fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s &#34;</span>, v)           <span style="color:#586e75">// a bc def
 </span><span style="color:#586e75"></span>	}
-}</code></pre></div>
-<h1 id="プリミティブ型の配列-スライスならば-その配列-スライスに対してその型に対応したヴァーブを使うことができる">プリミティブ型の配列・スライスならば、その配列・スライスに対してその型に対応したヴァーブを使うことができる</h1>
-
+}
+</code></pre></div><h1 id="プリミティブ型の配列スライスならばその配列スライスに対してその型に対応したヴァーブを使うことができる">プリミティブ型の配列・スライスならば、その配列・スライスに対してその型に対応したヴァーブを使うことができる</h1>
 <p>柴田さん(<a href="https://twitter.com/yoshiki_shibata">@yoshiki_shibata</a>)に実はもっと簡単に出力できることを教えてもらった。
 ざっくりいうと、<code>[]string</code>型のスライスなどをそのまま<code>%s</code>ひとつで出力できるということだ。</p>
-
 <p><a href="https://play.golang.org/p/J5oFCGTuDcQ">https://play.golang.org/p/J5oFCGTuDcQ</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
@@ -254,20 +237,15 @@
 </span><span style="color:#586e75"></span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%d\n&#34;</span>, da)           <span style="color:#586e75">// [1 2 3 4]
 </span><span style="color:#586e75"></span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%f\n&#34;</span>, fa)           <span style="color:#586e75">// [1.230000 4.567800]
 </span><span style="color:#586e75"></span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%1.19f\n&#34;</span>, fa)       <span style="color:#586e75">// [1.2300000190734863281 4.5678000450134277344]
-</span><span style="color:#586e75"></span>}</code></pre></div>
-<p><code>%1.19f</code>などの指定もきちんと反映されていることがわかる。
+</span><span style="color:#586e75"></span>}
+</code></pre></div><p><code>%1.19f</code>などの指定もきちんと反映されていることがわかる。
 わざわざループを回して表示を整えたりしていたこともあったが、こちらのほうがシンプルに出力できそうだ。</p>
-
 <h1 id="最後に">最後に</h1>
-
 <p>今回の内容は第27回横浜Go読書会で教えてもらった。
 勉強会は組み込み系エンジニアの方々が多いので、Go以外にもカーネル周りの苦労話や知識など毎回教えてもらっている。
 自分よりスキルのあるみなさんとあれこれ議論しながら課題本を読み進めるので大変勉強になる。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://yokohama-go-reading.connpass.com/event/127180/" data-iframely-url="//cdn.iframe.ly/vafxNyK"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
 <h1 id="参考">参考</h1>
-
 <ul>
 <li><a href="https://golang.org/pkg/fmt/#hdr-Printing">Printing  | The Go Programming Language</a></li>
 </ul>
@@ -360,9 +338,9 @@
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -440,10 +418,16 @@
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -455,12 +439,6 @@
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

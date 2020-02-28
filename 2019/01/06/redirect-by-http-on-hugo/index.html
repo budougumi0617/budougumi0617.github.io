@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -175,42 +175,27 @@ HTTPS通信でページ遷移するように直したときのメモ。"/>
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#chrome-developer-toolで通信内容を確認する">Chrome Developer Toolで通信内容を確認する</a></li>
-<li><a href="#サイドバーのリンクの設定を修正する">サイドバーのリンクの設定を修正する</a></li>
-<li><a href="#終わりに">終わりに</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
-          <p>Hugoで公開しているこのブログのサイドバーのリンクの一部をクリックすると、HTTPSで公開しているはずがHTTP通信となって遷移していた。<br />
+          <p>Hugoで公開しているこのブログのサイドバーのリンクの一部をクリックすると、HTTPSで公開しているはずがHTTP通信となって遷移していた。<br>
 HTTPS通信でページ遷移するように直したときのメモ。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>Chrome DevToolsで通信内容を確認する</li>
 <li>リンク先アドレスの指定が微妙に間違っていたので、リダイレクトが発生していた
-
 <ul>
 <li>リダイレクト時に、HTTPでページ遷移を行なっていた</li>
-</ul></li>
+</ul>
+</li>
 <li>正しいパスに修正するとHTTPSのままページ遷移するようになった</li>
 <li>原因はわからなかった</li>
 </ul>
-
 <h1 id="chrome-developer-toolで通信内容を確認する">Chrome Developer Toolで通信内容を確認する</h1>
-
 <p>私のこのブログは2019/01/06現在サイドバーにTagsページとCategoryページへのリンクを貼っている。
 この２つのページへのリンクがマウスホバーをしたときには<code>https://budougumi0617.github.io/tags</code>とHTTPSのリンクになっているのだが、実際にリンクをクリックすると、<code>http://budougumi0617.github.io/tags/</code>とHTTPで画面遷移してしまっていた（この時点で分かる人は分かったかもしれない）。</p>
-
-<p><img src="/2019/01/06-hover-information.png" alt="マウスホバー時の情報" /></p>
-
+<p><img src="/2019/01/06-hover-information.png" alt="マウスホバー時の情報"></p>
 <p>ひとまずページ遷移中に何が起きているか確認するため、Chrome DeveToolsでNetworkタブで通信内容を確認してみた。リクエストとリソースの流れを確認した結果、途中でリダイレクトが発生していた。以下は<code>https://budougumi0617.github.io/tags</code>へのアクセス時のHeadersの情報の一部だ。</p>
-
-<p><img src="/2019/01/06-devtools.png" alt="DevToolsの情報" /></p>
-
+<p><img src="/2019/01/06-devtools.png" alt="DevToolsの情報"></p>
 <pre><code>General
     Request URL: https://budougumi0617.github.io/tags
     Request Method: GET
@@ -225,34 +210,25 @@ Response Headers
     server: GitHub.com
     status: 301
     ...
-</code></pre>
-
-<p>Hugoで生成したタグページの正式なURLは<code>${BASE_URL}/tags/index.html</code>となる。前述のリンク先に指定していたURLは<code>${BASE_URL}/tags</code>だったため、<code>/</code>が付与された<code>${BASE_URL}/tags/</code>(<code>index.html</code>)へのリダイレクトが発生していた。リダイレクトなしでページ遷移すれば良さそうだ。</p>
-
+</code></pre><p>Hugoで生成したタグページの正式なURLは<code>${BASE_URL}/tags/index.html</code>となる。前述のリンク先に指定していたURLは<code>${BASE_URL}/tags</code>だったため、<code>/</code>が付与された<code>${BASE_URL}/tags/</code>(<code>index.html</code>)へのリダイレクトが発生していた。リダイレクトなしでページ遷移すれば良さそうだ。</p>
 <h1 id="サイドバーのリンクの設定を修正する">サイドバーのリンクの設定を修正する</h1>
-
 <p>サイドバーの設定はTOMLファイルで以下のようになっている。</p>
-
 <ul>
-<li><p><a href="https://github.com/budougumi0617/blog/blob/0e74c26179d16d343c8f98f9dd65a3b7102ea6ca/config.toml#L118-L126">config.toml</a></p>
+<li><a href="https://github.com/budougumi0617/blog/blob/0e74c26179d16d343c8f98f9dd65a3b7102ea6ca/config.toml#L118-L126">config.toml</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-toml" data-lang="toml">[[menu.sidebar]]
-Name = <span style="color:#2aa198">&#34;Tags&#34;</span>
-URL = <span style="color:#2aa198">&#34;/tags&#34;</span>
-weight = <span style="color:#2aa198">1</span>
+  Name = <span style="color:#2aa198">&#34;Tags&#34;</span>
+  URL = <span style="color:#2aa198">&#34;/tags&#34;</span>
+  weight = <span style="color:#2aa198">1</span>
 
 [[menu.sidebar]]
-Name = <span style="color:#2aa198">&#34;Categories&#34;</span>
-URL = <span style="color:#2aa198">&#34;/categories&#34;</span>
-weight = <span style="color:#2aa198">1</span></code></pre></div></li>
-</ul>
-
-<p>ここのURLの指定に明示的に<code>/</code>をつけ、<code>URL = &quot;/tags/&quot;</code>としたところ、リダイレクトが発生しなくなり、HTTPS通信でページ遷移できるようになった。</p>
-
+  Name = <span style="color:#2aa198">&#34;Categories&#34;</span>
+  URL = <span style="color:#2aa198">&#34;/categories&#34;</span>
+  weight = <span style="color:#2aa198">1</span>
+</code></pre></div><p>ここのURLの指定に明示的に<code>/</code>をつけ、<code>URL = &quot;/tags/&quot;</code>としたところ、リダイレクトが発生しなくなり、HTTPS通信でページ遷移できるようになった。</p>
 <h1 id="終わりに">終わりに</h1>
-
-<p>なぜリダイレクト時にHTTPS通信がHTTP通信になってしまうのか？調査すればOSSへのPRチャンスかとも思っていたのだが、すぐに原因はわからないかった。悔しいが目的の修正はできたので今回はここで終わりにしておく。<br />
+<p>なぜリダイレクト時にHTTPS通信がHTTP通信になってしまうのか？調査すればOSSへのPRチャンスかとも思っていたのだが、すぐに原因はわからないかった。悔しいが目的の修正はできたので今回はここで終わりにしておく。<br>
 まったく本編と関係ないのだが、今まで「Chrome Developer Tools」だと思っていたが、正式名称は「Chrome DevTools」のようだ。</p>
-
 <p><a href="https://developers.google.com/web/tools/chrome-devtools/">https://developers.google.com/web/tools/chrome-devtools/</a></p>
         </div>
         
@@ -343,9 +319,9 @@ weight = <span style="color:#2aa198">1</span></code></pre></div></li>
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -423,10 +399,16 @@ weight = <span style="color:#2aa198">1</span></code></pre></div></li>
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -438,12 +420,6 @@ weight = <span style="color:#2aa198">1</span></code></pre></div></li>
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

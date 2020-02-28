@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -60,9 +60,7 @@
   <meta property="og:title" content="GoのLanguage Specificationの特定の仕様に関わる処理系の実装を探す #golang - My External Storage"/>
   <meta property="og:description" content="Goの仕様はこのHTML1ページにまとまっている。
 
-
 The Go Programming Language Specification
-
 
 https://golang.org/ref/spec
 
@@ -74,9 +72,7 @@ Goの仕様の1文からその仕様に関係する処理系のコードを探�
   <meta name="twitter:title" content="GoのLanguage Specificationの特定の仕様に関わる処理系の実装を探す #golang - My External Storage"/>
   <meta name="twitter:description" content="Goの仕様はこのHTML1ページにまとまっている。
 
-
 The Go Programming Language Specification
-
 
 https://golang.org/ref/spec
 
@@ -196,115 +192,91 @@ Goの仕様の1文からその仕様に関係する処理系のコードを探�
           
           
             <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#仕様に関連する処理系の実装を探したい">仕様に関連する処理系の実装を探したい</a></li>
-<li><a href="#goのlanguage-specificationのhtmlはgoリポジトリの-doc-ディレクトリに入っている">GoのLanguage SpecificationのHTMLはGoリポジトリの<code>doc</code>ディレクトリに入っている</a></li>
-<li><a href="#仕様が追加された日の周辺コミットログから実装の追加コミットログを探す">仕様が追加された日の周辺コミットログから実装の追加コミットログを探す</a>
-<ul>
-<li><a href="#master-ブランチにもう存在しないファイルのコミットログを見るときは-をつけて-git-log"><code>master</code>ブランチにもう存在しないファイルのコミットログを見るときは<code>--</code>をつけて<code>git log</code></a></li>
-</ul></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
+  <ul>
+    <li><a href="#masterブランチにもう存在しないファイルのコミットログを見るときは--をつけてgit-log"><code>master</code>ブランチにもう存在しないファイルのコミットログを見るときは<code>--</code>をつけて<code>git log</code></a></li>
+  </ul>
 </nav>
           
           <p>Goの仕様はこのHTML1ページにまとまっている。</p>
-
 <ul>
 <li>The Go Programming Language Specification
-
 <ul>
 <li><a href="https://golang.org/ref/spec">https://golang.org/ref/spec</a></li>
-</ul></li>
 </ul>
-
-<p>仕様に書いてある処理はどうやって実装されているのか調べたかった。<br />
+</li>
+</ul>
+<p>仕様に書いてある処理はどうやって実装されているのか調べたかった。<br>
 Goの仕様の1文からその仕様に関係する処理系のコードを探す方法をメモしておく。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>GoのLanguage Specificationに書いてある仕様の処理系の実装を探す
-
 <ul>
 <li><a href="https://golang.org/ref/spec">https://golang.org/ref/spec</a></li>
-</ul></li>
+</ul>
+</li>
 <li>GoのLanguage SpecificationのHTMLはGoリポジトリの<code>doc</code>ディレクトリに入っている
-
 <ul>
 <li><a href="https://go.googlesource.com/go">https://go.googlesource.com/go</a></li>
-</ul></li>
+</ul>
+</li>
 <li>Language Specificationのコミットログから仕様の追加日を知る
-
 <ul>
 <li><code>git log -L 2569,2579:./doc/go_spec.html</code></li>
-</ul></li>
+</ul>
+</li>
 <li>仕様の追加日周辺から関連コミットを検索する
-
 <ul>
 <li><code>git log --since=&quot;2010/10/01&quot; --until=&quot;2010/10/31&quot; --grep &quot;composite&quot;</code></li>
-</ul></li>
+</ul>
+</li>
 <li><code>master</code>ブランチにもう存在しないファイルのコミットログを見るときは<code>--</code>をつけて<code>git log</code>
-
 <ul>
 <li><code>git log --oneline -- src/cmd/gc/typecheck.c</code></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="仕様に関連する処理系の実装を探したい">仕様に関連する処理系の実装を探したい</h1>
-
 <p>標準関数などは公式の<a href="https://golang.org/pkg/">packages</a>を見れば良いのだが、
 処理系のコードを単純に<code>grep</code>で探すのは難しい。
 リポジトリのコミットログから仕様に結びつく処理系の実装を探す。</p>
-
 <p>今回は探してみた仕様は以下の部分の仕様だ。</p>
-
 <ul>
 <li>Composite literals | The Go Programming Language Specification
-
 <ul>
 <li><a href="https://golang.org/ref/spec#Composite_literals">https://golang.org/ref/spec#Composite_literals</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <blockquote>
 <p>Within a composite literal of array, slice, or map type T, elements or map keys that are themselves composite literals may elide the respective literal type if it is identical to the element or key type of T. Similarly, elements or keys that are addresses of composite literals may elide the &amp;T when the element or key type&hellip;</p>
 </blockquote>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">[<span style="color:#719e07">...</span>]Point{{<span style="color:#2aa198">1.5</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">3.5</span>}, {<span style="color:#2aa198">0</span>, <span style="color:#2aa198">0</span>}}     <span style="color:#586e75">// same as [...]Point{Point{1.5, -3.5}, Point{0, 0}}
 </span><span style="color:#586e75"></span>[][]<span style="color:#dc322f">int</span>{{<span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>, <span style="color:#2aa198">3</span>}, {<span style="color:#2aa198">4</span>, <span style="color:#2aa198">5</span>}}          <span style="color:#586e75">// same as [][]int{[]int{1, 2, 3}, []int{4, 5}}
 </span><span style="color:#586e75"></span>[][]Point{{{<span style="color:#2aa198">0</span>, <span style="color:#2aa198">1</span>}, {<span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>}}}         <span style="color:#586e75">// same as [][]Point{[]Point{Point{0, 1}, Point{1, 2}}}
-</span><span style="color:#586e75"></span><span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]Point{<span style="color:#2aa198">&#34;orig&#34;</span>: {<span style="color:#2aa198">0</span>, <span style="color:#2aa198">0</span>}}    <span style="color:#719e07">//</span> same as <span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]Point{<span style="color:#2aa198">&#34;orig&#34;</span>: Point{<span style="color:#2aa198">0</span>, <span style="color:#2aa198">0</span>}}</code></pre></div>
-<p>必要なものはWebブラウザ、Go本体コードのリポジトリ、<code>git</code>と<code>grep</code>コマンドだけだ。</p>
-
-<h1 id="goのlanguage-specificationのhtmlはgoリポジトリの-doc-ディレクトリに入っている">GoのLanguage SpecificationのHTMLはGoリポジトリの<code>doc</code>ディレクトリに入っている</h1>
-
+</span><span style="color:#586e75"></span><span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]Point{<span style="color:#2aa198">&#34;orig&#34;</span>: {<span style="color:#2aa198">0</span>, <span style="color:#2aa198">0</span>}}    <span style="color:#586e75">// same as map[string]Point{&#34;orig&#34;: Point{0, 0}}
+</span></code></pre></div><p>必要なものはWebブラウザ、Go本体コードのリポジトリ、<code>git</code>と<code>grep</code>コマンドだけだ。</p>
+<h1 id="goのlanguage-specificationのhtmlはgoリポジトリのdocディレクトリに入っている">GoのLanguage SpecificationのHTMLはGoリポジトリの<code>doc</code>ディレクトリに入っている</h1>
 <p>GitHubにもミラーされているが、本当（？）のリモートURLからGo本体のリポジトリを取得してくる。</p>
-
 <ul>
 <li>Go
-
 <ul>
 <li><a href="https://go.googlesource.com/go">https://go.googlesource.com/go</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>GoのLanguage SpecificationのHTMLはGo本体のリポジトリに一緒に格納されている。</p>
-
 <p>まず、探したい仕様の行数を<code>grep</code>コマンドで確認する。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ grep -n <span style="color:#2aa198">&#34;Within a composite literal of array, slice&#34;</span> ./doc/go_spec.html
-<span style="color:#2aa198">2569</span>:Within a composite literal of array, slice, or map <span style="color:#b58900">type</span> &lt;code&gt;T&lt;/code&gt;,</code></pre></div>
-<p>HTMLでは2569行目にあるらしい。</p>
-
+2569:Within a composite literal of array, slice, or map <span style="color:#b58900">type</span> &lt;code&gt;T&lt;/code&gt;,
+</code></pre></div><p>HTMLでは2569行目にあるらしい。</p>
 <ul>
 <li><a href="https://github.com/golang/go/blob/82cf8bca9cf20297bc0edf481cc530c9b3f4bf1e/doc/go_spec.html#L2569">golang/go/doc/go_spec.html#L2569</a></li>
 </ul>
-
 <p>この周辺のコミットログを探してみると、このコミットで仕様の1文が追加されたようだ。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git log --reverse  -L <span style="color:#2aa198">2569</span>,2579:./doc/go_spec.html
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git log --reverse  -L 2569,2579:./doc/go_spec.html
 commit a12141e5f4e905045dca5dff2669b64d9b93788f
 Author: Robert Griesemer &lt;gri@golang.org&gt;
-Date:   Fri Oct <span style="color:#2aa198">22</span> <span style="color:#2aa198">08</span>:58:52 <span style="color:#2aa198">2010</span> -0700
+Date:   Fri Oct <span style="color:#2aa198">22</span> 08:58:52 <span style="color:#2aa198">2010</span> -0700
 
     go spec: relaxed syntax <span style="color:#719e07">for</span> array, slice, and map composite literals
 
@@ -326,30 +298,27 @@ diff --git a/doc/go_spec.html b/doc/go_spec.html
 +&lt;/p&gt;
 +
 +&lt;pre&gt;
-+<span style="color:#719e07">[</span>...<span style="color:#719e07">]</span>Point<span style="color:#719e07">{{</span><span style="color:#2aa198">1</span>.5, -3.5<span style="color:#719e07">}</span>, <span style="color:#719e07">{</span><span style="color:#2aa198">0</span>, <span style="color:#2aa198">0</span><span style="color:#719e07">}}</span>  // same as <span style="color:#719e07">[</span>...<span style="color:#719e07">]</span>Point<span style="color:#719e07">{</span>Point<span style="color:#719e07">{</span><span style="color:#2aa198">1</span>.5, -3.5<span style="color:#719e07">}</span>, Point<span style="color:#719e07">{</span><span style="color:#2aa198">0</span>, <span style="color:#2aa198">0</span><span style="color:#719e07">}}</span>
-+<span style="color:#719e07">[][]</span>int<span style="color:#719e07">{{</span><span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>, <span style="color:#2aa198">3</span><span style="color:#719e07">}</span>, <span style="color:#719e07">{</span><span style="color:#2aa198">4</span>, <span style="color:#2aa198">5</span><span style="color:#719e07">}}</span>       // same as <span style="color:#719e07">[][]</span>int<span style="color:#719e07">{[]</span>int<span style="color:#719e07">{</span><span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>, <span style="color:#2aa198">3</span><span style="color:#719e07">}</span>, <span style="color:#719e07">[]</span>int<span style="color:#719e07">{</span><span style="color:#2aa198">4</span>, <span style="color:#2aa198">5</span><span style="color:#719e07">}}</span>
++<span style="color:#719e07">[</span>...<span style="color:#719e07">]</span>Point<span style="color:#719e07">{{</span>1.5, -3.5<span style="color:#719e07">}</span>, <span style="color:#719e07">{</span>0, 0<span style="color:#719e07">}}</span>  // same as <span style="color:#719e07">[</span>...<span style="color:#719e07">]</span>Point<span style="color:#719e07">{</span>Point<span style="color:#719e07">{</span>1.5, -3.5<span style="color:#719e07">}</span>, Point<span style="color:#719e07">{</span>0, 0<span style="color:#719e07">}}</span>
++<span style="color:#719e07">[][]</span>int<span style="color:#719e07">{{</span>1, 2, 3<span style="color:#719e07">}</span>, <span style="color:#719e07">{</span>4, 5<span style="color:#719e07">}}</span>       // same as <span style="color:#719e07">[][]</span>int<span style="color:#719e07">{[]</span>int<span style="color:#719e07">{</span>1, 2, 3<span style="color:#719e07">}</span>, <span style="color:#719e07">[]</span>int<span style="color:#719e07">{</span>4, 5<span style="color:#719e07">}}</span>
 
 commit 5f49456465f53f96bee03ac8cbe0d564e31576c2
 Author: Russ Cox &lt;rsc@golang.org&gt;
-Date:   Fri Dec <span style="color:#2aa198">2</span> <span style="color:#2aa198">14</span>:12:53 <span style="color:#2aa198">2011</span> -0500</code></pre></div>
-<p>Goはコミットログ中にあるURLを見れば<code>Gerrit</code>上のレビューの経過も確認できる。</p>
-
+Date:   Fri Dec <span style="color:#2aa198">2</span> 14:12:53 <span style="color:#2aa198">2011</span> -0500
+</code></pre></div><p>Goはコミットログ中にあるURLを見れば<code>Gerrit</code>上のレビューの経過も確認できる。</p>
 <ul>
 <li>code review 2661041: go spec: relaxed syntax for array, slice, and map compo&hellip;
-
 <ul>
 <li><a href="https://golang.org/cl/2661041">https://golang.org/cl/2661041</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="仕様が追加された日の周辺コミットログから実装の追加コミットログを探す">仕様が追加された日の周辺コミットログから実装の追加コミットログを探す</h1>
-
 <p>仕様が書き足されたのは<code>Fri Dec 2 14:12:53 2011</code>だった。この日付の周辺で実装が追加されたコミットがないか探してみる。
 <code>git log</code>コマンドで日付範囲を指定し、今回の実装に関連しそうな<code>compoiste</code>をキーワードにコミットを探してみる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git log --since<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2010/10/01&#34;</span> --until<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2010/10/31&#34;</span> --grep <span style="color:#2aa198">&#34;composite&#34;</span>
 commit f613015e0eeb9560579bf40dbdb40fac5e371bbc
 Author: Robert Griesemer &lt;gri@golang.org&gt;
-Date:   Fri Oct <span style="color:#2aa198">22</span> <span style="color:#2aa198">10</span>:03:14 <span style="color:#2aa198">2010</span> -0700
+Date:   Fri Oct <span style="color:#2aa198">22</span> 10:03:14 <span style="color:#2aa198">2010</span> -0700
 
     go ast/parser/printer: permit elision of composite literal types <span style="color:#719e07">for</span> composite literal elements
     gofmt: added -s flag to simplify composite literal expressions through <span style="color:#b58900">type</span> elision where possible
@@ -360,7 +329,7 @@ Date:   Fri Oct <span style="color:#2aa198">22</span> <span style="color:#2aa198
 
 commit a12141e5f4e905045dca5dff2669b64d9b93788f
 Author: Robert Griesemer &lt;gri@golang.org&gt;
-Date:   Fri Oct <span style="color:#2aa198">22</span> <span style="color:#2aa198">08</span>:58:52 <span style="color:#2aa198">2010</span> -0700
+Date:   Fri Oct <span style="color:#2aa198">22</span> 08:58:52 <span style="color:#2aa198">2010</span> -0700
 
     go spec: relaxed syntax <span style="color:#719e07">for</span> array, slice, and map composite literals
 
@@ -374,38 +343,32 @@ Date:   Fri Oct <span style="color:#2aa198">22</span> <span style="color:#2aa198
 
 commit 8ffc4ec5d0c3d17d633c277ba5102da838834f03
 Author: Russ Cox &lt;rsc@golang.org&gt;
-Date:   Thu Oct <span style="color:#2aa198">21</span> <span style="color:#2aa198">23</span>:17:20 <span style="color:#2aa198">2010</span> -0400
+Date:   Thu Oct <span style="color:#2aa198">21</span> 23:17:20 <span style="color:#2aa198">2010</span> -0400
 
     gc: implement new composite literal spec
 
     <span style="color:#268bd2">R</span><span style="color:#719e07">=</span>ken2
     <span style="color:#268bd2">CC</span><span style="color:#719e07">=</span>golang-dev
-    https://golang.org/cl/2350041</code></pre></div>
-<p>それぞれのコミットに書かれているレビュー記録を見てみる。</p>
-
+    https://golang.org/cl/2350041
+</code></pre></div><p>それぞれのコミットに書かれているレビュー記録を見てみる。</p>
 <ul>
 <li>code review 2350041: gc: implement new composite literal spec
-
 <ul>
 <li><a href="https://codereview.appspot.com/2350041">https://codereview.appspot.com/2350041</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>(Go1.4以前はGoはセルフコンパイルではなかったので、)Cの実装ファイル（<code>src/cmd/gc/typecheck.c</code>）が見つかった。</p>
-
 <ul>
 <li>code review 2319041: go ast/parser/printer: permit elision of composite lite
-
 <ul>
 <li><a href="https://codereview.appspot.com/2319041">https://codereview.appspot.com/2319041</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>こちらを見るとパーサー（<code>src/pkg/go/parser/parser.go</code> etc）の関連実装を見ることができた。</p>
-
-<h2 id="master-ブランチにもう存在しないファイルのコミットログを見るときは-をつけて-git-log"><code>master</code>ブランチにもう存在しないファイルのコミットログを見るときは<code>--</code>をつけて<code>git log</code></h2>
-
-<p>現在の実装まで探すときはここからさらにコミットログをたどっていけば良い。<br />
+<h2 id="masterブランチにもう存在しないファイルのコミットログを見るときは--をつけてgit-log"><code>master</code>ブランチにもう存在しないファイルのコミットログを見るときは<code>--</code>をつけて<code>git log</code></h2>
+<p>現在の実装まで探すときはここからさらにコミットログをたどっていけば良い。<br>
 <code>master</code>ブランチにもう存在しないファイルの<code>src/cmd/gc/typecheck.c</code>に関連するコミットを探したいならば、&ndash;<code>をつけて</code>git log`コマンドを実行する。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git log --oneline -- src/cmd/gc/typecheck.c
 3af0d791be <span style="color:#719e07">[</span>dev.cc<span style="color:#719e07">]</span> cmd/6a, cmd/6g etc: replace C implementations with Go implementations
@@ -417,27 +380,19 @@ eaa872009d cmd/gc: fix capturing by value <span style="color:#719e07">for</span>
 b581ca5956 cmd/gc: allow map index expressions in <span style="color:#719e07">for</span> range statements
 a7bb393628 cmd/gc: don&#39;t emit write barriers <span style="color:#719e07">for</span> *tmp <span style="color:#719e07">if</span> <span style="color:#268bd2">tmp</span><span style="color:#719e07">=</span>&amp;PAUTO
 8d44ede0dc cmd/gc: simplify code <span style="color:#719e07">for</span> c2go <span style="color:#719e07">(</span>more<span style="color:#719e07">)</span>
-e82003e750 cmd/gc: simplify code <span style="color:#719e07">for</span> c2go</code></pre></div>
-<p>また、GitHubのRESTに慣れているならばアドレス直打ちで同等のコミットログが見れる。</p>
-
+e82003e750 cmd/gc: simplify code <span style="color:#719e07">for</span> c2go
+</code></pre></div><p>また、GitHubのRESTに慣れているならばアドレス直打ちで同等のコミットログが見れる。</p>
 <ul>
 <li><a href="https://github.com/golang/go/commits/master/src/cmd/gc/typecheck.c">https://github.com/golang/go/commits/master/src/cmd/gc/typecheck.c</a></li>
 </ul>
-
 <h1 id="終わりに">終わりに</h1>
-
-<p>もともとTweetでもやもやをつぶやいていた。
-<blockquote class="twitter-tweet"><p lang="ja" dir="ltr">Goで ds := [][]int{{1, 2, 3, 4}} が許されるの、ラクなんだけどなんで許される（{ []int{1, 2, 3, 4} }って書かなくてもよい）のかよく分かってない<a href="https://t.co/atstRrjope">https://t.co/atstRrjope</a></p>&mdash; Yoichiro Shimizu (@budougumi0617) <a href="https://twitter.com/budougumi0617/status/1138626434279268352?ref_src=twsrc%5Etfw">June 12, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
-
+<p>もともとTweetでもやもやをつぶやいていた。</p>
+<!-- raw HTML omitted -->
 <p>そうしたら会社の先輩が仕様の場所を教えてくれたので、せっかくだから処理系までちゃんと読んでみようと思った。</p>
-
-<p><blockquote class="twitter-tweet"><p lang="ja" dir="ltr"><a href="https://t.co/HlOvZFgB4j">https://t.co/HlOvZFgB4j</a><br>これの後半あたりですね</p>&mdash; Yui TERASHIMA (@terashi58) <a href="https://twitter.com/terashi58/status/1138639910234017792?ref_src=twsrc%5Etfw">June 12, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
-
-<p>まだ、Goの実装部分まで追えていないが、長期に渡って開発されているリポジトリの<code>git</code>を辿る操作も勉強できてよかった。<br />
+<!-- raw HTML omitted -->
+<p>まだ、Goの実装部分まで追えていないが、長期に渡って開発されているリポジトリの<code>git</code>を辿る操作も勉強できてよかった。<br>
 ただ、これはGoリポジトリのコミットログが異様にきれい（1PRは1コミット、かならずコミットメッセージにPRのURLが入っている）だからできることなのかもしれない。</p>
-
 <h1 id="参考">参考</h1>
-
 <ul>
 <li><a href="https://golang.org/ref/spec#Composite_literals">Composite literals | The Go Programming Language Specification</a></li>
 <li><a href="https://codereview.appspot.com/2350041">code review 2350041: gc: implement new composite literal spec</a></li>
@@ -534,9 +489,9 @@ e82003e750 cmd/gc: simplify code <span style="color:#719e07">for</span> c2go</co
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -614,10 +569,16 @@ e82003e750 cmd/gc: simplify code <span style="color:#719e07">for</span> c2go</co
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -629,12 +590,6 @@ e82003e750 cmd/gc: simplify code <span style="color:#719e07">for</span> c2go</co
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -61,24 +61,16 @@
   <meta property="og:description" content="2018年夏(Go1.10)時点でGoのテスト方法をまとめる。
 この記事は以下のスライド資料の補足記事になる。
 
-
 Tour of testing in 2018
-
-
 https://speakerdeck.com/budougumi0617/tour-of-testing-in-2018
-
 "/>
   
   <meta name="twitter:title" content="Goのtestを理解する in 2018 #go - My External Storage"/>
   <meta name="twitter:description" content="2018年夏(Go1.10)時点でGoのテスト方法をまとめる。
 この記事は以下のスライド資料の補足記事になる。
 
-
 Tour of testing in 2018
-
-
 https://speakerdeck.com/budougumi0617/tour-of-testing-in-2018
-
 "/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
@@ -192,117 +184,91 @@ https://speakerdeck.com/budougumi0617/tour-of-testing-in-2018
           
           
             <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#testing-パッケージ">testing パッケージ</a>
-<ul>
-<li><a href="#テストデータを用意する">テストデータを用意する</a></li>
-</ul></li>
-<li><a href="#テストを実行する">テストを実行する</a>
-<ul>
-<li><a href="#パッケージを指定して実行する">パッケージを指定して実行する</a></li>
-<li><a href="#go1-10から事前に-go-vet-コマンドが実行されている">Go1.10から事前に<code>go vet</code>コマンドが実行されている</a></li>
-<li><a href="#go1-10からテスト結果がキャッシュされている">Go1.10からテスト結果がキャッシュされている</a></li>
-<li><a href="#特定のテストファイルだけを実行する">特定のテストファイルだけを実行する</a></li>
-<li><a href="#特定のテストケースだけを実行する">特定のテストケースだけを実行する</a></li>
-<li><a href="#parallel-n-オプションで最大並行実行数を制御する"><code>-parallel n</code>オプションで最大並行実行数を制御する</a></li>
-<li><a href="#cpu-list-オプションで-gomaxprocs-を変更しながらテストする"><code>-cpu list</code>オプションで<code>GOMAXPROCS</code>を変更しながらテストする</a></li>
-<li><a href="#デバッガ-delve-でテストを実行する">デバッガ(<code>delve</code>)でテストを実行する</a></li>
-<li><a href="#ci上でテストを実行する">CI上でテストを実行する</a></li>
-<li><a href="#playgroundでテストを実行する">playgroundでテストを実行する</a></li>
-</ul></li>
-<li><a href="#テストの書き方">テストの書き方</a>
-<ul>
-<li><a href="#テストコードのパッケージ名について">テストコードのパッケージ名について</a></li>
-<li><a href="#testing-tb-インターフェースの主なメソッド"><code>testing.TB</code>インターフェースの主なメソッド</a></li>
-<li><a href="#testing-tb-helper-メソッド"><code>testing.TB.Helper</code>メソッド</a></li>
-<li><a href="#table-driven-test">Table Driven Test</a></li>
-<li><a href="#for-tt-range-tests"><code>for _, tt := range tests</code></a></li>
-<li><a href="#sub-test-testing-t-run">Sub Test(<code>testing.T.Run</code>)</a></li>
-<li><a href="#wantとgot">wantとgot</a></li>
-<li><a href="#エラーは無視しない">エラーは無視しない</a></li>
-<li><a href="#errorfのテンプレート文字列">Errorfのテンプレート文字列</a></li>
-<li><a href="#testing-t-parallel-メソッドで並行実行するテストを書く"><code>testing.T.Parallel</code>メソッドで並行実行するテストを書く</a></li>
-</ul></li>
-<li><a href="#testmain-m-testing-m-メソッドで前処理を定義する"><code>TestMain(m *testing.M)</code>メソッドで前処理を定義する</a></li>
-<li><a href="#ビルドタグでテストケースを分類する">ビルドタグでテストケースを分類する</a></li>
-<li><a href="#テストカバレッジを集計する">テストカバレッジを集計する</a>
-<ul>
-<li><a href="#htmlにカバレッジを保存する">HTMLにカバレッジを保存する</a></li>
-<li><a href="#ciと組み合わせる">CIと組み合わせる</a></li>
-</ul></li>
-<li><a href="#2019-10追記">2019/10追記</a></li>
-<li><a href="#関連">関連</a></li>
-</ul>
+  <ul>
+    <li><a href="#テストデータを用意する">テストデータを用意する</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#パッケージを指定して実行する">パッケージを指定して実行する</a></li>
+    <li><a href="#go110から事前にgo-vetコマンドが実行されている">Go1.10から事前に<code>go vet</code>コマンドが実行されている</a></li>
+    <li><a href="#go110からテスト結果がキャッシュされている">Go1.10からテスト結果がキャッシュされている</a></li>
+    <li><a href="#特定のテストファイルだけを実行する">特定のテストファイルだけを実行する</a></li>
+    <li><a href="#特定のテストケースだけを実行する">特定のテストケースだけを実行する</a></li>
+    <li><a href="#-parallel-nオプションで最大並行実行数を制御する"><code>-parallel n</code>オプションで最大並行実行数を制御する</a></li>
+    <li><a href="#-cpu-listオプションでgomaxprocsを変更しながらテストする"><code>-cpu list</code>オプションで<code>GOMAXPROCS</code>を変更しながらテストする</a></li>
+    <li><a href="#デバッガdelveでテストを実行する">デバッガ(<code>delve</code>)でテストを実行する</a></li>
+    <li><a href="#ci上でテストを実行する">CI上でテストを実行する</a></li>
+    <li><a href="#playgroundでテストを実行する">playgroundでテストを実行する</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#テストコードのパッケージ名について">テストコードのパッケージ名について</a></li>
+    <li><a href="#testingtbインターフェースの主なメソッド"><code>testing.TB</code>インターフェースの主なメソッド</a></li>
+    <li><a href="#testingtbhelperメソッド"><code>testing.TB.Helper</code>メソッド</a></li>
+    <li><a href="#table-driven-test">Table Driven Test</a></li>
+    <li><a href="#for-_-tt--range-tests"><code>for _, tt := range tests</code></a></li>
+    <li><a href="#sub-testtestingtrun">Sub Test(<code>testing.T.Run</code>)</a></li>
+    <li><a href="#wantとgot">wantとgot</a></li>
+    <li><a href="#エラーは無視しない">エラーは無視しない</a></li>
+    <li><a href="#errorfのテンプレート文字列">Errorfのテンプレート文字列</a></li>
+    <li><a href="#testingtparallelメソッドで並行実行するテストを書く"><code>testing.T.Parallel</code>メソッドで並行実行するテストを書く</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#htmlにカバレッジを保存する">HTMLにカバレッジを保存する</a></li>
+    <li><a href="#ciと組み合わせる">CIと組み合わせる</a></li>
+  </ul>
 </nav>
           
-          <p>2018年夏(Go1.10)時点でGoのテスト方法をまとめる。<br />
+          <p>2018年夏(Go1.10)時点でGoのテスト方法をまとめる。<br>
 この記事は以下のスライド資料の補足記事になる。</p>
-
 <ul>
-<li>Tour of testing in 2018
-
-<ul>
+<li>Tour of testing in 2018</li>
 <li><a href="https://speakerdeck.com/budougumi0617/tour-of-testing-in-2018">https://speakerdeck.com/budougumi0617/tour-of-testing-in-2018</a></li>
-</ul></li>
 </ul>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>Goでテストを行なうときの方法をまとめた。</li>
 <li>原則標準パッケージ・標準コマンドの説明のみ</li>
 <li>サンプルリポジトリは以下
-
 <ul>
 <li><a href="https://github.com/budougumi0617/go-testing">https://github.com/budougumi0617/go-testing</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="testing-パッケージ">testing パッケージ</h1>
-
 <p><a href="https://golang.org/pkg/testing/">https://golang.org/pkg/testing/</a></p>
-
-<p>まずは基本として<code>testing</code>パッケージがある。Goのテストで使うメソッドは基本的にこのpkg配下にある。（HTTP関連のテストで使う<code>httptest</code>は<code>net/http</code>pkg配下にある。）<br />
+<p>まずは基本として<code>testing</code>パッケージがある。Goのテストで使うメソッドは基本的にこのpkg配下にある。（HTTP関連のテストで使う<code>httptest</code>は<code>net/http</code>pkg配下にある。）<br>
 Goでテストを書くときは<code>testing</code>パッケージを使う。</p>
-
-<p>テストは<code>xxx_test.go</code>というファイルで作成する。<br />
+<p>テストは<code>xxx_test.go</code>というファイルで作成する。<br>
 この命名規則を守ることで<code>go build</code>のときは無視され、<code>go test</code>のときだけビルドされる。</p>
-
 <p>テストメソッドは<code>*testing.T</code>型を引数として、<code>TestXxx</code>という命名規則で書かれる。<code>Test</code>のあとの単語もキャメルケースで命名する必要がある。<code>TestSum</code>は実行されるが、<code>Testsum</code>は実行されない。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestSum</span>(t <span style="color:#719e07">*</span>testing.T) {
 	a, b, want <span style="color:#719e07">:=</span> <span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>, <span style="color:#2aa198">3</span>
 	<span style="color:#719e07">if</span> got <span style="color:#719e07">:=</span> <span style="color:#268bd2">Sum</span>(a, b); got <span style="color:#719e07">!=</span> want {
 		t.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;want = %d, got = %d&#34;</span>, want, got)
 	}
-}</code></pre></div>
-<p>構造体メソッドのテストを書くときは<code>TestSturct_Method</code>という命名するのが望ましい(<code>Examples</code>を書くときとフォーマットを合わせるため)。</p>
-
+}
+</code></pre></div><p>構造体メソッドのテストを書くときは<code>TestSturct_Method</code>という命名するのが望ましい(<code>Examples</code>を書くときとフォーマットを合わせるため)。</p>
 <h2 id="テストデータを用意する">テストデータを用意する</h2>
-
-<p>テスト用のデータは<code>testdata</code>ディレクトリに配置する。<br />
+<p>テスト用のデータは<code>testdata</code>ディレクトリに配置する。<br>
 JSONやバイナリデータなどをテスト結果として用意するときは<code>.golden</code>拡張子で<code>testata</code>ディレクトリに入れておく。</p>
-
 <ul>
 <li><a href="https://golang.org/cmd/go/#hdr-Test_packages">https://golang.org/cmd/go/#hdr-Test_packages</a></li>
 <li>Advanced Testing with Go
-
 <ul>
 <li><a href="https://speakerdeck.com/mitchellh/advanced-testing-with-go">https://speakerdeck.com/mitchellh/advanced-testing-with-go</a></li>
-</ul></li>
+</ul>
+</li>
 <li>Testing with golden files in Go
-
 <ul>
 <li><a href="https://medium.com/soon-london/testing-with-golden-files-in-go-7fccc71c43d3">https://medium.com/soon-london/testing-with-golden-files-in-go-7fccc71c43d3</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="テストを実行する">テストを実行する</h1>
-
 <p>テストの書き方の前にテストの実行方法をまとめる。テストは<code>go test</code>コマンドで実行する。</p>
-
 <h2 id="パッケージを指定して実行する">パッケージを指定して実行する</h2>
-
 <p><code>go test</code>コマンドは以下のように実行できる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># カレントパッケージのテストを実行する</span>
 $ go <span style="color:#b58900">test</span>
@@ -311,36 +277,33 @@ $ go <span style="color:#b58900">test</span>
 $ go <span style="color:#b58900">test</span> ./table
 
 <span style="color:#586e75"># サブパッケージを含めたパスで指定されたパッケージ以下のテストを全て実行する</span>
-$ go <span style="color:#b58900">test</span> ./...</code></pre></div>
-<h2 id="go1-10から事前に-go-vet-コマンドが実行されている">Go1.10から事前に<code>go vet</code>コマンドが実行されている</h2>
-
-<p>Go1.10からは<code>go test</code>が実行される前に<code>go vet</code>が実行される。<br />
+$ go <span style="color:#b58900">test</span> ./...
+</code></pre></div><h2 id="go110から事前にgo-vetコマンドが実行されている">Go1.10から事前に<code>go vet</code>コマンドが実行されている</h2>
+<p>Go1.10からは<code>go test</code>が実行される前に<code>go vet</code>が実行される。<br>
 どうしても<code>go vet</code>を通さずテストの結果をみたい場合は<code>go test -vet=off</code>とする。</p>
-
 <ul>
-<li><p>CL74356 cmd/go: run vet automatically during go test</p>
-
+<li>
+<p>CL74356 cmd/go: run vet automatically during go test</p>
 <ul>
 <li><a href="https://go-review.googlesource.com/c/go/+/74356">https://go-review.googlesource.com/c/go/+/74356</a></li>
-</ul></li>
-
-<li><p>Go 1.10 ツール周辺の CL を読む</p>
-
+</ul>
+</li>
+<li>
+<p>Go 1.10 ツール周辺の CL を読む</p>
 <ul>
 <li><a href="https://docs.google.com/presentation/d/1FXFve72MrTfWOyj4GRERRN1bY4eivymqx4Bojq7wQuQ/edit#slide=id.p">https://docs.google.com/presentation/d/1FXFve72MrTfWOyj4GRERRN1bY4eivymqx4Bojq7wQuQ/edit#slide=id.p</a></li>
-</ul></li>
 </ul>
-
-<h2 id="go1-10からテスト結果がキャッシュされている">Go1.10からテスト結果がキャッシュされている</h2>
-
-<p>Go1.10から<code>go build</code>の結果がキャッシュされるように、<code>go test</code>の結果もキャッシュされる（つまり実行されない。特定のオプション時は除外）。<br />
-キャッシュを削除したいときは<code>go clean -testcache</code>コマンドでキャッシュを削除する。<br />
+</li>
+</ul>
+<h2 id="go110からテスト結果がキャッシュされている">Go1.10からテスト結果がキャッシュされている</h2>
+<p>Go1.10から<code>go build</code>の結果がキャッシュされるように、<code>go test</code>の結果もキャッシュされる（つまり実行されない。特定のオプション時は除外）。<br>
+キャッシュを削除したいときは<code>go clean -testcache</code>コマンドでキャッシュを削除する。<br>
 キャッシュを使わずにテストを実行するだけならば<code>-count=1</code>オプションをつけて<code>go test</code>を実行する。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># t/parallel パッケージの結果だけキャッシュされている</span>
 $ go <span style="color:#b58900">test</span> ./...
-ok  	github.com/budougumi0617/go-testing/t	<span style="color:#2aa198">0</span>.009s
+ok  	github.com/budougumi0617/go-testing/t	0.009s
 ok  	github.com/budougumi0617/go-testing/t/parallel	<span style="color:#719e07">(</span>cached<span style="color:#719e07">)</span>
-ok  	github.com/budougumi0617/go-testing/t/table	<span style="color:#2aa198">0</span>.009s
+ok  	github.com/budougumi0617/go-testing/t/table	0.009s
 <span style="color:#586e75"># 全ての結果がキャッシュされている（つまり何も実行していない）</span>
 $ go <span style="color:#b58900">test</span> ./...
 ok  	github.com/budougumi0617/go-testing/t	<span style="color:#719e07">(</span>cached<span style="color:#719e07">)</span>
@@ -348,120 +311,99 @@ ok  	github.com/budougumi0617/go-testing/t/parallel	<span style="color:#719e07">
 ok  	github.com/budougumi0617/go-testing/t/table	<span style="color:#719e07">(</span>cached<span style="color:#719e07">)</span>
 <span style="color:#586e75"># キャッシュを使わずに全て実行する</span>
 $ go <span style="color:#b58900">test</span> ./... -count<span style="color:#719e07">=</span><span style="color:#2aa198">1</span>
-ok  	github.com/budougumi0617/go-testing/t	<span style="color:#2aa198">0</span>.011s
-ok  	github.com/budougumi0617/go-testing/t/parallel	<span style="color:#2aa198">0</span>.011s
-ok  	github.com/budougumi0617/go-testing/t/table	<span style="color:#2aa198">0</span>.010s</code></pre></div>
-<ul>
-<li><p>How Go cache tests</p>
-
+ok  	github.com/budougumi0617/go-testing/t	0.011s
+ok  	github.com/budougumi0617/go-testing/t/parallel	0.011s
+ok  	github.com/budougumi0617/go-testing/t/table	0.010s
+</code></pre></div><ul>
+<li>
+<p>How Go cache tests</p>
 <ul>
 <li><a href="https://speakerdeck.com/timakin/how-go-cache-tests">https://speakerdeck.com/timakin/how-go-cache-tests</a></li>
-</ul></li>
-
-<li><p>Go 1.10 Release Notes</p>
-
+</ul>
+</li>
+<li>
+<p>Go 1.10 Release Notes</p>
 <ul>
 <li><a href="https://golang.org/doc/go1.10#test">https://golang.org/doc/go1.10#test</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h2 id="特定のテストファイルだけを実行する">特定のテストファイルだけを実行する</h2>
-
 <p>同じパッケージのメソッドを対象にした特定のテストファイルを明示的に指定してテストする場合は、テスト対象のファイルも引数に指定する。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># sum.goの中にテストするメソッドが含まれている</span>
-$ go <span style="color:#b58900">test</span> sum_test.go sum.go</code></pre></div>
-<p>後述する<code>package XXX_test</code>を使ったテストの外部パッケージ化をしているときは必然的に<code>import</code>しているのでテストファイルだけで実行できる。</p>
-
+$ go <span style="color:#b58900">test</span> sum_test.go sum.go
+</code></pre></div><p>後述する<code>package XXX_test</code>を使ったテストの外部パッケージ化をしているときは必然的に<code>import</code>しているのでテストファイルだけで実行できる。</p>
 <h2 id="特定のテストケースだけを実行する">特定のテストケースだけを実行する</h2>
-
 <p>特定のテストケースだけ実行する場合は<code>-run</code>オプションで指定することができる(正規表現可)。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># カレントパッケージ配下にある&#34;Minus&#34;というサブテスト(後述）だけを実行するとき</span>
-$ go <span style="color:#b58900">test</span> ./... -v -run /Minus</code></pre></div>
-<h2 id="parallel-n-オプションで最大並行実行数を制御する"><code>-parallel n</code>オプションで最大並行実行数を制御する</h2>
-
-<p>後述する<code>T.Parallel()</code>メソッドが呼ばれているテストケースは並行に実行される。<br />
-同時に実行されるテストケースの数はデフォルトだと<code>GOMAXPROCS</code>の数と等しい。<br />
+$ go <span style="color:#b58900">test</span> ./... -v -run /Minus
+</code></pre></div><h2 id="-parallel-nオプションで最大並行実行数を制御する"><code>-parallel n</code>オプションで最大並行実行数を制御する</h2>
+<p>後述する<code>T.Parallel()</code>メソッドが呼ばれているテストケースは並行に実行される。<br>
+同時に実行されるテストケースの数はデフォルトだと<code>GOMAXPROCS</code>の数と等しい。<br>
 <code>-parallel n</code>オプションを使うと、<code>n</code>の数で同時実行数を制御できる。</p>
-
-<h2 id="cpu-list-オプションで-gomaxprocs-を変更しながらテストする"><code>-cpu list</code>オプションで<code>GOMAXPROCS</code>を変更しながらテストする</h2>
-
-<p><code>-cpu</code>オプションは実行時の<code>GOMAXPROCS</code>の数を変更することができる。<br />
+<h2 id="-cpu-listオプションでgomaxprocsを変更しながらテストする"><code>-cpu list</code>オプションで<code>GOMAXPROCS</code>を変更しながらテストする</h2>
+<p><code>-cpu</code>オプションは実行時の<code>GOMAXPROCS</code>の数を変更することができる。<br>
 オプション引数には数字の羅列を渡すことができ、例えば<code>-cpu 1,2,4</code>とすると<code>GOMAXPROCS</code>を変えながら都合3回テストが実行される。</p>
-
 <ul>
 <li>go testの並列（-cpuと-parallel）がなんの事だったか忘れた時のメモ #golang
-
 <ul>
 <li><a href="https://qiita.com/tenntenn/items/2832149c6fca15b66397">https://qiita.com/tenntenn/items/2832149c6fca15b66397</a></li>
-</ul></li>
 </ul>
-
-<h2 id="デバッガ-delve-でテストを実行する">デバッガ(<code>delve</code>)でテストを実行する</h2>
-
-<p>Delveでテストのデバッグ実行をするときは以下のようにオプションを渡す。<br />
+</li>
+</ul>
+<h2 id="デバッガdelveでテストを実行する">デバッガ(<code>delve</code>)でテストを実行する</h2>
+<p>Delveでテストのデバッグ実行をするときは以下のようにオプションを渡す。<br>
 普段<code>-run</code>と指定していても、正式なオプションは<code>-test.run</code>などだったりする。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ dlv <span style="color:#b58900">test</span> -- -test.run TestCreateTempFile</code></pre></div>
-<ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ dlv <span style="color:#b58900">test</span> -- -test.run TestCreateTempFile
+</code></pre></div><ul>
 <li><a href="/2018/04/08/debug-by-delve/">Goのデバッガ(Delve)のいろいろな起動のしかた</a></li>
 </ul>
-
 <h2 id="ci上でテストを実行する">CI上でテストを実行する</h2>
-
-<p>JUnit形式で結果を出力するとCIの機能でテスト結果を可視化してくれたりする。<br />
+<p>JUnit形式で結果を出力するとCIの機能でテスト結果を可視化してくれたりする。<br>
 CircleCIの場合は公式にやり方が書いてある。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">      - run:
-          name: Run unit tests
-          command: <span style="color:#2aa198">|
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">      - <span style="color:#719e07">run</span>:
+          <span style="color:#719e07">name</span>: Run unit tests
+          <span style="color:#719e07">command</span>: <span style="color:#2aa198">|
 </span><span style="color:#2aa198">            trap &#34;go-junit-report &lt;${TEST_RESULTS}/go-test.out &gt; ${TEST_RESULTS}/go-test-report.xml&#34; EXIT</span>
-            go test -v ./... | tee ${TEST_RESULTS}/go-test.out</code></pre></div>
-<p>サンプルリポジトリでCircleCIを実行した結果はこちら</p>
-
+            go test -v ./... | tee ${TEST_RESULTS}/go-test.out
+</code></pre></div><p>サンプルリポジトリでCircleCIを実行した結果はこちら</p>
 <ul>
-<li><p><a href="https://circleci.com/gh/budougumi0617/go-testing">https://circleci.com/gh/budougumi0617/go-testing</a></p></li>
-
-<li><p>Language Guide: Go</p>
-
+<li>
+<p><a href="https://circleci.com/gh/budougumi0617/go-testing">https://circleci.com/gh/budougumi0617/go-testing</a></p>
+</li>
+<li>
+<p>Language Guide: Go</p>
 <ul>
 <li><a href="https://circleci.com/docs/2.0/language-go/">https://circleci.com/docs/2.0/language-go/</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h2 id="playgroundでテストを実行する">playgroundでテストを実行する</h2>
-
-<p>ちょっと前からPlaygroundでもテストメソッドを簡単に実行できるようになっている。<br />
+<p>ちょっと前からPlaygroundでもテストメソッドを簡単に実行できるようになっている。<br>
 <code>main()</code>メソッドを宣言せずにコードを書けばよい。</p>
-
 <p><a href="https://play.golang.org/p/Timl696Usih">https://play.golang.org/p/Timl696Usih</a></p>
-
 <ul>
 <li>The Go Playground で Test &amp; Example がしやすくなった
-
 <ul>
 <li><a href="https://qiita.com/cia_rana/items/b6bd6dd9f5af3f95ea2a">https://qiita.com/cia_rana/items/b6bd6dd9f5af3f95ea2a</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="テストの書き方">テストの書き方</h1>
-
 <h2 id="テストコードのパッケージ名について">テストコードのパッケージ名について</h2>
-
-<p>Goは同じディレクトリ以下に複数の<code>package</code>名を許さないが、例外的に<code>xxx</code>パッケージと<code>xxx_test</code>パッケージは同じディレクトリに共存できる。<br />
-当然異なるパッケージになるので、非公開メソッドなどは参照できなくなるが、循環参照を回避できる。<br />
+<p>Goは同じディレクトリ以下に複数の<code>package</code>名を許さないが、例外的に<code>xxx</code>パッケージと<code>xxx_test</code>パッケージは同じディレクトリに共存できる。<br>
+当然異なるパッケージになるので、非公開メソッドなどは参照できなくなるが、循環参照を回避できる。<br>
 また、非公開な機能を<code>export_test.go</code>を介してアクセスすることもできる。</p>
-
 <ul>
 <li>Go Fridayこぼれ話：非公開（unexported）な機能を使ったテスト #golang
-
 <ul>
 <li><a href="https://tech.mercari.com/entry/2018/08/08/080000">https://tech.mercari.com/entry/2018/08/08/080000</a></li>
-</ul></li>
 </ul>
-
-<h2 id="testing-tb-インターフェースの主なメソッド"><code>testing.TB</code>インターフェースの主なメソッド</h2>
-
-<p>通常のテスト用の<code>testing.T</code>とベンチマーク用の<code>testing.B</code>は<code>Errorf</code>などいくつか共通メソッドを持っている。<br />
+</li>
+</ul>
+<h2 id="testingtbインターフェースの主なメソッド"><code>testing.TB</code>インターフェースの主なメソッド</h2>
+<p>通常のテスト用の<code>testing.T</code>とベンチマーク用の<code>testing.B</code>は<code>Errorf</code>などいくつか共通メソッドを持っている。<br>
 それらは<code>testing.TB</code>インターフェースのメソッドとして定義されている。Goのテストはここで定義されているメソッドを使ってテストの正否を判定する。</p>
-
 <ul>
 <li><code>TB.Error</code>/<code>TB.Errorf</code>はテストの失敗が記録されるが、後続処理は継続される</li>
 <li><code>TB.Fatal</code>/<code>TB.Fatalf</code>はテストの失敗が記録されテストケースは終了する。その場で宣言済みの<code>defer</code>処理なども開始される</li>
@@ -470,14 +412,11 @@ CircleCIの場合は公式にやり方が書いてある。</p>
 <li><code>TB.SkipNow</code>/<code>TB.Skip</code>はテストがその場でスキップされる。テストケースを一時的に無効にしたいときに使う。</li>
 <li><code>TB.Log</code>/<code>TB.Logf</code>は<code>-v</code>オプションがついていたとき、テストがFailしたときに出力される。ベンチマーク時は常に出力される。</li>
 </ul>
-
-<h2 id="testing-tb-helper-メソッド"><code>testing.TB.Helper</code>メソッド</h2>
-
-<p>テストケースを複数書いていると、共通処理を外出ししてサブメソッドにすることがしばしばある。<br />
-（たとえば構造体を走査しててエラーを判断したり）<br />
-そうすると、エラーログがサブメソッド内になってしまう。Go1.9からそれを防ぐ<code>TB.Helper</code>メソッドが追加された。<br />
+<h2 id="testingtbhelperメソッド"><code>testing.TB.Helper</code>メソッド</h2>
+<p>テストケースを複数書いていると、共通処理を外出ししてサブメソッドにすることがしばしばある。<br>
+（たとえば構造体を走査しててエラーを判断したり）<br>
+そうすると、エラーログがサブメソッド内になってしまう。Go1.9からそれを防ぐ<code>TB.Helper</code>メソッドが追加された。<br>
 サブメソッド内で同メソッドを呼ぶと、サブメソッド内でFailしても呼び出し元メソッドの情報が出力される。</p>
-
 <p>何もしないサブメソッドと、<code>TB.Helper()</code>メソッドの呼び出すサブメソッドを<code>helper_test.go</code>ファイルに記述し、</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> helper_test
 
@@ -492,8 +431,8 @@ CircleCIの場合は公式にやり方が書いてある。</p>
 <span style="color:#268bd2">func</span> <span style="color:#268bd2">errorfHelper</span>(tb testing.TB, want, got <span style="color:#dc322f">int</span>) {
 	tb.<span style="color:#268bd2">Helper</span>()
 	tb.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;want = %d, got = %d&#34;</span>, want, got)
-}</code></pre></div>
-<p>それぞれを<code>sample_test.go</code>ファイル内のテストケースから呼び出すと、</p>
+}
+</code></pre></div><p>それぞれを<code>sample_test.go</code>ファイル内のテストケースから呼び出すと、</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> helper_test
 
 <span style="color:#719e07">import</span> (
@@ -511,45 +450,38 @@ CircleCIの場合は公式にやり方が書いてある。</p>
 		<span style="color:#268bd2">errorf</span>(t, want, got)
 		<span style="color:#268bd2">errorfHelper</span>(t, want, got)
 	}
-}</code></pre></div>
-<p><code>TB.Helper()</code>メソッドを呼んだほうだけ呼び出し元の<code>sample_test.go</code>の情報を持ってエラーが出力される。</p>
+}
+</code></pre></div><p><code>TB.Helper()</code>メソッドを呼んだほうだけ呼び出し元の<code>sample_test.go</code>の情報を持ってエラーが出力される。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span>
---- FAIL: TestSum <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
-	helper_test.go:8: <span style="color:#268bd2">want</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">4</span>, <span style="color:#268bd2">got</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">3</span>
-	simple_test.go:16: <span style="color:#268bd2">want</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">4</span>, <span style="color:#268bd2">got</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">3</span>
+--- FAIL: TestSum <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
+	helper_test.go:8: <span style="color:#268bd2">want</span> <span style="color:#719e07">=</span> 4, <span style="color:#268bd2">got</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">3</span>
+	simple_test.go:16: <span style="color:#268bd2">want</span> <span style="color:#719e07">=</span> 4, <span style="color:#268bd2">got</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">3</span>
 FAIL
 <span style="color:#b58900">exit</span> status <span style="color:#2aa198">1</span>
-FAIL	github.com/budougumi0617/go-testing/t/helper	<span style="color:#2aa198">0</span>.010s</code></pre></div>
-<h2 id="table-driven-test">Table Driven Test</h2>
-
+FAIL	github.com/budougumi0617/go-testing/t/helper	0.010s
+</code></pre></div><h2 id="table-driven-test">Table Driven Test</h2>
 <p>Goではテーブルを使ってテストを書くことが推奨されている。</p>
-
 <ul>
-<li>テーブルでテストを用意することで、テーブル内容を確認すれば評価済みの入出力セットをすぐ確認することができて見通しが良い。<br /></li>
-
-<li><p>また、バグが発見されたときはテーブルに「バグ発生時の入力とあるべき出力」を追加するだけでTDDがスタートできる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestSum</span>(t <span style="color:#719e07">*</span>testing.T) {
-  tests <span style="color:#719e07">:=</span> []<span style="color:#268bd2">struct</span> {
-      a, b, want <span style="color:#dc322f">int</span>
-  }{
-      {<span style="color:#2aa198">0</span>, <span style="color:#2aa198">1</span>, <span style="color:#2aa198">1</span>},
-      {<span style="color:#719e07">-</span><span style="color:#2aa198">1</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">1</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">2</span>},
-      {<span style="color:#719e07">-</span><span style="color:#2aa198">3</span>, <span style="color:#2aa198">2</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">1</span>},
-  }
-  <span style="color:#719e07">for</span> _, tt <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> tests {
-      <span style="color:#719e07">if</span> got <span style="color:#719e07">:=</span> parallel.<span style="color:#268bd2">Sum</span>(tt.a, tt.b); got <span style="color:#719e07">!=</span> tt.want {
-          t.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;want = %d, got = %d&#34;</span>, tt.want, got)
+<li>テーブルでテストを用意することで、テーブル内容を確認すれば評価済みの入出力セットをすぐ確認することができて見通しが良い。</li>
+<li>また、バグが発見されたときはテーブルに「バグ発生時の入力とあるべき出力」を追加するだけでTDDがスタートできる。</li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  <span style="color:#268bd2">func</span> <span style="color:#268bd2">TestSum</span>(t <span style="color:#719e07">*</span>testing.T) {
+      tests <span style="color:#719e07">:=</span> []<span style="color:#268bd2">struct</span> {
+          a, b, want <span style="color:#dc322f">int</span>
+      }{
+          {<span style="color:#2aa198">0</span>, <span style="color:#2aa198">1</span>, <span style="color:#2aa198">1</span>},
+          {<span style="color:#719e07">-</span><span style="color:#2aa198">1</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">1</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">2</span>},
+          {<span style="color:#719e07">-</span><span style="color:#2aa198">3</span>, <span style="color:#2aa198">2</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">1</span>},
+      }
+      <span style="color:#719e07">for</span> _, tt <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> tests {
+          <span style="color:#719e07">if</span> got <span style="color:#719e07">:=</span> parallel.<span style="color:#268bd2">Sum</span>(tt.a, tt.b); got <span style="color:#719e07">!=</span> tt.want {
+              t.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;want = %d, got = %d&#34;</span>, tt.want, got)
+          }
       }
   }
-}</code></pre></div></li>
-</ul>
-
-<h2 id="for-tt-range-tests"><code>for _, tt := range tests</code></h2>
-
+</code></pre></div><h2 id="for-_-tt--range-tests"><code>for _, tt := range tests</code></h2>
 <p>標準パッケージで確認すると、テーブル駆動テストをするときは<code>tests</code>で宣言してループを<code>tt</code>で流していることが多いので、それに従って書くことが多い。(<code>for _, test := range tests</code>も多いが、<code>test</code>は長いので<code>tt</code>を選ぶ。)</p>
-
-<h2 id="sub-test-testing-t-run">Sub Test(<code>testing.T.Run</code>)</h2>
-
+<h2 id="sub-testtestingtrun">Sub Test(<code>testing.T.Run</code>)</h2>
 <p><code>testing.T.Run</code>メソッドを使うとサブテスト書くことができる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  <span style="color:#268bd2">func</span> <span style="color:#268bd2">TestSum</span>(t <span style="color:#719e07">*</span>testing.T) {
       tests <span style="color:#719e07">:=</span> []<span style="color:#268bd2">struct</span> {
@@ -567,16 +499,14 @@ FAIL	github.com/budougumi0617/go-testing/t/helper	<span style="color:#2aa198">0<
               }
           })
       }
-  }</code></pre></div>
-<p>テーブルテストとサブテストを組み合わせることで以下の効果が得られる。</p>
-
+  }
+</code></pre></div><p>テーブルテストとサブテストを組み合わせることで以下の効果が得られる。</p>
 <ul>
 <li>テーブルのテストケースそれぞれでテストの可否を判断することができる</li>
 <li>後述する<code>testing.T.Parallel</code>メソッドを使うことで並行実行ができる</li>
 <li><code>-test.run</code>オプションでサブテストそれぞれを個別に実行することができる</li>
 </ul>
-
-<p>サブテストの名前は<code>testing.T.Run</code>の第一引数に渡した文字列になる。スペースを含んだ文字列は<code>_</code>で置換されるので、使わないほうがよい。<br />
+<p>サブテストの名前は<code>testing.T.Run</code>の第一引数に渡した文字列になる。スペースを含んだ文字列は<code>_</code>で置換されるので、使わないほうがよい。<br>
 「このテストケースでは何をテストしている（テストしたい）のか？」がわかりやすいようにtable要素で名前をつけたほうがテストコードの可読性が高い。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">tests <span style="color:#719e07">:=</span> []<span style="color:#268bd2">struct</span> {
   name <span style="color:#dc322f">string</span>
@@ -587,8 +517,8 @@ FAIL	github.com/budougumi0617/go-testing/t/helper	<span style="color:#2aa198">0<
 	t.<span style="color:#268bd2">Run</span>(tt.name, <span style="color:#268bd2">func</span>(t <span style="color:#719e07">*</span>testing.T) {
 		<span style="color:#586e75">// ...
 </span><span style="color:#586e75"></span>	})
-}</code></pre></div>
-<p>冒頭の<code>TestSum</code>を実行すると以下のようになる。</p>
+}
+</code></pre></div><p>冒頭の<code>TestSum</code>を実行すると以下のようになる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> ./... -v
 <span style="color:#719e07">===</span> RUN   <span style="color:#268bd2">TestSum</span>
 <span style="color:#719e07">===</span> RUN   TestSum/Simple
@@ -600,43 +530,37 @@ FAIL	github.com/budougumi0617/go-testing/t/helper	<span style="color:#2aa198">0<
 <span style="color:#719e07">===</span> CONT  TestSum/Simple
 <span style="color:#719e07">===</span> CONT  TestSum/Both
 <span style="color:#719e07">===</span> CONT  TestSum/Minus
---- PASS: TestSum <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
-    --- PASS: TestSum/Simple <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
-    --- PASS: TestSum/Both <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
-    --- PASS: TestSum/Minus <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
+--- PASS: TestSum <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
+    --- PASS: TestSum/Simple <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
+    --- PASS: TestSum/Both <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
+    --- PASS: TestSum/Minus <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
 PASS
-ok  	github.com/budougumi0617/go-testing/t/parallel	<span style="color:#2aa198">0</span>.009s</code></pre></div>
-<p><code>-run</code>オプションで特定のサブテストだけ実行する例は以下になる。</p>
+ok  	github.com/budougumi0617/go-testing/t/parallel	0.009s
+</code></pre></div><p><code>-run</code>オプションで特定のサブテストだけ実行する例は以下になる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> ./... -v -run Sum/Both
 <span style="color:#719e07">===</span> RUN   <span style="color:#268bd2">TestSum</span>
 <span style="color:#719e07">===</span> RUN   TestSum/Both
 <span style="color:#719e07">===</span> PAUSE TestSum/Both
 <span style="color:#719e07">===</span> CONT  TestSum/Both
---- PASS: TestSum <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
-    --- PASS: TestSum/Both <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
+--- PASS: TestSum <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
+    --- PASS: TestSum/Both <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
 PASS
-ok  	github.com/budougumi0617/go-testing/t/parallel	<span style="color:#2aa198">0</span>.011s</code></pre></div>
-<h2 id="wantとgot">wantとgot</h2>
-
+ok  	github.com/budougumi0617/go-testing/t/parallel	0.011s
+</code></pre></div><h2 id="wantとgot">wantとgot</h2>
 <p><code>expect</code>や<code>actual</code>は単語が長いので、<code>want</code>と<code>got</code>で書くほうがベターに思える。</p>
-
 <ul>
 <li>Go testing style guide
-
 <ul>
 <li><a href="https://arp242.net/weblog/go-testing-style.html">https://arp242.net/weblog/go-testing-style.html</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h2 id="エラーは無視しない">エラーは無視しない</h2>
-
 <p>ある一つのメソッドのテストを一つのテーブルに書いていると、以下のようなテストも同じテーブルに入れたくなる。</p>
-
 <ul>
 <li>通常ケースのテスト（エラーが出ないテスト）</li>
 <li>ある特定のエラーがでたことを確認するテスト</li>
 </ul>
-
 <p>その場合はテストケース内でエラーの有無をフラグとして検証条件を増やす。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  tests <span style="color:#719e07">:=</span> []<span style="color:#268bd2">struct</span> {
       name      <span style="color:#dc322f">string</span>
@@ -664,11 +588,9 @@ ok  	github.com/budougumi0617/go-testing/t/parallel	<span style="color:#2aa198">
               t.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;want %q, but %q&#34;</span>, tt.want, got)
           }
       })
-  }</code></pre></div>
-<p>エラーの有無だけではなく期待するエラーかも確認するのが望ましい。</p>
-
+  }
+</code></pre></div><p>エラーの有無だけではなく期待するエラーかも確認するのが望ましい。</p>
 <h2 id="errorfのテンプレート文字列">Errorfのテンプレート文字列</h2>
-
 <p>文字列を出力するときは<code>%#v</code>を使ったほうが良い（ときもある）。微妙に空白が混ざっていたとしても可視化できる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
@@ -680,15 +602,13 @@ ok  	github.com/budougumi0617/go-testing/t/parallel	<span style="color:#2aa198">
 	spaces <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;      \n &#34;</span>
 	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;spaces = %v\n&#34;</span>, spaces)  <span style="color:#586e75">// spaces =
 </span><span style="color:#586e75"></span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;spaces = %#v\n&#34;</span>, spaces) <span style="color:#586e75">// spaces = &#34;      \n &#34;
-</span><span style="color:#586e75"></span>}</code></pre></div>
-<ul>
+</span><span style="color:#586e75"></span>}
+</code></pre></div><ul>
 <li><a href="https://play.golang.org/p/WmNrzxzq3aG">https://play.golang.org/p/WmNrzxzq3aG</a></li>
 </ul>
-
-<h2 id="testing-t-parallel-メソッドで並行実行するテストを書く"><code>testing.T.Parallel</code>メソッドで並行実行するテストを書く</h2>
-
-<p>Goのテストは通常逐次的に実行される。並行実行オプションをつけて実行してもそれぞれのテストケースは逐次的にされる。<br />
-テストケースの中で<code>T.Parallel()</code>メソッドが呼ばれているテストケースのみが並行に実行される。<br />
+<h2 id="testingtparallelメソッドで並行実行するテストを書く"><code>testing.T.Parallel</code>メソッドで並行実行するテストを書く</h2>
+<p>Goのテストは通常逐次的に実行される。並行実行オプションをつけて実行してもそれぞれのテストケースは逐次的にされる。<br>
+テストケースの中で<code>T.Parallel()</code>メソッドが呼ばれているテストケースのみが並行に実行される。<br>
 各サブテストを並行実行したい場合は、<code>testing.T.Run()</code>メソッドで呼ぶ<code>func(*testign.T)</code>メソッド内で呼ぶ。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  <span style="color:#719e07">for</span> _, tt <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> tests {
       tt <span style="color:#719e07">:=</span> tt <span style="color:#586e75">// Don&#39;t forget when parallel test
@@ -698,20 +618,17 @@ ok  	github.com/budougumi0617/go-testing/t/parallel	<span style="color:#2aa198">
               t.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;want = %d, got = %d&#34;</span>, tt.want, got)
           }
       })
-  }</code></pre></div>
-<p>ループ変数の<code>tt</code>をローカル変数で補足するのを忘れないこと。</p>
-
+  }
+</code></pre></div><p>ループ変数の<code>tt</code>をローカル変数で補足するのを忘れないこと。</p>
 <ul>
 <li>初級者向けGoの落とし穴と解説 - ループ変数の補足
-
 <ul>
 <li><a href="https://speakerdeck.com/budougumi0617/traps-and-explanations-in-go?slide=24">https://speakerdeck.com/budougumi0617/traps-and-explanations-in-go?slide=24</a></li>
-</ul></li>
 </ul>
-
-<h1 id="testmain-m-testing-m-メソッドで前処理を定義する"><code>TestMain(m *testing.M)</code>メソッドで前処理を定義する</h1>
-
-<p>パッケージのテストを実行する前後で任意の処理を実行してからテストを行いたいときは<code>TestMain(m *testing.M)</code>を宣言しておく。<br />
+</li>
+</ul>
+<h1 id="testmainm-testingmメソッドで前処理を定義する"><code>TestMain(m *testing.M)</code>メソッドで前処理を定義する</h1>
+<p>パッケージのテストを実行する前後で任意の処理を実行してからテストを行いたいときは<code>TestMain(m *testing.M)</code>を宣言しておく。<br>
 <code>m.Run()</code>前後に処理を記述することで、そのパッケージのテストの実行前後に処理を割り込ませることができる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestMain</span>(m <span style="color:#719e07">*</span>testing.M) {
 	<span style="color:#268bd2">func</span>() {
@@ -722,42 +639,40 @@ ok  	github.com/budougumi0617/go-testing/t/parallel	<span style="color:#2aa198">
 		fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Teardown test&#34;</span>)
 	}()
 	os.<span style="color:#268bd2">Exit</span>(ret)
-}</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span>
+}
+</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span>
 Prepare <span style="color:#b58900">test</span>
 PASS
 Teardown <span style="color:#b58900">test</span>
-ok  	github.com/budougumi0617/go-testing/t/testmain	<span style="color:#2aa198">0</span>.009s</code></pre></div>
-<p>当然(?)だが、特定のテストファイルのみを引数に実行した場合は<code>TestMain</code>は実行は実行されない。</p>
+ok  	github.com/budougumi0617/go-testing/t/testmain	0.009s
+</code></pre></div><p>当然(?)だが、特定のテストファイルのみを引数に実行した場合は<code>TestMain</code>は実行は実行されない。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># TestMainはmain_test.goに含まれている</span>
 $ go <span style="color:#b58900">test</span> sumsub_test.go -v
 <span style="color:#719e07">===</span> RUN   TestSum
 ...
-    --- PASS: TestSub/Both <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
+    --- PASS: TestSub/Both <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
 PASS
-ok  	command-line-arguments	<span style="color:#2aa198">0</span>.011s
+ok  	command-line-arguments	0.011s
 
 <span style="color:#586e75"># TestMainを含んだmain_test.goと一緒に実行する</span>
 go <span style="color:#b58900">test</span> sumsub_test.go main_test.go -v
 Prepare <span style="color:#b58900">test</span>
 <span style="color:#719e07">===</span> RUN   TestSum
 ...
-    --- PASS: TestSub/Both <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
+    --- PASS: TestSub/Both <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
 PASS
 Teardown <span style="color:#b58900">test</span>
-ok  	command-line-arguments	<span style="color:#2aa198">0</span>.009s</code></pre></div>
-<ul>
+ok  	command-line-arguments	0.009s
+</code></pre></div><ul>
 <li>Goでテストを書く(テストの実装パターン集)  - パッケージ全体でSetup/Teardownを使う
-
 <ul>
 <li><a href="https://qiita.com/atotto/items/f6b8c773264a3183a53c">https://qiita.com/atotto/items/f6b8c773264a3183a53c</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="ビルドタグでテストケースを分類する">ビルドタグでテストケースを分類する</h1>
-
-<p><code>go build</code>と同じように、<code>go test</code>もビルドタグを使うことができる。<br />
+<p><code>go build</code>と同じように、<code>go test</code>もビルドタグを使うことができる。<br>
 テストファイルごとに適切なビルドタグを指定しておけば、ビルドタグが有効なときだけ実行されるテストケースを宣言しておくことができる。</p>
-
 <p><code>-tags integration</code>オプションが付与されたときだけ有効なテストファイルを作成し、</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// +build integration
 </span><span style="color:#586e75"></span>
@@ -771,8 +686,8 @@ ok  	command-line-arguments	<span style="color:#2aa198">0</span>.009s</code></pr
 
 <span style="color:#268bd2">func</span> <span style="color:#268bd2">TestSub</span>(t <span style="color:#719e07">*</span>testing.T) {
 	<span style="color:#586e75">// some testing...
-</span><span style="color:#586e75"></span>}</code></pre></div>
-<p>通常のファイルは<code>-tags integration</code>オプション有効時に無効にしておけば、</p>
+</span><span style="color:#586e75"></span>}
+</code></pre></div><p>通常のファイルは<code>-tags integration</code>オプション有効時に無効にしておけば、</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// +build !integration
 </span><span style="color:#586e75"></span>
 <span style="color:#719e07">package</span> tags_test
@@ -785,75 +700,66 @@ ok  	command-line-arguments	<span style="color:#2aa198">0</span>.009s</code></pr
 
 <span style="color:#268bd2">func</span> <span style="color:#268bd2">TestSum</span>(t <span style="color:#719e07">*</span>testing.T) {
 	<span style="color:#586e75">// some testing...
-</span><span style="color:#586e75"></span>}</code></pre></div>
-<p>複数目的のテストを分類して実行できる。</p>
+</span><span style="color:#586e75"></span>}
+</code></pre></div><p>複数目的のテストを分類して実行できる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> -v
 <span style="color:#719e07">===</span> RUN   TestSum
---- PASS: TestSum <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
+--- PASS: TestSum <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
 PASS
-ok  	github.com/budougumi0617/go-testing/t/tags	<span style="color:#2aa198">0</span>.009s
+ok  	github.com/budougumi0617/go-testing/t/tags	0.009s
 
 $ go <span style="color:#b58900">test</span> -v -tags <span style="color:#268bd2">integration</span>
 <span style="color:#719e07">===</span> RUN   TestSub
---- PASS: TestSub <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
+--- PASS: TestSub <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
 PASS
-ok  	github.com/budougumi0617/go-testing/t/tags	<span style="color:#2aa198">0</span>.009s</code></pre></div>
-<h1 id="テストカバレッジを集計する">テストカバレッジを集計する</h1>
-
-<p>Goは標準機能でテストカバレッジを計測することができる。<br />
+ok  	github.com/budougumi0617/go-testing/t/tags	0.009s
+</code></pre></div><h1 id="テストカバレッジを集計する">テストカバレッジを集計する</h1>
+<p>Goは標準機能でテストカバレッジを計測することができる。<br>
 Go1.10からは複数パッケージのカバレッジも簡単に取得できるようになった。</p>
-
 <p>単純にコマンドライン上に計測結果を出力したいならば<code>go test</code>コマンドに<code>-cover</code>オプションをつけて実行すればよい。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> -cover ./...</code></pre></div>
-<h2 id="htmlにカバレッジを保存する">HTMLにカバレッジを保存する</h2>
-
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> -cover ./...
+</code></pre></div><h2 id="htmlにカバレッジを保存する">HTMLにカバレッジを保存する</h2>
 <p><code>go tool</code>と組み合わせるとカバレッジの計測結果を
 <code>-covermode=count</code>(<code>atomic</code>)オプションをつけておくと各コード行の実行回数も計測できる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> ./... -covermode<span style="color:#719e07">=</span>count -coverprofile<span style="color:#719e07">=</span>c.out
-$ go tool cover -html<span style="color:#719e07">=</span>c.out -o coverage.html</code></pre></div>
-<h2 id="ciと組み合わせる">CIと組み合わせる</h2>
-
+$ go tool cover -html<span style="color:#719e07">=</span>c.out -o coverage.html
+</code></pre></div><h2 id="ciと組み合わせる">CIと組み合わせる</h2>
 <p>たとえばCircle CIならばCI中の成果物を保存しておく設定があるので、これで前述のHTMLファイルを保存しておく。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml">- store_artifacts:
-    path: /code/test-results
-    destination: prefix</code></pre></div>
-<p>Codecovと連携するならばCI中で以下のようにスクリプトを呼ぶだけで結果を送信できる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml">- <span style="color:#719e07">store_artifacts</span>:
+    <span style="color:#719e07">path</span>: /code/test-results
+    <span style="color:#719e07">destination</span>: prefix
+</code></pre></div><p>Codecovと連携するならばCI中で以下のようにスクリプトを呼ぶだけで結果を送信できる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> ./... -coverprofile<span style="color:#719e07">=</span>coverage.txt -covermode<span style="color:#719e07">=</span>count
-$ bash &lt;<span style="color:#719e07">(</span>curl -s https://codecov.io/bash<span style="color:#719e07">)</span></code></pre></div>
-<p>サンプルリポジトリを実行したCodecovの結果はこちら。</p>
-
+$ bash &lt;<span style="color:#719e07">(</span>curl -s https://codecov.io/bash<span style="color:#719e07">)</span>
+</code></pre></div><p>サンプルリポジトリを実行したCodecovの結果はこちら。</p>
 <ul>
-<li><p><a href="https://codecov.io/gh/budougumi0617/go-testing">https://codecov.io/gh/budougumi0617/go-testing</a></p></li>
-
-<li><p>Configuring CircleCI</p>
-
+<li>
+<p><a href="https://codecov.io/gh/budougumi0617/go-testing">https://codecov.io/gh/budougumi0617/go-testing</a></p>
+</li>
+<li>
+<p>Configuring CircleCI</p>
 <ul>
 <li><a href="https://circleci.com/docs/2.0/configuration-reference/#store_artifacts">https://circleci.com/docs/2.0/configuration-reference/#store_artifacts</a></li>
-</ul></li>
-
-<li><p>Codecov Go Example</p>
-
+</ul>
+</li>
+<li>
+<p>Codecov Go Example</p>
 <ul>
 <li><a href="https://github.com/codecov/example-go">https://github.com/codecov/example-go</a></li>
-</ul></li>
 </ul>
-
-<h1 id="2019-10追記">2019/10追記</h1>
-
+</li>
+</ul>
+<h1 id="201910追記">2019/10追記</h1>
 <p>この記事をまとめた際はGo1.10だった。Go1.11からGo1.13で追加・変更されたGoの仕様を以下にまとめた。</p>
-
 <ul>
 <li><a href="/2019/10/30/go-testing2019/">Goのtestを理解する in 2019</a></li>
 </ul>
-
 <h1 id="関連">関連</h1>
-
 <ul>
 <li><a href="/2018/08/30/go-testing2018-examples/">Goのtestingを理解する in 2018 - Examples編 #go</a></li>
 <li><a href="/2018/09/05/go-testing2018-quick">Goのtestingを理解する in 2018 - quickサブパッケージ編 #go</a></li>
 <li><a href="/2018/09/09/go-testing2018-iotest/">Goのtestingを理解する in 2018 - iotestサブパッケージ編 #go</a></li>
 </ul>
-
 <p>TODO ベンチマーク、サブパッケージなどを別記事にまとめる。</p>
         </div>
         
@@ -944,9 +850,9 @@ $ bash &lt;<span style="color:#719e07">(</span>curl -s https://codecov.io/bash<s
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -1024,10 +930,16 @@ $ bash &lt;<span style="color:#719e07">(</span>curl -s https://codecov.io/bash<s
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -1039,12 +951,6 @@ $ bash &lt;<span style="color:#719e07">(</span>curl -s https://codecov.io/bash<s
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

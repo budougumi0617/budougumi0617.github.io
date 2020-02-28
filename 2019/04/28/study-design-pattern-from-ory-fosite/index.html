@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -59,12 +59,10 @@
   <meta property="og:type" content="article"/>
   <meta property="og:title" content="ory/fositeから読み解くGoにおけるStrategy/FactoryMethodパターン - My External Storage"/>
   <meta property="og:description" content="ory/fositeというGoのSDKの中でいくつかのデザインパターンが利用されていたので、それを読み解いてみる。
-
 "/>
   
   <meta name="twitter:title" content="ory/fositeから読み解くGoにおけるStrategy/FactoryMethodパターン - My External Storage"/>
   <meta name="twitter:description" content="ory/fositeというGoのSDKの中でいくつかのデザインパターンが利用されていたので、それを読み解いてみる。
-
 "/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
@@ -178,125 +176,99 @@
           
           
             <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#ory-fositeとは">ory/fositeとは</a></li>
-<li><a href="#ory-fositeで活用されているデザインパターン">ory/fositeで活用されているデザインパターン</a>
-<ul>
-<li><a href="#functional-optionsパターン">Functional optionsパターン</a></li>
-</ul></li>
-<li><a href="#ory-fositeのコードでどのようにデザインパターンが用いられているか">ory/fositeのコードでどのようにデザインパターンが用いられているか</a>
-<ul>
-<li><a href="#strategyパターンが使われているory-fositeの基本構造">strategyパターンが使われているory/fositeの基本構造</a></li>
-<li><a href="#functional-optionsパターンを利用したstrategyパターンの初期化とfactoryメソッドパターン">Functional Optionsパターンを利用したStrategyパターンの初期化とFactoryメソッドパターン</a></li>
-</ul></li>
-<li><a href="#まとめ">まとめ</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
+  <ul>
+    <li><a href="#functional-optionsパターン">Functional optionsパターン</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#strategyパターンが使われているoryfositeの基本構造">strategyパターンが使われているory/fositeの基本構造</a></li>
+    <li><a href="#functional-optionsパターンを利用したstrategyパターンの初期化とfactoryメソッドパターン">Functional Optionsパターンを利用したStrategyパターンの初期化とFactoryメソッドパターン</a></li>
+  </ul>
 </nav>
           
           <p><code>ory/fosite</code>というGoのSDKの中でいくつかのデザインパターンが利用されていたので、それを読み解いてみる。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/ory/fosite" data-iframely-url="//cdn.iframe.ly/rg9NVGS"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<!-- raw HTML omitted -->
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li><code>ory/fosite</code>はOAuth2.0に対応した認可サーバを作るためのGoのSDK
-
 <ul>
 <li><a href="https://github.com/ory/fosite">https://github.com/ory/fosite</a></li>
-</ul></li>
+</ul>
+</li>
 <li>トークンの払い出しなどの実装はStrategyパターンとFactoryMehotdパターンを利用している</li>
 <li>上記のデザインパターン以外にも、Functional optionsパターンや型アサーションを組み合わせた、実践的な設計アプローチがなされている</li>
 <li>ソースコードを読んでみることでGoにおけるデザインパターンの実装を学ぶことができた</li>
 </ul>
-
 <p>なお、本記事で参照している<code>ory/fosite</code>のコードは2019/04/28時点で最新の<code>v0.29.6</code>になる。</p>
-
 <ul>
 <li><a href="https://github.com/ory/fosite/tree/v0.29.6">https://github.com/ory/fosite/tree/v0.29.6</a></li>
 </ul>
-
-<h1 id="ory-fositeとは">ory/fositeとは</h1>
-
+<h1 id="oryfositeとは">ory/fositeとは</h1>
 <p><code>ory/fosite</code>はGoで実装されたOAuth2.0のサーバを構築するためのフレームワークだ。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/ory/fosite" data-iframely-url="//cdn.iframe.ly/rg9NVGS"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
-ORY自体はドイツの会社で、他にも<code>ory/hydra</code>ライブラリなど、OAuth2.0やOpenID Connectに関するプロダクトを複数提供している。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://www.ory.sh/" data-iframely-url="//cdn.iframe.ly/y8gOpZP"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
 <p>GoでOAuth2.0のサーバを構築するライブラリは他にも<a href="https://github.com/openshift/osin"><code>openshift/osin</code></a>や<a href="https://github.com/RichardKnop/go-oauth2-server"><code>RichardKnop/go-oauth2-server</code></a>が存在する。
 が、<code>openshift/osin</code>は既にDuprecatedになっており、Duprecatedを周知するIssueの中で<code>ory/fosite</code>が勧められている。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/openshift/osin/issues/186" data-iframely-url="//cdn.iframe.ly/3V8RyPe"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
-<h1 id="ory-fositeで活用されているデザインパターン">ory/fositeで活用されているデザインパターン</h1>
-
+<!-- raw HTML omitted -->
+<h1 id="oryfositeで活用されているデザインパターン">ory/fositeで活用されているデザインパターン</h1>
 <p>この記事で触れる<code>ory/fosite</code>のコードでは主に次のデザインパターンを利用している。</p>
-
 <ul>
 <li>FactoryMethodパターン</li>
 <li>Strategyパターン</li>
 <li>Functional optionsパターン</li>
 </ul>
-
 <p>FactroyMethodパターン、Strategyパターンはオーソドックスな<a href="https://ja.wikipedia.org/wiki/%E3%83%87%E3%82%B6%E3%82%A4%E3%83%B3%E3%83%91%E3%82%BF%E3%83%BC%E3%83%B3_(%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2)">GoFのデザインパターン</a>なので概要や利点の説明は省く。</p>
-
 <ul>
-<li>4. FactoryMethod パターン | TECHSCORE
-
+<li>
+<ol start="4">
+<li>FactoryMethod パターン | TECHSCORE</li>
+</ol>
 <ul>
 <li><a href="https://www.techscore.com/tech/DesignPattern/FactoryMethod.html/">https://www.techscore.com/tech/DesignPattern/FactoryMethod.html/</a></li>
-</ul></li>
-<li>10. Strategy パターン | TECHSCORE
-
+</ul>
+</li>
+<li>
+<ol start="10">
+<li>Strategy パターン | TECHSCORE</li>
+</ol>
 <ul>
 <li><a href="https://www.techscore.com/tech/DesignPattern/Strategy.html/">https://www.techscore.com/tech/DesignPattern/Strategy.html/</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h2 id="functional-optionsパターン">Functional optionsパターン</h2>
-
 <p>Functional OptionsパターンはGoで多用されるオプションパターンだ。次のサンプルコードは原典であるRob Pike氏の記事からの引用だ。</p>
-
 <ul>
-<li><p>Self-referential functions and the design of options | command center</p>
-
+<li>Self-referential functions and the design of options | command center
 <ul>
-<li><p><a href="https://commandcenter.blogspot.com/2014/01/self-referential-functions-and-design.html)">https://commandcenter.blogspot.com/2014/01/self-referential-functions-and-design.html)</a></p>
+<li><a href="https://commandcenter.blogspot.com/2014/01/self-referential-functions-and-design.html">https://commandcenter.blogspot.com/2014/01/self-referential-functions-and-design.html</a>)</li>
+</ul>
+</li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> option <span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>Foo) <span style="color:#268bd2">interface</span>{}
 
 <span style="color:#586e75">// Verbosity sets Foo&#39;s verbosity level to v.
 </span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Verbosity</span>(v <span style="color:#dc322f">int</span>) option {
-<span style="color:#719e07">return</span> <span style="color:#268bd2">func</span>(f <span style="color:#719e07">*</span>Foo) <span style="color:#268bd2">interface</span>{} {
-previous <span style="color:#719e07">:=</span> f.verbosity
-f.verbosity = v
-<span style="color:#719e07">return</span> previous
-}
+    <span style="color:#719e07">return</span> <span style="color:#268bd2">func</span>(f <span style="color:#719e07">*</span>Foo) <span style="color:#268bd2">interface</span>{} {
+        previous <span style="color:#719e07">:=</span> f.verbosity
+        f.verbosity = v
+        <span style="color:#719e07">return</span> previous
+    }
 }
 
 <span style="color:#586e75">// Option sets the options specified.
 </span><span style="color:#586e75">// It returns the previous value of the last argument.
 </span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (f <span style="color:#719e07">*</span>Foo) <span style="color:#268bd2">Option</span>(opts <span style="color:#719e07">...</span>option) (previous <span style="color:#268bd2">interface</span>{}) {
-<span style="color:#719e07">for</span> _, opt <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> opts {
-previous = <span style="color:#268bd2">opt</span>(f)
+    <span style="color:#719e07">for</span> _, opt <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> opts {
+        previous = <span style="color:#268bd2">opt</span>(f)
+    }
+    <span style="color:#719e07">return</span> previous
 }
-<span style="color:#719e07">return</span> previous
-}</code></pre></div></li>
-</ul></li>
-</ul>
-
-<p><code>func FooOption() option</code>関数を複数定義し、ビルド関数に可変長引数で<code>option</code>型を受けるようにしておくことで、ビルド関数の引数が増えるのを防ぐことが出来る。</p>
-
-<h1 id="ory-fositeのコードでどのようにデザインパターンが用いられているか">ory/fositeのコードでどのようにデザインパターンが用いられているか</h1>
-
+</code></pre></div><p><code>func FooOption() option</code>関数を複数定義し、ビルド関数に可変長引数で<code>option</code>型を受けるようにしておくことで、ビルド関数の引数が増えるのを防ぐことが出来る。</p>
+<h1 id="oryfositeのコードでどのようにデザインパターンが用いられているか">ory/fositeのコードでどのようにデザインパターンが用いられているか</h1>
 <p>実際に<code>ory/fosite</code>でどのようにデザインパターンが利用されているか確認する。</p>
-
-<h2 id="strategyパターンが使われているory-fositeの基本構造">strategyパターンが使われているory/fositeの基本構造</h2>
-
-<p>まず、<code>ory/fosite</code>を使うときの基本操作からデザインパターンを見てみる。ここではStrategyパターンによる実処理の移譲が行われている。<br />
+<h2 id="strategyパターンが使われているoryfositeの基本構造">strategyパターンが使われているory/fositeの基本構造</h2>
+<p>まず、<code>ory/fosite</code>を使うときの基本操作からデザインパターンを見てみる。ここではStrategyパターンによる実処理の移譲が行われている。<br>
 <code>ory/fosite</code>の利用者が扱う基本的なインターフェースは<a href="https://github.com/ory/fosite/blob/v0.29.6/oauth2.go#L42-L161"><code>fosite.OAuth2Provider</code></a>だ。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/oauth2.go#L42-L161
 </span><span style="color:#586e75"></span>
@@ -314,9 +286,8 @@ previous = <span style="color:#268bd2">opt</span>(f)
 	<span style="color:#268bd2">NewAccessRequest</span>(ctx context.Context, req <span style="color:#719e07">*</span>http.Request, session Session) (AccessRequester, <span style="color:#dc322f">error</span>)
 
 	<span style="color:#586e75">// ...
-</span><span style="color:#586e75"></span>}</code></pre></div>
-<p>SDK利用者はHTTPサーバを立ち上げたあと、各HTTPハンドラの中で<code>fosite.OAuth2Provider</code>インターフェースを使って認可コードを発行したり、トークンを払い出したりする処理を実装していく（OAuth2.0についての説明は主旨と異なるのでしない）。</p>
-
+</span><span style="color:#586e75"></span>}
+</code></pre></div><p>SDK利用者はHTTPサーバを立ち上げたあと、各HTTPハンドラの中で<code>fosite.OAuth2Provider</code>インターフェースを使って認可コードを発行したり、トークンを払い出したりする処理を実装していく（OAuth2.0についての説明は主旨と異なるのでしない）。</p>
 <p>このインターフェースの具象型は<code>fosite.Fosite</code>型だ。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/fosite.go#L85-L105
 </span><span style="color:#586e75"></span>
@@ -340,9 +311,8 @@ previous = <span style="color:#268bd2">opt</span>(f)
 </span><span style="color:#586e75"></span>	<span style="color:#586e75">// data may be exposed, depending on your implementation of Fosite. Such sensitive data might include database error
 </span><span style="color:#586e75"></span>	<span style="color:#586e75">// codes or other information. Proceed with caution!
 </span><span style="color:#586e75"></span>	SendDebugMessagesToClients <span style="color:#dc322f">bool</span>
-}</code></pre></div>
-<p>内部に複数の<code>FooHandlers</code>を持っている。<code>FooHandlers</code>型は<code>[]FooHandler</code>に名前付けした型だ。<code>fosite.Fosite</code>型は<code>FooHandlers</code>に実処理を移譲している。</p>
-
+}
+</code></pre></div><p>内部に複数の<code>FooHandlers</code>を持っている。<code>FooHandlers</code>型は<code>[]FooHandler</code>に名前付けした型だ。<code>fosite.Fosite</code>型は<code>FooHandlers</code>に実処理を移譲している。</p>
 <p>例えば、<code>fosite.OAuth2Provider</code>インターフェースに定義されていて、<code>fosite.Fosite</code>で実装されている<code>NewAccessRequest</code>メソッドの実装をみてみる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/access_request_handler.go#L87-L101
 </span><span style="color:#586e75"></span>
@@ -364,16 +334,13 @@ previous = <span style="color:#268bd2">opt</span>(f)
 		<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>, errors.<span style="color:#268bd2">WithStack</span>(ErrInvalidRequest)
 	}
 	<span style="color:#719e07">return</span> accessRequest, <span style="color:#cb4b16">nil</span>
-}</code></pre></div>
-<p><code>fosite.Fosite</code>型のメソッド内ではロジックの実装は行われていない。
-実際の処理は<code>fosite.Fosite</code>型の<code>TokenEndpointHandlers</code>フィールドで保持している<code>TokenEndpointHandler</code>オブジェクトが行なっている。<br />
+}
+</code></pre></div><p><code>fosite.Fosite</code>型のメソッド内ではロジックの実装は行われていない。
+実際の処理は<code>fosite.Fosite</code>型の<code>TokenEndpointHandlers</code>フィールドで保持している<code>TokenEndpointHandler</code>オブジェクトが行なっている。<br>
 <code>if</code>文の中の処理を説明すると、いずれかの<code>TokenEndpointHandler</code>オブジェクトがリクエストを処理できれば<code>NewAccessRequest</code>メソッドは正常終了する。
 <code>TokenEndpointHandler</code>オブジェクトが<code>ErrUnknownRequest</code>エラーを返した場合、それはその<code>TokenEndpointHandler</code>オブジェクトでは未サポートのリクエストだったことになる。いずれかの<code>TokenEndpointHandler</code>オブジェクトが<code>ErrUnknownRequest</code>以外のエラーを返した場合、、あるいは全ての<code>TokenEndpointHandler</code>オブジェクトが処理できなかった場合は異常なリクエストだったとしてエラーを返して終わる。</p>
-
 <p>では、次に<code>fosite.Fosite</code>の<code>FooHandlers</code>フィールドに実処理を行なう各<code>Handler</code>を格納する実装を見てみる。</p>
-
 <h2 id="functional-optionsパターンを利用したstrategyパターンの初期化とfactoryメソッドパターン">Functional Optionsパターンを利用したStrategyパターンの初期化とFactoryメソッドパターン</h2>
-
 <p><code>fosite.Fosite</code>オブジェクトのフィールドは外部に公開されている。そのため、地道に各オブジェクトを設定していくこともできるが、<code>ory/fosite</code>では初期化用の<code>compose.Compose</code>関数が用意されている。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">https:<span style="color:#586e75">//github.com/ory/fosite/blob/v0.29.6/compose/compose.go#L33-L91
 </span><span style="color:#586e75"></span>
@@ -418,11 +385,10 @@ previous = <span style="color:#268bd2">opt</span>(f)
 	}
 
 	<span style="color:#719e07">return</span> f
-}</code></pre></div>
-<p><code>compose.Compose</code>関数はFunctional OptionsパターンとFactoryMethodパターンを利用している。<br />
+}
+</code></pre></div><p><code>compose.Compose</code>関数はFunctional OptionsパターンとFactoryMethodパターンを利用している。<br>
 引数で受けた可変長引数の<code>factories</code>は後述する<code>FooHnadler</code>オブジェクトを初期化する<code>FooFactory</code>関数が満たしている<code>Factory</code>型の関数定義だ。
 Goはダックタイピングなので、<code>Factory</code>が生成した<code>FooHandler</code>オブジェクトの実体を知らずとも利用できる。型アサーションで<code>factory</code>関数から生成されたオブジェクトがどのインターフェースを満たしているか確認し、インターフェースを満たしていれば、<code>fosite.Fosite</code>オブジェクトに登録していく。</p>
-
 <p><code>factory</code>型を満たすファクトリーメソッド自体は、以下のような関数群が定義されている。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/compose/compose_oauth2.go
 </span><span style="color:#586e75"></span>
@@ -438,7 +404,8 @@ Goはダックタイピングなので、<code>Factory</code>が生成した<cod
 		ScopeStrategy:            config.<span style="color:#268bd2">GetScopeStrategy</span>(),
 		AudienceMatchingStrategy: config.<span style="color:#268bd2">GetAudienceStrategy</span>(),
 	}
-}</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/compose/compose_openid.go
+}
+</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/compose/compose_openid.go
 </span><span style="color:#586e75"></span>
 <span style="color:#586e75">// OpenIDConnectRefreshFactory creates a handler for refreshing openid connect tokens.
 </span><span style="color:#586e75">//
@@ -449,9 +416,8 @@ Goはダックタイピングなので、<code>Factory</code>が生成した<cod
 			IDTokenStrategy: strategy.(openid.OpenIDConnectTokenStrategy),
 		},
 	}
-}</code></pre></div>
-<p><code>ory/fosite</code>ユーザは自分が利用したい認証・認可形式のファクトリーメソッドを使って<code>compose.Compose</code>関数を呼び出すことで、任意の実装形式が設定された<code>fosite.Oauth2Providor</code>オブジェクトを取得することができる。</p>
-
+}
+</code></pre></div><p><code>ory/fosite</code>ユーザは自分が利用したい認証・認可形式のファクトリーメソッドを使って<code>compose.Compose</code>関数を呼び出すことで、任意の実装形式が設定された<code>fosite.Oauth2Providor</code>オブジェクトを取得することができる。</p>
 <p>以下は提供されている全てのFactoryを使って<code>compose.Compose</code>関数を呼び出して<code>fosite.OAuth2Provider</code>の初期化を行なう<code>compose.ComposeAllEnabled</code>の定義だ。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/compose/compose.go#L93-L122
 </span><span style="color:#586e75"></span>
@@ -484,53 +450,56 @@ Goはダックタイピングなので、<code>Factory</code>が生成した<cod
 
 		OAuth2PKCEFactory,
 	)
-}</code></pre></div>
-<h1 id="まとめ">まとめ</h1>
-
-<p>GoのOSS SDKどのようにデザインパターンが活用されているかコードリーディングした。<br />
-デザインパターンの紹介記事はよくあるが、自動車とタイヤの簡単なコードだったりで実際のプロダクトのコードに適用するときとはだいぶ乖離がある。それなりのコード規模のSDKの中でどのように使われているか読むことで、自分の設計スキルに大きくプラスになった。<br />
+}
+</code></pre></div><h1 id="まとめ">まとめ</h1>
+<p>GoのOSS SDKどのようにデザインパターンが活用されているかコードリーディングした。<br>
+デザインパターンの紹介記事はよくあるが、自動車とタイヤの簡単なコードだったりで実際のプロダクトのコードに適用するときとはだいぶ乖離がある。それなりのコード規模のSDKの中でどのように使われているか読むことで、自分の設計スキルに大きくプラスになった。<br>
 また、古典的なGoFのデザインパターンと、Goの言語仕様やGo独特（？）のデザインパターンを組み合わせたハイブリットな設計パターンだったのも良かった。
 ただ、Goはダックタイピングなので、ある<code>Handler</code>型がどのインターフェースを満たしているのかパット見わからない。
 実際にはどれが呼び出されているのか？を確認するのは少し時間がかかった。言語仕様上は具象型とインターフェースは疎結合でも、実体は密結合な利用方法をとるので、コメントに実装インターフェースを記載しておくなどの配慮が必要そうだ。</p>
-
 <h1 id="参考">参考</h1>
-
 <ul>
 <li>ory/fosite
-
 <ul>
 <li><a href="https://github.com/ory/fosite">https://github.com/ory/fosite</a></li>
-</ul></li>
+</ul>
+</li>
 <li>ORY
-
 <ul>
 <li><a href="https://www.ory.sh/">https://www.ory.sh/</a></li>
-</ul></li>
+</ul>
+</li>
 <li>#186 Deprecating the project | openshift/osin
-
 <ul>
 <li><a href="https://github.com/openshift/osin/issues/186#issuecomment-422597936">https://github.com/openshift/osin/issues/186#issuecomment-422597936</a></li>
-</ul></li>
-<li>4. FactoryMethod パターン | TECHSCORE
-
+</ul>
+</li>
+<li>
+<ol start="4">
+<li>FactoryMethod パターン | TECHSCORE</li>
+</ol>
 <ul>
 <li><a href="https://www.techscore.com/tech/DesignPattern/FactoryMethod.html/">https://www.techscore.com/tech/DesignPattern/FactoryMethod.html/</a></li>
-</ul></li>
-<li>10. Strategy パターン | TECHSCORE
-
+</ul>
+</li>
+<li>
+<ol start="10">
+<li>Strategy パターン | TECHSCORE</li>
+</ol>
 <ul>
 <li><a href="https://www.techscore.com/tech/DesignPattern/Strategy.html/">https://www.techscore.com/tech/DesignPattern/Strategy.html/</a></li>
-</ul></li>
+</ul>
+</li>
 <li>Self-referential functions and the design of options | command center
-
 <ul>
 <li><a href="https://commandcenter.blogspot.com/2014/01/self-referential-functions-and-design.html">https://commandcenter.blogspot.com/2014/01/self-referential-functions-and-design.html</a></li>
-</ul></li>
+</ul>
+</li>
 <li>Functional options for friendly APIs | Dave Cheney
-
 <ul>
 <li><a href="https://dave.cheney.net/2014/10/17/functional-options-for-friendly-apis">https://dave.cheney.net/2014/10/17/functional-options-for-friendly-apis</a></li>
-</ul></li>
+</ul>
+</li>
 </ul>
         </div>
         
@@ -621,9 +590,9 @@ Goはダックタイピングなので、<code>Factory</code>が生成した<cod
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -701,10 +670,16 @@ Goはダックタイピングなので、<code>Factory</code>が生成した<cod
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -716,12 +691,6 @@ Goはダックタイピングなので、<code>Factory</code>が生成した<cod
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

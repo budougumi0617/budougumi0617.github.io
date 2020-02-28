@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -152,7 +152,7 @@
 
 <header>
   <p class="meta">Jul 18, 2019
-     - 4 minute read 
+     - 3 minute read 
      - <a href="https://budougumi0617.github.io/2019/07/18/use-old-version-by-modules/#disqus_thread">Comments</a>
 
     
@@ -173,35 +173,25 @@
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#go-mod内のmodule名にバージョン名が入っているリポジトリがあった">go.mod内のmodule名にバージョン名が入っているリポジトリがあった</a></li>
-<li><a href="#古いバージョンは使うときはmodファイル内で-replace-を使えばよい">古いバージョンは使うときはmodファイル内で<code>replace</code>を使えばよい</a></li>
-<li><a href="#終わりに">終わりに</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
           <p>Go Modulesの使い方をざっくり調べたのでメモ。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>go.mod内の<code>module</code>名にバージョン名が入っているリポジトリがあった
-
 <ul>
 <li><code>module github.com/golang-migrate/migrate/v4</code></li>
-</ul></li>
+</ul>
+</li>
 <li>古いバージョンは使うときはmodファイル内で<code>replace</code>を使えばよい
-
 <ul>
 <li><code>replace github.com/golang-migrate/migrate/v3 latest =&gt; github.com/golang-migrate/migrate v3.5.4</code></li>
-</ul></li>
+</ul>
+</li>
 <li>ブランチ名が<code>v1</code>のようなバージョン名だとブランチではなく、自動的に関連するリリースタグ状態を確認しにいく模様</li>
 </ul>
-
 <p>以下のコードは同じ<code>github.com/golang-migrate/migrate</code>リポジトリの各バージョンを取り込む<code>go.mod</code>ファイルだ。
-バージョンの指定を&rdquo;イイ感じ&rdquo;に判断してもらうため、ひとまずコメントのように<code>latest</code>をした。
+バージョンの指定を&quot;イイ感じ&quot;に判断してもらうため、ひとまずコメントのように<code>latest</code>をした。
 <code>go mod tidy</code>を実行後は依存性を正しく解決した状態になっている。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">module github.com<span style="color:#719e07">/</span>budougumi0617<span style="color:#719e07">/</span>til<span style="color:#719e07">/</span>go<span style="color:#719e07">/</span>modules<span style="color:#719e07">/</span>branch
 
@@ -226,17 +216,16 @@ require (
 	gopkg.in<span style="color:#719e07">/</span>mattes<span style="color:#719e07">/</span>migrate.v1 v1<span style="color:#2aa198">.3.2</span> <span style="color:#586e75">// indirect
 </span><span style="color:#586e75"></span>)
 
-replace github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 v3<span style="color:#2aa198">.5.4</span> <span style="color:#719e07">=&gt;</span> github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate v3<span style="color:#2aa198">.5.4</span><span style="color:#719e07">+</span>incompatible</code></pre></div>
-<p>なお、この記事の内容は<code>github.com/golang-migrate/migrate</code>の最新リリースが<code>v4.4.0</code>の時に検証された。
+replace github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 v3<span style="color:#2aa198">.5.4</span> <span style="color:#719e07">=&gt;</span> github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate v3<span style="color:#2aa198">.5.4</span><span style="color:#719e07">+</span>incompatible
+
+</code></pre></div><p>なお、この記事の内容は<code>github.com/golang-migrate/migrate</code>の最新リリースが<code>v4.4.0</code>の時に検証された。
 また、goのバージョンは1.12.6である。</p>
-
-<h1 id="go-mod内のmodule名にバージョン名が入っているリポジトリがあった">go.mod内のmodule名にバージョン名が入っているリポジトリがあった</h1>
-
+<h1 id="gomod内のmodule名にバージョン名が入っているリポジトリがあった">go.mod内のmodule名にバージョン名が入っているリポジトリがあった</h1>
 <p><code>golang-migrate/migrate</code>リポジトリの<code>go.mod</code>ファイルを見ると、<code>module</code>名が<code>github.com/golang-migrate/migrate/v4</code>になっていた。
 このような状態のリポジトリで<code>v3.X.X</code>系を使いたい場合はどうすればいいのだろうか？</p>
-
 <ul>
-<li><p><a href="https://github.com/golang-migrate/migrate/blob/v4.4.0/go.mod">https://github.com/golang-migrate/migrate/blob/v4.4.0/go.mod</a></p>
+<li><a href="https://github.com/golang-migrate/migrate/blob/v4.4.0/go.mod">https://github.com/golang-migrate/migrate/blob/v4.4.0/go.mod</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#586e75">// https://github.com/golang-migrate/migrate/blob/v4.4.0/go.mod
 </span><span style="color:#586e75"></span>module github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v4
 
@@ -246,11 +235,8 @@ require (
 	github.com<span style="color:#719e07">/</span>bitly<span style="color:#719e07">/</span>go<span style="color:#719e07">-</span>hostpool v0<span style="color:#2aa198">.0.0</span><span style="color:#719e07">-</span><span style="color:#2aa198">20171023180738</span><span style="color:#719e07">-</span>a3a6125de932 <span style="color:#586e75">// indirect
 </span><span style="color:#586e75"></span>	github.com<span style="color:#719e07">/</span>bmizerany<span style="color:#719e07">/</span>assert v0<span style="color:#2aa198">.0.0</span><span style="color:#719e07">-</span><span style="color:#2aa198">20160611221934</span><span style="color:#719e07">-</span>b7ed37b82869 <span style="color:#586e75">// indirect
 </span><span style="color:#586e75"></span>	github.com<span style="color:#719e07">/</span>cockroachdb<span style="color:#719e07">/</span>apd v1<span style="color:#2aa198">.1.0</span> <span style="color:#586e75">// indirect
-</span><span style="color:#586e75"></span><span style="color:#719e07">//</span> ....</code></pre></div></li>
-</ul>
-
-<h1 id="古いバージョンは使うときはmodファイル内で-replace-を使えばよい">古いバージョンは使うときはmodファイル内で<code>replace</code>を使えばよい</h1>
-
+</span><span style="color:#586e75"></span>    <span style="color:#586e75">// ....
+</span></code></pre></div><h1 id="古いバージョンは使うときはmodファイル内でreplaceを使えばよい">古いバージョンは使うときはmodファイル内で<code>replace</code>を使えばよい</h1>
 <p><code>replace</code>を使うことで、任意の古いリリース状態を使うことができた。
 最初にリポジトリのタグやブランチは以下の状態になっている。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git branch -r
@@ -258,8 +244,8 @@ require (
   origin/cli-updates
   origin/master
   origin/v1
-  origin/v1-gopkg</code></pre></div>
-<p>リリースタグは以下のような状態になっている（一部省略）。</p>
+  origin/v1-gopkg
+</code></pre></div><p>リリースタグは以下のような状態になっている（一部省略）。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git tag -l
 v1.2.0
 v1.3.0
@@ -275,8 +261,8 @@ v4.0.0
 v4.0.1
 ...
 v4.4.0
-v4.5.0</code></pre></div>
-<p>このような状態のリポジトリのとき、<code>v3</code>系を利用して開発する場合は<code>replace</code>を使えば良さそうだった。
+v4.5.0
+</code></pre></div><p>このような状態のリポジトリのとき、<code>v3</code>系を利用して開発する場合は<code>replace</code>を使えば良さそうだった。
 以下のように手で編集したgo.modファイルを用意する。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">module github.com<span style="color:#719e07">/</span>budougumi0617<span style="color:#719e07">/</span>til<span style="color:#719e07">/</span>go<span style="color:#719e07">/</span>modules<span style="color:#719e07">/</span>branch
 
@@ -286,8 +272,8 @@ require (
  	github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 latest
 )
 
-replace github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 latest <span style="color:#719e07">=&gt;</span> github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate v3<span style="color:#2aa198">.5.4</span></code></pre></div>
-<p>該当リポジトリを<code>import</code>するファイルを作成しておく。</p>
+replace github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 latest <span style="color:#719e07">=&gt;</span> github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate v3<span style="color:#2aa198">.5.4</span>
+</code></pre></div><p>該当リポジトリを<code>import</code>するファイルを作成しておく。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
@@ -298,14 +284,14 @@ replace github.com<span style="color:#719e07">/</span>golang<span style="color:#
 
 <span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 	fmt.<span style="color:#268bd2">Println</span>(database3.<span style="color:#268bd2">GenerateAdvisoryLockId</span>(<span style="color:#2aa198">&#34;mod test&#34;</span>))
-}</code></pre></div>
-<p>この状態で<code>go mod tidy</code>を実行すれば、正しい<code>require</code>と<code>replace</code>が指定された状態の<code>go.mod</code>ファイルが作成された。</p>
+}
+</code></pre></div><p>この状態で<code>go mod tidy</code>を実行すれば、正しい<code>require</code>と<code>replace</code>が指定された状態の<code>go.mod</code>ファイルが作成された。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">require (
 	github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 v3<span style="color:#2aa198">.5.4</span>
 )
 
-replace github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 v3<span style="color:#2aa198">.5.4</span> <span style="color:#719e07">=&gt;</span> github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate v3<span style="color:#2aa198">.5.4</span><span style="color:#719e07">+</span>incompatible</code></pre></div>
-<p>また、<code>v1</code>ブランチを使いたいときはどうやって使うのだろう？と以下のように設定を追加してみた。</p>
+replace github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 v3<span style="color:#2aa198">.5.4</span> <span style="color:#719e07">=&gt;</span> github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate v3<span style="color:#2aa198">.5.4</span><span style="color:#719e07">+</span>incompatible
+</code></pre></div><p>また、<code>v1</code>ブランチを使いたいときはどうやって使うのだろう？と以下のように設定を追加してみた。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">module github.com<span style="color:#719e07">/</span>budougumi0617<span style="color:#719e07">/</span>til<span style="color:#719e07">/</span>go<span style="color:#719e07">/</span>modules<span style="color:#719e07">/</span>branch
 
 go <span style="color:#2aa198">1.12</span>
@@ -315,15 +301,15 @@ require (
 	github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 latest
 )
 
-replace github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 latest <span style="color:#719e07">=&gt;</span> github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate v3<span style="color:#2aa198">.5.4</span></code></pre></div>
-<p>結果は<code>v1</code>ブランチではなく、自動的にリリースタグのほうの<code>v1</code>系が参照された。</p>
+replace github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 latest <span style="color:#719e07">=&gt;</span> github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate v3<span style="color:#2aa198">.5.4</span>
+</code></pre></div><p>結果は<code>v1</code>ブランチではなく、自動的にリリースタグのほうの<code>v1</code>系が参照された。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">require (
 	github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate v1<span style="color:#2aa198">.3.2</span>
 	github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 v3<span style="color:#2aa198">.5.4</span>
 )
 
-replace github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 v3<span style="color:#2aa198">.5.4</span> <span style="color:#719e07">=&gt;</span> github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate v3<span style="color:#2aa198">.5.4</span><span style="color:#719e07">+</span>incompatible</code></pre></div>
-<p><code>v4</code>系も含めて使おうとすると、go.modは次のようになる。</p>
+replace github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 v3<span style="color:#2aa198">.5.4</span> <span style="color:#719e07">=&gt;</span> github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate v3<span style="color:#2aa198">.5.4</span><span style="color:#719e07">+</span>incompatible
+</code></pre></div><p><code>v4</code>系も含めて使おうとすると、go.modは次のようになる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">module github.com<span style="color:#719e07">/</span>budougumi0617<span style="color:#719e07">/</span>til<span style="color:#719e07">/</span>go<span style="color:#719e07">/</span>modules<span style="color:#719e07">/</span>branch
 
 go <span style="color:#2aa198">1.12</span>
@@ -336,8 +322,8 @@ require (
 	gopkg.in<span style="color:#719e07">/</span>mattes<span style="color:#719e07">/</span>migrate.v1 v1<span style="color:#2aa198">.3.2</span> <span style="color:#586e75">// indirect
 </span><span style="color:#586e75"></span>)
 
-replace github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 v3<span style="color:#2aa198">.5.4</span> <span style="color:#719e07">=&gt;</span> github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate v3<span style="color:#2aa198">.5.4</span><span style="color:#719e07">+</span>incompatible</code></pre></div>
-<p>コードの中でどうやって呼ぶかというと、以下のようになる。</p>
+replace github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate<span style="color:#719e07">/</span>v3 v3<span style="color:#2aa198">.5.4</span> <span style="color:#719e07">=&gt;</span> github.com<span style="color:#719e07">/</span>golang<span style="color:#719e07">-</span>migrate<span style="color:#719e07">/</span>migrate v3<span style="color:#2aa198">.5.4</span><span style="color:#719e07">+</span>incompatible
+</code></pre></div><p>コードの中でどうやって呼ぶかというと、以下のようになる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
@@ -352,14 +338,11 @@ replace github.com<span style="color:#719e07">/</span>golang<span style="color:#
 	fmt.<span style="color:#268bd2">Println</span>(database3.<span style="color:#268bd2">GenerateAdvisoryLockId</span>(<span style="color:#2aa198">&#34;mod test&#34;</span>))
 	fmt.<span style="color:#268bd2">Println</span>(database4.<span style="color:#268bd2">GenerateAdvisoryLockId</span>(<span style="color:#2aa198">&#34;mod test&#34;</span>))
 	fmt.<span style="color:#268bd2">Println</span>(driver.<span style="color:#268bd2">GetDriver</span>(<span style="color:#2aa198">&#34;mod test&#34;</span>))
-}</code></pre></div>
-<h1 id="終わりに">終わりに</h1>
-
+}
+</code></pre></div><h1 id="終わりに">終わりに</h1>
 <p>（だいぶ前に調べていたのだが、）渋川さんのTweetをみて調べた内容をまとめた。
 挙動を見た、というレベルなのでロジック的な部分の確認は出来ていない。</p>
-
-<p><blockquote class="twitter-tweet"><p lang="ja" dir="ltr">これのgo moduleがわからん。プロジェクトのルートのgo.modのmoduleは確かにv4ってのが末尾に入っているこれで&hellip;/v4でimportできるようになる？v3ってのもreadmeにかかれているけど、これはどこにある？<a href="https://t.co/i1QHEPtBn7">https://t.co/i1QHEPtBn7</a></p>&mdash; 渋川よしき (@shibu_jp) <a href="https://twitter.com/shibu_jp/status/1146184060852563969?ref_src=twsrc%5Etfw">July 2, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
 <p>go.modファイルはいつも手で直接編集してしまうのだが、もっとシステマティックに編集するのはどうしたらいいんだろう？</p>
         </div>
         
@@ -450,9 +433,9 @@ replace github.com<span style="color:#719e07">/</span>golang<span style="color:#
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -530,10 +513,16 @@ replace github.com<span style="color:#719e07">/</span>golang<span style="color:#
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -545,12 +534,6 @@ replace github.com<span style="color:#719e07">/</span>golang<span style="color:#
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

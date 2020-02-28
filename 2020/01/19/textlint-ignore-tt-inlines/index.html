@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -175,51 +175,39 @@
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#textlintが等幅フォント文字列-ttインライン命令-に対して静的解析エラーを出力してしまう">textlintが等幅フォント文字列（ttインライン命令）に対して静的解析エラーを出力してしまう</a></li>
-<li><a href="#ttインライン命令がtextlintでどのように認識されているか">ttインライン命令がtextlintでどのように認識されているか</a></li>
-<li><a href="#textlint-filter-rule-node-typesプラグインを使ってinlineノードを除外する">textlint-filter-rule-node-typesプラグインを使ってInlineノードを除外する</a></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
-          <p>Re:VIEWで文書を作成するときはtextlintを使って文書校正をしている。<br />
+          <p>Re:VIEWで文書を作成するときはtextlintを使って文書校正をしている。<br>
 <code>@&lt;tt&gt;{git commit --amend}</code>のような等幅設定をしている中で、<code>git =&gt; Git (prh)</code>というような警告を受けたくないときに行なう設定をまとめる。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li><code>tt</code>インライン命令で囲った文字列は静的解析の対象にしたくない
-
 <ul>
-<li><code>@&lt;tt&gt;{git commit --amend}</code>の&rdquo;git&rdquo;はコマンド名なので、&rdquo;Git`ではない</li>
-</ul></li>
+<li><code>@&lt;tt&gt;{git commit --amend}</code>の&quot;git&quot;はコマンド名なので、&ldquo;Git`ではない</li>
+</ul>
+</li>
 <li>Re:VIEWファイルにtextlintを使っているときは、<code>textlint-plugin-review</code>プラグインを使っているだろう。
-
 <ul>
 <li><a href="https://github.com/orangain/textlint-plugin-review">https://github.com/orangain/textlint-plugin-review</a></li>
-</ul></li>
+</ul>
+</li>
 <li><code>textlint-plugin-review</code>プラグインでは、<code>tt</code>インライン命令は<code>Teletype</code>というSyntaxの分類にパースされる。
-
 <ul>
 <li><code>tt:      inlineTextTagParser(Syntax.Teletype)</code></li>
-</ul></li>
+</ul>
+</li>
 <li><code>Teletype</code>はtextlint本体では<code>Inline</code>というノードタイプに分類される。
-
 <ul>
 <li><code>Teletype: 'Inline'</code></li>
-</ul></li>
+</ul>
+</li>
 <li><code>textlint-filter-rule-node-types</code>プラグインを使って、<code>Inline</code>を静的解析対象から除外すればよい。
-
 <ul>
 <li><a href="https://github.com/textlint/textlint-filter-rule-node-types">https://github.com/textlint/textlint-filter-rule-node-types</a></li>
-</ul></li>
+</ul>
+</li>
 <li><code>code</code>インライン命令で装飾された文字列は警告から除外されているようだ</li>
 </ul>
-
 <p>今回書いた<code>.textlintrc</code>ファイルの設定は以下の通り。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">// .textlintrc
 {
@@ -229,29 +217,20 @@
       <span style="color:#268bd2">&#34;nodeTypes&#34;</span>: [<span style="color:#2aa198">&#34;Inline&#34;</span>]
     }
   }
-}</code></pre></div>
-<h1 id="textlintが等幅フォント文字列-ttインライン命令-に対して静的解析エラーを出力してしまう">textlintが等幅フォント文字列（ttインライン命令）に対して静的解析エラーを出力してしまう</h1>
-
+}
+</code></pre></div><h1 id="textlintが等幅フォント文字列ttインライン命令に対して静的解析エラーを出力してしまう">textlintが等幅フォント文字列（ttインライン命令）に対して静的解析エラーを出力してしまう</h1>
 <p>技術書典に向けてRe:VIEW形式で原稿を書くにあたり、textlintを導入している。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/kmuto/review" data-iframely-url="//cdn.iframe.ly/ydUD1Nk"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
 <p>textlintは文書に対して静的解析を行なってくれるツールだ。プラグインでさまざまなルールを追加できて、文書校正を自動で行なってくれる。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/textlint/textlint" data-iframely-url="//cdn.iframe.ly/uC7J82H"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
 <p>Re:VIEWではインライン命令を使って文書の装飾をする。
 コードや技術的用語を文中で書くときは等幅フォントにするため、<code>@&lt;code&gt;</code>インライン命令や<code>@&lt;tt&gt;</code>インライン命令を使う。</p>
-
 <ul>
-<li><p><a href="https://github.com/kmuto/review/blob/master/doc/format.ja.md#%E6%9B%B8%E4%BD%93">https://github.com/kmuto/review/blob/master/doc/format.ja.md#書体</a></p>
-
+<li><a href="https://github.com/kmuto/review/blob/master/doc/format.ja.md#%E6%9B%B8%E4%BD%93">https://github.com/kmuto/review/blob/master/doc/format.ja.md#書体</a></li>
+</ul>
 <pre><code>@&lt;code&gt;{golang.org/x}という@&lt;code&gt;{import}パスから始まる準標準パッケージがあることをご存じでしょうか。
 アセンブラ別の実装が含まれており、Goのデバッガである@&lt;tt&gt;{Delve}（@&lt;tt&gt;{dlv}コマンド）@&lt;fn&gt;{delve}などで利用されています。
-</code></pre></li>
-</ul>
-
-<p><code>@tt</code>インライン命令で囲った文字列はコマンドだったりするので、textlintで静的解析の対象にしてほしくない。</p>
+</code></pre><p><code>@tt</code>インライン命令で囲った文字列はコマンドだったりするので、textlintで静的解析の対象にしてほしくない。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cat articles/budougumi0617.re
 @&lt;code&gt;<span style="color:#719e07">{</span>git commit --amend<span style="color:#719e07">}</span>はエラーにしてほしくない。（デフォルトで無視される）
 @&lt;tt&gt;<span style="color:#719e07">{</span>git commit --amend<span style="color:#719e07">}</span>はエラーにしてほしくない。
@@ -259,65 +238,54 @@
 $ <span style="color:#719e07">$(</span>npm bin<span style="color:#719e07">)</span>/textlint articles/*.re
 
 /Users/budougumi0617/go/src/github.com/FOOOO/SHOTEN8/articles/budougumi0617.re
-  <span style="color:#2aa198">2</span>:7  ✓ error  <span style="color:#268bd2">git</span> <span style="color:#719e07">=</span>&gt; Git  prh
+  2:7  ✓ error  <span style="color:#268bd2">git</span> <span style="color:#719e07">=</span>&gt; Git  prh
 
 ✖ <span style="color:#2aa198">1</span> problem <span style="color:#719e07">(</span><span style="color:#2aa198">1</span> error, <span style="color:#2aa198">0</span> warnings<span style="color:#719e07">)</span>
 ✓ <span style="color:#2aa198">1</span> fixable problem.
-Try to run: $ textlint --fix <span style="color:#719e07">[</span>file<span style="color:#719e07">]</span></code></pre></div>
-<p>上記の例の場合は、<code>git</code>コマンドに対して、（正式名称の）<code>Git</code>にしろと静的解析エラーが発生している。<br />
+Try to run: $ textlint --fix <span style="color:#719e07">[</span>file<span style="color:#719e07">]</span>
+
+</code></pre></div><p>上記の例の場合は、<code>git</code>コマンドに対して、（正式名称の）<code>Git</code>にしろと静的解析エラーが発生している。<br>
 <code>@&lt;code&gt;</code>インライン命令を使えば解決するのだが、せっかくなので誤検知を解消することにした。</p>
-
 <h1 id="ttインライン命令がtextlintでどのように認識されているか">ttインライン命令がtextlintでどのように認識されているか</h1>
-
 <p>Re:VIEW形式の文書をtextlintを静的解析をするときは、<code>textlint-plugin-review</code>プラグインを使っているだろう。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/orangain/textlint-plugin-review" data-iframely-url="//cdn.iframe.ly/0kWQW7r"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
-<p><code>textlint-plugin-review</code>プラグインがどのように<code>Re:VIEW</code>形式の文書から抽象構文木（AST）を作っているのか確認してみる。<br />
+<!-- raw HTML omitted -->
+<p><code>textlint-plugin-review</code>プラグインがどのように<code>Re:VIEW</code>形式の文書から抽象構文木（AST）を作っているのか確認してみる。<br>
 <code>textlint-plugin-review</code>プラグインでは、tt命令は<code>Teletype</code>という<code>Syntax.Teletype</code>の分類にパースされる。</p>
-
 <ul>
-<li><p><a href="https://github.com/orangain/textlint-plugin-review/blob/7d660f45a6a81a3456059ed7dfc598df253a2ca8/src/inline-parsers.js">https://github.com/orangain/textlint-plugin-review/src/inline-parsers.js</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#719e07">const</span> InlineParsers <span style="color:#719e07">=</span> {
-<span style="color:#586e75">// text tags
-</span><span style="color:#586e75"></span>  
-<span style="color:#586e75">// ...
-</span><span style="color:#586e75"></span>  
-tt<span style="color:#719e07">:</span>      inlineTextTagParser(Syntax.Teletype),
-  
-<span style="color:#586e75">// ...
-</span></code></pre></div></li>
+<li>[https://github.com/orangain/textlint-plugin-review/src/inline-parsers.js][inline-parsers]
+[inline-parsers]: <a href="https://github.com/orangain/textlint-plugin-review/blob/7d660f45a6a81a3456059ed7dfc598df253a2ca8/src/inline-parsers.js">https://github.com/orangain/textlint-plugin-review/blob/7d660f45a6a81a3456059ed7dfc598df253a2ca8/src/inline-parsers.js</a></li>
 </ul>
-
-<p><code>Syntax.Teletype</code>がtextlint本体ではどういうノードとして扱われるかというと、<code>Inline</code>というノードタイプに分類される。</p>
-
-<ul>
-<li><p><a href="https://github.com/orangain/textlint-plugin-review/blob/7d660f45a6a81a3456059ed7dfc598df253a2ca8/src/mapping.js">https://github.com/orangain/textlint-plugin-review/src/mapping.js</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#719e07">export</span> <span style="color:#719e07">const</span> Syntax <span style="color:#719e07">=</span> {
-<span style="color:#586e75">// human readable name in ReVIEW&#39;s context =&gt; textlint name
-</span><span style="color:#586e75"></span>
-<span style="color:#586e75">// ...
-</span><span style="color:#586e75"></span>
-<span style="color:#586e75">// ReVIEW specific inline tags
-</span><span style="color:#586e75">// NOTE: &#39;Inline&#39; means review&#39;s inline tag having no special meanings, whose children are Strs.
-</span><span style="color:#586e75">//       &#39;Reference&#39; means reference to other tag, which have no child.
-</span><span style="color:#586e75">//       &#39;NonString&#39; means non-string stuffs like character number, equation, etc.
-</span><span style="color:#586e75"></span>Teletype<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;Inline&#39;</span>,
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> InlineParsers <span style="color:#719e07">=</span> {
+  <span style="color:#586e75">// text tags
+</span><span style="color:#586e75"></span>  
+  <span style="color:#586e75">// ...
+</span><span style="color:#586e75"></span>  
+  tt<span style="color:#719e07">:</span>      inlineTextTagParser(Syntax.Teletype),
   
-<span style="color:#586e75">// ...
+  <span style="color:#586e75">// ...
+</span></code></pre></div><p><code>Syntax.Teletype</code>がtextlint本体ではどういうノードとして扱われるかというと、<code>Inline</code>というノードタイプに分類される。</p>
+<ul>
+<li>[https://github.com/orangain/textlint-plugin-review/src/mapping.js][mapping]
+[mapping]: <a href="https://github.com/orangain/textlint-plugin-review/blob/7d660f45a6a81a3456059ed7dfc598df253a2ca8/src/mapping.js">https://github.com/orangain/textlint-plugin-review/blob/7d660f45a6a81a3456059ed7dfc598df253a2ca8/src/mapping.js</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">export</span> <span style="color:#268bd2">const</span> Syntax <span style="color:#719e07">=</span> {
+  <span style="color:#586e75">// human readable name in ReVIEW&#39;s context =&gt; textlint name
+</span><span style="color:#586e75"></span>
+  <span style="color:#586e75">// ...
+</span><span style="color:#586e75"></span>
+  <span style="color:#586e75">// ReVIEW specific inline tags
+</span><span style="color:#586e75"></span>  <span style="color:#586e75">// NOTE: &#39;Inline&#39; means review&#39;s inline tag having no special meanings, whose children are Strs.
+</span><span style="color:#586e75"></span>  <span style="color:#586e75">//       &#39;Reference&#39; means reference to other tag, which have no child.
+</span><span style="color:#586e75"></span>  <span style="color:#586e75">//       &#39;NonString&#39; means non-string stuffs like character number, equation, etc.
+</span><span style="color:#586e75"></span>  Teletype<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;Inline&#39;</span>,
+  
+  <span style="color:#586e75">// ...
 </span><span style="color:#586e75"></span>};
-</code></pre></div></li>
-</ul>
-
-<p>よって、<code>Inline</code>ノードを静的解析のルールから除外すれば良い。</p>
-
+</code></pre></div><p>よって、<code>Inline</code>ノードを静的解析のルールから除外すれば良い。</p>
 <h1 id="textlint-filter-rule-node-typesプラグインを使ってinlineノードを除外する">textlint-filter-rule-node-typesプラグインを使ってInlineノードを除外する</h1>
-
 <p>textlintにおいて、特定のノードを静的解析のルールから除外するには、<code>textlint-filter-rule-node-types</code>プラグインを使えばよい。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/textlint/textlint-filter-rule-node-types" data-iframely-url="//cdn.iframe.ly/fg9QbXW"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
-<p>`<code>textlint-filter-rule-node-types</code>プラグインを<code>npm install</code>したあと、<code>.textlintrc</code>を以下のようにすると、<code>Inline</code>ノードに対して静的解析が行われなくなった。</p>
+<!-- raw HTML omitted -->
+<p>``textlint-filter-rule-node-types<code>プラグインを</code>npm install<code>したあと、</code>.textlintrc<code>を以下のようにすると、</code>Inline`ノードに対して静的解析が行われなくなった。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">// .textlintrc
 {
   <span style="color:#268bd2">&#34;rules&#34;</span>: {
@@ -332,14 +300,11 @@ tt<span style="color:#719e07">:</span>      inlineTextTagParser(Syntax.Teletype)
       <span style="color:#268bd2">&#34;nodeTypes&#34;</span>: [<span style="color:#2aa198">&#34;Inline&#34;</span>]
     }
   }
-}</code></pre></div>
-<h1 id="終わりに">終わりに</h1>
-
-<p>（textlintやJavaScriptにはまったく関係はないが、）最近パーサーを書いているので、<code>textlint-plugin-review</code>プラグインの中の構造もなんとなく読むことができた。<br />
+}
+</code></pre></div><h1 id="終わりに">終わりに</h1>
+<p>（textlintやJavaScriptにはまったく関係はないが、）最近パーサーを書いているので、<code>textlint-plugin-review</code>プラグインの中の構造もなんとなく読むことができた。<br>
 何事も勉強したことは無駄にならない。</p>
-
 <h1 id="参考">参考</h1>
-
 <ul>
 <li><a href="https://github.com/kmuto/review/">https://github.com/kmuto/review/</a></li>
 <li><a href="https://github.com/textlint/textlint">https://github.com/textlint/textlint</a></li>
@@ -435,9 +400,9 @@ tt<span style="color:#719e07">:</span>      inlineTextTagParser(Syntax.Teletype)
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -515,10 +480,16 @@ tt<span style="color:#719e07">:</span>      inlineTextTagParser(Syntax.Teletype)
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -530,12 +501,6 @@ tt<span style="color:#719e07">:</span>      inlineTextTagParser(Syntax.Teletype)
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

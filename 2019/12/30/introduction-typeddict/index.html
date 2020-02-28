@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -176,131 +176,100 @@ Python3.8から使えるTypedDictとPyCharmを組合わせた開発体験が素�
           
           
             <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#事前準備">事前準備</a></li>
-<li><a href="#typeddictを使ったクラス定義とpyacharm">TypedDictを使ったクラス定義とPyacharm</a>
-<ul>
-<li><a href="#キーが不足していることを検知できる">キーが不足していることを検知できる</a></li>
-<li><a href="#キーの型が間違っていることを検知できる">キーの型が間違っていることを検知できる</a></li>
-<li><a href="#定義していないキーへの参照を検知できる">定義していないキーへの参照を検知できる</a></li>
-<li><a href="#valueの型情報を使って補完ができる">Valueの型情報を使って補完ができる</a></li>
-<li><a href="#終わりに">終わりに</a></li>
-</ul></li>
-<li><a href="#参考">参考</a></li>
-</ul>
+  <ul>
+    <li><a href="#キーが不足していることを検知できる">キーが不足していることを検知できる</a></li>
+    <li><a href="#キーの型が間違っていることを検知できる">キーの型が間違っていることを検知できる</a></li>
+    <li><a href="#定義していないキーへの参照を検知できる">定義していないキーへの参照を検知できる</a></li>
+    <li><a href="#valueの型情報を使って補完ができる">Valueの型情報を使って補完ができる</a></li>
+    <li><a href="#終わりに">終わりに</a></li>
+  </ul>
 </nav>
           
-          <p>業務でも趣味でもPythonを書くときはPython3.8を使っている。<br />
+          <p>業務でも趣味でもPythonを書くときはPython3.8を使っている。<br>
 Python3.8から使える<code>TypedDict</code>とPyCharmを組合わせた開発体験が素晴らしいので紹介する。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li><code>TypedDeict</code>はPEP589で提案され、Python3.8から使える型ヒント
-
 <ul>
 <li><a href="https://www.python.org/dev/peps/pep-0589/">https://www.python.org/dev/peps/pep-0589/</a></li>
-</ul></li>
+</ul>
+</li>
 <li>辞書型のキーとセットをクラスとして厳密に定義できる</li>
-
-<li><p>PyCharmと組み合わせると以下の恩恵が受けられる</p>
-
+<li>PyCharmと組み合わせると以下の恩恵が受けられる
 <ul>
 <li>オブジェクト生成時に不足キーがわかる</li>
 <li>Keyを設定するときに型が異なることがわかる</li>
 <li>Valueアクセスの際にキーが存在するかわかる</li>
-
-<li><p>Valueの型情報に対して補完が可能</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">class</span> <span style="color:#268bd2">UserDict</span>(TypedDict):
-user_name: <span style="color:#b58900">str</span>
-email: <span style="color:#b58900">str</span></code></pre></div></li>
-</ul></li>
+<li>Valueの型情報に対して補完が可能</li>
 </ul>
-
-<p>なお、この記事は以下の環境を使っている。</p>
-
+</li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">class</span> <span style="color:#268bd2">UserDict</span>(TypedDict):
+    user_name: <span style="color:#b58900">str</span>
+    email: <span style="color:#b58900">str</span>
+</code></pre></div><p>なお、この記事は以下の環境を使っている。</p>
 <ul>
 <li>Python 3.8.0</li>
 <li>Pycharm 2019.3.1 PROFESSIONAL</li>
 </ul>
-
 <h1 id="事前準備">事前準備</h1>
-
-<p>Python3.8の実行環境は次のように用意する。<br />
+<p>Python3.8の実行環境は次のように用意する。<br>
 まず、<code>pipenv</code>や<code>pyenv</code>を事前に準備し、テスト用のディレクトリを作って<code>pipenv</code>でPython3.8環境を作っておく。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># 私はMacなのでbrewでインストール</span>
 $ brew install pipenv pyenv
-$ pipenv --python <span style="color:#2aa198">3</span>.8</code></pre></div>
-<p>Pipfileが生成できたら、PyCharmで対象ディレクトリを開く。<br />
+$ pipenv --python 3.8
+</code></pre></div><p>Pipfileが生成できたら、PyCharmで対象ディレクトリを開く。<br>
 PycharmのPython実行環境は、Preferenceの中から「Project: xxx」→ 「Project Interpreter」を開いてPython3.8を認識している状態にしておく。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://pleiades.io/help/pycharm/pipenv.html" data-iframely-url="//cdn.iframe.ly/OPsqqHm?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
 <h1 id="typeddictを使ったクラス定義とpyacharm">TypedDictを使ったクラス定義とPyacharm</h1>
-
 <p>最近のPythonは型ヒントを使って型付けをしているかのようにコーディングができる。</p>
-
 <ul>
 <li>typing &mdash; 型ヒントのサポート
-
 <ul>
 <li><a href="https://docs.python.org/ja/3/library/typing.html">https://docs.python.org/ja/3/library/typing.html</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p><code>TypedDict</code>はPEP589でPython3.8から追加された型ヒントだ。<code>TypedDict</code>を使うことで辞書型の型ヒント内容をかなり厳密に定義できる。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://www.python.org/dev/peps/pep-0589/" data-iframely-url="//cdn.iframe.ly/cY6zGp1"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
 <p>今回はサンプルとして以下の<code>UserDict</code>クラスを定義した。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">class</span> <span style="color:#268bd2">UserDict</span>(TypedDict):
     <span style="color:#2aa198">&#34;&#34;&#34;Typed User definition.&#34;&#34;&#34;</span>
 
     user_name: <span style="color:#b58900">str</span>
-    email: <span style="color:#b58900">str</span></code></pre></div>
-<p>このクラスを使うと、どれくらいの型ヒント情報が得られるのかPyCharmを使って検証する。</p>
-
+    email: <span style="color:#b58900">str</span>
+</code></pre></div><p>このクラスを使うと、どれくらいの型ヒント情報が得られるのかPyCharmを使って検証する。</p>
 <h2 id="キーが不足していることを検知できる">キーが不足していることを検知できる</h2>
-
-<p>まず、インスタンス生成時にキーの指定が不足していることを検知できる。<br />
+<p>まず、インスタンス生成時にキーの指定が不足していることを検知できる。<br>
 以下のような初期化は<code>email</code>キーの初期化が不足していると警告が出る。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">user <span style="color:#719e07">=</span> UserDict(
     user_name<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;John Due,</span>
-)  <span style="color:#586e75"># Parameter &#39;email&#39; unfilled</span></code></pre></div>
-<p><img src="/2019/12/30_unfilled.png" alt="unfilled" /></p>
-
+)  <span style="color:#586e75"># Parameter &#39;email&#39; unfilled</span>
+</code></pre></div><p><img src="/2019/12/30_unfilled.png" alt="unfilled"></p>
 <p>なお、このキーの不足の許可はクラス宣言時の<code>Tottaly</code>オプション（<code>total=False</code>）でオフにすることもできる。</p>
-
 <ul>
-<li><p>Totality</p>
-
+<li>Totality
 <ul>
-<li><p><a href="https://www.python.org/dev/peps/pep-0589/#totality">https://www.python.org/dev/peps/pep-0589/#totality</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">class</span> <span style="color:#268bd2">Movie</span>(TypedDict, total<span style="color:#719e07">=</span><span style="color:#268bd2">False</span>):
-name: <span style="color:#b58900">str</span>
-year: <span style="color:#b58900">int</span></code></pre></div></li>
-</ul></li>
+<li><a href="https://www.python.org/dev/peps/pep-0589/#totality">https://www.python.org/dev/peps/pep-0589/#totality</a></li>
 </ul>
-
-<h2 id="キーの型が間違っていることを検知できる">キーの型が間違っていることを検知できる</h2>
-
+</li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">class</span> <span style="color:#268bd2">Movie</span>(TypedDict, total<span style="color:#719e07">=</span><span style="color:#268bd2">False</span>):
+    name: <span style="color:#b58900">str</span>
+    year: <span style="color:#b58900">int</span>
+</code></pre></div><h2 id="キーの型が間違っていることを検知できる">キーの型が間違っていることを検知できる</h2>
 <p>キーをすべて満たした初期化をしても、間違った型で要素を初期化していると警告される。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">user2 <span style="color:#719e07">=</span> UserDict(
     user_name<span style="color:#719e07">=</span><span style="color:#2aa198">20</span>,  <span style="color:#586e75"># Expected type &#39;str&#39;, got &#39;int&#39; instead</span>
     email<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;user@exmaple.com&#39;</span>,
-)</code></pre></div>
-<p><img src="/2019/12/30_type_error.png" alt="type error" /></p>
-
+)
+</code></pre></div><p><img src="/2019/12/30_type_error.png" alt="type error"></p>
 <h2 id="定義していないキーへの参照を検知できる">定義していないキーへの参照を検知できる</h2>
-
-<p><code>TypedDict</code>を使ったクラスのインスタンスに対して、宣言時に定義しなかったキー名を指定すると警告を受ける。<br />
+<p><code>TypedDict</code>を使ったクラスのインスタンスに対して、宣言時に定義しなかったキー名を指定すると警告を受ける。<br>
 辞書型にすると<code>ドット</code>でフィールドを呼び出せなくなるが、これでタイポに気づかずエラーを出してしまうことはないだろう。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">print</span>(user[<span style="color:#2aa198">&#39;phone&#39;</span>])  <span style="color:#586e75"># TypedDict &#34;UserDict&#34; has no key &#39;phone&#39;</span></code></pre></div>
-<p><img src="/2019/12/30_key_error.png" alt="key error" /></p>
-
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">print</span>(user[<span style="color:#2aa198">&#39;phone&#39;</span>])  <span style="color:#586e75"># TypedDict &#34;UserDict&#34; has no key &#39;phone&#39;</span>
+</code></pre></div><p><img src="/2019/12/30_key_error.png" alt="key error"></p>
 <h2 id="valueの型情報を使って補完ができる">Valueの型情報を使って補完ができる</h2>
-
 <p>すこし拡張した以下の<code>UserDict</code>を用意する。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">from</span> datetime <span style="color:#719e07">import</span> datetime
 
@@ -310,18 +279,13 @@ year: <span style="color:#b58900">int</span></code></pre></div></li>
     user_name: <span style="color:#b58900">str</span>
     email: <span style="color:#b58900">str</span>
     created: datetime
-    updated: datetime</code></pre></div>
-<p><code>created</code>キーは<code>datetime</code>型なので、<code>UserDict</code>インスタンスを使って<code>user['created'].</code>と書くとそのまま<code>datetime</code>型のメソッド一覧が補完される。</p>
-
-<p><img src="/2019/12/30_completion.png" alt="method completion" /></p>
-
+    updated: datetime
+</code></pre></div><p><code>created</code>キーは<code>datetime</code>型なので、<code>UserDict</code>インスタンスを使って<code>user['created'].</code>と書くとそのまま<code>datetime</code>型のメソッド一覧が補完される。</p>
+<p><img src="/2019/12/30_completion.png" alt="method completion"></p>
 <h2 id="終わりに">終わりに</h2>
-
-<p><code>TypedDict</code>は型ヒントなので、違反していても実行は出来てしまうし、IDEを使っていないと恩恵を受けられない。<br />
+<p><code>TypedDict</code>は型ヒントなので、違反していても実行は出来てしまうし、IDEを使っていないと恩恵を受けられない。<br>
 しかし、Pythonというと「ゆるふわなスクリプト言語」のイメージしかなかったので、ここまで厳密にできるのは驚いた。</p>
-
 <h1 id="参考">参考</h1>
-
 <ul>
 <li><a href="https://pleiades.io/help/pycharm/pipenv.html">Pipenv環境 - 公式ヘルプ | PyCharm</a></li>
 <li><a href="https://docs.python.org/ja/3/library/typing.html">typing &mdash; 型ヒントのサポート</a></li>
@@ -406,9 +370,9 @@ year: <span style="color:#b58900">int</span></code></pre></div></li>
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -486,10 +450,16 @@ year: <span style="color:#b58900">int</span></code></pre></div></li>
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -501,12 +471,6 @@ year: <span style="color:#b58900">int</span></code></pre></div></li>
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

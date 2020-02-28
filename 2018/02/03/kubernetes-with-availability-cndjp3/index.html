@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -169,21 +169,17 @@
           
           
           
-          
-
-<p>いつも楽しく学ばせていただいているオラクル早川さん主催のcndjp。
+          <p>いつも楽しく学ばせていただいているオラクル早川さん主催のcndjp。
 今回は「Kubernetesで実現する高可用性システム」というテーマでKubernetes(k8s)と可用性について、ハンズオンでは実際にk8sとApache Kafkaを使った構成に対して、chaoskubeによるカオスエンジニアリングを行った。</p>
-
 <ul>
 <li><a href="https://www.slideshare.net/charlier-shoe/kubernetes-cndjp3/charlier-shoe/kubernetes-cndjp3">Kubernetes × 可用性 &ndash; cndjp第3回勉強会</a></li>
 <li><a href="https://github.com/oracle-japan/cndjp3">https://github.com/oracle-japan/cndjp3</a>
-
 <ul>
 <li><a href="https://github.com/oracle-japan/cndjp3/blob/master/handson1.md">CNDJP #3 ハンズオンチュートリアル Part 1</a></li>
 <li><a href="https://github.com/oracle-japan/cndjp3/blob/master/handson2.md">CNDJP #3 ハンズオンチュートリアル Part 2</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <table>
 <thead>
 <tr>
@@ -191,153 +187,108 @@
 <th></th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>URL</td>
 <td><a href="https://cnd.connpass.com/event/75617/">https://cnd.connpass.com/event/75617/</a></td>
 </tr>
-
 <tr>
 <td>会場</td>
 <td>オラクル青山センター 13F セミナールーム</td>
 </tr>
-
 <tr>
 <td>日時</td>
 <td>2018/01/31(水) 18:30 〜 20:30</td>
 </tr>
-
 <tr>
 <td>ハッシュタグ</td>
 <td><a href="https://twitter.com/search?q=%23cndjp3">#cndjp3</a></td>
 </tr>
-
 <tr>
 <td>資料</td>
 <td><a href="https://www.slideshare.net/charlier-shoe/kubernetes-cndjp3/charlier-shoe/kubernetes-cndjp3">Kubernetes × 可用性 &ndash; cndjp第3回勉強会</a></td>
 </tr>
 </tbody>
 </table>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>マイクロサービスの4層アーキテクチャごとの可用性</li>
 <li>Kafkaを使ったチャットアプリサービスをk8sにデプロイ</li>
 <li>chaoskubeを使ってカオステストを実施</li>
 </ul>
-
 <h1 id="マイクロサービス4層アーキテクチャ">マイクロサービス4層アーキテクチャ</h1>
-
 <p><a href="http://amazon.jp/dp/B01N48GFCQ">Production-Ready Microservices</a>の著者である、Susan Fowler氏はマイクロサービスを4層アーキテクチャとして定義している。</p>
-
 <p><a href="https://www.susanjfowler.com/blog/2016/12/18/the-four-layers-of-microservice-architecture">The Four Layers Of Microservice Architecture</a></p>
-
 <ul>
 <li>マイクロサービス（サービス本体）</li>
 <li>アプリケーションプラットフォーム（ロギング、監視）</li>
 <li>通信（サービス間の通信）</li>
 <li>ハードウェア</li>
 </ul>
-
 <p>ハードウェア部分をクラウド、サービス間の通信をk8sに任せる。アプリケーションプラットフォーム以上についてもk8sとの組み合わせで高機能・高可用性を実現できる。
 高可用性を実現するためには、レイヤー毎に単一障害点（SPOF）を考える必要がある。</p>
-
 <p>単一障害点…システム全体に影響を及ぼす障害。認証とかDBとか。</p>
-
 <h1 id="マイクロサービス層の可用性">マイクロサービス層の可用性</h1>
-
 <h2 id="マイクロサービスのトレードオフ">マイクロサービスのトレードオフ</h2>
-
 <p><a href="http://postd.cc/microservice-trade-offs/">マイクロサービスのトレードオフ</a></p>
-
 <p>マイクロサービスを利用することで開発者はモジュールの分割、個別デプロイなど大きなメリットを得るが、一方で無視できないデメリットも多い。その中の一つとして、サービス境界（サービス間の結合部分）に対する可用性・回復性の担保がある。
 マイクロサービスの場合、当然モノリシックな構成よりも個々の機能が分裂されているので、SPOFとなり得る部分が多くなる。</p>
-
 <p>マイクロサービスの設計としては、それらに対してヘルスチェックパターン、、サーキットブレーカーパターンなどを適用して回避する。</p>
-
 <ul>
 <li><a href="http://microservices.io/patterns/observability/health-check-api.html">Pattern: Health Check API</a></li>
 <li><a href="http://microservices.io/patterns/reliability/circuit-breaker.html">Pattern: Circuit Breaker</a></li>
 <li><a href="https://docs.microsoft.com/ja-jp/azure/architecture/patterns/category/resiliency">回復性のパターン</a>
-
 <ul>
 <li><a href="https://docs.microsoft.com/ja-jp/azure/architecture/patterns/health-endpoint-monitoring">正常性エンドポイントの監視パターン</a></li>
 <li><a href="https://docs.microsoft.com/ja-jp/azure/architecture/patterns/circuit-breaker">サーキット ブレーカー パターン</a></li>
-</ul></li>
+</ul>
+</li>
 <li><a href="https://www.youtube.com/watch?v=pKO33eMwXRs">YouTube:Building Fault Tolerant Microservices</a></li>
 </ul>
-
 <p>他にもバルクヘッドパターンなどがある。</p>
-
 <h2 id="サービスメッシュを使ったサービス境界に対する障害対策">サービスメッシュを使ったサービス境界に対する障害対策</h2>
-
 <ul>
 <li><a href="https://www.infoq.com/jp/news/2017/06/istio">Istio: マイクロサービスのためのサービスメッシュ</a></li>
 </ul>
-
-<p>モノリシックなサービスと比較してマイクロサービスの個々のサービスにフォーカスした可用性の担保は簡単になる。<br />
-サービス境界に対する可用性の担保はk8sの場合、サービスメッシュを利用すると簡単に導入できる。<br />
+<p>モノリシックなサービスと比較してマイクロサービスの個々のサービスにフォーカスした可用性の担保は簡単になる。<br>
+サービス境界に対する可用性の担保はk8sの場合、サービスメッシュを利用すると簡単に導入できる。<br>
 サービスメッシュとはサービス間のミドルウェアで、モノリシックなサービスだとnginxがやっているような機能をネットワーク間の処理をいい感じにやってくれるツールの総称。IstioやLinkerdなどがある。（これに関しては次回のcndjpで取り上げていただけるらしい）</p>
-
 <h1 id="ハンズオン1-apache-kafkaを利用した簡易チャットアプリをk8sにデプロイする">ハンズオン1: Apache Kafkaを利用した簡易チャットアプリをk8sにデプロイする</h1>
-
 <ul>
 <li><a href="https://github.com/oracle-japan/cndjp3/blob/master/handson1.md">CNDJP #3 ハンズオンチュートリアル Part 1</a></li>
 </ul>
-
-<p>一般的なWeb3層アプリケーションで考えると可用性の担保としてセッションステートの分離、DBの可用構成がある。<br />
+<p>一般的なWeb3層アプリケーションで考えると可用性の担保としてセッションステートの分離、DBの可用構成がある。<br>
 k8s上でもセッションステートをアプリから分離してRedisなどで可用性を担保することになる。こうすることでユーザーのセッションをキープしたままサービスの更新などが可能になる。</p>
-
-<p>Apache KafkaはLAMPスタックから置き換わったSMACKスタックを担うOSSである。<br />
+<p>Apache KafkaはLAMPスタックから置き換わったSMACKスタックを担うOSSである。<br>
 2011年にLinkedInから公開されたオープンソースの分散メッセージングシステム。Kafkaによってメッセージの中継を複数のPodで分散して行う。それぞれのPodはお互いにバックアップを取るので、可用性、回復性が実現できる。</p>
-
 <p>ハンズオンではスペック不足？で動かない人が多かったらしいが、自分のMacbook2015は手順通りにやれば特に問題なかった。</p>
-
 <h1 id="アプリケーションプラットフォーム層の可用性">アプリケーションプラットフォーム層の可用性</h1>
-
 <p>##リリースと可用性
-アプリケーションプラットフォーム層の可用性にはリリースも関連してくる。<br />
-変更は障害のリスクであり、バグを含んでいないものをミスなくリリースできるCI/CD環境が用意されている必要がある。<br />
+アプリケーションプラットフォーム層の可用性にはリリースも関連してくる。<br>
+変更は障害のリスクであり、バグを含んでいないものをミスなくリリースできるCI/CD環境が用意されている必要がある。<br>
 Istioなどを利用すればセンシティブなカナリーデプロイメントも可能</p>
-
-<h1 id="kubernetes層-ハードウェア層の可用性">Kubernetes層・ハードウェア層の可用性</h1>
-
+<h1 id="kubernetes層ハードウェア層の可用性">Kubernetes層・ハードウェア層の可用性</h1>
 <h2 id="巨人の肩に乗る">巨人の肩に乗る</h2>
-
 <p><a href="https://kubernetes.io/docs/admin/high-availability/building/">Building High-Availability Clusters</a></p>
-
 <p>一言でいうと自前で可用性の高いk8sのクラスター構成を用意するのはめちゃくちゃめんどくさい。
 ハードウェアにしても自前でマルチゾーン構成を用意するはよほどの資金力が必要。クラウドサービスに頼るのがよさそう。</p>
-
 <h1 id="ハンズオン2-chaoskubeによるランダムなpodのシャットダウン">ハンズオン2: chaoskubeによるランダムなPodのシャットダウン</h1>
-
 <ul>
 <li><a href="https://github.com/oracle-japan/cndjp3/blob/master/handson2.md">CNDJP #3 ハンズオンチュートリアル Part 2</a></li>
 <li><a href="https://www.skyarch.net/blog/?p=13294">【AWS re:Invent 2017】「カオスエンジニアリング」について</a></li>
 </ul>
-
 <p>ハンズオン1で作成したKafkaを利用したチャットアプリに対して、k8s Podをランダムにダウンさせるカオスエンジニアリングを実施した。
 k8sのPodに対してカオスエンジニアリングを行うにはchaoskubeがあるようだ。</p>
-
 <p><a href="https://github.com/linki/chaoskube">https://github.com/linki/chaoskube</a></p>
-
 <p>Macの場合は<code>brew install httpd</code>で<code>ab</code>コマンドが利用できるようになる。
 たしかにPodは落ちているのだが、メッセージの欠損なくチャットが継続された。</p>
-
 <h1 id="終わってみて">終わってみて</h1>
-
 <p>実は最初の一時間くらいは<code>vagrant</code>上のk8sクラスターが全然起動しなくて（正確にいうとssh接続が出来なくて<code>vagrant up</code>が成功しなくて）、
 話をちゃんと聞けていなかった。ベースがなくて初めて聞く事ばかりだし、ちょっと動かなくなるとお手上げになってしまうので、
 自己学習が必要だなと感じる。Kodecataとかで勉強しないと。</p>
-
 <p><a href="https://www.katacoda.com/courses/kubernetes">Learn Kubernetes using Interactive Browser-Based Scenarios</a></p>
-
 <p>次回はIstio。名前しか知らないのでちょっとでもわかるようになるといいなー。</p>
-
 <h1 id="参考">参考</h1>
-
 <ul>
 <li><a href="https://www.infoq.com/jp/news/2017/03/production-ready-microservices">Susan Fowler氏に聞く - 実用段階のマイクロサービスとは</a></li>
 <li><a href="https://www.susanjfowler.com/blog/2016/12/18/the-four-layers-of-microservice-architecture">The Four Layers Of Microservice Architecture</a></li>
@@ -346,11 +297,11 @@ k8sのPodに対してカオスエンジニアリングを行うにはchaoskube�
 <li><a href="http://microservices.io/patterns/observability/health-check-api.html">Pattern: Health Check API</a></li>
 <li><a href="http://microservices.io/patterns/reliability/circuit-breaker.html">Pattern: Circuit Breaker</a></li>
 <li><a href="https://docs.microsoft.com/ja-jp/azure/architecture/patterns/category/resiliency">Microsoft Docs:回復性のパターン</a>
-
 <ul>
 <li><a href="https://docs.microsoft.com/ja-jp/azure/architecture/patterns/health-endpoint-monitoring">正常性エンドポイントの監視パターン</a></li>
 <li><a href="https://docs.microsoft.com/ja-jp/azure/architecture/patterns/circuit-breaker">サーキット ブレーカー パターン</a></li>
-</ul></li>
+</ul>
+</li>
 <li><a href="https://www.youtube.com/watch?v=pKO33eMwXRs">YouTube:Building Fault Tolerant Microservices</a></li>
 <li><a href="https://www.infoq.com/jp/news/2017/06/istio">Istio: マイクロサービスのためのサービスメッシュ</a></li>
 <li><a href="http://kafka.apache.org/">Apache Kafka</a></li>
@@ -360,9 +311,7 @@ k8sのPodに対してカオスエンジニアリングを行うにはchaoskube�
 <li><a href="https://www.skyarch.net/blog/?p=13294">【AWS re:Invent 2017】「カオスエンジニアリング」について</a></li>
 <li><a href="https://www.katacoda.com/courses/kubernetes">Learn Kubernetes using Interactive Browser-Based Scenarios</a></li>
 </ul>
-
 <h1 id="関連">関連</h1>
-
 <ul>
 <li><a href="/2017/11/23/cndjp1/">Cloud Native Developers JP 第1回勉強会 参加メモ #cndjp1</a></li>
 <li><a href="/2017/12/18/kubernetes-in-production-cndjp2/">[k8s]Cloud Native Developers JP 第2回勉強会 参加メモ #cndjp2</a></li>
@@ -457,9 +406,9 @@ k8sのPodに対してカオスエンジニアリングを行うにはchaoskube�
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -537,10 +486,16 @@ k8sのPodに対してカオスエンジニアリングを行うにはchaoskube�
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -552,12 +507,6 @@ k8sのPodに対してカオスエンジニアリングを行うにはchaoskube�
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

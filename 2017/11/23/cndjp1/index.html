@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -169,11 +169,8 @@
           
           
           
-          
-
-<p>Cloud Native Developers JP(cndjp)のハンズオンに参加し、<code>Kubernetes</code>について勉強してきた。
+          <p>Cloud Native Developers JP(cndjp)のハンズオンに参加し、<code>Kubernetes</code>について勉強してきた。
 クラウド素人の自分でもローカルにクラスター構成を作成、アプリのスケールイン、スケールアウトまで試せたので良かった。</p>
-
 <table>
 <thead>
 <tr>
@@ -181,139 +178,98 @@
 <th></th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>URL</td>
 <td><a href="https://cnd.connpass.com/event/69971/">https://cnd.connpass.com/event/69971/</a></td>
 </tr>
-
 <tr>
 <td>会場</td>
 <td>日本オラクル青山センター</td>
 </tr>
-
 <tr>
 <td>日時</td>
 <td>2017/11/22(水) 19:00 〜 22:00</td>
 </tr>
-
 <tr>
 <td>資料</td>
 <td><a href="https://www.slideshare.net/charlier-shoe/kubernetes-serverless-cndjp1/">https://www.slideshare.net/charlier-shoe/kubernetes-serverless-cndjp1/</a></td>
 </tr>
-
 <tr>
 <td>ハッシュタグ</td>
 <td><a href="https://twitter.com/search?q=%23cndjp1">#cndjp1</a></td>
 </tr>
 </tbody>
 </table>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <p>だいぶ基礎的なところからフォローしてくださっていた。「クラウド勉強してみたいけど、どこから手をつければ/どう手をつければいいんだろう？」と言った状態の自分にとってちょうどいいレベル感だったので、次回も参加したい。</p>
-
 <ul>
 <li><code>Kubernetes</code>(以下k8s)の概要と基本的用語の理解
-
 <ul>
 <li><a href="https://www.slideshare.net/charlier-shoe/kubernetes-serverless-cndjp1/">https://www.slideshare.net/charlier-shoe/kubernetes-serverless-cndjp1/</a></li>
-</ul></li>
+</ul>
+</li>
 <li>OSSのサーバーレスフレームワーク、<code>Fn Project</code>の紹介
-
 <ul>
 <li><a href="http://fnproject.io/">http://fnproject.io/</a></li>
-</ul></li>
+</ul>
+</li>
 <li><code>Vagrant</code> + <code>Virtual Box</code>上に1マスターノード、2メンバーノードのk8sクラスター環境を構築。</li>
 <li>サンプルアプリのPodをデプロイ、APIサーバー経由でアクセス
-
 <ul>
 <li><a href="https://github.com/pires/kubernetes-vagrant-coreos-cluster">https://github.com/pires/kubernetes-vagrant-coreos-cluster</a></li>
 <li><a href="https://github.com/oracle-japan/cndjp1/blob/master/handson/handson1.md">https://github.com/oracle-japan/cndjp1/blob/master/handson/handson1.md</a></li>
-</ul></li>
+</ul>
+</li>
 <li>サンプルアプリに対してNodePortモードでServiceを構成</li>
 <li>手動でPodのスケールアウト/スケールインを実施</li>
 <li><code>stern</code>で複数Podのログを取得
-
 <ul>
 <li><a href="https://github.com/wercker/stern">https://github.com/wercker/stern</a></li>
 <li><a href="https://github.com/oracle-japan/cndjp1/blob/master/handson/handson2.md">https://github.com/oracle-japan/cndjp1/blob/master/handson/handson2.md</a></li>
-</ul></li>
 </ul>
-
-<p>Cloud Native Developers JPはClound NativeなOSSスタック（以下の図）の勉強会とのこと。<br />
+</li>
+</ul>
+<p>Cloud Native Developers JPはClound NativeなOSSスタック（以下の図）の勉強会とのこと。<br>
 <a href="https://github.com/cncf/landscape">https://github.com/cncf/landscape</a></p>
-
-<p><img src="https://raw.githubusercontent.com/cncf/landscape/master/landscape/CloudNativeLandscape_latest.jpg" alt="Cloud Native Landscape" /></p>
-
+<p><img src="https://raw.githubusercontent.com/cncf/landscape/master/landscape/CloudNativeLandscape_latest.jpg" alt="Cloud Native Landscape"></p>
 <p>以下メモ</p>
-
-<hr />
-
+<hr>
 <h1 id="kubernetesとは">Kubernetesとは</h1>
-
 <p><a href="https://kubernetes.io/">https://kubernetes.io/</a></p>
-
 <p>Kubernetes(k8s)はgoogleが公開しているDockerを使った自動デプロイ、スケーリングなどのコンテナの運用自動化のためのオープンソースのプラットフォーム。最近は<a href="http://jp.techcrunch.com/2017/10/25/20171024microsoft-new-azure-kontainer-service-puts-its-focus-on-kubernetes/">Azureがフルマネージドを言及</a>したり、<a href="http://www.publickey1.jp/blog/17/dockerkubernetesdockercon_eu_2017.html">Docker本体が統合を発表</a>したり、オーケストレーションツールのデファクトスタンダードになりつつある。</p>
-
 <h1 id="k8sの基本的な用語">K8sの基本的な用語</h1>
-
 <p>今回のハンズオンで意識できるようになったのは以下。DaemonSetとかも用語説明のときにでてきたが、手を動かすとき関係なかった（はず）</p>
-
 <h2 id="kubectl">kubectl</h2>
-
 <p>k8sを操作するためのコマンドラインツール。コマンドをk8sのREST API呼び出しに変換する。k8sの操作は基本REST APIベースになっているのかな？いかにもWebツールだ。</p>
-
 <h2 id="node">Node</h2>
-
 <p>クラスターに属するマシンを表すオブジェクト。クラスターの管理を担当するマスターノードとアプリケーションを稼働させるメンバーノードがある。今回で言うとVagrant上のVMになる。</p>
-
 <h2 id="pod">Pod</h2>
-
 <p>Node内で稼働するコンテナのセット。今回で言うとサンプルアプリ。ライフサイクルを操作するときの単位になるため、複数コンテナでひとつのPodを構成するときもある。</p>
-
 <h2 id="deployment">Deployment</h2>
-
 <p>Podのライフサイクルを制御するオブジェクト。Podを起動したり、スケールするときに指定する。</p>
-
 <h2 id="service">Service</h2>
-
 <p>Podへのアクセスの制御を行うオブジェクト。各DeploymentのPodへのルーティング、ロード・バランシングの役割を持つ。スケール操作したPodへのアクセスはServiceがよしなにしてくれるらしい。</p>
-
-<h2 id="label-label-selector">Label/Label Selector</h2>
-
+<h2 id="labellabel-selector">Label/Label Selector</h2>
 <p>k8sオブジェクトを管理。jsonで書ける。メタデータ、タグとして使う。Labelベースで操作すればPodが増減したときもいい感じにロードバランスなどが働く。</p>
-
 <p>その他クラスター要素について深く知りたいならば、以下などを参考にすれば良いとのこと。</p>
-
-<p>Creating a Custom Cluster from Scratch<br />
+<p>Creating a Custom Cluster from Scratch<br>
 <a href="https://kubernetes.io/docs/getting-started-guides/scratch/">https://kubernetes.io/docs/getting-started-guides/scratch/</a></p>
-
 <h1 id="fn-project">Fn Project</h1>
-
-<p><a href="http://fnproject.io/">http://fnproject.io/</a><br />
+<p><a href="http://fnproject.io/">http://fnproject.io/</a><br>
 <a href="https://github.com/fnproject/fn">https://github.com/fnproject/fn</a></p>
-
 <p>サーバレスアプリを作るためのフレームワーク。今年のJavaOneで発表された。Open &amp; Easy。
 マルチ言語サポートでDockerがあれば動く。Fn Server上に各Functionが乗るDocker in Dokcer構成。
 トリガーがキックされるたびに対応するファンクションのコンテナを立ち上げる。
 コンテナ管理はCLIで隠蔽される。
 Fn Flowを使うと、複数のファンクションの連結を手続き的記述で実現（現状Javaのみ
 コンテナで全部動いているので、k8sと相性が良いはずらしい。</p>
-
 <h1 id="stern">stern</h1>
-
 <p><a href="https://github.com/wercker/stern">https://github.com/wercker/stern</a></p>
-
 <p>複数のPodのログを簡単に確認できるツール。色分けとかもしてくれるし確かに見やすかった！</p>
-
 <p><a href="https://medium.com/@lestrrat/kubernetes%E4%BD%BF%E3%81%84%E3%81%AF%E5%85%A8%E5%93%A1-stern-%E3%82%92%E5%B0%8E%E5%85%A5%E3%81%99%E3%81%B9%E3%81%8D-bc9d3eb2c321">kubernetes使いは全員 stern を導入すべき</a></p>
-
-<hr />
-
+<hr>
 <h1 id="その他">その他</h1>
-
 <ul>
 <li>練習問題は <code>kubectl describe pods | egrep &quot;Node:|^Name:&quot;</code>って感じで確認できた。</li>
 <li>kubectlはzsh(とbash)使いならば <code>source &lt;(kubectl completion zsh)</code>を実行しておけば補完もかなり効く。</li>
@@ -399,9 +355,9 @@ Fn Flowを使うと、複数のファンクションの連結を手続き的記�
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -479,10 +435,16 @@ Fn Flowを使うと、複数のファンクションの連結を手続き的記�
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -494,12 +456,6 @@ Fn Flowを使うと、複数のファンクションの連結を手続き的記�
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

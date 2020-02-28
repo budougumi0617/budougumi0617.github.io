@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -176,129 +176,96 @@
           
           
             <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#golang-tokyo-27のdevquiz">golang.tokyo #27のDevquiz</a></li>
-<li><a href="#switch文の言語仕様について">switch文の言語仕様について</a>
-<ul>
-<li><a href="#switch-内にスコープを絞ったstatementを書ける"><code>switch</code>内にスコープを絞ったStatementを書ける</a></li>
-<li><a href="#goの-switch-文は式-タグ-なしで書くことができる">Goの<code>switch</code>文は式（タグ）なしで書くことができる</a></li>
-</ul></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
+  <ul>
+    <li><a href="#switch内にスコープを絞ったstatementを書ける"><code>switch</code>内にスコープを絞ったStatementを書ける</a></li>
+    <li><a href="#goのswitch文は式タグなしで書くことができる">Goの<code>switch</code>文は式（タグ）なしで書くことができる</a></li>
+  </ul>
 </nav>
           
           <p>先日のgolang.tokyoでは<code>switch</code>文に関するDevquizが出題された。
 私はわかっていたつもりで乾杯の挨拶中に解説を話したが、間違えた解説だったので改めて仕様を確認した。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>先日のgolang.tokyoのDevquizの解説で誤った解説をしてしまった
-
 <ul>
 <li><a href="https://golangtokyo.connpass.com/event/151926/">https://golangtokyo.connpass.com/event/151926/</a></li>
 <li>Devquizは<code>switch ok := false; {...}</code>という<code>switch</code>文の挙動について</li>
-</ul></li>
+</ul>
+</li>
 <li>Goの<code>switch</code>文は条件以外に、<code>switch</code>内にスコープを絞った<code>Statement</code>を書くことができる。
-
 <ul>
 <li><code>switch x := f(); x { ... }</code></li>
-</ul></li>
+</ul>
+</li>
 <li>Goの<code>switch</code>文は条件（タグ）なしで書くことができる
-
 <ul>
 <li>タグなし<code>switch</code>（<code>tagless-switch</code>）は<code>switch true</code></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>正しい答えは<a href="https://twitter.com/makki_d">@makki_d</a>さんに会場でも指摘してもらった。</p>
-
-<p><blockquote class="twitter-tweet"><p lang="ja" dir="ltr">クイズのswitch文、ok:=falseの後のセミコロンの後が空なのが味噌だよね<a href="https://twitter.com/hashtag/golangtokyo?src=hash&amp;ref_src=twsrc%5Etfw">#golangtokyo</a></p>&mdash; MakKi (@makki_d) <a href="https://twitter.com/makki_d/status/1191667339348963328?ref_src=twsrc%5Etfw">November 5, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
-
-<h1 id="golang-tokyo-27のdevquiz">golang.tokyo #27のDevquiz</h1>
-
+<!-- raw HTML omitted -->
+<h1 id="golangtokyo-27のdevquiz">golang.tokyo #27のDevquiz</h1>
 <p>2019/11/05に行われたgolang.tokyoの抽選では以下のDevquizが出題された。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://golangtokyo.connpass.com/event/151926/" data-iframely-url="//cdn.iframe.ly/Oxh7MyA"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
 <ul>
-<li><p><a href="https://play.golang.org/p/mSkgdEh8hhw">https://play.golang.org/p/mSkgdEh8hhw</a></p>
+<li><a href="https://play.golang.org/p/mSkgdEh8hhw">https://play.golang.org/p/mSkgdEh8hhw</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// 以下のコードを実行すると何が出力されるか答えよ。
 </span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
 
 <span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-<span style="color:#719e07">switch</span> ok <span style="color:#719e07">:=</span> <span style="color:#cb4b16">false</span>; {
-<span style="color:#719e07">case</span> <span style="color:#cb4b16">true</span>:
-    fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;true&#34;</span>, ok)
-<span style="color:#719e07">case</span> <span style="color:#cb4b16">false</span>:
-    fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;false&#34;</span>, ok)
-<span style="color:#719e07">default</span>:
-    fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;default&#34;</span>)
+    <span style="color:#719e07">switch</span> ok <span style="color:#719e07">:=</span> <span style="color:#cb4b16">false</span>; {
+    <span style="color:#719e07">case</span> <span style="color:#cb4b16">true</span>:
+        fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;true&#34;</span>, ok)
+    <span style="color:#719e07">case</span> <span style="color:#cb4b16">false</span>:
+        fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;false&#34;</span>, ok)
+    <span style="color:#719e07">default</span>:
+        fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;default&#34;</span>)
+    }
 }
-}</code></pre></div></li>
-</ul>
-
-<p>何が出力されるかというと、<code>true false</code>が出力される。<br />
+</code></pre></div><p>何が出力されるかというと、<code>true false</code>が出力される。<br>
 私はこれを「<code>case true</code>が常に真として評価されるから<code>true false</code>が出力される。」と解説したがそれは誤りだった。</p>
-
 <h1 id="switch文の言語仕様について">switch文の言語仕様について</h1>
-
 <p><code>switch</code>文の言語仕様は以下で確認することができる。</p>
-
 <ul>
 <li>Switch statements | The Go Programming Language Specification
-
 <ul>
 <li><a href="https://golang.org/ref/spec#Switch_statements">https://golang.org/ref/spec#Switch_statements</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>Devquizの<code>switch</code>文は<code>type switch</code>ではないので、<code>ExprSwitchStmt</code>となる。</p>
-
 <pre><code>SwitchStmt = ExprSwitchStmt | TypeSwitchStmt .
 ExprSwitchStmt = &quot;switch&quot; [ SimpleStmt &quot;;&quot; ] [ Expression ] &quot;{&quot; { ExprCaseClause } &quot;}&quot; .
 
-</code></pre>
-
-<h2 id="switch-内にスコープを絞ったstatementを書ける"><code>switch</code>内にスコープを絞ったStatementを書ける</h2>
-
+</code></pre><h2 id="switch内にスコープを絞ったstatementを書ける"><code>switch</code>内にスコープを絞ったStatementを書ける</h2>
 <p><code>ExprSwitchStmt</code>の定義を見ればわかる通り、<code>switch</code>文は実際に<code>switch</code>文で評価したい式（<code>Expression</code>）と別に代入などの文（<code>SimpleStmt</code>）を含むことができる。</p>
-
 <p>Devquiz中の<code>switch</code>文も<code>SimpleStmt</code>として、代入式を含んでいた</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">switch</span> ok <span style="color:#719e07">:=</span> <span style="color:#cb4b16">false</span>; {</code></pre></div>
-<h2 id="goの-switch-文は式-タグ-なしで書くことができる">Goの<code>switch</code>文は式（タグ）なしで書くことができる</h2>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">switch</span> ok <span style="color:#719e07">:=</span> <span style="color:#cb4b16">false</span>; {
 
+</code></pre></div><h2 id="goのswitch文は式タグなしで書くことができる">Goの<code>switch</code>文は式（タグ）なしで書くことができる</h2>
 <p>わかる人はもうわかっただろうが、Devquizの<code>switch</code>文には式が含まれていない。これはGoの文法的に間違いではない。</p>
-
 <blockquote>
 <p>There can be at most one default case and it may appear anywhere in the &ldquo;switch&rdquo; statement. A missing switch expression is equivalent to the boolean value true.</p>
 </blockquote>
-
-<p>式が含まれていない<code>switch</code>文は<code>switch true</code>として条件評価が行われる。<br />
-よって、 今回のDevquizは「<code>switch true</code>という<code>switch</code>文だったので、<code>case true:</code>という条件が真になっていた」のが正しい解説となる。<br />
+<p>式が含まれていない<code>switch</code>文は<code>switch true</code>として条件評価が行われる。<br>
+よって、 今回のDevquizは「<code>switch true</code>という<code>switch</code>文だったので、<code>case true:</code>という条件が真になっていた」のが正しい解説となる。<br>
 <code>switch ok := false; ok {</code>と書けば<code>ok</code>変数の値と各<code>case</code>の値が比較され、（人間がパット見考える）期待どおりの挙動となる。</p>
-
-<p>なお、<code>switch {...}</code>のような、式がない<code>switch</code>文のことを、&rdquo;タグなし<code>switch</code>&ldquo;（<code>tagless-switch</code>）と呼ぶ。<br />
+<p>なお、<code>switch {...}</code>のような、式がない<code>switch</code>文のことを、&ldquo;タグなし<code>switch</code>&rdquo;（<code>tagless-switch</code>）と呼ぶ。<br>
 タグなし<code>switch</code>の評価が<code>switch true</code>になることはプログラミング言語Goでもしっかり明記されている。</p>
-
 <h1 id="終わりに">終わりに</h1>
-
-<p>2,3か月に1回くらいの割合でGoの言語仕様を読んでいる気がする。<br />
-Goの言語仕様は<a href="https://golang.org/ref/spec">この1ページ</a>だけだし、文中のキーワードにはリンクが付いているので勉強しやすい。<br />
+<p>2,3か月に1回くらいの割合でGoの言語仕様を読んでいる気がする。<br>
+Goの言語仕様は<a href="https://golang.org/ref/spec">この1ページ</a>だけだし、文中のキーワードにはリンクが付いているので勉強しやすい。<br>
 毎回忘れてやり直している気がするが、<code>Expression</code>と<code>Statement</code>の違いも頭に入ってきた。</p>
-
 <h1 id="参考">参考</h1>
-
 <ul>
 <li><a href="https://golang.org/ref/spec#Switch_statements">Switch statements | The Go Programming Language Specification</a></li>
 <li><a href="http://amazon.jp/dp/4621300253">プログラミング言語Go </a></li>
 </ul>
-
-<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4621300253&linkId=10cf49bd3d559f283cf07fa007e3fae7"></iframe>
+<!-- raw HTML omitted -->
         </div>
         
 
@@ -388,9 +355,9 @@ Goの言語仕様は<a href="https://golang.org/ref/spec">この1ページ</a>�
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -468,10 +435,16 @@ Goの言語仕様は<a href="https://golang.org/ref/spec">この1ページ</a>�
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -483,12 +456,6 @@ Goの言語仕様は<a href="https://golang.org/ref/spec">この1ページ</a>�
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

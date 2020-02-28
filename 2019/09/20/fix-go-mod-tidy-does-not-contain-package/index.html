@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -65,7 +65,8 @@ github.com/budougumi0617/til/go/tui/promptui imports
         github.com/alecthomas/gometalinter imports
         gopkg.in/alecthomas/kingpin.v3-unstable imports
         github.com/nicksnyder/go-i18n/i18n: module github.com/nicksnyder/go-i18n@latest (v2.0.2&#43;incompatible) found, but does not contain package github.com/nicksnyder/go-i18n/i18n
- "/>
+ 
+"/>
   
   <meta name="twitter:title" content="go mod tidyするとmodule ... found, but does not contain package ...エラーで失敗する - My External Storage"/>
   <meta name="twitter:description" content="go mod tidyが次のようなのエラーで失敗するとき、エラーを解決するメモ。
@@ -75,7 +76,8 @@ github.com/budougumi0617/til/go/tui/promptui imports
         github.com/alecthomas/gometalinter imports
         gopkg.in/alecthomas/kingpin.v3-unstable imports
         github.com/nicksnyder/go-i18n/i18n: module github.com/nicksnyder/go-i18n@latest (v2.0.2&#43;incompatible) found, but does not contain package github.com/nicksnyder/go-i18n/i18n
- "/>
+ 
+"/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
   <meta name="twitter:creator" content="@budougumi0617"/>
@@ -187,15 +189,7 @@ github.com/budougumi0617/til/go/tui/promptui imports
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#エラー">エラー</a></li>
-<li><a href="#does-not-contain-package-の原因"><code>does not contain package</code>の原因</a></li>
-<li><a href="#明示的に解決に失敗するモジュールのバージョンを指定する">明示的に解決に失敗するモジュールのバージョンを指定する</a></li>
-<li><a href="#終わりに">終わりに</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
           <p><code>go mod tidy</code>が次のようなのエラーで失敗するとき、エラーを解決するメモ。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go mod tidy
@@ -204,24 +198,21 @@ github.com/budougumi0617/til/go/tui/promptui imports
         github.com/alecthomas/gometalinter imports
         gopkg.in/alecthomas/kingpin.v3-unstable imports
         github.com/nicksnyder/go-i18n/i18n: module github.com/nicksnyder/go-i18n@latest <span style="color:#719e07">(</span>v2.0.2+incompatible<span style="color:#719e07">)</span> found, but does not contain package github.com/nicksnyder/go-i18n/i18n
- </code></pre></div>
-<h1 id="tl-dr">TL;DR</h1>
-
+ 
+</code></pre></div><h1 id="tldr">TL;DR</h1>
 <ul>
 <li><code>go mod tidy</code>コマンドが次のエラーで失敗するようになってしまった。
-
 <ul>
 <li><code>module $MODULE_NAME@latest (v2.0.2+incompatible) found, but does not contain package MODULE_NAME</code></li>
-</ul></li>
+</ul>
+</li>
 <li>間接依存しているパッケージ<code>v2</code>ディレクトリを作って<code>go.mod</code>ファイルを削除したのが原因</li>
 <li><code>go.mod</code>ファイル内で明示的に<code>v1</code>系のバージョンを指定すればばよい。</li>
 </ul>
-
 <p>なお、実行環境は以下。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go version
-go version go1.13 darwin/amd64</code></pre></div>
-<h1 id="エラー">エラー</h1>
-
+go version go1.13 darwin/amd64
+</code></pre></div><h1 id="エラー">エラー</h1>
 <p>以下のような<code>main.go</code>ファイルと、<code>go.mod</code>ファイルを用意する。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
@@ -233,8 +224,8 @@ go version go1.13 darwin/amd64</code></pre></div>
 
 <span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
         fmt.<span style="color:#268bd2">Println</span>(promptui.KeyEnter)
-}</code></pre></div>
-<pre><code>module github.com/budougumi0617/til/go/tui/promptui
+}
+</code></pre></div><pre><code>module github.com/budougumi0617/til/go/tui/promptui
 
 go 1.13
 
@@ -245,25 +236,20 @@ require (
         gopkg.in/alecthomas/kingpin.v3-unstable v3.0.0-20180810215634-df19058c872c // indirect
 )
  
-</code></pre>
-
-<p>このふたつのファイルは（あまり意味のある結果ではないが、）次のように実行できる。</p>
+</code></pre><p>このふたつのファイルは（あまり意味のある結果ではないが、）次のように実行できる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run main.go
-<span style="color:#2aa198">13</span></code></pre></div>
-<p>ただし、<code>go mod tidy</code>をして<code>go.mod</code>ファイルと<code>go.sum</code>ファイルを整理しようとすると、以下のエラーが発生して<code>go mod tidy</code>が完了しない。</p>
+<span style="color:#2aa198">13</span>
+</code></pre></div><p>ただし、<code>go mod tidy</code>をして<code>go.mod</code>ファイルと<code>go.sum</code>ファイルを整理しようとすると、以下のエラーが発生して<code>go mod tidy</code>が完了しない。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go mod tidy
 github.com/budougumi0617/til/go/tui/promptui imports
         github.com/manifoldco/promptui imports
         github.com/alecthomas/gometalinter imports
         gopkg.in/alecthomas/kingpin.v3-unstable imports
         github.com/nicksnyder/go-i18n/i18n: module github.com/nicksnyder/go-i18n@latest <span style="color:#719e07">(</span>v2.0.2+incompatible<span style="color:#719e07">)</span> found, but does not contain package github.com/nicksnyder/go-i18n/i18n
- </code></pre></div>
-<h1 id="does-not-contain-package-の原因"><code>does not contain package</code>の原因</h1>
-
+ 
+</code></pre></div><h1 id="does-not-contain-packageの原因"><code>does not contain package</code>の原因</h1>
 <p>エラーの発生原因となる<code>github.com/nicksnyder/go-i18n</code>パッケージのコードを確認してみる。</p>
-
-<p><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/nicksnyder/go-i18n" data-iframely-url="//cdn.iframe.ly/g6KJCX6"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script></p>
-
+<!-- raw HTML omitted -->
 <p>GitHubで確認すればわかるとおり、2019/09/20現在、上記のパッケージの<code>lateset</code>は<code>v2</code>ディレクトリ構成になっており、<code>go.mod</code>ファイルがなくなっている。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">tree -L <span style="color:#2aa198">1</span> <span style="color:#268bd2">$GOPATH</span>/src/github.com/nicksnyder/go-i18n
 /Users/budougumi0617/go/src/github.com/nicksnyder/go-i18n
@@ -273,13 +259,10 @@ github.com/budougumi0617/til/go/tui/promptui imports
 ├── dev.md
 └── v2
 
-<span style="color:#2aa198">1</span> directory, <span style="color:#2aa198">4</span> files</code></pre></div>
-<p>そのため、「latestには該当パッケージがない」というエラーメッセージが発生する。</p>
-
+<span style="color:#2aa198">1</span> directory, <span style="color:#2aa198">4</span> files
+</code></pre></div><p>そのため、「latestには該当パッケージがない」というエラーメッセージが発生する。</p>
 <h1 id="明示的に解決に失敗するモジュールのバージョンを指定する">明示的に解決に失敗するモジュールのバージョンを指定する</h1>
-
 <p>これを解決するには、<code>v2</code>以降前のバージョンを明示的に指定してあげればよい。</p>
-
 <p>該当パッケージの<code>v1</code>系の最後のバージョンを確認する。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">git tag -l <span style="color:#2aa198">&#34;v1.*&#34;</span>
 v1.0.0
@@ -294,13 +277,13 @@ v1.6.0
 v1.7.0
 v1.8.0
 v1.8.1
-v1.9.0</code></pre></div>
-<p><code>v1.10.1</code>が最新だったので、これを<code>go.mod</code>ファイル内で指定する。</p>
+v1.9.0
+</code></pre></div><p><code>v1.10.1</code>が最新だったので、これを<code>go.mod</code>ファイル内で指定する。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go mod edit -require github.com/nicksnyder/go-i18n@v1.10.1
 $ cat go.mod
 module github.com/budougumi0617/til/go/tui/promptui
 
-go <span style="color:#2aa198">1</span>.13
+go 1.13
 
 require <span style="color:#719e07">(</span>
         github.com/BurntSushi/toml v0.3.1 // indirect
@@ -309,13 +292,13 @@ require <span style="color:#719e07">(</span>
         github.com/nicksnyder/go-i18n v1.10.1
         gopkg.in/alecthomas/kingpin.v3-unstable v3.0.0-20180810215634-df19058c872c // indirect
 <span style="color:#719e07">)</span>
- </code></pre></div>
-<p>こうして明示的にバージョンを指定すると、<code>go mod tidy</code>コマンドが成功するようになる。</p>
+ 
+</code></pre></div><p>こうして明示的にバージョンを指定すると、<code>go mod tidy</code>コマンドが成功するようになる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go mod tidy
 $ cat go.mod
 module github.com/budougumi0617/til/go/tui/promptui
 
-go <span style="color:#2aa198">1</span>.13
+go 1.13
 
 require <span style="color:#719e07">(</span>
         github.com/BurntSushi/toml v0.3.1 // indirect
@@ -324,12 +307,10 @@ require <span style="color:#719e07">(</span>
         github.com/nicksnyder/go-i18n v1.10.1 // indirect
         gopkg.in/alecthomas/kingpin.v3-unstable v3.0.0-20180810215634-df19058c872c // indirect
 <span style="color:#719e07">)</span>
- </code></pre></div>
-<h1 id="終わりに">終わりに</h1>
-
-<p>いつもエディタで直接編集してしまうが、<code>go mod edit</code>コマンドを始めて使った。<br />
+ 
+</code></pre></div><h1 id="終わりに">終わりに</h1>
+<p>いつもエディタで直接編集してしまうが、<code>go mod edit</code>コマンドを始めて使った。<br>
 直接編集もそんなに苦労しないので、これは覚えなくてもいいかな…</p>
-
 <p>また、<code>replace</code>を使って該当パッケージを<code>v2</code>の方へ向けると<code>go mod tidy</code>コマンドのせいでビルドが失敗する<code>go.mod</code>ファイルができるようになるので、これはissueを立ててみようと思う（不適切な<code>replace</code>ならばエラーで終わってほしい）。</p>
         </div>
         
@@ -420,9 +401,9 @@ require <span style="color:#719e07">(</span>
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -500,10 +481,16 @@ require <span style="color:#719e07">(</span>
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -515,12 +502,6 @@ require <span style="color:#719e07">(</span>
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

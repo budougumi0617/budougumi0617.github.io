@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -55,19 +55,15 @@
   <meta property="og:type" content="article"/>
   <meta property="og:title" content="SpinnakerでGKEの自動カナリー分析をするときはStackdriver k8s Monitoring V2 BETAを使う #spinnaker #kayenta - My External Storage"/>
   <meta property="og:description" content="SpinnakerとKayentaを使えばカナリーリリースの結果を自動評価することができる。
-
 Automated Canary Analysis at Netflix with Kayenta
 https://medium.com/netflix-techblog/automated-canary-analysis-at-netflix-with-kayenta-3260bc7acc69
-
 この自動分析をGKEで試そうとしていたが、Kubenetes(k8s)コンテナー(Stackdriver)からメトリクスが取れていなかった。
 理由がわかったのでメモしておく。"/>
   
   <meta name="twitter:title" content="SpinnakerでGKEの自動カナリー分析をするときはStackdriver k8s Monitoring V2 BETAを使う #spinnaker #kayenta - My External Storage"/>
   <meta name="twitter:description" content="SpinnakerとKayentaを使えばカナリーリリースの結果を自動評価することができる。
-
 Automated Canary Analysis at Netflix with Kayenta
 https://medium.com/netflix-techblog/automated-canary-analysis-at-netflix-with-kayenta-3260bc7acc69
-
 この自動分析をGKEで試そうとしていたが、Kubenetes(k8s)コンテナー(Stackdriver)からメトリクスが取れていなかった。
 理由がわかったのでメモしておく。"/>
   <meta name="twitter:site" content="@budougumi0617"/>
@@ -181,76 +177,50 @@ https://medium.com/netflix-techblog/automated-canary-analysis-at-netflix-with-ka
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#kayentaにメトリクスデータが入ってこない">Kayentaにメトリクスデータが入ってこない</a></li>
-<li><a href="#spinnakerが使うメトリクスのリソースタイプを確認する">Spinnakerが使うメトリクスのリソースタイプを確認する。</a></li>
-<li><a href="#k8sクラスターを-1-10-系にしてstackdriver-monitoring-beta版を有効にする">k8sクラスターを<code>1.10</code>系にしてStackdriver Monitoring Beta版を有効にする</a></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#参考">参考</a></li>
-<li><a href="#関連">関連</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
           <p><a href="https://www.spinnaker.io/">Spinnaker</a>とKayentaを使えばカナリーリリースの結果を自動評価することができる。</p>
-
-<p><strong>Automated Canary Analysis at Netflix with Kayenta</strong><br />
+<p><strong>Automated Canary Analysis at Netflix with Kayenta</strong><br>
 <a href="https://medium.com/netflix-techblog/automated-canary-analysis-at-netflix-with-kayenta-3260bc7acc69">https://medium.com/netflix-techblog/automated-canary-analysis-at-netflix-with-kayenta-3260bc7acc69</a></p>
-
 <p>この自動分析をGKEで試そうとしていたが、Kubenetes(k8s)コンテナー(Stackdriver)からメトリクスが取れていなかった。
 理由がわかったのでメモしておく。</p>
-
-<p><strong>2018/07/06追記</strong><br />
-なお、この記事はSpinnaker v1.8.0を利用したときの記事である。<br />
+<p><strong>2018/07/06追記</strong><br>
+なお、この記事はSpinnaker v1.8.0を利用したときの記事である。<br>
 すでにこの問題はPRで対応されており、tagを見る限り1.9.0では改善される見込みだ。</p>
-
 <ul>
 <li>feat(stackdriver): Add support for legacy gke_container resource type.
-
 <ul>
 <li><a href="https://github.com/spinnaker/kayenta/pull/337">https://github.com/spinnaker/kayenta/pull/337</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>コメントで教えていただきありがとうございました。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>Spinnaker1.8.0がサポートしているメトリクスのResource Typeに<code>gke_container</code>は含まれていない</li>
-
-<li><p>そのため、k8sを<code>1.10</code>系にしてStackdriver k8s MonitoringのBeta版を有効にする必要がある。</p>
+<li>そのため、k8sを<code>1.10</code>系にしてStackdriver k8s MonitoringのBeta版を有効にする必要がある。</li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#268bd2">GCP_PROJECT</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>gcloud info --format<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;value(config.project)&#39;</span><span style="color:#719e07">)</span>
 <span style="color:#268bd2">CLUSTER_NAME</span><span style="color:#719e07">=</span>cluster-1
-<span style="color:#268bd2">CLUSTER_VERSION</span><span style="color:#719e07">=</span><span style="color:#2aa198">1</span>.10.4-gke.2
+<span style="color:#268bd2">CLUSTER_VERSION</span><span style="color:#719e07">=</span>1.10.4-gke.2
 <span style="color:#268bd2">ZONE</span><span style="color:#719e07">=</span>us-central1-a
 <span style="color:#268bd2">CLOUDSDK_CONTAINER_USE_V1_API</span><span style="color:#719e07">=</span><span style="color:#b58900">false</span>
 <span style="color:#268bd2">CLOUDSDK_API_CLIENT_OVERRIDES_CONTAINER</span><span style="color:#719e07">=</span>v1beta1
-gcloud beta container clusters create <span style="color:#268bd2">$CLUSTER_NAME</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>--zone<span style="color:#719e07">=</span><span style="color:#268bd2">$ZONE</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>--project<span style="color:#719e07">=</span><span style="color:#268bd2">$GCP_PROJECT</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>--cluster-version<span style="color:#719e07">=</span><span style="color:#268bd2">$CLUSTER_VERSION</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>--enable-stackdriver-kubernetes <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>--enable-legacy-authorization</code></pre></div></li>
-</ul>
-
-<h1 id="kayentaにメトリクスデータが入ってこない">Kayentaにメトリクスデータが入ってこない</h1>
-
+gcloud beta container clusters create <span style="color:#268bd2">$CLUSTER_NAME</span> <span style="color:#cb4b16">\</span>
+  --zone<span style="color:#719e07">=</span><span style="color:#268bd2">$ZONE</span> <span style="color:#cb4b16">\</span>
+  --project<span style="color:#719e07">=</span><span style="color:#268bd2">$GCP_PROJECT</span> <span style="color:#cb4b16">\</span>
+  --cluster-version<span style="color:#719e07">=</span><span style="color:#268bd2">$CLUSTER_VERSION</span> <span style="color:#cb4b16">\</span>
+  --enable-stackdriver-kubernetes <span style="color:#cb4b16">\</span>
+  --enable-legacy-authorization
+</code></pre></div><h1 id="kayentaにメトリクスデータが入ってこない">Kayentaにメトリクスデータが入ってこない</h1>
 <p>先日GKE上に自動カナリー分析を有効にしたSpinnakerを構築した。</p>
-
 <ul>
 <li><a href="/2018/06/23/how-to-start-auto-canary-analysis/">GKE上でStackdriverと連携したSpinnaker/Kayenta環境を構築する #spinnaker #kayenta</a></li>
 </ul>
-
 <p>ただ、実際にパイプラインを動かしてもStackdriver上では見えるメトリクスがSpinnaker上からは見えず、ずっと自動カナリーリリースが失敗していた。</p>
-
 <h1 id="spinnakerが使うメトリクスのリソースタイプを確認する">Spinnakerが使うメトリクスのリソースタイプを確認する。</h1>
-
 <p>2018/06/27現在のSpinnakerの最新バージョン(1.8.0)でstackdriverの自動カナリー分析の設定を有効にする(<code>hal config canary google edit --gcs-enabled true   --stackdriver-enabled true</code>)と、メトリクスの<code>Resource Type</code>は以下になっている。</p>
-
-<p><img src="/2018/06/27_resource-types.png" alt="Resource Types" /></p>
-
+<p><img src="/2018/06/27_resource-types.png" alt="Resource Types"></p>
 <ul>
 <li><code>gce_instance</code></li>
 <li><code>aws_ec2_instance</code></li>
@@ -260,67 +230,48 @@ gcloud beta container clusters create <span style="color:#268bd2">$CLUSTER_NAME<
 <li><code>k8s_node</code></li>
 <li><code>global</code></li>
 </ul>
-
 <p>ここでStackdriver MonitoringのResource Typeを確認すると、通常のGKEクラスターのResource Typeは<code>gke_container</code>になっている。</p>
-
-<p><strong>Monitored Resource Types</strong><br />
+<p><strong>Monitored Resource Types</strong><br>
 <a href="https://cloud.google.com/monitoring/api/resources#tag_gke_container">https://cloud.google.com/monitoring/api/resources#tag_gke_container</a></p>
-
 <p>Resource Typeが異なるため、メトリクスを収集することができていなかった。</p>
-
-<h1 id="k8sクラスターを-1-10-系にしてstackdriver-monitoring-beta版を有効にする">k8sクラスターを<code>1.10</code>系にしてStackdriver Monitoring Beta版を有効にする</h1>
-
+<h1 id="k8sクラスターを110系にしてstackdriver-monitoring-beta版を有効にする">k8sクラスターを<code>1.10</code>系にしてStackdriver Monitoring Beta版を有効にする</h1>
 <p>GKE上のk8sクラスターのモニタリングResource Typeを有効にするにはStackdriver MonitoringをBeta版にすれば良い。</p>
-
-<p><strong>Migrating to Kubernetes Monitoring</strong><br />
+<p><strong>Migrating to Kubernetes Monitoring</strong><br>
 <a href="https://cloud.google.com/monitoring/kubernetes-engine/migration">https://cloud.google.com/monitoring/kubernetes-engine/migration</a></p>
-
 <p>自分は新しくk8sクラスターを作り直した。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#268bd2">GCP_PROJECT</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>gcloud info --format<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;value(config.project)&#39;</span><span style="color:#719e07">)</span>
 <span style="color:#268bd2">CLUSTER_NAME</span><span style="color:#719e07">=</span>cluster-1
-<span style="color:#268bd2">CLUSTER_VERSION</span><span style="color:#719e07">=</span><span style="color:#2aa198">1</span>.10.4-gke.2
+<span style="color:#268bd2">CLUSTER_VERSION</span><span style="color:#719e07">=</span>1.10.4-gke.2
 <span style="color:#268bd2">ZONE</span><span style="color:#719e07">=</span>us-central1-a
 <span style="color:#268bd2">CLOUDSDK_CONTAINER_USE_V1_API</span><span style="color:#719e07">=</span><span style="color:#b58900">false</span>
 <span style="color:#268bd2">CLOUDSDK_API_CLIENT_OVERRIDES_CONTAINER</span><span style="color:#719e07">=</span>v1beta1
-gcloud beta container clusters create <span style="color:#268bd2">$CLUSTER_NAME</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>  --zone<span style="color:#719e07">=</span><span style="color:#268bd2">$ZONE</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>  --project<span style="color:#719e07">=</span><span style="color:#268bd2">$GCP_PROJECT</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>  --cluster-version<span style="color:#719e07">=</span><span style="color:#268bd2">$CLUSTER_VERSION</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>  --enable-stackdriver-kubernetes <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>  --enable-legacy-authorization</code></pre></div>
-<p>この状態でk8sでコンテナーを起動して、GCP Consoleから<a href="https://console.cloud.google.com/logs/viewer">Stackdriver Logging</a>を確認する。
+gcloud beta container clusters create <span style="color:#268bd2">$CLUSTER_NAME</span> <span style="color:#cb4b16">\</span>
+  --zone<span style="color:#719e07">=</span><span style="color:#268bd2">$ZONE</span> <span style="color:#cb4b16">\</span>
+  --project<span style="color:#719e07">=</span><span style="color:#268bd2">$GCP_PROJECT</span> <span style="color:#cb4b16">\</span>
+  --cluster-version<span style="color:#719e07">=</span><span style="color:#268bd2">$CLUSTER_VERSION</span> <span style="color:#cb4b16">\</span>
+  --enable-stackdriver-kubernetes <span style="color:#cb4b16">\</span>
+  --enable-legacy-authorization
+</code></pre></div><p>この状態でk8sでコンテナーを起動して、GCP Consoleから<a href="https://console.cloud.google.com/logs/viewer">Stackdriver Logging</a>を確認する。
 <code>GKE Container</code>ではなく、<code>Kubernetes Container</code>というResourceが選択できるようになったら変更成功だ。</p>
-
-<p><img src="/2018/06/27_exists-resource-k8s-container.png" alt="Exsits k8s Container" /></p>
-
+<p><img src="/2018/06/27_exists-resource-k8s-container.png" alt="Exsits k8s Container"></p>
 <p>これでSpinnakerからStackdriver経由でGKE上のメトリクスを参照できるようになった。</p>
-
-<p><img src="/2018/06/27_metrics-on-spinnaker.png" alt="Metrics on Spinnaker" /></p>
-
+<p><img src="/2018/06/27_metrics-on-spinnaker.png" alt="Metrics on Spinnaker"></p>
 <h1 id="終わりに">終わりに</h1>
-
 <p>なお、この新しいStackdriver k8s Monitoringは2018/06/27現在まだbeta releaseなのでSLAの対象外になっている。</p>
-
 <p><a href="https://cloud.google.com/monitoring/kubernetes-engine/migration">https://cloud.google.com/monitoring/kubernetes-engine/migration</a></p>
-
 <blockquote>
 <p>This is a Beta release of Stackdriver Kubernetes Monitoring. This feature is not covered by any SLA or deprecation policy and might be subject to backward-incompatible changes.</p>
 </blockquote>
-
 <p>自分はお試しで触っているのでSLAなど気にしないのだが、本番環境で自動カナリーリリース分析をするにはPrometheus経由とかになるのかな？</p>
-
 <h1 id="参考">参考</h1>
-
 <ul>
 <li><a href="https://medium.com/google-cloud/new-stackdriver-monitoring-for-kubernetes-part-1-a296fa164694">New Stackdriver Monitoring for Kubernetes (Part 1)</a></li>
 <li><a href="https://cloud.google.com/monitoring/kubernetes-engine/migration">Migrating to Kubernetes Monitoring</a></li>
 </ul>
-
 <h1 id="関連">関連</h1>
-
 <ul>
 <li><a href="/2018/06/23/how-to-start-auto-canary-analysis/">GKE上でStackdriverと連携したSpinnaker/Kayenta環境を構築する #spinnaker #kayenta</a></li>
-<li><a href="/2018/06/13/403-error-when-add-google-account-for-kayenta/">hal config canary google account addすると&rdquo;Required &lsquo;compute.projects.get&rsquo; permission for&hellip;&ldquo;で403エラー #spinnaker #kayenta</a></li>
+<li><a href="/2018/06/13/403-error-when-add-google-account-for-kayenta/">hal config canary google account addすると&quot;Required &lsquo;compute.projects.get&rsquo; permission for&hellip;&ldquo;で403エラー #spinnaker #kayenta</a></li>
 <li><a href="/categories/spinnaker/">Spinnakerタグの記事一覧</a></li>
 </ul>
         </div>
@@ -412,9 +363,9 @@ gcloud beta container clusters create <span style="color:#268bd2">$CLUSTER_NAME<
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -492,10 +443,16 @@ gcloud beta container clusters create <span style="color:#268bd2">$CLUSTER_NAME<
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -507,12 +464,6 @@ gcloud beta container clusters create <span style="color:#268bd2">$CLUSTER_NAME<
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

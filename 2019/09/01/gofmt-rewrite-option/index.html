@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -177,42 +177,29 @@
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#gofmtコマンドのオプションについて">gofmtコマンドのオプションについて</a></li>
-<li><a href="#rオプションを使ったコードの置換ルール">-rオプションを使ったコードの置換ルール</a></li>
-<li><a href="#実際の実行例">実際の実行例</a></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
-          <p>Goでは標準ツールとして公式から<code>gofmt</code>コマンドというフォーマッタが提供されている。<br />
-このコマンドはコードのインデントなどをフォーマットしてくれるほかに、<code>-r</code>オプションでASTベースの置換も行える。<br />
+          <p>Goでは標準ツールとして公式から<code>gofmt</code>コマンドというフォーマッタが提供されている。<br>
+このコマンドはコードのインデントなどをフォーマットしてくれるほかに、<code>-r</code>オプションでASTベースの置換も行える。<br>
 実装ベースから使い方を追ってみたのでメモする。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li><code>gofmt</code>コマンドはGoをインストールすると<code>go</code>コマンドと一緒にインストールされる公式ツール</li>
 <li>コードのフォーマットを整えてくれる他にASTベースの置換が行える</li>
 <li><code>-r</code>オプションと置換ルールを渡せばよい。
-
 <ul>
 <li><code>置換前のエクスプレッション -&gt; 置換後のエクスプレッション</code></li>
 <li>小文字一文字を使うことで置換ルールにワイルドカード指定もできる</li>
-</ul></li>
+</ul>
+</li>
 <li><code>-s</code>オプションを使うと、スライス操作などのリファクタリングもすることができる</li>
 <li>単純にリネームしたいだけなら<code>gorename</code>コマンドのほうがよい</li>
 </ul>
-
 <p>なお、執筆時のGoのバージョンは以下の通り。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go version
-go version go1.12.9 darwin/amd64</code></pre></div>
-<h1 id="gofmtコマンドのオプションについて">gofmtコマンドのオプションについて</h1>
-
-<p><code>gofmt</code>コマンドはGoの公式コードフォーマッタだ。<code>gofmt</code>コマンドはGoをソースコードからコンパイルすると<code>go</code>コマンドと一緒にビルドされる。<br />
+go version go1.12.9 darwin/amd64
+</code></pre></div><h1 id="gofmtコマンドのオプションについて">gofmtコマンドのオプションについて</h1>
+<p><code>gofmt</code>コマンドはGoの公式コードフォーマッタだ。<code>gofmt</code>コマンドはGoをソースコードからコンパイルすると<code>go</code>コマンドと一緒にビルドされる。<br>
 インデントや改行などを規律に則って実施してくれる。<code>gofmt</code>コマンドにはただフォーマットを整える以外に置換する機能も備わっている。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ gofmt -h
 usage: gofmt <span style="color:#719e07">[</span>flags<span style="color:#719e07">]</span> <span style="color:#719e07">[</span>path ...<span style="color:#719e07">]</span>
@@ -224,35 +211,28 @@ usage: gofmt <span style="color:#719e07">[</span>flags<span style="color:#719e07
 </span><span style="color:#2aa198">  -r string
 </span><span style="color:#2aa198">    	rewrite rule (e.g., &#39;</span>a<span style="color:#719e07">[</span>b:len<span style="color:#719e07">(</span>a<span style="color:#719e07">)]</span> -&gt; a<span style="color:#719e07">[</span>b:<span style="color:#719e07">]</span>&#39;<span style="color:#719e07">)</span>
   -s	simplify code
-  -w	write result to <span style="color:#719e07">(</span><span style="color:#b58900">source</span><span style="color:#719e07">)</span> file instead of stdout</code></pre></div>
-<p>このオプションの中で<code>-r</code>オプションが置換を実行するためのオプションだ。</p>
+  -w	write result to <span style="color:#719e07">(</span><span style="color:#b58900">source</span><span style="color:#719e07">)</span> file instead of stdout
 
-<h1 id="rオプションを使ったコードの置換ルール">-rオプションを使ったコードの置換ルール</h1>
-
+</code></pre></div><p>このオプションの中で<code>-r</code>オプションが置換を実行するためのオプションだ。</p>
+<h1 id="-rオプションを使ったコードの置換ルール">-rオプションを使ったコードの置換ルール</h1>
 <p>上記のコマンドラインのヘルプを見るだけではよくわからないが、<code>-r</code>オプションの利用方法の詳細はGoDocに記載されている。</p>
-
 <ul>
 <li><a href="https://golang.org/cmd/gofmt/">https://golang.org/cmd/gofmt/</a></li>
 </ul>
-
 <p>置換ルールは以下のルールに基づいて書く。</p>
-
 <ul>
 <li><code>pattern -&gt; replacement</code>という形で書く</li>
 <li><code>pattern</code>と<code>replacement</code>はGoのエクスプレッションとして正しい文字列を渡す</li>
 <li>エクスプレッション中の小文字一文字はワイルドカードとして解釈される
-
 <ul>
 <li><code>α[β:len(α)]</code>だったら<code>α</code>と<code>β</code>がワイルドカード扱いになる。</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>実際にコードを確認してみる。<code>gofmt</code>コマンドの<code>-r</code>オプションの実装は以下にある。</p>
-
 <ul>
 <li><a href="https://github.com/golang/go/blob/d6143914e42e9373fbc02d08b224516b12807269/src/cmd/gofmt/rewrite.go">https://github.com/golang/go/blob/master/src/cmd/gofmt/rewrite.go</a></li>
 </ul>
-
 <p><code>initRewrite</code>関数をみると、たしかに<code>-&gt;</code>で文字列を分割し、それぞれがExpressionとして評価できるか確認している。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">initRewrite</span>() {
 	<span style="color:#719e07">if</span> <span style="color:#719e07">*</span>rewriteRule <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;&#34;</span> {
@@ -267,14 +247,13 @@ usage: gofmt <span style="color:#719e07">[</span>flags<span style="color:#719e07
 	pattern <span style="color:#719e07">:=</span> <span style="color:#268bd2">parseExpr</span>(f[<span style="color:#2aa198">0</span>], <span style="color:#2aa198">&#34;pattern&#34;</span>)
 	replace <span style="color:#719e07">:=</span> <span style="color:#268bd2">parseExpr</span>(f[<span style="color:#2aa198">1</span>], <span style="color:#2aa198">&#34;replacement&#34;</span>)
 	rewrite = <span style="color:#268bd2">func</span>(p <span style="color:#719e07">*</span>ast.File) <span style="color:#719e07">*</span>ast.File { <span style="color:#719e07">return</span> <span style="color:#268bd2">rewriteFile</span>(pattern, replace, p) }
-}</code></pre></div>
-<p>また、<code>isWildcard</code>関数で小文字1文字か確認していた。</p>
+}
+</code></pre></div><p>また、<code>isWildcard</code>関数で小文字1文字か確認していた。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">isWildcard</span>(s <span style="color:#dc322f">string</span>) <span style="color:#dc322f">bool</span> {
 	<span style="color:#dc322f">rune</span>, size <span style="color:#719e07">:=</span> utf8.<span style="color:#268bd2">DecodeRuneInString</span>(s)
 	<span style="color:#719e07">return</span> size <span style="color:#719e07">==</span> <span style="color:#b58900">len</span>(s) <span style="color:#719e07">&amp;&amp;</span> unicode.<span style="color:#268bd2">IsLower</span>(<span style="color:#dc322f">rune</span>)
-}</code></pre></div>
-<h1 id="実際の実行例">実際の実行例</h1>
-
+}
+</code></pre></div><h1 id="実際の実行例">実際の実行例</h1>
 <p>実際に<code>gofomt</code>コマンドでソースコードを置換してみる。置換前のコードは以下になる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
@@ -301,8 +280,8 @@ usage: gofmt <span style="color:#719e07">[</span>flags<span style="color:#719e07
 	fmt.<span style="color:#268bd2">Println</span>(hoge.Foo)
 	fmt.<span style="color:#268bd2">Println</span>(phoge.foovar)
 	fmt.<span style="color:#268bd2">Println</span>(foovar)
-}</code></pre></div>
-<p>構造体やフィールド名の置換を試みたところ、以下のように編集することができた。</p>
+}
+</code></pre></div><p>構造体やフィールド名の置換を試みたところ、以下のように編集することができた。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">$ gofmt <span style="color:#719e07">-</span>r <span style="color:#2aa198">&#34;Foo -&gt; Bar&#34;</span> main.<span style="color:#719e07">go</span>
 <span style="color:#719e07">package</span> main
 
@@ -329,8 +308,8 @@ usage: gofmt <span style="color:#719e07">[</span>flags<span style="color:#719e07
 	fmt.<span style="color:#268bd2">Println</span>(hoge.Bar)
 	fmt.<span style="color:#268bd2">Println</span>(phoge.foovar)
 	fmt.<span style="color:#268bd2">Println</span>(foovar)
-}</code></pre></div>
-<p>あくまで構造体やフィールドの置換で、<code>&quot;Foo&quot;</code>のような文字列に関しては一緒に置換されないようだ。<br />
+}
+</code></pre></div><p>あくまで構造体やフィールドの置換で、<code>&quot;Foo&quot;</code>のような文字列に関しては一緒に置換されないようだ。<br>
 また、構造体コメントも変更はしてくれなかった。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">$ gofmt <span style="color:#719e07">-</span>r <span style="color:#2aa198">&#34;Hoge -&gt; Bar&#34;</span> main.<span style="color:#719e07">go</span>
 <span style="color:#719e07">package</span> main
@@ -358,19 +337,15 @@ usage: gofmt <span style="color:#719e07">[</span>flags<span style="color:#719e07
 	fmt.<span style="color:#268bd2">Println</span>(hoge.Foo)
 	fmt.<span style="color:#268bd2">Println</span>(phoge.foovar)
 	fmt.<span style="color:#268bd2">Println</span>(foovar)
-}</code></pre></div>
-<h1 id="終わりに">終わりに</h1>
-
-<p>今回は横浜Go読書会で改訂版みんなのGo言語を輪読している際に知った<code>gofmt</code>コマンドのオプションについて調べた。<br />
+}
+</code></pre></div><h1 id="終わりに">終わりに</h1>
+<p>今回は横浜Go読書会で改訂版みんなのGo言語を輪読している際に知った<code>gofmt</code>コマンドのオプションについて調べた。<br>
 本当はもっと実装を読み解きたかったのだが、再帰部分（<code>apply</code>や<code>match</code>関数）をちゃんと理解できなかった。いくつか作りたい静的解析ツールがあるので、時間があるときに読み直して内容を理解したい。</p>
-
-<p>なお、本記事では<code>-r</code>オプションしか触れなかったが、<code>-s</code>オプションもコードの簡単なリファクタリングをしてくれる。<br />
+<p>なお、本記事では<code>-r</code>オプションしか触れなかったが、<code>-s</code>オプションもコードの簡単なリファクタリングをしてくれる。<br>
 実用途してはこちらのほうが扱いやすそうだ。</p>
-
 <ul>
 <li><a href="https://golang.org/cmd/gofmt/#hdr-The_simplify_command">https://golang.org/cmd/gofmt/#hdr-The_simplify_command</a></li>
 </ul>
-
 <p><code>-s</code>オプションは以下のような冗長なコードをリファクタリングしてくれる。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">An array, slice, or map composite literal of the form:
 	<span style="color:#719e07">[]</span>T<span style="color:#719e07">{</span>T<span style="color:#719e07">{}</span>, T<span style="color:#719e07">{}}</span>
@@ -390,9 +365,8 @@ will be simplified to:
 A range of the form:
 	<span style="color:#719e07">for</span> <span style="color:#268bd2">_</span> <span style="color:#719e07">=</span> range v <span style="color:#719e07">{</span>...<span style="color:#719e07">}</span>
 will be simplified to:
-	<span style="color:#719e07">for</span> range v <span style="color:#719e07">{</span>...<span style="color:#719e07">}</span></code></pre></div>
-<h1 id="参考">参考</h1>
-
+	<span style="color:#719e07">for</span> range v <span style="color:#719e07">{</span>...<span style="color:#719e07">}</span>
+</code></pre></div><h1 id="参考">参考</h1>
 <ul>
 <li><a href="https://syfm.hatenablog.com/entry/2018/01/31/011117">gofmt を理解する | blog.syfm</a></li>
 <li><a href="https://golang.org/cmd/gofmt/">Command gofmt | Commands</a></li>
@@ -488,9 +462,9 @@ will be simplified to:
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -568,10 +542,16 @@ will be simplified to:
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -583,12 +563,6 @@ will be simplified to:
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -169,44 +169,33 @@
           
           
           
-          
-
-<h1 id="tl-dr">TL;DR</h1>
-
+          <h1 id="tldr">TL;DR</h1>
 <p><code>Visual Studio for Mac</code>で<code>Cocoa App</code>のプロジェクトをビルドするとき、「<code>追加のmmp引数</code>」を設定しておくと<code>.app</code>ファイルを作成するときに詳細なオプションが渡せます。<code>.csproj</code>ファイル内では<code>&lt;MonoBundlingExtraArgs&gt;</code>の属性です。指定できる引数は以下のコマンドで確認することが出来ます。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ /Library/Frameworks/Xamarin.Mac.framework/Versions/Current/bin/mmp -?
 Copyright <span style="color:#2aa198">2010</span> Novell Inc.
-Copyright <span style="color:#2aa198">2011</span>-2016 Xamarin Inc.
+Copyright 2011-2016 Xamarin Inc.
 Usage: mmp <span style="color:#719e07">[</span>options<span style="color:#719e07">]</span> application-exe
   -h, -?, --help             Displays the <span style="color:#b58900">help</span>
       --version              Output version information and exit.
   -f, --force                Forces the recompilation of code, regardless of
-  etc...</code></pre></div>
-<h1 id="追加のmmp引数-という謎のオプション"><code>追加のmmp引数</code>という謎のオプション</h1>
-
+  etc...
+</code></pre></div><h1 id="追加のmmp引数という謎のオプション"><code>追加のmmp引数</code>という謎のオプション</h1>
 <p><code>Visual Studio for Mac</code>で<code>Cocoa App</code>プロジェクトを作成すると、プロジェクトのプロジェクトオプションに、「<code>Mac Build</code>」という項目があります。このオプション一覧には「<code>追加のmmp引数</code>」というテキストフィールドのオプションがあるのですが、バルーンヘルプを見ても「<code>アプリケーションバンドルツールmmpに渡される追加のコマンドライン引数</code>」としか出てきません。バリデーションもなく、基本なんでも入力できるので、正直何に使うのかよくわかっていませんでした。</p>
-
 <p>Xamarinの公式ページなどでも少し触れられている程度です。</p>
-
 <p><a href="https://developer.xamarin.com/guides/mac/advanced_topics/internals/#Enabling_the_Partial_Static_Registrar">Xamarin.Mac Internals#Enabling the Partial Static Registrar</a></p>
-
 <blockquote>
 <p>The Partial Static Registrar is enabled in Xamarin.Mac by double-clicking the Project Name in the Solution Explorer, navigating to Mac Build and adding &ndash;registrar:static to the Additional mmp arguments: field. For example:</p>
 </blockquote>
-
 <h1 id="mmp-とは"><code>mmp</code> とは</h1>
-
 <p><code>mmp</code> は<code>Xamarin.Mac</code>で作成された<code>C#</code>の一連のバイナリからMacのネイティブアプリ(<code>.app</code>)を作る過程で呼ばれているツールです（<code>Mac Build</code>オプション内で言及されているので、当然と言えば当然ですね…)。
 その<code>mmp</code>コマンドに引数を渡して具体的に何が出来るかというと、例えばビルド中の特定の警告を抑制(<code>--nowarn:${WARN_NUM}</code>)したり、あるいは特定の警告をビルドエラー(<code>--warnaserror:${WARN_NUM}</code>)扱いに出来ます。<code>.csproj</code>ファイルで言うと、<code>&lt;MonoBundlingExtraArgs&gt;</code>属性になります。以下のような<code>.csproj</code>ファイルの内容の場合、<code>Debug|x64</code>ビルド時に、警告<code>MM0617</code>の抑制をオプション指定したことになります。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml">  <span style="color:#268bd2">&lt;PropertyGroup</span> Condition=<span style="color:#2aa198">&#34; &#39;$(Configuration)|$(Platform)&#39; == &#39;Debug|x64&#39; &#34;</span><span style="color:#268bd2">&gt;</span>
     ...
     <span style="color:#268bd2">&lt;MonoBundlingExtraArgs&gt;</span>--nowarn:0617<span style="color:#268bd2">&lt;/MonoBundlingExtraArgs&gt;</span>
     ...
-  <span style="color:#268bd2">&lt;/PropertyGroup&gt;</span></code></pre></div>
-<h1 id="mmp-にオプション引数として指定できる値の一覧"><code>mmp</code>にオプション引数として指定できる値の一覧</h1>
-
+  <span style="color:#268bd2">&lt;/PropertyGroup&gt;</span>
+</code></pre></div><h1 id="mmpにオプション引数として指定できる値の一覧"><code>mmp</code>にオプション引数として指定できる値の一覧</h1>
 <p>では、どのようなオプション値が指定できるのかというと、あまりネット上には情報がありませんでした。ただ、<code>mmp</code>コマンド自体は<code>-h</code>コマンドオプションが実装されているので、ローカルの<code>mmp</code>コマンドを直接実行してみることで、渡せるコマンドオプションがわかります。私のMacでは<code>mmp</code>コマンドにパスが通ってなかったので、以下のようにしてオプション一覧を確認しました。各オプションの値もある程度解説されています。</p>
-
 <pre><code>/Library/Frameworks/Xamarin.Mac.framework/Versions/Current/bin/mmp -?
 mmp - Xamarin.Mac Packer
 Copyright 2010 Novell Inc.
@@ -243,7 +232,6 @@ Usage: mmp [options] application-exe
                                warnings are ignored).
     etc...
 </code></pre>
-
         </div>
         
 
@@ -322,9 +310,9 @@ Usage: mmp [options] application-exe
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -402,10 +390,16 @@ Usage: mmp [options] application-exe
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -417,12 +411,6 @@ Usage: mmp [options] application-exe
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

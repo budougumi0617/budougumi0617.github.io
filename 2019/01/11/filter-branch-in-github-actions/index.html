@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -60,9 +60,7 @@
   <meta property="og:title" content="GitHub Actionsで特定のブランチのときのみワークフローを実行する #github #actions #ci - My External Storage"/>
   <meta property="og:description" content="2019/01現在Public BataのGitHub ActionsでCircleCIのbranches only相当の処理を出来ないか調査した。
 
-
 GitHub Actions
-
 
 https://github.com/features/actions/
 
@@ -73,9 +71,7 @@ https://github.com/features/actions/
   <meta name="twitter:title" content="GitHub Actionsで特定のブランチのときのみワークフローを実行する #github #actions #ci - My External Storage"/>
   <meta name="twitter:description" content="2019/01現在Public BataのGitHub ActionsでCircleCIのbranches only相当の処理を出来ないか調査した。
 
-
 GitHub Actions
-
 
 https://github.com/features/actions/
 
@@ -193,180 +189,127 @@ https://github.com/features/actions/
           
           
           
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#tl-dr">TL;DR</a></li>
-<li><a href="#github-actionsとは">GitHub Actionsとは</a></li>
-<li><a href="#やりたいこと">やりたいこと</a></li>
-<li><a href="#actions-bin-filterを使う">actions/bin/filterを使う</a></li>
-<li><a href="#actions-bin-filterで行なっていること">actions/bin/filterで行なっていること</a></li>
-<li><a href="#終わりに">終わりに</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
-</nav>
+            <nav id="TableOfContents"></nav>
           
           <p>2019/01現在Public BataのGitHub ActionsでCircleCIの<code>branches only</code>相当の処理を出来ないか調査した。</p>
-
 <ul>
 <li>GitHub Actions
-
 <ul>
 <li><a href="https://github.com/features/actions/">https://github.com/features/actions/</a></li>
-</ul></li>
 </ul>
-
-<p><img src="/2019/01/11-failed.png" alt="Failed" /></p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+</li>
+</ul>
+<p><img src="/2019/01/11-failed.png" alt="Failed"></p>
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>特定のブランチ名のときだけ動くGitHub Actionsを定義したい</li>
 <li>Workflowに対する設定はないが、Actionで設定することができる</li>
 <li>actions/bin/filterを使う
-
 <ul>
 <li><a href="https://github.com/actions/bin/tree/master/filter">https://github.com/actions/bin/tree/master/filter</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>サンプルブランチは以下。</p>
-
 <ul>
 <li>budougumi0617/actions-filter-branch
-
 <ul>
 <li><a href="https://github.com/budougumi0617/actions-filter-branch">https://github.com/budougumi0617/actions-filter-branch</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>なお、この記事は2019/01/11時点で最新のGitHub Actionsの情報になる。（2018/12/18リリースのPublic BETA版）</p>
-
 <ul>
 <li>Enabling Actions on Public Repositories
-
 <ul>
 <li><a href="https://developer.github.com/actions/changes/#--enabling-actions-on-public-repositories">https://developer.github.com/actions/changes/#--enabling-actions-on-public-repositories</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="github-actionsとは">GitHub Actionsとは</h1>
-
 <p>ここではGitHub Actionsの詳細は省くが、GitHub Actionsは現在Public BETA版が公開されているGitHub公式のワークフローの自動化サービスだ。</p>
-
 <ul>
 <li>GitHub Actions： みなさんが開発し、GitHubで実行
-
 <ul>
 <li><a href="https://blog.github.com/jp/2018-10-24-action-demos/">https://blog.github.com/jp/2018-10-24-action-demos/</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>まだ利用できない方は以下のページの<code>Sign up for the beta</code>ボタンをクリックしておけばいずれリポジトリに「Actions」タブが着くようになる</p>
-
 <ul>
 <li>GitHub Actions
-
 <ul>
 <li><a href="https://github.com/features/actions/">https://github.com/features/actions/</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>GitHub Actionsでは、一連の処理のまとまりをWorkflow、各処理はActionと定義している。各Actionはそれぞれで「別の」コンテナを起動して実行される。コンセプトはGCPのCloud Buildに近い。
 Workflowの定義は<code>/.github/main.workflow</code>ファイルをリポジトリに配置することで設定でき、GitHub上で該当ファイルを開くとGUIエディタからも編集できる。</p>
-
 <h1 id="やりたいこと">やりたいこと</h1>
-
 <p>CI/CDを設定していると、例えば、<code>master</code>ブランチが更新されたときだけ実行されるデプロイジョブなどを作っていないだろうか。
 CircleCIでいうと、<code>branches only</code>相当の処理になる。</p>
-
 <ul>
 <li>branches | Configuring CircleCI - CircleCI
-
 <ul>
 <li><a href="https://circleci.com/docs/2.0/configuration-reference/#branches">https://circleci.com/docs/2.0/configuration-reference/#branches</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>これをGitHub Actionsでも設定できるのか調べた。</p>
-
-<h1 id="actions-bin-filterを使う">actions/bin/filterを使う</h1>
-
+<h1 id="actionsbinfilterを使う">actions/bin/filterを使う</h1>
 <p>実は公式ですでに用意されているAction用のコンテナがあるのでそれを使えば簡単に実現できた。</p>
-
 <ul>
 <li><a href="https://github.com/actions/bin/tree/master/filter">https://github.com/actions/bin/tree/master/filter</a></li>
 </ul>
-
 <p>GUIエディタからも選ぶことができる。</p>
-
-<p><img src="/2019/01/11-filter.png" alt="Filters for GitHub Actions" /></p>
-
+<p><img src="/2019/01/11-filter.png" alt="Filters for GitHub Actions"></p>
 <p>今回は<code>master</code>ブランチのときのみ後続の<code>echo</code>コマンドのActionを実行する簡単なWorkflowを定義してみた。
 <code>actions/bin/filter</code>コンテナで実行するActionを定義し、スクリプトとフィルターしたいブランチ名を引数に設定しておく。</p>
-
 <pre><code>action &quot;Filters for GitHub Actions&quot; {
   uses = &quot;actions/bin/filter@master&quot;
   args = &quot;branch master&quot;
 }
-</code></pre>
-
-<p>なお、任意の<code>shell</code>コマンドを実行するActionはGUIエディタからすぐ選べないので、自分で<code>actions/bin/sh@master</code>を選んで定義する。
+</code></pre><p>なお、任意の<code>shell</code>コマンドを実行するActionはGUIエディタからすぐ選べないので、自分で<code>actions/bin/sh@master</code>を選んで定義する。
 Workflow全体は以下のようになる。</p>
-
 <ul>
-<li><p><a href="https://github.com/budougumi0617/actions-filter-branch/blob/master/.github/main.workflow">https://github.com/budougumi0617/actions-filter-branch/blob/master/.github/main.workflow</a></p>
-
+<li><a href="https://github.com/budougumi0617/actions-filter-branch/blob/master/.github/main.workflow">https://github.com/budougumi0617/actions-filter-branch/blob/master/.github/main.workflow</a></li>
+</ul>
 <pre><code>workflow &quot;filter branch&quot; {
-on = &quot;push&quot;
-resolves = [&quot;Shell&quot;]
+  on = &quot;push&quot;
+  resolves = [&quot;Shell&quot;]
 }
 
 action &quot;Filters for GitHub Actions&quot; {
-uses = &quot;actions/bin/filter@master&quot;
-args = &quot;branch master&quot;
+  uses = &quot;actions/bin/filter@master&quot;
+  args = &quot;branch master&quot;
 }
 
 action &quot;Shell&quot; {
-uses = &quot;actions/bin/sh@master&quot;
-needs = [&quot;Filters for GitHub Actions&quot;]
-args = [&quot;echo success&quot;]
+  uses = &quot;actions/bin/sh@master&quot;
+  needs = [&quot;Filters for GitHub Actions&quot;]
+  args = [&quot;echo success&quot;]
 }
-</code></pre></li>
-</ul>
-
-<p><img src="/2019/01/11-workflow.png" alt="work flow" /></p>
-
+</code></pre><p><img src="/2019/01/11-workflow.png" alt="work flow"></p>
 <p>このWorkflowはリポジトリにpushイベントが発生されるたびに実行される。</p>
-
 <ul>
 <li><a href="https://github.com/budougumi0617/actions-filter-branch/actions">https://github.com/budougumi0617/actions-filter-branch/actions</a></li>
 </ul>
-
 <p>実行した結果が以下だ。<code>master</code>ブランチのときは最後までWorkflowが実行される。</p>
-
 <ul>
 <li><a href="https://github.com/budougumi0617/actions-filter-branch/actions/workflow-runs/MDEwOkNoZWNrU3VpdGU0NzU0NTk5Mw==">https://github.com/budougumi0617/actions-filter-branch/actions/workflow-runs/MDEwOkNoZWNrU3VpdGU0NzU0NTk5Mw==</a></li>
 </ul>
-
-<p><img src="/2019/01/11-succeeded.png" alt="Succeeded" /></p>
-
+<p><img src="/2019/01/11-succeeded.png" alt="Succeeded"></p>
 <p><code>master</code>ブランチでないときは<code>Neutral</code>というstatusでWorkflowは最後まで実行されなかったので、意図通りブランチ名でWorkflowを制御できた。</p>
-
 <ul>
 <li><a href="https://github.com/budougumi0617/actions-filter-branch/actions/workflow-runs/MDEwOkNoZWNrU3VpdGU0NzU1MDMxNg==">https://github.com/budougumi0617/actions-filter-branch/actions/workflow-runs/MDEwOkNoZWNrU3VpdGU0NzU1MDMxNg==</a></li>
 </ul>
-
-<p><img src="/2019/01/11-failed.png" alt="Failed" /></p>
-
-<h1 id="actions-bin-filterで行なっていること">actions/bin/filterで行なっていること</h1>
-
+<p><img src="/2019/01/11-failed.png" alt="Failed"></p>
+<h1 id="actionsbinfilterで行なっていること">actions/bin/filterで行なっていること</h1>
 <p>これだけだと寂しいので、<code>actions/bin/filter</code>の中も確認してみた。
 リポジトリの中を見るといくつかの簡単なスクリプトが用意されており、READMEに書かれている通りに使えばよい。</p>
-
 <ul>
 <li><a href="https://github.com/actions/bin/blob/master/filter/README.md">https://github.com/actions/bin/blob/master/filter/README.md</a></li>
 <li><a href="https://github.com/actions/bin/tree/master/filter/bin">https://github.com/actions/bin/tree/master/filter/bin</a>
-
 <ul>
 <li>action</li>
 <li>branch</li>
@@ -374,13 +317,13 @@ args = [&quot;echo success&quot;]
 <li>ref</li>
 <li>tag</li>
 <li>user</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>スクリプトの中身も非常にシンプルで、<code>branch</code>スクリプトは単に<code>ref</code>スクリプトへのエイリアスだ。<code>ref</code>スクリプト自身も簡単なcase文が書かれているだけだった。</p>
-
 <ul>
-<li><p><a href="https://github.com/actions/bin/blob/master/filter/bin/ref">https://github.com/actions/bin/blob/master/filter/bin/ref</a></p>
+<li><a href="https://github.com/actions/bin/blob/master/filter/bin/ref">https://github.com/actions/bin/blob/master/filter/bin/ref</a></li>
+</ul>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#719e07">#!/bin/sh
 </span><span style="color:#719e07"></span>
 <span style="color:#b58900">set</span> -e
@@ -388,71 +331,61 @@ args = [&quot;echo success&quot;]
 <span style="color:#268bd2">pattern</span><span style="color:#719e07">=</span><span style="color:#268bd2">$1</span>
 
 <span style="color:#719e07">case</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$GITHUB_REF</span><span style="color:#2aa198">&#34;</span> in
-<span style="color:#2aa198">&#34;&#34;</span><span style="color:#719e07">)</span>
-<span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;\$GITHUB_REF is not set&#34;</span>
-<span style="color:#b58900">exit</span> <span style="color:#2aa198">1</span>
-;;
-<span style="color:#268bd2">$pattern</span><span style="color:#719e07">)</span>
-<span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$GITHUB_REF</span><span style="color:#2aa198"> matches </span><span style="color:#268bd2">$pattern</span><span style="color:#2aa198">&#34;</span>
-<span style="color:#b58900">exit</span> <span style="color:#2aa198">0</span>
-;;
-*<span style="color:#719e07">)</span>
-<span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$GITHUB_REF</span><span style="color:#2aa198"> does not match </span><span style="color:#268bd2">$pattern</span><span style="color:#2aa198">&#34;</span>
-<span style="color:#b58900">exit</span> <span style="color:#2aa198">78</span>
-<span style="color:#719e07">esac</span></code></pre></div></li>
-</ul>
-
-<p><code>$GITHUB_REF</code>はWorkflow実行毎に設定されている環境変数で、Workflow実行時のブランチ名やタグ名が取得できる。</p>
-
+  <span style="color:#2aa198">&#34;&#34;</span><span style="color:#719e07">)</span>
+    <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;\$GITHUB_REF is not set&#34;</span>
+    <span style="color:#b58900">exit</span> <span style="color:#2aa198">1</span>
+    ;;
+  <span style="color:#268bd2">$pattern</span><span style="color:#719e07">)</span>
+    <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$GITHUB_REF</span><span style="color:#2aa198"> matches </span><span style="color:#268bd2">$pattern</span><span style="color:#2aa198">&#34;</span>
+    <span style="color:#b58900">exit</span> <span style="color:#2aa198">0</span>
+    ;;
+  *<span style="color:#719e07">)</span>
+    <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$GITHUB_REF</span><span style="color:#2aa198"> does not match </span><span style="color:#268bd2">$pattern</span><span style="color:#2aa198">&#34;</span>
+    <span style="color:#b58900">exit</span> <span style="color:#2aa198">78</span>
+<span style="color:#719e07">esac</span>
+</code></pre></div><p><code>$GITHUB_REF</code>はWorkflow実行毎に設定されている環境変数で、Workflow実行時のブランチ名やタグ名が取得できる。</p>
 <ul>
 <li>Environment variables | GitHub Actions
-
 <ul>
 <li><a href="https://developer.github.com/actions/creating-github-actions/accessing-the-runtime-environment/#environment-variables">https://developer.github.com/actions/creating-github-actions/accessing-the-runtime-environment/#environment-variables</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <blockquote>
 <p>GITHUB_REF</p>
-
 <p>The branch or tag ref that triggered the workflow. For example, refs/heads/feature-branch-1. If neither a branch or tag is available for the event type, the variable will not exist.</p>
 </blockquote>
-
 <h1 id="終わりに">終わりに</h1>
-
 <p>今回はTwitterで<a href="https://twitter.com/teitei_tk">@teitei_k</a>さんと話題に上がったので他の確認よりまず先にやってみた。<code>$GITHUB_REF</code>が取れるところまでは知っていたので、スクリプトを自作しようと思ったがすでに公式で提供済みのものがあった。</p>
-
 <p>Beta版だからなのかそういう設計思想のなのか（おろらく後者だが）、GitHub ActionsではCircleCIなどほどとリッチなYAMLのような設定を書けない。
 ただ、複雑な設定を書き始めると属人化しはじめたりするし、YAML地獄になったりしがちだ。私がGoのシンプルなところが好きなせいなのもあるかもしれないが、このActionとして小さく設定する今の塩梅が好きだ。実行ステータスを表示できるバッジなどが早くほしいのと、publicリポジトリはまだpush通知をトリガーにしかできないので、PRのイベントにも対応されると嬉しい。</p>
-
 <h1 id="参考">参考</h1>
-
 <ul>
 <li>budougumi0617/actions-filter-branch
-
 <ul>
 <li><a href="https://github.com/budougumi0617/actions-filter-branch">https://github.com/budougumi0617/actions-filter-branch</a></li>
-</ul></li>
+</ul>
+</li>
 <li>GitHub Actions： みなさんが開発し、GitHubで実行
-
 <ul>
 <li><a href="https://blog.github.com/jp/2018-10-24-action-demos/">https://blog.github.com/jp/2018-10-24-action-demos/</a></li>
-</ul></li>
+</ul>
+</li>
 <li>GitHub Actions
-
 <ul>
 <li><a href="https://github.com/features/actions/">https://github.com/features/actions/</a></li>
-</ul></li>
+</ul>
+</li>
 <li>actions/bin
-
 <ul>
 <li><a href="https://github.com/actions/bin/">https://github.com/actions/bin/</a></li>
-</ul></li>
+</ul>
+</li>
 <li>Environment variables | GitHub Actions
-
 <ul>
 <li><a href="https://developer.github.com/actions/creating-github-actions/accessing-the-runtime-environment/#environment-variables">https://developer.github.com/actions/creating-github-actions/accessing-the-runtime-environment/#environment-variables</a></li>
-</ul></li>
+</ul>
+</li>
 </ul>
         </div>
         
@@ -539,9 +472,9 @@ args = [&quot;echo success&quot;]
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -619,10 +552,16 @@ args = [&quot;echo success&quot;]
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -634,12 +573,6 @@ args = [&quot;echo success&quot;]
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

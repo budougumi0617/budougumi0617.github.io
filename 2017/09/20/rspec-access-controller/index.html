@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -169,31 +169,22 @@
           
           
           
-          
-
-<p><code>C#</code>では対象インスタンスのメソッドの挙動を変えることは出来ないので、別の手段を探していたのだが、<code>ruby</code>では出来た。</p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+          <p><code>C#</code>では対象インスタンスのメソッドの挙動を変えることは出来ないので、別の手段を探していたのだが、<code>ruby</code>では出来た。</p>
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>RSpec書いたControllerSpecの中でテスト対象のコントローラのメソッドの戻り値をモックオブジェクトに変えたかった。</li>
 <li><code>ControllerExampleGroup</code>で定義されている<code>controller</code>からテスト中のコントローラインスタンスを操作することが可能</li>
 </ul>
-
 <p><a href="http://www.rubydoc.info/gems/rspec-rails/RSpec/Rails/ControllerExampleGroup#controller-instance_method">Module: RSpec::Rails::ControllerExampleGroup#controller</a></p>
-
 <h1 id="前提">前提</h1>
-
 <p><code>rspec-rails (~&gt; 3.0.0.beta2)</code>で確認。</p>
-
 <p>テスト対象のコントローラはこんな感じ。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#719e07">class</span> <span style="color:#268bd2">MyController</span> <span style="color:#719e07">&lt;</span> <span style="color:#cb4b16">ApplicationController</span>
   <span style="color:#719e07">def</span> <span style="color:#268bd2">my_client</span>
     <span style="color:#cb4b16">MyClient</span><span style="color:#719e07">.</span>new
   <span style="color:#719e07">end</span>
-<span style="color:#719e07">end</span></code></pre></div>
-<h1 id="controller-と-allow-でメソッドの戻り値をすげ替える"><code>controller</code>と<code>allow</code>でメソッドの戻り値をすげ替える</h1>
-
+<span style="color:#719e07">end</span>
+</code></pre></div><h1 id="controllerとallowでメソッドの戻り値をすげ替える"><code>controller</code>と<code>allow</code>でメソッドの戻り値をすげ替える</h1>
 <p><code>allow</code>を使えばメソッドの挙動をすげ替えることが出来る。<code>Rails</code>の場合は<code>controller</code>を使えばテスト対象のコントローラのインスタンスを得られるので、テストを実行する前に下記の操作をしておくことで、テスト対象のメソッドの挙動も変更しておくことができる。下記の例は、<code>double</code>で作成したダミーオブジェクトで、<code>MyController#my_client</code>の挙動を変更する例。例外を出す例も記載している。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#586e75"># MyControllerのRSpecのdescribe内</span>
 
@@ -205,13 +196,10 @@ allow(my_client_mock)<span style="color:#719e07">.</span>to receive(<span style=
 <span style="color:#586e75"># テスト対象のコントローラのメソッドにダミーオブジェクトを設定</span>
 allow(controller)<span style="color:#719e07">.</span>to receive(<span style="color:#2aa198">:my_client</span>)<span style="color:#719e07">.</span>and_return(my_client_mock) 
 <span style="color:#586e75"># 例外を出す場合</span>
-allow(controller)<span style="color:#719e07">.</span>to receive(<span style="color:#2aa198">:my_client</span>)<span style="color:#719e07">.</span>and_raise(<span style="color:#cb4b16">MyError</span><span style="color:#719e07">.</span>new(<span style="color:#2aa198">&#39;bar&#39;</span>)) </code></pre></div>
-<h1 id="参考">参考</h1>
-
+allow(controller)<span style="color:#719e07">.</span>to receive(<span style="color:#2aa198">:my_client</span>)<span style="color:#719e07">.</span>and_raise(<span style="color:#cb4b16">MyError</span><span style="color:#719e07">.</span>new(<span style="color:#2aa198">&#39;bar&#39;</span>)) 
+</code></pre></div><h1 id="参考">参考</h1>
 <p><a href="http://www.rubydoc.info/gems/rspec-rails/RSpec/Rails/ControllerExampleGroup#controller-instance_method">Module: RSpec::Rails::ControllerExampleGroup#controller</a></p>
-
 <p><a href="http://jangajan.com/blog/2014/12/08/expect-and-allow-in-rspec/">Rspec3のexpectとallowの違い</a></p>
-
 <p><a href="http://web-k.github.io/blog/2012/10/02/rspec-mock/">RSpecまとめ(2)～Mock(double/stub/mock)～</a></p>
 
         </div>
@@ -299,9 +287,9 @@ allow(controller)<span style="color:#719e07">.</span>to receive(<span style="col
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -379,10 +367,16 @@ allow(controller)<span style="color:#719e07">.</span>to receive(<span style="col
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -394,12 +388,6 @@ allow(controller)<span style="color:#719e07">.</span>to receive(<span style="col
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -169,74 +169,53 @@
           
           
           
-          
-
-<p><strong>Goならわかるシステムプログラミング ― 第20回 Go言語とコンテナ</strong><br />
+          <p><strong>Goならわかるシステムプログラミング ― 第20回 Go言語とコンテナ</strong><br>
 <a href="http://ascii.jp/elem/000/001/502/1502967/">http://ascii.jp/elem/000/001/502/1502967/</a></p>
-
 <p>Goならわかるシステムプログラミングの中で、GoとlibcontainerライブラリでLinuxコンテナを実装する回があるのだが、
 実装したコンテナはLinux上でしか<code>go build</code>できないし、起動もできなかった。VirtualBoxなどでも良いが、Dockerで環境を用意するようにした。</p>
-
 <p>今回作成したDockerfileなどは以下にある。</p>
-
-<p><strong>budougumi0617/gsp/ch17/container</strong><br />
+<p><strong>budougumi0617/gsp/ch17/container</strong><br>
 <a href="https://github.com/budougumi0617/gsp/tree/master/ch17/container">https://github.com/budougumi0617/gsp/tree/master/ch17/container</a></p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>「Goならわかるシステムプログラミング Go言語とコンテナ」のサンプルコードをmacOSやWindowsでも動かせるようにDockerfileを作成した
-
 <ul>
 <li><a href="https://github.com/budougumi0617/gsp/blob/master/ch17/container/Dockerfile">https://github.com/budougumi0617/gsp/blob/master/ch17/container/Dockerfile</a></li>
-</ul></li>
+</ul>
+</li>
 <li>起動したAlpineコンテナの中でlibcontainerで実装した自作（写経）コンテナを起動できた</li>
 <li><code>docker run</code>するときに<code>--privileged</code>オプションをつけておくこと</li>
 </ul>
-
 <h1 id="背景">背景</h1>
-
 <p><a href="https://amazon.jp/dp/4908686033">Goならわかるシステムプログラミング</a>の「第17章 Go言語とコンテナ」では
 libcontainerライブラリを使ってGoでコンテナを実装し起動する。</p>
-
-<p><strong>Goならわかるシステムプログラミング</strong><br />
+<p><strong>Goならわかるシステムプログラミング</strong><br>
 <a href="https://amazon.jp/dp/4908686033">https://amazon.jp/dp/4908686033</a></p>
-
-<p><strong>opencontainers/runc/libcontainer</strong><br />
+<p><strong>opencontainers/runc/libcontainer</strong><br>
 <a href="https://github.com/opencontainers/runc/tree/master/libcontainer">https://github.com/opencontainers/runc/tree/master/libcontainer</a></p>
-
 <p>Web上の連載で言うと第20回になる。</p>
-
-<p><strong>Goならわかるシステムプログラミング ― 第20回 Go言語とコンテナ</strong><br />
+<p><strong>Goならわかるシステムプログラミング ― 第20回 Go言語とコンテナ</strong><br>
 <a href="http://ascii.jp/elem/000/001/502/1502967/">http://ascii.jp/elem/000/001/502/1502967/</a></p>
-
 <p>ただし、Linux上でしか起動しないコンテナなのでmacOS(Windows)上では<code>go build</code>すらできない。</p>
-
 <h1 id="本中のサンプルコードを実装する">本中のサンプルコードを実装する</h1>
-
 <p>Dockerfileをそのまま利用する場合は本（連載）の中のコードを<code>_main.go</code>という名前で写経する。</p>
-
 <p><a href="https://github.com/budougumi0617/gsp/blob/master/ch17/container/_main.go">https://github.com/budougumi0617/gsp/blob/master/ch17/container/_main.go</a></p>
-
-<p>Linux上でそれなりに準備しておかないとビルドに失敗するので、<code>_</code>付きの名前で後で作成するコンテナ内でしかビルドしないようにしておいたほうが良い。<br />
+<p>Linux上でそれなりに準備しておかないとビルドに失敗するので、<code>_</code>付きの名前で後で作成するコンテナ内でしかビルドしないようにしておいたほうが良い。<br>
 <code>build constraints</code>で<code>// +build linux</code>もつけているのだが、自分の<code>Circle CI</code>のビルドだとLinux上でのビルドのはずなのに失敗した。</p>
-
 <h1 id="dockerfileを作成する">Dockerfileを作成する</h1>
-
 <p>Dockerfileの内容は以下。alpineベースのコンテナに<code>go build</code>するときに要求されるライブラリを入れた後、ビルドするだけの単純な構成。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-dockerfile" data-lang="dockerfile"><span style="color:#719e07">FROM</span><span style="color:#2aa198"> golang:1.9.4-alpine3.7</span>
 
 <span style="color:#719e07">RUN</span> apk add --update openssl-dev pcre-dev git gcc musl-dev linux-headers sudo
 
 <span style="color:#719e07">WORKDIR</span><span style="color:#2aa198"> /go/src/github.com/budougumi0617/gsp/ch17/container/</span>
-<span style="color:#719e07">ADD</span><span style="color:#2aa198"> _main.go ./main.go</span>
-<span style="color:#719e07">ADD</span><span style="color:#2aa198"> rootfs ./rootfs/</span>
+<span style="color:#719e07">ADD</span> _main.go ./main.go
+<span style="color:#719e07">ADD</span> rootfs ./rootfs/
 <span style="color:#719e07">RUN</span> go get -v .
 <span style="color:#719e07">RUN</span> go build main.go
-<span style="color:#719e07">CMD</span><span style="color:#2aa198"> echo &#34;test&#34;</span></code></pre></div>
-<p><code>alpine</code>コンテナだとインクルードファイルなどが入っていないのでもろもろ<code>apk add</code>しておく。<br />
+<span style="color:#719e07">CMD</span> <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;test&#34;</span>
+</code></pre></div><p><code>alpine</code>コンテナだとインクルードファイルなどが入っていないのでもろもろ<code>apk add</code>しておく。<br>
 また、コンテナに入って自作コンテナでいろいろコマンドを実行するのが目的のためエントリはただの<code>echo</code>にしてある。</p>
-
 <p>本（連載）に記載されている<code>rootfs</code>ディレクトリにalpineコンテナから抽出したもろもろのファイルを入れる作業は
 Dockerfile外で行う必要があるので注意。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker pull alpine
@@ -244,19 +223,17 @@ $ docker run --name alpine alpine
 $ docker <span style="color:#b58900">export</span> alpine &gt; alpine.tar
 $ docker rm alpine
 $ mkdir rootfs
-$ tar -C rootfs -xvf alpine.tar</code></pre></div>
-<p>これで自作（写経）コンテナを実行してみる準備ができた。</p>
-
-<h1 id="docker-runするときは-privilegedオプションをつけること">docker runするときは&ndash;privilegedオプションをつけること</h1>
-
-<p><code>docker build</code>の中で<code>go build</code>するので、あとはコンテナに入って実際に起動してみる。<br />
+$ tar -C rootfs -xvf alpine.tar
+</code></pre></div><p>これで自作（写経）コンテナを実行してみる準備ができた。</p>
+<h1 id="docker-runするときは--privilegedオプションをつけること">docker runするときは&ndash;privilegedオプションをつけること</h1>
+<p><code>docker build</code>の中で<code>go build</code>するので、あとはコンテナに入って実際に起動してみる。<br>
 ここでオプションをつけずにそのまま<code>docker run</code>をすると以下のようなエラーで終了してしまう。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker build -t build-container .
 $ docker run -it build-container /bin/ash
 /go/src/github.com/budougumi0617/gsp/ch17/container <span style="color:#586e75"># sudo ./main</span>
-WARN<span style="color:#719e07">[</span><span style="color:#2aa198">0000</span><span style="color:#719e07">]</span> signal: killed
-<span style="color:#2aa198">2018</span>/02/14 <span style="color:#2aa198">00</span>:43:37 container_linux.go:348: starting container process caused <span style="color:#2aa198">&#34;process_linux.go:279: applying cgroup configuration for process caused \&#34;mkdir /sys/fs/cgroup/cpuset/system: read-only file system\&#34;&#34;</span></code></pre></div>
-<p><code>syscall</code>する権限が不足しているのが原因らしいので、<code>--privileged</code>をつけて<code>docker run</code>する。</p>
+WARN<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> signal: killed
+2018/02/14 00:43:37 container_linux.go:348: starting container process caused <span style="color:#2aa198">&#34;process_linux.go:279: applying cgroup configuration for process caused \&#34;mkdir /sys/fs/cgroup/cpuset/system: read-only file system\&#34;&#34;</span>
+</code></pre></div><p><code>syscall</code>する権限が不足しているのが原因らしいので、<code>--privileged</code>をつけて<code>docker run</code>する。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker build -t build-container . --no-cache<span style="color:#719e07">=</span><span style="color:#b58900">true</span>
 $ docker run --privileged -it build-container /bin/ash
 /go/src/github.com/budougumi0617/gsp/ch17/container <span style="color:#586e75"># ./main</span>
@@ -264,36 +241,26 @@ $ docker run --privileged -it build-container /bin/ash
 / <span style="color:#586e75"># /bin/hostname</span>
 testing
 / <span style="color:#586e75"># exit</span>
-/go/src/github.com/budougumi0617/gsp/ch17/container <span style="color:#586e75"># exit</span></code></pre></div>
-<p>ちょっとTTYの設定は出来ていないが、ちゃんと実行することができた。</p>
-
+/go/src/github.com/budougumi0617/gsp/ch17/container <span style="color:#586e75"># exit</span>
+</code></pre></div><p>ちょっとTTYの設定は出来ていないが、ちゃんと実行することができた。</p>
 <h1 id="おわりに">おわりに</h1>
-
-<p>alpine linuxベースのコンテナを実行させるためにalpine linuxコンテナを作るというやや本末転倒気味のことしているのはご愛嬌。<br />
-頑張れば作業工程の<code>alpine.tar</code>を作る工程は削除できそうなのだが、目的は達成したのでここまでにしておく。<br />
+<p>alpine linuxベースのコンテナを実行させるためにalpine linuxコンテナを作るというやや本末転倒気味のことしているのはご愛嬌。<br>
+頑張れば作業工程の<code>alpine.tar</code>を作る工程は削除できそうなのだが、目的は達成したのでここまでにしておく。<br>
 去年の今頃Dockerの本一冊読んだのだが、Dockerfileの書き方をすっかり忘れていた。やはり日頃の継続と反復が大事である。</p>
-
 <h1 id="参考">参考</h1>
-
-<p><strong>Goならわかるシステムプログラミング</strong><br />
+<p><strong>Goならわかるシステムプログラミング</strong><br>
 <a href="https://amazon.jp/dp/4908686033">https://amazon.jp/dp/4908686033</a></p>
-
-<p><strong>Goならわかるシステムプログラミング ― 第20回 Go言語とコンテナ</strong><br />
+<p><strong>Goならわかるシステムプログラミング ― 第20回 Go言語とコンテナ</strong><br>
 <a href="http://ascii.jp/elem/000/001/502/1502967/">http://ascii.jp/elem/000/001/502/1502967/</a></p>
-
-<p><strong>budougumi0617/gsp/ch17/container</strong><br />
+<p><strong>budougumi0617/gsp/ch17/container</strong><br>
 <a href="https://github.com/budougumi0617/gsp/tree/master/ch17/container">https://github.com/budougumi0617/gsp/tree/master/ch17/container</a></p>
-
-<p><strong>opencontainers/runc/libcontainer</strong><br />
+<p><strong>opencontainers/runc/libcontainer</strong><br>
 <a href="https://github.com/opencontainers/runc/tree/master/libcontainer">https://github.com/opencontainers/runc/tree/master/libcontainer</a></p>
-
-<p><strong>GoのBuild Constraintsに関するメモ</strong><br />
+<p><strong>GoのBuild Constraintsに関するメモ</strong><br>
 <a href="https://qiita.com/hnw/items/7dd4d10e837158d6156a">https://qiita.com/hnw/items/7dd4d10e837158d6156a</a></p>
-
-<p><strong>Docker privileged オプションについて</strong><br />
+<p><strong>Docker privileged オプションについて</strong><br>
 <a href="https://qiita.com/muddydixon/items/d2982ab0846002bf3ea8">https://qiita.com/muddydixon/items/d2982ab0846002bf3ea8</a></p>
-
-<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4908686033&linkId=5b2bafbf1cb17ffa1d3a6d19e3e12e23"></iframe>
+<!-- raw HTML omitted -->
 
         </div>
         
@@ -384,9 +351,9 @@ testing
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -464,10 +431,16 @@ testing
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -479,12 +452,6 @@ testing
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

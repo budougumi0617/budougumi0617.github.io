@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -169,11 +169,8 @@
           
           
           
-          
-
-<p>golang.tokyo #12にブログ枠で参加した。<br />
+          <p>golang.tokyo #12にブログ枠で参加した。<br>
 今回はテーマ：『スタートアップ・新規事業におけるGo』で本発表2名、LT3名という内容だった。</p>
-
 <table>
 <thead>
 <tr>
@@ -181,37 +178,29 @@
 <th></th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>URL</td>
 <td><a href="https://golangtokyo.connpass.com/event/76540/">https://golangtokyo.connpass.com/event/76540/</a></td>
 </tr>
-
 <tr>
 <td>会場</td>
 <td>株式会社ネクストカレンシー（DMMグループセミナールーム）</td>
 </tr>
-
 <tr>
 <td>日時</td>
 <td>2018/01/29(月) 19:10 〜 22:00</td>
 </tr>
-
 <tr>
 <td>Toggeter</td>
 <td><a href="https://togetter.com/li/1194466">https://togetter.com/li/1194466</a></td>
 </tr>
 </tbody>
 </table>
-
-<h1 id="next-currencyとgae-go">Next CurrencyとGAE/Go</h1>
-
-<p><a href="https://speakerdeck.com/sonatard/next-currency-gaego">https://speakerdeck.com/sonatard/next-currency-gaego</a><br />
+<h1 id="next-currencyとgaego">Next CurrencyとGAE/Go</h1>
+<p><a href="https://speakerdeck.com/sonatard/next-currency-gaego">https://speakerdeck.com/sonatard/next-currency-gaego</a><br>
 <a href="https://twitter.com/sonatard">sonatard</a></p>
-
 <p>スタートアップであるNext Currency(NC)社がどのように技術選定してきたか。スタートアップとGAEの相性の良さについて</p>
-
 <ul>
 <li>プロダクトの開発をスタートアップのような人数で行うにおいて、如何にDB設計、API設計、ビジネスロジックのコーディングに注力するのか。</li>
 <li>基本方針はSimple（理解が容易）になること。Easy（作業量を減らす）を目的にしない</li>
@@ -219,83 +208,74 @@
 <li>さらにサービスという単位でアプリを分割し、サービスごとに異なるインスタンス構成にできる。（サービス別にデプロイすることになるので分けすぎ注意）</li>
 <li>NCではマイクロサービス化まではしていない。まだ個別にオーナーシップ(個別の技術選定等)をとる開発規模ではないから（エンジニア３名）</li>
 <li>アーキテクチャに正解はないが、決めることに価値がある。あるアーキテクチャを採用したときは、その採用目的を達成しなければならない。
-
 <ul>
 <li>例：テスタビリティを上げるためにレイヤー分割、DIを導入したらならば、必ずテストを書く</li>
-</ul></li>
+</ul>
+</li>
 <li>NCではドメインロジックを重点的にテストするためにアーキテクチャのレイヤーを設定した。
-
 <ul>
 <li>ドメインロジックのテストでHTTPリクエストを作りたくない</li>
 <li>DB準備したくない</li>
 <li>大量のモック準備したくない</li>
-</ul></li>
+</ul>
+</li>
 <li>利用しているGoのパッケージは前述の通り基本シンプルなもの。
-
 <ul>
 <li><a href="https://github.com/go-chi/chi">go-chi/chi</a></li>
 <li><a href="https://github.com/go-gorp/gorp">go-gorp/gorp</a></li>
-</ul></li>
+</ul>
+</li>
 <li>APIについてはProtocol Bufferから独自にREST APIを自動生成している。アプローチが似ている<a href="https://github.com/twitchtv/twirp">twitchtv/twirp</a>も気になる。
-
 <ul>
 <li>gRPCが使いたい理由がソースコードの自動生成だった（gRPCでなくてもよかった）</li>
 <li>StackDriverのログが見やすいという副産物も生まれた</li>
 <li>twirpはまだGoのコードしか作れないので、クライアント側があるNCではちょっとまだ難しそう</li>
-</ul></li>
+</ul>
+</li>
 <li>APIはリリース直前に一番仕様が網羅される。最初から決めるのは無理なので大きな変更も結構している</li>
 <li><a href="https://www.getpostman.com/">Postman</a>を使ってAPIの叩き方をチームで共有している
-
 <ul>
 <li>環境変数が使えるので、気軽にアクセス先のURL（ステージング環境）を変更できる</li>
 <li>変数もつかえるのでTokenをそのまま次のRESTに入れたりもできる</li>
 <li>問題切り分けも簡単になるし、Protocol Buffersの定義ファイルと併用すればSwaggerがいらないレベル</li>
-</ul></li>
+</ul>
+</li>
 <li>テストは<a href="https://github.com/mercari/docker-appengine-go">docker-appengine-go</a>を独自改造してCircleCIで行っている
-
 <ul>
 <li>Circle CI(config.yaml)、Docker Image、shell script、Makefileに適切に責務分割</li>
 <li>Circle CI上でのツールのインストールはテストが遅くなるので避ける</li>
-</ul></li>
+</ul>
+</li>
 <li>テストで使っているパッケージは<a href="https://github.com/google/go-cmp">google/go-cmp</a>くらい
-
 <ul>
 <li>Table Driven + SubTest</li>
 <li>モックが極力必要にならないような設計を心がける</li>
-</ul></li>
+</ul>
+</li>
 <li>ログはBigQueryで。datastoreからのインポートは<a href="https://github.com/favclip/ds2bq">favclip/ds2bq</a></li>
 </ul>
-
 <p>ここには書いていない細かいTipsなども多くあって、非情に参考になった。だいたいスライドに記載されているので、あとで読み返せばわかるようになっているのも非情にありがたい。
 Postmanは便利なcurlのUIツール、としか考えていなかったけどチームで共有すると確かに便利だ。
 レビューで動作確認するときも使えそう。テストやアーキテクチャ設計について、とても共感できることが多くて、自分も同じ意識を持って開発したいと感じた。</p>
-
 <h1 id="goとgcpとkubernetesを使ったmf-kessaiの歴史">GoとGCPとkubernetesを使ったMF KESSAIの歴史</h1>
-
-<p><a href="https://speakerdeck.com/shinofara/gotogcptokuberneteswoshi-tuta-mf-kessaifalseli-shi">https://speakerdeck.com/shinofara/gotogcptokuberneteswoshi-tuta-mf-kessaifalseli-shi</a><br />
+<p><a href="https://speakerdeck.com/shinofara/gotogcptokuberneteswoshi-tuta-mf-kessaifalseli-shi">https://speakerdeck.com/shinofara/gotogcptokuberneteswoshi-tuta-mf-kessaifalseli-shi</a><br>
 <a href="https://twitter.com/shinofara">shinofara</a></p>
-
 <p>2017年3月設立のマネーフォワード子会社、MF KESSAIのサービスをGo/GCP/kubernetes(k8s)でローンチ、運用するまでの話。</p>
-
 <ul>
 <li>MF KESSAI。2017年3月設立のマネーフォワード子会社。
-
 <ul>
 <li><a href="https://mfkessai.co.jp/">https://mfkessai.co.jp/</a></li>
 <li>データの可視化により資金繰り改善にフォーカスした会社。</li>
 <li>MF KESSAIは請求業務プロセスを一括代行するサービスを提供。与信調査から代金回収まで。</li>
-</ul></li>
+</ul>
+</li>
 <li>sinofaraさん自身は2016年にオンプレ中心だったのMFのクラウド・コンテナ化をするとして入社し、17年3月にMF KESSAIの責任者に。</li>
 </ul>
-
 <h2 id="創業初期">創業初期、</h2>
-
 <p>MFのオペレータが利用する社内ツールとして開発をスタート。最初はエンジニア2名。</p>
-
 <ul>
 <li>Railsエンジニアが多いMFグループの中で型が厳格で低学習コスト使いたいと思い、Goを採用。コードが同じようになりやすいのも利点</li>
 <li>Goのパッケージは必要に応じて拡大していく方針で順次増やした。test/lint/vetは最初から導入。
-
 <ul>
 <li><a href="https://github.com/go-chi/chi">go-chi/chi</a></li>
 <li><a href="https://github.com/gorilla/csrf">gorilla/csrf</a></li>
@@ -305,38 +285,33 @@ Postmanは便利なcurlのUIツール、としか考えていなかったけど�
 <li><a href="https://github.com/gorilla/schema">gorilla/schema</a></li>
 <li><a href="https://github.com/gorilla/context">gorilla/context</a></li>
 <li><a href="https://github.com/gorilla/sessions">gorilla/sessions</a></li>
-</ul></li>
+</ul>
+</li>
 <li>Dockerにより、カプセル化や冪等性を得た。</li>
 <li>GCPはGSuite導入済みだと権限管理がラク。無意識にデータが蓄積できるStackDriverと当時唯一k8sをサポートしていた。
-
 <ul>
 <li><a href="https://cloud.google.com/stackdriver/?hl=ja">https://cloud.google.com/stackdriver/?hl=ja</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="導入企業向けサービス開発期">導入企業向けサービス開発期</h1>
-
 <p>Gopher 2名、フロント1名増員
 導入企業向けWebサービス、導入企業向けREST API、内部APIとしてgRPC APIの開発、３つの開発を並列で走らせた。</p>
-
 <ul>
 <li>gRPC APIの開発。社内ツールとして作ったロジックを利用するインターフェース部分を主に開発。</li>
 <li>社外向けのREST APIにはgoa、ゲートウェイには<a href="https://getkong.org/">Kong</a>を採用</li>
 <li>追加したGoのパッケージ
-
 <ul>
 <li><a href="https://github.com/grpc/grpc-go">grpc/grpc-go</a></li>
 <li><a href="https://github.com/golang/protobuf">golang/protobuf</a></li>
 <li><a href="https://github.com/godesign/goa">godesign/goa</a></li>
 <li><a href="https://github.com/jinzhu/configor">jinzhu/configor</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h1 id="現在">現在</h1>
-
 <p>Gopherが更に１名入社して合計6名。インフラ１名・インフラ１名・アプリ４名。
 基本機能は実現できたので、サービスとしての価値の向上を行っている。</p>
-
 <ul>
 <li>Goは1.9。glideだったがdepに移行</li>
 <li>今までは直列でPDF生成をPub/Sub + GAEでスケーラブルな状態に。FunctionsはGo未サポートのため未採用</li>
@@ -344,9 +319,7 @@ Postmanは便利なcurlのUIツール、としか考えていなかったけど�
 <li>各UI、APIとgRPC間のサービスメッシュには<a href="https://linkerd.io/">Linkerd</a>を使っているが、最近は<a href="https://github.com/istio/istio">Istio</a>も考えている</li>
 <li>GCP全体のモニタリングは<a href="https://cloud.google.com/stackdriver/?hl=ja">StackDriver</a>。GKEの中のモニタリングは<a href="https://www.datadoghq.com/">DataDog</a>。エラー通知は<a href="https://sentry.io/welcome/">Sentry</a>で管理。もろもろの管理は時前でするのは辛いので、外部サービスに。</li>
 </ul>
-
 <h1 id="goを新規開発で使ってみて">Goを新規開発で使ってみて</h1>
-
 <ul>
 <li>コンパイルすることで大胆な変更の中で起きる破壊的な状態を検知できる</li>
 <li>標準でサポートされる各種静的解析ツールによるレビューコストの軽減</li>
@@ -355,120 +328,103 @@ Postmanは便利なcurlのUIツール、としか考えていなかったけど�
 <li>やはりリッチなUIは大変。。。</li>
 <li>それなりにコーディング量は増えがち。とくにif err != nil {&hellip;を量産するのでIDEとか馴染んでないと大変。</li>
 </ul>
-
-<p>親会社の社内ツールとしてスタートし、ビジネスロジックの検証をしてからスケールさせていくというアプローチはとても堅実的でよいと思った。<br />
-予想以上にメンバーが少ないところにも驚いた。また、自分は今年まさにこのGo/GCP/k8s/gRPCの構成の勉強を始めたので、構成を少し真似させてもらって軽く動くも作ってみたい。<br />
+<p>親会社の社内ツールとしてスタートし、ビジネスロジックの検証をしてからスケールさせていくというアプローチはとても堅実的でよいと思った。<br>
+予想以上にメンバーが少ないところにも驚いた。また、自分は今年まさにこのGo/GCP/k8s/gRPCの構成の勉強を始めたので、構成を少し真似させてもらって軽く動くも作ってみたい。<br>
 if err地獄について、自分はvimでgoを書くが、vim-goとsonictemplate.vimのスニペット使っているので、そんなに気にならない。VSCodeとかも<code>iferr</code>スニペットがあったはず。</p>
-
 <ul>
 <li><a href="https://github.com/mattn/sonictemplate-vim">mattn/sonictemplate-vim</a></li>
 <li><a href="https://github.com/fatih/vim-go">fatih/vim-go</a></li>
 </ul>
-
 <h2 id="kushiの紹介">kushiの紹介</h2>
-
-<p><a href="https://speakerdeck.com/cnosuke/golang-dot-tokyo-number-12-lt-kushi">https://speakerdeck.com/cnosuke/golang-dot-tokyo-number-12-lt-kushi</a><br />
-<a href="http://cnosuke.hatenablog.com/entry/2018/01/31/114657">#golangtokyo のLTでkushiというのを作った話をしてきた</a><br />
+<p><a href="https://speakerdeck.com/cnosuke/golang-dot-tokyo-number-12-lt-kushi">https://speakerdeck.com/cnosuke/golang-dot-tokyo-number-12-lt-kushi</a><br>
+<a href="http://cnosuke.hatenablog.com/entry/2018/01/31/114657">#golangtokyo のLTでkushiというのを作った話をしてきた</a><br>
 <a href="https://twitter.com/cnosuke">cnosuke</a></p>
-
 <ul>
 <li>クラウドを利用して開発していると、SSH Port fowarding使うことが多いのではないか</li>
 <li>そうなると、<code>~/.ssh/config</code>がすごいでかくなってくる</li>
 <li>kushiっていうツールを作った。みんなで<code>~/.ssh/config</code>を共有するツール
-
 <ul>
 <li><a href="https://github.com/cnosuke/kushi">https://github.com/cnosuke/kushi</a></li>
-</ul></li>
+</ul>
+</li>
 <li>S3とかに置いたクラウドの設定ファイルを取得して、手元でSSHトンネルをはってくれる</li>
 </ul>
-
-<p>自分の業務用PCの~/.ssh/configも確かにごりごり書いてあった。<br />
-また、いつの間にか「会社オフィシャルconfig」が更新されていてつながらなくなったりするので、そういう鮮度の問題も解決できそう。<br />
+<p>自分の業務用PCの~/.ssh/configも確かにごりごり書いてあった。<br>
+また、いつの間にか「会社オフィシャルconfig」が更新されていてつながらなくなったりするので、そういう鮮度の問題も解決できそう。<br>
 「金融系はクラウドベンダーを理由に落ちたりとか言い訳できない。最悪の場合あ別のベンダーでサービスを継続させるためにGCPとAWSをつかっている」という余談は流石きびしい…！という一言だった。</p>
-
 <p><a href="https://theo.blue/">THEO</a>というサービスのSREをされているらしいのだが、開発環境がGCP。本番がAWSとのこと。
 金融系はクラウドベンダーを理由に落ちたりとか言い訳できないので、別のベンダーでサービスを継続させるためにGCPとAWSをつかっているらしい。なるほど。。。！</p>
-
 <h2 id="aws-lambda-go-first-impression">AWS Lambda Go First Impression</h2>
-
-<p><a href="https://speakerdeck.com/timakin/aws-lambda-go-first-impression">https://speakerdeck.com/timakin/aws-lambda-go-first-impression</a><br />
+<p><a href="https://speakerdeck.com/timakin/aws-lambda-go-first-impression">https://speakerdeck.com/timakin/aws-lambda-go-first-impression</a><br>
 <a href="https://twitter.com/__timakin__">timakin</a></p>
-
 <ul>
 <li>AWS公式サポートのaws-lambda-go
-
 <ul>
 <li><a href="https://github.com/aws/aws-lambda-go">https://github.com/aws/aws-lambda-go</a></li>
-</ul></li>
+</ul>
+</li>
 <li>今までGoをAWS Lambdaで使うときはApexを経由して実行していた。
-
 <ul>
 <li><a href="http://apex.run/">http://apex.run/</a></li>
-</ul></li>
+</ul>
+</li>
 <li>構造的にほとんど違いがないので、Apexからaws-lambda-goへの移行はラク</li>
 <li>AWS曰く、積極的にグローバル変数で初期化をしようと言っている。
-
 <ul>
 <li><a href="https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/go-programming-model-handler-types.html#go-programming-model-handler-execution-environment-reuse">Using Global State to Maximize Performance</a></li>
-</ul></li>
-<li>ContextのなかのContext（GAEなども似たようなアプローチをしている）<br />
-<a href="https://github.com/aws/aws-lambda-go/blob/28a6e9fa1fc02d45d9a8c0a8d22c7d5c3580aa03/lambdacontext/context.go#L80-L89">https://github.com/aws/aws-lambda-go/blob/28a6e9fa1fc02d45d9a8c0a8d22c7d5c3580aa03/lambdacontext/context.go#L80-L89</a>
-<script src="http://gist-it.appspot.com/https://github.com/aws/aws-lambda-go/blob/28a6e9fa1fc02d45d9a8c0a8d22c7d5c3580aa03/lambdacontext/context.go?slice=79:89"></script></li>
-<li>vaidateArgmentsという情熱的なリフレクション<br />
-<a href="https://github.com/aws/aws-lambda-go/blob/6e2e37798efbb1dfd8e9c6681702e683a6046517/lambda/handler.go#L37-L51">https://github.com/aws/aws-lambda-go/blob/6e2e37798efbb1dfd8e9c6681702e683a6046517/lambda/handler.go#L37-L51</a>
-<script src="http://gist-it.appspot.com/https://github.com/aws/aws-lambda-go/blob/6e2e37798efbb1dfd8e9c6681702e683a6046517/lambda/handler.go?slice=36:51"></script></li>
+</ul>
+</li>
+<li>ContextのなかのContext（GAEなども似たようなアプローチをしている）<br>
+<a href="https://github.com/aws/aws-lambda-go/blob/28a6e9fa1fc02d45d9a8c0a8d22c7d5c3580aa03/lambdacontext/context.go#L80-L89">https://github.com/aws/aws-lambda-go/blob/28a6e9fa1fc02d45d9a8c0a8d22c7d5c3580aa03/lambdacontext/context.go#L80-L89</a></li>
+</ul>
+<!-- raw HTML omitted -->
+<ul>
+<li>vaidateArgmentsという情熱的なリフレクション<br>
+<a href="https://github.com/aws/aws-lambda-go/blob/6e2e37798efbb1dfd8e9c6681702e683a6046517/lambda/handler.go#L37-L51">https://github.com/aws/aws-lambda-go/blob/6e2e37798efbb1dfd8e9c6681702e683a6046517/lambda/handler.go#L37-L51</a></li>
+</ul>
+<!-- raw HTML omitted -->
+<ul>
 <li>aws-lambda-goの実装コードは忍術みたいな実装をしていて、読むと勉強になる</li>
 </ul>
-
-<p>今月のホットトピックのひとつ、AWS Lambda GoについてのLTだった。<br />
-当日準備された内容ということだったが、充実過ぎる内容！自分も普段からちょっと話せる技術ネタのストックがあるようでないといけないなーと思った。<br />
-手前味噌だが、自分が書いたaws-lambda-goの記事は以下。<br />
+<p>今月のホットトピックのひとつ、AWS Lambda GoについてのLTだった。<br>
+当日準備された内容ということだったが、充実過ぎる内容！自分も普段からちょっと話せる技術ネタのストックがあるようでないといけないなーと思った。<br>
+手前味噌だが、自分が書いたaws-lambda-goの記事は以下。<br>
 <a href="/2018/01/17/hello-aws-lambda-go/">AWS Lambda Go早めぐり(LambdaContext, Logging, Error&hellip;)</a></p>
-
-<h2 id="ssm-yamlを使って開発別に-暗号化したdbパスワードを読み込む">SSM+yamlを使って開発別に 暗号化したDBパスワードを読み込む</h2>
-
-<p><a href="https://speakerdeck.com/sioncojp/yamlssm-sample">https://speakerdeck.com/sioncojp/yamlssm-sample</a><br />
+<h2 id="ssmyamlを使って開発別に-暗号化したdbパスワードを読み込む">SSM+yamlを使って開発別に 暗号化したDBパスワードを読み込む</h2>
+<p><a href="https://speakerdeck.com/sioncojp/yamlssm-sample">https://speakerdeck.com/sioncojp/yamlssm-sample</a><br>
 <a href="https://twitter.com/sion_cojp">@sion_cojp</a></p>
-
 <ul>
 <li>DBの情報（Railsでいうdatabase.yml的な情報）どうやって管理している？</li>
 <li>いくつか方法はあるが、サーバならまだしもコンテナだといろいろつらい。</li>
 <li>AWS Systems Manager(SSM) パラメータストアを使おう！
-
 <ul>
 <li><a href="https://docs.aws.amazon.com/ja_jp/systems-manager/latest/userguide/systems-manager-paramstore.html">https://docs.aws.amazon.com/ja_jp/systems-manager/latest/userguide/systems-manager-paramstore.html</a></li>
-</ul></li>
+</ul>
+</li>
 <li>安価で文字列を暗号化してパラメータとして保持できる</li>
 <li>yamlにSSMパラメータを埋め込んだらdecryptさせるライブラリを同僚の方が作った
-
 <ul>
 <li><a href="https://github.com/suzuken/yamlssm">https://github.com/suzuken/yamlssm</a></li>
 <li>yamlの中にssm://xxxxという文字列があればSSMで置き換える。</li>
-</ul></li>
+</ul>
+</li>
 <li>docker-composeで作ったサンプル
-
 <ul>
 <li><a href="https://github.com/suzuken/yamlssm">https://github.com/suzuken/yamlssm</a></li>
-</ul></li>
 </ul>
-
-<p>ご本人のブログにも詳しい使い方が書かれているみたい。<br />
+</li>
+</ul>
+<p>ご本人のブログにも詳しい使い方が書かれているみたい。<br>
 <a href="http://sioncojp.hateblo.jp/entry/2018/01/15/212921">Go - AWS SSM Parameter Storeのデータを復号化とmockテストの書き方</a></p>
-
-<p>timakin-sanも似たようなツールを作られていたとつぶやいていた。曰く「暴力的にSSMの値をenvに書き込むpackage」…！<br />
+<p>timakin-sanも似たようなツールを作られていたとつぶやいていた。曰く「暴力的にSSMの値をenvに書き込むpackage」…！<br>
 <a href="https://github.com/timakin/ssm2env">https://github.com/timakin/ssm2env</a></p>
-
-<p>自社でも「コンテナ内で認証情報を使いたいけどdockerイメージ内に認証情報を置きたくない」という話があったので、こちらも身近な話題に感じた。<br />
+<p>自社でも「コンテナ内で認証情報を使いたいけどdockerイメージ内に認証情報を置きたくない」という話があったので、こちらも身近な話題に感じた。<br>
 ~/.ssh/configについてもそうだが、こういう多数が結構困るあるあるネタを解決するツールを作るっていうのはよいなーと思った。自分は「何か作ってみたいけどネタがない」と言う感じの状態なので、こういう慣れてしまった身近な不便をもっと気にしていかなければ。</p>
-
 <h1 id="その他">その他</h1>
-
 <p>そろそろGo 1.10リリースされるので、golang.tokyoもリリースパーティの開催を予定中。</p>
-
 <h1 id="参加して">参加して</h1>
-
-<p>スタートアップとGoということで、小さく、少人数で行うGoの開発について聞くことができた。<br />
-これは個人開発をするときにも非常に参考になるなと言う内容だった。本発表のお二人のお話を聞くと、シンプルに作ることを目指していてそれがGoを使う理由、Goが使われる理由にもなるんだろうなという気持ち。<br />
+<p>スタートアップとGoということで、小さく、少人数で行うGoの開発について聞くことができた。<br>
+これは個人開発をするときにも非常に参考になるなと言う内容だった。本発表のお二人のお話を聞くと、シンプルに作ることを目指していてそれがGoを使う理由、Goが使われる理由にもなるんだろうなという気持ち。<br>
 そしてそれを後押しするGCPという巨人。途中でも書いたが自分の今年の目標はGCP/k8s/gRPCなのでのんびりせずに早くGCPにデプロイしないとという気持ちになった。次回（通常回？リリースパーティ？）も参加するぞ。</p>
 
         </div>
@@ -560,9 +516,9 @@ if err地獄について、自分はvimでgoを書くが、vim-goとsonictemplat
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -640,10 +596,16 @@ if err地獄について、自分はvimでgoを書くが、vim-goとsonictemplat
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -655,12 +617,6 @@ if err地獄について、自分はvimでgoを書くが、vim-goとsonictemplat
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           

@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -169,27 +169,19 @@
           
           
           
-          
-
-<p>gRPCの勉強というより、gomockの勉強と言ったほうが良いかもしれないが、
+          <p>gRPCの勉強というより、gomockの勉強と言ったほうが良いかもしれないが、
 <code>protoc</code>コマンドで生成した<code>gRPC</code>コードをモックしてテストする方法を確かめた。
 せっかくなので今回は自分でProtocol Bufferの定義からやった。</p>
-
-<p><strong>Mocking Service for gRPC</strong><br />
+<p><strong>Mocking Service for gRPC</strong><br>
 <a href="https://github.com/grpc/grpc-go/blob/master/Documentation/gomock-example.md">https://github.com/grpc/grpc-go/blob/master/Documentation/gomock-example.md</a></p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>gRPCで自動生成したGoのAPIのMockを作成する。</li>
 <li>今回はチュートリアル同様クライアントコードのみ。</li>
 <li>チュートリアルコードと同じパッケージ構成だとちょっとハマった</li>
 </ul>
-
 <p>作成したコードは以下のリポジトリにある。</p>
-
 <p><a href="https://github.com/budougumi0617/sandbox-grpc/tree/master/tasklist">https://github.com/budougumi0617/sandbox-grpc/tree/master/tasklist</a></p>
-
 <p>本文中で言及していないが、サンプルコードのディレクトリ構成は以下のようになっている。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">tasklist
 ├── client
@@ -198,24 +190,18 @@
 │   └── tl_mock.go
 └── proto
     ├── task_list.pb.go
-    └── task_list.proto</code></pre></div>
-<h1 id="事前準備">事前準備</h1>
-
+    └── task_list.proto
+</code></pre></div><h1 id="事前準備">事前準備</h1>
 <p>gRPC自体の環境構築は以下を参照のこと。</p>
-
 <ul>
 <li><a href="/2018/01/01/hello-grpc-go/">[Go]gRPCのGo Quick Startをやってみた。</a></li>
 </ul>
-
 <p>また、<code>gomock</code>を利用する準備をする。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get github.com/golang/mock/gomock
-$ go get github.com/golang/mock/mockgen</code></pre></div>
-<h1 id="モック対象のgrpcコードの用意">モック対象のgRPCコードの用意</h1>
-
+$ go get github.com/golang/mock/mockgen
+</code></pre></div><h1 id="モック対象のgrpcコードの用意">モック対象のgRPCコードの用意</h1>
 <p>まずProtocol Buffersを定義し、モックするgRPCのインターフェースを生成する。</p>
-
 <p>Protocol Buffersの定義は以下</p>
-
 <pre><code>syntax = &quot;proto3&quot;;
 
 package tasklist;
@@ -236,15 +222,11 @@ message Task {
 message GetTaskRequest {
   int32 id = 1;
 }
-</code></pre>
-
-<p>通常のUnary RPCとストリームを利用したServer-side streamng RPCのメソッドを用意した。</p>
-
+</code></pre><p>通常のUnary RPCとストリームを利用したServer-side streamng RPCのメソッドを用意した。</p>
 <p>このProtocol BuffersからGoで利用するgRPCのAPIコードを自動生成し、これをモックするテストを書く。</p>
-
 <p>まず、<code>protoc</code>によってAPIを自動生成する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ protoc --go_out<span style="color:#719e07">=</span><span style="color:#268bd2">plugins</span><span style="color:#719e07">=</span>grpc:. proto/task_list.proto</code></pre></div>
-<p>クライアント用の<code>interface</code>が以下のように自動生成される。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ protoc --go_out<span style="color:#719e07">=</span><span style="color:#268bd2">plugins</span><span style="color:#719e07">=</span>grpc:. proto/task_list.proto
+</code></pre></div><p>クライアント用の<code>interface</code>が以下のように自動生成される。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// Client API for TaskManager service
 </span><span style="color:#586e75"></span>
 <span style="color:#268bd2">type</span> TaskManagerClient <span style="color:#268bd2">interface</span> {
@@ -255,30 +237,22 @@ message GetTaskRequest {
 <span style="color:#268bd2">type</span> TaskManager_ListTasksClient <span style="color:#268bd2">interface</span> {
     <span style="color:#268bd2">Recv</span>() (<span style="color:#719e07">*</span>Task, <span style="color:#dc322f">error</span>)
     grpc.ClientStream
-}</code></pre></div>
-<p>このインターフェースのモックを<code>mockgen</code>コマンドで自動生成する。
+}
+</code></pre></div><p>このインターフェースのモックを<code>mockgen</code>コマンドで自動生成する。
 ２つ以上のインターフェースを指定する時は、<code>,</code>のあとにスペースを含めてはいけないようだ。</p>
-
 <pre><code>$ mkdir mock_tasklist
 $ mockgen github.com/budougumi0617/sandbox-grpc/tasklist/proto TaskManagerClient,TaskManager_ListTasksClient &gt; mockproto/tl_mock.go
-</code></pre>
-
-<p>これでモックコードが作成出来たので、テストコードを作る。
+</code></pre><p>これでモックコードが作成出来たので、テストコードを作る。
 ちなみに、<code>grpc-go</code>リポジトリに入ってる<a href="https://github.com/grpc/grpc-go/tree/master/examples/route_guide">サンプル</a>だと<code>mock_routeguide</code>ディレクトリにテストコードも入っているが、<code>import</code>がちゃんと解決できなくなる気がするので、同じ構成にしないほうがよい。</p>
-
 <h1 id="gomockを利用したテスト">gomockを利用したテスト</h1>
-
 <p>作成したテストコードは以下。</p>
-
 <p><a href="https://github.com/budougumi0617/sandbox-grpc/blob/bb92fd1fb4df0dfa64de0e4b4ae9fec8997c4e76/tasklist/client/client_test.go">https://github.com/budougumi0617/sandbox-grpc/blob/master/tasklist/client/client_test.go</a></p>
-
 <h2 id="unary-rpcのモックを利用したテスト">Unary RPCのモックを利用したテスト</h2>
-
 <p><code>GetTask</code>メソッドのモックを利用するテストを書く。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> TaskManagerClient <span style="color:#268bd2">interface</span> {
   <span style="color:#268bd2">GetTask</span>(ctx context.Context, in <span style="color:#719e07">*</span>GetTaskRequest, opts <span style="color:#719e07">...</span>grpc.CallOption) (<span style="color:#719e07">*</span>Task, <span style="color:#dc322f">error</span>)
-}</code></pre></div>
-<p><code>Id = 1</code>が指定されたときだけ、、<code>Task</code>オブジェクトを戻すモックを設定する。</p>
+}
+</code></pre></div><p><code>Id = 1</code>が指定されたときだけ、、<code>Task</code>オブジェクトを戻すモックを設定する。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">import</span> (
     <span style="color:#586e75">// ...
 </span><span style="color:#586e75"></span>    tlmock <span style="color:#2aa198">&#34;github.com/budougumi0617/sandbox-grpc/tasklist/mockproto&#34;</span>
@@ -304,24 +278,23 @@ $ mockgen github.com/budougumi0617/sandbox-grpc/tasklist/proto TaskManagerClient
         t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;mocking failed&#34;</span>)
     }
     t.<span style="color:#268bd2">Log</span>(<span style="color:#2aa198">&#34;Reply : &#34;</span>, resp.Title)
-}</code></pre></div>
-<p>転記したコードでは<code>testGetTask</code>メソッドの中で<code>Id = 1</code>でない<code>GetTaskRequest</code>でモックコードを呼び出している。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">resp, err <span style="color:#719e07">:=</span> client.<span style="color:#268bd2">GetTask</span>(context.<span style="color:#268bd2">Background</span>(), <span style="color:#719e07">&amp;</span>tlpb.GetTaskRequest{Id: <span style="color:#2aa198">2</span>})</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> . -v
+}
+</code></pre></div><p>転記したコードでは<code>testGetTask</code>メソッドの中で<code>Id = 1</code>でない<code>GetTaskRequest</code>でモックコードを呼び出している。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">resp, err <span style="color:#719e07">:=</span> client.<span style="color:#268bd2">GetTask</span>(context.<span style="color:#268bd2">Background</span>(), <span style="color:#719e07">&amp;</span>tlpb.GetTaskRequest{Id: <span style="color:#2aa198">2</span>})
+</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> . -v
 <span style="color:#719e07">===</span> RUN   TestGetTask
---- FAIL: TestGetTask <span style="color:#719e07">(</span><span style="color:#2aa198">0</span>.00s<span style="color:#719e07">)</span>
+--- FAIL: TestGetTask <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
     controller.go:150: Unexpected call to *mock_proto.MockTaskManagerClient.GetTask<span style="color:#719e07">([</span>context.Background id:2 <span style="color:#719e07">])</span> at /Users/budougumi0617/go/src/github.com/budougumi0617/sandbox-grpc/tasklist/mockproto/tl_mock.go:46 because:
-    Expected call at /Users/budougumi0617/go/src/github.com/budougumi0617/sandbox-grpc/tasklist/tasklist_client_test.go:45 doesn&#39;t match the argument at index <span style="color:#2aa198">1</span>.
+    Expected call at /Users/budougumi0617/go/src/github.com/budougumi0617/sandbox-grpc/tasklist/tasklist_client_test.go:45 doesn&#39;t match the argument at index 1.
     Got: id:2
     Want: is equal to id:1
   asm_amd64.s:509: missing call<span style="color:#719e07">(</span>s<span style="color:#719e07">)</span> to *mock_proto.MockTaskManagerClient.GetTask<span style="color:#719e07">(</span>is anything, is equal to id:1 <span style="color:#719e07">)</span> /Users/budougumi0617/go/src/github.com/budougumi0617/sandbox-grpc/tasklist/tasklist_client_test.go:45
   asm_amd64.s:509: aborting <span style="color:#b58900">test</span> due to missing call<span style="color:#719e07">(</span>s<span style="color:#719e07">)</span>
 FAIL
 <span style="color:#b58900">exit</span> status <span style="color:#2aa198">1</span>
-FAIL  github.com/budougumi0617/sandbox-grpc/tasklist  <span style="color:#2aa198">0</span>.011s</code></pre></div>
-<p>ちゃんと失敗した。</p>
-
+FAIL  github.com/budougumi0617/sandbox-grpc/tasklist  0.011s
+</code></pre></div><p>ちゃんと失敗した。</p>
 <h2 id="streaming-rpcのモックを使ったテスト">Streaming RPCのモックを使ったテスト</h2>
-
 <p>ストリーミングの場合は<code>ListTasks</code>メソッドと<code>TaskManager_ListTasksClient</code>のモックを利用する。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> TaskManagerClient <span style="color:#268bd2">interface</span> {
   <span style="color:#268bd2">ListTasks</span>(ctx context.Context, in <span style="color:#719e07">*</span>google_protobuf.Empty, opts <span style="color:#719e07">...</span>grpc.CallOption) (TaskManager_ListTasksClient, <span style="color:#dc322f">error</span>)
@@ -329,8 +302,8 @@ FAIL  github.com/budougumi0617/sandbox-grpc/tasklist  <span style="color:#2aa198
 <span style="color:#268bd2">type</span> TaskManager_ListTasksClient <span style="color:#268bd2">interface</span> {
     <span style="color:#268bd2">Recv</span>() (<span style="color:#719e07">*</span>Task, <span style="color:#dc322f">error</span>)
     grpc.ClientStream
-}</code></pre></div>
-<p>今回は２つ<code>Task</code>オブジェクトを返して終了するストリームをモックに設定した。</p>
+}
+</code></pre></div><p>今回は２つ<code>Task</code>オブジェクトを返して終了するストリームをモックに設定した。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">import</span> (
     <span style="color:#586e75">// ...
 </span><span style="color:#586e75"></span>    tlmock <span style="color:#2aa198">&#34;github.com/budougumi0617/sandbox-grpc/tasklist/mockproto&#34;</span>
@@ -382,27 +355,19 @@ FAIL  github.com/budougumi0617/sandbox-grpc/tasklist  <span style="color:#2aa198
     <span style="color:#719e07">if</span> eof <span style="color:#719e07">!=</span> io.EOF {
         t.<span style="color:#268bd2">Error</span>(eof)
     }
-}</code></pre></div>
-<p>Streaming RPCを使う時、モックの設定を2つすることだけ覚えていれば、あとは問題なさそうだ。PASSするだけなので、結果は省略。</p>
-
+}
+</code></pre></div><p>Streaming RPCを使う時、モックの設定を2つすることだけ覚えていれば、あとは問題なさそうだ。PASSするだけなので、結果は省略。</p>
 <h1 id="終わりに">終わりに</h1>
-
 <p>標準パッケージのみでテストすべきなのかなとも思いつつ、今回はgomockを利用したテストを書いてみた。
 自分でProtocol Buffersの定義をしたのも、gomockを使ったのも始めてだったので、２つとも経験できてよかった。</p>
-
 <h1 id="参考">参考</h1>
-
-<p><strong>Mocking Service for gRPC</strong><br />
+<p><strong>Mocking Service for gRPC</strong><br>
 <a href="https://github.com/grpc/grpc-go/blob/master/Documentation/gomock-example.md">https://github.com/grpc/grpc-go/blob/master/Documentation/gomock-example.md</a></p>
-
-<p><strong>GoDoc : gomock</strong><br />
+<p><strong>GoDoc : gomock</strong><br>
 <a href="https://godoc.org/github.com/golang/mock/gomock">https://godoc.org/github.com/golang/mock/gomock</a></p>
-
-<p><strong>Go Mockでインタフェースのモックを作ってテストする #golang</strong><br />
+<p><strong>Go Mockでインタフェースのモックを作ってテストする #golang</strong><br>
 <a href="https://qiita.com/tenntenn/items/24fc34ec0c31f6474e6d">https://qiita.com/tenntenn/items/24fc34ec0c31f6474e6d</a></p>
-
 <h1 id="grpc関連の記事">gRPC関連の記事</h1>
-
 <ul>
 <li><a href="/2018/01/01/hello-grpc-go/">[Go]gRPCのGo Quick Startをやってみた。</a></li>
 <li><a href="/2018/01/04/server-reflection-tutorial/">[Go][gRPC]Server Reflection Tutorialをやってみた</a></li>
@@ -499,9 +464,9 @@ FAIL  github.com/budougumi0617/sandbox-grpc/tasklist  <span style="color:#2aa198
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -579,10 +544,16 @@ FAIL  github.com/budougumi0617/sandbox-grpc/tasklist  <span style="color:#2aa198
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -594,12 +565,6 @@ FAIL  github.com/budougumi0617/sandbox-grpc/tasklist  <span style="color:#2aa198
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           
