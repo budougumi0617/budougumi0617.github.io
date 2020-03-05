@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.59.1" />
+  <meta name="generator" content="Hugo 0.66.0" />
 
   
   
@@ -54,10 +54,10 @@
   <meta property="og:url" content="https://budougumi0617.github.io/2018/05/10/go-get-from-go1-tag-or-branch/"/>
   <meta property="og:type" content="article"/>
   <meta property="og:title" content="go getで取得されるコードはmasterブランチ(HEAD)がデフォルトではない #golang - My External Storage"/>
-  <meta property="og:description" content="gocon中の@ymotongpooさんのTweetが気になったので調べた。 前から結構言ってるんだけど、go getで最新取られたくない場合は"/>
+  <meta property="og:description" content="gocon中の@ymotongpooさんのTweetが気になったので調べた。 TL;DR go 1.Xを使っているとき、go getで取得されるコードはまずg"/>
   
   <meta name="twitter:title" content="go getで取得されるコードはmasterブランチ(HEAD)がデフォルトではない #golang - My External Storage"/>
-  <meta name="twitter:description" content="gocon中の@ymotongpooさんのTweetが気になったので調べた。 前から結構言ってるんだけど、go getで最新取られたくない場合は"/>
+  <meta name="twitter:description" content="gocon中の@ymotongpooさんのTweetが気になったので調べた。 TL;DR go 1.Xを使っているとき、go getで取得されるコードはまずg"/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
   <meta name="twitter:creator" content="@budougumi0617"/>
@@ -148,7 +148,7 @@
 
 <header>
   <p class="meta">May 10, 2018
-     - 3 minute read 
+     - 2 minute read 
      - <a href="https://budougumi0617.github.io/2018/05/10/go-get-from-go1-tag-or-branch/#disqus_thread">Comments</a>
 
     
@@ -169,34 +169,21 @@
           
           
           
-          
-
-<p>gocon中の<a href="https://twitter.com/ymotongpoo">@ymotongpoo</a>さんのTweetが気になったので調べた。</p>
-
-<p><blockquote class="twitter-tweet" data-lang="ja"><p lang="ja" dir="ltr">前から結構言ってるんだけど、go getで最新取られたくない場合は go1 というタグを切れば良いです <a href="https://twitter.com/hashtag/gocon?src=hash&amp;ref_src=twsrc%5Etfw">#gocon</a></p>&mdash; Yoshifumi Yamaguchi 🇺🇸 (@ymotongpoo) <a href="https://twitter.com/ymotongpoo/status/985418278288764928?ref_src=twsrc%5Etfw">2018年4月15日</a></blockquote>
-<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
-
-<h1 id="tl-dr">TL;DR</h1>
-
+          <p>gocon中の<a href="https://twitter.com/ymotongpoo">@ymotongpoo</a>さんのTweetが気になったので調べた。</p>
+<!-- raw HTML omitted -->
+<h1 id="tldr">TL;DR</h1>
 <ul>
 <li>go 1.Xを使っているとき、<code>go get</code>で取得されるコードはまず<code>go1</code> branch or tagから取得される</li>
 <li>branchにもtagにも<code>go1</code>が存在しなかったときに<code>master</code>のコードが取得される</li>
 </ul>
-
 <h1 id="実際に仕様を見てみる">実際に仕様を見てみる</h1>
-
 <p>golang.orgの<code>go get</code>コマンドのページを見ると確かに<code>go1</code>について言及されている。</p>
-
 <p><a href="https://golang.org/cmd/go/#hdr-Download_and_install_packages_and_dependencies">https://golang.org/cmd/go/#hdr-Download_and_install_packages_and_dependencies</a></p>
-
 <blockquote>
 <p>When checking out or updating a package, get looks for a branch or tag that matches the locally installed version of Go. The most important rule is that if the local installation is running version &ldquo;go1&rdquo;, get searches for a branch or tag named &ldquo;go1&rdquo;. If no such version exists it retrieves the default branch of the package.</p>
 </blockquote>
-
 <h1 id="実際にコードを見てみる">実際にコードを見てみる</h1>
-
 <p><code>go get</code>の実装コードを見てみる。何やら<code>tags</code>というスライスの中から<code>go1</code>を探しているコードがある。</p>
-
 <p><a href="https://github.com/golang/go/blob/master/src/cmd/go/internal/get/get.go#L513-L528">https://github.com/golang/go/blob/master/src/cmd/go/internal/get/get.go#L513-L528</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// selectTag returns the closest matching tag for a given version.
 </span><span style="color:#586e75">// Closest means the latest one that is not after the current release.
@@ -213,14 +200,13 @@
 		}
 	}
 	<span style="color:#719e07">return</span> <span style="color:#2aa198">&#34;&#34;</span>
-}</code></pre></div>
-<p>（コメントの通り、現状go1.X系しか存在しないので、手抜き実装になっている。）</p>
-
+}
+</code></pre></div><p>（コメントの通り、現状go1.X系しか存在しないので、手抜き実装になっている。）</p>
 <p>上記引数の<code>tags</code>は<code>vcsCmd</code>オブジェクトの<code>tags</code>メソッドで生成される<code>string</code>スライスだ。
 <a href="https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/get.go#L497-L498">https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/get.go#L497-L498</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#586e75">// Select and sync to appropriate version of the repository.
-</span><span style="color:#586e75"></span>	tags, err <span style="color:#719e07">:=</span> vcs.<span style="color:#268bd2">tags</span>(root)</code></pre></div>
-<p><a href="https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/vcs.go#L472-L486">https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/vcs.go#L472-L486</a></p>
+</span><span style="color:#586e75"></span>	tags, err <span style="color:#719e07">:=</span> vcs.<span style="color:#268bd2">tags</span>(root)
+</code></pre></div><p><a href="https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/vcs.go#L472-L486">https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/vcs.go#L472-L486</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// tags returns the list of available tags for the repo in dir.
 </span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (v <span style="color:#719e07">*</span>vcsCmd) <span style="color:#268bd2">tags</span>(dir <span style="color:#dc322f">string</span>) ([]<span style="color:#dc322f">string</span>, <span style="color:#dc322f">error</span>) {
 	<span style="color:#268bd2">var</span> tags []<span style="color:#dc322f">string</span>
@@ -235,16 +221,15 @@
 		}
 	}
 	<span style="color:#719e07">return</span> tags, <span style="color:#cb4b16">nil</span>
-}</code></pre></div>
-<p><code>v.tagCmd</code>のコマンドによって<code>tags</code>の一覧が取得されるが、<code>git</code>の場合は<code>git show-ref</code>コマンドで、このコマンドを使うと<code>tag</code>と<code>branch</code>の一覧が取得できる。</p>
-
+}
+</code></pre></div><p><code>v.tagCmd</code>のコマンドによって<code>tags</code>の一覧が取得されるが、<code>git</code>の場合は<code>git show-ref</code>コマンドで、このコマンドを使うと<code>tag</code>と<code>branch</code>の一覧が取得できる。</p>
 <p><a href="https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/vcs.go#L151-L155">https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/vcs.go#L151-L155</a></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	tagCmd: []tagCmd{
 		<span style="color:#586e75">// tags/xxx matches a git tag named xxx
 </span><span style="color:#586e75"></span>		<span style="color:#586e75">// origin/xxx matches a git branch named xxx on the default remote repository
 </span><span style="color:#586e75"></span>		{<span style="color:#2aa198">&#34;show-ref&#34;</span>, <span style="color:#2aa198">`(?:tags|origin)/(\S+)$`</span>},
-	},</code></pre></div>
-<p>ちなみに<code>git show-ref</code>コマンドの出力はこんな感じ。（自分は使ったことがなかった）</p>
+	},
+</code></pre></div><p>ちなみに<code>git show-ref</code>コマンドの出力はこんな感じ。（自分は使ったことがなかった）</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git show-ref
 814c749c8fa815a8ddf8184bcac8990ef0dea006 refs/heads/master
 814c749c8fa815a8ddf8184bcac8990ef0dea006 refs/remotes/origin/HEAD
@@ -255,15 +240,13 @@
 2fffba7fe19690e038314d17a117d6b87979c89f refs/tags/go1.0.1
 cb6c6570b73a1c4d19cad94570ed277f7dae55ac refs/tags/go1.0.2
 30be9b4313622c2077539e68826194cb1028c691 refs/tags/go1.0.3
-...</code></pre></div>
-<p>ここまでの一連の流れで、<code>tag</code>、<code>branch</code> の一覧の中に<code>go1</code>があった場合は、そこから<code>go get</code>される実装になっていることがわかった。</p>
-
+...
+</code></pre></div><p>ここまでの一連の流れで、<code>tag</code>、<code>branch</code> の一覧の中に<code>go1</code>があった場合は、そこから<code>go get</code>される実装になっていることがわかった。</p>
 <p><a href="https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/get.go#L506">https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/get.go#L506</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">vcs.<span style="color:#268bd2">tagSync</span>(root, <span style="color:#268bd2">selectTag</span>(vers, tags))</code></pre></div>
-<h1 id="終わりに">終わりに</h1>
-
-<p>コマンドの実装もコードで簡単に追えるのが<code>go</code>のいいところだなと改めて思った。<br />
-<code>go2</code>が出たら思い出すと良いかも？<br />
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">vcs.<span style="color:#268bd2">tagSync</span>(root, <span style="color:#268bd2">selectTag</span>(vers, tags))
+</code></pre></div><h1 id="終わりに">終わりに</h1>
+<p>コマンドの実装もコードで簡単に追えるのが<code>go</code>のいいところだなと改めて思った。<br>
+<code>go2</code>が出たら思い出すと良いかも？<br>
 <a href="https://github.com/golang/go/blob/master/src/cmd/go/internal/get/vcs.go">vcs.go</a>の各VCS(Mercurial, Git, Subversion)の差分を隠蔽する構造も実装の参考になる。</p>
 
         </div>
@@ -355,9 +338,9 @@ cb6c6570b73a1c4d19cad94570ed277f7dae55ac refs/tags/go1.0.2
     <p>
       
         budougumi0617 の技術ブログです。
-    </br>
-    主にGoについて書いています。
-    </br>
+<!-- raw HTML omitted -->
+主にGoについて書いています。
+<!-- raw HTML omitted -->
       
     </p>
   </section>
@@ -435,10 +418,16 @@ cb6c6570b73a1c4d19cad94570ed277f7dae55ac refs/tags/go1.0.2
           
             
               <li class="post">
-                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/02/28/shote8-golangtokyo/">[冒頭公開]技術書典 応援祭にgolang.tokyo新刊「Gopherの休日2020冬」で参加します #技術書典</a>
+              </li>
             
           
             
@@ -450,12 +439,6 @@ cb6c6570b73a1c4d19cad94570ed277f7dae55ac refs/tags/go1.0.2
             
               <li class="post">
                 <a href="/2020/02/10/phperkaigi2020/">[発表資料] PHPerKaigi2020 PHPでつくるインタプリタ入門 #phperkaigi</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/02/01/go-named-type-and-type-alias/">[Go] Named typeとType aliasを使い分ける</a>
               </li>
             
           
