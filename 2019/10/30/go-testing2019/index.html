@@ -183,20 +183,30 @@ Goのtestを理解する in 2018 #go
           
             <nav id="TableOfContents">
   <ul>
-    <li><a href="#go-test実行時のgo-vetの挙動の修正"><code>go test</code>実行時の<code>go vet</code>の挙動の修正</a></li>
-    <li><a href="#-memprofileオプションがデフォルトでアロケートしたメモリを記録するようになった"><code>-memprofile</code>オプションがデフォルトでアロケートしたメモリを記録するようになった</a></li>
-  </ul>
-
-  <ul>
-    <li><a href="#map型をfmtで出力したときの結果がソートされた状態になった"><code>map</code>型を<code>fmt</code>で出力したときの結果がソートされた状態になった</a></li>
-    <li><a href="#-benchtimeオプションで回数を指定できるようになった"><code>-benchtime</code>オプションで回数を指定できるようになった</a></li>
-  </ul>
-
-  <ul>
-    <li><a href="#go-getコマンドに-tオプションが追加された"><code>go getコマンドに</code>-t`オプションが追加された</a></li>
-    <li><a href="#testingbnフィールドの結果が丸まらないようになった"><code>testing.B.N</code>フィールドの結果が丸まらないようになった</a></li>
-    <li><a href="#testinginit関数が追加された"><code>testing.Init</code>関数が追加された</a></li>
-    <li><a href="#testingbreportmetricメソッドを使って時前定義のベンチマークが計算できるようになった"><code>testing.B.ReportMetric</code>メソッドを使って時前定義のベンチマークが計算できるようになった</a></li>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#go110までのテストの書き方基本">Go1.10までのテストの書き方・基本</a></li>
+    <li><a href="#go111に含まれるテスト関連の変更">Go1.11に含まれるテスト関連の変更</a>
+      <ul>
+        <li><a href="#go-test実行時のgo-vetの挙動の修正"><code>go test</code>実行時の<code>go vet</code>の挙動の修正</a></li>
+        <li><a href="#-memprofileオプションがデフォルトでアロケートしたメモリを記録するようになった"><code>-memprofile</code>オプションがデフォルトでアロケートしたメモリを記録するようになった</a></li>
+      </ul>
+    </li>
+    <li><a href="#go112に含まれるテスト関連の変更">Go1.12に含まれるテスト関連の変更</a>
+      <ul>
+        <li><a href="#map型をfmtで出力したときの結果がソートされた状態になった"><code>map</code>型を<code>fmt</code>で出力したときの結果がソートされた状態になった</a></li>
+        <li><a href="#-benchtimeオプションで回数を指定できるようになった"><code>-benchtime</code>オプションで回数を指定できるようになった</a></li>
+      </ul>
+    </li>
+    <li><a href="#go113に含まれるテスト関連の変更">Go1.13に含まれるテスト関連の変更</a>
+      <ul>
+        <li><a href="#go-getコマンドに-tオプションが追加された"><code>go getコマンドに</code>-t`オプションが追加された</a></li>
+        <li><a href="#testingbnフィールドの結果が丸まらないようになった"><code>testing.B.N</code>フィールドの結果が丸まらないようになった</a></li>
+        <li><a href="#testinginit関数が追加された"><code>testing.Init</code>関数が追加された</a></li>
+        <li><a href="#testingbreportmetricメソッドを使って時前定義のベンチマークが計算できるようになった"><code>testing.B.ReportMetric</code>メソッドを使って時前定義のベンチマークが計算できるようになった</a></li>
+      </ul>
+    </li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考">参考</a></li>
   </ul>
 </nav>
           
@@ -611,10 +621,16 @@ BenchmarkPopCountByClear10-4            <span style="color:#2aa198">36390008</sp
           
             
               <li class="post">
-                <a href="/2020/03/21/observability_japan_online/">Observability Japan Online #1 に参加してo11y成熟モデルを学んだ #o11yjp</a>
+                <a href="/2020/03/27/http-test-in-go/">Goでサーバを立ち上げてE2Eテストを実施するCI用のテストコードを書く</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/03/21/observability_japan_online/">Observability Japan Online #1 に参加してo11y成熟モデルを学んだ #o11yjp</a>
+              </li>
             
           
             
@@ -626,12 +642,6 @@ BenchmarkPopCountByClear10-4            <span style="color:#2aa198">36390008</sp
             
               <li class="post">
                 <a href="/2020/03/10/hugo-render-raw-html/">Hugo v0.60以上を使うと、Markdown中のHTMLタグが「raw HTML omitted」となって消えてしまう</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           
