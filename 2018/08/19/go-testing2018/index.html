@@ -185,38 +185,50 @@ https://speakerdeck.com/budougumi0617/tour-of-testing-in-2018
           
             <nav id="TableOfContents">
   <ul>
-    <li><a href="#テストデータを用意する">テストデータを用意する</a></li>
-  </ul>
-
-  <ul>
-    <li><a href="#パッケージを指定して実行する">パッケージを指定して実行する</a></li>
-    <li><a href="#go110から事前にgo-vetコマンドが実行されている">Go1.10から事前に<code>go vet</code>コマンドが実行されている</a></li>
-    <li><a href="#go110からテスト結果がキャッシュされている">Go1.10からテスト結果がキャッシュされている</a></li>
-    <li><a href="#特定のテストファイルだけを実行する">特定のテストファイルだけを実行する</a></li>
-    <li><a href="#特定のテストケースだけを実行する">特定のテストケースだけを実行する</a></li>
-    <li><a href="#-parallel-nオプションで最大並行実行数を制御する"><code>-parallel n</code>オプションで最大並行実行数を制御する</a></li>
-    <li><a href="#-cpu-listオプションでgomaxprocsを変更しながらテストする"><code>-cpu list</code>オプションで<code>GOMAXPROCS</code>を変更しながらテストする</a></li>
-    <li><a href="#デバッガdelveでテストを実行する">デバッガ(<code>delve</code>)でテストを実行する</a></li>
-    <li><a href="#ci上でテストを実行する">CI上でテストを実行する</a></li>
-    <li><a href="#playgroundでテストを実行する">playgroundでテストを実行する</a></li>
-  </ul>
-
-  <ul>
-    <li><a href="#テストコードのパッケージ名について">テストコードのパッケージ名について</a></li>
-    <li><a href="#testingtbインターフェースの主なメソッド"><code>testing.TB</code>インターフェースの主なメソッド</a></li>
-    <li><a href="#testingtbhelperメソッド"><code>testing.TB.Helper</code>メソッド</a></li>
-    <li><a href="#table-driven-test">Table Driven Test</a></li>
-    <li><a href="#for-_-tt--range-tests"><code>for _, tt := range tests</code></a></li>
-    <li><a href="#sub-testtestingtrun">Sub Test(<code>testing.T.Run</code>)</a></li>
-    <li><a href="#wantとgot">wantとgot</a></li>
-    <li><a href="#エラーは無視しない">エラーは無視しない</a></li>
-    <li><a href="#errorfのテンプレート文字列">Errorfのテンプレート文字列</a></li>
-    <li><a href="#testingtparallelメソッドで並行実行するテストを書く"><code>testing.T.Parallel</code>メソッドで並行実行するテストを書く</a></li>
-  </ul>
-
-  <ul>
-    <li><a href="#htmlにカバレッジを保存する">HTMLにカバレッジを保存する</a></li>
-    <li><a href="#ciと組み合わせる">CIと組み合わせる</a></li>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#testing-パッケージ">testing パッケージ</a>
+      <ul>
+        <li><a href="#テストデータを用意する">テストデータを用意する</a></li>
+      </ul>
+    </li>
+    <li><a href="#テストを実行する">テストを実行する</a>
+      <ul>
+        <li><a href="#パッケージを指定して実行する">パッケージを指定して実行する</a></li>
+        <li><a href="#go110から事前にgo-vetコマンドが実行されている">Go1.10から事前に<code>go vet</code>コマンドが実行されている</a></li>
+        <li><a href="#go110からテスト結果がキャッシュされている">Go1.10からテスト結果がキャッシュされている</a></li>
+        <li><a href="#特定のテストファイルだけを実行する">特定のテストファイルだけを実行する</a></li>
+        <li><a href="#特定のテストケースだけを実行する">特定のテストケースだけを実行する</a></li>
+        <li><a href="#-parallel-nオプションで最大並行実行数を制御する"><code>-parallel n</code>オプションで最大並行実行数を制御する</a></li>
+        <li><a href="#-cpu-listオプションでgomaxprocsを変更しながらテストする"><code>-cpu list</code>オプションで<code>GOMAXPROCS</code>を変更しながらテストする</a></li>
+        <li><a href="#デバッガdelveでテストを実行する">デバッガ(<code>delve</code>)でテストを実行する</a></li>
+        <li><a href="#ci上でテストを実行する">CI上でテストを実行する</a></li>
+        <li><a href="#playgroundでテストを実行する">playgroundでテストを実行する</a></li>
+      </ul>
+    </li>
+    <li><a href="#テストの書き方">テストの書き方</a>
+      <ul>
+        <li><a href="#テストコードのパッケージ名について">テストコードのパッケージ名について</a></li>
+        <li><a href="#testingtbインターフェースの主なメソッド"><code>testing.TB</code>インターフェースの主なメソッド</a></li>
+        <li><a href="#testingtbhelperメソッド"><code>testing.TB.Helper</code>メソッド</a></li>
+        <li><a href="#table-driven-test">Table Driven Test</a></li>
+        <li><a href="#for-_-tt--range-tests"><code>for _, tt := range tests</code></a></li>
+        <li><a href="#sub-testtestingtrun">Sub Test(<code>testing.T.Run</code>)</a></li>
+        <li><a href="#wantとgot">wantとgot</a></li>
+        <li><a href="#エラーは無視しない">エラーは無視しない</a></li>
+        <li><a href="#errorfのテンプレート文字列">Errorfのテンプレート文字列</a></li>
+        <li><a href="#testingtparallelメソッドで並行実行するテストを書く"><code>testing.T.Parallel</code>メソッドで並行実行するテストを書く</a></li>
+      </ul>
+    </li>
+    <li><a href="#testmainm-testingmメソッドで前処理を定義する"><code>TestMain(m *testing.M)</code>メソッドで前処理を定義する</a></li>
+    <li><a href="#ビルドタグでテストケースを分類する">ビルドタグでテストケースを分類する</a></li>
+    <li><a href="#テストカバレッジを集計する">テストカバレッジを集計する</a>
+      <ul>
+        <li><a href="#htmlにカバレッジを保存する">HTMLにカバレッジを保存する</a></li>
+        <li><a href="#ciと組み合わせる">CIと組み合わせる</a></li>
+      </ul>
+    </li>
+    <li><a href="#201910追記">2019/10追記</a></li>
+    <li><a href="#関連">関連</a></li>
   </ul>
 </nav>
           
@@ -930,10 +942,16 @@ $ bash &lt;<span style="color:#719e07">(</span>curl -s https://codecov.io/bash<s
           
             
               <li class="post">
-                <a href="/2020/03/21/observability_japan_online/">Observability Japan Online #1 に参加してo11y成熟モデルを学んだ #o11yjp</a>
+                <a href="/2020/03/27/http-test-in-go/">Goでサーバを立ち上げてE2Eテストを実施するCI用のテストコードを書く</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2020/03/21/observability_japan_online/">Observability Japan Online #1 に参加してo11y成熟モデルを学んだ #o11yjp</a>
+              </li>
             
           
             
@@ -945,12 +963,6 @@ $ bash &lt;<span style="color:#719e07">(</span>curl -s https://codecov.io/bash<s
             
               <li class="post">
                 <a href="/2020/03/10/hugo-render-raw-html/">Hugo v0.60以上を使うと、Markdown中のHTMLタグが「raw HTML omitted」となって消えてしまう</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2020/03/06/go-array-with-the-ellipsis/">[Go] 省略記号（...）を使った配列宣言の仕方</a>
               </li>
             
           

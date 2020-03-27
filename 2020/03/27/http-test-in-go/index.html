@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>Goでサーバを立ち上げてE2Eテストを実施するCI用のテストコードを書く - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="Go,Golang,Go言語,test,E2Eテスト">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2020/03/27/http-test-in-go/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="Goでサーバを立ち上げてE2Eテストを実施するCI用のテストコードを書く - My External Storage"/>
+  <meta property="og:description" content="GoでCIで動かせるE2Eテストコードを書くための下調べをしたのでメモしておく。"/>
+  
+  <meta name="twitter:title" content="Goでサーバを立ち上げてE2Eテストを実施するCI用のテストコードを書く - My External Storage"/>
+  <meta name="twitter:description" content="GoでCIで動かせるE2Eテストコードを書くための下調べをしたのでメモしておく。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Mar 27, 2020
+     - 6 minute read 
+     - <a href="https://budougumi0617.github.io/2020/03/27/http-test-in-go/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+    
+  </p>
+  <h1 class="entry-title">
+     Goでサーバを立ち上げてE2Eテストを実施するCI用のテストコードを書く 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#ciで実行できるe2eレベルのテストをgoのテストコードとして書きたい">CIで実行できるE2EレベルのテストをGoのテストコードとして書きたい</a></li>
+    <li><a href="#httpテストを書くときの問題">HTTPテストを書くときの問題</a></li>
+    <li><a href="#netlisten関数を使って待ち無しでlisten状態にしておく">net.Listen関数を使って、待ち無しでListen状態にしておく</a></li>
+    <li><a href="#おわりに">おわりに</a></li>
+    <li><a href="#参考文献">参考文献</a></li>
+  </ul>
+</nav>
+          
+          <p>GoでCIで動かせるE2Eテストコードを書くための下調べをしたのでメモしておく。</p>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>CIで動かせるE2Eテストとして、<code>ListenAndServe</code>しているサーバに対してHTTP通信するテストコードを書きたくなった。</li>
+<li><code>ListenAndServe</code>は通信の開始待ちができないので、Flakyなテストになってしまう。</li>
+<li><code>net.Listen</code>して取得した<code>net.Listener</code>を使うことで、待機無しでテスト対象のサーバと通信できる。</li>
+</ul>
+<h1 id="ciで実行できるe2eレベルのテストをgoのテストコードとして書きたい">CIで実行できるE2EレベルのテストをGoのテストコードとして書きたい</h1>
+<p><a href="https://twitter.com/yoshiki_shibata/">柴田</a>さんや<a href="https://twitter.com/t_wada">@t_wada</a>さんの話を読んで、もっとE2Eテストに近いHTTPテストについてちゃんと考えたいなと思い始めた。</p>
+<ul>
+<li>マイクロサービスの開発とテストファースト/テスト駆動開発 | GDG Dev Fest Tokyo 2019
+<ul>
+<li><a href="https://www.slideshare.net/yoshikishibata/gdg-dev-fest-tokyo-2019">https://www.slideshare.net/yoshikishibata/gdg-dev-fest-tokyo-2019</a></li>
+</ul>
+</li>
+</ul>
+<blockquote class="twitter-tweet"><p lang="ja" dir="ltr">モック多用の自作自演テストやレイヤ間のテスト範囲重複を好まないので（個人の意見）、テストを内側と外側に寄せます。Railsの場合はRequest spec(HTTPレベルのテスト、E2Eより安定していてかつ粗粒度) とModel spec（ドメインロジックのテストを厚く書く）を基本的に書き、Controllerは例外系のみ。</p>&mdash; Takuto Wada (@t_wada) <a href="https://twitter.com/t_wada/status/1237200607045251073?ref_src=twsrc%5Etfw">March 10, 2020</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<p>今まで、<code>httptest.ResponseRecorder</code>などを利用したハンドラーレベルのテストは実施していた。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">handler <span style="color:#719e07">:=</span> <span style="color:#268bd2">func</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
+    io.<span style="color:#268bd2">WriteString</span>(w, <span style="color:#2aa198">&#34;&lt;html&gt;&lt;body&gt;Hello World!&lt;/body&gt;&lt;/html&gt;&#34;</span>)
+}
+
+<span style="color:#586e75">// Arrange
+</span><span style="color:#586e75"></span>req <span style="color:#719e07">:=</span> httptest.<span style="color:#268bd2">NewRequest</span>(<span style="color:#2aa198">&#34;GET&#34;</span>, <span style="color:#2aa198">&#34;http://example.com/foo&#34;</span>, <span style="color:#cb4b16">nil</span>)
+w <span style="color:#719e07">:=</span> httptest.<span style="color:#268bd2">NewRecorder</span>()
+
+<span style="color:#586e75">// Act
+</span><span style="color:#586e75"></span><span style="color:#268bd2">handler</span>(w, req)
+
+<span style="color:#586e75">// Assert
+</span></code></pre></div><p>が、サーバを起動してそのサーバに対してHTTPリクエストを飛ばして挙動を確認するところまでやりたいなと思った。<br>
+もう少し具体的に書くと、自身が作っているWebアプリに対して、次のようなテストシナリオをGoのテストコードとして書きたい。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestAPIServer</span>(t <span style="color:#719e07">*</span>testing.T) {
+    <span style="color:#586e75">// テスト対象のWebアプリサーバが依存する各種サービスのフェイクサーバを起動する（このブログ記事では触れない）
+</span><span style="color:#586e75"></span>    <span style="color:#586e75">// テスト対象のWebアプリサーバを起動する
+</span><span style="color:#586e75"></span>    <span style="color:#586e75">// テスト対象のサーバに対してHTTPリクエストを送信する
+</span><span style="color:#586e75"></span>    <span style="color:#586e75">// レスポンス内容を検証する
+</span><span style="color:#586e75"></span>    <span style="color:#586e75">// 各種サーバを適切に終了する
+</span><span style="color:#586e75"></span>}
+</code></pre></div><h1 id="httpテストを書くときの問題">HTTPテストを書くときの問題</h1>
+<p>上記のようなテストコードを書こうとしたとき、テスト対象のWebアプリサーバの起動部分に<code>ListenAndServe</code>メソッドを使っていると問題が発生する。</p>
+<ul>
+<li><a href="https://play.golang.org/p/K68LHrm_IE8">https://play.golang.org/p/K68LHrm_IE8</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestStartServer</span>(t <span style="color:#719e07">*</span>testing.T) {
+    want <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;Hello, world!\n&#34;</span>
+    mux <span style="color:#719e07">:=</span> http.<span style="color:#268bd2">NewServeMux</span>()
+    mux.<span style="color:#268bd2">HandleFunc</span>(<span style="color:#2aa198">&#34;/&#34;</span>, <span style="color:#268bd2">func</span>(w http.ResponseWriter, req <span style="color:#719e07">*</span>http.Request) {
+        io.<span style="color:#268bd2">WriteString</span>(w, want)
+    })
+
+    s <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>http.Server{
+        Addr:    <span style="color:#2aa198">&#34;:8080&#34;</span>,
+        Handler: mux,
+    }
+
+    <span style="color:#719e07">go</span> <span style="color:#268bd2">func</span>() {
+        t.<span style="color:#268bd2">Fatal</span>(s.<span style="color:#268bd2">ListenAndServe</span>())
+    }()
+    time.<span style="color:#268bd2">Sleep</span>(<span style="color:#2aa198">0</span> <span style="color:#719e07">*</span> time.Second) <span style="color:#586e75">// 1秒待機すれば成功する
+</span><span style="color:#586e75"></span>    res, err <span style="color:#719e07">:=</span> http.<span style="color:#268bd2">Get</span>(<span style="color:#2aa198">&#34;http://127.0.0.1:8080/&#34;</span>)
+    <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+        <span style="color:#586e75">// Get http://127.0.0.1:8080/: dial tcp 127.0.0.1:8080: connect: Connection refused
+</span><span style="color:#586e75"></span>        t.<span style="color:#268bd2">Fatal</span>(err)
+    }
+    b, err <span style="color:#719e07">:=</span> ioutil.<span style="color:#268bd2">ReadAll</span>(res.Body)
+    res.Body.<span style="color:#268bd2">Close</span>()
+    <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+        t.<span style="color:#268bd2">Fatal</span>(err)
+    }
+    <span style="color:#719e07">if</span> <span style="color:#b58900">string</span>(b) <span style="color:#719e07">!=</span> want {
+        t.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;want %q, but %q&#34;</span>, want, b)
+    }
+}
+</code></pre></div><p><code>http.Server#ListenAndServe</code>メソッド（<code>http.ListenAndServe</code>関数）は呼び出すと通信終了まで完了しない。<br>
+そのためテストコード中で、<code>ListenAndServe</code>メソッドを実行してテストを開始するには、別goroutineで実行する必要がある。<br>
+そうなると、当然サーバが起動するまでテストコードから通信するのを待つ必要がある。<br>
+数秒待てばサーバは起動しているが、タイミングを合わせるためにテストの実行時間をむやみに伸ばしたくはない。<br>
+かと言って、ギリギリの時間まで待機時間を削ると、Flakyなテストになるのでそれも良くない。</p>
+<ul>
+<li>【用語解説】John Micco氏の言う&quot;Flaky&quot;なテストとは？
+<ul>
+<li><a href="https://jasst-tokyo.hatenablog.jp/entry/2018/02/22/214551">https://jasst-tokyo.hatenablog.jp/entry/2018/02/22/214551</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="netlisten関数を使って待ち無しでlisten状態にしておく">net.Listen関数を使って、待ち無しでListen状態にしておく</h1>
+<p>この問題を解決するには、<code>net.Listen</code>を明示的に宣言して、<code>http/Server.Serve</code>メソッド（<code>http.Serve</code>関数）からサーバを起動すればよい。<br>
+テスト対象のサーバを起動して、待ち無しでリクエストを送信、レスポンスを検証するエンドポイントテストが以下だ。</p>
+<ul>
+<li><a href="https://play.golang.org/p/hg-lNU7JFIP">https://play.golang.org/p/hg-lNU7JFIP</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+    <span style="color:#2aa198">&#34;context&#34;</span>
+    <span style="color:#2aa198">&#34;io&#34;</span>
+    <span style="color:#2aa198">&#34;io/ioutil&#34;</span>
+    <span style="color:#2aa198">&#34;log&#34;</span>
+    <span style="color:#2aa198">&#34;net&#34;</span>
+    <span style="color:#2aa198">&#34;net/http&#34;</span>
+    <span style="color:#2aa198">&#34;testing&#34;</span>
+)
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">buildServer</span>(body <span style="color:#dc322f">string</span>) <span style="color:#719e07">*</span>http.Server {
+    mux <span style="color:#719e07">:=</span> http.<span style="color:#268bd2">NewServeMux</span>()
+    mux.<span style="color:#268bd2">HandleFunc</span>(<span style="color:#2aa198">&#34;/&#34;</span>, <span style="color:#268bd2">func</span>(w http.ResponseWriter, req <span style="color:#719e07">*</span>http.Request) {
+        io.<span style="color:#268bd2">WriteString</span>(w, body)
+    })
+
+    <span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>http.Server{
+        Handler: mux,
+    }
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">TestStartServer</span>(t <span style="color:#719e07">*</span>testing.T) {
+    want <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;Hello, world!\n&#34;</span>
+
+    <span style="color:#586e75">// Arrange
+</span><span style="color:#586e75"></span>    srv <span style="color:#719e07">:=</span> <span style="color:#268bd2">buildServer</span>(want)
+
+    <span style="color:#586e75">// 動的にポートを選択するので並行テストが可能。
+</span><span style="color:#586e75"></span>    l, err <span style="color:#719e07">:=</span> net.<span style="color:#268bd2">Listen</span>(<span style="color:#2aa198">&#34;tcp&#34;</span>, <span style="color:#2aa198">&#34;:0&#34;</span>)
+    <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+        log.<span style="color:#268bd2">Fatal</span>(err)
+    }
+
+    idleConnsClosed <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#268bd2">struct</span>{})
+    <span style="color:#719e07">go</span> <span style="color:#268bd2">func</span>() {
+        <span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> srv.<span style="color:#268bd2">Serve</span>(l); err <span style="color:#719e07">!=</span> http.ErrServerClosed {
+            t.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;HTTP server ListenAndServe: %v&#34;</span>, err)
+        }
+        <span style="color:#586e75">// サーバが終了したことを通知。
+</span><span style="color:#586e75"></span>        <span style="color:#b58900">close</span>(idleConnsClosed)
+    }()
+
+    <span style="color:#586e75">// Act
+</span><span style="color:#586e75"></span>    res, err <span style="color:#719e07">:=</span> http.<span style="color:#268bd2">Get</span>(<span style="color:#2aa198">&#34;http://&#34;</span> <span style="color:#719e07">+</span> l.<span style="color:#268bd2">Addr</span>().<span style="color:#268bd2">String</span>())
+    <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+        t.<span style="color:#268bd2">Fatal</span>(err)
+    }
+    b, err <span style="color:#719e07">:=</span> ioutil.<span style="color:#268bd2">ReadAll</span>(res.Body)
+    <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+        t.<span style="color:#268bd2">Fatal</span>(err)
+    }
+    res.Body.<span style="color:#268bd2">Close</span>()
+
+    <span style="color:#586e75">// Assert
+</span><span style="color:#586e75"></span>    <span style="color:#719e07">if</span> <span style="color:#b58900">string</span>(b) <span style="color:#719e07">!=</span> want {
+        t.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;want %q, but %q&#34;</span>, want, b)
+    }
+
+    <span style="color:#586e75">// Cleanup
+</span><span style="color:#586e75"></span>    <span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> srv.<span style="color:#268bd2">Shutdown</span>(context.<span style="color:#268bd2">Background</span>()); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+        t.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;HTTP server Shutdown: %v&#34;</span>, err)
+    }
+
+    <span style="color:#586e75">// サーバの終了を確認してからテストコードを終了する。
+</span><span style="color:#586e75"></span>    <span style="color:#719e07">&lt;-</span>idleConnsClosed
+}
+</code></pre></div><p><code>net.Listen</code>関数は待ちを発生させずに完了し、関数呼び出し終了時点で<code>LISTEN</code>が開始される。</p>
+<ul>
+<li><a href="https://golang.org/pkg/net/#Listen">https://golang.org/pkg/net/#Listen</a></li>
+</ul>
+<p>そのため、別goroutineを呼ばずにサーバ用の通信を開始することができる。<br>
+あとは、この<code>net.Listener</code>オブジェクトを使ってテスト対象のサーバを別goroutineで起動する。<br>
+こうすると、テストコードは何も待たずに通信を始めることができる。</p>
+<p>テストコードの実行が終了したら、<code>http.Server#Shutdown</code>メソッドを実行することでグレースフルにサーバを終了することができる。</p>
+<ul>
+<li><a href="https://golang.org/pkg/net/http/#Server.Shutdown">https://golang.org/pkg/net/http/#Server.Shutdown</a></li>
+</ul>
+<p>テスト対象のアプリサーバの起動処理を、このような呼び出し方に対応するように設計する必要があるが、これでHTTP通信を利用したテストコードが書けそうだ。</p>
+<h1 id="おわりに">おわりに</h1>
+<p>テスト対象のサーバの起動インターフェイスに条件はあるものの、やりたいことができるのは確認した。<br>
+最初どうやってサーバの起動を待機しようかと考えていた。<br>
+<code>httptest.NewServer</code>は待機処理をせずとも通信が成功するので、そのコードを参考にした。<br>
+（<code>httptest.NewServer</code>をそのまま使えばいいのかもしれないが…）<br>
+<code>net.Listen</code>を明示的に始めることで、その時点からTCP通信を待機状態にするのがコツだった。<br>
+このあたりは<a href="https://amzn.to/2wFdLyy">Goならわかるシステムプログラミング</a>のTCPソケットの章を読み直して復習できた。</p>
+<p>途中、Webアプリのユニットテスト書こうとしたのに、システムプログラミングに行き着いた。すべてがつながってる感がある。</p>
+<p>今回は省略したが、やりたいテストコードを書くには、テスト対象が依存するサービスのフェイクサーバも起動しないといけない。<br>
+本文中の書きなぐりのコードでは利用が難しいので、起動部分を再利用可能なカタチにまとめて、フェイクサーバを起動したり、複数のテストで利用できるパッケージにしておきたいなと思う。</p>
+<h1 id="参考文献">参考文献</h1>
+<ul>
+<li><a href="https://www.slideshare.net/yoshikishibata/gdg-dev-fest-tokyo-2019">マイクロサービスの開発とテストファースト/テスト駆動開発 | GDG Dev Fest Tokyo 2019</a></li>
+<li><a href="https://golang.org/pkg/net/http/">net/http | The Go Programing Language</a></li>
+<li><a href="https://jasst-tokyo.hatenablog.jp/entry/2018/02/22/214551">【用語解説】John Micco氏の言う&quot;Flaky&quot;なテストとは？</a></li>
+<li><a href="https://golang.org/pkg/net/#Listen">net.Listen | The Go Program Language</a></li>
+<li><a href="https://amzn.to/2wFdLyy">Goならわかるシステムプログラミング</a></li>
+</ul>
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4908686033&linkId=a9a82764bbb3fb3c7346aa7590a81ad8"></iframe>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/10/05/jrits-why-go-how-is-go/">[発表資料] 第138回RITS技術交流会『なぜ私たちはGoを書くのか。今あらためて考えるGo言語の良さと実際』</a></li>
+  
+  <li><a href="/2019/10/30/go-testing2019/">Goのtestを理解する in 2019</a></li>
+  
+  <li><a href="/2019/03/10/define-gomock-method-by-doandreturn/">[Go][gomcok]引数によって挙動を変えるモックメソッドを定義する #golangjp</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Mar 27, 2020</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/test">test</a>  <a class="category" href="https://budougumi0617.github.io/tags/e2e">e2e</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2020/03/21/observability_japan_online/" title="Observability Japan Online #1 に参加してo11y成熟モデルを学んだ #o11yjp">Observability Japan Online #1 に参加してo11y成熟モデルを学んだ #o11yjp</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2020/03/27/http-test-in-go/">Goでサーバを立ち上げてE2Eテストを実施するCI用のテストコードを書く</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2020/03/21/observability_japan_online/">Observability Japan Online #1 に参加してo11y成熟モデルを学んだ #o11yjp</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/03/13/shortcut-keys-on-the-go-playground/">The Go Playground（play.golang.org）のショートカットキー</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/03/10/hugo-render-raw-html/">Hugo v0.60以上を使うと、Markdown中のHTMLタグが「raw HTML omitted」となって消えてしまう</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2020  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
