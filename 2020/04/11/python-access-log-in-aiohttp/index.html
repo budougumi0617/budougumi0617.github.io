@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Python] aiohttpで独自形式のアクセスログを出力する - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="aiohttp,python,web,context,Observability,log">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/python.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/python.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2020/04/11/python-access-log-in-aiohttp/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Python] aiohttpで独自形式のアクセスログを出力する - My External Storage"/>
+  <meta property="og:description" content="PythonのWebアプリケーションフレームワーク（WAF）であるaiohttpでカスタムロガーを使ってアクセスログを出力する。"/>
+  
+  <meta name="twitter:title" content="[Python] aiohttpで独自形式のアクセスログを出力する - My External Storage"/>
+  <meta name="twitter:description" content="PythonのWebアプリケーションフレームワーク（WAF）であるaiohttpでカスタムロガーを使ってアクセスログを出力する。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Apr 11, 2020
+     - 4 minute read 
+     - <a href="https://budougumi0617.github.io/2020/04/11/python-access-log-in-aiohttp/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/python/">python </a>
+    
+  </p>
+  <h1 class="entry-title">
+     [Python] aiohttpで独自形式のアクセスログを出力する 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a>
+      <ul>
+        <li><a href="#環境">環境</a></li>
+      </ul>
+    </li>
+    <li><a href="#独自のアクセスログを出力したい">独自のアクセスログを出力したい</a></li>
+    <li><a href="#abstractaccessloggerを実装した独自のaccessloggerを用いる">AbstractAccessLoggerを実装した独自のAccessLoggerを用いる。</a></li>
+    <li><a href="#おわりに">おわりに</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>PythonのWebアプリケーションフレームワーク（WAF）である<code>aiohttp</code>でカスタムロガーを使ってアクセスログを出力する。</p>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li><code>aiohttp</code>にはアクセスログを取得する標準の仕組みがある
+<ul>
+<li><a href="https://docs.aiohttp.org/en/stable/logging.html#access-logs">https://docs.aiohttp.org/en/stable/logging.html#access-logs</a></li>
+</ul>
+</li>
+<li>出力する内容を変更するときは<code>AbstractAccessLogger</code>を実装した独自の<code>AccessLogger</code>を用意する
+<ul>
+<li><a href="https://docs.aiohttp.org/en/stable/abc.html#aiohttp.abc.aiohttp.abc.AbstractAccessLogger">https://docs.aiohttp.org/en/stable/abc.html#aiohttp.abc.aiohttp.abc.AbstractAccessLogger</a></li>
+</ul>
+</li>
+<li><code>Application.run_app</code>メソッドの引数として独自の<code>AccessLogger</code>を渡してwebサーバを起動する</li>
+<li><code>logger</code>の設定は忘れずに</li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">from</span> aiohttp <span style="color:#719e07">import</span> web
+<span style="color:#719e07">from</span> aiohttp.abc <span style="color:#719e07">import</span> AbstractAccessLogger
+<span style="color:#719e07">from</span> aiohttp.web_app <span style="color:#719e07">import</span> Application
+
+
+<span style="color:#719e07">class</span> <span style="color:#268bd2">CustomAccessLogger</span>(AbstractAccessLogger):
+    <span style="color:#719e07">def</span> <span style="color:#268bd2">log</span>(<span style="color:#268bd2">self</span>, request,response,time: <span style="color:#b58900">float</span>) <span style="color:#719e07">-&gt;</span> <span style="color:#268bd2">None</span>:
+        <span style="color:#268bd2">self</span><span style="color:#719e07">.</span>logger<span style="color:#719e07">.</span>info(f<span style="color:#2aa198">&#39;access_log&#39;</span>)
+
+app: Application <span style="color:#719e07">=</span> web<span style="color:#719e07">.</span>Application()
+web<span style="color:#719e07">.</span>run_app(app, access_log_class<span style="color:#719e07">=</span>CustomAccessLogger)
+</code></pre></div><h2 id="環境">環境</h2>
+<ul>
+<li>Python 3.8.0</li>
+<li>aiohttp 3.6.2</li>
+</ul>
+<h1 id="独自のアクセスログを出力したい">独自のアクセスログを出力したい</h1>
+<p>Pythonのwebサーバでアクセスログを出力し、ログの中へリクエストヘッダーに含まれる<code>X-Request-ID</code>を出力しようと考えた。
+利用しているWAFの<code>aiohttp</code>のドキュメントをみると、アクセスログとカスタマイズの仕組みが標準でサポートされてたため試してみた。</p>
+<h1 id="abstractaccessloggerを実装した独自のaccessloggerを用いる">AbstractAccessLoggerを実装した独自のAccessLoggerを用いる。</h1>
+<p><code>aiohttp</code>のアクセスログの仕組みは次のページに記載されている。</p>
+<ul>
+<li>Logging — aiohttp 3.6.2 documentation
+<ul>
+<li><a href="https://docs.aiohttp.org/en/stable/logging.html#access-logs">https://docs.aiohttp.org/en/stable/logging.html#access-logs</a></li>
+</ul>
+</li>
+</ul>
+<p>基本的にはシグネチャを満たした<code>log</code>メソッドを実装すれば良い。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">from</span> aiohttp.abc <span style="color:#719e07">import</span> BaseRequest, AbstractAccessLogger
+<span style="color:#719e07">from</span> aiohttp.web_response <span style="color:#719e07">import</span> StreamResponse
+
+
+<span style="color:#719e07">class</span> <span style="color:#268bd2">CustomAccessLogger</span>(AbstractAccessLogger):
+    <span style="color:#719e07">def</span> <span style="color:#268bd2">log</span>(<span style="color:#268bd2">self</span>,
+            request: BaseRequest,
+            response: StreamResponse,
+            time: <span style="color:#b58900">float</span>) <span style="color:#719e07">-&gt;</span> <span style="color:#268bd2">None</span>:
+        <span style="color:#268bd2">self</span><span style="color:#719e07">.</span>logger<span style="color:#719e07">.</span>info(f<span style="color:#2aa198">&#39;access_log: {request.remote} &#39;</span>
+                         f<span style="color:#2aa198">&#39;&#34;{request.method} {request.path} &#39;</span>
+                         f<span style="color:#2aa198">&#39;done in {time}s: {response.status}&#39;</span>)
+</code></pre></div><p>この自作クラスの型名をwebサーバ起動時に渡せばこれを利用したアクセスログが出力されるようになる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">app: Application <span style="color:#719e07">=</span> web<span style="color:#719e07">.</span>Application()
+web<span style="color:#719e07">.</span>run_app(app, access_log_class<span style="color:#719e07">=</span>CustomAccessLogger)
+</code></pre></div><p>このクラスはサーバ起動時に自動的に初期化されて利用される。
+<code>self.logger</code>から呼び出される<code>logger</code>オブジェクトは次のように決まる、</p>
+<ul>
+<li><code>run_app</code>メソッドの引数に<code>access_log</code>として渡した<code>logging.logger</code>オブジェクト</li>
+<li>何も渡されなかった場合は<code>logging.getLogger('aiohttp.access')</code>で取得できる<code>logger</code>オブジェクト</li>
+</ul>
+<p>上記の例では、<code>access_log</code>は未指定なので<code>logging.getLogger('aiohttp.access')</code>で取得できるオブジェクトになる。</p>
+<p>実際にログ出力される形式、ログレベルは通常の<code>logging</code>パッケージのエコシステムに則る。
+そのため、適切なログレベルや<code>handler</code>を設定しないと出力されない。</p>
+<p><code>33000</code>ポートで起動するwebサーバに独自アクセスログを設定するコードが以下になる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">import</span> logging
+<span style="color:#719e07">from</span> aiohttp <span style="color:#719e07">import</span> web
+<span style="color:#719e07">from</span> aiohttp.abc <span style="color:#719e07">import</span> BaseRequest, AbstractAccessLogger
+<span style="color:#719e07">from</span> aiohttp.web_app <span style="color:#719e07">import</span> Application
+<span style="color:#719e07">from</span> aiohttp.web_request <span style="color:#719e07">import</span> Request
+<span style="color:#719e07">from</span> aiohttp.web_response <span style="color:#719e07">import</span> StreamResponse
+
+
+<span style="color:#719e07">class</span> <span style="color:#268bd2">CustomAccessLogger</span>(AbstractAccessLogger):
+    <span style="color:#719e07">def</span> <span style="color:#268bd2">log</span>(<span style="color:#268bd2">self</span>,
+            request: BaseRequest,
+            response: StreamResponse,
+            time: <span style="color:#b58900">float</span>) <span style="color:#719e07">-&gt;</span> <span style="color:#268bd2">None</span>:
+        <span style="color:#268bd2">self</span><span style="color:#719e07">.</span>logger<span style="color:#719e07">.</span>info(f<span style="color:#2aa198">&#39;access_log: {request.remote} &#39;</span>
+                         f<span style="color:#2aa198">&#39;&#34;{request.method} {request.path} &#39;</span>
+                         f<span style="color:#2aa198">&#39;done in {time}s: {response.status}&#39;</span>)
+
+async <span style="color:#719e07">def</span> <span style="color:#268bd2">handler</span>(request: Request) <span style="color:#719e07">-&gt;</span> StreamResponse:
+    <span style="color:#719e07">return</span> web<span style="color:#719e07">.</span>Response(text<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;return</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#39;</span>)
+
+
+access_logger <span style="color:#719e07">=</span> logging<span style="color:#719e07">.</span>getLogger(<span style="color:#2aa198">&#39;aiohttp.access&#39;</span>)
+ch <span style="color:#719e07">=</span> logging<span style="color:#719e07">.</span>StreamHandler()
+access_logger<span style="color:#719e07">.</span>setLevel(logging<span style="color:#719e07">.</span>INFO)
+access_logger<span style="color:#719e07">.</span>addHandler(ch)
+
+app: Application <span style="color:#719e07">=</span> web<span style="color:#719e07">.</span>Application()
+app<span style="color:#719e07">.</span>router<span style="color:#719e07">.</span>add_get(<span style="color:#2aa198">&#39;/&#39;</span>, handler)
+
+web<span style="color:#719e07">.</span>run_app(app, port<span style="color:#719e07">=</span><span style="color:#2aa198">33000</span>, access_log_class<span style="color:#719e07">=</span>CustomAccessLogger)
+</code></pre></div><p><code>'aiohttp.access'</code>として登録されている<code>logging.logger</code>に<code>handler</code>としては標準の<code>StreamHandler</code>を付与している。
+また、上記の例では<code>info</code>メソッドを呼んでいるので、<code>logger</code>自体のログレベルを<code>INFO</code>以上にセットしておかないと<code>handler</code>が呼ばれない。</p>
+<blockquote>
+<p>Access logs are enabled by default. If the debug flag is set, and the default logger &lsquo;aiohttp.access&rsquo; is used, access logs will be output to stderr if no handlers are attached. Furthermore, if the default logger has no log level set, the log level will be set to logging.DEBUG.</p>
+</blockquote>
+<p><a href="https://docs.aiohttp.org/en/stable/logging.html#access-logs">ドキュメント</a>には上記のようにデフォルトなら<code>DEBUG</code>レベルで出力されると書いてあったが、明示的にログレベルなどを設定しないと出力されなかった。</p>
+<p>上記コードを起動し、別ターミナルから<code>curl</code>コマンドでアクセスしたときのログ出力は以下のようになった。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ python -u main.py
+<span style="color:#719e07">========</span> Running on http://0.0.0.0:33000 <span style="color:#719e07">========</span>
+<span style="color:#719e07">(</span>Press CTRL+C to quit<span style="color:#719e07">)</span>
+access_log: 127.0.0.1 <span style="color:#2aa198">&#34;GET / done in 0.0007638730000003591s: 200
+</span></code></pre></div><p>あとは、<code>handler</code>を調整して、<code>JSON</code>形式の出力にするなり、ファイルに出力すればよい。</p>
+<h1 id="おわりに">おわりに</h1>
+<p>Pythonの<code>logging</code>パッケージの<code>logger</code>、<code>handler</code>まわりのエコシステムの挙動を理解せず、ログが出力できなくてだいぶハマった。
+結局公式ドキュメントを読むことで解決したので、やはり言語仕様はひととおり読まないといけないなと痛感した。</p>
+<h1 id="参考">参考</h1>
+<ul>
+<li>Logging HOWTO — Python 3.8.2 ドキュメント
+<ul>
+<li><a href="https://docs.python.org/ja/3/howto/logging.html#loggers">https://docs.python.org/ja/3/howto/logging.html#loggers</a></li>
+</ul>
+</li>
+<li>Logging — aiohttp 3.6.2 documentation
+<ul>
+<li><a href="https://docs.aiohttp.org/en/stable/logging.html#access-logs">https://docs.aiohttp.org/en/stable/logging.html#access-logs</a></li>
+</ul>
+</li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2020/04/08/python-use-context-var-in-aiohttp/">[Python] aiohttpでリクエストスコープのコンテキスト情報を扱う</a></li>
+  
+  <li><a href="/2020/02/21/use-context/">[Go] context.TODO()を使って漸進的にcontext対応を始める</a></li>
+  
+  <li><a href="/2019/12/30/introduction-typeddict/">[Python3.8] TypedDictとPyCharmを使うと型ヒントの圧倒的な恩恵を享受できる</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Apr 11, 2020</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/python">python</a>  <a class="category" href="https://budougumi0617.github.io/tags/aiohttp">aiohttp</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2020/04/08/python-use-context-var-in-aiohttp/" title="[Python] aiohttpでリクエストスコープのコンテキスト情報を扱う">[Python] aiohttpでリクエストスコープのコンテキスト情報を扱う</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2020/04/11/python-access-log-in-aiohttp/">[Python] aiohttpで独自形式のアクセスログを出力する</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2020/04/08/python-use-context-var-in-aiohttp/">[Python] aiohttpでリクエストスコープのコンテキスト情報を扱う</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/03/27/http-test-in-go/">Goでサーバを立ち上げてE2Eテストを実施するCI用のテストコードを書く</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/03/21/observability_japan_online/">Observability Japan Online #1 に参加してo11y成熟モデルを学んだ #o11yjp</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2020  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
