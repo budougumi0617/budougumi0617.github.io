@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>The Go Playgroundの実行結果に画像を出力する - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="playground,Go,goalng,Go言語">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2020/04/22/render-image-on-go-playground/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="The Go Playgroundの実行結果に画像を出力する - My External Storage"/>
+  <meta property="og:description" content="Go Playgroundのテンプレートを見ていたら画像を出力できることを発見した。
+"/>
+  
+  <meta name="twitter:title" content="The Go Playgroundの実行結果に画像を出力する - My External Storage"/>
+  <meta name="twitter:description" content="Go Playgroundのテンプレートを見ていたら画像を出力できることを発見した。
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Apr 22, 2020
+     - 3 minute read 
+     - <a href="https://budougumi0617.github.io/2020/04/22/render-image-on-go-playground/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+    
+  </p>
+  <h1 class="entry-title">
+     The Go Playgroundの実行結果に画像を出力する 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#the-go-playgroundにテンプレートが追加された">The Go Playgroundにテンプレートが追加された</a></li>
+    <li><a href="#the-go-playgroundで出力結果に画像を表示する">The Go Playgroundで出力結果に画像を表示する。</a></li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>Go Playgroundのテンプレートを見ていたら画像を出力できることを発見した。</p>
+<p><img src="/2020/04/22_playground.png" alt="実行結果"></p>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>The Go Playgroundにテンプレートが追加された</li>
+<li>テンプレートの中にfaviconを描画するコードがある</li>
+<li>Playground上で<code>IMAGE:</code>を先頭に付与してbase64エンコーディングして出力すると画像が表示できる</li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">var</span> buf bytes.Buffer
+png.<span style="color:#268bd2">Encode</span>(<span style="color:#719e07">&amp;</span>buf, img)
+fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;IMAGE:&#34;</span> <span style="color:#719e07">+</span> base64.StdEncoding.<span style="color:#268bd2">EncodeToString</span>(buf.<span style="color:#268bd2">Bytes</span>()))
+</code></pre></div><h1 id="the-go-playgroundにテンプレートが追加された">The Go Playgroundにテンプレートが追加された</h1>
+<p>The Go Playgroundはブラウザ上でGoのコードを実行できるオンラインエディタだ。
+近年、複数ファイルを含んだサンプルコードを実行できるようになったり、標準パッケージ以外もimportできるようになっている。
+そして先日からテンプレートが選択できるようになった。</p>
+<blockquote class="twitter-tweet"><p lang="ja" dir="ltr">Go Playgroundでテンプレートが選べるようになってる！！ <a href="https://twitter.com/hashtag/golang?src=hash&amp;ref_src=twsrc%5Etfw">#golang</a> <a href="https://t.co/LScb4OOfpn">pic.twitter.com/LScb4OOfpn</a></p>&mdash; Yoichiro Shimizu (@budougumi0617) <a href="https://twitter.com/budougumi0617/status/1250605368943624192?ref_src=twsrc%5Etfw">April 16, 2020</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<p>テンプレートの内容自体は<code>github.com/golang/playground/examples</code>で確認することができる。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/golang/playground" data-iframely-url="//cdn.iframe.ly/K2PRvCo"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>このテンプレートの中のひとつにPlayground上で画像を出力するサンプルコードがある。</p>
+<h1 id="the-go-playgroundで出力結果に画像を表示する">The Go Playgroundで出力結果に画像を表示する。</h1>
+<p>画像を描画するサンプルコードは次のとおり（コードは抜粋したコード）。</p>
+<ul>
+<li><a href="https://github.com/golang/playground/blob/master/examples/image.txt">https://github.com/golang/playground/blob/master/examples/image.txt</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">import</span> (
+  <span style="color:#2aa198">&#34;bytes&#34;</span>
+  <span style="color:#2aa198">&#34;encoding/base64&#34;</span>
+  <span style="color:#2aa198">&#34;fmt&#34;</span>
+  <span style="color:#2aa198">&#34;image/png&#34;</span>
+)
+
+<span style="color:#268bd2">var</span> buf bytes.Buffer
+png.<span style="color:#268bd2">Encode</span>(<span style="color:#719e07">&amp;</span>buf, img)
+fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;IMAGE:&#34;</span> <span style="color:#719e07">+</span> base64.StdEncoding.<span style="color:#268bd2">EncodeToString</span>(buf.<span style="color:#268bd2">Bytes</span>()))
+</code></pre></div><p>サンプルコード通りにイメージを標準出力すれば任意のフルカラーの画像をThe Go Playgroundで表示することができる。</p>
+<p>ここでは練習問題で多用される（？）マンデルブロ集合を描画してみる。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/adonovan/gopl.io" data-iframely-url="//cdn.iframe.ly/ukgf0Qy"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>書籍「プログラミング言語Go」のサンプルコードを使ってThe Go Playground上でマンデルブロ集合の画像を出力するコードは次の通り。</p>
+<ul>
+<li><a href="https://play.golang.org/p/j2Qjgo2F5kR">https://play.golang.org/p/j2Qjgo2F5kR</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+  <span style="color:#2aa198">&#34;bytes&#34;</span>
+  <span style="color:#2aa198">&#34;encoding/base64&#34;</span>
+  <span style="color:#2aa198">&#34;fmt&#34;</span>
+  <span style="color:#2aa198">&#34;image&#34;</span>
+  <span style="color:#2aa198">&#34;image/color&#34;</span>
+  <span style="color:#2aa198">&#34;image/png&#34;</span>
+  <span style="color:#2aa198">&#34;math/cmplx&#34;</span>
+)
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+  <span style="color:#268bd2">displayImage</span>()
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">displayImage</span>() {
+  <span style="color:#268bd2">const</span> (
+    xmin, ymin, xmax, ymax = <span style="color:#719e07">-</span><span style="color:#2aa198">2</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">2</span>, <span style="color:#719e07">+</span><span style="color:#2aa198">2</span>, <span style="color:#719e07">+</span><span style="color:#2aa198">2</span>
+    width, height          = <span style="color:#2aa198">128</span>, <span style="color:#2aa198">128</span>
+  )
+
+  img <span style="color:#719e07">:=</span> image.<span style="color:#268bd2">NewRGBA</span>(image.<span style="color:#268bd2">Rect</span>(<span style="color:#2aa198">0</span>, <span style="color:#2aa198">0</span>, width, height))
+  <span style="color:#719e07">for</span> py <span style="color:#719e07">:=</span> <span style="color:#2aa198">0</span>; py &lt; height; py<span style="color:#719e07">++</span> {
+    y <span style="color:#719e07">:=</span> <span style="color:#b58900">float64</span>(py)<span style="color:#719e07">/</span>height<span style="color:#719e07">*</span>(ymax<span style="color:#719e07">-</span>ymin) <span style="color:#719e07">+</span> ymin
+    <span style="color:#719e07">for</span> px <span style="color:#719e07">:=</span> <span style="color:#2aa198">0</span>; px &lt; width; px<span style="color:#719e07">++</span> {
+      x <span style="color:#719e07">:=</span> <span style="color:#b58900">float64</span>(px)<span style="color:#719e07">/</span>width<span style="color:#719e07">*</span>(xmax<span style="color:#719e07">-</span>xmin) <span style="color:#719e07">+</span> xmin
+      z <span style="color:#719e07">:=</span> <span style="color:#b58900">complex</span>(x, y)
+      <span style="color:#586e75">// Image point (px, py) represents complex value z.
+</span><span style="color:#586e75"></span>      img.<span style="color:#268bd2">Set</span>(px, py, <span style="color:#268bd2">mandelbrot</span>(z))
+    }
+  }
+  <span style="color:#268bd2">var</span> buf bytes.Buffer
+  err <span style="color:#719e07">:=</span> png.<span style="color:#268bd2">Encode</span>(<span style="color:#719e07">&amp;</span>buf, img)
+  <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+    <span style="color:#b58900">panic</span>(err)
+  }
+  fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;IMAGE:&#34;</span> <span style="color:#719e07">+</span> base64.StdEncoding.<span style="color:#268bd2">EncodeToString</span>(buf.<span style="color:#268bd2">Bytes</span>()))
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">mandelbrot</span>(z <span style="color:#dc322f">complex128</span>) color.Color {
+  <span style="color:#268bd2">const</span> iterations = <span style="color:#2aa198">200</span>
+  <span style="color:#268bd2">const</span> contrast = <span style="color:#2aa198">15</span>
+
+  <span style="color:#268bd2">var</span> v <span style="color:#dc322f">complex128</span>
+  <span style="color:#719e07">for</span> n <span style="color:#719e07">:=</span> <span style="color:#b58900">uint8</span>(<span style="color:#2aa198">0</span>); n &lt; iterations; n<span style="color:#719e07">++</span> {
+    v = v<span style="color:#719e07">*</span>v <span style="color:#719e07">+</span> z
+    <span style="color:#719e07">if</span> cmplx.<span style="color:#268bd2">Abs</span>(v) &gt; <span style="color:#2aa198">2</span> {
+      r <span style="color:#719e07">:=</span> <span style="color:#2aa198">255</span> <span style="color:#719e07">-</span> contrast<span style="color:#719e07">*</span>n
+      g <span style="color:#719e07">:=</span> contrast <span style="color:#719e07">*</span> n
+      b <span style="color:#719e07">:=</span> g
+      <span style="color:#719e07">return</span> color.RGBA{r, g, b, <span style="color:#2aa198">255</span>}
+    }
+  }
+  <span style="color:#719e07">return</span> color.Black
+}
+</code></pre></div><p>上記のコードをThe Go Playground上で実行すると以下のようになる。</p>
+<p><img src="/2020/04/22_playground.png" alt="実行結果"></p>
+<p>実行結果としてマンデルブロ集合画像が描画されているのがわかる。</p>
+<h1 id="終わりに">終わりに</h1>
+<p>The Go Playgroundに追加されたテンプレートを眺めていたらこの機能を見つけた。<br>
+追加されたテンプレートの中には複数ファイルの書き方や、CLI上の進捗バー描画などもある。<br>
+実務で使うことはほぼないであろうコードばかりだが、勉強になるので一度全部見ておくと良さそうだ。</p>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a href="https://play.golang.org/">https://play.golang.org/</a></li>
+<li><a href="https://github.com/golang/playground">https://github.com/golang/playground</a></li>
+<li><a href="https://github.com/adonovan/gopl.io">https://github.com/adonovan/gopl.io</a></li>
+<li><a href="https://play.golang.org/p/RNf9hnNvoON">https://play.golang.org/p/RNf9hnNvoON</a></li>
+</ul>
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4621300253&linkId=b0f74778233054f1e700f570fc471f6e"></iframe>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2020/03/27/http-test-in-go/">Goでサーバを立ち上げてE2Eテストを実施するCI用のテストコードを書く</a></li>
+  
+  <li><a href="/2020/03/13/shortcut-keys-on-the-go-playground/">The Go Playground（play.golang.org）のショートカットキー</a></li>
+  
+  <li><a href="/2020/02/21/use-context/">[Go] context.TODO()を使って漸進的にcontext対応を始める</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Apr 22, 2020</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2020/04/17/trello_shortcuts/" title="Trelloでカードを連続で登録したいときに覚えておきたいショートカット">Trelloでカードを連続で登録したいときに覚えておきたいショートカット</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2020/04/22/render-image-on-go-playground/">The Go Playgroundの実行結果に画像を出力する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/04/17/trello_shortcuts/">Trelloでカードを連続で登録したいときに覚えておきたいショートカット</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/04/11/python-access-log-in-aiohttp/">[Python] aiohttpで独自形式のアクセスログを出力する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/04/08/python-use-context-var-in-aiohttp/">[Python] aiohttpでリクエストスコープのコンテキスト情報を扱う</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2020  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
