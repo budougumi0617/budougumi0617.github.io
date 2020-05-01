@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>GitHub Actions上でGCP Datastoreエミュレータを使ったテストを実行する - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="Go,Golang,Go言語,Datastore,GCP,GitHub,GitHub Actions">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/github.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/github.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2020/05/01/use-datastore-emulator-on-github-actions/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="GitHub Actions上でGCP Datastoreエミュレータを使ったテストを実行する - My External Storage"/>
+  <meta property="og:description" content="GCP Datastoreを扱うコードをGitHub Actions上でテストする方法をまとめた。"/>
+  
+  <meta name="twitter:title" content="GitHub Actions上でGCP Datastoreエミュレータを使ったテストを実行する - My External Storage"/>
+  <meta name="twitter:description" content="GCP Datastoreを扱うコードをGitHub Actions上でテストする方法をまとめた。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">May 1, 2020
+     - 4 minute read 
+     - <a href="https://budougumi0617.github.io/2020/05/01/use-datastore-emulator-on-github-actions/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">Go </a><a class="label" href="https://budougumi0617.github.io/categories/github/">GitHub </a><a class="label" href="https://budougumi0617.github.io/categories/gcp/">GCP </a>
+    
+  </p>
+  <h1 class="entry-title">
+     GitHub Actions上でGCP Datastoreエミュレータを使ったテストを実行する 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#github-actionsの設定">GitHub Actionsの設定</a>
+      <ul>
+        <li><a href="#gcp-datastoreエミュレータ">GCP Datastoreエミュレータ</a></li>
+        <li><a href="#actionsでdockerコンテナを起動する">ActionsでDockerコンテナを起動する</a></li>
+        <li><a href="#サービスコンテナへの接続方法">サービスコンテナへの接続方法</a></li>
+        <li><a href="#設定したyaml">設定したYAML</a></li>
+      </ul>
+    </li>
+    <li><a href="#テストコードの作成">テストコードの作成</a>
+      <ul>
+        <li><a href="#エミュレータへの接続設定">エミュレータへの接続設定</a></li>
+      </ul>
+    </li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>GCP Datastoreを扱うコードをGitHub Actions上でテストする方法をまとめた。</p>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>GCP Datastoreはエミュレータが用意されており、コンテナを提供している人もいる
+<ul>
+<li><a href="https://cloud.google.com/datastore/docs/tools/datastore-emulator">https://cloud.google.com/datastore/docs/tools/datastore-emulator</a></li>
+<li><a href="https://hub.docker.com/r/singularities/datastore-emulator/">https://hub.docker.com/r/singularities/datastore-emulator/</a></li>
+</ul>
+</li>
+<li>GitHub ActionsでDBや外部ストレージを模した環境を用意するときは<code>jobs.&lt;job_id&gt;.services</code>を使う
+<ul>
+<li><a href="https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idservices">https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idservices</a></li>
+</ul>
+</li>
+<li>GCPのGoクライアントは環境変数を設定しておくだけで自動的にエミュレータへ接続する
+<ul>
+<li><a href="https://cloud.google.com/datastore/docs/tools/datastore-emulator#manually_setting_the_variables">https://cloud.google.com/datastore/docs/tools/datastore-emulator#manually_setting_the_variables</a></li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">jobs</span>:
+  <span style="color:#719e07">job-name</span>:
+    <span style="color:#719e07">runs-on</span>: ubuntu-latest
+    <span style="color:#719e07">services</span>:
+      <span style="color:#719e07">datastore</span>:
+        <span style="color:#719e07">image</span>: singularities/datastore-emulator
+        <span style="color:#719e07">env</span>:
+          <span style="color:#719e07">DATASTORE_LISTEN_ADDRESS</span>: <span style="color:#2aa198">0.0.0.0</span>:<span style="color:#2aa198">18001</span>
+          <span style="color:#719e07">DATASTORE_PROJECT_ID</span>: budougumi0617
+        <span style="color:#719e07">ports</span>:
+          - <span style="color:#2aa198">18001</span>:<span style="color:#2aa198">18001</span>
+    <span style="color:#719e07">env</span>:
+      <span style="color:#719e07">DATASTORE_EMULATOR_HOST</span>: localhost:<span style="color:#2aa198">18001</span>
+</code></pre></div><p>なお、引用しているGitHub Actions、GCPの説明は2020/05/01時点の説明である。</p>
+<h1 id="github-actionsの設定">GitHub Actionsの設定</h1>
+<p>さっそく、エミュレータについて確認し、Actinosの設定YAMLを書いていく。</p>
+<h2 id="gcp-datastoreエミュレータ">GCP Datastoreエミュレータ</h2>
+<p>GCP Datastoreはエミュレータが提供されている。</p>
+<ul>
+<li><a href="https://cloud.google.com/datastore/docs/tools/datastore-emulator">https://cloud.google.com/datastore/docs/tools/datastore-emulator</a></li>
+</ul>
+<p>JREと<code>gcloud</code>コマンドを用意するのは骨が折れるので、Docker Hubで公開されている次のGCP Datastoreエミュレータコンテナを利用する。</p>
+<ul>
+<li><a href="https://hub.docker.com/r/singularities/datastore-emulator/">https://hub.docker.com/r/singularities/datastore-emulator/</a></li>
+</ul>
+<h2 id="actionsでdockerコンテナを起動する">ActionsでDockerコンテナを起動する</h2>
+<p>GitHub Actions上で任意のDockerコンテナを実行するには次の手順が用意されている。</p>
+<ul>
+<li><code>jobs.&lt;job_id&gt;.container</code>
+<ul>
+<li><a href="https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idcontainer">https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idcontainer</a></li>
+</ul>
+</li>
+<li><code>jobs.&lt;job_id&gt;.services</code>
+<ul>
+<li><a href="https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idservices">https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idservices</a></li>
+</ul>
+</li>
+</ul>
+<p><code>jobs.&lt;job_id&gt;.container</code>はそのジョブ自体を実行する環境を指定するオプションのため、<code>jobs.&lt;job_id&gt;.services</code>のほうを利用する。
+<code>jobs.&lt;job_id&gt;.services</code>の説明自体にも、以下のような助言が記載されている。</p>
+<blockquote>
+<p>ワークフロー中のジョブのためのサービスコンテナをホストするために使われます。 サービスコンテナは、データベースやRedisのようなキャッシュサービスの作成に役立ちます。 ランナーは自動的にDockerネットワークを作成し、サービスコンテナのライフサイクルを管理します。</p>
+</blockquote>
+<h2 id="サービスコンテナへの接続方法">サービスコンテナへの接続方法</h2>
+<p>サービスコンテナ自体への接続は次のページに記載されている。</p>
+<ul>
+<li><a href="https://help.github.com/en/actions/configuring-and-managing-workflows/about-service-containers">https://help.github.com/en/actions/configuring-and-managing-workflows/about-service-containers</a></li>
+</ul>
+<p>今回のActionはランナーマシン上でジョブを実行するため、次の記載に記載されている接続方法になる。</p>
+<blockquote>
+<p>ジョブをランナーマシン上で直接実行する場合、サービスコンテナにはlocalhost:<port>もしくは127.0.0.1:<port>を使ってアクセスできます。 GitHubは、サービスコンテナからDockerホストへの通信を可能にするよう、コンテナネットワークを設定します。</p>
+</blockquote>
+<h2 id="設定したyaml">設定したYAML</h2>
+<p><code>jobs.&lt;job_id&gt;.services</code>を使い、PRに対してGoのテストを実行するYAMLの設定は次のとおりになる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#586e75"># .github/workflows/test.yml</span>
+<span style="color:#719e07">on</span>: [pull_request]
+<span style="color:#719e07">name</span>: test
+<span style="color:#719e07">jobs</span>:
+  <span style="color:#719e07">test</span>:
+    <span style="color:#719e07">runs-on</span>: ubuntu-latest
+    <span style="color:#719e07">timeout-minutes</span>: <span style="color:#2aa198">10</span>
+    <span style="color:#719e07">services</span>:
+      <span style="color:#719e07">datastore</span>:
+        <span style="color:#719e07">image</span>: singularities/datastore-emulator
+        <span style="color:#719e07">env</span>:
+          <span style="color:#719e07">DATASTORE_LISTEN_ADDRESS</span>: <span style="color:#2aa198">0.0.0.0</span>:<span style="color:#2aa198">18001</span>
+          <span style="color:#719e07">DATASTORE_PROJECT_ID</span>: budougumi0617
+        <span style="color:#719e07">ports</span>:
+          - <span style="color:#2aa198">18001</span>:<span style="color:#2aa198">18001</span>
+    <span style="color:#719e07">env</span>:
+      <span style="color:#719e07">DATASTORE_EMULATOR_HOST</span>: localhost:<span style="color:#2aa198">18001</span>
+    <span style="color:#719e07">steps</span>:
+    - <span style="color:#719e07">name</span>: Install Go
+      <span style="color:#719e07">if</span>: success()
+      <span style="color:#719e07">uses</span>: actions/setup-go@v1
+      <span style="color:#719e07">with</span>:
+        <span style="color:#719e07">go-version</span>: <span style="color:#2aa198">1.13</span>.x <span style="color:#586e75"># GAE/Go 1.13環境を想定して</span>
+    - <span style="color:#719e07">name</span>: Checkout code
+      <span style="color:#719e07">uses</span>: actions/checkout@v1
+    - <span style="color:#719e07">name</span>: Use Cache
+      <span style="color:#719e07">uses</span>: actions/cache@v1
+      <span style="color:#719e07">with</span>:
+        <span style="color:#719e07">path</span>: ~/go/pkg/mod
+        <span style="color:#719e07">key</span>: ubuntu-latest-go-${{ hashFiles(<span style="color:#2aa198">&#39;**/go.sum&#39;</span>) }}
+        <span style="color:#719e07">restore-keys</span>: <span style="color:#2aa198">|
+</span><span style="color:#2aa198">          ubuntu-latest-go-</span>
+    - <span style="color:#719e07">name</span>: Download Modules
+      <span style="color:#719e07">if</span>: steps.cache.outputs.cache-hit != <span style="color:#2aa198">&#39;true&#39;</span>
+      <span style="color:#719e07">run</span>: go mod download
+    - <span style="color:#719e07">name</span>: Run tests
+      <span style="color:#719e07">run</span>: go test -v -race -covermode=atomic
+</code></pre></div><h1 id="テストコードの作成">テストコードの作成</h1>
+<p>GitHub Actions上でDatastoreエミュレータを起動する準備はできた。
+実際にエミュレータを使ったテストを書く。</p>
+<h2 id="エミュレータへの接続設定">エミュレータへの接続設定</h2>
+<p><code>google-cloud-go</code>ライブラリからエミュレータへ接続するようにするには、環境変数を指定するだけで良い。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://cloud.google.com/datastore/docs/tools/datastore-emulator" data-iframely-url="//cdn.iframe.ly/fmWbAwE?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p><code>google-cloud-go</code>ライブラリからの<code>datastore</code>クライアントの初期化処理を確認すると次のようになっている。</p>
+<ul>
+<li><a href="https://github.com/googleapis/google-cloud-go/blob/c9d3eadce82c530f46cf3c09fc607e329affe4b2/datastore/datastore.go#L67-L78">https://github.com/googleapis/google-cloud-go/blob/c9d3eadce82c530f46cf3c09fc607e329affe4b2/datastore/datastore.go#L67-L78</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewClient</span>(ctx context.Context, projectID <span style="color:#dc322f">string</span>, opts <span style="color:#719e07">...</span>option.ClientOption) (<span style="color:#719e07">*</span>Client, <span style="color:#dc322f">error</span>) {
+  <span style="color:#268bd2">var</span> o []option.ClientOption
+  <span style="color:#719e07">if</span> addr <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;DATASTORE_EMULATOR_HOST&#34;</span>); addr <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;&#34;</span> {
+    o = []option.ClientOption{
+      option.<span style="color:#268bd2">WithEndpoint</span>(addr),
+      option.<span style="color:#268bd2">WithoutAuthentication</span>(),
+      option.<span style="color:#268bd2">WithGRPCDialOption</span>(grpc.<span style="color:#268bd2">WithInsecure</span>()),
+    }
+  } <span style="color:#719e07">else</span> {
+        <span style="color:#586e75">// ...
+</span></code></pre></div><p>よって、ActionsのYAMLファイル中で宣言した<code>DATASTORE_EMULATOR_HOST: localhost:18001</code>という環境変数設定があるだけでエミュレータへ接続してテストが実施される。</p>
+<p>テストコードは簡単に以下のとおり。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> gaebot
+
+<span style="color:#719e07">import</span> (
+  <span style="color:#2aa198">&#34;context&#34;</span>
+  <span style="color:#2aa198">&#34;testing&#34;</span>
+
+  <span style="color:#2aa198">&#34;cloud.google.com/go/datastore&#34;</span>
+  <span style="color:#2aa198">&#34;go.mercari.io/datastore/clouddatastore&#34;</span>
+)
+
+
+<span style="color:#268bd2">type</span> CloudDatastoreStruct <span style="color:#268bd2">struct</span> {
+	Test <span style="color:#dc322f">string</span>
+}
+
+<span style="color:#586e75">// Actionsの動作確認。
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestCloudDatastore_Put</span>(t <span style="color:#719e07">*</span>testing.T) {
+  ctx <span style="color:#719e07">:=</span> context.<span style="color:#268bd2">Background</span>()
+  cli, _ <span style="color:#719e07">:=</span> datastore.<span style="color:#268bd2">NewClient</span>(ctx, <span style="color:#2aa198">&#34;budougumi0617&#34;</span>)
+  client, err <span style="color:#719e07">:=</span> clouddatastore.<span style="color:#268bd2">FromClient</span>(ctx, cli)
+  <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+    t.<span style="color:#268bd2">Fatal</span>(err.<span style="color:#268bd2">Error</span>())
+  }
+  <span style="color:#719e07">defer</span> client.<span style="color:#268bd2">Close</span>()
+
+  key <span style="color:#719e07">:=</span> client.<span style="color:#268bd2">IncompleteKey</span>(<span style="color:#2aa198">&#34;CloudDatastoreStruct&#34;</span>, <span style="color:#cb4b16">nil</span>)
+  <span style="color:#719e07">if</span> _, err = client.<span style="color:#268bd2">Put</span>(ctx, key, <span style="color:#719e07">&amp;</span>CloudDatastoreStruct{<span style="color:#2aa198">&#34;Hi!&#34;</span>}); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+    t.<span style="color:#268bd2">Fatal</span>(err.<span style="color:#268bd2">Error</span>())
+  }
+}
+</code></pre></div><h1 id="終わりに">終わりに</h1>
+<p><code>google-cloud-go</code>ライブラリのDatastore以外のクライアントも少し確認したところ、
+Cloud Storage用のクライアントも環境変数を設定する方法でエミュレータへ接続するようになっていた。
+外部接続先を変更するようなテストを書く機会は度々あるので、クライアントライブラリがこのような設計になっているのは開発者としても使いやすいなと思った。</p>
+<p>また、Actionsの設定には<code>timeout-minutes: 10</code>という設定も追加している。これはジョブの実行時間を分単位で制限する設定だ。
+タイムアウトを設定していないまま、間違った設定でエミュレータへ接続を試みるとジョブが終わらない。
+Actionsの無料実行時間制限に達しないように、このような設定をしておくほうが安心だろう。</p>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a href="https://cloud.google.com/datastore/docs/tools/datastore-emulator">https://cloud.google.com/datastore/docs/tools/datastore-emulator</a></li>
+<li><a href="https://hub.docker.com/r/singularities/datastore-emulator/">https://hub.docker.com/r/singularities/datastore-emulator/</a></li>
+<li><a href="https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idservices">https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idservices</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/11/03/use-cache-in-github-actions/">[Go] GitHub Actionsでキャッシュ機能を使う #github</a></li>
+  
+  <li><a href="/2020/03/27/http-test-in-go/">Goでサーバを立ち上げてE2Eテストを実施するCI用のテストコードを書く</a></li>
+  
+  <li><a href="/2019/10/05/jrits-why-go-how-is-go/">[発表資料] 第138回RITS技術交流会『なぜ私たちはGoを書くのか。今あらためて考えるGo言語の良さと実際』</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>May 1, 2020</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/datastore">datastore</a>  <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/gcp">gcp</a>  <a class="category" href="https://budougumi0617.github.io/tags/github">github</a>  <a class="category" href="https://budougumi0617.github.io/tags/actions">actions</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2020/04/22/render-image-on-go-playground/" title="The Go Playgroundの実行結果に画像を出力する">The Go Playgroundの実行結果に画像を出力する</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2020/05/01/use-datastore-emulator-on-github-actions/">GitHub Actions上でGCP Datastoreエミュレータを使ったテストを実行する</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2020/04/22/render-image-on-go-playground/">The Go Playgroundの実行結果に画像を出力する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/04/17/trello_shortcuts/">Trelloでカードを連続で登録したいときに覚えておきたいショートカット</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/04/11/python-access-log-in-aiohttp/">[Python] aiohttpで独自形式のアクセスログを出力する</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2020  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
