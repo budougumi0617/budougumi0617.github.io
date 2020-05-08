@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go] 一部のフィールドを無視して構造体を比較したいときはgo-cmpを使う - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="Go,Go言語,golang,test,go-cmp">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2020/05/08/go-cmp-diif-with-ignore-fields/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go] 一部のフィールドを無視して構造体を比較したいときはgo-cmpを使う - My External Storage"/>
+  <meta property="og:description" content="Goでテストを書くとき、期待値として構造体を比較したいときは多々ある。
+時刻情報など、構造体の一部のフィールドの値だけ無視して構造体オブジェクトを比較する方法をまとめた。"/>
+  
+  <meta name="twitter:title" content="[Go] 一部のフィールドを無視して構造体を比較したいときはgo-cmpを使う - My External Storage"/>
+  <meta name="twitter:description" content="Goでテストを書くとき、期待値として構造体を比較したいときは多々ある。
+時刻情報など、構造体の一部のフィールドの値だけ無視して構造体オブジェクトを比較する方法をまとめた。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">May 8, 2020
+     - 4 minute read 
+     - <a href="https://budougumi0617.github.io/2020/05/08/go-cmp-diif-with-ignore-fields/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+    
+  </p>
+  <h1 class="entry-title">
+     [Go] 一部のフィールドを無視して構造体を比較したいときはgo-cmpを使う 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#構造体の一部を無視して比較したい">構造体の一部を無視して比較したい</a></li>
+    <li><a href="#go-cmpを使うと任意のフィールドを除外して等価性を評価できる">go-cmpを使うと任意のフィールドを除外して等価性を評価できる</a>
+      <ul>
+        <li><a href="#ignorefieldsオプションを使って特定のフィールドを無視する">IgnoreFieldsオプションを使って特定のフィールドを無視する</a></li>
+      </ul>
+    </li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>Goでテストを書くとき、期待値として構造体を比較したいときは多々ある。<br>
+時刻情報など、構造体の一部のフィールドの値だけ無視して構造体オブジェクトを比較する方法をまとめた。</p>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>構造体を比較するとき<code>time.Time</code>や<code>ID</code>フィールドは無視して比較したい</li>
+<li>go-cmpは構造体の差分を表示することができるライブラリ
+<ul>
+<li><a href="https://github.com/google/go-cmp">https://github.com/google/go-cmp</a></li>
+</ul>
+</li>
+<li><code>IgnoreFields</code>を使うと、任意のフィールドを無視して比較することができる
+<ul>
+<li><a href="https://godoc.org/github.com/google/go-cmp/cmp/cmpopts#IgnoreFields">https://godoc.org/github.com/google/go-cmp/cmp/cmpopts#IgnoreFields</a></li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">import</span> (
+  <span style="color:#2aa198">&#34;time&#34;</span>
+  <span style="color:#2aa198">&#34;testing&#34;</span>
+
+  <span style="color:#2aa198">&#34;github.com/google/go-cmp/cmp&#34;</span>
+  <span style="color:#2aa198">&#34;github.com/google/go-cmp/cmp/cmpopts&#34;</span>
+)
+
+<span style="color:#268bd2">type</span> Foo strcut{
+    Name      <span style="color:#dc322f">string</span>
+    Timestamp time.Time
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">TestLogger</span>(t <span style="color:#719e07">*</span>testing.T) {
+  <span style="color:#268bd2">var</span> got Foo
+  <span style="color:#586e75">// Arrange, Action...
+</span><span style="color:#586e75"></span>
+  <span style="color:#586e75">// Assert。TimeStampフィールドは無視して比較する
+</span><span style="color:#586e75"></span>  <span style="color:#719e07">if</span> d <span style="color:#719e07">:=</span> cmp.<span style="color:#268bd2">Diff</span>(got, want, cmpopts.<span style="color:#268bd2">IgnoreFields</span>(got, <span style="color:#2aa198">&#34;TimeStamp&#34;</span>)); <span style="color:#b58900">len</span>(d) <span style="color:#719e07">!=</span> <span style="color:#2aa198">0</span> {
+    t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;differs: (-got +want)\n%s&#34;</span>, d)
+  }
+}
+</code></pre></div><h1 id="構造体の一部を無視して比較したい">構造体の一部を無視して比較したい</h1>
+<p>Goのテストを書いていると、ある構造体が期待通りの値になったか確認したくなるだろう。
+その中で一部の値は無視して期待値と比較をしたくなるときがある。</p>
+<ul>
+<li>DB保存時に自動裁判されるIDは無視して比較したい</li>
+<li><code>CreatedAt</code>のような時刻情報は無視して比較したい</li>
+</ul>
+<p>たとえば、次のような構造体をDBから取得するテストを書く場合、<code>ID</code>、<code>CreatedAt</code>、<code>ModifiedAt</code>のフィールドを無視したいだろう。
+大抵の場合、DBで自動採番されたIDやデータの作成時刻などはテストケースで検証すべきことではないからだ。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> SimpleObject <span style="color:#268bd2">struct</span> {
+  ID         <span style="color:#dc322f">int</span>       <span style="color:#2aa198">`json:&#34;id&#34; db:&#34;id&#34;`</span>
+  Name       <span style="color:#dc322f">string</span>    <span style="color:#2aa198">`json:&#34;name&#34; db:&#34;name&#34;`</span>
+  Address    <span style="color:#dc322f">string</span>    <span style="color:#2aa198">`json:&#34;address&#34; db:&#34;address&#34;`</span>
+  CreatedAt  time.Time <span style="color:#2aa198">`json:&#34;created_at&#34; db:&#34;created_at&#34;`</span>
+  ModifiedAt time.Time <span style="color:#2aa198">`json:&#34;modified_at&#34; db:&#34;modified_at&#34;`</span>
+}
+</code></pre></div><p>愚直に書いてしまうと、次のようなコードになってしまう。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestSimple</span>(t <span style="color:#719e07">*</span>testing.T) {
+  <span style="color:#268bd2">var</span> got SimpleObject
+  <span style="color:#268bd2">var</span> want SimpleObject
+  <span style="color:#586e75">// Arrange, Action...
+</span><span style="color:#586e75"></span>
+  <span style="color:#586e75">// Assert ID、CreatedAt、ModifiedAt以外のフィールドの値を検証していく。
+</span><span style="color:#586e75"></span>  <span style="color:#719e07">if</span> got.Name <span style="color:#719e07">!=</span> want.Name {
+    t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;want %v, but got %v&#34;</span>, want.Name, got.Name)
+  }
+  <span style="color:#719e07">if</span> got.Address <span style="color:#719e07">!=</span> want.Address {
+    t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;want %v, but got %v&#34;</span>, want.Address, got.Address)
+  }
+}
+</code></pre></div><p>複雑な構造体ほど比較すべき項目が増えていってしまう。
+このようなとき、<code>go-cmp</code>ライブラリを使うとすっきりした検証処理を記載できる。</p>
+<h1 id="go-cmpを使うと任意のフィールドを除外して等価性を評価できる">go-cmpを使うと任意のフィールドを除外して等価性を評価できる</h1>
+<p><code>go-cmp</code>は複雑な構造体オブジェクト同士の等価性や差分を取得するためのライブラリだ。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/google/go-cmp" data-iframely-url="//cdn.iframe.ly/BQ0axoF"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>次のように<code>Diff</code>関数で構造体を比較を実行する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">if</span> diff <span style="color:#719e07">:=</span> cmp.<span style="color:#268bd2">Diff</span>(want, got); diff <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;&#34;</span> {
+  t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;MakeGatewayInfo() mismatch (-want +got):\n%s&#34;</span>, diff)
+}
+</code></pre></div><p>構造体の値に差分があった場合、次のような文字列出力が得られる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">MakeGatewayInfo<span style="color:#719e07">()</span> mismatch <span style="color:#719e07">(</span>-want +got<span style="color:#719e07">)</span>:
+  cmp_test.Gateway<span style="color:#719e07">{</span>
+    SSID:      <span style="color:#2aa198">&#34;CoffeeShopWiFi&#34;</span>,
+-   IPAddress: <span style="color:#2aa198">&#34;192.168.0.2&#34;</span>,
++   IPAddress: <span style="color:#2aa198">&#34;192.168.0.1&#34;</span>,
+    NetMask:   net.IPMask<span style="color:#719e07">{</span>0xff, 0xff, 0x00, 0x00<span style="color:#719e07">}</span>,
+    Clients: <span style="color:#719e07">[]</span>cmp_test.Client<span style="color:#719e07">{</span>
+    ...
+</code></pre></div><h2 id="ignorefieldsオプションを使って特定のフィールドを無視する">IgnoreFieldsオプションを使って特定のフィールドを無視する</h2>
+<p><code>go-cmp</code>は単純に構造体を比較するだけでなく、オプションを使ってさまざまな比較をすることができる。
+そのなかの1つが<code>IgnoreFields</code>オプションだ。<br>
+<code>IgnoreFields</code>を渡して<code>Diff</code>関数を実行すると、<code>IgnoreFields</code>で指定されたフィールドの値を無視して比較を行なうことができる。</p>
+<p>使い方は簡単で、<code>Diff</code>関数実行時に無視して欲しいフィールド名を渡すだけだ。
+オプションなしで次のようなテストコードを書いてみる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://play.golang.org/p/m0K3Ub5LSPY
+</span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+  <span style="color:#2aa198">&#34;testing&#34;</span>
+
+  <span style="color:#2aa198">&#34;github.com/google/go-cmp/cmp&#34;</span>
+)
+
+<span style="color:#268bd2">type</span> SimpleObject <span style="color:#268bd2">struct</span> {
+  ID        <span style="color:#dc322f">int</span>
+  Name      <span style="color:#dc322f">string</span>    <span style="color:#2aa198">`json:&#34;name&#34; db:&#34;name&#34;`</span>
+  Address   <span style="color:#dc322f">string</span>    <span style="color:#2aa198">`json:&#34;address&#34; db:&#34;address&#34;`</span>
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">TestSimple</span>(t <span style="color:#719e07">*</span>testing.T) {
+  got <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>SimpleObject{
+    ID:   <span style="color:#2aa198">100</span>,
+    Name: <span style="color:#2aa198">&#34;same name&#34;</span>,
+  }
+  want <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>SimpleObject{
+    ID:   <span style="color:#2aa198">200</span>,
+    Name: <span style="color:#2aa198">&#34;same name&#34;</span>,
+  }
+
+  <span style="color:#719e07">if</span> d <span style="color:#719e07">:=</span> cmp.<span style="color:#268bd2">Diff</span>(got, want); <span style="color:#b58900">len</span>(d) <span style="color:#719e07">!=</span> <span style="color:#2aa198">0</span> {
+    t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;differs: (-got +want)\n%s&#34;</span>, d)
+  }
+}
+</code></pre></div><p>この場合、<code>ID</code>が異なるので当然結果はエラーになる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="color:#cb4b16">=== RUN   TestSimple
+</span><span style="color:#cb4b16"></span>    TestSimple: prog.go:29: differs: (-got +want)
+          &amp;main.SimpleObject{
+        -   ID:        100,
+        +   ID:        200,
+            Name:      &#34;same name&#34;,
+            Address:   &#34;&#34;,
+            CreatedAt: s&#34;0001-01-01 00:00:00 +0000 UTC&#34;,
+          }
+<span style="color:#dc322f">--- FAIL: TestSimple (0.00s)
+</span><span style="color:#dc322f"></span>FAIL
+</code></pre></div><p>ここで、<code>IgnoreFields</code>を使って<code>ID</code>フィールドを無視する設定を書く。
+こうすると、<code>ID</code>フィールド以外は差分がないので、テストがパスするようになる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://play.golang.org/p/h1uFWBxUqxc
+</span><span style="color:#586e75"></span><span style="color:#719e07">if</span> d <span style="color:#719e07">:=</span> cmp.<span style="color:#268bd2">Diff</span>(got, want, cmpopts.<span style="color:#268bd2">IgnoreFields</span>(<span style="color:#719e07">*</span>got, <span style="color:#2aa198">&#34;ID&#34;</span>)); <span style="color:#b58900">len</span>(d) <span style="color:#719e07">!=</span> <span style="color:#2aa198">0</span> {
+  t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;differs: (-got +want)\n%s&#34;</span>, d)
+}
+</code></pre></div><p>また、<code>IgnoreFields</code>はネストした構造体のフィールドにも適用できる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Foo <span style="color:#268bd2">struct</span>{
+  Simple <span style="color:#719e07">*</span>SimpleObject
+}
+
+<span style="color:#268bd2">type</span> SimpleObject <span style="color:#268bd2">struct</span> {
+  ID      <span style="color:#dc322f">int</span>
+  Name    <span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;name&#34; db:&#34;name&#34;`</span>
+  Address <span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;address&#34; db:&#34;address&#34;`</span>
+}
+</code></pre></div><p><code>Foo</code>構造体にネストしている<code>*SimpleObject</code>の<code>ID</code>フィールドを無視して<code>Foo</code>オブジェクトを比較したいときは次のようになる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">cmpopts.<span style="color:#268bd2">IgnoreFields</span>(Foo{}, <span style="color:#2aa198">&#34;Simple.ID&#34;</span>)
+</code></pre></div><h1 id="終わりに">終わりに</h1>
+<p><code>go-cmp</code>ライブラリ自体は昔から使っていたのだが、先日<code>IgnoreFields</code>オプションをはじめて知った。<br>
+ライブラリのサブパッケージまでちゃんと確認していなかったのが、原因だ。<br>
+思わぬ使い方があったり、または誤用してしまう可能性もあるため、ライブラリのGoDocはひととおり読んで使っていきたい。</p>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a href="https://github.com/google/go-cmp">https://github.com/google/go-cmp</a></li>
+<li><a href="https://daisuzu.hatenablog.com/entry/2018/05/05/010510">Goで時刻が絡む単体テストをどうするか考える</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2020/03/27/http-test-in-go/">Goでサーバを立ち上げてE2Eテストを実施するCI用のテストコードを書く</a></li>
+  
+  <li><a href="/2019/10/30/go-testing2019/">Goのtestを理解する in 2019</a></li>
+  
+  <li><a href="/2020/03/13/shortcut-keys-on-the-go-playground/">The Go Playground（play.golang.org）のショートカットキー</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>May 8, 2020</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/test">test</a>  <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2020/05/01/use-datastore-emulator-on-github-actions/" title="GitHub Actions上でGCP Datastoreエミュレータを使ったテストを実行する">GitHub Actions上でGCP Datastoreエミュレータを使ったテストを実行する</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2020/05/08/go-cmp-diif-with-ignore-fields/">[Go] 一部のフィールドを無視して構造体を比較したいときはgo-cmpを使う</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2020/05/01/use-datastore-emulator-on-github-actions/">GitHub Actions上でGCP Datastoreエミュレータを使ったテストを実行する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/04/22/render-image-on-go-playground/">The Go Playgroundの実行結果に画像を出力する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/04/17/trello_shortcuts/">Trelloでカードを連続で登録したいときに覚えておきたいショートカット</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2020  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
