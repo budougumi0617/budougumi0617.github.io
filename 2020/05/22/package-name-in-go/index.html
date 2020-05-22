@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>Goのパッケージ名は単数形？複数形？ - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="Go,Go言語,パッケージ">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2020/05/22/package-name-in-go/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="Goのパッケージ名は単数形？複数形？ - My External Storage"/>
+  <meta property="og:description" content="Goのパッケージ名には複数形の名前はつけないほうがよいというメモ。"/>
+  
+  <meta name="twitter:title" content="Goのパッケージ名は単数形？複数形？ - My External Storage"/>
+  <meta name="twitter:description" content="Goのパッケージ名には複数形の名前はつけないほうがよいというメモ。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">May 22, 2020
+     - 2 minute read 
+     - <a href="https://budougumi0617.github.io/2020/05/22/package-name-in-go/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+    
+  </p>
+  <h1 class="entry-title">
+     Goのパッケージ名は単数形？複数形？ 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#goのネーミング">Goのネーミング</a></li>
+    <li><a href="#原則単数形でパッケージ名を決めるべき">原則単数形でパッケージ名を決めるべき</a></li>
+    <li><a href="#stringsパッケージやerrorsパッケージは複数形では">stringsパッケージやerrorsパッケージは複数形では？</a></li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>Goのパッケージ名には複数形の名前はつけないほうがよいというメモ。</p>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>標準パッケージを参考に基本は単数形で命名する</li>
+<li>特別な事情があるときだけ複数形の名前をつける</li>
+</ul>
+<h1 id="goのネーミング">Goのネーミング</h1>
+<p>Goのパッケージ名や変数名の名前付けにはいくつかの指針がまとめられている。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://micnncim.com/post/2019/12/11/go-naming-conventions/" data-iframely-url="//cdn.iframe.ly/XeEUyQY?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>Effective Goなどにもパッケージ名の節がある。</p>
+<ul>
+<li><a href="https://golang.org/doc/effective_go.html#package-names">https://golang.org/doc/effective_go.html#package-names</a></li>
+<li><a href="https://github.com/golang/go/wiki/CodeReviewComments">https://github.com/golang/go/wiki/CodeReviewComments</a></li>
+<li><a href="https://dave.cheney.net/2019/01/08/avoid-package-names-like-base-util-or-common">https://dave.cheney.net/2019/01/08/avoid-package-names-like-base-util-or-common</a></li>
+</ul>
+<p>「短く簡潔なもの名前ほどよい」や「どのようにパッケージを分割するか」という指針はある。<br>
+しかし「そもそも複数形を使うべきか」のような説明はないような気がするので一筆書いてみる。</p>
+<h1 id="原則単数形でパッケージ名を決めるべき">原則単数形でパッケージ名を決めるべき</h1>
+<p>たまに<code>controllers</code>のようなパッケージ名を見たりするが、Goの場合は単数形のパッケージ名にするほうがよいと考える。<br>
+根拠となるような言及された情報があるわけではないが、標準パッケージは原則単数形のパッケージ名になっている。</p>
+<h1 id="stringsパッケージやerrorsパッケージは複数形では">stringsパッケージやerrorsパッケージは複数形では？</h1>
+<p>ご存知のとおり、標準パッケージにも例外的に複数形は存在する。
+というかそこそこの数が存在していたりする。
+以下のパッケージは多用されるので存在を知っている人も多いだろう。</p>
+<ul>
+<li><a href="https://golang.org/pkg/strings/">https://golang.org/pkg/strings/</a></li>
+<li><a href="https://golang.org/pkg/bytes/">https://golang.org/pkg/bytes/</a></li>
+<li><a href="https://golang.org/pkg/errors/">https://golang.org/pkg/errors/</a></li>
+<li><a href="https://golang.org/pkg/go/types/">https://golang.org/pkg/go/types/</a></li>
+</ul>
+<p>これらは単純に予約語やプリミティブ型と同名になってしまうから複数形になっているだけだ。</p>
+<ul>
+<li><a href="https://golang.org/ref/spec#Keywords">https://golang.org/ref/spec#Keywords</a></li>
+<li><a href="https://golang.org/ref/spec#Types">https://golang.org/ref/spec#Types</a></li>
+</ul>
+<p>なので、予約語や既定の名前に衝突しない限り単数形のパッケージ名をつければよい。</p>
+<h1 id="終わりに">終わりに</h1>
+<p>とはいえ、Go本体のパッケージにも<code>cmd/asm/internal/flags</code>のような複数形のパッケージはまれにある。</p>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a href="https://micnncim.com/post/2019/12/11/go-naming-conventions/">https://micnncim.com/post/2019/12/11/go-naming-conventions/</a></li>
+<li><a href="https://golang.org/doc/effective_go.html#package-names">https://golang.org/doc/effective_go.html#package-names</a></li>
+<li><a href="https://github.com/golang/go/wiki/CodeReviewComments">https://github.com/golang/go/wiki/CodeReviewComments</a></li>
+<li><a href="https://dave.cheney.net/2019/01/08/avoid-package-names-like-base-util-or-common">https://dave.cheney.net/2019/01/08/avoid-package-names-like-base-util-or-common</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2020/05/08/go-cmp-diif-with-ignore-fields/">[Go] 一部のフィールドを無視して構造体を比較したいときはgo-cmpを使う</a></li>
+  
+  <li><a href="/2020/05/01/use-datastore-emulator-on-github-actions/">GitHub Actions上でGCP Datastoreエミュレータを使ったテストを実行する</a></li>
+  
+  <li><a href="/2020/04/22/render-image-on-go-playground/">The Go Playgroundの実行結果に画像を出力する</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>May 22, 2020</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2020/05/14/review-integral-thinking/" title="[書評] 情報と向きあい、より深い思考をするためにインテグラル・シンキングを読んだ">[書評] 情報と向きあい、より深い思考をするためにインテグラル・シンキングを読んだ</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2020/05/22/package-name-in-go/">Goのパッケージ名は単数形？複数形？</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2020/05/14/review-integral-thinking/">[書評] 情報と向きあい、より深い思考をするためにインテグラル・シンキングを読んだ</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/05/08/go-cmp-diif-with-ignore-fields/">[Go] 一部のフィールドを無視して構造体を比較したいときはgo-cmpを使う</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/05/01/use-datastore-emulator-on-github-actions/">GitHub Actions上でGCP Datastoreエミュレータを使ったテストを実行する</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2020  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
