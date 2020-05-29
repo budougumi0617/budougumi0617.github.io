@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>Goのtestを理解する - httptestサブパッケージ編 - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="Go,testing,http,httptest">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2020/05/29/go-testing-httptest/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="Goのtestを理解する - httptestサブパッケージ編 - My External Storage"/>
+  <meta property="og:description" content="Goのテストについていくつかまとめを書いていた。
+
+Goのtestを理解する in 2018 #go
+Goのtestを理解する in 2019
+
+触れるのを忘れていたhttptestパッケージについてまとめる。
+
+https://golang.org/pkg/net/http/httptest/
+"/>
+  
+  <meta name="twitter:title" content="Goのtestを理解する - httptestサブパッケージ編 - My External Storage"/>
+  <meta name="twitter:description" content="Goのテストについていくつかまとめを書いていた。
+
+Goのtestを理解する in 2018 #go
+Goのtestを理解する in 2019
+
+触れるのを忘れていたhttptestパッケージについてまとめる。
+
+https://golang.org/pkg/net/http/httptest/
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">May 29, 2020
+     - 5 minute read 
+     - <a href="https://budougumi0617.github.io/2020/05/29/go-testing-httptest/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+    
+  </p>
+  <h1 class="entry-title">
+     Goのtestを理解する - httptestサブパッケージ編 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#nethttphttptestパッケージ">net/http/httptestパッケージ</a></li>
+    <li><a href="#サーバのhttpハンドラーのテストコードを書く">サーバのHTTPハンドラーのテストコードを書く</a></li>
+    <li><a href="#クライアントのテストコードを書くとき">クライアントのテストコードを書くとき</a></li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考">参考</a></li>
+    <li><a href="#その他のテスト関連の記事">その他のテスト関連の記事</a></li>
+  </ul>
+</nav>
+          
+          <p>Goのテストについていくつかまとめを書いていた。</p>
+<ul>
+<li><a href="/2018/08/19/go-testing2018">Goのtestを理解する in 2018 #go</a></li>
+<li><a href="/2019/10/30/go-testing2019/">Goのtestを理解する in 2019</a></li>
+</ul>
+<p>触れるのを忘れていたhttptestパッケージについてまとめる。</p>
+<ul>
+<li><a href="https://golang.org/pkg/net/http/httptest/">https://golang.org/pkg/net/http/httptest/</a></li>
+</ul>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>net/http/httptestパッケージ
+<ul>
+<li><a href="https://golang.org/pkg/net/http/httptest/">https://golang.org/pkg/net/http/httptest/</a></li>
+</ul>
+</li>
+<li><code>net/http/httptest</code>パッケージはサーバ/クライアント両方のHTTP周りのテストで使う</li>
+<li>サーバのHTTPハンドラーのテストを書くとき
+<ul>
+<li><a href="https://golang.org/pkg/net/http/httptest/#NewRequest">https://golang.org/pkg/net/http/httptest/#NewRequest</a></li>
+<li><a href="https://golang.org/pkg/net/http/httptest/#NewRecorder">https://golang.org/pkg/net/http/httptest/#NewRecorder</a></li>
+</ul>
+</li>
+<li>ダミーサーバを立ててクライアントのテストを書くとき
+<ul>
+<li><a href="https://golang.org/pkg/net/http/httptest/#NewServer">https://golang.org/pkg/net/http/httptest/#NewServer</a></li>
+<li><a href="https://golang.org/pkg/net/http/httptest/#NewTLSServer">https://golang.org/pkg/net/http/httptest/#NewTLSServer</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="nethttphttptestパッケージ">net/http/httptestパッケージ</h1>
+<p><code>net/http/httptest</code>パッケージはHTTPのテストを書くのに便利なパッケージだ。
+サーバのHTTPハンドラーを書くときは次の2つを利用してテストを書く。</p>
+<ul>
+<li><a href="https://golang.org/pkg/net/http/httptest/#NewRequest">https://golang.org/pkg/net/http/httptest/#NewRequest</a></li>
+<li><a href="https://golang.org/pkg/net/http/httptest/#NewRecorder">https://golang.org/pkg/net/http/httptest/#NewRecorder</a></li>
+</ul>
+<p>クライアント側の動作確認をしたくて、テストコードでダミーのサーバを立ち上げたいときは次のいずれかを使う。</p>
+<ul>
+<li><a href="https://golang.org/pkg/net/http/httptest/#NewServer">https://golang.org/pkg/net/http/httptest/#NewServer</a></li>
+<li><a href="https://golang.org/pkg/net/http/httptest/#NewTLSServer">https://golang.org/pkg/net/http/httptest/#NewTLSServer</a></li>
+</ul>
+<h1 id="サーバのhttpハンドラーのテストコードを書く">サーバのHTTPハンドラーのテストコードを書く</h1>
+<p>Goでwebアプリケーションを書くとき、WebフレームワークやgRPCなどを利用していない場合は、<code>http.HandleFunc</code>型のシグネチャでハンドラー関数を書くだろう。</p>
+<ul>
+<li><a href="https://golang.org/pkg/net/http/#HandleFunc">https://golang.org/pkg/net/http/#HandleFunc</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">h <span style="color:#719e07">:=</span> <span style="color:#268bd2">func</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
+  io.<span style="color:#268bd2">WriteString</span>(w, <span style="color:#2aa198">&#34;Hello from handler!\n&#34;</span>)
+}
+
+http.<span style="color:#268bd2">HandleFunc</span>(<span style="color:#2aa198">&#34;/&#34;</span>, h)
+log.<span style="color:#268bd2">Fatal</span>(http.<span style="color:#268bd2">ListenAndServe</span>(<span style="color:#2aa198">&#34;:8080&#34;</span>, <span style="color:#cb4b16">nil</span>))
+</code></pre></div><p>このようなハンドラーのテストを書くときにわざわざHTTPサーバを立てる、というのは少々めんどくさい。
+こんなときに利用できるのが<code>httptest.NewRequest</code>と<code>httptest.ResponseRecorder</code>だ。</p>
+<ul>
+<li><a href="https://golang.org/pkg/net/http/httptest/#NewRequest">https://golang.org/pkg/net/http/httptest/#NewRequest</a></li>
+<li><a href="https://golang.org/pkg/net/http/httptest/#NewRecorder">https://golang.org/pkg/net/http/httptest/#NewRecorder</a></li>
+</ul>
+<p><code>httptest.NewRequest</code>は擬似的なHTTPのリクエストを作成できる。生成関数以外は通常の<code>http.Request</code>と同じ方法でHTTPヘッダーなどを組み立てられる。<br>
+<code>httptest.NewRecorder</code>は<code>http.ResponseWriter</code>を満たす<code>*httptest.ResponseRecorder</code>オブジェクトを取得できる。
+このオブジェクトを利用してHTTPハンドラーの戻り値を検証するテストコードを書ける。</p>
+<p>具体的には利用するときは次のようなテストコードになるだろう。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// テスト対象のHTTPハンドラー
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">myHandler</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
+  io.<span style="color:#268bd2">WriteString</span>(w, <span style="color:#2aa198">&#34;Hello from handler!\n&#34;</span>)
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">TestMyHandler</span>(t <span style="color:#719e07">*</span>testing.T) {
+  <span style="color:#586e75">// Arrange
+</span><span style="color:#586e75"></span>  reqBody <span style="color:#719e07">:=</span> bytes.<span style="color:#268bd2">NewBufferString</span>(<span style="color:#2aa198">&#34;request body&#34;</span>)
+  req <span style="color:#719e07">:=</span> httptest.<span style="color:#268bd2">NewRequest</span>(http.MethodGet, <span style="color:#2aa198">&#34;http://dummy.url.com/user&#34;</span>, reqBody)
+
+  <span style="color:#586e75">// 生成後は*http.Requestオブジェクトと同じように扱える
+</span><span style="color:#586e75"></span>  q <span style="color:#719e07">:=</span> req.URL.<span style="color:#268bd2">Query</span>()
+  q.<span style="color:#268bd2">Add</span>(<span style="color:#2aa198">&#34;&#34;</span>, tt.args.code)
+  req.URL.RawQuery = q.<span style="color:#268bd2">Encode</span>()
+
+  <span style="color:#586e75">// レスポンスを受け止める*httptest.ResponseRecorder
+</span><span style="color:#586e75"></span>  got <span style="color:#719e07">:=</span> httptest.<span style="color:#268bd2">NewRecorder</span>()
+
+  <span style="color:#586e75">// Act
+</span><span style="color:#586e75"></span>  <span style="color:#268bd2">myHandler</span>(got, req)
+  
+  <span style="color:#586e75">// Assertion
+</span><span style="color:#586e75"></span>  <span style="color:#586e75">// http.Clientなどで受け取ったhttp.Responseを検証するときとほぼ変わらない
+</span><span style="color:#586e75"></span>  <span style="color:#719e07">if</span> got.Code <span style="color:#719e07">!=</span> http.StatusOk {
+      t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;want %d, but %d&#34;</span>, tt.wantStatus, got.Code)
+  }
+  <span style="color:#586e75">// Bodyは*bytes.Buffer型なので文字列の比較は少しラク
+</span><span style="color:#586e75"></span>  <span style="color:#719e07">if</span> got <span style="color:#719e07">:=</span> got.Body.<span style="color:#268bd2">String</span>(); got <span style="color:#719e07">!=</span> tt.wantBody {
+    t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;want %s, but %s&#34;</span>, tt.wantBody, got)
+  }
+  <span style="color:#586e75">// http.Responseオブジェクトとしても比較できる。
+</span><span style="color:#586e75"></span>  <span style="color:#719e07">if</span> resp <span style="color:#719e07">:=</span> got.<span style="color:#268bd2">Result</span>().<span style="color:#268bd2">Cookies</span>(); resp.ContentLength <span style="color:#719e07">==</span> <span style="color:#2aa198">0</span> {
+    t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;resp.ContentLength was 0&#34;</span>)
+  }
+}
+</code></pre></div><h1 id="クライアントのテストコードを書くとき">クライアントのテストコードを書くとき</h1>
+<p>HTTPクライアント側のテストを書くときに便利なのが、<code>*httptest.Server</code>オブジェクトだ。
+実際のHTTP通信を使ったHTTPクライアント側のテストコードを書こうと思うと、次のようなテストコードを書く必要がある。</p>
+<ol>
+<li>通信先のサーバを模すダミーハンドラーを用意する</li>
+<li>ダミハンドラーでリッスンする<code>*http.Server</code>をgoroutineで起動する</li>
+<li>別goroutine上でサーバがリッスンを開始するまで待機する
+<ul>
+<li>起動前に通信をしてしまうとテストが失敗する</li>
+</ul>
+</li>
+<li>テスト対象のHTTPクライアントを初期化して、実行する</li>
+<li>HTTPクライアントの実行結果を検証する</li>
+<li>テスト終了時にダミハンドラーでリッスンするサーバを適切に週有量する</li>
+</ol>
+<p>別goroutine上でダミーのサーバを動かして適切に待機、終了させるコードを毎回書くのは面倒だ。<br>
+ここで、<code>*httptest.Server</code>オブジェクトを利用する。このオブジェクトが便利なのは内部でgoroutineを起動してリッスンを開始してくれる点だ。
+また、<code>NewServer</code>関数から制御が戻ってきた時点でサーバがリッスンを開始しているため、クライアントが通信を開始するタイミングをあわせる必要もない。</p>
+<p><code>*httptest.Server</code>オブジェクトはHTTP通信なのか、HTTPS通信によって初期化関数を使い分ける。</p>
+<ul>
+<li><a href="https://golang.org/pkg/net/http/httptest/#NewServer">https://golang.org/pkg/net/http/httptest/#NewServer</a></li>
+<li><a href="https://golang.org/pkg/net/http/httptest/#NewTLSServer">https://golang.org/pkg/net/http/httptest/#NewTLSServer</a></li>
+</ul>
+<p>コレを使ってHTTPクライアントのテストを書くと、goroutineを意識せずにシンプルなテストコードを書くことができる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestClient</span>(t <span style="color:#719e07">*</span>testing.T) {
+  <span style="color:#586e75">// Arrange
+</span><span style="color:#586e75"></span>  <span style="color:#586e75">// ServeMuxオブジェクトなどを用意してルーティングしてもよい
+</span><span style="color:#586e75"></span>  h <span style="color:#719e07">:=</span> http.<span style="color:#268bd2">HandlerFunc</span>(<span style="color:#268bd2">func</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
+    fmt.<span style="color:#268bd2">Fprintln</span>(w, <span style="color:#2aa198">&#34;Hello, client&#34;</span>)
+  }
+  <span style="color:#586e75">// 別goroutine上でリッスンが開始される
+</span><span style="color:#586e75"></span>  ts <span style="color:#719e07">:=</span> httptest.<span style="color:#268bd2">NewServer</span>(h)
+  <span style="color:#719e07">defer</span> ts.<span style="color:#268bd2">Close</span>()
+
+  cli <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>http.Client{}
+  req, err <span style="color:#719e07">:=</span> http.<span style="color:#268bd2">NewRequestWithContext</span>(context.<span style="color:#268bd2">TODO</span>(), <span style="color:#2aa198">&#34;GET&#34;</span>, ts.URL, strings.<span style="color:#268bd2">NewReader</span>(<span style="color:#2aa198">&#34;&#34;</span>))
+  <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+    t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;NewRequest failed: %v&#34;</span>, err)
+  }
+
+  <span style="color:#586e75">// Act
+</span><span style="color:#586e75"></span>  resp, err <span style="color:#719e07">:=</span> cli.<span style="color:#268bd2">Do</span>(req)
+  <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+    t.<span style="color:#268bd2">Fatal</span>(err)
+  }
+
+  <span style="color:#586e75">// Assertion
+</span><span style="color:#586e75"></span>  got, err <span style="color:#719e07">:=</span> ioutil.<span style="color:#268bd2">ReadAll</span>(resp.Body)
+  <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+    t.<span style="color:#268bd2">Fatal</span>(err)
+  }
+  res.Body.<span style="color:#268bd2">Close</span>()
+  want <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;Hello, client\n&#34;</span>
+  <span style="color:#719e07">if</span> got <span style="color:#719e07">!=</span> want {
+      t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;want %q, but %q&#34;</span>, want, got)
+  }
+}
+</code></pre></div><p>待ち合わせのコードやgoroutineを起動するようなコードも書かず、シンプルなHTTPクライアントのテストを書くことができた。</p>
+<h1 id="終わりに">終わりに</h1>
+<p><code>httptest</code>パッケージを使うと、サーバのコードを書くときサーバ本体の実装を待たずともハンドラーごとのテストを書けて非常に便利だ。<br>
+また、ダミーサーバはクライアントの実装だけでなく、サードパーティへの通信を含んだ処理のエンドポイントテストを書くときにも利用できる。<br>
+テストの書きやすさはTDDやエンドポイントテストをやるためのモチベーションにもつながるので、このようなテストフレームワークが標準pkgとして公開されているのはとてもありがたい。</p>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a href="https://golang.org/pkg/net/http/httptest/">https://golang.org/pkg/net/http/httptest/</a></li>
+</ul>
+<h1 id="その他のテスト関連の記事">その他のテスト関連の記事</h1>
+<ul>
+<li><a href="/2019/10/30/go-testing2019/">Goのtestを理解する in 2019</a></li>
+<li><a href="/2018/08/19/go-testing2018">Goのtestを理解する in 2018 #go</a></li>
+<li><a href="/2018/08/30/go-testing2018-examples/">Goのtestingを理解する in 2018 - Examples編 #go</a></li>
+<li><a href="/2018/09/05/go-testing2018-quick">Goのtestingを理解する in 2018 - quickサブパッケージ編 #go</a></li>
+<li><a href="/2018/09/09/go-testing2018-iotest/">Goのtestingを理解する in 2018 - iotestサブパッケージ編 #go</a></li>
+<li><a href="/2020/03/27/http-test-in-go/">Goでサーバを立ち上げてE2Eテストを実施するCI用のテストコードを書く</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/10/30/go-testing2019/">Goのtestを理解する in 2019</a></li>
+  
+  <li><a href="/2018/09/09/go-testing2018-iotest/">Goのtestingを理解する in 2018 - iotestサブパッケージ編 #go</a></li>
+  
+  <li><a href="/2018/09/05/go-testing2018-quick/">Goのtestingを理解する in 2018 - quickサブパッケージ編 #go</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>May 29, 2020</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/test">test</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2020/05/22/package-name-in-go/" title="Goのパッケージ名は単数形？複数形？">Goのパッケージ名は単数形？複数形？</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2020/05/29/go-testing-httptest/">Goのtestを理解する - httptestサブパッケージ編</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2020/05/22/package-name-in-go/">Goのパッケージ名は単数形？複数形？</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/05/14/review-integral-thinking/">[書評] 情報と向きあい、より深い思考をするためにインテグラル・シンキングを読んだ</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/05/08/go-cmp-diif-with-ignore-fields/">[Go] 一部のフィールドを無視して構造体を比較したいときはgo-cmpを使う</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2020  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
