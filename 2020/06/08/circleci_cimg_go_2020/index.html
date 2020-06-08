@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go]次世代イメージcimg/goとcircleci/go Orbsを使った2020年版CircleCIの環境構築 - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="CircleCI,CI,Go言語,自動化,cimg/go,circleci/go">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2020/06/08/circleci_cimg_go_2020/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go]次世代イメージcimg/goとcircleci/go Orbsを使った2020年版CircleCIの環境構築 - My External Storage"/>
+  <meta property="og:description" content="2020年になって、CircleCIのCI用の公式ベースイメージはcimg/base派生になった。
+ただ、2020/06/07現在、Go向けの言語別公式ガイドの中身は古いままである。
+cimg/goを使ったGo向けのCircleCIの設定をまとめる。"/>
+  
+  <meta name="twitter:title" content="[Go]次世代イメージcimg/goとcircleci/go Orbsを使った2020年版CircleCIの環境構築 - My External Storage"/>
+  <meta name="twitter:description" content="2020年になって、CircleCIのCI用の公式ベースイメージはcimg/base派生になった。
+ただ、2020/06/07現在、Go向けの言語別公式ガイドの中身は古いままである。
+cimg/goを使ったGo向けのCircleCIの設定をまとめる。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Jun 8, 2020
+     - 5 minute read 
+     - <a href="https://budougumi0617.github.io/2020/06/08/circleci_cimg_go_2020/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a><a class="label" href="https://budougumi0617.github.io/categories/circleci/">circleci </a>
+    
+  </p>
+  <h1 class="entry-title">
+     [Go]次世代イメージcimg/goとcircleci/go Orbsを使った2020年版CircleCIの環境構築 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#次世代型イメージのcirclciの公式イメージ-cimggo">次世代型イメージのCirclCIの公式イメージ cimg/go</a></li>
+    <li><a href="#cimggoをつかったcircleciの設定">cimg/goをつかったCircleCIの設定</a>
+      <ul>
+        <li><a href="#circlecigolangイメージを使った従来のcircleciの設定">circleci/golangイメージを使った従来のCircleCIの設定</a></li>
+        <li><a href="#cimggoとcirclecigo-orbsを使った2020年版の設定">cimg/goとcircleci/go orbsを使った2020年版の設定</a></li>
+        <li><a href="#go-modulesとcache周りの設定">Go Modulesとcache周りの設定</a></li>
+        <li><a href="#gotestsumを使ったテスト結果の集計">gotestsumを使ったテスト結果の集計</a></li>
+        <li><a href="#cimggoのgopath">cimg/goのGOPATH</a></li>
+      </ul>
+    </li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>2020年になって、CircleCIのCI用の公式ベースイメージは<code>cimg/base</code>派生になった。<br>
+ただ、2020/06/07現在、Go向けの言語別公式ガイドの中身は古いままである。<br>
+<code>cimg/go</code>を使ったGo向けのCircleCIの設定をまとめる。</p>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>CircleCIで利用するコンテナイメージに次世代版が登場した。
+<ul>
+<li><a href="https://hub.docker.com/r/cimg/go">https://hub.docker.com/r/cimg/go</a></li>
+</ul>
+</li>
+<li>直接使わなくても、Orbsが便利
+<ul>
+<li><a href="https://circleci.com/orbs/registry/orb/circleci/go">https://circleci.com/orbs/registry/orb/circleci/go</a></li>
+<li><code>go/mod-download-cached</code>でキャッシュとGo Modules周りがすぐ解決。</li>
+</ul>
+</li>
+<li><code>go-junit-report</code>を<code>go get</code>しなくてもよい
+<ul>
+<li><code>gotestsum</code>コマンドがデフォルトインストールされている</li>
+</ul>
+</li>
+<li><code>GOPATH</code>は変更されているので注意する
+<ul>
+<li><code>/home/circleci/go</code></li>
+</ul>
+</li>
+</ul>
+<p>最小構成のサンプルコードは次のとおり。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">version</span>: <span style="color:#2aa198">2.1</span>
+<span style="color:#719e07">orbs</span>:
+  <span style="color:#719e07">go</span>: circleci/go@<span style="color:#2aa198">1.2.0</span>
+<span style="color:#719e07">jobs</span>:
+  <span style="color:#719e07">build</span>:
+    <span style="color:#719e07">executor</span>:
+      <span style="color:#719e07">name</span>: go/default
+      <span style="color:#719e07">tag</span>: <span style="color:#2aa198">&#39;1.14.4&#39;</span>
+    <span style="color:#719e07">environment</span>:
+      <span style="color:#719e07">TEST_RESULTS</span>: /tmp/test-results
+    <span style="color:#719e07">steps</span>:
+      - checkout
+      - <span style="color:#719e07">run</span>: mkdir -p $TEST_RESULTS
+      - go/mod-download-cached
+      - <span style="color:#719e07">run</span>: gotestsum --junitfile ${TEST_RESULTS}/unit-tests.xml -- -p <span style="color:#2aa198">6</span> -race -cover ./...
+      - <span style="color:#719e07">run</span>: go build ./...
+      - <span style="color:#719e07">store_artifacts</span>:
+          <span style="color:#719e07">path</span>: /tmp/test-results
+          <span style="color:#719e07">destination</span>: raw-test-output
+      - <span style="color:#719e07">store_test_results</span>:
+          <span style="color:#719e07">path</span>: /tmp/test-results
+</code></pre></div><p>サンプルリポジトリは以下。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/cimg_go" data-iframely-url="//cdn.iframe.ly/6jm5N1X"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>なお、動作確認で使ったツールの各バージョン情報は次のとおり。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Go</td>
+<td>1.14.4</td>
+</tr>
+<tr>
+<td>cimg/go image</td>
+<td>1.14.4</td>
+</tr>
+<tr>
+<td>circleci/go orbs</td>
+<td>1.2.0</td>
+</tr>
+</tbody>
+</table>
+<h1 id="次世代型イメージのcirclciの公式イメージ-cimggo">次世代型イメージのCirclCIの公式イメージ cimg/go</h1>
+<p>2020年2月にCircleCIは<code>cimg/base</code>を基にした次世代版のCI用のベースイメージを提供しはじめることをアナウンスした。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://circleci.com/blog/announcing-our-next-generation-convenience-images-smaller-faster-more-deterministic/" data-iframely-url="//cdn.iframe.ly/DKcOtBl?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>そして5月にはGo用の<code>cimg/go</code>が正式リリースされた。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://circleci.com/changelog/" data-iframely-url="//cdn.iframe.ly/9pTZ1zb?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>リリース文のとおり、これは従来の<code>circleci/golang</code>に取って代わるものだ。</p>
+<blockquote>
+<p>This is a direct replacement for the legacy CircleCI Go image (circleci/golang). You can find this image on Docker Hub, and the source code &amp; documentation on GitHub.</p>
+</blockquote>
+<p><code>cimg/xxxx</code>系は<code>circleci/xxx</code>系と比較して、起動時間が高速化されていてリリーススケジュールも安定しているらしい。<br>
+（ただ今回作成したサンプルリポジトリではそこまで高速化の恩恵を感じることはできなかった）。<br>
+Go以外にもRubyやRust用のイメージもリリースされている。</p>
+<p>ただ、2020/06/07現在CircleCI公式ページの言語別セットアップガイドは古い<code>circleci/golang</code>イメージを使った<code>.circleci/config.yml</code>の設定のままだ。</p>
+<ul>
+<li><a href="https://circleci.com/docs/2.0/language-go/">https://circleci.com/docs/2.0/language-go/</a></li>
+</ul>
+<p>なので、2020/06/07時点の最新のCircleCIの設定方法をまとめる。</p>
+<h1 id="cimggoをつかったcircleciの設定">cimg/goをつかったCircleCIの設定</h1>
+<p><code>cimg/go</code>イメージと、<code>circleci/go</code> orbsを使った環境設定方法をまとめる。</p>
+<h2 id="circlecigolangイメージを使った従来のcircleciの設定">circleci/golangイメージを使った従来のCircleCIの設定</h2>
+<p>まず、公式のGo用の環境構築に記載されている従来の設定は次のとおり（CircleCIの設定ファイルバージョンとGoのバージョンは変更している）。
+明示的にGo Modulesを実行していない。
+テスト結果を保存するために<code>jstemmer/go-junit-report</code>を<code>go get</code>していたり冗長な処理が多い。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">version</span>: <span style="color:#2aa198">2.1</span>
+<span style="color:#719e07">jobs</span>:
+  <span style="color:#719e07">build</span>:
+    <span style="color:#719e07">docker</span>:
+      - <span style="color:#719e07">image</span>: circleci/golang:<span style="color:#2aa198">1.14.4</span>
+    <span style="color:#719e07">environment</span>:
+      <span style="color:#719e07">TEST_RESULTS</span>: /tmp/test-results
+    <span style="color:#719e07">steps</span>:
+      - checkout
+      - <span style="color:#719e07">run</span>: mkdir -p $TEST_RESULTS
+      - <span style="color:#719e07">restore_cache</span>:
+          <span style="color:#719e07">keys</span>:
+            - v1-pkg-cache
+      - <span style="color:#719e07">run</span>: go get github.com/jstemmer/go-junit-report
+      - <span style="color:#719e07">run</span>:
+          <span style="color:#719e07">name</span>: Run unit tests
+          <span style="color:#719e07">command</span>: <span style="color:#2aa198">|
+</span><span style="color:#2aa198">            trap &#34;go-junit-report &lt;${TEST_RESULTS}/go-test.out &gt; ${TEST_RESULTS}/go-test-report.xml&#34; EXIT</span>
+            go test -v -p <span style="color:#2aa198">6</span> -race -cover ./... | tee ${TEST_RESULTS}/go-test.out
+      - <span style="color:#719e07">run</span>: go build ./...
+      - <span style="color:#719e07">save_cache</span>:
+          <span style="color:#719e07">key</span>: v1-pkg-cache
+          <span style="color:#719e07">paths</span>:
+            - <span style="color:#2aa198">&#34;/go/pkg&#34;</span>
+      - <span style="color:#719e07">store_artifacts</span>:
+          <span style="color:#719e07">path</span>: /tmp/test-results
+          <span style="color:#719e07">destination</span>: raw-test-output
+      - <span style="color:#719e07">store_test_results</span>:
+          <span style="color:#719e07">path</span>: /tmp/test-results
+</code></pre></div><h2 id="cimggoとcirclecigo-orbsを使った2020年版の設定">cimg/goとcircleci/go orbsを使った2020年版の設定</h2>
+<p>次世代イメージを使った環境設定は次のとおりになる。
+<code>cimg/go</code>イメージをベースに作成された公式orbsイメージを使えばかなりシンプルに書けるようになる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">version</span>: <span style="color:#2aa198">2.1</span>
+<span style="color:#719e07">orbs</span>:
+  <span style="color:#719e07">go</span>: circleci/go@<span style="color:#2aa198">1.2.0</span> <span style="color:#586e75"># https://circleci.com/orbs/registry/orb/circleci/go</span>
+
+<span style="color:#719e07">jobs</span>:
+  <span style="color:#719e07">build</span>:
+    <span style="color:#586e75"># mysqlイメージなども使いたいならばdockerタグでcimg/goを指定すればよいだろう。</span>
+    <span style="color:#719e07">executor</span>:
+      <span style="color:#719e07">name</span>: go/default <span style="color:#586e75"># the base image is cimg/go</span>
+      <span style="color:#719e07">tag</span>: <span style="color:#2aa198">&#39;1.14.4&#39;</span>
+
+    <span style="color:#719e07">environment</span>:
+      <span style="color:#719e07">TEST_RESULTS</span>: /tmp/test-results
+
+    <span style="color:#719e07">steps</span>:
+      - checkout
+      - <span style="color:#719e07">run</span>: mkdir -p $TEST_RESULTS
+      - go/mod-download-cached
+
+      - <span style="color:#719e07">run</span>:
+          <span style="color:#719e07">name</span>: Run unit tests
+          <span style="color:#719e07">command</span>: <span style="color:#2aa198">|
+</span><span style="color:#2aa198">            gotestsum --junitfile ${TEST_RESULTS}/unit-tests.xml -- -p 6 -race -cover ./...</span>
+      - <span style="color:#719e07">run</span>: go build ./...
+
+      - <span style="color:#719e07">store_artifacts</span>:
+          <span style="color:#719e07">path</span>: /tmp/test-results
+          <span style="color:#719e07">destination</span>: raw-test-output
+
+      - <span style="color:#719e07">store_test_results</span>:
+          <span style="color:#719e07">path</span>: /tmp/test-results
+</code></pre></div><p>CircleCIの実行結果は次の通り。</p>
+<ul>
+<li><a href="https://app.circleci.com/pipelines/github/budougumi0617/cimg_go/12/workflows/ededb9df-62e9-4186-bf90-26d6a772d117/jobs/12/steps">https://app.circleci.com/pipelines/github/budougumi0617/cimg_go/12/workflows/ededb9df-62e9-4186-bf90-26d6a772d117/jobs/12/steps</a></li>
+</ul>
+<p>YAML上の設定で変わった点は次のとおりだ。</p>
+<ul>
+<li>OrbsでGo Modulesまわりが簡潔に宣言できる</li>
+<li>コンテナに最初から入っている<code>gotestsum</code>でテスト結果のXMLを出力できる</li>
+</ul>
+<h2 id="go-modulesとcache周りの設定">Go Modulesとcache周りの設定</h2>
+<p><code>circleci/go</code> orbsを使えばGo Modules周りの設定は一行で完了する。<br>
+このOrbsは<code>cimg/go</code>イメージをベースに作られている。</p>
+<ul>
+<li><a href="https://circleci.com/orbs/registry/orb/circleci/go">https://circleci.com/orbs/registry/orb/circleci/go</a></li>
+</ul>
+<p><code>go/mod-download-cached</code>はOrbsに定義された次の処理を一括で行なうステップなので、これだけでCircleCIキャッシュのロード、<code>go mod download</code>、キャッシュの保存が完了する。</p>
+<ul>
+<li><code>go/load-cache</code></li>
+<li><code>go/mod-download</code></li>
+<li><code>go/save-cache</code></li>
+</ul>
+<p>もちろん個別に利用することもできる。</p>
+<h2 id="gotestsumを使ったテスト結果の集計">gotestsumを使ったテスト結果の集計</h2>
+<p>従来の設定では、<code>go-junit-report</code>を使ってテスト結果をXMLで集計していた。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">- <span style="color:#719e07">run</span>:
+  <span style="color:#719e07">name</span>: Run unit tests
+  <span style="color:#719e07">command</span>: <span style="color:#2aa198">|
+</span><span style="color:#2aa198">    trap &#34;go-junit-report &lt;${TEST_RESULTS}/go-test.out &gt; ${TEST_RESULTS}/go-test-report.xml&#34; EXIT</span>
+    go test -v -p <span style="color:#2aa198">6</span> -race -cover ./... | tee ${TEST_RESULTS}/go-test.out
+</code></pre></div><p><code>cimg/go</code>イメージには、<code>gotestsum</code>コマンドが標準で含められており、これを使えばわざわざ<code>go get</code>せずともXMLでテスト結果を集計できる。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://circleci.com/blog/level-up-go-test-with-gotestsum/" data-iframely-url="//cdn.iframe.ly/yCFsBxM?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>そのため、次のような1行でテスト結果を集計しながらこちらで決めたオプションを使って<code>go test</code>が実行できる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">- <span style="color:#719e07">run</span>: gotestsum --junitfile ${TEST_RESULTS}/unit-tests.xml -- -p <span style="color:#2aa198">6</span> -race -cover ./...
+</code></pre></div><p>ちゃんと設定できていると、ジョブ実行結果のテストタブでテスト結果が集計される。</p>
+<ul>
+<li><a href="https://app.circleci.com/pipelines/github/budougumi0617/cimg_go/4/workflows/eda37ff8-0026-4805-b5b0-e70b2eb5712e/jobs/4">https://app.circleci.com/pipelines/github/budougumi0617/cimg_go/4/workflows/eda37ff8-0026-4805-b5b0-e70b2eb5712e/jobs/4</a></li>
+</ul>
+<p><img src="/2020/06/08_test_fail.png" alt="テスト結果の集計"></p>
+<h2 id="cimggoのgopath">cimg/goのGOPATH</h2>
+<p>既存のYAMLに手を加えず、<code>circleci/golang</code>から<code>cimg/go</code>にひとまず移行したいときもあるかもしれない。<br>
+<code>circleci/golang</code>という指定を<code>cimg/go</code>に変更するだけでも動くのだが、<code>GOPATH</code>は変わっているので注意すること。<br>
+<code>cimg/go</code>イメージの<code>GOPATH</code>は<code>/home/circleci/go</code>になっている。</p>
+<h1 id="終わりに">終わりに</h1>
+<p>Orbsを使うことでだいぶYAMLがさっぱりした。
+最近は流行りもありGitHub Actionsを使いがちだったが、CircleCIのキャッチアップができてよかった。</p>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a href="https://github.com/budougumi0617/cimg_go">https://github.com/budougumi0617/cimg_go</a>
+<ul>
+<li><a href="https://app.circleci.com/pipelines/github/budougumi0617/cimg_go">https://app.circleci.com/pipelines/github/budougumi0617/cimg_go</a></li>
+</ul>
+</li>
+<li><a href="https://circleci.com/blog/announcing-our-next-generation-convenience-images-smaller-faster-more-deterministic/">Announcing our next-generation convenience images: smaller, faster, more deterministic | circleci Blog</a></li>
+<li><a href="https://circleci.com/changelog#circleci-s-next-gen-go-convenience-image-has-been-released">CircleCI’s next-gen Go convenience image has been released</a></li>
+<li><a href="https://hub.docker.com/r/cimg/go">cimg/go | Docker Hub</a></li>
+<li><a href="https://circleci.com/orbs/registry/orb/circleci/go">circleci/go | CirceCI Orbs</a></li>
+<li><a href="https://circleci.com/blog/level-up-go-test-with-gotestsum/">Level up go test with gotestsum | cricleci Blog</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/04/21/ci_go_with_multiple_jobs_on_circleci/">[Go] CicleCI2.1でgo modのデータを共有しながら複数ジョブを実行する</a></li>
+  
+  <li><a href="/2020/05/08/go-cmp-diif-with-ignore-fields/">[Go] 一部のフィールドを無視して構造体を比較したいときはgo-cmpを使う</a></li>
+  
+  <li><a href="/2020/03/27/http-test-in-go/">Goでサーバを立ち上げてE2Eテストを実施するCI用のテストコードを書く</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Jun 8, 2020</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/circleci">circleci</a>  <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/ci">CI</a>  <a class="category" href="https://budougumi0617.github.io/tags/test">test</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2020/06/04/connehito_marche/" title="[発表資料]ゆるふわ分散トレースはじめました #コネヒトマルシェ">[発表資料]ゆるふわ分散トレースはじめました #コネヒトマルシェ</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2020/06/08/circleci_cimg_go_2020/">[Go]次世代イメージcimg/goとcircleci/go Orbsを使った2020年版CircleCIの環境構築</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2020/06/04/connehito_marche/">[発表資料]ゆるふわ分散トレースはじめました #コネヒトマルシェ</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/05/29/go-testing-httptest/">Goのtestを理解する - httptestサブパッケージ編</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/05/22/package-name-in-go/">Goのパッケージ名は単数形？複数形？</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2020  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
