@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go]HTTPレスポンスボディの内容をログに残したい - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="Go,Golang,Go言語,net/http,logging">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2020/06/21/record_response_body/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go]HTTPレスポンスボディの内容をログに残したい - My External Storage"/>
+  <meta property="og:description" content="GoでHTTPサーバを作成するとき、アクセスログを収集する文脈でレスポンスを記録したくなるだろう。
+Middlewareを作成して、HTTPレスポンスをLoggerに出力するやり方をまとめる。"/>
+  
+  <meta name="twitter:title" content="[Go]HTTPレスポンスボディの内容をログに残したい - My External Storage"/>
+  <meta name="twitter:description" content="GoでHTTPサーバを作成するとき、アクセスログを収集する文脈でレスポンスを記録したくなるだろう。
+Middlewareを作成して、HTTPレスポンスをLoggerに出力するやり方をまとめる。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Jun 21, 2020
+     - 4 minute read 
+     - <a href="https://budougumi0617.github.io/2020/06/21/record_response_body/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+    
+  </p>
+  <h1 class="entry-title">
+     [Go]HTTPレスポンスボディの内容をログに残したい 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#レスポンスボディをログに残したい">レスポンスボディをログに残したい</a></li>
+    <li><a href="#httpresponsewriterを満たすiomultiwriterを使った構造体を作る">http.ResponseWriterを満たすio.MultiWriterを使った構造体を作る</a></li>
+    <li><a href="#動作確認テストコード">動作確認（テストコード）</a></li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>GoでHTTPサーバを作成するとき、アクセスログを収集する文脈でレスポンスを記録したくなるだろう。
+Middlewareを作成して、HTTPレスポンスをLoggerに出力するやり方をまとめる。</p>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li><code>http.ResponseWriter</code>に書き込んだ内容をログ出力したい
+<ul>
+<li><code>Read</code>メソッドは生えていない</li>
+</ul>
+</li>
+<li><code>http.ResponseWriter</code>はインターフェイスなので挿げ替えができる。
+<ul>
+<li><code>io.MultiWriter</code>を使って出力を横流しするラッパーを作成する</li>
+</ul>
+</li>
+<li>レスポンスをloggerに出力するHTTP Middlewareのサンプルを作った。</li>
+</ul>
+<p>サンプルコードの主旨は以下。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> rwWrapper <span style="color:#268bd2">struct</span> {
+	rw http.ResponseWriter
+	mw io.Writer
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">NewRwWrapper</span>(rw http.ResponseWriter, buf io.Writer) <span style="color:#719e07">*</span>rwWrapper {
+	<span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>rwWrapper{
+		rw: rw,
+		mw: io.<span style="color:#268bd2">MultiWriter</span>(rw, buf),
+	}
+}
+
+<span style="color:#268bd2">func</span> (r <span style="color:#719e07">*</span>rwWrapper) <span style="color:#268bd2">Header</span>() http.Header {
+	<span style="color:#719e07">return</span> r.rw.<span style="color:#268bd2">Header</span>()
+}
+
+<span style="color:#268bd2">func</span> (r <span style="color:#719e07">*</span>rwWrapper) <span style="color:#268bd2">Write</span>(i []<span style="color:#dc322f">byte</span>) (<span style="color:#dc322f">int</span>, <span style="color:#dc322f">error</span>) {
+	<span style="color:#719e07">return</span> r.mw.<span style="color:#268bd2">Write</span>(i)
+}
+
+<span style="color:#268bd2">func</span> (r <span style="color:#719e07">*</span>rwWrapper) <span style="color:#268bd2">WriteHeader</span>(statusCode <span style="color:#dc322f">int</span>) {
+	r.rw.<span style="color:#268bd2">WriteHeader</span>(statusCode)
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">NewLogger</span>(l <span style="color:#719e07">*</span>log.Logger) <span style="color:#268bd2">func</span>(http.Handler) http.Handler {
+	<span style="color:#719e07">return</span> <span style="color:#268bd2">func</span>(next http.Handler) http.Handler {
+		<span style="color:#719e07">return</span> http.<span style="color:#268bd2">HandlerFunc</span>(<span style="color:#268bd2">func</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
+			buf <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>bytes.Buffer{}
+			rww <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewRwWrapper</span>(w, buf)
+			next.<span style="color:#268bd2">ServeHTTP</span>(rww, r)
+			l.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s&#34;</span>, buf)
+		})
+	}
+}
+</code></pre></div><h1 id="レスポンスボディをログに残したい">レスポンスボディをログに残したい</h1>
+<p>HTTPサーバを作るとき、リクエストやレスポンスをログとして記録したくなるときがある。</p>
+<ul>
+<li>Pattern: Audit logging
+<ul>
+<li><a href="https://microservices.io/patterns/observability/audit-logging.html">https://microservices.io/patterns/observability/audit-logging.html</a></li>
+</ul>
+</li>
+</ul>
+<p>Goではこのようなとき、HTTP Middlewareを作成することが多い。
+リクエストに関しては前処理できるのだが、レスポンスボディをログに残すには一工夫が必要になる。
+というのも、Goの<code>http.Handler</code>のシグネチャに使われている<code>http.ResponseWriter</code>インターフェイスは読み取りに関するメソッドを持っていないからだ。</p>
+<p>ただ、<code>http.ResponseWriter</code>はインターフェイスなので、ラッパーなどの作成も容易だ。
+<code>http.ResponseWriter</code>をラップしてロガーにレスポンスボディを記録するHTTP Middlewareを作成してみる。</p>
+<h1 id="httpresponsewriterを満たすiomultiwriterを使った構造体を作る">http.ResponseWriterを満たすio.MultiWriterを使った構造体を作る</h1>
+<p>ここでは<code>io.MultiWriter</code>関数を使う。</p>
+<ul>
+<li><a href="https://golang.org/pkg/io/#MultiWriter">https://golang.org/pkg/io/#MultiWriter</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">MultiWriter</span>(writers <span style="color:#719e07">...</span>Writer) Writer
+</code></pre></div><p><code>io.MultiWriter</code>関数の戻り値として得られる<code>io.Writer</code>オブジェクトは引数の<code>writers</code>の<code>io.Writer</code>オブジェクトに同じ内容を書き込む。
+これを使ってレスポンスとロガー（で記録するバッファ）に同じ内容を書き込むようなラッパー構造体を作成する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// http.ResponseWriterインターフェースを満たすためにHeaderとWriteHeaderメソッドも実装する
+</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> rwWrapper <span style="color:#268bd2">struct</span> {
+	rw http.ResponseWriter
+	mw io.Writer
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">NewRwWrapper</span>(rw http.ResponseWriter, buf io.Writer) <span style="color:#719e07">*</span>rwWrapper {
+	<span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>rwWrapper{
+		rw: rw,
+		mw: io.<span style="color:#268bd2">MultiWriter</span>(rw, buf),
+	}
+}
+
+<span style="color:#268bd2">func</span> (r <span style="color:#719e07">*</span>rwWrapper) <span style="color:#268bd2">Write</span>(i []<span style="color:#dc322f">byte</span>) (<span style="color:#dc322f">int</span>, <span style="color:#dc322f">error</span>) {
+	<span style="color:#719e07">return</span> r.mw.<span style="color:#268bd2">Write</span>(i)
+}
+</code></pre></div><p><code>rwWrapper</code>構造体は<code>NewRwWrapper</code>関数で受け取った<code>http.ResponseWriter</code>の薄いラッパー構造体だ。
+レスポンスボディへの書き込みが行われるとき、<code>io.Writer</code>を使って<code>buf</code>オブジェクトにその内容を横流しする。</p>
+<p>あとは実際のハンドラーにわたす<code>http.ResponseWriter</code>オブジェクトをすげ替えるMiddlewareを作成する。
+実際のハンドラーの処理がおわったあとにバッファからレスポンスを読み出せばよい。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// ロガーをDIしてmiddlewareを返す
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewLogger</span>(l <span style="color:#719e07">*</span>log.Logger) <span style="color:#268bd2">func</span>(http.Handler) http.Handler {
+    <span style="color:#586e75">// nextハンドラーのレスポンスをロガーに出力するmiddleware
+</span><span style="color:#586e75"></span>	<span style="color:#719e07">return</span> <span style="color:#268bd2">func</span>(next http.Handler) http.Handler {
+		<span style="color:#719e07">return</span> http.<span style="color:#268bd2">HandlerFunc</span>(<span style="color:#268bd2">func</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
+			buf <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>bytes.Buffer{}
+			rww <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewRwWrapper</span>(w, buf)
+			next.<span style="color:#268bd2">ServeHTTP</span>(rww, r)
+			l.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s&#34;</span>, buf)
+		})
+	}
+}
+</code></pre></div><h1 id="動作確認テストコード">動作確認（テストコード）</h1>
+<p>作成したHTTP Middlewareのテストコードを書いてみる。
+クライアントとMiddelewareを呼び出すサーバを作り、クライアントが受信したデータとロガーに流し込まれたデータを比較する。</p>
+<ul>
+<li><a href="https://play.golang.org/p/2JoamybGQzn">https://play.golang.org/p/2JoamybGQzn</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+	<span style="color:#2aa198">&#34;bytes&#34;</span>
+	<span style="color:#2aa198">&#34;context&#34;</span>
+	<span style="color:#2aa198">&#34;fmt&#34;</span>
+	<span style="color:#2aa198">&#34;io&#34;</span>
+	<span style="color:#2aa198">&#34;io/ioutil&#34;</span>
+	<span style="color:#2aa198">&#34;log&#34;</span>
+	<span style="color:#2aa198">&#34;net/http&#34;</span>
+	<span style="color:#2aa198">&#34;net/http/httptest&#34;</span>
+	<span style="color:#2aa198">&#34;strings&#34;</span>
+	<span style="color:#2aa198">&#34;testing&#34;</span>
+	<span style="color:#2aa198">&#34;time&#34;</span>
+)
+
+<span style="color:#268bd2">type</span> rwWrapper <span style="color:#268bd2">struct</span> {
+	rw http.ResponseWriter
+	mw io.Writer
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">NewRwWrapper</span>(rw http.ResponseWriter, buf io.Writer) <span style="color:#719e07">*</span>rwWrapper {
+	<span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>rwWrapper{
+		rw: rw,
+		mw: io.<span style="color:#268bd2">MultiWriter</span>(rw, buf),
+	}
+}
+
+<span style="color:#268bd2">func</span> (r <span style="color:#719e07">*</span>rwWrapper) <span style="color:#268bd2">Header</span>() http.Header {
+	<span style="color:#719e07">return</span> r.rw.<span style="color:#268bd2">Header</span>()
+}
+
+<span style="color:#268bd2">func</span> (r <span style="color:#719e07">*</span>rwWrapper) <span style="color:#268bd2">Write</span>(i []<span style="color:#dc322f">byte</span>) (<span style="color:#dc322f">int</span>, <span style="color:#dc322f">error</span>) {
+	<span style="color:#719e07">return</span> r.mw.<span style="color:#268bd2">Write</span>(i)
+}
+
+<span style="color:#268bd2">func</span> (r <span style="color:#719e07">*</span>rwWrapper) <span style="color:#268bd2">WriteHeader</span>(statusCode <span style="color:#dc322f">int</span>) {
+	r.rw.<span style="color:#268bd2">WriteHeader</span>(statusCode)
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">NewLogger</span>(l <span style="color:#719e07">*</span>log.Logger) <span style="color:#268bd2">func</span>(http.Handler) http.Handler {
+	<span style="color:#719e07">return</span> <span style="color:#268bd2">func</span>(next http.Handler) http.Handler {
+		<span style="color:#719e07">return</span> http.<span style="color:#268bd2">HandlerFunc</span>(<span style="color:#268bd2">func</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
+			buf <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>bytes.Buffer{}
+			rww <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewRwWrapper</span>(w, buf)
+			next.<span style="color:#268bd2">ServeHTTP</span>(rww, r)
+			l.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s&#34;</span>, buf)
+		})
+	}
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">TestLogger</span>(t <span style="color:#719e07">*</span>testing.T) {
+	h <span style="color:#719e07">:=</span> http.<span style="color:#268bd2">HandlerFunc</span>(<span style="color:#268bd2">func</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
+		_, _ = fmt.<span style="color:#268bd2">Fprint</span>(w, <span style="color:#2aa198">&#34;Hello, client&#34;</span>)
+	})
+	buf <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>bytes.Buffer{}
+	l <span style="color:#719e07">:=</span> log.<span style="color:#268bd2">New</span>(buf, <span style="color:#2aa198">&#34;&#34;</span>, <span style="color:#2aa198">0</span>)
+	ts <span style="color:#719e07">:=</span> httptest.<span style="color:#268bd2">NewServer</span>(<span style="color:#268bd2">NewLogger</span>(l)(h))
+	t.<span style="color:#268bd2">Cleanup</span>(ts.Close)
+
+	cli <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>http.Client{
+		Timeout: <span style="color:#2aa198">2</span> <span style="color:#719e07">*</span> time.Second,
+	}
+	req, err <span style="color:#719e07">:=</span> http.<span style="color:#268bd2">NewRequestWithContext</span>(context.<span style="color:#268bd2">TODO</span>(), <span style="color:#2aa198">&#34;GET&#34;</span>, ts.URL, <span style="color:#cb4b16">nil</span>)
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		t.<span style="color:#268bd2">Fatal</span>(err)
+	}
+
+	resp, err <span style="color:#719e07">:=</span> cli.<span style="color:#268bd2">Do</span>(req)
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		t.<span style="color:#268bd2">Fatal</span>(err)
+	}
+
+	<span style="color:#586e75">// compare logging data and client received value.
+</span><span style="color:#586e75"></span>	want, err <span style="color:#719e07">:=</span> ioutil.<span style="color:#268bd2">ReadAll</span>(resp.Body)
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		t.<span style="color:#268bd2">Fatal</span>(err)
+	}
+	_ = resp.Body.<span style="color:#268bd2">Close</span>()
+	<span style="color:#586e75">// \nが混ざっているので、完全一致にはならない
+</span><span style="color:#586e75"></span>	<span style="color:#719e07">if</span> !strings.<span style="color:#268bd2">Contains</span>(buf.<span style="color:#268bd2">String</span>(), <span style="color:#b58900">string</span>(want)) {
+		t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;want %q, but %q&#34;</span>, want, buf)
+	}
+}
+</code></pre></div><p>実際に動かすとロガーにレスポンスボディが流れていることを確認できた。</p>
+<h1 id="終わりに">終わりに</h1>
+<p>実際に使うときは標準pkgのロガーではなくOSSのロガーを使うだろうが大体同じ構造になるはずだ。
+ただし、レスポンスにはセンシティブな情報が含まれる場合もある。必要に応じてマスキングなどの作り込みが必要だろう。</p>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a href="https://play.golang.org/p/dSpnSfQjHi5">https://play.golang.org/p/dSpnSfQjHi5</a></li>
+<li><a href="https://microservices.io/patterns/observability/audit-logging.html">https://microservices.io/patterns/observability/audit-logging.html</a></li>
+<li><a href="https://golang.org/pkg/net/http/#ResponseWriter">https://golang.org/pkg/net/http/#ResponseWriter</a></li>
+<li><a href="https://golang.org/pkg/io/#MultiWriter">https://golang.org/pkg/io/#MultiWriter</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2020/05/01/use-datastore-emulator-on-github-actions/">GitHub Actions上でGCP Datastoreエミュレータを使ったテストを実行する</a></li>
+  
+  <li><a href="/2020/03/27/http-test-in-go/">Goでサーバを立ち上げてE2Eテストを実施するCI用のテストコードを書く</a></li>
+  
+  <li><a href="/2019/10/05/jrits-why-go-how-is-go/">[発表資料] 第138回RITS技術交流会『なぜ私たちはGoを書くのか。今あらためて考えるGo言語の良さと実際』</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Jun 21, 2020</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/net/http">net/http</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2020/06/08/circleci_cimg_go_2020/" title="[Go]次世代イメージcimg/goとcircleci/go Orbsを使った2020年版CircleCIの環境構築">[Go]次世代イメージcimg/goとcircleci/go Orbsを使った2020年版CircleCIの環境構築</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2020/06/21/record_response_body/">[Go]HTTPレスポンスボディの内容をログに残したい</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2020/06/08/circleci_cimg_go_2020/">[Go]次世代イメージcimg/goとcircleci/go Orbsを使った2020年版CircleCIの環境構築</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/06/04/connehito_marche/">[発表資料]ゆるふわ分散トレースはじめました #コネヒトマルシェ</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/05/29/go-testing-httptest/">Goのtestを理解する - httptestサブパッケージ編</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2020  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
