@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go] gopls 0.4.3で構造体を初期化（&#34;fillstruct&#34;）しようとしても、&#34;No code actions found&#34;とだけ表示される - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="vim,LSP,vim-lsp,gopls,fillstruct">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2020/07/18/use_fillstruct_of_goplus_on_vim/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go] gopls 0.4.3で構造体を初期化（&#34;fillstruct&#34;）しようとしても、&#34;No code actions found&#34;とだけ表示される - My External Storage"/>
+  <meta property="og:description" content="gopls 0.4.3を使って構造体を初期化（fillstruct）しようとする（正確に言うとvim-lspで:LspCodeActionをする）と、No code actions foundと表示されるだけで初期化ができなかった。
+0.4.3でも構造体の初期化を行うためのメモ。"/>
+  
+  <meta name="twitter:title" content="[Go] gopls 0.4.3で構造体を初期化（&#34;fillstruct&#34;）しようとしても、&#34;No code actions found&#34;とだけ表示される - My External Storage"/>
+  <meta name="twitter:description" content="gopls 0.4.3を使って構造体を初期化（fillstruct）しようとする（正確に言うとvim-lspで:LspCodeActionをする）と、No code actions foundと表示されるだけで初期化ができなかった。
+0.4.3でも構造体の初期化を行うためのメモ。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Jul 18, 2020
+     - 4 minute read 
+     - <a href="https://budougumi0617.github.io/2020/07/18/use_fillstruct_of_goplus_on_vim/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/vim/">vim </a><a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+    
+  </p>
+  <h1 class="entry-title">
+     [Go] gopls 0.4.3で構造体を初期化（&#34;fillstruct&#34;）しようとしても、&#34;No code actions found&#34;とだけ表示される 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#goplsを使って構造体を初期化したい">goplsを使って構造体を初期化したい</a></li>
+    <li><a href="#gopls043以降ではfillstruct機能はデフォルト無効になっている">gopls0.4.3以降ではfillstruct機能はデフォルト無効になっている</a>
+      <ul>
+        <li><a href="#tips">Tips</a></li>
+      </ul>
+    </li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>gopls 0.4.3を使って構造体を初期化（<code>fillstruct</code>）しようとする（正確に言うとvim-lspで<code>:LspCodeAction</code>をする）と、<code>No code actions found</code>と表示されるだけで初期化ができなかった。<br>
+0.4.3でも構造体の初期化を行うためのメモ。</p>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>Vimでgoplsを使ったGoの開発環境構築をしている</li>
+<li>構造体を初期化する<code>fillstruct</code>機能がローカルでは動作しなかった
+<ul>
+<li><a href="https://twitter.com/mattn_jp/status/1278333328903426048">https://twitter.com/mattn_jp/status/1278333328903426048</a></li>
+</ul>
+</li>
+<li>gopls 0.4.3から<code>fillstruct</code>機能は無効になっているので、明示的に有効にする必要がある。</li>
+<li>vim-lspで有効にするには次のような設定になる。</li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-vimrc" data-lang="vimrc">  <span style="color:#719e07">let</span> g:lsp_settings = {}
+  <span style="color:#719e07">let</span> g:lsp_settings[<span style="color:#2aa198">&#39;gopls&#39;</span>] = {
+    \  <span style="color:#2aa198">&#39;workspace_config&#39;</span>: {
+    \    <span style="color:#2aa198">&#39;usePlaceholders&#39;</span>: v:true,
+    \    <span style="color:#2aa198">&#39;analyses&#39;</span>: {
+    \      <span style="color:#2aa198">&#39;fillstruct&#39;</span>: v:true,
+    \    },
+    \  },
+    \  <span style="color:#2aa198">&#39;initialization_options&#39;</span>: {
+    \    <span style="color:#2aa198">&#39;usePlaceholders&#39;</span>: v:true,
+    \    <span style="color:#2aa198">&#39;analyses&#39;</span>: {
+    \      <span style="color:#2aa198">&#39;fillstruct&#39;</span>: v:true,
+    \    },
+    \  },
+    \}
+</code></pre></div><p>今回の現象が発生する各ツールのバージョンは次の通り。</p>
+<pre><code>$ vim -version
+VIM - Vi IMproved 8.2 (2019 Dec 12, compiled May 19 2020 22:07:34)
+Garbage after option argument: &quot;-version&quot;
+More info with: &quot;vim -h&quot;
+$ gopls version
+golang.org/x/tools/gopls 0.4.3
+    golang.org/x/tools/gopls@v0.4.3 h1:irz7Q+XdHNECamFKbNWKvMV2Ak6zBbwdwbZndG4545I=
+</code></pre><h1 id="goplsを使って構造体を初期化したい">goplsを使って構造体を初期化したい</h1>
+<p>Vim、vim-lsp、goplsを使ってGoの開発環境を構築している。<br>
+vim-go利用時に便利だった構造体を中身をゼロ値で初期化する<code>fillstruct</code>機能が便利だったので、goplsでも使いたいと思った。</p>
+<blockquote class="twitter-tweet"><p lang="ja" dir="ltr">そういえばあまりアナウンスされてなかったけど、最近の gopls には Fill Struct 機能が入ってます。vim-lsp からであれば :LspCodeAction で使える様になってます。 <a href="https://twitter.com/hashtag/golang?src=hash&amp;ref_src=twsrc%5Etfw">#golang</a> <a href="https://t.co/HxyBvYRrCa">pic.twitter.com/HxyBvYRrCa</a></p>&mdash; mattn (@mattn_jp) <a href="https://twitter.com/mattn_jp/status/1278333328903426048?ref_src=twsrc%5Etfw">July 1, 2020</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<p>ただ、実際に自分のVimでtweetの通りに（<code>:LspCodeAction</code>を）実行しても<code>No code actions found</code>と出るだけで構造体の初期化ができなかった。</p>
+<p>goplsは<code>go get golang.org/x/tools/gopls@latest</code>して2020/07/17時点で最新のバージョン（0.4.3）を利用していた。</p>
+<h1 id="gopls043以降ではfillstruct機能はデフォルト無効になっている">gopls0.4.3以降ではfillstruct機能はデフォルト無効になっている</h1>
+<p>vim-jp Slackで質問していろいろ調べてもらった結果、goplsの<code>fillstrcut</code>機能は2020/07/09にリリースされたv0.4.3からはデフォルトオフになっていた。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/golang/tools/releases/tag/gopls%252Fv0.4.3" data-iframely-url="//cdn.iframe.ly/CALRbZC"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<blockquote>
+<p>Disable the fillstruct analysis by default.
+We recently uncovered some performance issues with the analysis, leading us to disable it by default.
+Once those issues are resolved, we will enable it by default again.</p>
+</blockquote>
+<p>パフォーマンス問題が解決するまではデフォルト無効になったようだ。
+リリースノートにはVS Codeで有効化する方法が書いてあるが、vim-lspでこれと同じ<code>fillstrcut</code>機能を有効化する設定方法は次のとおり。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-vimrc" data-lang="vimrc">  <span style="color:#719e07">let</span> g:lsp_settings = {}
+  <span style="color:#719e07">let</span> g:lsp_settings[<span style="color:#2aa198">&#39;gopls&#39;</span>] = {
+    \  <span style="color:#2aa198">&#39;workspace_config&#39;</span>: {
+    \    <span style="color:#2aa198">&#39;usePlaceholders&#39;</span>: v:true,
+    \    <span style="color:#2aa198">&#39;analyses&#39;</span>: {
+    \      <span style="color:#2aa198">&#39;fillstruct&#39;</span>: v:true,
+    \    },
+    \  },
+    \  <span style="color:#2aa198">&#39;initialization_options&#39;</span>: {
+    \    <span style="color:#2aa198">&#39;usePlaceholders&#39;</span>: v:true,
+    \    <span style="color:#2aa198">&#39;analyses&#39;</span>: {
+    \      <span style="color:#2aa198">&#39;fillstruct&#39;</span>: v:true,
+    \    },
+    \  },
+    \}
+</code></pre></div><h2 id="tips">Tips</h2>
+<p>調査の中で教えてもらった便利なことをメモしておく</p>
+<h3 id="特定のバージョンのgoplsを利用する">特定のバージョンのgoplsを利用する</h3>
+<p>再現などの用途で特定のバージョンのライブラリを利用したいときは<code>go get</code>するときに<code>go get golang.org/x/tools/gopls@v0.4.2</code>とする。
+goplsを<code>go get</code>するときは<code>-u</code>を使ってはいけない。</p>
+<h3 id="lspinstallserverコマンドについて">LspInstallServerコマンドについて</h3>
+<p>vim-lsp-settingspの<code>:LspInstallServer</code>を行うと、独自にgoplsのバイナリがインストールされてしまうらしい。
+ターミナル上で手動<code>go get</code>を使って取得したgoplsを使いたいときは、<code>:LspUninstallServer gopls</code>しておくこと。<br>
+また、vim-lsp-settingsでインストールしたバイナリを更新したいときは、再度<code>:LspInstallServer gopls</code>をすればVimが見ているgoplsが更新される。</p>
+<h3 id="lspcodelensで使える機能はまだvimには早いかも">LspCodeLensで使える機能はまだVimには早いかも</h3>
+<p>このあたりの設定を見ると、LSPから<code>go test</code>が実行できそうに見える。
+<a href="https://github.com/golang/tools/blob/0dca43fff13b95e02f929f8c7fd7e5952943e224/internal/lsp/source/options.go#L103-L109">https://github.com/golang/tools/blob/0dca43fff13b95e02f929f8c7fd7e5952943e224/internal/lsp/source/options.go#L103-L109</a></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">SupportedCommands: []<span style="color:#dc322f">string</span>{
+  CommandTest,
+  CommandTidy,
+  CommandUpgradeDependency,
+  CommandGenerate,
+  CommandRegenerateCgo,
+},
+</code></pre></div><p>これは次のような設定を使うと、有効化される。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-vimrc" data-lang="vimrc">\ <span style="color:#2aa198">&#34;codelens&#34;</span>: {
+\   <span style="color:#2aa198">&#34;test&#34;</span>: v:true
+\ },
+</code></pre></div><p>ただ、vim-lspにはLSPが実行したテストの結果をパースする機能がないため、UI上でその結果を得られないためまだちゃんと使える機能ではないらしい。</p>
+<h1 id="終わりに">終わりに</h1>
+<p>リリースノートを読んでから使おうね案件だった。<br>
+ただ、自分でリリースノートを見ても、vim上で<code>&quot;gopls&quot;: {&quot;analyses&quot;: {&quot;fillstruct&quot;: true}}</code>の設定をどう書けばいいのかわからなかったので、質問してよかった。<br>
+ローカルで再現してくれたり、<code>g:lsp_settings</code>の書き方を教えてくださったり、vim-jp Slackのみなさんに感謝！！</p>
+<p>（<code>fillstruct</code>はまだ載っていないが、）goplsでできることは次のMarkdownにまとまっているので、他にも有効化すべき機能はないか探してみる。
+<a href="https://github.com/golang/tools/blob/master/gopls/doc/analyzers.md">https://github.com/golang/tools/blob/master/gopls/doc/analyzers.md</a></p>
+<p>vim-goからLSPに移行をしてみて、だいぶ設定ができたと思うので、もうちょっとこなれたら改めてLSPの設定をまとめようと思う。</p>
+<ul>
+<li><a href="https://github.com/budougumi0617/dotfiles/blob/master/home/.vimrc">https://github.com/budougumi0617/dotfiles/blob/master/home/.vimrc</a></li>
+<li><a href="https://github.com/budougumi0617/dotfiles/blob/master/home/.vim/dein.toml">https://github.com/budougumi0617/dotfiles/blob/master/home/.vim/dein.toml</a></li>
+</ul>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a href="https://twitter.com/mattn_jp/status/1278333328903426048">https://twitter.com/mattn_jp/status/1278333328903426048</a></li>
+<li><a href="https://github.com/golang/tools/releases/tag/gopls%2Fv0.4.3">https://github.com/golang/tools/releases/tag/gopls%2Fv0.4.3</a></li>
+<li><a href="https://github.com/golang/tools/blob/master/gopls/doc/analyzers.md">https://github.com/golang/tools/blob/master/gopls/doc/analyzers.md</a></li>
+<li><a href="https://github.com/mattn/vim-lsp-settings">https://github.com/mattn/vim-lsp-settings</a></li>
+<li><a href="https://github.com/prabirshrestha/vim-lsp">https://github.com/prabirshrestha/vim-lsp</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/11/18/resolve-golangci-lint-setting-with-vim-go/">[Go] &#34;vim-go: [golangci-lint] FAIL&#34;エラーが出てvim-goでgolangci-lintが動かない</a></li>
+  
+  <li><a href="/2018/10/22/deug-gocode-and-vim-go-auto-completion/">vim-goの自動補完が効かないときの調べ方（gocode が Error parsing input file (outer block)） #vim #go</a></li>
+  
+  <li><a href="/2018/05/30/debug-go-by-vim-go-and-delve/">[Go]vim-goとDelveでVim上からGoのデバッグを行う #vim #golang</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Jul 18, 2020</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/vim">vim</a>  <a class="category" href="https://budougumi0617.github.io/tags/lsp">lsp</a>  <a class="category" href="https://budougumi0617.github.io/tags/gopls">gopls</a>  <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/vim-lsp">vim-lsp</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2020/06/21/record_response_body/" title="[Go]HTTPレスポンスボディの内容をログに残したい">[Go]HTTPレスポンスボディの内容をログに残したい</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2020/07/18/use_fillstruct_of_goplus_on_vim/">[Go] gopls 0.4.3で構造体を初期化（&#34;fillstruct&#34;）しようとしても、&#34;No code actions found&#34;とだけ表示される</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2020/06/21/record_response_body/">[Go]HTTPレスポンスボディの内容をログに残したい</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/06/08/circleci_cimg_go_2020/">[Go]次世代イメージcimg/goとcircleci/go Orbsを使った2020年版CircleCIの環境構築</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/06/04/connehito_marche/">[発表資料]ゆるふわ分散トレースはじめました #コネヒトマルシェ</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2020  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
