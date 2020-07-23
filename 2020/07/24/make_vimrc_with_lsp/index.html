@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>vim-goを使わず、LSP（gopls）を使ってVimのGo開発環境を構築する - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="vim,LSP,vim-lsp,gopls,fillstruct">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2020/07/24/make_vimrc_with_lsp/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="vim-goを使わず、LSP（gopls）を使ってVimのGo開発環境を構築する - My External Storage"/>
+  <meta property="og:description" content="2020年にもなったので、vim-goを卒業して、vim-lsp（gopls）を使ったVimの開発環境を構築する。"/>
+  
+  <meta name="twitter:title" content="vim-goを使わず、LSP（gopls）を使ってVimのGo開発環境を構築する - My External Storage"/>
+  <meta name="twitter:description" content="2020年にもなったので、vim-goを卒業して、vim-lsp（gopls）を使ったVimの開発環境を構築する。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Jul 24, 2020
+     - 8 minute read 
+     - <a href="https://budougumi0617.github.io/2020/07/24/make_vimrc_with_lsp/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/vim/">vim </a><a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+    
+  </p>
+  <h1 class="entry-title">
+     vim-goを使わず、LSP（gopls）を使ってVimのGo開発環境を構築する 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#vim-goは">vim-goは？</a></li>
+    <li><a href="#プラグインマネージャの設定">プラグインマネージャの設定</a></li>
+    <li><a href="#lspの設定">LSPの設定</a>
+      <ul>
+        <li><a href="#ファイル保存時の自動フォーマットgoimports">ファイル保存時の自動フォーマット、goimports</a></li>
+        <li><a href="#vim上からテストを実行する">Vim上からテストを実行する</a></li>
+        <li><a href="#vim上からdelveを使ってデバッグを行う">Vim上からdelveを使ってデバッグを行う</a></li>
+      </ul>
+    </li>
+    <li><a href="#その他のプラグイン">その他のプラグイン</a>
+      <ul>
+        <li><a href="#その他の設定">その他の設定</a></li>
+      </ul>
+    </li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>2020年にもなったので、vim-goを卒業して、vim-lsp（gopls）を使ったVimの開発環境を構築する。</p>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>vim-goを卒業してgoplsとvim-lspを使った開発環境を構築する</li>
+<li>VimでLSP（とその他プラグイン）を使えば以下のことができる
+<ul>
+<li>リアルタイムで静的解析の結果をエディタ上に反映する</li>
+<li>ポップアップで静的解析のエラーを表示する</li>
+<li>ポップアップで関数定義などのコメントを表示する</li>
+<li>定義元へジャンプができる。</li>
+<li><code>package名.</code>などを入力IDEのような補完候補が表示さえる</li>
+<li><code>func</code>と入力してタブを押下するとスニペットが展開される。</li>
+<li><code>&amp;http.Client{}</code>と書いたあと<code>:LspCodeAction</code>で構造体のフィールドをゼロ値で初期化する</li>
+<li><code>import</code>をよしなに解決する（<code>goimport</code>）</li>
+<li><code>:w</code>による自動ソースコード整形、およびそのエラー表示</li>
+<li>Vim上からテストを実行する</li>
+<li>Vim上からdelveを使ってデバッグを行う</li>
+</ul>
+</li>
+<li>設定方法などをまとめた</li>
+</ul>
+<p>実行環境は次の通り。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ vim --version
+VIM - Vi IMproved 8.2 <span style="color:#719e07">(</span><span style="color:#2aa198">2019</span> Dec 12, compiled May <span style="color:#2aa198">19</span> <span style="color:#2aa198">2020</span> 22:07:34<span style="color:#719e07">)</span>
+macOS version
+Included patches: 1-800
+$ gopls version
+golang.org/x/tools/gopls 0.4.3
+    golang.org/x/tools/gopls@v0.4.3 h1:irz7Q+XdHNECamFKbNWKvMV2Ak6zBbwdwbZndG4545I<span style="color:#719e07">=</span>
+</code></pre></div><p>ひとまず動かしてみたいならば、以下のファイルを利用すれば同様の環境が構築できる（一部pythonライブラリなどの依存解決が必要）。
+<a href="https://github.com/budougumi0617/dotfiles/blob/9551a0c32ed199b6d3c0f53a71dda4949163beb2/home/.vimrc">https://github.com/budougumi0617/dotfiles/blob/9551a0c32ed199b6d3c0f53a71dda4949163beb2/home/.vimrc</a>
+<a href="https://github.com/budougumi0617/dotfiles/blob/9551a0c32ed199b6d3c0f53a71dda4949163beb2/home/.vim/dein.toml">https://github.com/budougumi0617/dotfiles/blob/9551a0c32ed199b6d3c0f53a71dda4949163beb2/home/.vim/dein.toml</a></p>
+<p>静的解析の結果を表示したり、
+<img src="/2020/07/24_show_warnings.png" alt="静的解析結果を表示"></p>
+<p>補完を出したり十分開発に耐えうると思う。
+<img src="/2020/07/24_comp.png" alt="補完"></p>
+<h1 id="vim-goは">vim-goは？</h1>
+<p>タイトルの通り、vim-goは今回使わないことにした。</p>
+<p>vim-goは少し前なら「vim-go入れればVimのGoの開発環境構築はおしまい！」みたいなプラグインだった。
+しかし、vim-go自体が少し微妙な立ち位置になってきたり、「vim-go経由でLSP使うならばもうLSPを直接使えばいいのでは？」というのが2020年07月現在のステータスだと思っている。</p>
+<p>詳しい経緯はこのへんの記事が詳しい。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://mattn.kaoriya.net/software/lang/go/20181217000056.htm" data-iframely-url="//cdn.iframe.ly/1j5lwRT"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://arslan.io/2018/10/09/taking-an-indefinite-sabbatical-from-my-projects/" data-iframely-url="//cdn.iframe.ly/bAcYoLS?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>なので、今回はゼロからvim-goを使わないVimのGoの開発環境構築を行なった。</p>
+<h1 id="プラグインマネージャの設定">プラグインマネージャの設定</h1>
+<p>まずはプラグインの自動インストール・アップデートをするためにプラグインマネージャを導入する。
+なんとなく通ぶってdein.vimを使うことにした。</p>
+<p>dein.vimのインストール設定は<a href="https://twitter.com/gorilla0513">@gorilla0513</a>さんの記事に記載されている設定をほぼそのまま使う。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://knowledge.sakura.ad.jp/23248/" data-iframely-url="//cdn.iframe.ly/ilkLdx2"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>次の設定をvimrcファイルに記載する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-vimrc" data-lang="vimrc"><span style="color:#719e07">let</span> s:dein_dir = expand(<span style="color:#2aa198">&#39;~/.cache/dein&#39;</span>)
+<span style="color:#719e07">let</span> s:dein_repo_dir = s:dein_dir . <span style="color:#2aa198">&#39;/repos/github.com/Shougo/dein.vim&#39;</span>
+
+<span style="color:#719e07">if</span> &amp;runtimepath !~# <span style="color:#2aa198">&#39;/dein.vim&#39;</span>
+  <span style="color:#719e07">if</span> !isdirectory(s:dein_repo_dir)
+    execute <span style="color:#2aa198">&#39;!git clone https://github.com/Shougo/dein.vim&#39;</span> s:dein_repo_dir
+  <span style="color:#719e07">endif</span>
+  execute <span style="color:#2aa198">&#39;set runtimepath^=&#39;</span> . s:dein_repo_dir
+<span style="color:#719e07">endif</span>
+
+<span style="color:#719e07">if</span> dein#load_state(s:dein_dir)
+  call dein#begin(s:dein_dir)
+
+  <span style="color:#719e07">if</span> !has(<span style="color:#2aa198">&#39;nvim&#39;</span>)
+    call dein#add(<span style="color:#2aa198">&#39;roxma/nvim-yarp&#39;</span>)
+    call dein#add(<span style="color:#2aa198">&#39;roxma/vim-hug-neovim-rpc&#39;</span>)
+<span style="color:#586e75">    &#34; for vim-delve</span>
+    call dein#add(<span style="color:#2aa198">&#39;Shougo/vimshell.vim&#39;</span>)
+    call dein#add(<span style="color:#2aa198">&#39;Shougo/vimproc.vim&#39;</span>, {<span style="color:#2aa198">&#39;build&#39;</span> : <span style="color:#2aa198">&#39;make&#39;</span>})
+  <span style="color:#719e07">endif</span>
+
+  <span style="color:#719e07">let</span> s:rc_dir = expand(<span style="color:#2aa198">&#39;~/.vim&#39;</span>)
+  <span style="color:#719e07">if</span> !isdirectory(s:rc_dir)
+    call mkdir(s:rc_dir, <span style="color:#2aa198">&#39;p&#39;</span>)
+  <span style="color:#719e07">endif</span>
+  <span style="color:#719e07">let</span> s:toml = s:rc_dir . <span style="color:#2aa198">&#39;/dein.toml&#39;</span>
+
+  call dein#load_toml(s:toml, {<span style="color:#2aa198">&#39;lazy&#39;</span>: <span style="color:#2aa198">0</span>})
+
+  call dein#end()
+  call dein#save_state()
+<span style="color:#719e07">endif</span>
+
+<span style="color:#719e07">if</span> dein#check_install()
+  call dein#install()
+<span style="color:#719e07">endif</span>
+
+<span style="color:#719e07">let</span> s:removed_plugins = dein#check_clean()
+<span style="color:#719e07">if</span> len(s:removed_plugins) &gt; <span style="color:#2aa198">0</span>
+  call map(s:removed_plugins, <span style="color:#2aa198">&#34;delete(v:val, &#39;rf&#39;)&#34;</span>)
+  call dein#recache_runtimepath()
+<span style="color:#719e07">endif</span>
+</code></pre></div><p><code>if !has('nvim')</code>の節は通常のvimでは一部追加のプラグインを入れないと後述のプラグインが動かないため。
+また、pythonのモジュールにも依存しているため、次のコマンドでインストールを済ませておくこと。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ pip3 install --user pynvim
+$ pip3 install --user neovim
+</code></pre></div><p>あとは<code>~/.vim/dein.toml</code>にプラグインの依存を書き始めることができる。依存プラグインはVim起動時に自動インストールされる。</p>
+<p>ただ、dein.vimを使っているが、がっつりdein.vimの使いかたを覚えるわけでもないので、vim-plugでもよかったかもしれない。<br>
+ソフトウェアデザイン8月号のコラムによると、vim-plugのほうがお手軽のようだ。</p>
+<ul>
+<li><a href="https://github.com/junegunn/vim-plug">https://github.com/junegunn/vim-plug</a></li>
+</ul>
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=B08CZ2C3NZ&linkId=80eaad639e2cdb692bb0e4147c511bec"></iframe>
+<h1 id="lspの設定">LSPの設定</h1>
+<p>何はさておきLSPの設定をする。
+先ほどの設定ならば、<code>~/.vim/dein.toml</code>を読み込むようになっているのでTOMLファイルを作成し、次の依存を書く。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-toml" data-lang="toml">[[plugins]]
+repo = <span style="color:#2aa198">&#39;prabirshrestha/async.vim&#39;</span>
+
+[[plugins]]
+repo = <span style="color:#2aa198">&#39;prabirshrestha/asyncomplete.vim&#39;</span>
+
+[[plugins]]
+repo = <span style="color:#2aa198">&#39;prabirshrestha/asyncomplete-lsp.vim&#39;</span>
+
+[[plugins]]
+repo = <span style="color:#2aa198">&#39;prabirshrestha/vim-lsp&#39;</span>
+
+[[plugins]]
+repo = <span style="color:#2aa198">&#39;mattn/vim-lsp-settings&#39;</span>
+
+[[plugins]]
+repo = <span style="color:#2aa198">&#39;SirVer/ultisnips&#39;</span>
+
+[[plugins]]
+repo = <span style="color:#2aa198">&#39;honza/vim-snippets&#39;</span>
+
+[[plugins]]
+repo = <span style="color:#2aa198">&#39;thomasfaingnaert/vim-lsp-snippets&#39;</span>
+
+[[plugins]]
+repo = <span style="color:#2aa198">&#39;thomasfaingnaert/vim-lsp-ultisnips&#39;</span>
+
+[[plugins]]
+repo = <span style="color:#2aa198">&#39;hrsh7th/vim-vsnip&#39;</span>
+
+[[plugins]]
+repo = <span style="color:#2aa198">&#39;hrsh7th/vim-vsnip-integ&#39;</span>
+</code></pre></div><p>GoのLSPサーバとしては次の2つを利用する。</p>
+<ul>
+<li><a href="https://github.com/golang/tools/tree/master/gopls">https://github.com/golang/tools/tree/master/gopls</a></li>
+<li><a href="https://github.com/nametake/golangci-lint-langserver">https://github.com/nametake/golangci-lint-langserver</a></li>
+</ul>
+<p>goplsはGoチームがメンテしている公式LSPだ。これを使うと補完や定義元ジャンプなどができるようになる。
+加えてgolangci-lint-langserverを利用すればリアルタイムで静的解析結果をVim上で確認できる。</p>
+<p>あとはvimrcに次のような設定をかく。これはだいたいmattnさんの設定を参考にした。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://mattn.kaoriya.net/software/vim/20191231213507.htm" data-iframely-url="//cdn.iframe.ly/83rbwG4"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-vimrc" data-lang="vimrc"><span style="color:#719e07">function</span>! s:on_lsp_buffer_enabled() abort
+  setlocal omnifunc=lsp#complete
+  setlocal signcolumn=yes
+  nmap &lt;buffer&gt; gd &lt;plug&gt;(lsp-definition)
+  nmap &lt;buffer&gt; &lt;C-]&gt; &lt;plug&gt;(lsp-definition)
+  nmap &lt;buffer&gt; &lt;f2&gt; &lt;plug&gt;(lsp-rename)
+  nmap &lt;buffer&gt; &lt;Leader&gt;d &lt;plug&gt;(lsp-type-definition)
+  nmap &lt;buffer&gt; &lt;Leader&gt;r &lt;plug&gt;(lsp-references)
+  nmap &lt;buffer&gt; &lt;Leader&gt;i &lt;plug&gt;(lsp-implementation)
+  inoremap &lt;expr&gt; &lt;cr&gt; pumvisible() ? <span style="color:#2aa198">&#34;\&lt;c-y&gt;\&lt;cr&gt;&#34;</span> : <span style="color:#2aa198">&#34;\&lt;cr&gt;&#34;</span>
+<span style="color:#719e07">endfunction</span>
+
+augroup lsp_install
+  au!
+  autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
+augroup END
+command! LspDebug <span style="color:#719e07">let</span> lsp_log_verbose=<span style="color:#2aa198">1</span> | <span style="color:#719e07">let</span> lsp_log_file = expand(<span style="color:#2aa198">&#39;~/lsp.log&#39;</span>)
+
+<span style="color:#719e07">let</span> g:lsp_diagnostics_enabled = <span style="color:#2aa198">1</span>
+<span style="color:#719e07">let</span> g:lsp_diagnostics_echo_cursor = <span style="color:#2aa198">1</span>
+<span style="color:#586e75">&#34; let g:asyncomplete_auto_popup = 1</span>
+<span style="color:#586e75">&#34; let g:asyncomplete_auto_completeopt = 0</span>
+<span style="color:#719e07">let</span> g:asyncomplete_popup_delay = <span style="color:#2aa198">200</span>
+<span style="color:#719e07">let</span> g:lsp_text_edit_enabled = <span style="color:#2aa198">1</span>
+<span style="color:#719e07">let</span> g:lsp_preview_float = <span style="color:#2aa198">1</span>
+<span style="color:#719e07">let</span> g:lsp_diagnostics_float_cursor = <span style="color:#2aa198">1</span>
+<span style="color:#719e07">let</span> g:lsp_settings_filetype_go = [<span style="color:#2aa198">&#39;gopls&#39;</span>, <span style="color:#2aa198">&#39;golangci-lint-langserver&#39;</span>]
+
+<span style="color:#719e07">let</span> g:lsp_settings = {}
+<span style="color:#719e07">let</span> g:lsp_settings[<span style="color:#2aa198">&#39;gopls&#39;</span>] = {
+  \  <span style="color:#2aa198">&#39;workspace_config&#39;</span>: {
+  \    <span style="color:#2aa198">&#39;usePlaceholders&#39;</span>: v:true,
+  \    <span style="color:#2aa198">&#39;analyses&#39;</span>: {
+  \      <span style="color:#2aa198">&#39;fillstruct&#39;</span>: v:true,
+  \    },
+  \  },
+  \  <span style="color:#2aa198">&#39;initialization_options&#39;</span>: {
+  \    <span style="color:#2aa198">&#39;usePlaceholders&#39;</span>: v:true,
+  \    <span style="color:#2aa198">&#39;analyses&#39;</span>: {
+  \      <span style="color:#2aa198">&#39;fillstruct&#39;</span>: v:true,
+  \    },
+  \  },
+  \}
+<span style="color:#586e75">
+</span><span style="color:#586e75">&#34; For snippets</span>
+<span style="color:#719e07">let</span> g:UltiSnipsExpandTrigger=<span style="color:#2aa198">&#34;&lt;tab&gt;&#34;</span>
+<span style="color:#719e07">let</span> g:UltiSnipsJumpForwardTrigger=<span style="color:#2aa198">&#34;&lt;tab&gt;&#34;</span>
+<span style="color:#719e07">let</span> g:UltiSnipsJumpBackwardTrigger=<span style="color:#2aa198">&#34;&lt;s-tab&gt;&#34;</span>
+
+set completeopt+=menuone
+</code></pre></div><p>上記の設定をして、<code>mattn/vim-lsp-settings</code>を使っていれば、LSPのインストールは簡単だ。
+適当なGoのファイルをvimで開いて、<code>:LspInstallServer</code>をすればよしなにインストールされる・
+これでひとまずいい感じにGoが書けるようになる。主要なところを言うと次のような操作ができるようになる。</p>
+<ul>
+<li>リアルタイムで静的解析の結果をエディタ上に反映する</li>
+<li>ポップアップで静的解析のエラーを表示する</li>
+<li>ポップアップで関数定義などのコメントを表示する</li>
+<li>定義元へジャンプができる。</li>
+<li><code>package名.</code>などを入力IDEのような補完候補が表示さえる</li>
+<li><code>func</code>と入力してタブを押下するとスニペットが展開される。
+<ul>
+<li><code>vim-lsp-snippets</code>などを導入しているからできる</li>
+</ul>
+</li>
+<li><code>&amp;http.Client{}</code>と書いたあと<code>:LspCodeAction</code>で構造体のフィールドをゼロ値で初期化する
+<ul>
+<li><a href="/2020/07/18/use_fillstruct_of_goplus_on_vim/">[Go] gopls 0.4.3で構造体を初期化（&ldquo;fillstruct&rdquo;）しようとしても、&ldquo;No code actions found&quot;とだけ表示される</a></li>
+</ul>
+</li>
+</ul>
+<p><code>Fill Struct</code>機能は2020年7月現在設定を有効にしないと動作しない。
+goplsで可能な操作、機能は次のドキュメントを見ると（メンテが完璧ではないため、）だいたい確認できる。</p>
+<ul>
+<li><a href="https://github.com/golang/tools/blob/master/gopls/doc/status.md">https://github.com/golang/tools/blob/master/gopls/doc/status.md</a></li>
+<li><a href="https://github.com/golang/tools/blob/master/gopls/doc/analyzers.md">https://github.com/golang/tools/blob/master/gopls/doc/analyzers.md</a></li>
+</ul>
+<p>そして次のような機能は2020年7月現在LSPでは実現できないので、別のプラグインを使う。</p>
+<ul>
+<li><code>import</code>をよしなに解決する（<code>goimport</code>）</li>
+<li><code>:w</code>による自動ソースコード整形、およびそのエラー表示</li>
+<li>Vim上からテストを実行する</li>
+<li>Vim上からdelveを使ってデバッグを行う</li>
+</ul>
+<h2 id="ファイル保存時の自動フォーマットgoimports">ファイル保存時の自動フォーマット、goimports</h2>
+<p>次のような機能はLSPではまだ実現していないので、別のプラグインを入れる。</p>
+<ul>
+<li><code>import</code>をよしなに解決する（<code>goimport</code>）</li>
+<li><code>:w</code>による自動ソースコード整形、およびそのエラー表示</li>
+</ul>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://mattn.kaoriya.net/software/vim/20200106103137.htm" data-iframely-url="//cdn.iframe.ly/q43M9Kt"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>とくに追加の設定は必要なく、プラグインへの依存をTOMLに追加するだけだ。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-toml" data-lang="toml">[[plugins]]
+repo = <span style="color:#2aa198">&#39;mattn/vim-goimports&#39;</span>
+</code></pre></div><h2 id="vim上からテストを実行する">Vim上からテストを実行する</h2>
+<p>2020年7月現在LSPからGoのテストは実行できない。
+そのため、次のプラグインを導入して、vimからテストを実行できるようにする。</p>
+<ul>
+<li><a href="https://github.com/vim-test/vim-test">https://github.com/vim-test/vim-test</a></li>
+<li><a href="https://github.com/tpope/vim-dispatch">https://github.com/tpope/vim-dispatch</a></li>
+</ul>
+<p>Vimのプラグインではないが、テスト結果が見やすくなるため、私は<code>gotest</code>を使っている。</p>
+<ul>
+<li><a href="https://github.com/rakyll/gotest">https://github.com/rakyll/gotest</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-vimrc" data-lang="vimrc"><span style="color:#719e07">let</span> test#strategy = <span style="color:#2aa198">&#34;dispatch&#34;</span>
+<span style="color:#719e07">let</span> test#go#runner = <span style="color:#2aa198">&#39;gotest&#39;</span>
+
+nmap &lt;silent&gt; t&lt;C-n&gt; :TestNearest&lt;CR&gt;
+nmap &lt;silent&gt; t&lt;C-f&gt; :TestFile&lt;CR&gt;
+nmap &lt;silent&gt; t&lt;C-s&gt; :TestSuite&lt;CR&gt;
+nmap &lt;silent&gt; t&lt;C-l&gt; :TestLast&lt;CR&gt;
+nmap &lt;silent&gt; t&lt;C-g&gt; :TestVisit&lt;CR&gt;
+</code></pre></div><h2 id="vim上からdelveを使ってデバッグを行う">Vim上からdelveを使ってデバッグを行う</h2>
+<p>Vimからデバッグを実行することもできる。デバッグにはGoのデファクトである<code>delve</code>を使う。
+Vim上からブレイクポイントなどを設置して、デバッグを開始できる
+先ほどの<code>vim-test</code>と連携させれば、デバッガを使ってテストを実行することもできる。</p>
+<ul>
+<li><a href="https://github.com/sebdah/vim-delve">https://github.com/sebdah/vim-delve</a></li>
+<li><a href="https://github.com/go-delve/delve">https://github.com/go-delve/delve</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-vimrc" data-lang="vimrc"># tのあとにCTRL+dでテストをデバッガ経由で実行する
+<span style="color:#719e07">function</span>! DebugNearest()
+  <span style="color:#719e07">let</span> g:test#go#runner = <span style="color:#2aa198">&#39;delve&#39;</span>
+  TestNearest
+  unlet g:test#go#runner
+<span style="color:#719e07">endfunction</span>
+nmap &lt;silent&gt; t&lt;C-d&gt; :call DebugNearest()&lt;CR&gt;
+</code></pre></div><h1 id="その他のプラグイン">その他のプラグイン</h1>
+<p>Goに直接関係ないプラグイン関係だと、次のプラグインを導入している。</p>
+<ul>
+<li><a href="https://github.com/junegunn/fzf.vim">https://github.com/junegunn/fzf.vim</a>
+<ul>
+<li>バッファやファイルをfzf経由で検索できるようになる</li>
+</ul>
+</li>
+<li><a href="https://github.com/Shougo/denite.nvim">https://github.com/Shougo/denite.nvim</a>
+<ul>
+<li>ファイルを検索したり（fzfとカブってはいる）</li>
+<li><a href="https://zaief.jp/vim/denite">https://zaief.jp/vim/denite</a></li>
+</ul>
+</li>
+<li><a href="https://github.com/Shougo/defx.nvim">https://github.com/Shougo/defx.nvim</a>
+<ul>
+<li>ファイルエクスプローラ</li>
+<li>これ使うまでvimでディレクトリうまく作れなかった…</li>
+</ul>
+</li>
+<li><a href="https://github.com/kristijanhusak/defx-git">https://github.com/kristijanhusak/defx-git</a>
+<ul>
+<li>defxでgit statusを表示する</li>
+</ul>
+</li>
+<li><a href="https://github.com/tpope/vim-fugitive">https://github.com/tpope/vim-fugitive</a></li>
+<li><a href="https://github.com/tpope/vim-rhubarb">https://github.com/tpope/vim-rhubarb</a>
+<ul>
+<li>Vim上でgit操作ができる</li>
+</ul>
+</li>
+<li><a href="https://github.com/airblade/vim-gitgutter">https://github.com/airblade/vim-gitgutter</a>
+<ul>
+<li>ウインドウの脇にgit diffを表示できる</li>
+</ul>
+</li>
+</ul>
+<h2 id="その他の設定">その他の設定</h2>
+<p>あとはプラグインではないが、スペルチェックなどをオンにしたりタブの設定をしている。便利。</p>
+<ul>
+<li><a href="https://vim-jp.org/vimdoc-ja/spell.html">https://vim-jp.org/vimdoc-ja/spell.html</a></li>
+<li><a href="https://qiita.com/wadako111/items/755e753677dd72d8036d">https://qiita.com/wadako111/items/755e753677dd72d8036d</a></li>
+</ul>
+<p>使っている設定の全容は次の通り。
+<a href="https://github.com/budougumi0617/dotfiles/blob/9551a0c32ed199b6d3c0f53a71dda4949163beb2/home/.vimrc">https://github.com/budougumi0617/dotfiles/blob/9551a0c32ed199b6d3c0f53a71dda4949163beb2/home/.vimrc</a>
+<a href="https://github.com/budougumi0617/dotfiles/blob/9551a0c32ed199b6d3c0f53a71dda4949163beb2/home/.vim/dein.toml">https://github.com/budougumi0617/dotfiles/blob/9551a0c32ed199b6d3c0f53a71dda4949163beb2/home/.vim/dein.toml</a></p>
+<h1 id="終わりに">終わりに</h1>
+<p>業務でPhpStrom、PyCharmを使うようになったので、Goの実装をするときもGoLandを使うことが多くなった。<br>
+ただ、最近leetcode（競プロ）をするようになって「ペライチコードならばやっぱりVimでいいよな」となったのと、メルカリさんのコーディングの実況を見て「ちゃんと設定しよう！」という気持ちになった。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://mercari.connpass.com/event/181012/" data-iframely-url="//cdn.iframe.ly/KYi4RxB?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>vim-goやGoLandで多用する機能がLSPと各プラグインでほぼフォローできるということがわかったのも大きい。やっぱりVimで書いているときは楽しい。<br>
+とはいえ思考のスピードでコーディングできるほどではないので、もっとVim理解しないといけない。</p>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a href="https://github.com/budougumi0617/dotfiles/blob/9551a0c32ed199b6d3c0f53a71dda4949163beb2/home/.vimrc">https://github.com/budougumi0617/dotfiles/blob/9551a0c32ed199b6d3c0f53a71dda4949163beb2/home/.vimrc</a></li>
+<li><a href="https://github.com/budougumi0617/dotfiles/blob/9551a0c32ed199b6d3c0f53a71dda4949163beb2/home/.vim/dein.toml">https://github.com/budougumi0617/dotfiles/blob/9551a0c32ed199b6d3c0f53a71dda4949163beb2/home/.vim/dein.toml</a></li>
+<li><a href="https://github.com/golang/tools/blob/master/gopls/doc/status.md">https://github.com/golang/tools/blob/master/gopls/doc/status.md</a></li>
+<li><a href="https://github.com/golang/tools/blob/master/gopls/doc/analyzers.md">https://github.com/golang/tools/blob/master/gopls/doc/analyzers.md</a></li>
+<li><a href="https://knowledge.sakura.ad.jp/23248/">https://knowledge.sakura.ad.jp/23248/</a></li>
+<li><a href="https://mattn.kaoriya.net/software/vim/20191231213507.htm">https://mattn.kaoriya.net/software/vim/20191231213507.htm</a></li>
+<li><a href="https://mattn.kaoriya.net/software/vim/20200106103137.htm">https://mattn.kaoriya.net/software/vim/20200106103137.htm</a></li>
+<li><a href="https://zaief.jp/vim/denite">https://zaief.jp/vim/denite</a></li>
+<li><a href="https://vim-jp.org/vimdoc-ja/spell.html">https://vim-jp.org/vimdoc-ja/spell.html</a></li>
+<li><a href="https://qiita.com/wadako111/items/755e753677dd72d8036d">https://qiita.com/wadako111/items/755e753677dd72d8036d</a></li>
+<li><a href="https://mercari.connpass.com/event/181012/">https://mercari.connpass.com/event/181012/</a></li>
+</ul>
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=B08CZ2C3NZ&linkId=80eaad639e2cdb692bb0e4147c511bec"></iframe>
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=B0899SR52S&linkId=57224cf8e56cd1400fa931c8b0e004ad"></iframe>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2020/07/18/use_fillstruct_of_goplus_on_vim/">[Go] gopls 0.4.3で構造体を初期化（&#34;fillstruct&#34;）しようとしても、&#34;No code actions found&#34;とだけ表示される</a></li>
+  
+  <li><a href="/2019/11/18/resolve-golangci-lint-setting-with-vim-go/">[Go] &#34;vim-go: [golangci-lint] FAIL&#34;エラーが出てvim-goでgolangci-lintが動かない</a></li>
+  
+  <li><a href="/2018/10/22/deug-gocode-and-vim-go-auto-completion/">vim-goの自動補完が効かないときの調べ方（gocode が Error parsing input file (outer block)） #vim #go</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Jul 24, 2020</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/vim">vim</a>  <a class="category" href="https://budougumi0617.github.io/tags/lsp">lsp</a>  <a class="category" href="https://budougumi0617.github.io/tags/gopls">gopls</a>  <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/vim-lsp">vim-lsp</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2020/07/18/use_fillstruct_of_goplus_on_vim/" title="[Go] gopls 0.4.3で構造体を初期化（&#34;fillstruct&#34;）しようとしても、&#34;No code actions found&#34;とだけ表示される">[Go] gopls 0.4.3で構造体を初期化（&#34;fillstruct&#34;）しようとしても、&#34;No code actions found&#34;とだけ表示される</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2020/07/24/make_vimrc_with_lsp/">vim-goを使わず、LSP（gopls）を使ってVimのGo開発環境を構築する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/07/18/use_fillstruct_of_goplus_on_vim/">[Go] gopls 0.4.3で構造体を初期化（&#34;fillstruct&#34;）しようとしても、&#34;No code actions found&#34;とだけ表示される</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/06/21/record_response_body/">[Go]HTTPレスポンスボディの内容をログに残したい</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/06/08/circleci_cimg_go_2020/">[Go]次世代イメージcimg/goとcircleci/go Orbsを使った2020年版CircleCIの環境構築</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2020  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
