@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go] パフォーマンスが悪い正規表現パッケージの使い方をチェックするlinterを作った - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="Go,正規表現,静的解析,analyzer">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2020/08/20/regexponce/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go] パフォーマンスが悪い正規表現パッケージの使い方をチェックするlinterを作った - My External Storage"/>
+  <meta property="og:description" content="正規表現パッケージのコンパイルを何度も呼び出していないかチェックするlinterを作った。
+"/>
+  
+  <meta name="twitter:title" content="[Go] パフォーマンスが悪い正規表現パッケージの使い方をチェックするlinterを作った - My External Storage"/>
+  <meta name="twitter:description" content="正規表現パッケージのコンパイルを何度も呼び出していないかチェックするlinterを作った。
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Aug 20, 2020
+     - 3 minute read 
+     - <a href="https://budougumi0617.github.io/2020/08/20/regexponce/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories//"> </a>
+    
+  </p>
+  <h1 class="entry-title">
+     [Go] パフォーマンスが悪い正規表現パッケージの使い方をチェックするlinterを作った 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#regexpパッケージをコンパイルを使うときのお作法">regexpパッケージをコンパイルを使うときのお作法</a></li>
+    <li><a href="#難しかったところ">難しかったところ</a></li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>正規表現パッケージのコンパイルを何度も呼び出していないかチェックするlinterを作った。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/regexponce" data-iframely-url="//cdn.iframe.ly/GXXIAnF"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>regexpパッケージのコンパイル処理はプロセス初期化時などに一度だけ行うのが望ましい
+<ul>
+<li><a href="https://golang.org/pkg/regexp">https://golang.org/pkg/regexp</a></li>
+<li><code>regexp.MustCompile</code>など</li>
+</ul>
+</li>
+<li>これをチェックするlinterを作った
+<ul>
+<li><a href="https://github.com/budougumi0617/regexponce">https://github.com/budougumi0617/regexponce</a></li>
+</ul>
+</li>
+<li><code>gostaticanalysis/analysisutil</code>を使えばすぐできた
+<ul>
+<li><a href="https://github.com/gostaticanalysis/analysisutil">https://github.com/gostaticanalysis/analysisutil</a></li>
+</ul>
+</li>
+<li>SSAは難しいけどおもしろい！</li>
+</ul>
+<h1 id="regexpパッケージをコンパイルを使うときのお作法">regexpパッケージをコンパイルを使うときのお作法</h1>
+<p>Goの正規表現を使いたいときは<code>regexp</code>パッケージを使う。<br>
+このパッケージの使い方には注意すべき点がある。</p>
+<ul>
+<li><a href="https://golang.org/pkg/regexp/">https://golang.org/pkg/regexp/</a></li>
+</ul>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://developers.eure.jp/tech/golang-regexp/" data-iframely-url="//cdn.iframe.ly/wR6pid0?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>上記記事の以下の部分が注意点だ。</p>
+<blockquote>
+<p>正規表現オブジェクトのコンパイルはコストのかかる処理であり、これは以下のようにグローバル領域にコンパイル済みの状態で宣言します。
+検査時に随時生成することは推奨されません。</p>
+</blockquote>
+<p>たとえば、WebサーバをGoで実装していた場合、リクエストを受け取るたびにコンパイル処理をしているとパフォーマンスが悪い。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">myHandler</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
+    <span style="color:#586e75">// リクエストを受け取るたびに正規表現のコンパイルが走る。
+</span><span style="color:#586e75"></span>    re <span style="color:#719e07">:=</span> regexp.<span style="color:#268bd2">MustCompile</span>(<span style="color:#2aa198">`(gopher){2}`</span>)
+    body, _ <span style="color:#719e07">:=</span> ioutil.<span style="color:#268bd2">ReadAll</span>(resp.Body)
+    <span style="color:#719e07">if</span> re.<span style="color:#268bd2">Match</span>(re) {
+        <span style="color:#586e75">// Do anything...
+</span><span style="color:#586e75"></span>    }
+    <span style="color:#586e75">// Do anything...
+</span><span style="color:#586e75"></span>}
+</code></pre></div><p>正しくは次のように書かないといけない。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// グローバルスコープならばmain goroutin起動時に一度だけの実行で済む。
+</span><span style="color:#586e75"></span><span style="color:#268bd2">var</span> re = regexp.<span style="color:#268bd2">MustCompile</span>(<span style="color:#2aa198">`(gopher){2}`</span>)
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">myHandler</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
+    body, _ <span style="color:#719e07">:=</span> ioutil.<span style="color:#268bd2">ReadAll</span>(resp.Body)
+    <span style="color:#719e07">if</span> re.<span style="color:#268bd2">Match</span>(re) {
+        <span style="color:#586e75">// Do anything...
+</span><span style="color:#586e75"></span>    }
+    <span style="color:#586e75">// Do anything...
+</span><span style="color:#586e75"></span>}
+</code></pre></div><p>このようなことを静的解析で指摘する静的解析ツールを作った。</p>
+<p>と、言っても大部分のロジックは<a href="https://twitter.com/tenntenn">@tenntenn</a>さんのcalled linterを踏襲している。</p>
+<ul>
+<li><a href="https://tenntenn.dev/ja/posts/called/">特定の関数やメソッドの呼び出しを検知するLINTERを作った</a></li>
+<li><a href="https://github.com/gostaticanalysis/called">https://github.com/gostaticanalysis/called</a></li>
+</ul>
+<p>「明らかに一度しか実行されない関数」は正しい利用方法だが、検知できない。 <br>
+そのため誤検知してしまう部分にたいしてはコメントをつけることで無視する機能もつけた（流用させてもらった）。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">f</span>() {
+	<span style="color:#586e75">// lint:ignore regexponce allowed
+</span><span style="color:#586e75"></span>	validID = regexp.<span style="color:#268bd2">MustCompile</span>(<span style="color:#2aa198">`^[a-z]+\[[0-9]+\]$`</span>) <span style="color:#586e75">// OK because add specified comment.
+</span><span style="color:#586e75"></span>}
+</code></pre></div><p>メインのロジックはanalysisyutilパッケージを使い、作り始めはskeletonコマンドでガッと作っている。便利。</p>
+<ul>
+<li><a href="https://github.com/gostaticanalysis/skeleton">https://github.com/gostaticanalysis/skeleton</a></li>
+<li><a href="https://github.com/gostaticanalysis/analysisutil">https://github.com/gostaticanalysis/analysisutil</a></li>
+</ul>
+<p>自分で頑張った独自性というところだと、単純にコード内に現れた<code>MuxtCompile</code>関数などをすべてエラーとせずに次の例外を設けている。</p>
+<ul>
+<li>グローバルスコープ</li>
+<li><code>main</code>関数
+<ul>
+<li>ただし、<code>main</code>関数の中の<code>for</code>ループ内で使っていた場合はエラーにする。</li>
+</ul>
+</li>
+<li><code>init</code>関数</li>
+</ul>
+<p>どれも起動時に一度しか実行されない部分なので、静的解析のエラーにはしない。</p>
+<h1 id="難しかったところ">難しかったところ</h1>
+<p>標準pkgの関数だったので、最初は<code>go/importer.Default()</code>経由で<code>regexp.MustCompile</code>などの<code>*types.Func</code>オブジェクトを取得していた。<br>
+が、同じ関数に対するオブジェクトはずなのにコード中に現れる<code>regexp.MustCompile</code>とはマッチしないようだ。<code>pos</code>などの位置も全然違った。<br>
+実装を優先したのでちゃんと原因は調べられていない…</p>
+<h1 id="終わりに">終わりに</h1>
+<p>SSAはなかなか難しい（私がデータ構造をきちんと理解できていない）ので、こちらの本を参考に見様見真似で書いた感じ。<br>
+もっと静的解析勉強して実装速度と実装できる手札を増やしていきたい。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://booth.pm/ja/items/1319394" data-iframely-url="//cdn.iframe.ly/afhjP9B"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a href="https://github.com/budougumi0617/regexponce">https://github.com/budougumi0617/regexponce</a></li>
+<li><a href="https://golang.org/pkg/regexp/">https://golang.org/pkg/regexp/</a></li>
+<li><a href="https://medium.com/eureka-engineering/regexp%E3%81%A8%E3%81%AE%E4%BB%98%E3%81%8D%E5%90%88%E3%81%84%E6%96%B9-go%E8%A8%80%E8%AA%9E%E6%A8%99%E6%BA%96%E3%81%AE%E6%AD%A3%E8%A6%8F%E8%A1%A8%E7%8F%BE%E3%83%A9%E3%82%A4%E3%83%96%E3%83%A9%E3%83%AA%E3%81%AE%E3%83%91%E3%83%95%E3%82%A9%E3%83%BC%E3%83%9E%E3%83%B3%E3%82%B9%E3%81%A8%E3%82%A2%E3%83%AB%E3%82%B4%E3%83%AA%E3%82%BA%E3%83%A0-984b6cbeeb2b">regexpとの付き合い方 〜 Go言語標準の正規表現ライブラリのパフォーマンスとアルゴリズム〜</a></li>
+<li><a href="https://tenntenn.dev/ja/posts/called/">特定の関数やメソッドの呼び出しを検知するLINTERを作った</a></li>
+<li><a href="https://github.com/gostaticanalysis/called">https://github.com/gostaticanalysis/called</a></li>
+<li><a href="https://github.com/gostaticanalysis/analysisutil">https://github.com/gostaticanalysis/analysisutil</a></li>
+<li><a href="https://booth.pm/ja/items/1319394">逆引きGoによる静的解析入門</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/02/01/how-to-use-analisys-package/">golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang</a></li>
+  
+  <li><a href="/2019/10/18/launch-layer-for-the-layered-achitectures/">[Go] レイヤードアーキテクチャの階層構造を守らないimportを警告するlinterを作った</a></li>
+  
+  <li><a href="/2019/03/24/go-create-type-check-handson/">go/typesパッケージを使って型チェックを行なうハンズオンを作った #golangtokyo</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Aug 20, 2020</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/analysis">analysis</a>  <a class="category" href="https://budougumi0617.github.io/tags/regexp">regexp</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2020/08/16/review_voyagebook/" title="[書評] Engineers in VOYAGEを読んで事業に立ち向かう技術者を知る #voyagebook">[書評] Engineers in VOYAGEを読んで事業に立ち向かう技術者を知る #voyagebook</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2020/08/20/regexponce/">[Go] パフォーマンスが悪い正規表現パッケージの使い方をチェックするlinterを作った</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2020/08/16/review_voyagebook/">[書評] Engineers in VOYAGEを読んで事業に立ち向かう技術者を知る #voyagebook</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/07/24/make_vimrc_with_lsp/">vim-goを使わず、LSP（gopls）を使ってVimのGo開発環境を構築する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/07/18/use_fillstruct_of_goplus_on_vim/">[Go] gopls 0.4.3で構造体を初期化（&#34;fillstruct&#34;）しようとしても、&#34;No code actions found&#34;とだけ表示される</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2020  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
