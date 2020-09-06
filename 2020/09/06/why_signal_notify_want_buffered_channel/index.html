@@ -169,7 +169,7 @@ https://godoc.org/os/signal#Notify
     
   </p>
   <h1 class="entry-title">
-    <a href="https://budougumi0617.github.io/2020/09/06/why_signal_notify_want_buffered_channel/">[Go] signal.Notifyを使うときは必ずバッファ付きチャネルで利用すること</a>
+     [Go] signal.Notifyを使うときは必ずバッファ付きチャネルで利用すること 
   </h1>
 </header>
 
@@ -186,7 +186,11 @@ https://godoc.org/os/signal#Notify
     <li><a href="#tldr">TL;DR</a></li>
     <li><a href="#singalnotify関数">singal.Notify関数</a></li>
     <li><a href="#シグナルハンドリングについて">シグナルハンドリングについて</a></li>
-    <li><a href="#チャネルの仕様の簡単な確認">チャネルの仕様の簡単な確認</a></li>
+    <li><a href="#チャネルの仕様の簡単な確認">チャネルの仕様の簡単な確認</a>
+      <ul>
+        <li><a href="#20200906-2012-追記">2020/09/06 20:12 追記</a></li>
+      </ul>
+    </li>
     <li><a href="#signalnotifyでバッファありチャネルを使わないといけない理由">signal.Notifyでバッファありチャネルを使わないといけない理由</a></li>
     <li><a href="#おわりに">おわりに</a></li>
     <li><a href="#参考">参考</a></li>
@@ -237,7 +241,7 @@ https://godoc.org/os/signal#Notify
 </ul>
 <h1 id="チャネルの仕様の簡単な確認">チャネルの仕様の簡単な確認</h1>
 <p>Goのチャネルにはバッファありチャネルとバッファなしチャネルが存在する。<br>
-バッファなしチャネルを介した場合、何もしないと送信側goroutine、受信側goroutineの間には<em>happens before</em>の関係が成り立つ。</p>
+<del>バッファなしチャネルを介した場合、何もしないと送信側goroutine、受信側goroutineの間には<em>happens before</em>の関係が成り立つ。</del></p>
 <ul>
 <li>Happens Before | The Go Memory Model
 <ul>
@@ -245,8 +249,34 @@ https://godoc.org/os/signal#Notify
 </ul>
 </li>
 </ul>
-<p>これは受信側goroutineが受信を完了するまで、送信側goroutineが再度起動されないことを意味する。<br>
-言い換えると、受信が完了するまで送信側では送信が行われず処理を再開できない。</p>
+<p><del>これは受信側goroutineが受信を完了するまで、送信側goroutineが再度起動されないことを意味する。</del></p>
+<h2 id="20200906-2012-追記">2020/09/06 20:12 追記</h2>
+<p><em>happens before</em>はあくまで変数の可視性の話なのでゴルーチンの動きを説明するものではない。と指摘していただきました。<br>
+チャネルの挙動を決めているのは言語仕様でした。</p>
+<blockquote class="twitter-tweet"><p lang="ja" dir="ltr">happens beforeですが、バッファなしチャネルの動きを説明するものではなく、変数への更新が別のゴールチーンから見えるか否かに影響を与えるものなので、ブログの説明が少し違っていると思います。</p>&mdash; Yoshiki Shibata/柴田芳樹 (@yoshiki_shibata) <a href="https://twitter.com/yoshiki_shibata/status/1302527258599370752?ref_src=twsrc%5Etfw">September 6, 2020</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<p>バッファなしチャネルを介した場合、送信は受信側が受信を開始するまで成功しない（処理が完了しない）。</p>
+<blockquote>
+<p>If the capacity is zero or absent, the channel is unbuffered and communication succeeds only when both a sender and receiver are ready.</p>
+</blockquote>
+<ul>
+<li>Channel types | The Go Programming Language Specification
+<ul>
+<li><a href="https://golang.org/ref/spec#Channel_types">https://golang.org/ref/spec#Channel_types</a></li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>A send on an unbuffered channel can proceed if a receiver is ready.</p>
+</blockquote>
+<ul>
+<li>Send statements | The Go Programming Language Specification
+<ul>
+<li><a href="https://golang.org/ref/spec#Send_statements">https://golang.org/ref/spec#Send_statements</a></li>
+</ul>
+</li>
+</ul>
+<p>（追記終わり。）</p>
+<p>言い換えると、受信が完了するまで送信側では送信が行われず処理を再開できない。</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">ch <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#dc322f">int</span>)
 
 ch <span style="color:#719e07">&lt;-</span> <span style="color:#2aa198">10</span> <span style="color:#586e75">// どこかで受信されるまで処理が進まない
@@ -289,6 +319,7 @@ ch <span style="color:#719e07">&lt;-</span> <span style="color:#2aa198">10</span
 <ul>
 <li><a href="https://godoc.org/os/signal#Notify">https://godoc.org/os/signal#Notify</a></li>
 <li><a href="https://golang.org/ref/mem#tmp_2">Happens Before | The Go Memory Model</a></li>
+<li><a href="https://golang.org/ref/spec#Channel_types">Channel types | The Go Programming Language Specification</a></li>
 </ul>
 <iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4621300253&linkId=b23c76a9208ccfad7862a4ffc8269211"></iframe>
         </div>
