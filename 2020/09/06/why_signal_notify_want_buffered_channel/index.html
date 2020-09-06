@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go] signal.Notifyを使うときは必ずバッファ付きチャネルで利用すること - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="Go,select,signal.Notify,goroutine">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2020/09/06/why_signal_notify_want_buffered_channel/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go] signal.Notifyを使うときは必ずバッファ付きチャネルで利用すること - My External Storage"/>
+  <meta property="og:description" content="Goでsingal.Notify関数を使うときは必ずバッファありチャネルを利用しなくてはいけない。
+なぜバッファなしチャネルを使ってはいけないのかまとめた。
+
+https://godoc.org/os/signal#Notify
+"/>
+  
+  <meta name="twitter:title" content="[Go] signal.Notifyを使うときは必ずバッファ付きチャネルで利用すること - My External Storage"/>
+  <meta name="twitter:description" content="Goでsingal.Notify関数を使うときは必ずバッファありチャネルを利用しなくてはいけない。
+なぜバッファなしチャネルを使ってはいけないのかまとめた。
+
+https://godoc.org/os/signal#Notify
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Sep 6, 2020
+     - 4 minute read 
+     - <a href="https://budougumi0617.github.io/2020/09/06/why_signal_notify_want_buffered_channel/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://budougumi0617.github.io/2020/09/06/why_signal_notify_want_buffered_channel/">[Go] signal.Notifyを使うときは必ずバッファ付きチャネルで利用すること</a>
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#singalnotify関数">singal.Notify関数</a></li>
+    <li><a href="#シグナルハンドリングについて">シグナルハンドリングについて</a></li>
+    <li><a href="#チャネルの仕様の簡単な確認">チャネルの仕様の簡単な確認</a></li>
+    <li><a href="#signalnotifyでバッファありチャネルを使わないといけない理由">signal.Notifyでバッファありチャネルを使わないといけない理由</a></li>
+    <li><a href="#おわりに">おわりに</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>Goで<code>singal.Notify</code>関数を使うときは必ずバッファありチャネルを利用しなくてはいけない。<br>
+なぜバッファなしチャネルを使ってはいけないのかまとめた。</p>
+<ul>
+<li><a href="https://godoc.org/os/signal#Notify">https://godoc.org/os/signal#Notify</a></li>
+</ul>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li><code>singal.Notify</code>関数を使うときは必ずバッファありチャネルを利用しなくてはいけない</li>
+<li>仕様にも明記されている
+<ul>
+<li><a href="https://godoc.org/os/signal#Notify">https://godoc.org/os/signal#Notify</a></li>
+</ul>
+</li>
+<li>シグナル処理はWebサービス開発時にも必要
+<ul>
+<li><a href="https://docs.aws.amazon.com/ja_jp/AmazonECS/latest/developerguide/update-service.html">https://docs.aws.amazon.com/ja_jp/AmazonECS/latest/developerguide/update-service.html</a></li>
+<li><a href="https://kubernetes.io/ja/docs/concepts/workloads/pods/pod/">https://kubernetes.io/ja/docs/concepts/workloads/pods/pod/</a></li>
+</ul>
+</li>
+<li>バッファなしチャネルを使うと、シグナルを取りこぼす可能性がある</li>
+</ul>
+<h1 id="singalnotify関数">singal.Notify関数</h1>
+<p>Goでシグナルハンドリングをするときに利用するのが<code>singal.Notify</code>関数だ。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">Notify</span>(c <span style="color:#268bd2">chan</span><span style="color:#719e07">&lt;-</span> os.Signal, sig <span style="color:#719e07">...</span>os.Signal)
+</code></pre></div><p>この関数は第1引数にシグナルを受信するためのチャネルを指定し、第2引数以降はハンドリングしたいシグナルを羅列していく。<br>
+このときチャネルはバッファありチャネルでないといけない。<br>
+これは<code>singal.Notify</code>関数の仕様に明記されている。</p>
+<ul>
+<li><a href="https://godoc.org/os/signal#Notify">https://godoc.org/os/signal#Notify</a></li>
+</ul>
+<blockquote>
+<p>Package signal will not block sending to c: the caller must ensure that c has sufficient buffer space to keep up with the expected signal rate. For a channel used for notification of just one signal value, a buffer of size 1 is sufficient.</p>
+</blockquote>
+<h1 id="シグナルハンドリングについて">シグナルハンドリングについて</h1>
+<p>シグナルは身近なところでいうとコマンドラインツールをコントロールCLIなどで終了したり、フリーズしたソフトやプロセスに対してキルコマンドを実行したときに発生する。<br>
+ただ、Webサービスを作る上でもシグナルを意識する必要はある。<br>
+たとえばECSやk8s上で起動するコンテナはコンテナ外部からシグナルを受信したとき適切に終了する必要がある。<br>
+シグナルをハンドリングしてグレースフルシャットダウンをする実装をしていないと、処理の終了を待たずにコンテナが強制遮断されうる。</p>
+<ul>
+<li><a href="https://docs.aws.amazon.com/ja_jp/AmazonECS/latest/developerguide/update-service.html">https://docs.aws.amazon.com/ja_jp/AmazonECS/latest/developerguide/update-service.html</a></li>
+<li><a href="https://kubernetes.io/ja/docs/concepts/workloads/pods/pod/">https://kubernetes.io/ja/docs/concepts/workloads/pods/pod/</a></li>
+</ul>
+<h1 id="チャネルの仕様の簡単な確認">チャネルの仕様の簡単な確認</h1>
+<p>Goのチャネルにはバッファありチャネルとバッファなしチャネルが存在する。<br>
+バッファなしチャネルを介した場合、何もしないと送信側goroutine、受信側goroutineの間には<em>happens before</em>の関係が成り立つ。</p>
+<ul>
+<li>Happens Before | The Go Memory Model
+<ul>
+<li><a href="https://golang.org/ref/mem#tmp_2">https://golang.org/ref/mem#tmp_2</a></li>
+</ul>
+</li>
+</ul>
+<p>これは受信側goroutineが受信を完了するまで、送信側goroutineが再度起動されないことを意味する。<br>
+言い換えると、受信が完了するまで送信側では送信が行われず処理を再開できない。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">ch <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#dc322f">int</span>)
+
+ch <span style="color:#719e07">&lt;-</span> <span style="color:#2aa198">10</span> <span style="color:#586e75">// どこかで受信されるまで処理が進まない
+</span></code></pre></div><h1 id="signalnotifyでバッファありチャネルを使わないといけない理由">signal.Notifyでバッファありチャネルを使わないといけない理由</h1>
+<p>ある行儀の悪いバッファなしチャネルがシグナルを待機（受信）していたとする。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">c <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> os.Signal) <span style="color:#586e75">// バッファなしの行儀が悪いチャネル
+</span><span style="color:#586e75"></span>signal.<span style="color:#268bd2">Notify</span>(c, os.Interrupt, os.Kill)
+</code></pre></div><p>シグナルが発生したとき、このバッファなしチャネルが受信するまで送信側goroutineの処理が止まってしまってはいけない。<br>
+他のチャネルも受信待機しているかもしれないので適切なシグナルハンドリングができなくなってしまう。<br>
+そのため、<code>signal</code>パッケージのシグナル送信側の処理は冒頭で引用した仕様の通り、ノンブロッキングな送信を行う。</p>
+<blockquote>
+<p>Package signal will not block sending to c</p>
+</blockquote>
+<p>具体的なコードを見ると、まずsignalパッケージは以下のようなループでシグナルを処理している。
+（<a href="https://github.com/golang/go/blob/a538b59fd2428ba4d13f296d7483febf2fc05f97/src/runtime/sigqueue.go#L122-L125">signal_recv</a>）は私にはちょっとむずかしいので説明省略）</p>
+<p><a href="https://github.com/golang/go/blob/a538b59fd2428ba4d13f296d7483febf2fc05f97/src/os/signal/signal_unix.go#L21-L25">https://github.com/golang/go/blob/a538b59fd2428ba4d13f296d7483febf2fc05f97/src/os/signal/signal_unix.go#L21-L25</a></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">loop</span>() {
+	<span style="color:#719e07">for</span> {
+		<span style="color:#268bd2">process</span>(syscall.<span style="color:#268bd2">Signal</span>(<span style="color:#268bd2">signal_recv</span>()))
+	}
+}
+</code></pre></div><p><code>process</code>関数の中をみてみると、<code>singal.Notify</code>関数で登録されたチャネルそれぞれにシグナルを送信している。<br>
+このとき、チャネルが送信ブロック状態だった場合は<code>default</code>節があるので<strong>そのチャネルを無視して次のチャネルへシグナルを送信する</strong>。</p>
+<p><a href="https://github.com/golang/go/blob/a538b59fd2428ba4d13f296d7483febf2fc05f97/src/os/signal/signal.go#L240-L248">https://github.com/golang/go/blob/a538b59fd2428ba4d13f296d7483febf2fc05f97/src/os/signal/signal.go#L240-L248</a></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#719e07">for</span> c, h <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> handlers.m { <span style="color:#586e75">// cがsignal.Notifyの第一引数のチャネル
+</span><span style="color:#586e75"></span>		<span style="color:#719e07">if</span> h.<span style="color:#268bd2">want</span>(n) {
+			<span style="color:#586e75">// send but do not block for it
+</span><span style="color:#586e75"></span>			<span style="color:#719e07">select</span> {
+			<span style="color:#719e07">case</span> c <span style="color:#719e07">&lt;-</span> sig:
+			<span style="color:#719e07">default</span>:
+			}
+		}
+	}
+</code></pre></div><p>このため、バッファなしチャネルを使って<code>signal.Notify</code>関数を使った場合、チャネルが受信待機するまえに送信されたシグナルは検知できなくなる。</p>
+<h1 id="おわりに">おわりに</h1>
+<p><code>signal.Notify</code>関数はバッファなしチャネルで利用してはいけない。<br>
+これは<code>signal.Notify</code>関数の仕様にも明記されている。<br>
+今回はドキュメントの注意書きを無視した場合どのような懸念事項が発生するのか確認することができた。</p>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a href="https://godoc.org/os/signal#Notify">https://godoc.org/os/signal#Notify</a></li>
+<li><a href="https://golang.org/ref/mem#tmp_2">Happens Before | The Go Memory Model</a></li>
+</ul>
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4621300253&linkId=b23c76a9208ccfad7862a4ffc8269211"></iframe>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/03/15/go-strange-result-in-select/">[Go] selectのcase文中でch &lt;- &lt;- chやch &lt;- f()をしない方が良い #golangjp #横浜go読書会</a></li>
+  
+  <li><a href="/2020/08/20/regexponce/">[Go] パフォーマンスが悪い正規表現パッケージの使い方をチェックするlinterを作った</a></li>
+  
+  <li><a href="/2020/06/21/record_response_body/">[Go]HTTPレスポンスボディの内容をログに残したい</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Sep 6, 2020</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/gotips">gotips</a>  <a class="category" href="https://budougumi0617.github.io/tags/signal">signal</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2020/08/20/regexponce/" title="[Go] パフォーマンスが悪い正規表現パッケージの使い方をチェックするlinterを作った">[Go] パフォーマンスが悪い正規表現パッケージの使い方をチェックするlinterを作った</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2020/09/06/why_signal_notify_want_buffered_channel/">[Go] signal.Notifyを使うときは必ずバッファ付きチャネルで利用すること</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2020/08/20/regexponce/">[Go] パフォーマンスが悪い正規表現パッケージの使い方をチェックするlinterを作った</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/08/16/review_voyagebook/">[書評] Engineers in VOYAGEを読んで事業に立ち向かう技術者を知る #voyagebook</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/07/24/make_vimrc_with_lsp/">vim-goを使わず、LSP（gopls）を使ってVimのGo開発環境を構築する</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2020  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
