@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>TerraformでAWS上にHTTPS化したサブドメインを定義する - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="aws,terraform,route53,https">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/terraform.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/terraform.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2020/11/07/define_https_subdomain_by_terraform/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="TerraformでAWS上にHTTPS化したサブドメインを定義する - My External Storage"/>
+  <meta property="og:description" content="個人のAWS環境でTerraformを使ってHTTPS化したサブドメインを定義した。
+普段なかなかしないことで忘れてしまうので手順をまとめおく。"/>
+  
+  <meta name="twitter:title" content="TerraformでAWS上にHTTPS化したサブドメインを定義する - My External Storage"/>
+  <meta name="twitter:description" content="個人のAWS環境でTerraformを使ってHTTPS化したサブドメインを定義した。
+普段なかなかしないことで忘れてしまうので手順をまとめおく。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Nov 7, 2020
+     - 7 minute read 
+     - <a href="https://budougumi0617.github.io/2020/11/07/define_https_subdomain_by_terraform/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/terraform/">terraform </a><a class="label" href="https://budougumi0617.github.io/categories/aws/">aws </a>
+    
+  </p>
+  <h1 class="entry-title">
+     TerraformでAWS上にHTTPS化したサブドメインを定義する 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#https化したサブドメインを作成したい">HTTPS化したサブドメインを作成したい</a></li>
+    <li><a href="#route53でホストゾーンを定義する">Route53でホストゾーンを定義する</a>
+      <ul>
+        <li><a href="#ルートドメインのホストゾーンはterraformで作成しないこと">ルートドメインのホストゾーンはTerraformで作成しないこと</a></li>
+      </ul>
+    </li>
+    <li><a href="#サブドメインとルートドメインのホストゾーンを関連付ける">サブドメインとルートドメインのホストゾーンを関連付ける</a></li>
+    <li><a href="#acmでhttps化用のssl証明書を作成する">ACMでHTTPS化用のSSL証明書を作成する</a>
+      <ul>
+        <li><a href="#ワイルドカード付きの証明書を発行する">ワイルドカード付きの証明書を発行する</a></li>
+        <li><a href="#terraform-apply中にtried-to-create-resource-record-setbut-it-already-existsが出て失敗する">terraform apply中に「Tried to create resource record set&hellip;.but it already exists」が出て失敗する</a></li>
+        <li><a href="#dns認証が終わらない">DNS認証が終わらない</a></li>
+      </ul>
+    </li>
+    <li><a href="#albへ通信を流す">ALBへ通信を流す</a></li>
+    <li><a href="#最後に">最後に</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>個人のAWS環境でTerraformを使ってHTTPS化したサブドメインを定義した。<br>
+普段なかなかしないことで忘れてしまうので手順をまとめおく。</p>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>Terraformを使ってAWS上でHTTPS化したサブドメインを構成したい</li>
+<li>ルートドメインのホストゾーンをTerrformで作っても登録済みドメインのネームサーバの設定は手動になるので注意する</li>
+<li>ワイルドカード付きの証明書をTerffaformで生成するときは少しテクニックが必要になる</li>
+<li>ハマりどころを解決できれば少々の定義で構築できた</li>
+</ul>
+<p>なお、本記事で利用しているTerraformとAWS Providerのバージョンは以下となる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">terraform</span> {
+  required_version <span style="color:#719e07">=</span> &#34;&gt;<span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>.<span style="color:#2aa198">13</span>.<span style="color:#2aa198">4</span>&#34;
+}
+
+<span style="color:#719e07">provider</span> <span style="color:#2aa198">&#34;aws&#34;</span> {
+  version <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;~&gt; 3.6.0&#34;</span>
+}
+</code></pre></div><h1 id="https化したサブドメインを作成したい">HTTPS化したサブドメインを作成したい</h1>
+<p>この記事の前提とやりたいことは次の通り。</p>
+<ul>
+<li>前提条件
+<ul>
+<li>example.com というドメインをRoute53の登録済みドメインとして登録済み</li>
+</ul>
+</li>
+<li>example.comまたは*.example.comをHTTPS化するSSL証明書を発行する</li>
+<li><a href="https://subdomain.example.com">https://subdomain.example.com</a> というようなHTTPS化されたサブドメインを定義する。</li>
+</ul>
+<p>本記事で利用するAWSのサービスはRoute53とAWS Certificate Manager（ACM）だ。<br>
+Route53はご存知の通りAWS上でドメインを使ってルーティングを構成するDNSサービスだ。<br>
+ACMはSSL/TLS証明書を管理するサービスで、今回はHTTPS通信に利用する証明書を自動管理させる。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://aws.amazon.com/jp/route53/" data-iframely-url="//cdn.iframe.ly/MhwPNuE?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://aws.amazon.com/jp/certificate-manager/" data-iframely-url="//cdn.iframe.ly/Ih512Ce?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<h1 id="route53でホストゾーンを定義する">Route53でホストゾーンを定義する</h1>
+<p>まずRoute53でsubdomain.example.com（サブドメイン）をホストゾーンで定義する。</p>
+<ul>
+<li><a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_zone">https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_zone</a></li>
+</ul>
+<p>なお、Route53でexample.comを登録済みドメインにしている場合、すでにホストゾーンが作成されているはずである。<br>
+Terraform上では、既成のexample.com（ルートドメイン）に対応するホストゾーンをデータソースで参照する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">data</span> <span style="color:#719e07">aws_route53_zone</span> <span style="color:#719e07">example_com</span> {
+  name <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;example.com&#34;</span>
+}
+
+<span style="color:#719e07">resource</span> <span style="color:#719e07">aws_route53_zone</span> <span style="color:#719e07">subdomain_example_com</span> {
+  name <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;subdomain.example.com&#34;</span>
+}
+</code></pre></div><p><strong>ルートドメインをTerraformで定義しようとしないこと</strong>。</p>
+<h2 id="ルートドメインのホストゾーンはterraformで作成しないこと">ルートドメインのホストゾーンはTerraformで作成しないこと</h2>
+<p>AWS Provider 3.6.0系でもRoute53の「登録済みドメイン」をTerraformで管理することはできない。<br>
+Terraformでルートドメインを定義した場合、定義したルートドメインに割り当てられるNSコード（ネームサーバ）のIPと、登録済みドメインのネームサーバが一致しなくなるので証明書のDNS認証などができなくなる。</p>
+<ul>
+<li>Route 53 に登録されているドメインのホストゾーンの置き換え
+<ul>
+<li><a href="https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/domain-replace-hosted-zone.html">https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/domain-replace-hosted-zone.html</a></li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>ホストゾーンを作成する場合、Route 53 はホストゾーンに一連の 4 つのネームサーバーを割り当てます。ホストゾーンを削除して新しいゾーンを作成すると、Route 53 は別の一連の 4 つのネームサーバーを割り当てます。通常、新しいホストゾーンのネームサーバーは、以前のホストゾーンのネームサーバーと一致しません。新しいホストゾーンのネームサーバーを使用するようにドメイン設定を更新しないと、ドメインはインターネット上で利用できなくなります。</p>
+</blockquote>
+<h1 id="サブドメインとルートドメインのホストゾーンを関連付ける">サブドメインとルートドメインのホストゾーンを関連付ける</h1>
+<p>次に、作成するサブドメインをルートドメインに関連付ける。<br>
+具体的には、ルートドメイン (example.com) のホストゾーンにサブドメインのホストゾーン割り当てられる4つのネームサーバーをNSレコードとして登録する。</p>
+<ul>
+<li>サブドメインのトラフィックのルーティング
+<ul>
+<li><a href="https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/dns-routing-traffic-for-subdomains.html">https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/dns-routing-traffic-for-subdomains.html</a></li>
+</ul>
+</li>
+</ul>
+<p>TerraforrmでNSレコードを作成するコードは次の通り。</p>
+<ul>
+<li><a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record">https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_route53_record</span> <span style="color:#719e07">ns_record_for_subdomain</span> {
+  name    <span style="color:#719e07">=</span> <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">name</span>
+  zone_id <span style="color:#719e07">=</span> <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">id</span>
+  records <span style="color:#719e07">=</span> [
+    <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name_servers</span>[<span style="color:#2aa198">0</span>],
+    <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name_servers</span>[<span style="color:#2aa198">1</span>],
+    <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name_servers</span>[<span style="color:#2aa198">2</span>],
+    <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name_servers</span>[<span style="color:#2aa198">3</span>]
+  ]
+  ttl  <span style="color:#719e07">=</span> <span style="color:#2aa198">300</span>
+  type <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;NS&#34;</span>
+}
+</code></pre></div><p>これでリクエストの流れはできた。</p>
+<h1 id="acmでhttps化用のssl証明書を作成する">ACMでHTTPS化用のSSL証明書を作成する</h1>
+<p>次にHTTPS化の準備をする。冒頭で述べた通りACMを使って証明書を発行する。<br>
+AWSでHTTPS用の証明書を発行する場合、DNS認証を使っておけば証明書の自動更新が実現できる。<br>
+当然今回もこれを利用する設定を行う。</p>
+<ul>
+<li>DNSを使用したドメイン所有権の検証
+<ul>
+<li><a href="https://docs.aws.amazon.com/ja_jp/acm/latest/userguide/gs-acm-validate-dns.html">https://docs.aws.amazon.com/ja_jp/acm/latest/userguide/gs-acm-validate-dns.html</a></li>
+</ul>
+</li>
+<li>新しいドメインの DNS ルーティングの設定
+<ul>
+<li><a href="https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/dns-configuring-new-domain.html">https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/dns-configuring-new-domain.html</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="ワイルドカード付きの証明書を発行する">ワイルドカード付きの証明書を発行する</h2>
+<p>ルートドメイン、サブドメインすべてをHTTPS化したいため、ワイルドカードを含んだSSL証明書を発行する必要がある。</p>
+<p>まず、SSL証明書はの定義は次の通り。<code>subject_alternative_names</code>を使うことでサブドメインもSSL証明書の対象に含めることができる。</p>
+<ul>
+<li><a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate">https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_acm_certificate</span> <span style="color:#719e07">example_com</span> {
+  domain_name               <span style="color:#719e07">=</span> <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">name</span>
+  subject_alternative_names <span style="color:#719e07">=</span> [<span style="color:#719e07">format</span>(<span style="color:#2aa198">&#34;*.%s&#34;</span>, <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">name</span>)]
+  validation_method <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;DNS&#34;</span>
+
+  <span style="color:#719e07">lifecycle</span> {
+    create_before_destroy <span style="color:#719e07">=</span> <span style="color:#dc322f">true</span>
+  }
+}
+</code></pre></div><p><code>format</code>関数はTerraformの標準関数のひとつで、ざっくりいうとGoの<code>fmt.Printf</code>のように文字列を生成できる。</p>
+<ul>
+<li>format Function
+<ul>
+<li><a href="https://www.terraform.io/docs/configuration/functions/format.html">https://www.terraform.io/docs/configuration/functions/format.html</a></li>
+</ul>
+</li>
+</ul>
+<p>証明書の検証につかうレコードはこのように定義する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_route53_record</span> <span style="color:#719e07">certificate</span> {
+  for_each <span style="color:#719e07">=</span> {
+    for dvo in aws_acm_certificate.example_com.domain_validation_options : dvo.domain_name <span style="color:#719e07">=</span>&gt; {
+      name   <span style="color:#719e07">=</span> <span style="color:#719e07">dvo</span>.<span style="color:#719e07">resource_record_name</span>
+      record <span style="color:#719e07">=</span> <span style="color:#719e07">dvo</span>.<span style="color:#719e07">resource_record_value</span>
+      type   <span style="color:#719e07">=</span> <span style="color:#719e07">dvo</span>.<span style="color:#719e07">resource_record_type</span>
+    }
+  }
+  name            <span style="color:#719e07">=</span> <span style="color:#719e07">each</span>.<span style="color:#719e07">value</span>.<span style="color:#719e07">name</span>
+  records         <span style="color:#719e07">=</span> [<span style="color:#719e07">each</span>.<span style="color:#719e07">value</span>.<span style="color:#719e07">record</span>]
+  ttl             <span style="color:#719e07">=</span> <span style="color:#2aa198">60</span>
+  type            <span style="color:#719e07">=</span> <span style="color:#719e07">each</span>.<span style="color:#719e07">value</span>.<span style="color:#719e07">type</span>
+  zone_id         <span style="color:#719e07">=</span> <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">id</span>
+  allow_overwrite <span style="color:#719e07">=</span> <span style="color:#dc322f">true</span>
+}
+</code></pre></div><p>最後にapply時SSL証明書の検証が完了するまで待機する設定を書いておく。</p>
+<ul>
+<li><a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate_validation">https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate_validation</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_acm_certificate_validation</span> <span style="color:#719e07">cert</span> {
+  certificate_arn         <span style="color:#719e07">=</span> <span style="color:#719e07">aws_acm_certificate</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">arn</span>
+  validation_record_fqdns <span style="color:#719e07">=</span> [<span style="color:#719e07">for</span> <span style="color:#719e07">record</span> <span style="color:#719e07">in</span> <span style="color:#719e07">aws_route53_record</span>.<span style="color:#719e07">certificate</span> : <span style="color:#719e07">record</span>.<span style="color:#719e07">fqdn</span>]
+}
+</code></pre></div><h2 id="terraform-apply中にtried-to-create-resource-record-setbut-it-already-existsが出て失敗する">terraform apply中に「Tried to create resource record set&hellip;.but it already exists」が出て失敗する</h2>
+<p>ワイルドカードを使った証明書を作成しようとすると、ワイルドカードとルートドメインの検証用レコードが同じ内容になるためエラーが発生する。<br>
+<strong>これを回避するには<code>allow_overwrite</code>を<code>true</code>にしておくのを忘れないこと</strong>。</p>
+<p>本記事に記載した先ほどの<code>aws_route53_record certificate</code>はAWS Provider v3の定義方法だ。<br>
+AWS Provider v2などで同様の現象を回避したい場合は次のブログが参考になる。</p>
+<ul>
+<li>SANsにワイルドカードが入ったACMのDNS認証なSSL証明書をTerraformで作るときのハマりどころ
+<ul>
+<li><a href="https://fusagiko.hatenablog.jp/entry/2019/09/30/223700">https://fusagiko.hatenablog.jp/entry/2019/09/30/223700</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="dns認証が終わらない">DNS認証が終わらない</h2>
+<p>正しく設定できているように見えるのにDNS認証が通らない場合はネームサーバの設定がおかしく、検証用リクエストがさばけていない可能性がある。<br>
+前述したとおり、ルートドメインをTerraformで新しく作った場合などに発生する。<br>
+ルートドメインのホストゾーンのNSレコードに記載されているネームサーバのIPを登録済みドメインのネームサーバのIPとして登録すること。</p>
+<ul>
+<li>ドメインのネームサーバーおよびグルーレコードの追加あるいは変更
+<ul>
+<li><a href="https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/domain-name-servers-glue-records.html">https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/domain-name-servers-glue-records.html</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="albへ通信を流す">ALBへ通信を流す</h1>
+<p>ここまでできればあとはサブドメインのホストゾーンからALBへ通信を流し込むAレコードを作成すればよい。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">resource</span> <span style="color:#2aa198">&#34;aws_route53_record&#34; &#34;subdomain_example_com&#34;</span> {
+  zone_id <span style="color:#719e07">=</span> <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">zone_id</span>
+  name    <span style="color:#719e07">=</span> <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name</span>
+  type    <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;A&#34;</span><span style="color:#586e75">
+</span><span style="color:#586e75">
+</span><span style="color:#586e75">  # 実際に通信をさばくALBの情報
+</span><span style="color:#586e75"></span>  <span style="color:#719e07">alias</span> {
+    name                   <span style="color:#719e07">=</span> <span style="color:#719e07">aws_lb</span>.<span style="color:#719e07">xxx</span>.<span style="color:#719e07">dns_name</span>
+    zone_id                <span style="color:#719e07">=</span> <span style="color:#719e07">aws_lb</span>.<span style="color:#719e07">xxx</span>.<span style="color:#719e07">zone_id</span>
+    evaluate_target_health <span style="color:#719e07">=</span> <span style="color:#dc322f">true</span>
+  }
+}
+</code></pre></div><p>これで、 <code>https://subdomain.example.com</code>の通信がALBへ流し込まれるようになる。</p>
+<p>AレコードはAWS独自拡張DNSレコードタイプのエイリアスレコードのことだ（よくわかっていないが速いらしい）。</p>
+<ul>
+<li>サポートされる DNS レコードタイプ
+<ul>
+<li><a href="https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/ResourceRecordTypes.html">https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/ResourceRecordTypes.html</a></li>
+</ul>
+</li>
+<li>エイリアスレコードと非エイリアスレコードの選択
+<ul>
+<li><a href="https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/resource-record-sets-choosing-alias-non-alias.html">https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/resource-record-sets-choosing-alias-non-alias.html</a></li>
+</ul>
+</li>
+</ul>
+<p>TerraformのApplyが終わればローカルから<code>https://subdomain.example.com</code>への通信が可能になっているはずだ（当然ALB以降に何かしらレスポンスする定義がないとダメだが）。</p>
+<h1 id="最後に">最後に</h1>
+<p>私はアプリケーションエンジニアなので、普段ALBらへんまではTerraformで書いたり、覗いたことがあった。<br>
+今回いつもSREの方々に任せているところを自分ではじめてRoute53やACMを自分で設定してみてネットワークについて少し理解が深まった。<br>
+ただ、アプリケーションを作ってObservabilityの勉強をしたいのが目的なので、ゴール（スタート？）はまだまだ遠い…</p>
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=B07XT7LJLC&linkId=f7b69fcc728d07bb0be7d26f22163b8a"></iframe>
+<p>最後に今回使ったサンプルコードをまとめておく。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">terraform</span> {
+  required_version <span style="color:#719e07">=</span> &#34;&gt;<span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>.<span style="color:#2aa198">13</span>.<span style="color:#2aa198">4</span>&#34;
+}
+
+<span style="color:#719e07">provider</span> <span style="color:#2aa198">&#34;aws&#34;</span> {
+  version <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;~&gt; 3.6.0&#34;</span>
+}
+
+<span style="color:#719e07">data</span> <span style="color:#719e07">aws_route53_zone</span> <span style="color:#719e07">example_com</span> {
+  name <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;example.com&#34;</span>
+}
+
+<span style="color:#719e07">resource</span> <span style="color:#719e07">aws_route53_zone</span> <span style="color:#719e07">subdomain_example_com</span> {
+  name <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;subdomain.example.com&#34;</span>
+}
+
+<span style="color:#719e07">resource</span> <span style="color:#719e07">aws_route53_record</span> <span style="color:#719e07">ns_record_for_subdomain</span> {
+  name    <span style="color:#719e07">=</span> <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">name</span>
+  zone_id <span style="color:#719e07">=</span> <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">id</span>
+  records <span style="color:#719e07">=</span> [
+    <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name_servers</span>[<span style="color:#2aa198">0</span>],
+    <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name_servers</span>[<span style="color:#2aa198">1</span>],
+    <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name_servers</span>[<span style="color:#2aa198">2</span>],
+    <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name_servers</span>[<span style="color:#2aa198">3</span>]
+  ]
+  ttl  <span style="color:#719e07">=</span> <span style="color:#2aa198">300</span>
+  type <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;NS&#34;</span>
+}
+
+<span style="color:#719e07">resource</span> <span style="color:#719e07">aws_acm_certificate</span> <span style="color:#719e07">example_com</span> {
+  domain_name               <span style="color:#719e07">=</span> <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">name</span>
+  subject_alternative_names <span style="color:#719e07">=</span> [<span style="color:#719e07">format</span>(<span style="color:#2aa198">&#34;*.%s&#34;</span>, <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">name</span>)]
+  validation_method <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;DNS&#34;</span>
+
+  <span style="color:#719e07">lifecycle</span> {
+    create_before_destroy <span style="color:#719e07">=</span> <span style="color:#dc322f">true</span>
+  }
+}
+
+<span style="color:#719e07">resource</span> <span style="color:#719e07">aws_route53_record</span> <span style="color:#719e07">certificate</span> {
+  for_each <span style="color:#719e07">=</span> {
+    for dvo in aws_acm_certificate.example_com.domain_validation_options : dvo.domain_name <span style="color:#719e07">=</span>&gt; {
+      name   <span style="color:#719e07">=</span> <span style="color:#719e07">dvo</span>.<span style="color:#719e07">resource_record_name</span>
+      record <span style="color:#719e07">=</span> <span style="color:#719e07">dvo</span>.<span style="color:#719e07">resource_record_value</span>
+      type   <span style="color:#719e07">=</span> <span style="color:#719e07">dvo</span>.<span style="color:#719e07">resource_record_type</span>
+    }
+  }
+  name            <span style="color:#719e07">=</span> <span style="color:#719e07">each</span>.<span style="color:#719e07">value</span>.<span style="color:#719e07">name</span>
+  records         <span style="color:#719e07">=</span> [<span style="color:#719e07">each</span>.<span style="color:#719e07">value</span>.<span style="color:#719e07">record</span>]
+  ttl             <span style="color:#719e07">=</span> <span style="color:#2aa198">60</span>
+  type            <span style="color:#719e07">=</span> <span style="color:#719e07">each</span>.<span style="color:#719e07">value</span>.<span style="color:#719e07">type</span>
+  zone_id         <span style="color:#719e07">=</span> <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">id</span>
+  allow_overwrite <span style="color:#719e07">=</span> <span style="color:#dc322f">true</span>
+}
+
+<span style="color:#719e07">resource</span> <span style="color:#719e07">aws_acm_certificate_validation</span> <span style="color:#719e07">cert</span> {
+  certificate_arn         <span style="color:#719e07">=</span> <span style="color:#719e07">aws_acm_certificate</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">arn</span>
+  validation_record_fqdns <span style="color:#719e07">=</span> [<span style="color:#719e07">for</span> <span style="color:#719e07">record</span> <span style="color:#719e07">in</span> <span style="color:#719e07">aws_route53_record</span>.<span style="color:#719e07">certificate</span> : <span style="color:#719e07">record</span>.<span style="color:#719e07">fqdn</span>]
+}
+
+<span style="color:#719e07">resource</span> <span style="color:#2aa198">&#34;aws_route53_record&#34; &#34;subdomain_example_com&#34;</span> {
+  zone_id <span style="color:#719e07">=</span> <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">zone_id</span>
+  name    <span style="color:#719e07">=</span> <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name</span>
+  type    <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;A&#34;</span><span style="color:#586e75">
+</span><span style="color:#586e75">
+</span><span style="color:#586e75">  # 実際に通信をさばくALBの情報
+</span><span style="color:#586e75"></span>  <span style="color:#719e07">alias</span> {
+    name                   <span style="color:#719e07">=</span> <span style="color:#719e07">aws_lb</span>.<span style="color:#719e07">xxx</span>.<span style="color:#719e07">dns_name</span>
+    zone_id                <span style="color:#719e07">=</span> <span style="color:#719e07">aws_lb</span>.<span style="color:#719e07">xxx</span>.<span style="color:#719e07">zone_id</span>
+    evaluate_target_health <span style="color:#719e07">=</span> <span style="color:#dc322f">true</span>
+  }
+}
+</code></pre></div><h1 id="参考">参考</h1>
+<ul>
+<li>Amazon Route 53
+<ul>
+<li><a href="https://aws.amazon.com/jp/route53/">https://aws.amazon.com/jp/route53/</a></li>
+</ul>
+</li>
+<li>AWS Certificate Manager
+<ul>
+<li><a href="https://aws.amazon.com/jp/certificate-manager/">https://aws.amazon.com/jp/certificate-manager/</a></li>
+</ul>
+</li>
+<li>route53_zone
+<ul>
+<li><a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_zone">https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_zone</a></li>
+</ul>
+</li>
+<li>route53_record
+<ul>
+<li><a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record">https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record</a></li>
+</ul>
+</li>
+<li>acm_certificate
+<ul>
+<li><a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate">https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate</a></li>
+</ul>
+</li>
+<li>format Function
+<ul>
+<li><a href="https://www.terraform.io/docs/configuration/functions/format.html">https://www.terraform.io/docs/configuration/functions/format.html</a></li>
+</ul>
+</li>
+<li>acm_certificate_validation
+<ul>
+<li><a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate_validation">https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate_validation</a></li>
+</ul>
+</li>
+<li>SANsにワイルドカードが入ったACMのDNS認証なSSL証明書をTerraformで作るときのハマりどころ
+<ul>
+<li><a href="https://fusagiko.hatenablog.jp/entry/2019/09/30/223700">https://fusagiko.hatenablog.jp/entry/2019/09/30/223700</a></li>
+</ul>
+</li>
+<li>Route 53 に登録されているドメインのホストゾーンの置き換え
+<ul>
+<li><a href="https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/domain-replace-hosted-zone.html">https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/domain-replace-hosted-zone.html</a></li>
+</ul>
+</li>
+<li>サブドメインのトラフィックのルーティング
+<ul>
+<li><a href="https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/dns-routing-traffic-for-subdomains.html">https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/dns-routing-traffic-for-subdomains.html</a></li>
+</ul>
+</li>
+<li>ドメインのネームサーバーおよびグルーレコードの追加あるいは変更
+<ul>
+<li><a href="https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/domain-name-servers-glue-records.html">https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/domain-name-servers-glue-records.html</a></li>
+</ul>
+</li>
+<li>サポートされる DNS レコードタイプ
+<ul>
+<li><a href="https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/ResourceRecordTypes.html">https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/ResourceRecordTypes.html</a></li>
+</ul>
+</li>
+<li>エイリアスレコードと非エイリアスレコードの選択
+<ul>
+<li><a href="https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/resource-record-sets-choosing-alias-non-alias.html">https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/resource-record-sets-choosing-alias-non-alias.html</a></li>
+</ul>
+</li>
+<li>新しいドメインの DNS ルーティングの設定
+<ul>
+<li><a href="https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/dns-configuring-new-domain.html">https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/dns-configuring-new-domain.html</a></li>
+</ul>
+</li>
+<li>DNSを使用したドメイン所有権の検証
+<ul>
+<li><a href="https://docs.aws.amazon.com/ja_jp/acm/latest/userguide/gs-acm-validate-dns.html">https://docs.aws.amazon.com/ja_jp/acm/latest/userguide/gs-acm-validate-dns.html</a></li>
+</ul>
+</li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/05/12/pass-aws-solution-architect-associate/">15日間勉強してAWS ソリューションアーキテクト アソシエイト試験に合格した</a></li>
+  
+  <li><a href="/2019/06/02/use-dynamodb-local-on-circleci/">DynamoDBを操作するコードをamazon/dynamodb-localコンテナとCircleCIを使ってCIする #aws</a></li>
+  
+  <li><a href="/2018/01/17/hello-aws-lambda-go/">AWS Lambda Go早めぐり(LambdaContext, Logging, Error...)</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Nov 7, 2020</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/terraform">terraform</a>  <a class="category" href="https://budougumi0617.github.io/tags/aws">aws</a>  <a class="category" href="https://budougumi0617.github.io/tags/route53">route53</a>  <a class="category" href="https://budougumi0617.github.io/tags/https">https</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2020/11/01/how_to_craete_wrapper/" title="[Go] 埋め込みフィールドを使ったラッパー構造体定義">[Go] 埋め込みフィールドを使ったラッパー構造体定義</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/gotips/" title="意外と知らないGoのTIPS" >意外と知らないGoのTIPS</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2020/11/07/define_https_subdomain_by_terraform/">TerraformでAWS上にHTTPS化したサブドメインを定義する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/11/01/how_to_craete_wrapper/">[Go] 埋め込みフィールドを使ったラッパー構造体定義</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/10/23/think_go_way/">Goらしさとは何なのか考える</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/10/07/auto_release_by_goreleaser/">goreleaserとGitHub Actionsを使えばGoのCLIはgit tagをpushするだけでGitHubとHomeBrewに自動リリースできる</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2020  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
