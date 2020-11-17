@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>自作Terraform Providerのユニットテストの書き方 - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="Go,unittest,terraform,provider">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/terraform.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/terraform.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2020/11/17/unittest_for_terraform_custom_provider/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="自作Terraform Providerのユニットテストの書き方 - My External Storage"/>
+  <meta property="og:description" content="公式チュートリアルには載っていなかったので、自作Terraform Providerを作るときのユニットテストの書き方をメモしておく。
+なお、最初にコメントしておくと今回の記事はかなり説明を省略しているので各Providerにコミットしたことがあるか自作Providerを作った人じゃないとわからなそう…"/>
+  
+  <meta name="twitter:title" content="自作Terraform Providerのユニットテストの書き方 - My External Storage"/>
+  <meta name="twitter:description" content="公式チュートリアルには載っていなかったので、自作Terraform Providerを作るときのユニットテストの書き方をメモしておく。
+なお、最初にコメントしておくと今回の記事はかなり説明を省略しているので各Providerにコミットしたことがあるか自作Providerを作った人じゃないとわからなそう…"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Nov 17, 2020
+     - 5 minute read 
+     - <a href="https://budougumi0617.github.io/2020/11/17/unittest_for_terraform_custom_provider/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/terraform/">terraform </a><a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://budougumi0617.github.io/2020/11/17/unittest_for_terraform_custom_provider/">自作Terraform Providerのユニットテストの書き方</a>
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#terraform-providerの概要">Terraform Providerの概要</a></li>
+    <li><a href="#自作provider実装時の動作確認のめんどくささ">自作Provider実装時の動作確認のめんどくささ</a></li>
+    <li><a href="#自作providerのユニットテストを書く">自作Providerのユニットテストを書く</a>
+      <ul>
+        <li><a href="#自作providerの実装構造">自作Providerの実装構造</a></li>
+        <li><a href="#テスト対象の自作データの定義">テスト対象の自作データの定義</a></li>
+      </ul>
+    </li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>公式チュートリアルには載っていなかったので、自作Terraform Providerを作るときのユニットテストの書き方をメモしておく。<br>
+なお、最初にコメントしておくと今回の記事はかなり説明を省略しているので各Providerにコミットしたことがあるか自作Providerを作った人じゃないとわからなそう…</p>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>TerraformはProvider経由で各種サービスのリソースを操作する
+<ul>
+<li><a href="https://www.terraform.io/docs/providers/index.html">https://www.terraform.io/docs/providers/index.html</a></li>
+</ul>
+</li>
+<li>SDKを使えば自作Providerを作ることも可能
+<ul>
+<li><a href="https://github.com/hashicorp/terraform-plugin-sdk">https://github.com/hashicorp/terraform-plugin-sdk</a></li>
+</ul>
+</li>
+<li>公式ガイドに載っていないが、<code>schema.Resource#TestResourceData</code>メソッドを使うとテストが書きやすい
+<ul>
+<li><a href="https://pkg.go.dev/github.com/hashicorp/terraform-plugin-sdk/v2@v2.2.0/helper/schema#Resource.TestResourceData">https://pkg.go.dev/github.com/hashicorp/terraform-plugin-sdk/v2@v2.2.0/helper/schema#Resource.TestResourceData</a></li>
+</ul>
+</li>
+<li>ユニットテストを書けば動作確認も簡単にできるので開発がはかどる！</li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// schema.Resource.ReadContextに設定する関数のテスト
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Test_dataSourceYourObjectRead</span>(t <span style="color:#719e07">*</span>testing.T) {
+  <span style="color:#586e75">// *schema.ProviderData.ConfigureContextFuncの戻り値にしているオブジェクト
+</span><span style="color:#586e75"></span>  m <span style="color:#719e07">:=</span> providerConfigureReturnedObject
+  <span style="color:#586e75">// *schema.Provider.DataSourcesMapに設定するResource
+</span><span style="color:#586e75"></span>  d <span style="color:#719e07">:=</span> <span style="color:#268bd2">dataSourceYourObject</span>().<span style="color:#268bd2">TestResourceData</span>()
+
+  got <span style="color:#719e07">:=</span> <span style="color:#268bd2">dataSourceYourObjectRead</span>(context.<span style="color:#268bd2">TODO</span>(), d, m)
+  <span style="color:#719e07">if</span> diff <span style="color:#719e07">:=</span> cmp.<span style="color:#268bd2">Diff</span>(got, tt.want); diff <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;&#34;</span> {
+    t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;dataSourceYourObjectRead: (-got +want)\n%s&#34;</span>, diff)
+  }
+}
+</code></pre></div><h1 id="terraform-providerの概要">Terraform Providerの概要</h1>
+<p>Terraformはプロパイダーを経由して各種リソースを操作する。
+AWSプロパイダーやGCPプロパイダー経由でマネージドサービスを管理している方も多いだろう。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/hashicorp/terraform-provider-aws" data-iframely-url="//cdn.iframe.ly/W3cxksd"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/hashicorp/terraform-provider-google" data-iframely-url="//cdn.iframe.ly/WBrqvjN"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>TerraformはIaaS以外もプロパイダーさえあれば宣言的に管理できる。
+公式で提供されているプロパイダーだけでもこれだけある。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://www.terraform.io/docs/providers/index.html" data-iframely-url="//cdn.iframe.ly/6f0zAr6"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>また、Goが書けるならばSDKを使って自作のプロパイダーを作成し、レジストリに公開することもできる、</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/hashicorp/terraform-plugin-sdk" data-iframely-url="//cdn.iframe.ly/d5HNUnD"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>自作プロパイダーは次の公式ガイドを読みながら実装することができる。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://learn.hashicorp.com/collections/terraform/providers" data-iframely-url="//cdn.iframe.ly/lHR2l7J?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>日本語資料がよいならソフトウェアデザイン11月号の「作品で魅せるGoプログラミング」に解説が載っている。</p>
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=B08KSQ2FB5&linkId=28c90a4791e5ef6496c909b3c558908f"></iframe>
+<h1 id="自作provider実装時の動作確認のめんどくささ">自作Provider実装時の動作確認のめんどくささ</h1>
+<p>ホビープロジェクトとしてTerraformの自作Providerを作っている。<br>
+Providerは<code>terraform</code>コマンドが呼び出すサププロセスとなる。<br>
+そのため、作るのは簡単だが動作確認がめんどくさい。<br>
+さきほど紹介した資料ではどちらにも一度ビルドしてTerraform経由で起動する動作確認方法が記載されている。</p>
+<ul>
+<li><a href="https://learn.hashicorp.com/tutorials/terraform/provider-setup?in=terraform/providers#test-the-provider">https://learn.hashicorp.com/tutorials/terraform/provider-setup?in=terraform/providers#test-the-provider</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">pwd</span>
+/Users/budougumi0617/go/src/github.com/budougumi0617/terraform-provider-hashicups
+<span style="color:#586e75"># 一度ビルドする</span>
+$ make install
+go build -o terraform-provider-hashicups
+mv terraform-provider-hashicups ~/.terraform.d/plugins/hashicorp.com/edu/hashicups/0.2/darwin_amd64
+<span style="color:#586e75"># tfファイルを用意したディレクトリに移動する</span>
+$ <span style="color:#b58900">cd</span> examples
+<span style="color:#586e75"># ビルドしたら必ずinitしないといけない</span>
+$ terraform init
+<span style="color:#586e75"># ここまでやってやっとapplyして動作確認ができる</span>
+$ terraform apply --auto-approve
+</code></pre></div><p>この方法だと毎回ビルドをしたあと異なるディレクトリで<code>terraform init &amp;&amp; terraform apply</code>をする必要があり時間もかかる。<br>
+また、デバッガのアタッチも難しい。そのためユニットテストで動作確認をしたい。</p>
+<h1 id="自作providerのユニットテストを書く">自作Providerのユニットテストを書く</h1>
+<h2 id="自作providerの実装構造">自作Providerの実装構造</h2>
+<p>Terraformで自作プロバイダーを実装する流れはざっくり次の通り。</p>
+<ul>
+<li>データあるいはリソースの構造を定義する</li>
+<li>データあるいはリソースに対して、CRUD操作にひとつひとつ対応する関数を実装する</li>
+</ul>
+<p>CRUD操作に対応するそれぞれの関数は次のシグネチャを持つ関数として実装する。</p>
+<ul>
+<li><a href="https://github.com/hashicorp/terraform-plugin-sdk/blob/6e57e60d8383a26ab179b1b142b3f6ca452229c0/helper/schema/resource.go#L226-L236">github.com/hashicorp/terraform-plugin-sdk/helper/schema/resource.go</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// See Resource documentation.
+</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> CreateContextFunc <span style="color:#268bd2">func</span>(context.Context, <span style="color:#719e07">*</span>ResourceData, <span style="color:#268bd2">interface</span>{}) diag.Diagnostics
+
+<span style="color:#586e75">// See Resource documentation.
+</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> ReadContextFunc <span style="color:#268bd2">func</span>(context.Context, <span style="color:#719e07">*</span>ResourceData, <span style="color:#268bd2">interface</span>{}) diag.Diagnostics
+
+<span style="color:#586e75">// See Resource documentation.
+</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> UpdateContextFunc <span style="color:#268bd2">func</span>(context.Context, <span style="color:#719e07">*</span>ResourceData, <span style="color:#268bd2">interface</span>{}) diag.Diagnostics
+
+<span style="color:#586e75">// See Resource documentation.
+</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> DeleteContextFunc <span style="color:#268bd2">func</span>(context.Context, <span style="color:#719e07">*</span>ResourceData, <span style="color:#268bd2">interface</span>{}) diag.Diagnostics
+</code></pre></div><p>（つまり同じシグネチャなのだが、）この関数の引数にわたすオブジェクトを用意すれば各<code>XxxxContextFunc</code>に対応するCRUD操作のユニットテストが実行できる。</p>
+<h2 id="テスト対象の自作データの定義">テスト対象の自作データの定義</h2>
+<p>今回テストの対象になるデータリソースの定義を確認する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">import</span> (
+  <span style="color:#2aa198">&#34;context&#34;</span>
+  <span style="color:#2aa198">&#34;fmt&#34;</span>
+
+  pixela <span style="color:#2aa198">&#34;github.com/ebc-2in2crc/pixela4go&#34;</span>
+
+  <span style="color:#2aa198">&#34;github.com/hashicorp/terraform-plugin-sdk/v2/diag&#34;</span>
+  <span style="color:#2aa198">&#34;github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema&#34;</span>
+)
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">dataSourceGraphs</span>() <span style="color:#719e07">*</span>schema.Resource {
+  <span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>schema.Resource{
+    ReadContext: dataSourceGraphsRead,
+    Schema: <span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]<span style="color:#719e07">*</span>schema.Schema{
+      <span style="color:#2aa198">&#34;graphs&#34;</span>: {
+        Type:     schema.TypeList,
+        Computed: <span style="color:#cb4b16">true</span>,
+        Elem: <span style="color:#719e07">&amp;</span>schema.Resource{
+          Schema: <span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]<span style="color:#719e07">*</span>schema.Schema{
+            <span style="color:#2aa198">&#34;id&#34;</span>: {
+              Type:     schema.TypeString,
+              Computed: <span style="color:#cb4b16">true</span>,
+            },
+            <span style="color:#2aa198">&#34;name&#34;</span>: {
+              Type:     schema.TypeString,
+              Computed: <span style="color:#cb4b16">true</span>,
+            },
+            <span style="color:#586e75">// ...
+</span><span style="color:#586e75"></span>          },
+        },
+      },
+    },
+  }
+}
+
+<span style="color:#586e75">// この関数をテストしたい
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">dataSourceGraphsRead</span>(
+  ctx context.Context, d <span style="color:#719e07">*</span>schema.ResourceData, m <span style="color:#268bd2">interface</span>{},
+  ) diag.Diagnostics {
+  client <span style="color:#719e07">:=</span> m.(<span style="color:#719e07">*</span>pixela.Client)
+  <span style="color:#268bd2">var</span> diags diag.Diagnostics
+  <span style="color:#586e75">// Do anything...
+</span><span style="color:#586e75"></span>  <span style="color:#719e07">return</span> diags
+}
+</code></pre></div><p>また、Providerの<code>ConfigureContextFunc</code>に登録している関数は次の通り。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">import</span> (
+  <span style="color:#2aa198">&#34;context&#34;</span>
+  <span style="color:#2aa198">&#34;fmt&#34;</span>
+
+  pixela <span style="color:#2aa198">&#34;github.com/ebc-2in2crc/pixela4go&#34;</span>
+  <span style="color:#2aa198">&#34;github.com/hashicorp/terraform-plugin-sdk/v2/diag&#34;</span>
+  <span style="color:#2aa198">&#34;github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema&#34;</span>
+)
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">providerConfigure</span>(
+  _ context.Context, d <span style="color:#719e07">*</span>schema.ResourceData,
+  ) (<span style="color:#268bd2">interface</span>{}, diag.Diagnostics) {
+  un <span style="color:#719e07">:=</span> d.<span style="color:#268bd2">Get</span>(<span style="color:#2aa198">&#34;username&#34;</span>).(<span style="color:#dc322f">string</span>)
+  <span style="color:#719e07">if</span> un <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;&#34;</span> {
+    <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>, diag.<span style="color:#268bd2">FromErr</span>(fmt.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;not find username&#34;</span>))
+  }
+
+  token <span style="color:#719e07">:=</span> d.<span style="color:#268bd2">Get</span>(<span style="color:#2aa198">&#34;token&#34;</span>).(<span style="color:#dc322f">string</span>)
+  <span style="color:#719e07">if</span> token <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;&#34;</span> {
+    <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>, diag.<span style="color:#268bd2">FromErr</span>(fmt.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;not find token&#34;</span>))
+  }
+
+  <span style="color:#719e07">return</span> pixela.<span style="color:#268bd2">New</span>(un, token), diag.Diagnostics{}
+}
+</code></pre></div><p><code>dataSourceGraphsRead</code>関数をテストするには、<code>*schema.ResourceData</code>オブジェクトを入手する必要がある。<br>
+<code>*schema.ResourceData</code>オブジェクトは、<code>dataSourceGraphs</code>関数の戻り値である<code>*schema.Resource</code>オブジェクトから入手することができる。</p>
+<ul>
+<li><a href="https://pkg.go.dev/github.com/hashicorp/terraform-plugin-sdk/v2@v2.2.0/helper/schema#Resource.TestResourceData">schema.Resource#TestResourceData</a></li>
+</ul>
+<blockquote>
+<p>func (*Resource) TestResourceData<br>
+<code>func (r *Resource) TestResourceData() *ResourceData</code><br>
+TestResourceData Yields a ResourceData filled with this resource&rsquo;s schema for use in unit testing</p>
+<p>TODO: May be able to be removed with the above ResourceData function.</p>
+</blockquote>
+<p>第1引数のcontextは適当なcontextでよく、第3引数は<code>ConfigureContextFunc</code>に登録する<code>providerConfigure</code>関数の戻り値で良い。<br>
+今回の場合だと第3引数は<code>providerConfigure</code>関数が返す<code>*pixela.Client</code>オブジェクトになる。</p>
+<p>これらを踏まえると、次のようにtestを書くことができる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> pixela
+
+<span style="color:#719e07">import</span> (
+  <span style="color:#2aa198">&#34;context&#34;</span>
+  <span style="color:#2aa198">&#34;os&#34;</span>
+  <span style="color:#2aa198">&#34;testing&#34;</span>
+
+  pixela <span style="color:#2aa198">&#34;github.com/ebc-2in2crc/pixela4go&#34;</span>
+  <span style="color:#2aa198">&#34;github.com/google/go-cmp/cmp&#34;</span>
+  <span style="color:#2aa198">&#34;github.com/hashicorp/terraform-plugin-sdk/v2/diag&#34;</span>
+)
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">Test_dataSourceGraphsRead</span>(t <span style="color:#719e07">*</span>testing.T) {
+  tests <span style="color:#719e07">:=</span> [<span style="color:#719e07">...</span>]<span style="color:#268bd2">struct</span> {
+    name <span style="color:#dc322f">string</span>
+    want diag.Diagnostics
+  }{
+    {
+      name: <span style="color:#2aa198">&#34;confirmClientResponse&#34;</span>,
+      want: <span style="color:#cb4b16">nil</span>,
+    },
+  }
+  <span style="color:#719e07">for</span> _, tt <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> tests {
+    usename <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;PIXELA_USERNAME&#34;</span>)
+    token <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;PIXELA_TOKEN&#34;</span>)
+    <span style="color:#719e07">if</span> usename <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;&#34;</span> <span style="color:#719e07">||</span> token <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;&#34;</span> {
+      t.<span style="color:#268bd2">SkipNow</span>()
+    }
+    t.<span style="color:#268bd2">Run</span>(tt.name, <span style="color:#268bd2">func</span>(t <span style="color:#719e07">*</span>testing.T) {
+      m <span style="color:#719e07">:=</span> pixela.<span style="color:#268bd2">New</span>(usename, token)
+      d <span style="color:#719e07">:=</span> <span style="color:#268bd2">dataSourceGraphs</span>().<span style="color:#268bd2">TestResourceData</span>()
+      got <span style="color:#719e07">:=</span> <span style="color:#268bd2">dataSourceGraphsRead</span>(context.<span style="color:#268bd2">TODO</span>(), d, m)
+      <span style="color:#719e07">if</span> diff <span style="color:#719e07">:=</span> cmp.<span style="color:#268bd2">Diff</span>(got, tt.want); diff <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;&#34;</span> {
+        t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;dataSourceGraphsRead: (-got +want)\n%s&#34;</span>, diff)
+      }
+    })
+  }
+}
+</code></pre></div><p>これでunittestとして動作確認ができるようになった。
+また、デバッガを接続して動作確認もできるので、データの流れ方も確認することができる。</p>
+<h1 id="終わりに">終わりに</h1>
+<p>前提知識の補足をほとんど書いていないが、terraformのProviderのユニットテストを書く方法をまとめた。<br>
+terraform-provider-awsなどを確認すると、もっとテスト用の関数を多用しているので、他にもどんなテストが書けるか読んでおきたい。</p>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a href="https://github.com/hashicorp/terraform-plugin-sdk">https://github.com/hashicorp/terraform-plugin-sdk</a></li>
+<li>Providers - Terraform by Hashicorp
+<ul>
+<li><a href="https://www.terraform.io/docs/providers/index.html">https://www.terraform.io/docs/providers/index.html</a></li>
+</ul>
+</li>
+<li>Call APIs with Terraform Providers | Terraform - Hashicorp Learn
+<ul>
+<li><a href="https://learn.hashicorp.com/collections/terraform/providers">https://learn.hashicorp.com/collections/terraform/providers</a></li>
+</ul>
+</li>
+<li><a href="https://github.com/hashicorp/terraform-provider-aws">https://github.com/hashicorp/terraform-provider-aws</a></li>
+</ul>
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=B08KSQ2FB5&linkId=28c90a4791e5ef6496c909b3c558908f"></iframe>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2020/05/29/go-testing-httptest/">Goのtestを理解する - httptestサブパッケージ編</a></li>
+  
+  <li><a href="/2020/05/08/go-cmp-diif-with-ignore-fields/">[Go] 一部のフィールドを無視して構造体を比較したいときはgo-cmpを使う</a></li>
+  
+  <li><a href="/2020/03/27/http-test-in-go/">Goでサーバを立ち上げてE2Eテストを実施するCI用のテストコードを書く</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Nov 17, 2020</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/terraform">terraform</a>  <a class="category" href="https://budougumi0617.github.io/tags/test">test</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2020/11/07/define_https_subdomain_by_terraform/" title="TerraformでAWS上にHTTPS化したサブドメインを定義する">TerraformでAWS上にHTTPS化したサブドメインを定義する</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/gotips/" title="意外と知らないGoのTIPS" >意外と知らないGoのTIPS</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2020/11/17/unittest_for_terraform_custom_provider/">自作Terraform Providerのユニットテストの書き方</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/11/07/define_https_subdomain_by_terraform/">TerraformでAWS上にHTTPS化したサブドメインを定義する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/11/01/how_to_craete_wrapper/">[Go] 埋め込みフィールドを使ったラッパー構造体定義</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/10/23/think_go_way/">Goらしさとは何なのか考える</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2020  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
