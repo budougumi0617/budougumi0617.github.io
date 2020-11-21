@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>ifelseやswitch文のようにGitHub Actionsのステップの実行を制御したい - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="GitHub Actions,CI,GitHub">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/github.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/github.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2020/11/21/execute_steps_with_iflese_in_github_actions/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="ifelseやswitch文のようにGitHub Actionsのステップの実行を制御したい - My External Storage"/>
+  <meta property="og:description" content="GitHub Actions上でこんな感じにステップの実行を制御する方法をまとめておく。
+if condition1 {
+  step1 実行
+} else if condition2 {
+  step2 実行
+} else {
+  step3 実行
+}
+"/>
+  
+  <meta name="twitter:title" content="ifelseやswitch文のようにGitHub Actionsのステップの実行を制御したい - My External Storage"/>
+  <meta name="twitter:description" content="GitHub Actions上でこんな感じにステップの実行を制御する方法をまとめておく。
+if condition1 {
+  step1 実行
+} else if condition2 {
+  step2 実行
+} else {
+  step3 実行
+}
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Nov 21, 2020
+     - 4 minute read 
+     - <a href="https://budougumi0617.github.io/2020/11/21/execute_steps_with_iflese_in_github_actions/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/github/">github </a><a class="label" href="https://budougumi0617.github.io/categories/actions/">actions </a>
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://budougumi0617.github.io/2020/11/21/execute_steps_with_iflese_in_github_actions/">ifelseやswitch文のようにGitHub Actionsのステップの実行を制御したい</a>
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tddr">TD;DR</a></li>
+    <li><a href="#github-actionsでswtich文のようにステップの実行を制御したい">GitHub Actionsでswtich文のようにステップの実行を制御したい。</a></li>
+    <li><a href="#if構文とconclusionコンテキストを使いこなす">if構文とconclusionコンテキストを使いこなす</a>
+      <ul>
+        <li><a href="#jobsjob_idstepsif"><code>jobs.&lt;job_id&gt;.steps.if</code></a></li>
+        <li><a href="#stepsstep-idconclusion"><code>steps.&lt;step id&gt;.conclusion</code></a></li>
+        <li><a href="#サンプルコード">サンプルコード</a></li>
+      </ul>
+    </li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考文献">参考文献</a></li>
+  </ul>
+</nav>
+          
+          <p>GitHub Actions上でこんな感じにステップの実行を制御する方法をまとめておく。</p>
+<pre><code>if condition1 {
+  step1 実行
+} else if condition2 {
+  step2 実行
+} else {
+  step3 実行
+}
+</code></pre><h1 id="tddr">TD;DR</h1>
+<ul>
+<li>GitHub Actionsでstepに対して条件分岐を書きたかった
+<ul>
+<li>条件AのときはStep Aを実行</li>
+<li>条件BのときはStep Bを実行</li>
+<li>それ以外のときはStep Cを実行</li>
+<li>1回のジョブ中にA/B/Cはどれかひとつだけ実行されてほしい</li>
+</ul>
+</li>
+<li>stepの実行可否は<code>if</code>構文で制御することができる</li>
+<li>実行済みのstepの実行結果は<code>conclusion</code>コンテキストで取得できる</li>
+<li>これらを組み合わせて擬似的にifelseのような操作を実現できる</li>
+</ul>
+<p>検証したActionsの定義は次の通り。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">name</span>: ifelse pattern
+<span style="color:#719e07">on</span>:
+  <span style="color:#719e07">push</span>:
+    <span style="color:#719e07">branches</span>:
+      - master
+<span style="color:#719e07">jobs</span>:
+  <span style="color:#719e07">ifelse-pattern</span>:
+    <span style="color:#719e07">runs-on</span>: ubuntu-latest
+    <span style="color:#719e07">steps</span>:
+      - <span style="color:#719e07">name</span>: Check out codes
+        <span style="color:#719e07">uses</span>: actions/checkout@v2
+      - <span style="color:#719e07">name</span>: foo
+        <span style="color:#719e07">id</span>: foo
+        <span style="color:#719e07">if</span>: contains(toJSON(github.event.commits.<span style="color:#719e07">*.message),</span> <span style="color:#2aa198">&#39;foo&#39;</span>)
+        <span style="color:#719e07">run</span>:  echo <span style="color:#2aa198">&#39;if step!&#39;</span>
+      - <span style="color:#719e07">name</span>: bar
+        <span style="color:#719e07">id</span>: bar
+        <span style="color:#719e07">if</span>: steps.foo.conclusion == <span style="color:#2aa198">&#39;skipped&#39;</span>  <span style="color:#719e07">&amp;&amp;</span> contains(toJSON(github.event.commits.<span style="color:#719e07">*.message),</span> <span style="color:#2aa198">&#39;bar&#39;</span>)
+        <span style="color:#719e07">run</span>:  echo <span style="color:#2aa198">&#39;elseif step!&#39;</span>
+      - <span style="color:#719e07">name</span>: other
+        <span style="color:#719e07">if</span>: <span style="color:#2aa198">&#34;!(steps.foo.conclusion == &#39;success&#39; || steps.bar.conclusion == &#39;success&#39;)&#34;</span>
+        <span style="color:#719e07">run</span>:  echo <span style="color:#2aa198">&#39;else step!&#39;</span>
+</code></pre></div><p>サンプルリポジトリは次のとおり。</p>
+<ul>
+<li><a href="https://github.com/budougumi0617/actions-sandbox">https://github.com/budougumi0617/actions-sandbox</a></li>
+</ul>
+<p>利用しているGitHub Actionsのバージョンはv2となる。</p>
+<h1 id="github-actionsでswtich文のようにステップの実行を制御したい">GitHub Actionsでswtich文のようにステップの実行を制御したい。</h1>
+<p>GitHub Actionsを個人開発だったり業務でも選択することが多くなってきた。<br>
+慣れてくると少し凝ったことをやりたくなるのが人間の性である。</p>
+<p>今回はActionsのワークフローでいくつか定義したステップを場合によって使い分けたいシーンが出てきた。<br>
+そこで、if-elseのようにしてステップを使い分ける方法を調べてみた。<br>
+擬似コードを書くと次のように感じで、定義したstepのどれかひとつだけを実行したい。</p>
+<pre><code>if condition1 {
+  step1 実行
+} else if condition2 {
+  step2 実行
+} else {
+  step3 実行
+}
+</code></pre><h1 id="if構文とconclusionコンテキストを使いこなす">if構文とconclusionコンテキストを使いこなす</h1>
+<p>やりたいことを実現するには、<code>if</code>構文と<code>conclusion</code>コンテキストを利用すればよかった。</p>
+<h2 id="jobsjob_idstepsif"><code>jobs.&lt;job_id&gt;.steps.if</code></h2>
+<p><a href="https://docs.github.com/ja/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsif">https://docs.github.com/ja/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsif</a></p>
+<p><code>if</code>構文はそのままの意味で、<code>job</code>や<code>step</code>単位で実行条件を設定できる。<br>
+<code>if</code>構文では条件式や関数、環境変数、コンテキストの情報を利用することができる。</p>
+<h2 id="stepsstep-idconclusion"><code>steps.&lt;step id&gt;.conclusion</code></h2>
+<p><a href="https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#steps-context">https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#steps-context</a></p>
+<p>コンテキストとは、ジョブ実行中に得られる情報だ。<br>
+たとえば次のようなコンテキスト情報がある。</p>
+<ul>
+<li>トリガーとして渡されたコミットや実行者などのイベント情報</li>
+<li>ジョブ実行中の各ステップのアウトプット情報</li>
+</ul>
+<p>この中に実行済みのステップの実行結果を取得できるコンテキストも存在する。</p>
+<table>
+<thead>
+<tr>
+<th>Property name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>steps.<step id>.conclusion</td>
+<td>string</td>
+<td>The result of a completed step after continue-on-error is applied. Possible values are success, failure, cancelled, or skipped. When a continue-on-error step fails, the outcome is failure, but the final conclusion is success.</td>
+</tr>
+</tbody>
+</table>
+<p>前ステップが<code>skipped</code>されたときに別の条件Aを評価すれば<code>else if 条件A</code>的なステップ実行が可能そうだ。<br>
+また、関連する他のステップがすべて成功しなかったときにステップを実行すれば、<code>else</code>的なステップ実行ができる。</p>
+<h2 id="サンプルコード">サンプルコード</h2>
+<p>実際に作成したActionsのサンプルコードが次になる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">name</span>: ifelse pattern
+<span style="color:#719e07">on</span>:
+  <span style="color:#719e07">push</span>:
+    <span style="color:#719e07">branches</span>:
+      - master
+<span style="color:#719e07">jobs</span>:
+  <span style="color:#719e07">ifelse-pattern</span>:
+    <span style="color:#719e07">runs-on</span>: ubuntu-latest
+    <span style="color:#719e07">steps</span>:
+      - <span style="color:#719e07">name</span>: Check out codes
+        <span style="color:#719e07">uses</span>: actions/checkout@v2
+      - <span style="color:#719e07">name</span>: foo
+        <span style="color:#719e07">id</span>: foo
+        <span style="color:#719e07">if</span>: contains(toJSON(github.event.commits.<span style="color:#719e07">*.message),</span> <span style="color:#2aa198">&#39;foo&#39;</span>)
+        <span style="color:#719e07">run</span>:  echo <span style="color:#2aa198">&#39;if step!&#39;</span>
+      - <span style="color:#719e07">name</span>: bar
+        <span style="color:#719e07">id</span>: bar
+        <span style="color:#719e07">if</span>: steps.foo.conclusion == <span style="color:#2aa198">&#39;skipped&#39;</span>  <span style="color:#719e07">&amp;&amp;</span> contains(toJSON(github.event.commits.<span style="color:#719e07">*.message),</span> <span style="color:#2aa198">&#39;bar&#39;</span>)
+        <span style="color:#719e07">run</span>:  echo <span style="color:#2aa198">&#39;elseif step!&#39;</span>
+      - <span style="color:#719e07">name</span>: other
+        <span style="color:#719e07">if</span>: <span style="color:#2aa198">&#34;!(steps.foo.conclusion == &#39;success&#39; || steps.bar.conclusion == &#39;success&#39;)&#34;</span>
+        <span style="color:#719e07">run</span>:  echo <span style="color:#2aa198">&#39;else step!&#39;</span>
+</code></pre></div><p><code>contains(toJSON(github.event.commits.*.message), 'foo')</code>は「プッシュされたコミットのコミットメッセージにfooが含まれているか」を評価するおまじないだ。
+なので、上記のActionsは次のような制御フローを実現している。</p>
+<ul>
+<li>コミットメッセージに「foo」が含まれていたら、fooステップの`echo &lsquo;if step!&lsquo;を実行する</li>
+<li>コミットメッセージに「bar」が含まれていたら、barステップの`echo &lsquo;elseif step!&lsquo;を実行する
+<ul>
+<li>foobarと書かれていたらfooステップが一度だけ実行される</li>
+</ul>
+</li>
+<li>fooもbarも含まれていないならば、otherステップの<code>echo else strep!</code>を実行する</li>
+</ul>
+<p>実際に動かして挙動を確認してみる。</p>
+<ul>
+<li>コミットメッセージに「foobar」と書いてプッシュした時、fooステップだけ実行された
+<ul>
+<li><a href="https://github.com/budougumi0617/actions-sandbox/runs/1434708015?check_suite_focus=true">https://github.com/budougumi0617/actions-sandbox/runs/1434708015?check_suite_focus=true</a></li>
+</ul>
+</li>
+<li>コミットメッセージに「barrrr」と書いてプッシュした時、barステップだけ実行された
+<ul>
+<li><a href="https://github.com/budougumi0617/actions-sandbox/runs/1434710021?check_suite_focus=true">https://github.com/budougumi0617/actions-sandbox/runs/1434710021?check_suite_focus=true</a></li>
+</ul>
+</li>
+<li>コミットメッセージに「🚚 move README」と書いてプッシュした時、otherステップだけ実行された
+<ul>
+<li><a href="https://github.com/budougumi0617/actions-sandbox/runs/1434920272?check_suite_focus=true">https://github.com/budougumi0617/actions-sandbox/runs/1434920272?check_suite_focus=true</a></li>
+</ul>
+</li>
+</ul>
+<p>どれも期待通りの挙動になった。</p>
+<h1 id="終わりに">終わりに</h1>
+<p>GitHub Actionsはあまり複雑なワークフローを組めないものの、覚えることが少なく、開始も簡単でいろいろやりやすい。<br>
+コンテキストを通してプッシュされたコミットの情報にアクセスしやすいのも魅力のひとつだなと思った。</p>
+<h1 id="参考文献">参考文献</h1>
+<ul>
+<li>GitHub Actionsのワークフロー構文
+<ul>
+<li><a href="https://docs.github.com/ja/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions">https://docs.github.com/ja/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions</a></li>
+</ul>
+</li>
+<li>GitHub Actions のコンテキストおよび式の構文
+<ul>
+<li><a href="https://docs.github.com/ja/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions">https://docs.github.com/ja/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions</a></li>
+</ul>
+</li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/11/03/use-cache-in-github-actions/">[Go] GitHub Actionsでキャッシュ機能を使う #github</a></li>
+  
+  <li><a href="/2020/05/01/use-datastore-emulator-on-github-actions/">GitHub Actions上でGCP Datastoreエミュレータを使ったテストを実行する</a></li>
+  
+  <li><a href="/2019/01/11/filter-branch-in-github-actions/">GitHub Actionsで特定のブランチのときのみワークフローを実行する #github #actions #ci</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Nov 21, 2020</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/github">github</a>  <a class="category" href="https://budougumi0617.github.io/tags/actions">actions</a>  <a class="category" href="https://budougumi0617.github.io/tags/git">git</a>  <a class="category" href="https://budougumi0617.github.io/tags/ci">ci</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2020/11/17/unittest_for_terraform_custom_provider/" title="自作Terraform Providerのユニットテストの書き方">自作Terraform Providerのユニットテストの書き方</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/gotips/" title="意外と知らないGoのTIPS" >意外と知らないGoのTIPS</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2020/11/21/execute_steps_with_iflese_in_github_actions/">ifelseやswitch文のようにGitHub Actionsのステップの実行を制御したい</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2020/11/17/unittest_for_terraform_custom_provider/">自作Terraform Providerのユニットテストの書き方</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/11/07/define_https_subdomain_by_terraform/">TerraformでAWS上にHTTPS化したサブドメインを定義する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/11/01/how_to_craete_wrapper/">[Go] 埋め込みフィールドを使ったラッパー構造体定義</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2020  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
