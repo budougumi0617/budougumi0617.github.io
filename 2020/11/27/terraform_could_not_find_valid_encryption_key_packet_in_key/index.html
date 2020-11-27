@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>TerraformレジストリにリリースしようとGPG Keyをimportしようとすると「Could not find valid encryption key packet in key ~~」とエラーになる - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="Terraform,Terraform Registry">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/terraform.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/terraform.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2020/11/27/terraform_could_not_find_valid_encryption_key_packet_in_key/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="TerraformレジストリにリリースしようとGPG Keyをimportしようとすると「Could not find valid encryption key packet in key ~~」とエラーになる - My External Storage"/>
+  <meta property="og:description" content="Terraform Registryへ自作Providerをリリースしようとしたときに半日ハマったのでメモ。"/>
+  
+  <meta name="twitter:title" content="TerraformレジストリにリリースしようとGPG Keyをimportしようとすると「Could not find valid encryption key packet in key ~~」とエラーになる - My External Storage"/>
+  <meta name="twitter:description" content="Terraform Registryへ自作Providerをリリースしようとしたときに半日ハマったのでメモ。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Nov 27, 2020
+     - 3 minute read 
+     - <a href="https://budougumi0617.github.io/2020/11/27/terraform_could_not_find_valid_encryption_key_packet_in_key/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/terraform/">terraform </a>
+    
+  </p>
+  <h1 class="entry-title">
+     TerraformレジストリにリリースしようとGPG Keyをimportしようとすると「Could not find valid encryption key packet in key ~~」とエラーになる 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#terrafomr-providerをリリースする">Terrafomr Providerをリリースする</a></li>
+    <li><a href="#could-not-find-valid-encryption-key-packet-in-key-">Could not find valid encryption key packet in key ~~</a></li>
+    <li><a href="#gpgコマンドのバージョンが2117以上ならばgpg---full-generate-keyでgpgキーを生成する">gpgコマンドのバージョンが2.1.17以上ならばgpg &ndash;full-generate-keyでgpgキーを生成する</a></li>
+    <li><a href="#終わりに">終わりに</a>
+      <ul>
+        <li><a href="#余談">余談</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>Terraform Registryへ自作Providerをリリースしようとしたときに半日ハマったのでメモ。</p>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>Terrafomr Providerを自作したらRegistryに簡単に公開できる
+<ul>
+<li><a href="https://www.terraform.io/docs/registry/providers/publishing.html">https://www.terraform.io/docs/registry/providers/publishing.html</a></li>
+</ul>
+</li>
+<li>GitHub Actionsから自動リリースしようとしたら次のエラーでハマった
+<ul>
+<li><code>Could not find valid encryption key packet in key</code></li>
+</ul>
+</li>
+<li>version 2.1.17以上の<code>gpg</code>コマンドを使ってGPGキーを生成するときは次のコマンドで生成すること
+<ul>
+<li><code>gpg --full-generate-key</code></li>
+</ul>
+</li>
+</ul>
+<p>なお、本記事で利用している各種ツールのバージョンは次のとおり。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ gpg --version
+gpg <span style="color:#719e07">(</span>GnuPG<span style="color:#719e07">)</span> 2.2.24
+libgcrypt 1.8.7
+</code></pre></div><p>実行環境はmacOS Mojave 10.14.6になる。</p>
+<h1 id="terrafomr-providerをリリースする">Terrafomr Providerをリリースする</h1>
+<p>任意のリソースがTerraformに対応していないとき、Terraform Providerを自作することでそのリソースをTerraformで管理できるようになる。</p>
+<p>Terraform Providerの作りかたは簡単で、ホビーレベルならば次のチュートリアルを読むだけで開発可能だ。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://learn.hashicorp.com/collections/terraform/providers" data-iframely-url="//cdn.iframe.ly/lHR2l7J?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>自作したProviderはTerraform Registryへ公開することで簡単に他の人と共有することができる。
+リリース方法も丁寧なドキュメントがある。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://www.terraform.io/docs/registry/providers/publishing.html" data-iframely-url="//cdn.iframe.ly/BY3P7l4"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/hashicorp/terraform-provider-scaffolding" data-iframely-url="//cdn.iframe.ly/gaft2lJ"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>文中に紹介されている次の2ファイルをコピペするだけで、tagを打てばリリースされる自動デプロイ環境を構築できる。</p>
+<ul>
+<li>GitHubリポジトリにある<code>.goreleaser.yml</code>ファイル</li>
+<li>GitHub Actionsの定義（<code>release.yml</code>）</li>
+</ul>
+<p>リリースにはGPGキーを使った署名が必要なのだが、ここでハマった。</p>
+<h1 id="could-not-find-valid-encryption-key-packet-in-key-">Could not find valid encryption key packet in key ~~</h1>
+<p>（後述のとおり、手順通りにやっていなかったのだが、）上記の手順通りにGPGキーを生成し、GitHub Actionsの設定をして動かした結果、次のエラーがでた。</p>
+<p><a href="https://github.com/budougumi0617/terraform-provider-pixela/runs/1440615508?check_suite_focus=true">https://github.com/budougumi0617/terraform-provider-pixela/runs/1440615508?check_suite_focus=true</a></p>
+<pre><code>Run paultyng/ghaction-import-gpg@v2.1.0
+  with:
+    git_user_signingkey: false
+    git_commit_gpgsign: false
+    git_tag_gpgsign: false
+    git_push_gpgsign: false
+  env:
+    GOROOT: /opt/hostedtoolcache/go/1.14.12/x64
+    GPG_PRIVATE_KEY: ***
+  
+    PASSPHRASE: ***
+📣 GnuPG info
+Version    : 2.2.4 (libgcrypt 1.8.1)
+Libdir     : /usr/lib/x86_64-linux-gnu/gnupg
+Libexecdir : /usr/lib/gnupg
+Datadir    : /usr/share/gnupg
+Homedir    : /home/runner/.gnupg
+🔮 Checking GPG private key
+Error: Could not find valid encryption key packet in key 6d50fd48c3b3d7ea
+</code></pre><h1 id="gpgコマンドのバージョンが2117以上ならばgpg---full-generate-keyでgpgキーを生成する">gpgコマンドのバージョンが2.1.17以上ならばgpg &ndash;full-generate-keyでgpgキーを生成する</h1>
+<p>今回GPGキーを新しく生成していた。生成方法は上記公式ガイドにリンクされていたGitHubのページの手順を使った。</p>
+<p><a href="https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/generating-a-new-gpg-key">https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/generating-a-new-gpg-key</a></p>
+<p>ここで次のように手順が分岐している箇所がある。</p>
+<blockquote>
+<p>Generate a GPG key pair. Since there are multiple versions of GPG, you may need to consult the relevant man page to find the appropriate key generation command. Your key must use RSA.</p>
+<p>If you are on version 2.1.17 or greater, paste the text below to generate a GPG key pair.</p>
+<p>$ gpg &ndash;full-generate-key</p>
+<p>If you are not on version 2.1.17 or greater, the gpg &ndash;full-generate-key command doesn&rsquo;t work. Paste the text below and skip to step 6.</p>
+<p>$ gpg &ndash;default-new-key-algo rsa4096 &ndash;gen-key</p>
+</blockquote>
+<p>私は<code>gpg</code>コマンドのバージョンが<code>2.2.24</code>なのに横着して<code>gpg --default-new-key-algo rsa4096 --gen-key</code>コマンドでGPGキーを生成していた。結論としてはこれが間違っていた。<br>
+<code>gpg --full-generate-key</code>コマンドでGPGキーを再生成したところ、明らかにエクスポート時のASCII文字列長が代わって、暗号鍵の検出が成功するようになった。</p>
+<h1 id="終わりに">終わりに</h1>
+<p>今回の失敗は手順のななめ読みをせず、ちゃんと読んで実行しようねという例だった。<br>
+非可逆な操作もあったりするので、業務で同じようなことをしないように気をつけたい…</p>
+<h2 id="余談">余談</h2>
+<p>今週は自社ブログに寄稿もしているのでちょっと小ぶりの更新。<br>
+この記事はTerraform Providerを作る人にしか役に立たないが、寄稿記事はいろいろなシーンで使えるのでオススメ。</p>
+<ul>
+<li>GitHub Actionsとrelease-it npmでリリース作業を自動化する
+<ul>
+<li><a href="https://devblog.thebase.in/entry/automatic-release-on-github-actions">https://devblog.thebase.in/entry/automatic-release-on-github-actions</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a href="https://learn.hashicorp.com/collections/terraform/providers">https://learn.hashicorp.com/collections/terraform/providers</a></li>
+<li><a href="https://www.terraform.io/docs/registry/providers/publishing.html">https://www.terraform.io/docs/registry/providers/publishing.html</a></li>
+<li><a href="https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/generating-a-new-gpg-key">https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/generating-a-new-gpg-key</a></li>
+<li><a href="https://github.com/hashicorp/terraform-provider-scaffolding">https://github.com/hashicorp/terraform-provider-scaffolding</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2020/11/17/unittest_for_terraform_custom_provider/">自作Terraform Providerのユニットテストの書き方</a></li>
+  
+  <li><a href="/2020/11/07/define_https_subdomain_by_terraform/">TerraformでAWS上にHTTPS化したサブドメインを定義する</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Nov 27, 2020</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/terraform">terraform</a>  <a class="category" href="https://budougumi0617.github.io/tags/gpg">gpg</a>  <a class="category" href="https://budougumi0617.github.io/tags/cd">cd</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2020/11/21/execute_steps_with_iflese_in_github_actions/" title="ifelseやswitch文のようにGitHub Actionsのステップの実行を制御したい">ifelseやswitch文のようにGitHub Actionsのステップの実行を制御したい</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/gotips/" title="意外と知らないGoのTIPS" >意外と知らないGoのTIPS</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2020/11/27/terraform_could_not_find_valid_encryption_key_packet_in_key/">TerraformレジストリにリリースしようとGPG Keyをimportしようとすると「Could not find valid encryption key packet in key ~~」とエラーになる</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/11/21/execute_steps_with_iflese_in_github_actions/">ifelseやswitch文のようにGitHub Actionsのステップの実行を制御したい</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/11/17/unittest_for_terraform_custom_provider/">自作Terraform Providerのユニットテストの書き方</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/11/07/define_https_subdomain_by_terraform/">TerraformでAWS上にHTTPS化したサブドメインを定義する</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2020  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
