@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go] benchstat/go tool traceコマンドをつかったベンチマークの可視化 - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="Go,Golang,benchmark,benchstat,go tool trace">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2020/12/04/goroutine_tuning_with_benchmark_benchstat_trace/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go] benchstat/go tool traceコマンドをつかったベンチマークの可視化 - My External Storage"/>
+  <meta property="og:description" content="この記事はGo Advent Calendar 2020 4日目の記事となる。
+今回はGoでベンチマークの結果を可視化する方法をまとめる。
+また、可視化した結果を用いてgoroutine最適化のリファクタリングをしてみる。
+"/>
+  
+  <meta name="twitter:title" content="[Go] benchstat/go tool traceコマンドをつかったベンチマークの可視化 - My External Storage"/>
+  <meta name="twitter:description" content="この記事はGo Advent Calendar 2020 4日目の記事となる。
+今回はGoでベンチマークの結果を可視化する方法をまとめる。
+また、可視化した結果を用いてgoroutine最適化のリファクタリングをしてみる。
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Dec 4, 2020
+     - 10 minute read 
+     - <a href="https://budougumi0617.github.io/2020/12/04/goroutine_tuning_with_benchmark_benchstat_trace/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+    
+  </p>
+  <h1 class="entry-title">
+     [Go] benchstat/go tool traceコマンドをつかったベンチマークの可視化 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#推測するな計測せよ">推測するな計測せよ</a></li>
+    <li><a href="#計測で利用するツール">計測で利用するツール</a></li>
+    <li><a href="#実行環境と対象とする関数">実行環境と対象とする関数</a></li>
+    <li><a href="#逐次実行結果をベンチマークする">逐次実行結果をベンチマークする</a>
+      <ul>
+        <li><a href="#benchstatを使ってベンチマーク結果を分析する">benchstatを使ってベンチマーク結果を分析する</a></li>
+      </ul>
+    </li>
+    <li><a href="#goroutineを使って並行処理をする">goroutineを使って並行処理をする</a>
+      <ul>
+        <li><a href="#benchstatコマンドで実行結果を比較する">benchstatコマンドで実行結果を比較する</a></li>
+        <li><a href="#go-tool-traceコマンドを使ってgoroutineの実行状況を可視化する">go tool traceコマンドを使ってgoroutineの実行状況を可視化する</a></li>
+      </ul>
+    </li>
+    <li><a href="#goroutineの同時実行数を制御してみる">goroutineの同時実行数を制御してみる</a></li>
+    <li><a href="#さらにチューニングする">さらにチューニングする</a></li>
+    <li><a href="#終わりに">終わりに</a>
+      <ul>
+        <li><a href="#おまけ">おまけ</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>この記事は<a href="https://qiita.com/advent-calendar/2020/go">Go Advent Calendar 2020</a> 4日目の記事となる。<br>
+今回はGoでベンチマークの結果を可視化する方法をまとめる。
+また、可視化した結果を用いてgoroutine最適化のリファクタリングをしてみる。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://qiita.com/advent-calendar/2020/go" data-iframely-url="//cdn.iframe.ly/wxnEBTy?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>Goはインストールするだけでベンチマークが実行できる</li>
+<li><code>benchstat</code>コマンドを使うとベンチマーク結果をよしなにして確認できる。
+<ul>
+<li><a href="https://pkg.go.dev/golang.org/x/perf/cmd/benchstat">https://pkg.go.dev/golang.org/x/perf/cmd/benchstat</a></li>
+</ul>
+</li>
+<li><code>go tool trace</code>コマンドを使うと、goroutineの実行状況も可視化できる
+<ul>
+<li><a href="https://golang.org/cmd/trace/">https://golang.org/cmd/trace/</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="推測するな計測せよ">推測するな計測せよ</h1>
+<p>「推測するな、計測せよ」はGoのオリジナル作者の1人、ロブ・パイク氏の「Cプログラミングに関する覚書」から言われている言葉だ。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://ja.wikipedia.org/wiki/UNIX%25E5%2593%25B2%25E5%25AD%25A6" data-iframely-url="//cdn.iframe.ly/8Fip1tm"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>氏の哲学が反映されているからか、GoはGoをインストールすればベンチマークを実行できる。
+（<code>benchstat</code>コマンドは追加インストールが必要になるが、）今回はこのベンチマークの結果をより有効活用していく方法を実際にリファクタリングを繰り返しながら紹介する。</p>
+<h1 id="計測で利用するツール">計測で利用するツール</h1>
+<p>GoはGo本体をインストールすればテストを実行できる。それと同時にベンチマークも実行可能になる。
+今回はこのベンチマークの計測結果を次のツールを使って可視化していく。</p>
+<ul>
+<li><code>benchstat</code>
+<ul>
+<li><a href="https://pkg.go.dev/golang.org/x/perf/cmd/benchstat">https://pkg.go.dev/golang.org/x/perf/cmd/benchstat</a></li>
+</ul>
+</li>
+<li><code>go tool trace</code>
+<ul>
+<li><a href="https://golang.org/cmd/trace/">https://golang.org/cmd/trace/</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="実行環境と対象とする関数">実行環境と対象とする関数</h1>
+<p>本記事の実行環境は次の通り。</p>
+<ul>
+<li>macbook Pro 2019 13inch（論理8コア）</li>
+<li>macOS Mojave(10.14.6)</li>
+<li>go version go1.15.5 darwin/amd64</li>
+</ul>
+<p>ベンチマークで実行する対象は<strong>一言でいうと、「非同期で実行可能な大量の重たい処理」だ</strong>。<br>
+具体的には次のフィボナッチ関数を1,000回実行する。<br>
+フィボナッチ関数（数値計算関数）を選んだ理由はgoroutineによるメモリ利用状況なども確認しやすいため。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">fibonacci</span>(n <span style="color:#dc322f">int</span>) <span style="color:#dc322f">int</span> {
+  <span style="color:#719e07">if</span> n &lt; <span style="color:#2aa198">2</span> {
+    <span style="color:#719e07">return</span> n
+  }
+  f1, f0 <span style="color:#719e07">:=</span> <span style="color:#2aa198">1</span>, <span style="color:#2aa198">0</span>
+  fn <span style="color:#719e07">:=</span> f1 <span style="color:#719e07">+</span> f0
+  <span style="color:#719e07">for</span> i <span style="color:#719e07">:=</span> n; i <span style="color:#719e07">&gt;=</span> <span style="color:#2aa198">2</span>; i<span style="color:#719e07">--</span> {
+    fn = f1 <span style="color:#719e07">+</span> f0
+    f1, f0 = fn, f1
+  }
+  <span style="color:#719e07">return</span> fn
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">fibonacciTask</span>() <span style="color:#dc322f">int</span> {
+  <span style="color:#719e07">return</span> <span style="color:#268bd2">fibonacci</span>(<span style="color:#2aa198">1</span>_000_000) <span style="color:#586e75">// million
+</span><span style="color:#586e75"></span>}
+</code></pre></div><p>上記の計算量の多い関数を1,000個生成し、<code>execute</code>関数ですべて実行終了するまでの時間を計測する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> task <span style="color:#268bd2">func</span>() <span style="color:#dc322f">int</span>
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">genTasks</span>() []task {
+  <span style="color:#268bd2">const</span> n = <span style="color:#2aa198">1</span>_000
+  ts <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>([]task, <span style="color:#2aa198">0</span>, n)
+  <span style="color:#719e07">for</span> i <span style="color:#719e07">:=</span> <span style="color:#2aa198">0</span>; i &lt; n; i<span style="color:#719e07">++</span> {
+    ts = <span style="color:#b58900">append</span>(ts, fibonacciTask)
+  }
+  <span style="color:#719e07">return</span> ts
+}
+</code></pre></div><p>ベンチマーク関数は素朴に次のように実装する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">BenchmarkFibonacci</span>(b <span style="color:#719e07">*</span>testing.B) {
+  ts <span style="color:#719e07">:=</span> <span style="color:#268bd2">genTasks</span>() <span style="color:#586e75">// 1,0000個のタスクを用意
+</span><span style="color:#586e75"></span>  b.<span style="color:#268bd2">ResetTimer</span>()
+  <span style="color:#719e07">for</span> i <span style="color:#719e07">:=</span> <span style="color:#2aa198">0</span>; i &lt; b.N; i<span style="color:#719e07">++</span> {
+    <span style="color:#268bd2">execute</span>(ts)
+  }
+}
+</code></pre></div><h1 id="逐次実行結果をベンチマークする">逐次実行結果をベンチマークする</h1>
+<p>まずは何も考えずに逐次実行の処理を書いてベンチマークを実行してみる。</p>
+<p>本来は「単位時間あたり」の実行回数でベンチマークをすべきだろうが、後にgoroutineの実行状況を確認したいので、
+あえて「1回実行（<code>-benchtime 1x</code>）」するベンチマークを「10回（<code>-count 10</code>）」実行してみる。<br>
+これに加え、メモリ利用状況を可視化する<code>-benchmem</code>、実行トレースを保存しておく<code>-trace</code>オプションを利用する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> -bench . -benchmem -benchtime 1x -count <span style="color:#2aa198">10</span> -trace first.trace &gt; first.out
+$ cat first.out
+goos: darwin
+goarch: amd64
+pkg: github.com/budougumi0617/til/go/goroutine/benchstat
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">504299984</span> ns/op               <span style="color:#2aa198">0</span> B/op          <span style="color:#2aa198">0</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">501610707</span> ns/op               <span style="color:#2aa198">0</span> B/op          <span style="color:#2aa198">0</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">500481271</span> ns/op               <span style="color:#2aa198">0</span> B/op          <span style="color:#2aa198">0</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">499073201</span> ns/op               <span style="color:#2aa198">0</span> B/op          <span style="color:#2aa198">0</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">507238465</span> ns/op               <span style="color:#2aa198">0</span> B/op          <span style="color:#2aa198">0</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">507779247</span> ns/op               <span style="color:#2aa198">0</span> B/op          <span style="color:#2aa198">0</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">505474920</span> ns/op               <span style="color:#2aa198">0</span> B/op          <span style="color:#2aa198">0</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">501243584</span> ns/op               <span style="color:#2aa198">0</span> B/op          <span style="color:#2aa198">0</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">504582972</span> ns/op               <span style="color:#2aa198">0</span> B/op          <span style="color:#2aa198">0</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">504731530</span> ns/op               <span style="color:#2aa198">0</span> B/op          <span style="color:#2aa198">0</span> allocs/op
+PASS
+ok      github.com/budougumi0617/til/go/goroutine/benchstat     10.110s
+</code></pre></div><h2 id="benchstatを使ってベンチマーク結果を分析する">benchstatを使ってベンチマーク結果を分析する</h2>
+<p><code>benchstat</code>コマンドはベンチマークの出力結果をよしなに集計してくれるコマンドだ。<br>
+次の<code>go get</code>コマンドで取得できる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get -u golang.org/x/perf/cmd/benchstat
+</code></pre></div><p>引数としてベンチマーク実行結果を保存したファイルをひとつ渡すと、平均値などを集計してくれる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ benchstat first.out
+name         time/op
+Fibonacci-8  504ms ± 1%
+
+name         alloc/op
+Fibonacci-8  0.00B
+
+name         allocs/op
+Fibonacci-8   0.00
+</code></pre></div><p>素朴な実装な<code>execute</code>関数はおおよそ500ms（誤差1%範囲）で実行が完了している。メモリ利用はゼロだ。</p>
+<p>ここからベンチマークの結果を確認しながらリファクタリングを始める。</p>
+<h1 id="goroutineを使って並行処理をする">goroutineを使って並行処理をする</h1>
+<p>まず<code>sync.WaitGroup</code>を使って並行処理をしてみる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">execute</span>(ts []task) {
+  <span style="color:#268bd2">var</span> wg sync.WaitGroup
+  <span style="color:#719e07">for</span> _, t <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> ts {
+    wg.<span style="color:#268bd2">Add</span>(<span style="color:#2aa198">1</span>)
+    <span style="color:#719e07">go</span> <span style="color:#268bd2">func</span>(t task) {
+      <span style="color:#719e07">defer</span> wg.<span style="color:#268bd2">Done</span>()
+      <span style="color:#268bd2">t</span>()
+    }(t)
+  }
+  wg.<span style="color:#268bd2">Wait</span>()
+}
+</code></pre></div><p>ひたすらgoroutineを起動してそれぞれのタスクを並行実行していく処理だ。
+ただし、実行環境は8コアなので、同時に実行できるgoroutineの数は最大で8だ。</p>
+<p>ベンチマーク関数、（ファイル名以外の）実行引数は変更せずに再度ベンチマークを実行する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> -bench . -benchmem -benchtime 1x -count <span style="color:#2aa198">10</span> -trace second.trace &gt; second.out
+$ cat second.out
+goos: darwin
+goarch: amd64
+pkg: github.com/budougumi0617/til/go/goroutine/benchstat
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>          <span style="color:#2aa198">88846592</span> ns/op          <span style="color:#2aa198">153168</span> B/op       <span style="color:#2aa198">1319</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>          <span style="color:#2aa198">79973516</span> ns/op            <span style="color:#2aa198">8024</span> B/op       <span style="color:#2aa198">1002</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>          <span style="color:#2aa198">84371205</span> ns/op            <span style="color:#2aa198">8024</span> B/op       <span style="color:#2aa198">1002</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>          <span style="color:#2aa198">79913393</span> ns/op            <span style="color:#2aa198">8112</span> B/op       <span style="color:#2aa198">1002</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>          <span style="color:#2aa198">79979158</span> ns/op           <span style="color:#2aa198">13776</span> B/op       <span style="color:#2aa198">1016</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>          <span style="color:#2aa198">83886835</span> ns/op            <span style="color:#2aa198">8024</span> B/op       <span style="color:#2aa198">1002</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>          <span style="color:#2aa198">83636550</span> ns/op            <span style="color:#2aa198">8120</span> B/op       <span style="color:#2aa198">1003</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>          <span style="color:#2aa198">82550012</span> ns/op            <span style="color:#2aa198">8112</span> B/op       <span style="color:#2aa198">1002</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>          <span style="color:#2aa198">83379931</span> ns/op            <span style="color:#2aa198">8112</span> B/op       <span style="color:#2aa198">1002</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>          <span style="color:#2aa198">82248013</span> ns/op            <span style="color:#2aa198">8016</span> B/op       <span style="color:#2aa198">1001</span> allocs/op
+PASS
+ok      github.com/budougumi0617/til/go/goroutine/benchstat     1.698s
+</code></pre></div><h2 id="benchstatコマンドで実行結果を比較する">benchstatコマンドで実行結果を比較する</h2>
+<p>実装を変更した結果パフォーマンスはどのように変わったのだろうか？<br>
+<strong>2つの実行結果が揃えば、<code>benchstat</code>コマンドで差異を確認することができる。</strong></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ benchstat first.out second.out
+name         old time/op    new time/op    delta
+Fibonacci-8     504ms ± 1%      83ms ± 7%  -83.54%  <span style="color:#719e07">(</span><span style="color:#268bd2">p</span><span style="color:#719e07">=</span>0.000 <span style="color:#268bd2">n</span><span style="color:#719e07">=</span>10+10<span style="color:#719e07">)</span>
+
+name         old alloc/op   new alloc/op   delta
+Fibonacci-8     0.00B       8068.00B ± 1%    +Inf%  <span style="color:#719e07">(</span><span style="color:#268bd2">p</span><span style="color:#719e07">=</span>0.000 <span style="color:#268bd2">n</span><span style="color:#719e07">=</span>10+8<span style="color:#719e07">)</span>
+
+name         old allocs/op  new allocs/op  delta
+Fibonacci-8      0.00        1002.00 ± 0%    +Inf%  <span style="color:#719e07">(</span><span style="color:#268bd2">p</span><span style="color:#719e07">=</span>0.000 <span style="color:#268bd2">n</span><span style="color:#719e07">=</span>10+8<span style="color:#719e07">)</span>
+</code></pre></div><p>平均504msかかっていた実行時間が、平均83msになり、83%改善された！
+メモリまわりに関しては元が0だったので、増加量がInf%となってしまっている。</p>
+<h2 id="go-tool-traceコマンドを使ってgoroutineの実行状況を可視化する">go tool traceコマンドを使ってgoroutineの実行状況を可視化する</h2>
+<p>次にgoroutineの実行状況を確認してみる。<br>
+<strong><code>-trace</code>コマンドで保存していたトレースファイルを<code>go tool trace</code>コマンドで可視化すれば、ベンチマーク実行中のgoroutineの実行状況が確認できる。</strong></p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://yuroyoro.hatenablog.com/entry/2017/12/11/192341" data-iframely-url="//cdn.iframe.ly/1Mo1Fcu?iframe=card-small&amp;media=0"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p><code>go tool trace</code>コマンドでwebサーバを起動するには次の通り。</p>
+<pre><code>$ go tool trace --http localhost:6061 second.trace
+</code></pre><p><code>http://127.0.0.1:6061/trace</code>で可視化されたgoroutineの実行状況を確認できる（図の青いグラフ）。</p>
+<p><img src="/2020/12/04_second.png" alt="2回目の実装のgoroutineパフォーマンス"></p>
+<p>何も考えずにタスクの数だけgorotuineを起動しているので、1,000弱のgoroutineが最初に積まれ、（実行環境が論理8コアなので、）8 goroutineずつ消化されている。<br>
+もし待機中のgoroutineが気になるならば、goroutineの同時起動数を制御する必要がある。</p>
+<h1 id="goroutineの同時実行数を制御してみる">goroutineの同時実行数を制御してみる</h1>
+<p>簡単にgoroutineの起動を制御すると次のようになる。<br>
+goroutine同時実行上限（<code>GOMAXPROCS</code>）分のgoroutineしか起動させない。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">execute</span>(ts []task) {
+  sem <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#268bd2">struct</span>{}, runtime.<span style="color:#268bd2">GOMAXPROCS</span>(<span style="color:#2aa198">0</span>))
+
+  <span style="color:#719e07">for</span> _, t <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> ts {
+    sem <span style="color:#719e07">&lt;-</span> <span style="color:#268bd2">struct</span>{}{}
+    <span style="color:#719e07">go</span> <span style="color:#268bd2">func</span>(t task) {
+      <span style="color:#268bd2">t</span>()
+      <span style="color:#719e07">&lt;-</span>sem
+    }(t)
+  }
+}
+</code></pre></div><p>先ほど同様にベンチマークを実行する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> -bench . -benchmem -benchtime 1x -count <span style="color:#2aa198">10</span> -trace third.trace &gt; third.out
+$ cat third.out
+goos: darwin
+goarch: amd64
+pkg: github.com/budougumi0617/til/go/goroutine/benchstat
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">132919775</span> ns/op           <span style="color:#2aa198">11680</span> B/op       <span style="color:#2aa198">1011</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">132907422</span> ns/op            <span style="color:#2aa198">8992</span> B/op       <span style="color:#2aa198">1004</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">132938626</span> ns/op           <span style="color:#2aa198">13296</span> B/op       <span style="color:#2aa198">1016</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">129603855</span> ns/op           <span style="color:#2aa198">11968</span> B/op       <span style="color:#2aa198">1011</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">133638771</span> ns/op           <span style="color:#2aa198">10432</span> B/op       <span style="color:#2aa198">1007</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">131900001</span> ns/op            <span style="color:#2aa198">8608</span> B/op       <span style="color:#2aa198">1003</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">131738196</span> ns/op            <span style="color:#2aa198">9664</span> B/op       <span style="color:#2aa198">1005</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">132454023</span> ns/op            <span style="color:#2aa198">8976</span> B/op       <span style="color:#2aa198">1004</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">142136062</span> ns/op           <span style="color:#2aa198">11344</span> B/op       <span style="color:#2aa198">1005</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">130519934</span> ns/op            <span style="color:#2aa198">8896</span> B/op       <span style="color:#2aa198">1003</span> allocs/op
+PASS
+ok      github.com/budougumi0617/til/go/goroutine/benchstat     2.699s
+</code></pre></div><p>待ち合わせをするようにしたので実行時間はシンプルな<code>sync.WaitGroup</code>の実装よりも悪化してしまった。
+利用メモリ量はchannel利用分だけやや悪化、アロケーション回数は変わらずとなっている。</p>
+<pre><code>benchstat second.out third.out
+name         old time/op    new time/op    delta
+Fibonacci-8    82.9ms ± 7%   132.1ms ± 2%  +59.35%  (p=0.000 n=10+9)
+
+name         old alloc/op   new alloc/op   delta
+Fibonacci-8    8.07kB ± 1%   10.39kB ±28%  +28.73%  (p=0.000 n=8+10)
+
+name         old allocs/op  new allocs/op  delta
+Fibonacci-8     1.00k ± 0%     1.01k ± 1%   +0.49%  (p=0.000 n=8+10)
+
+</code></pre><p>ただ、goroutineの同時実行という観点では少なくできたようだ。</p>
+<pre><code>$ go tool trace --http localhost:6061 third.trace
+</code></pre><p>実行待機中（Runnable）なgoroutineはほぼないままベンチマークが進行している。</p>
+<p><img src="/2020/12/04_third.png" alt="3回目の実装のgoroutineパフォーマンス"></p>
+<p>しかし、遅くなっては意味がないのでさらにリファクタリングする。</p>
+<h1 id="さらにチューニングする">さらにチューニングする</h1>
+<p>アロケーションの回数が減らないのは毎回新しいgoroutineを起動しているからだ。<br>
+ワーカースレッドパターンを実装して、一度起動したgoroutineを最後まで使い、channelを使ってタスクを流し込むように実装し直す。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">execute</span>(ts []task) {
+  n <span style="color:#719e07">:=</span> runtime.<span style="color:#268bd2">GOMAXPROCS</span>(<span style="color:#2aa198">0</span>)
+  queue <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> task, n)
+  <span style="color:#268bd2">var</span> wg sync.WaitGroup
+  <span style="color:#719e07">for</span> i <span style="color:#719e07">:=</span> <span style="color:#2aa198">0</span>; i &lt; n; i<span style="color:#719e07">++</span> {
+    wg.<span style="color:#268bd2">Add</span>(<span style="color:#2aa198">1</span>)
+    <span style="color:#719e07">go</span> <span style="color:#268bd2">func</span>() {
+      <span style="color:#719e07">defer</span> wg.<span style="color:#268bd2">Done</span>()
+      <span style="color:#719e07">for</span> {
+        <span style="color:#719e07">select</span> {
+        <span style="color:#719e07">case</span> t, ok <span style="color:#719e07">:=</span> <span style="color:#719e07">&lt;-</span>queue:
+          <span style="color:#719e07">if</span> !ok {
+            <span style="color:#719e07">return</span>
+          }
+          <span style="color:#268bd2">t</span>()
+        }
+      }
+    }()
+  }
+  <span style="color:#719e07">for</span> _, t <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> ts {
+    queue <span style="color:#719e07">&lt;-</span> t
+  }
+  <span style="color:#b58900">close</span>(queue)
+  wg.<span style="color:#268bd2">Wait</span>()
+}
+</code></pre></div><p>4回目の実装結果のベンチマークは次の通り。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#268bd2">$go</span> <span style="color:#b58900">test</span> -bench . -benchmem -benchtime 1x -count <span style="color:#2aa198">10</span> -trace fourth.trace &gt; fourth.out
+$ cat fourth.out
+goos: darwin
+goarch: amd64
+pkg: github.com/budougumi0617/til/go/goroutine/benchstat
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">128735610</span> ns/op            <span style="color:#2aa198">3600</span> B/op         <span style="color:#2aa198">25</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">123402563</span> ns/op            <span style="color:#2aa198">3216</span> B/op         <span style="color:#2aa198">21</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">123261874</span> ns/op            <span style="color:#2aa198">1488</span> B/op         <span style="color:#2aa198">18</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">123670226</span> ns/op            <span style="color:#2aa198">1392</span> B/op         <span style="color:#2aa198">17</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">125857013</span> ns/op            <span style="color:#2aa198">3216</span> B/op         <span style="color:#2aa198">21</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">124957413</span> ns/op            <span style="color:#2aa198">1008</span> B/op         <span style="color:#2aa198">16</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">127014103</span> ns/op            <span style="color:#2aa198">3024</span> B/op         <span style="color:#2aa198">19</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">129873632</span> ns/op            <span style="color:#2aa198">1200</span> B/op         <span style="color:#2aa198">15</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">124401961</span> ns/op            <span style="color:#2aa198">3312</span> B/op         <span style="color:#2aa198">22</span> allocs/op
+BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <span style="color:#2aa198">123169638</span> ns/op             <span style="color:#2aa198">432</span> B/op         <span style="color:#2aa198">13</span> allocs/op
+PASS
+ok      github.com/budougumi0617/til/go/goroutine/benchstat     2.550s
+</code></pre></div><p>今までのすべての実行結果の平均値をbenchstatコマンドで並べると次の通り</p>
+<pre><code>$ benchstat first.out second.out third.out fourth.out
+name \ time/op    first.out   second.out     third.out       fourth.out
+Fibonacci-8       504ms ± 1%      83ms ± 7%      132ms ± 2%     123ms ± 1%
+
+name \ alloc/op   first.out   second.out     third.out       fourth.out
+Fibonacci-8       0.00B       8068.00B ± 1%  10385.60B ±28%  3225.14B ±37%
+
+name \ allocs/op  first.out   second.out     third.out       fourth.out
+Fibonacci-8        0.00        1002.00 ± 0%    1006.90 ± 1%     21.22 ±43%
+</code></pre><p>4回目の実装は実行結果にばらつきはあるものの、そこそこのメモリ使用量と実行速度になった。</p>
+<p><strong>逐次実行と比較して75%以上高速化できた。</strong></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ benchstat first.out fourth.out
+name         old time/op    new time/op    delta
+Fibonacci-8     504ms ± 1%     123ms ± 1%  -75.51%  <span style="color:#719e07">(</span><span style="color:#268bd2">p</span><span style="color:#719e07">=</span>0.000 <span style="color:#268bd2">n</span><span style="color:#719e07">=</span>10+10<span style="color:#719e07">)</span>
+
+name         old alloc/op   new alloc/op   delta
+Fibonacci-8     0.00B       3225.14B ±37%    +Inf%  <span style="color:#719e07">(</span><span style="color:#268bd2">p</span><span style="color:#719e07">=</span>0.000 <span style="color:#268bd2">n</span><span style="color:#719e07">=</span>10+7<span style="color:#719e07">)</span>
+
+name         old allocs/op  new allocs/op  delta
+Fibonacci-8      0.00          21.22 ±43%    +Inf%  <span style="color:#719e07">(</span><span style="color:#268bd2">p</span><span style="color:#719e07">=</span>0.000 <span style="color:#268bd2">n</span><span style="color:#719e07">=</span>10+9<span style="color:#719e07">)</span>
+</code></pre></div><p>素朴な並行処理と比較すると、<strong>実行時間が50%ほど増加した代わりにメモリ利用状況がかなりカイゼン</strong>している。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ benchstat second.out fourth.out
+name         old time/op    new time/op    delta
+Fibonacci-8    82.9ms ± 7%   123.3ms ± 1%  +48.83%  <span style="color:#719e07">(</span><span style="color:#268bd2">p</span><span style="color:#719e07">=</span>0.000 <span style="color:#268bd2">n</span><span style="color:#719e07">=</span>10+10<span style="color:#719e07">)</span>
+
+name         old alloc/op   new alloc/op   delta
+Fibonacci-8    8.07kB ± 1%    3.23kB ±37%  -60.03%  <span style="color:#719e07">(</span><span style="color:#268bd2">p</span><span style="color:#719e07">=</span>0.000 <span style="color:#268bd2">n</span><span style="color:#719e07">=</span>8+7<span style="color:#719e07">)</span>
+
+name         old allocs/op  new allocs/op  delta
+Fibonacci-8     1.00k ± 0%     0.02k ±43%  -97.88%  <span style="color:#719e07">(</span><span style="color:#268bd2">p</span><span style="color:#719e07">=</span>0.000 <span style="color:#268bd2">n</span><span style="color:#719e07">=</span>8+9<span style="color:#719e07">)</span>
+
+</code></pre></div><p><code>go tool trace</code>コマンドで確認すると待機中のgoroutineの数も少ない。</p>
+<p><img src="/2020/12/04_fourth.png" alt="4回目の実装のgoroutineパフォーマンス"></p>
+<p>あとは、計測結果から何を優先するかによって、どの実装を採用するか決めればよい。</p>
+<h1 id="終わりに">終わりに</h1>
+<p>今回はベンチマークの結果を確認しながらgoroutineチューニングをしてみた。<br>
+ただし、今回の内容ははっきり言ってかなり恣意的なチューニング対象だった（非同期で実行可能で、コア数の数百倍の重たい処理）。
+（計測するのは大事だが、）常に今回のコードの修正が正しいわけではない。<br>
+ここまでやって何だが、goroutineのメモリ利用量はたかが知れているし、可読性などを考慮すれば大抵の場合は<code>sync.WaitGroup</code>を用いた単純な単純な並行化で十分だろう。</p>
+<p>パイク氏は計測することと一緒に次のようにも述べている。</p>
+<blockquote>
+<p>凝ったアルゴリズムはシンプルなそれよりバグを含みやすく、実装するのも難しい。シンプルなアルゴリズムとシンプルなデータ構造を使うべし。</p>
+</blockquote>
+<p>計測結果とコードがあれば、「やらない」という選択肢も自信をもって取れるだろう。</p>
+<h2 id="おまけ">おまけ</h2>
+<p>Wikipediaよりパイク氏のプログラミング5箇条（6箇条）を全文引用しておく。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://ja.wikipedia.org/wiki/UNIX%25E5%2593%25B2%25E5%25AD%25A6" data-iframely-url="//cdn.iframe.ly/8Fip1tm"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<blockquote>
+<p>ルール1: プログラムがどこで時間を消費することになるか知ることはできない。ボトルネックは驚くべき箇所で起こるものである。したがって、どこがボトルネックなのかをはっきりさせるまでは、推測を行ったり、スピードハックをしてはならない。</p>
+<p>ルール2: 計測すべし。計測するまでは速度のための調整をしてはならない。コードの一部が残りを圧倒しないのであれば、なおさらである。</p>
+<p>ルール3: 凝った(Fancy)アルゴリズムは{\displaystyle n}nが小さいときには遅く、<code>n</code>はしばしば小さい。凝ったアルゴリズムは大きな定数を持っている。<code>n</code>が頻繁に大きくなることがわかっていないなら、凝ってはいけない<code>n</code>が大きくなるときでさえ、ルール2が最初に適用される）。</p>
+<p>ルール4: 凝ったアルゴリズムはシンプルなそれよりバグを含みやすく、実装するのも難しい。シンプルなアルゴリズムとシンプルなデータ構造を使うべし。</p>
+<p>ルール5: データはすべてを決定づける。もし、正しいデータ構造を選び、ものごとをうまく構成すれば、アルゴリズムはほとんどいつも自明のものになるだろう。プログラミングの中心は、アルゴリズムではなくデータ構造にある。</p>
+<p>ルール6: ルール6は存在しない。</p>
+</blockquote>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a href="https://qiita.com/advent-calendar/2020/go">Go Advent Calendar 2020</a></li>
+<li><a href="https://pkg.go.dev/golang.org/x/perf/cmd/benchstat">https://pkg.go.dev/golang.org/x/perf/cmd/benchstat</a></li>
+<li><a href="https://golang.org/cmd/trace/">https://golang.org/cmd/trace/</a></li>
+<li><a href="https://ja.wikipedia.org/wiki/UNIX%E5%93%B2%E5%AD%A6#%E3%83%91%E3%82%A4%E3%82%AF:_C%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0%E3%81%AB%E9%96%A2%E3%81%99%E3%82%8B%E8%A6%9A%E3%81%88%E6%9B%B8%E3%81%8D">パイク: Cプログラミングに関する覚え書き</a></li>
+<li><a href="https://medium.com/eureka-engineering/go%E8%A8%80%E8%AA%9E%E3%81%AE%E3%83%99%E3%83%B3%E3%83%81%E3%83%9E%E3%83%BC%E3%82%AF%E3%81%A7%E3%83%91%E3%83%95%E3%82%A9%E3%83%BC%E3%83%9E%E3%83%B3%E3%82%B9%E6%B8%AC%E5%AE%9A-6c72832a7cb5">Go言語のベンチマークでパフォーマンス測定 | by eureka, Inc.</a></li>
+<li><a href="https://golang.org/cmd/go/#hdr-Testing_flags">https://golang.org/cmd/go/#hdr-Testing_flags</a></li>
+<li><a href="https://qiita.com/ma91n/items/caa82d84c8d3ac07cfe0">Go Benchmark Toolingで実行結果の可視化機能を利用する</a></li>
+<li><a href="https://qiita.com/tutuz/items/798361dc78412da2bba6">Goでワーカープールを15分で実装する方法</a></li>
+<li><a href="https://syossan.hateblo.jp/entry/2019/02/27/171156">Go 1.12で個人的に気になったところを触ってみた | 生涯未熟</a></li>
+</ul>
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4873118468&linkId=d5053a5972dda31976d2a6514ec0a6e1"></iframe>
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4621300253&linkId=0447f1e2573b8d3bccca943e26595c7b"></iframe>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2020/06/21/record_response_body/">[Go]HTTPレスポンスボディの内容をログに残したい</a></li>
+  
+  <li><a href="/2020/05/01/use-datastore-emulator-on-github-actions/">GitHub Actions上でGCP Datastoreエミュレータを使ったテストを実行する</a></li>
+  
+  <li><a href="/2020/03/27/http-test-in-go/">Goでサーバを立ち上げてE2Eテストを実施するCI用のテストコードを書く</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Dec 4, 2020</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2020/11/27/terraform_could_not_find_valid_encryption_key_packet_in_key/" title="TerraformレジストリにリリースしようとGPG Keyをimportしようとすると「Could not find valid encryption key packet in key ~~」とエラーになる">TerraformレジストリにリリースしようとGPG Keyをimportしようとすると「Could not find valid encryption key packet in key ~~」とエラーになる</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/gotips/" title="意外と知らないGoのTIPS" >意外と知らないGoのTIPS</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2020/12/04/goroutine_tuning_with_benchmark_benchstat_trace/">[Go] benchstat/go tool traceコマンドをつかったベンチマークの可視化</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2020/11/27/terraform_could_not_find_valid_encryption_key_packet_in_key/">TerraformレジストリにリリースしようとGPG Keyをimportしようとすると「Could not find valid encryption key packet in key ~~」とエラーになる</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/11/21/execute_steps_with_iflese_in_github_actions/">ifelseやswitch文のようにGitHub Actionsのステップの実行を制御したい</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/11/17/unittest_for_terraform_custom_provider/">自作Terraform Providerのユニットテストの書き方</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2020  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
