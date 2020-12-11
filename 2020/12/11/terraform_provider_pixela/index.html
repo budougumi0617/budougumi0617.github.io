@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>TerraformでPixelaのグラフを宣言できるProviderを作った #pixela - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="terraform,acceptance test,pixela">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/terraform.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/terraform.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2020/12/11/terraform_provider_pixela/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="TerraformでPixelaのグラフを宣言できるProviderを作った #pixela - My External Storage"/>
+  <meta property="og:description" content="PixelaのTerraform Providerを作った。
+"/>
+  
+  <meta name="twitter:title" content="TerraformでPixelaのグラフを宣言できるProviderを作った #pixela - My External Storage"/>
+  <meta name="twitter:description" content="PixelaのTerraform Providerを作った。
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Dec 11, 2020
+     - 5 minute read 
+     - <a href="https://budougumi0617.github.io/2020/12/11/terraform_provider_pixela/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a><a class="label" href="https://budougumi0617.github.io/categories/terraform/">terraform </a>
+    
+  </p>
+  <h1 class="entry-title">
+     TerraformでPixelaのグラフを宣言できるProviderを作った #pixela 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#pixelaとは">Pixelaとは</a></li>
+    <li><a href="#terraform-providerとは">Terraform Providerとは</a></li>
+    <li><a href="#terraform-provider-pixela">Terraform Provider Pixela</a>
+      <ul>
+        <li><a href="#使い方">使い方</a></li>
+      </ul>
+    </li>
+    <li><a href="#技術的な話">技術的な話</a>
+      <ul>
+        <li><a href="#terraform-providerの作り方">Terraform Providerの作り方</a></li>
+        <li><a href="#リリースの仕方">リリースの仕方</a></li>
+        <li><a href="#テストの書き方">テストの書き方</a></li>
+        <li><a href="#少しハマったところ">少しハマったところ</a></li>
+        <li><a href="#special-thanks">Special Thanks&hellip;</a></li>
+      </ul>
+    </li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考">参考</a></li>
+    <li><a href="#関連">関連</a></li>
+  </ul>
+</nav>
+          
+          <p><a href="https://pixe.la/ja">Pixela</a>のTerraform Providerを作った。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/terraform-provider-pixela" data-iframely-url="//cdn.iframe.ly/zjuslmC"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>PixelaはGitHubのContributions風のグラフを生成するWebサービス
+<ul>
+<li><a href="https://pixe.la">https://pixe.la</a></li>
+</ul>
+</li>
+<li>PixelaのTerraform Providerを作った
+<ul>
+<li><a href="https://github.com/budougumi0617/terraform-provider-pixela">https://github.com/budougumi0617/terraform-provider-pixela</a></li>
+</ul>
+</li>
+<li>使い方の紹介</li>
+<li>実装の際にハマったところ</li>
+<li>次はSDKも自作したい</li>
+<li>他にもAPIがあったらTerraform Provider書こうかな</li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">terraform</span> {
+  <span style="color:#719e07">required_providers</span> {
+    pixela <span style="color:#719e07">=</span> {
+      versions <span style="color:#719e07">=</span> [<span style="color:#2aa198">&#34;0.0.5&#34;</span>]
+      source   <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;github.com/budougumi0617/pixela&#34;</span>
+    }
+  }
+}
+
+<span style="color:#719e07">provider</span> <span style="color:#719e07">pixela</span> {
+  // <span style="color:#719e07">Pixelaに登録したユーザー名</span>
+  username <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;budougumi0617&#34;</span>
+}
+
+<span style="color:#719e07">resource</span> <span style="color:#2aa198">&#34;pixela_graph&#34; &#34;sample&#34;</span> {
+  graph_id              <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;sample&#34;</span>
+  name                  <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;update from terraform&#34;</span>
+  unit                  <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;page&#34;</span>
+  type                  <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;int&#34;</span>
+  color                 <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;ajisai&#34;</span>
+  timezone              <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;Asia/Tokyo&#34;</span>
+  self_sufficient       <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;none&#34;</span>
+  is_secret             <span style="color:#719e07">=</span> <span style="color:#dc322f">true</span>
+  publish_optional_data <span style="color:#719e07">=</span> <span style="color:#dc322f">false</span>
+}
+</code></pre></div><h1 id="pixelaとは">Pixelaとは</h1>
+<p>Pixelaは<a href="https://twitter.com/a_know">@a-know</a>さんが作っているGitHubのContributions風のグラフを生成するWebサービスだ。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://pixe.la" data-iframely-url="//cdn.iframe.ly/q3gtB1F?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>APIを手順通りに叩けば、任意のデータを記録できるグラフを生成できる。</p>
+<p><img src="https://pixe.la/v1/users/budougumi0617/graphs/egiu" alt="https://pixe.la/v1/users/budougumi0617/graphs/egiu">
+（これは休止している私の英語学習記録グラフ…）</p>
+<p>また、PixelaはREST風のAPIを使って操作するのが基本で、APIドキュメントも公開されている。</p>
+<iframe src="https://hatenablog-parts.com/embed?url=https%3A%2F%2Fdocs.pixe.la%2Fentry%2Fapi-index" style="border: 0; width: 100%; height: 190px;" allowfullscreen scrolling="no"></iframe>
+<h1 id="terraform-providerとは">Terraform Providerとは</h1>
+<p>Terraformは宣言的にリソースを管理するためのツールだが、TerraformはProviderと呼ばれるプラグイン経由で各リソースを操作している。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://www.terraform.io/docs/providers/index.html" data-iframely-url="//cdn.iframe.ly/6f0zAr6"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>たとえば、AWSだったらTerraformはAWS Providerを使ってAWS上のリソースを操作している。
+TerrformはSDKが公開されているので、自分で好きなProviderを実装し、Terraform registoryに公開することができる。</p>
+<h1 id="terraform-provider-pixela">Terraform Provider Pixela</h1>
+<p>リソースがあって、CRUDのAPIが用意されていればTerraform Providerをつくることができる。
+こうして今回つくったのがPixela Providerだ。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/terraform-provider-pixela" data-iframely-url="//cdn.iframe.ly/zjuslmC"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>Registryにも公開済みだ。</p>
+<ul>
+<li><a href="https://registry.terraform.io/providers/budougumi0617/pixela">https://registry.terraform.io/providers/budougumi0617/pixela</a></li>
+</ul>
+<blockquote class="twitter-tweet"><p lang="ja" dir="ltr"><a href="https://twitter.com/hashtag/pixela?src=hash&amp;ref_src=twsrc%5Etfw">#pixela</a> を宣言的に管理するぞ！ということで初めてTerraform Providerを作ってみた！<br>v0.0.4ではグラフをTerraformで定義できます！<a href="https://t.co/LdD99leEjO">https://t.co/LdD99leEjO</a></p>&mdash; Yoichiro Shimizu (@budougumi0617) <a href="https://twitter.com/budougumi0617/status/1331034752782987264?ref_src=twsrc%5Etfw">November 24, 2020</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<h2 id="使い方">使い方</h2>
+<p>使いかたはTerraformを使ったことがあれば簡単で次のような宣言でグラフを生成できる。
+なお、<code>terraform apply</code>するとき、<code>PIXELA_TOKEN</code>環境変数にトークンが設定されている必要がある。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">terraform</span> {
+  <span style="color:#719e07">required_providers</span> {
+    pixela <span style="color:#719e07">=</span> {
+      versions <span style="color:#719e07">=</span> [<span style="color:#2aa198">&#34;0.0.5&#34;</span>]
+      source   <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;github.com/budougumi0617/pixela&#34;</span>
+    }
+  }
+}
+
+<span style="color:#719e07">provider</span> <span style="color:#719e07">pixela</span> {
+  // <span style="color:#719e07">Pixelaに登録したユーザー名</span>
+  username <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;budougumi0617&#34;</span>
+}
+
+<span style="color:#719e07">resource</span> <span style="color:#2aa198">&#34;pixela_graph&#34; &#34;sample&#34;</span> {
+  graph_id              <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;sample&#34;</span>
+  name                  <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;update from terraform&#34;</span>
+  unit                  <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;page&#34;</span>
+  type                  <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;int&#34;</span>
+  color                 <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;ajisai&#34;</span>
+  timezone              <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;Asia/Tokyo&#34;</span>
+  self_sufficient       <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;none&#34;</span>
+  is_secret             <span style="color:#719e07">=</span> <span style="color:#dc322f">true</span>
+  publish_optional_data <span style="color:#719e07">=</span> <span style="color:#dc322f">false</span>
+}
+</code></pre></div><h1 id="技術的な話">技術的な話</h1>
+<h2 id="terraform-providerの作り方">Terraform Providerの作り方</h2>
+<p>Providerの作り方は公式ガイドを参考にしながら作ることができる。</p>
+<ul>
+<li>Call APIs with Terraform Providers
+<ul>
+<li><a href="https://learn.hashicorp.com/collections/terraform/providers">https://learn.hashicorp.com/collections/terraform/providers</a></li>
+</ul>
+</li>
+</ul>
+<p>また、次の雑誌でも日本語でProviderの作り方が公開されている。</p>
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=B08KSQ2FB5&linkId=b53d36b87ef5ae52ae71430a52a3b258"></iframe>
+<h2 id="リリースの仕方">リリースの仕方</h2>
+<p>Terraform Providerを作ったらレジストリにも登録することができる。
+こちらも手順通りにやればよい。</p>
+<ul>
+<li><a href="https://www.terraform.io/docs/registry/providers/publishing.html">https://www.terraform.io/docs/registry/providers/publishing.html</a></li>
+</ul>
+<h2 id="テストの書き方">テストの書き方</h2>
+<p>Terrformは受け入れテスト（実際にリソースを作って確認するテスト）もSDKで簡単に作ることができる。
+次のドキュメントを読みながら実装することができた。</p>
+<ul>
+<li>Acceptance Tests
+<ul>
+<li><a href="https://www.terraform.io/docs/extend/testing/acceptance-tests/index.html">https://www.terraform.io/docs/extend/testing/acceptance-tests/index.html</a></li>
+</ul>
+</li>
+<li>Testing Patterns
+<ul>
+<li><a href="https://www.terraform.io/docs/extend/best-practices/testing.html">https://www.terraform.io/docs/extend/best-practices/testing.html</a></li>
+</ul>
+</li>
+</ul>
+<p>ユニットテストは次のように書くことができる。</p>
+<ul>
+<li><a href="/2020/11/17/unittest_for_terraform_custom_provider/">自作Terraform Providerのユニットテストの書き方</a></li>
+</ul>
+<h2 id="少しハマったところ">少しハマったところ</h2>
+<p>Goをやっていれば型を使って実装をするだろう。
+Terrform Providerを実装するさいは型（構造体）を使って結果を取得しても、そのあとは構造体フィールドをひとつひとつセットしないといけないようだった。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">resourceGraphRead</span>(_ context.Context, d <span style="color:#719e07">*</span>schema.ResourceData, m <span style="color:#268bd2">interface</span>{}) diag.Diagnostics {
+	<span style="color:#586e75">// Warning or errors can be collected in a slice type
+</span><span style="color:#586e75"></span>	<span style="color:#268bd2">var</span> diags diag.Diagnostics
+	client <span style="color:#719e07">:=</span> m.(<span style="color:#719e07">*</span>pixela.Client)
+
+	g, err <span style="color:#719e07">:=</span> client.<span style="color:#268bd2">Graph</span>().<span style="color:#268bd2">Get</span>(<span style="color:#719e07">&amp;</span>pixela.GraphGetInput{ID: pixela.<span style="color:#268bd2">String</span>(d.<span style="color:#268bd2">Id</span>())})
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		<span style="color:#719e07">return</span> diag.<span style="color:#268bd2">FromErr</span>(err)
+	}
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> d.<span style="color:#268bd2">Set</span>(<span style="color:#2aa198">&#34;graph_id&#34;</span>, g.ID); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		<span style="color:#719e07">return</span> diag.<span style="color:#268bd2">FromErr</span>(err)
+	}
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> d.<span style="color:#268bd2">Set</span>(<span style="color:#2aa198">&#34;name&#34;</span>, g.Name); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		<span style="color:#719e07">return</span> diag.<span style="color:#268bd2">FromErr</span>(err)
+	}
+	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> d.<span style="color:#268bd2">Set</span>(<span style="color:#2aa198">&#34;type&#34;</span>, g.Type); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+		<span style="color:#719e07">return</span> diag.<span style="color:#268bd2">FromErr</span>(err)
+    }
+    <span style="color:#586e75">// ...
+</span></code></pre></div><p>また、レジストリ登録時に少しハマったが、ちゃんと手順通りにやっていれば問題ない（完全に私が悪かった）。</p>
+<ul>
+<li><a href="/2020/11/27/terraform_could_not_find_valid_encryption_key_packet_in_key/">TerraformレジストリにリリースしようとGPG Keyをimportしようとすると「Could not find valid encryption key packet in key ~~」とエラーになる</a></li>
+</ul>
+<h2 id="special-thanks">Special Thanks&hellip;</h2>
+<p>1.20.1以前のPixelaはグラフ単体のJSON情報を取得することができなかった。
+なので<a href="https://twitter.com/a_know">@a-know</a>さんにリクエストしてエンドポイントを増やしてもらった。大感謝…</p>
+<p><a href="https://github.com/a-know/Pixela/releases/tag/v1.21.0">https://github.com/a-know/Pixela/releases/tag/v1.21.0</a></p>
+<h1 id="終わりに">終わりに</h1>
+<p>PixelaをTerrformで使うためのProviderを作った。ProviderはPixelaのAPI操作に3rdパーティのライブラリを使っているのだが、少し使い方が合わないのでも自作ライブラリを作って差し替える予定。
+グラフにプロットするPixel自体もサポートしようかなとと思うが、毎回terraformでプロット打つのはちょっと違うかなと思っているので、Provider自体はどうやって機能拡張しようか考えている。</p>
+<p>他にもteraformサポート外のAPIを見つけたらProviderを書いてみたい。</p>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a href="https://github.com/budougumi0617/terraform-provider-pixela">https://github.com/budougumi0617/terraform-provider-pixela</a></li>
+<li><a href="https://registry.terraform.io/providers/budougumi0617/pixela">https://registry.terraform.io/providers/budougumi0617/pixela</a></li>
+<li><a href="https://pixe.la/ja">https://pixe.la/ja</a></li>
+<li><a href="https://learn.hashicorp.com/collections/terraform/providers">https://learn.hashicorp.com/collections/terraform/providers</a></li>
+</ul>
+<h1 id="関連">関連</h1>
+<ul>
+<li><a href="/2020/11/27/terraform_could_not_find_valid_encryption_key_packet_in_key/">TerraformレジストリにリリースしようとGPG Keyをimportしようとすると「Could not find valid encryption key packet in key ~~」とエラーになる</a></li>
+<li><a href="/2020/11/17/unittest_for_terraform_custom_provider/">自作Terraform Providerのユニットテストの書き方</a></li>
+</ul>
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=B07XT7LJLC&linkId=00bdffd3d651b7d204a542195114cba3"></iframe>
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=B08KSQ2FB5&linkId=b53d36b87ef5ae52ae71430a52a3b258"></iframe>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2020/11/17/unittest_for_terraform_custom_provider/">自作Terraform Providerのユニットテストの書き方</a></li>
+  
+  <li><a href="/2020/11/07/define_https_subdomain_by_terraform/">TerraformでAWS上にHTTPS化したサブドメインを定義する</a></li>
+  
+  <li><a href="/2019/10/18/launch-layer-for-the-layered-achitectures/">[Go] レイヤードアーキテクチャの階層構造を守らないimportを警告するlinterを作った</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Dec 11, 2020</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/terraform">terraform</a>  <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/pixela">pixela</a>  <a class="category" href="https://budougumi0617.github.io/tags/oss">oss</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2020/12/04/goroutine_tuning_with_benchmark_benchstat_trace/" title="[Go] benchstat/go tool traceコマンドをつかったベンチマークの可視化">[Go] benchstat/go tool traceコマンドをつかったベンチマークの可視化</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/gotips/" title="意外と知らないGoのTIPS" >意外と知らないGoのTIPS</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2020/12/11/terraform_provider_pixela/">TerraformでPixelaのグラフを宣言できるProviderを作った #pixela</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/12/04/goroutine_tuning_with_benchmark_benchstat_trace/">[Go] benchstat/go tool traceコマンドをつかったベンチマークの可視化</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/11/27/terraform_could_not_find_valid_encryption_key_packet_in_key/">TerraformレジストリにリリースしようとGPG Keyをimportしようとすると「Could not find valid encryption key packet in key ~~」とエラーになる</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/11/21/execute_steps_with_iflese_in_github_actions/">ifelseやswitch文のようにGitHub Actionsのステップの実行を制御したい</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2020  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
