@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>PixelaのGo用APIクライアントライブラリを作り始めた #pixela - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="pixela,github actions">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/twittercard.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/twittercard.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2021/01/03/release_pixela_library/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="PixelaのGo用APIクライアントライブラリを作り始めた #pixela - My External Storage"/>
+  <meta property="og:description" content="GoのPixela APIクライアントライブラリを作り始めた。
+最低限自分が今必要なAPIはカバーできたのでpublicに公開した。
+"/>
+  
+  <meta name="twitter:title" content="PixelaのGo用APIクライアントライブラリを作り始めた #pixela - My External Storage"/>
+  <meta name="twitter:description" content="GoのPixela APIクライアントライブラリを作り始めた。
+最低限自分が今必要なAPIはカバーできたのでpublicに公開した。
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Jan 3, 2021
+     - 4 minute read 
+     - <a href="https://budougumi0617.github.io/2021/01/03/release_pixela_library/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+    
+  </p>
+  <h1 class="entry-title">
+     PixelaのGo用APIクライアントライブラリを作り始めた #pixela 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#pixelaについて">Pixelaについて</a></li>
+    <li><a href="#なぜ作るのか">なぜ作るのか？</a></li>
+    <li><a href="#budougumi0617pixela">budougumi0617/pixela</a></li>
+    <li><a href="#acceptance-testという安心">Acceptance Testという安心</a></li>
+    <li><a href="#自動でリリースタグを作るようにしているのでリリースがとてもラク">自動でリリースタグを作るようにしているのでリリースがとてもラク</a></li>
+    <li><a href="#個人開発でも最初にテストとcicdを書いておくのがオススメ">個人開発でも最初にテストとCI/CDを書いておくのがオススメ</a></li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>GoのPixela APIクライアントライブラリを作り始めた。<br>
+最低限自分が今必要なAPIはカバーできたのでpublicに公開した。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/pixela" data-iframely-url="//cdn.iframe.ly/lYXbTqm"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>PixelaのGo用APIクライアントライブラリを作りはじめた
+<ul>
+<li><a href="https://github.com/budougumi0617/pixela">https://github.com/budougumi0617/pixela</a></li>
+<li><a href="https://pixe.la/">https://pixe.la/</a></li>
+<li><a href="https://docs.pixe.la/">https://docs.pixe.la/</a></li>
+</ul>
+</li>
+<li>ひとまずテストは最小限のAcceptance Testを書いている
+<ul>
+<li>実APIを叩いているのでモックの更新漏れなどもない</li>
+</ul>
+</li>
+<li>自動でリリースタグを作るようにしているのでリリースがとてもラク
+<ul>
+<li>GoReleaserは使っていない</li>
+</ul>
+</li>
+<li>リズムよく開発できるので個人開発では（でも）最初にテストとCI/CDを書いておくのがオススメ</li>
+</ul>
+<h1 id="pixelaについて">Pixelaについて</h1>
+<p>Pixelaは<a href="https://twitter.com/a_know">@a-know</a>さんが提供しているWebサービスだ。<br>
+日々のさまざまな活動量をGitHubのような鮮やかなグラフにすることができる。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://pixe.la" data-iframely-url="//cdn.iframe.ly/q3gtB1F?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>詳細なAPIドキュメントも公開されており、エンジニアならcurlなどでも簡単に利用することができる。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://docs.pixe.la/" data-iframely-url="//cdn.iframe.ly/8xwV0qR?media=0"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<h1 id="なぜ作るのか">なぜ作るのか？</h1>
+<p>昨年、PixelaのグラフをTerraformから操作するためのTerraform Providerを作った。</p>
+<p><a href="/2020/12/11/terraform_provider_pixela/">TerraformでPixelaのグラフを宣言できるProviderを作った #pixela</a></p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/terraform-provider-pixela" data-iframely-url="//cdn.iframe.ly/zjuslmC"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>Terraform ProviderはGoで実装するのだが、この中でPixelaのAPIを叩くために3rdパーティのAPIクライアントを使っていた。<br>
+PixelaのGo APIクライアントはいくつかあるのだが、いろいろ思うところがあったので自作することにした。</p>
+<h1 id="budougumi0617pixela">budougumi0617/pixela</h1>
+<p>今回作ったPixela API実行用のAPIクライアントは次のとおり。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/pixela" data-iframely-url="//cdn.iframe.ly/lYXbTqm"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>まだグラフを操作するメソッドしかないが、主に次の点を満たしたくて自作した。</p>
+<ul>
+<li><code>context.Context</code>対応</li>
+<li>素直なメソッド呼び出し</li>
+<li>v1.21.0で増えた新しいエンドポイントをサポートしている
+<ul>
+<li><a href="https://github.com/a-know/Pixela/releases/tag/v1.21.0">https://github.com/a-know/Pixela/releases/tag/v1.21.0</a></li>
+<li><a href="https://docs.pixe.la/entry/get-a-graph-def">https://docs.pixe.la/entry/get-a-graph-def</a></li>
+</ul>
+</li>
+</ul>
+<p>また、APIクライアントライブラリの作成に合わせてTerraform Providerも更新した。
+<a href="https://github.com/budougumi0617/terraform-provider-pixela/releases/tag/v0.0.6">https://github.com/budougumi0617/terraform-provider-pixela/releases/tag/v0.0.6</a></p>
+<h1 id="acceptance-testという安心">Acceptance Testという安心</h1>
+<p>今回はズルして単体テストはほとんど書いていない。<br>
+実際のAPIを叩いてテストしているので「モックが古い仕様のままだった」みたいな不安はない。</p>
+<ul>
+<li><a href="https://github.com/budougumi0617/pixela/blob/master/e2e_test.go">https://github.com/budougumi0617/pixela/blob/master/e2e_test.go</a></li>
+</ul>
+<p>バリデーションなど、細かい実装を一切していないので、そういった実装書き始めるときは単体テストでよさそう。<br>
+Terraform Providerの方もAPIを直接叩くAcceptance Testを書いてあったのでデグレの心配なく更新できた。</p>
+<h1 id="自動でリリースタグを作るようにしているのでリリースがとてもラク">自動でリリースタグを作るようにしているのでリリースがとてもラク</h1>
+<p>release-it npmを使って自動リリースする設定をしている。
+次の2ファイルを置いておくだけでmasterブランチにpushすれば自動で新しいバージョンが切られる。</p>
+<ul>
+<li><a href="https://github.com/budougumi0617/pixela/blob/master/.release-it.json">https://github.com/budougumi0617/pixela/blob/master/.release-it.json</a></li>
+<li><a href="https://github.com/budougumi0617/pixela/blob/master/.github/workflows/release.yml">https://github.com/budougumi0617/pixela/blob/master/.github/workflows/release.yml</a></li>
+</ul>
+<p>上記ファイルについての説明は以前所属会社のブログに記載した。</p>
+<iframe src="https://hatenablog-parts.com/embed?url=https%3A%2F%2Fdevblog.thebase.in%2Fentry%2Fautomatic-release-on-github-actions" style="border: 0; width: 100%; height: 190px;" allowfullscreen scrolling="no"></iframe>
+<p>APIクライアントライブラリ（バイナリ配布する予定がない）なのでGoReleaserは使っていない。<br>
+いちいち「いまのバージョンなんだっけ？」「バージョンタグはv付けてたっけ？」なんて考えなくてよいので非常にラクだ。</p>
+<h1 id="個人開発でも最初にテストとcicdを書いておくのがオススメ">個人開発でも最初にテストとCI/CDを書いておくのがオススメ</h1>
+<p>昨年から趣味でコードを書く時間が深夜になったのでどうしても眠気との戦いになっている。<br>
+ウトウトしながらコーディングしていてもテストがちゃんとあればエンバグすることは少ない。<br>
+また、レビューしてもらえるわけでもないのでCIでテストと静的解析を流しておけば独りでも最低限のクオリティを確認しながら開発ができる。</p>
+<p>他方、個人的に個人開発しているときは「機能実装が終わった（キレイに実装できた）」というタイミングがピークだ。<br>
+なので、そのあとに「バージョン番号を思い出してインクリメントしたtagを切って…」なんてやる時間は面白くない。
+Terraform Providerのリリースになると<a href="https://www.terraform.io/docs/registry/providers/publishing.html#manually-preparing-a-release">バイナリをzipにしたあと証明書で署名する</a>必要もあり、絶対に手作業したくない。<br>
+だから最初に自動リリースやデプロイを整備しておくとモチベーションの高い状態をキープしたまま実装を続けられるのでよい。</p>
+<h1 id="終わりに">終わりに</h1>
+<ul>
+<li><a href="https://github.com/budougumi0617/pixela">https://github.com/budougumi0617/pixela</a></li>
+</ul>
+<p>PixelaのAPIクライアントライブラリを作った話をまとめた。<br>
+別のツールを作る必要があるので一度開発はストップしてしまうのだが不足しているAPIも少しずつカバーしていきたい。<br>
+最初なのでDRYはまったく考えずに実装したので、それなりに実装が進んだらリファクタリングも始めたい。</p>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a href="https://github.com/budougumi0617/pixela">https://github.com/budougumi0617/pixela</a></li>
+<li><a href="https://pixe.la/ja">https://pixe.la/ja</a></li>
+<li><a href="https://docs.pixe.la/">https://docs.pixe.la/</a></li>
+<li><a href="https://github.com/budougumi0617/terraform-provider-pixela">https://github.com/budougumi0617/terraform-provider-pixela</a></li>
+<li><a href="/2020/12/11/terraform_provider_pixela/">TerraformでPixelaのグラフを宣言できるProviderを作った #pixela</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2020/12/11/terraform_provider_pixela/">TerraformでPixelaのグラフを宣言できるProviderを作った #pixela</a></li>
+  
+  <li><a href="/2020/05/01/use-datastore-emulator-on-github-actions/">GitHub Actions上でGCP Datastoreエミュレータを使ったテストを実行する</a></li>
+  
+  <li><a href="/2019/11/03/use-cache-in-github-actions/">[Go] GitHub Actionsでキャッシュ機能を使う #github</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Jan 3, 2021</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/pixela">pixela</a>  <a class="category" href="https://budougumi0617.github.io/tags/actions">actions</a>  <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2020/12/27/retrospective-2020/" title="2020年振り返り">2020年振り返り</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/gotips/" title="意外と知らないGoのTIPS" >意外と知らないGoのTIPS</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2021/01/03/release_pixela_library/">PixelaのGo用APIクライアントライブラリを作り始めた #pixela</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2020/12/27/retrospective-2020/">2020年振り返り</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/12/15/retrospective-on-github-2020/">2020年振り返り(GitHub編)</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/12/11/terraform_provider_pixela/">TerraformでPixelaのグラフを宣言できるProviderを作った #pixela</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
