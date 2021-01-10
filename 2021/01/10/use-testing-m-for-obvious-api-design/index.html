@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go] testing.Mオブジェクトを引数にとる関数をつくるアイデア - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="go,APIデザイン,test,設計">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2021/01/10/use-testing-m-for-obvious-api-design/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go] testing.Mオブジェクトを引数にとる関数をつくるアイデア - My External Storage"/>
+  <meta property="og:description" content="ライブラリを設計するときに考えたことのメモ。"/>
+  
+  <meta name="twitter:title" content="[Go] testing.Mオブジェクトを引数にとる関数をつくるアイデア - My External Storage"/>
+  <meta name="twitter:description" content="ライブラリを設計するときに考えたことのメモ。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Jan 10, 2021
+     - 4 minute read 
+     - <a href="https://budougumi0617.github.io/2021/01/10/use-testing-m-for-obvious-api-design/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+    
+  </p>
+  <h1 class="entry-title">
+     [Go] testing.Mオブジェクトを引数にとる関数をつくるアイデア 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#共通ライブラリを作っている">共通ライブラリを作っている</a></li>
+    <li><a href="#使いやすく間違えないapiライブラリ設計">使いやすく、間違えないAPI・ライブラリ設計</a></li>
+    <li><a href="#テストのユーティリティ関数を作る">テストのユーティリティ関数を作る</a></li>
+    <li><a href="#testingmを使う">*testing.Mを使う</a></li>
+    <li><a href="#終わりに">終わりに</a></li>
+  </ul>
+</nav>
+          
+          <p>ライブラリを設計するときに考えたことのメモ。</p>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>よいAPI設計・ライブラリ設計の1つの基準
+<ul>
+<li>利用者が無知モードで使えること</li>
+</ul>
+</li>
+<li>Goのテストコードには2つのオブジェクトが現れる
+<ul>
+<li><code>*testing.M</code></li>
+<li><code>*testing.T</code></li>
+</ul>
+</li>
+<li><code>TestMain</code>でしか使ってほしくない関数は<code>*testing.M</code>を引数にすればよいのでは？というアイデア</li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">SetupHelper</span>(m <span style="color:#719e07">*</span>testing.M) {
+    <span style="color:#586e75">// そのpkgのテスト全体でで一度しか実行しない処理
+</span><span style="color:#586e75"></span>}
+</code></pre></div><h1 id="共通ライブラリを作っている">共通ライブラリを作っている</h1>
+<p>業務で複数のGoのサービスを扱うようになり、loggingやhttp middlewareといった汎用性の高いコードを共通ライブラリとして抽出している。<br>
+<a href="https://github.com/go-kit/kit">go-kit</a>のようなOSSとして公開されているものに頼るのもよい。<br>
+しかし組織特有のデータ構造だったり、組織ごとで異なる技術セットに最適化すると自作することになるのが多いのではないか。<br>
+ここで提供するライブラリの機能にはテストで利用するユーティリティ関数も含む。</p>
+<h1 id="使いやすく間違えないapiライブラリ設計">使いやすく、間違えないAPI・ライブラリ設計</h1>
+<p>さまざまなサービスの微妙に異なるユースケースの中で、あるいはGoの経験値が均一でない開発チームの中で誤使用なくライブラリを使ってもらうには明瞭なAPIデザインが求められる。<br>
+とくに背景を共有しなくてもこちらが想定する使い方をしてもらえるのが望ましい。<br>
+「APIデザインの極意」ではこのようなAPIを「無知モードでも利用できること」と書いている。</p>
+<blockquote>
+<p>それらのAPIが適切に作成されていれば、組み立ては簡単な作業になり、デバッグしたり、ソースコードを読んだり、パッチを適用したり、つまり、一般的に言えば、他の人が行った内容を理解することに時間を費やすことがなくなります。要するに、「無知モード」で行うことができます</p>
+<p>Jaroslav Tulach. APIデザインの極意 Java/NetBeansアーキテクト探究ノート (Japanese Edition) (Kindle の位置No.1447-1449). Kindle 版.</p>
+</blockquote>
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=B00LGJTXT8&linkId=f9b63405984cbd477c8b764066dd0670"></iframe>
+<ul>
+<li>ドキュメントを読まずとも使い方が想像できる</li>
+<li>反対に、間違った使い方ができないようになっている</li>
+</ul>
+<p>これらが良いAPIデザインだと考える。これはライブラリやフレームワークを提供するときも同様だ。</p>
+<h1 id="テストのユーティリティ関数を作る">テストのユーティリティ関数を作る</h1>
+<p>今回はテストの中で使うヘルパー関数を例に考える。</p>
+<p>Goのテストは<code>func TestXxx(*testing.T)</code>というシグネチャで定義し、<code>*testing.T</code>オブジェクトは一般にテストコードの中にしか出てこない。<br>
+このテストコードの中で利用する関数を定義するときは<code>*testing.T</code>を引数に与える。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">helper</span>(t <span style="color:#719e07">*</span>testing.T)
+</code></pre></div><p><code>*testing.T</code>オブジェクトを引数にする理由は、<code>*testing.T</code>オブジェクトが持つメソッドを利用できるというのが一番の動機だ。<br>
+ただ副次的な効果として、「この関数はテストコードの中で利用する関数なんだな」という認識を与えてくれる。</p>
+<p>同様の効果を期待して、<code>TestMain</code>関数の中でしか利用してほしくないテストユーティリティ関数は<code>*testing.M</code>を引数に持たせればよいのではと考えた。</p>
+<h1 id="testingmを使う">*testing.Mを使う</h1>
+<p><code>TestMain</code>と言う名前の関数を定義しておくと、そのpkgのテストが実行されるとき最初に呼ばれる。</p>
+<ul>
+<li><a href="https://golang.org/pkg/testing/#hdr-Main">https://golang.org/pkg/testing/#hdr-Main</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestMain</span>(m <span style="color:#719e07">*</span>testing.M)
+</code></pre></div><p>そのため、DBのセットアップのような事前処理を<code>TestMain</code>関数の中に定義することが多い。<br>
+逆に言うとここで呼ぶ事前処理はpkg内で複数回呼ばれることを期待しない。</p>
+<p><code>TestMain</code>関数を定義するときは<code>*testing.M</code>オブジェクトを引数にとる必要がある。<br>
+この<code>*testing.M</code>オブジェクトは<code>TestMain</code>関数の中でしか使われることはない。<br>
+つまり、<code>*testing.M</code>オブジェクトを引数にとる関数を定義すれば、それは<code>TestMain</code>関数の中でしか使わない関数とシグネチャで主張することができる<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">SetupHelper</span>(m <span style="color:#719e07">*</span>testing.M)
+</code></pre></div><p><code>*testing.M</code>オブジェクトは<code>*testing.T</code>オブジェクトと違い、ヘルパー関数の中で利用できる便利なメソッドはない。<br>
+しかし、テスト関数の中で<code>*testing.M</code>オブジェクトが現れることはないため、シグネチャからテスト関数の中で利用することを想定していないことを主張できる。</p>
+<h1 id="終わりに">終わりに</h1>
+<p>昨今DX(Developer Experience)が盛んに叫ばれている。<br>
+流行りだから意識するわけではないが、プラットフォームやライブラリを提供する立場になったときは利用者が如何にストレスなく利用できるかを意識しておきたい。</p>
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=B00LGJTXT8&linkId=f9b63405984cbd477c8b764066dd0670"></iframe>
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=B07N1XLQ7D&linkId=322ab4b0cf43c2fbe7cb7e5c742847ff"></iframe><section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>処理内容を<code>sync.Once</code>で一度しか実行できないようにしておけば更に万全かもしれない。 <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2020/05/08/go-cmp-diif-with-ignore-fields/">[Go] 一部のフィールドを無視して構造体を比較したいときはgo-cmpを使う</a></li>
+  
+  <li><a href="/2020/03/27/http-test-in-go/">Goでサーバを立ち上げてE2Eテストを実施するCI用のテストコードを書く</a></li>
+  
+  <li><a href="/2019/10/30/go-testing2019/">Goのtestを理解する in 2019</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Jan 10, 2021</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/design">design</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2021/01/03/release_pixela_library/" title="PixelaのGo用APIクライアントライブラリを作り始めた #pixela">PixelaのGo用APIクライアントライブラリを作り始めた #pixela</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/gotips/" title="意外と知らないGoのTIPS" >意外と知らないGoのTIPS</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2021/01/10/use-testing-m-for-obvious-api-design/">[Go] testing.Mオブジェクトを引数にとる関数をつくるアイデア</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2021/01/03/release_pixela_library/">PixelaのGo用APIクライアントライブラリを作り始めた #pixela</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/12/27/retrospective-2020/">2020年振り返り</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/12/15/retrospective-on-github-2020/">2020年振り返り(GitHub編)</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
