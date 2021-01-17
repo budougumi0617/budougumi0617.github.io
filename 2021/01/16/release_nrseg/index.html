@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>GoのアプリにNew Relic APMを導入する時とても便利なCLIを作った - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="newrelic,o11y,go">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/newrelic.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/newrelic.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2021/01/16/release_nrseg/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="GoのアプリにNew Relic APMを導入する時とても便利なCLIを作った - My External Storage"/>
+  <meta property="og:description" content="GoのWebアプリコードにNew Relic APMでSpan（Segment）を計測するコードを自動挿入するOSSを作った。
+New RelicをGoのアプリケーションへ導入するときに利用をオススメする。
+"/>
+  
+  <meta name="twitter:title" content="GoのアプリにNew Relic APMを導入する時とても便利なCLIを作った - My External Storage"/>
+  <meta name="twitter:description" content="GoのWebアプリコードにNew Relic APMでSpan（Segment）を計測するコードを自動挿入するOSSを作った。
+New RelicをGoのアプリケーションへ導入するときに利用をオススメする。
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Jan 16, 2021
+     - 4 minute read 
+     - <a href="https://budougumi0617.github.io/2021/01/16/release_nrseg/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+    
+  </p>
+  <h1 class="entry-title">
+     GoのアプリにNew Relic APMを導入する時とても便利なCLIを作った 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#new-relic-apm">New Relic APM</a>
+      <ul>
+        <li><a href="#goのwebアプリケーションにnew-relic-apmを導入する手順">GoのWebアプリケーションにNew Relic APMを導入する手順</a></li>
+        <li><a href="#spanの計測が大変">Spanの計測が大変</a></li>
+      </ul>
+    </li>
+    <li><a href="#nrseg">nrseg</a></li>
+    <li><a href="#技術的なところ">技術的なところ</a></li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考資料">参考資料</a></li>
+  </ul>
+</nav>
+          
+          <p>GoのWebアプリコードにNew Relic APMでSpan（Segment）を計測するコードを自動挿入するOSSを作った。<br>
+New RelicをGoのアプリケーションへ導入するときに利用をオススメする。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/nrseg" data-iframely-url="//cdn.iframe.ly/HrUY585"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>New Relic APMは分散トレーシングなどにも対応しているAPM</li>
+<li>Spanを計測するためには、関数ごとにSegmentの処理を差し込む必要がある</li>
+<li>指定ディレクトリ以下にあるGoのコードにFunction segmentsを自動挿入するOSSを作った</li>
+<li><a href="https://github.com/budougumi0617/nrseg">https://github.com/budougumi0617/nrseg</a></li>
+</ul>
+<h1 id="new-relic-apm">New Relic APM</h1>
+<p>New Relic APMはNew Relic Oneに含まれている分散トレーシングなどにも対応したモニタリングツールだ。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://newrelic.com/jp/products/application-monitoring" data-iframely-url="//cdn.iframe.ly/tp2FaR3?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>個人でも業務でも使い始めた<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>のだが、エージェントを挿入すれば簡単にアプリケーションを丸裸にできる。</p>
+<h2 id="goのwebアプリケーションにnew-relic-apmを導入する手順">GoのWebアプリケーションにNew Relic APMを導入する手順</h2>
+<p>APMだけならば導入もすぐ完了する。</p>
+<ul>
+<li>Install New Relic for Go
+<ul>
+<li><a href="https://docs.newrelic.com/docs/agents/go-agent/installation/install-new-relic-go">https://docs.newrelic.com/docs/agents/go-agent/installation/install-new-relic-go</a></li>
+</ul>
+</li>
+</ul>
+<p>ざっくりとまとめると、まずアプリ起動時にNew Relicと接続するための<code>Application</code>オブジェクトを生成する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">app, err <span style="color:#719e07">:=</span> newrelic.<span style="color:#268bd2">NewApplication</span>(
+    newrelic.<span style="color:#268bd2">ConfigAppName</span>(<span style="color:#2aa198">&#34;Your Application Name&#34;</span>),
+    newrelic.<span style="color:#268bd2">ConfigLicense</span>(<span style="color:#2aa198">&#34;__YOUR_NEW_RELIC_LICENSE_KEY__&#34;</span>),
+)
+</code></pre></div><p>そして各種ハンドラーのエンドポイントを次のようにラップする。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">http.<span style="color:#268bd2">HandleFunc</span>(newrelic.<span style="color:#268bd2">WrapHandleFunc</span>(app, <span style="color:#2aa198">&#34;/users&#34;</span>, usersHandler))
+</code></pre></div><p>主要なフレームワーク、MySQLなどならば専用のラッパーも用意されている。</p>
+<ul>
+<li><a href="https://github.com/newrelic/go-agent/tree/master/v3/integrations">https://github.com/newrelic/go-agent/tree/master/v3/integrations</a></li>
+</ul>
+<h2 id="spanの計測が大変">Spanの計測が大変</h2>
+<p>これでNew Relic上からTraceを確認できるようになる。<br>
+ここまでの対応ならば、すぐにできるだろう。しかし、ここまでだとTraceは取得できるようになっても、Span<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>が取得できない。</p>
+<ul>
+<li>Instrument Go transactions1
+<ul>
+<li><a href="https://docs.newrelic.com/docs/agents/go-agent/instrumentation/instrument-go-transactions">https://docs.newrelic.com/docs/agents/go-agent/instrumentation/instrument-go-transactions</a></li>
+</ul>
+</li>
+<li>Instrument Go segments
+<ul>
+<li><a href="https://docs.newrelic.com/docs/agents/go-agent/instrumentation/instrument-go-segments">https://docs.newrelic.com/docs/agents/go-agent/instrumentation/instrument-go-segments</a></li>
+</ul>
+</li>
+</ul>
+<p>Goのアプリケーション上でSpanを取得するには、関数やメソッドごとにFunction segmentsを明示的に埋め込んでいく必要がある。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">defer</span> txn.<span style="color:#268bd2">StartSegment</span>(<span style="color:#2aa198">&#34;mySegmentName&#34;</span>).<span style="color:#268bd2">End</span>()
+</code></pre></div><p>これを中規模以上の既存のアプリケーションに実施しようとすると、<strong>関数/メソッド1つ1つを修正していく必要</strong>があり非常に面倒なことになる。</p>
+<h1 id="nrseg">nrseg</h1>
+<p>上記の面倒くささを解消するためのコマンドラインツールがnrsegだ。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/nrseg" data-iframely-url="//cdn.iframe.ly/HrUY585"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>Macの場合はBrewでインストールすることができる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ brew install budougumi0617/tap/nrseg
+</code></pre></div><p>このような既存のコードがあったとする。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> input
+
+<span style="color:#719e07">import</span> (
+  <span style="color:#2aa198">&#34;context&#34;</span>
+  <span style="color:#2aa198">&#34;fmt&#34;</span>
+  <span style="color:#2aa198">&#34;net/http&#34;</span>
+)
+
+<span style="color:#268bd2">type</span> FooBar <span style="color:#268bd2">struct</span>{}
+
+<span style="color:#268bd2">func</span> (f <span style="color:#719e07">*</span>FooBar) <span style="color:#268bd2">SampleMethod</span>(ctx context.Context) {
+  fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Hello, playground&#34;</span>)
+  fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;end function&#34;</span>)
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">SampleFunc</span>(ctx context.Context) {
+  fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Hello, playground&#34;</span>)
+  fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;end function&#34;</span>)
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">SampleHandler</span>(w http.ResponseWriter, req <span style="color:#719e07">*</span>http.Request) {
+  fmt.<span style="color:#268bd2">Fprintf</span>(w, <span style="color:#2aa198">&#34;Hello, %q&#34;</span>, req.URL.Path)
+}
+
+<span style="color:#586e75">// nrseg:ignore you can be ignored if you want to not insert segment.
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">IgnoreHandler</span>(w http.ResponseWriter, req <span style="color:#719e07">*</span>http.Request) {
+  fmt.<span style="color:#268bd2">Fprintf</span>(w, <span style="color:#2aa198">&#34;Hello, %q&#34;</span>, req.URL.Path)
+}
+</code></pre></div><p>上記のコードを含んだディレクトリにnrsegを実行する。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ nrseg .
+</code></pre></div><p>そうすると、上記のようなコードが次のようになる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> input
+
+<span style="color:#719e07">import</span> (
+  <span style="color:#2aa198">&#34;context&#34;</span>
+  <span style="color:#2aa198">&#34;fmt&#34;</span>
+  <span style="color:#2aa198">&#34;net/http&#34;</span>
+
+  <span style="color:#2aa198">&#34;github.com/newrelic/go-agent/v3/newrelic&#34;</span>
+)
+
+<span style="color:#268bd2">type</span> FooBar <span style="color:#268bd2">struct</span>{}
+
+<span style="color:#268bd2">func</span> (f <span style="color:#719e07">*</span>FooBar) <span style="color:#268bd2">SampleMethod</span>(ctx context.Context) {
+  <span style="color:#719e07">defer</span> newrelic.<span style="color:#268bd2">FromContext</span>(ctx).<span style="color:#268bd2">StartSegment</span>(<span style="color:#2aa198">&#34;foo_bar_sample_method&#34;</span>).<span style="color:#268bd2">End</span>()
+  fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Hello, playground&#34;</span>)
+  fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;end function&#34;</span>)
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">SampleFunc</span>(ctx context.Context) {
+  <span style="color:#719e07">defer</span> newrelic.<span style="color:#268bd2">FromContext</span>(ctx).<span style="color:#268bd2">StartSegment</span>(<span style="color:#2aa198">&#34;sample_func&#34;</span>).<span style="color:#268bd2">End</span>()
+  fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Hello, playground&#34;</span>)
+  fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;end function&#34;</span>)
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">SampleHandler</span>(w http.ResponseWriter, req <span style="color:#719e07">*</span>http.Request) {
+  <span style="color:#719e07">defer</span> newrelic.<span style="color:#268bd2">FromContext</span>(req.<span style="color:#268bd2">Context</span>()).<span style="color:#268bd2">StartSegment</span>(<span style="color:#2aa198">&#34;sample_handler&#34;</span>).<span style="color:#268bd2">End</span>()
+  fmt.<span style="color:#268bd2">Fprintf</span>(w, <span style="color:#2aa198">&#34;Hello, %q&#34;</span>, req.URL.Path)
+}
+
+<span style="color:#586e75">// nrseg:ignore you can be ignored if you want to not insert segment.
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">IgnoreHandler</span>(w http.ResponseWriter, req <span style="color:#719e07">*</span>http.Request) {
+  fmt.<span style="color:#268bd2">Fprintf</span>(w, <span style="color:#2aa198">&#34;Hello, %q&#34;</span>, req.URL.Path)
+}
+</code></pre></div><p><code>nrseg:ignore</code>とコメントした関数以外の<strong>すべての関数/メソッドに対してSpanを生成するためのNew Relicライブラリの呼び出しが自動挿入</strong>される。<br>
+nrsegコマンドはディレクトリの下のすべてのGoコード<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup>に対して上記の修正を行なう。
+既存アプリケーションのコード量が多ければ多いほど便利！</p>
+<h1 id="技術的なところ">技術的なところ</h1>
+<p>やっていることはディレクトリをトラバースしながら各コードのASTに無理やり該当コードを挿入してファイルを更新している。<br>
+挿入時にシグネチャの中にある<code>context.Context</code>の変数名を取得したり、細かいASTのパースも行なっている。<br>
+めんどくさかったところはおいおい個別の記事でメモを公開したいと思う。</p>
+<h1 id="終わりに">終わりに</h1>
+<p>今年の目標（<a href="/2020/12/27/retrospective-2020/#try">2020年のTry</a>）として「<code>ひとつ突き詰めて実装してみる</code>」を掲げている。
+<code>nrseg</code>はGoのASTと仲良くなれるし業務で利用しはじめたため、目標とマッチしつつモチベーションも保ちやすい。<br>
+また、New Relicを使って今年のISUCONを出ることを想定して「（サブミット時に）挿入したコードをすべて削除する」サブコマンドなども用意したいと思う。
+引き続き機能強化していきたい。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/nrseg" data-iframely-url="//cdn.iframe.ly/HrUY585"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<h1 id="参考資料">参考資料</h1>
+<ul>
+<li><a href="https://github.com/budougumi0617/nrseg">https://github.com/budougumi0617/nrseg</a></li>
+<li>Install New Relic for Go
+<ul>
+<li><a href="https://docs.newrelic.com/docs/agents/go-agent/installation/install-new-relic-go">https://docs.newrelic.com/docs/agents/go-agent/installation/install-new-relic-go</a></li>
+</ul>
+</li>
+<li>Instrument Go segments
+<ul>
+<li><a href="https://docs.newrelic.com/docs/agents/go-agent/instrumentation/instrument-go-segments">https://docs.newrelic.com/docs/agents/go-agent/instrumentation/instrument-go-segments</a></li>
+</ul>
+</li>
+<li><a href="/2020/12/27/retrospective-2020/#try">2020年振り返り</a></li>
+</ul>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p><a href="https://newrelic.com/jp/press-release/20201217">https://newrelic.com/jp/press-release/20201217</a> <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2" role="doc-endnote">
+<p>1つのTraceの中にあるオペレーションの1つ１つの実行処理時間などを計測したもの <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3" role="doc-endnote">
+<p>testdataディレクトリや<code>-i</code>オプションで指定されたディレクトリは除く <a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2021/01/10/use-testing-m-for-obvious-api-design/">[Go] testing.Mオブジェクトを引数にとる関数をつくるアイデア</a></li>
+  
+  <li><a href="/2019/06/13/explore-go-specification-and-implementation/">GoのLanguage Specificationの特定の仕様に関わる処理系の実装を探す #golang</a></li>
+  
+  <li><a href="/2021/01/03/release_pixela_library/">PixelaのGo用APIクライアントライブラリを作り始めた #pixela</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Jan 16, 2021</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/o11y">o11y</a>  <a class="category" href="https://budougumi0617.github.io/tags/newrelic">newrelic</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2021/01/10/use-testing-m-for-obvious-api-design/" title="[Go] testing.Mオブジェクトを引数にとる関数をつくるアイデア">[Go] testing.Mオブジェクトを引数にとる関数をつくるアイデア</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/gotips/" title="意外と知らないGoのTIPS" >意外と知らないGoのTIPS</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2021/01/16/release_nrseg/">GoのアプリにNew Relic APMを導入する時とても便利なCLIを作った</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2021/01/10/use-testing-m-for-obvious-api-design/">[Go] testing.Mオブジェクトを引数にとる関数をつくるアイデア</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/01/03/release_pixela_library/">PixelaのGo用APIクライアントライブラリを作り始めた #pixela</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2020/12/27/retrospective-2020/">2020年振り返り</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
