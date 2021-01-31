@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go] まだレビュー中のgerrit上のコードパッチをローカルに取得する - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="Go,gerrit,CL">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/twittercard.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/twittercard.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2021/01/31/pull_cl_from_gerrit/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go] まだレビュー中のgerrit上のコードパッチをローカルに取得する - My External Storage"/>
+  <meta property="og:description" content="@dice_zuさんに教えてもらったことメモ。"/>
+  
+  <meta name="twitter:title" content="[Go] まだレビュー中のgerrit上のコードパッチをローカルに取得する - My External Storage"/>
+  <meta name="twitter:description" content="@dice_zuさんに教えてもらったことメモ。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Jan 31, 2021
+     - 3 minute read 
+     - <a href="https://budougumi0617.github.io/2021/01/31/pull_cl_from_gerrit/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+    
+  </p>
+  <h1 class="entry-title">
+     [Go] まだレビュー中のgerrit上のコードパッチをローカルに取得する 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#gerrit上のコードパッチをローカルで実行したい">gerrit上のコードパッチをローカルで実行したい</a></li>
+    <li><a href="#gerritのclをローカルに取得する">GerritのCLをローカルに取得する</a>
+      <ul>
+        <li><a href="#googlesourcecom上にあるリポジトリをcloneする">googlesource.com上にあるリポジトリをcloneする</a></li>
+        <li><a href="#パッチを取得するgitコマンドを表示する">パッチを取得するgitコマンドを表示する</a></li>
+      </ul>
+    </li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p><a href="https://twitter.com/dice_zu">@dice_zu</a>さんに教えてもらったことメモ。</p>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li><code>golang.org/x/tools</code>のまだマージされていないコードをローカルで動かしたくなった</li>
+<li>gerritに直接作成されたパッチはGitHubにミラーされていない</li>
+<li>Change Listトップページの「DOWNLOAD」ボタンをクリックするとパッチを取得するいくつかの方法が提案される
+<ul>
+<li><code>git fetch https://go.googlesource.com/go refs/changes/59/249759/2 &amp;&amp; git checkout -b change-249759 FETCH_HEAD</code></li>
+<li><code>git fetch https://go.googlesource.com/go refs/changes/59/249759/2 &amp;&amp; git checkout FETCH_HEAD</code></li>
+<li>etc&hellip;</li>
+</ul>
+</li>
+</ul>
+<p><img src="/2021/01/31_cmd_list.png" alt="コマンドリスト"></p>
+<h1 id="gerrit上のコードパッチをローカルで実行したい">gerrit上のコードパッチをローカルで実行したい</h1>
+<p>社内勉強会としてGoのコードリーティングを隔週で行なっている。<br>
+昨年のアドベントカレンダーに同勉強会のことを書いたことがきっかけで<a href="https://twitter.com/dice_zu">@dice_zu</a>さんや<a href="https://twitter.com/po3rin">@po3rin</a>さんにもゲストとして参加していただいている。</p>
+<iframe src="https://hatenablog-parts.com/embed?url=https%3A%2F%2Fdevblog.thebase.in%2Fentry%2Fgo-code-reading" style="border: 0; width: 100%; height: 190px;" allowfullscreen scrolling="no"></iframe>
+<p>今週の勉強会では2021/01/30現在まだマージされていない<code>golang.org/x/tools</code>の次のChange List（CL）<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>のコードを読むことになった。</p>
+<ul>
+<li>tools/go/analysis: add a new VET checker &ldquo;DeadMutation&rdquo;
+<ul>
+<li><a href="https://go-review.googlesource.com/c/tools/+/287034">https://go-review.googlesource.com/c/tools/+/287034</a></li>
+</ul>
+</li>
+</ul>
+<p>ここで、SSAの動きがコードを読むだけでは理解できなかったのでローカルでコードをいじりながらテストコードを実行してみたくなった。</p>
+<h1 id="gerritのclをローカルに取得する">GerritのCLをローカルに取得する</h1>
+<p>Goプロダクトのコードはすべて<a href="https://go.googlesource.com/">go.googlesource.com/</a>上で開発が行われている<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>。<br>
+GitHubならばghコマンドを使って<code>gh pr checkout ${PR_NUMBER}</code>とするだけだろう。<br>
+しかし、上記のCLはgerritに直接作成されたもので、GitHubのミラーリポジトリ上にPRとして存在しなかった。<br>
+gerrit上にしかないパッチの取得方法がわからなかったので<a href="https://twitter.com/dice_zu">@dice_zu</a>さんに教えてもらった。</p>
+<h2 id="googlesourcecom上にあるリポジトリをcloneする">googlesource.com上にあるリポジトリをcloneする</h2>
+<p>まず大前提として該当リポジトリを<code>git clone</code>しておく。<br>
+GitHubにある<a href="https://github.com/golang/tools">golang/tools</a>リポジトリはミラーリポジトリなので、googlesource.com上にあるリポジトリをcloneする。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># https://go-review.googlesource.com/admin/repos/tools</span>
+$ git clone <span style="color:#2aa198">&#34;https://go.googlesource.com/tools&#34;</span>
+</code></pre></div><h2 id="パッチを取得するgitコマンドを表示する">パッチを取得するgitコマンドを表示する</h2>
+<p>あとは該当CLのパッチを取得するためのgitコマンドを生成すればよい。<br>
+CLのトップページのdescriptionなどの右下にある「DOWNLOAD」ボタンをクリックする。
+<img src="/2021/01/31_dl_btn.png" alt="ダウンロードボタン"></p>
+<p>そうするといくつかのパッチを取得するgitコマンドが表示される。</p>
+<p><img src="/2021/01/31_cmd_list.png" alt="コマンドリスト"></p>
+<p>とくにこだわりがなかれば一番上のbranchを取得するコマンドを実行すればよいだろう。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git fetch https://go.googlesource.com/tools refs/changes/34/287034/5 <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span><span style="color:#719e07">&amp;&amp;</span> git checkout -b change-287034 FETCH_HEAD
+</code></pre></div><p>これでローカルにCLの変更を取得することができた。</p>
+<pre><code>$ git log --oneline -n 3
+4ec2bca5 (HEAD -&gt; change-287034) tools/go/analysis: add a new VET checker &quot;DeadMutation&quot;
+514964b7 gopls/internal/hooks: improve license file test
+68bf78a6 internal/lsp/cmd: improve help output of gopls subcommands
+$ go test ./go/analysis/passes/deadmutation
+ok      golang.org/x/tools/go/analysis/passes/deadmutation      0.072s
+</code></pre><h1 id="終わりに">終わりに</h1>
+<p>今回このCLをコードリーディングの題材にしたのは<a href="https://twitter.com/dice_zu">@dice_zu</a>さんの提案だった。<br>
+私はマージされたコミットすら追えていないので、レビュー中のコードもしっかりウォッチされている<a href="https://twitter.com/dice_zu">@dice_zu</a>さん流石という感じだった。</p>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a href="https://devblog.thebase.in/entry/go-code-reading">私がGoのソースコードを読むときのTips</a></li>
+<li><a href="https://go-review.googlesource.com/c/tools/+/287034">tools/go/analysis: add a new VET checker &ldquo;DeadMutation&rdquo;</a></li>
+</ul>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>GitHubのPull Request相当 <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2" role="doc-endnote">
+<p>GitHub上にあるリポジトリはミラーリポジトリ <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2020/12/04/goroutine_tuning_with_benchmark_benchstat_trace/">[Go] benchstat/go tool traceコマンドをつかったベンチマークの可視化</a></li>
+  
+  <li><a href="/2020/11/01/how_to_craete_wrapper/">[Go] 埋め込みフィールドを使ったラッパー構造体定義</a></li>
+  
+  <li><a href="/2020/09/06/why_signal_notify_want_buffered_channel/">[Go] signal.Notifyを使うときは必ずバッファ付きチャネルで利用すること</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Jan 31, 2021</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/gotips">gotips</a>  <a class="category" href="https://budougumi0617.github.io/tags/gerrit">gerrit</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2021/01/22/detect_autogenerated_file/" title="[Go] ファイルが自動生成コードか判別したい">[Go] ファイルが自動生成コードか判別したい</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/gotips/" title="意外と知らないGoのTIPS" >意外と知らないGoのTIPS</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2021/01/31/pull_cl_from_gerrit/">[Go] まだレビュー中のgerrit上のコードパッチをローカルに取得する</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2021/01/22/detect_autogenerated_file/">[Go] ファイルが自動生成コードか判別したい</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/01/17/release_nrseg/">GoのアプリにNew Relic APMを導入する時とても便利なCLIを作った</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/01/10/use-testing-m-for-obvious-api-design/">[Go] testing.Mオブジェクトを引数にとる関数をつくるアイデア</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
