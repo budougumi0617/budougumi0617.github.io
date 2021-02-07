@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go] 新規追加した関数にNew RelicのSegmentを入れ忘れていたら警告するGitHub Actionsを作った - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="GitHub Actions,Go,linter,NewRelic">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/newrelic.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/newrelic.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2021/02/07/release_action_newrelic_segment_lint/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go] 新規追加した関数にNew RelicのSegmentを入れ忘れていたら警告するGitHub Actionsを作った - My External Storage"/>
+  <meta property="og:description" content="Goのアプリで新規関数を含むPull Requset（PR）を作ったとき、New RelicのSegmentをいれてなかったら怒るreviewdogのGitHub Actionsを作った。
+"/>
+  
+  <meta name="twitter:title" content="[Go] 新規追加した関数にNew RelicのSegmentを入れ忘れていたら警告するGitHub Actionsを作った - My External Storage"/>
+  <meta name="twitter:description" content="Goのアプリで新規関数を含むPull Requset（PR）を作ったとき、New RelicのSegmentをいれてなかったら怒るreviewdogのGitHub Actionsを作った。
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Feb 7, 2021
+     - 4 minute read 
+     - <a href="https://budougumi0617.github.io/2021/02/07/release_action_newrelic_segment_lint/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a><a class="label" href="https://budougumi0617.github.io/categories/newrelic/">newrelic </a><a class="label" href="https://budougumi0617.github.io/categories/o11y/">o11y </a><a class="label" href="https://budougumi0617.github.io/categories/github/">github </a>
+    
+  </p>
+  <h1 class="entry-title">
+     [Go] 新規追加した関数にNew RelicのSegmentを入れ忘れていたら警告するGitHub Actionsを作った 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#spanを計測していない関数を追加するpull-requestprはgithub-checksで警告したい">Spanを計測していない関数を追加するPull Request（PR）はGitHub Checksで警告したい</a></li>
+    <li><a href="#作ったときのtips">作ったときのTips</a>
+      <ul>
+        <li><a href="#reviewdogを使ったactionsの作り方">reviewdogを使ったActionsの作り方</a></li>
+        <li><a href="#reviewdogに自作ツールの結果を読み込ませる">reviewdogに自作ツールの結果を読み込ませる</a></li>
+        <li><a href="#actionsの動作確認をしたいとき">Actionsの動作確認をしたいとき</a></li>
+        <li><a href="#githubにリリースされた圧縮ファイルを実行するワンライナー">GitHubにリリースされた圧縮ファイルを実行するワンライナー</a></li>
+      </ul>
+    </li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>Goのアプリで新規関数を含むPull Requset（PR）を作ったとき、New RelicのSegmentをいれてなかったら怒るreviewdogのGitHub Actionsを作った。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/action-newrelic-segment-lint" data-iframely-url="//cdn.iframe.ly/aLlaE2N"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>New RelicでGoのアプリケーションのSpanを取得するには、関数やメソッドごとにSegmentを作成する</li>
+<li>Segmentを作っていなかったら怒るActionsを作った
+<ul>
+<li><a href="https://github.com/budougumi0617/action-newrelic-segment-lint">https://github.com/budougumi0617/action-newrelic-segment-lint</a></li>
+</ul>
+</li>
+<li>実際作った時にTipsなど</li>
+</ul>
+<p><img src="/2021/02/07_pr_comment.png" alt="実際のコメント"></p>
+<p>GitHub MarketPlaceにも公開している。</p>
+<p><a href="https://github.com/marketplace/actions/action-newrelic-segment-lint">https://github.com/marketplace/actions/action-newrelic-segment-lint</a></p>
+<h1 id="spanを計測していない関数を追加するpull-requestprはgithub-checksで警告したい">Spanを計測していない関数を追加するPull Request（PR）はGitHub Checksで警告したい</h1>
+<p>New RelicでGoのアプリケーションのSpanを取得するには、関数やメソッドごとにSegmentsを明示的に埋め込んでいく必要がある。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">SampleHandler</span>(w http.ResponseWriter, req <span style="color:#719e07">*</span>http.Request) {
+  <span style="color:#719e07">defer</span> newrelic.<span style="color:#268bd2">FromContext</span>(req.<span style="color:#268bd2">Context</span>()).<span style="color:#268bd2">StartSegment</span>(<span style="color:#2aa198">&#34;sample_handler&#34;</span>).<span style="color:#268bd2">End</span>()
+  fmt.<span style="color:#268bd2">Fprintf</span>(w, <span style="color:#2aa198">&#34;Hello, %q&#34;</span>, req.URL.Path)
+}
+</code></pre></div><ul>
+<li><a href="https://docs.newrelic.com/docs/agents/go-agent/instrumentation/instrument-go-segments">Instrument Go segments</a></li>
+</ul>
+<p>以前、既存コードの関数やメソッドに対してFunctions Segmentを埋め込む<code>nrseg</code>コマンドを作った。</p>
+<ul>
+<li><a href="/2021/01/17/release_nrseg/">GoのアプリにNew Relic APMを導入する時とても便利なCLIを作った</a></li>
+</ul>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/nrseg" data-iframely-url="//cdn.iframe.ly/HrUY585"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>しかし、普段開発しているサービスが完全にコードフリーズされていることは少ないだろう。<br>
+我々は常にコードを変更したり、追加している。そのため、ある時点で存在するコードに対してだけでなく、<strong>今後追加されていく関数やメソッドもSpanを計測しているか確認していく必要がある</strong>。<br>
+そのため、GitHub Acrionsとreviewdogを使って「PRで追加された関数がSegmentを埋め込んでいなかったらエラーを返す」Actionを作成した。</p>
+<p>このようなYAMLを<code>.github/workflow</code>ディレクトリ以下に配置しておくだけで利用ができる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">name</span>: nrseg
+<span style="color:#719e07">on</span>: [pull_request]
+<span style="color:#719e07">jobs</span>:
+  <span style="color:#719e07">linter_name</span>:
+    <span style="color:#719e07">name</span>: runner / nrseg inspect
+    <span style="color:#719e07">runs-on</span>: ubuntu-latest
+    <span style="color:#719e07">steps</span>:
+      - <span style="color:#719e07">uses</span>: actions/checkout@v2
+      - <span style="color:#719e07">uses</span>: budougumi0617/action-newrelic-segment-lint@v0
+        <span style="color:#719e07">with</span>:
+          <span style="color:#719e07">github_token</span>: ${{ secrets.github_token }}
+          <span style="color:#586e75"># 無視したいディレクトリと対象ディレクトリ</span>
+          <span style="color:#719e07">nrseg_flags</span>: <span style="color:#2aa198">&#34;-i testing ./src&#34;</span>
+          <span style="color:#719e07">reporter</span>: github-pr-review
+          <span style="color:#719e07">level</span>: warning
+</code></pre></div><p>実際の挙動はサンプルPRを見てもらったほうが早いだろう。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/action-newrelic-segment-lint-examples/pull/1" data-iframely-url="//cdn.iframe.ly/J6KT0YP"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>上記PRのコメントのように新しく追加されたコードの中でSegmentを呼んでいないコードに対して警告をコメントする。</p>
+<p><img src="/2021/02/07_pr_comment.png" alt="実際のコメント"></p>
+<p>これで新しく追加される関数にSegmentが正しく宣言されているかチェックできる体制が作れる。</p>
+<h1 id="作ったときのtips">作ったときのTips</h1>
+<p>機能説明は以上なので、以降は作ったときのメモなど。</p>
+<h2 id="reviewdogを使ったactionsの作り方">reviewdogを使ったActionsの作り方</h2>
+<p>PRで該当箇所にコメントするにはreviewdogを利用している。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/reviewdog/reviewdog" data-iframely-url="//cdn.iframe.ly/AlDOvej?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>reviewdogを使ったActionsはtemplateを使えばすぐ作れる。<br>
+バージョンアップをサポートするActionや、Action内で使うツールの更新を検知するActionなども一緒に定義されていてとても便利。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/reviewdog/action-template" data-iframely-url="//cdn.iframe.ly/ykzZKkE"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<h2 id="reviewdogに自作ツールの結果を読み込ませる">reviewdogに自作ツールの結果を読み込ませる</h2>
+<p>reviewdogが認識できる警告のフォーマットはREADMEの通り。</p>
+<ul>
+<li><a href="https://github.com/reviewdog/reviewdog#input-format">https://github.com/reviewdog/reviewdog#input-format</a></li>
+</ul>
+<p>今回はgolangci-lintと同じ出力形式でエラーを出力しているのでreviewdogがサポートしてくれる。<br>
+注意点としてはエラー出力ではなく標準出力で解析結果を出力すること。</p>
+<h2 id="actionsの動作確認をしたいとき">Actionsの動作確認をしたいとき</h2>
+<ul>
+<li><a href="https://docs.github.com/ja/actions/managing-workflow-runs/enabling-debug-logging">https://docs.github.com/ja/actions/managing-workflow-runs/enabling-debug-logging</a></li>
+</ul>
+<p>実際に別のリポジトリでActionsを動かしてみると思ったとおりに実行されなかったりすることがある。<br>
+そういうときは<code>ACTIONS_RUNNER_DEBUG</code>と<code>ACTIONS_STEP_DEBUG</code>というsecret定数をどちらも値を<code>true</code>で宣言する。
+そうするとActionsの実行ログにデバッグ出力も表示されるようになる。</p>
+<h2 id="githubにリリースされた圧縮ファイルを実行するワンライナー">GitHubにリリースされた圧縮ファイルを実行するワンライナー</h2>
+<p>Actions内で<a href="https://github.com/budougumi0617/nrseg/releases"><code>github.com/budougumi0617/nrseg</code>のリリースされているTarファイル</a>を解凍して実行ファイルを使いたいとする。<br>
+このような場合以下のような<code>cURL</code>コマンドを実行すると該当のTarファイルが取得できる。grepはUbuntuで実行可能なバイナリが入っている圧縮ファイル名前を確認すること。<br>
+Goのコマンドならバイナリさえリリースされていれば、特別なコンテナを用意せずにActionsが書ける。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#268bd2">TEMP_PATH</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#719e07">$(</span>mktemp -d<span style="color:#719e07">)</span><span style="color:#2aa198">&#34;</span>
+<span style="color:#268bd2">PATH</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">TEMP_PATH</span><span style="color:#2aa198">}</span><span style="color:#2aa198">:</span><span style="color:#268bd2">$PATH</span><span style="color:#2aa198">&#34;</span>
+
+curl -L <span style="color:#2aa198">&#34;</span><span style="color:#719e07">$(</span>curl -Ls https://api.github.com/repos/budougumi0617/nrseg/releases/latest | grep -o -E <span style="color:#2aa198">&#34;https://.+?_Linux_x86_64.tar.gz&#34;</span><span style="color:#719e07">)</span><span style="color:#2aa198">&#34;</span> -o nrseg.tar.gz
+tar -zxvf nrseg.tar.gz -C <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">TEMP_PATH</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> 
+rm nrseg.tar.gz
+</code></pre></div><h1 id="終わりに">終わりに</h1>
+<p>今回はじめてActionsを作ったが、reviewdogの周辺ツールがとてもリッチなのですぐ完了できた。<br>
+「静的解析ツールを作る -&gt; reviewdogでactionsにする」を速く開発できればどんどん自動コードレビューを手厚くできそう。</p>
+<p>実際の関数の判定ロジックなどはnrsegリポジトリに実装してあるのだが、だいぶ汚いコードになってしまったので直しておきたい。</p>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a href="https://github.com/budougumi0617/action-newrelic-segment-lint">https://github.com/budougumi0617/action-newrelic-segment-lint</a></li>
+<li><a href="https://github.com/marketplace/actions/action-newrelic-segment-lint">https://github.com/marketplace/actions/action-newrelic-segment-lint</a></li>
+<li><a href="/2021/01/17/release_nrseg/">GoのアプリにNew Relic APMを導入する時とても便利なCLIを作った</a></li>
+<li><a href="https://docs.newrelic.com/docs/agents/go-agent/instrumentation/instrument-go-segments">https://docs.newrelic.com/docs/agents/go-agent/instrumentation/instrument-go-segments</a></li>
+<li><a href="https://docs.github.com/ja/actions/managing-workflow-runs/enabling-debug-logging">https://docs.github.com/ja/actions/managing-workflow-runs/enabling-debug-logging</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2020/05/01/use-datastore-emulator-on-github-actions/">GitHub Actions上でGCP Datastoreエミュレータを使ったテストを実行する</a></li>
+  
+  <li><a href="/2019/11/03/use-cache-in-github-actions/">[Go] GitHub Actionsでキャッシュ機能を使う #github</a></li>
+  
+  <li><a href="/2019/10/18/launch-layer-for-the-layered-achitectures/">[Go] レイヤードアーキテクチャの階層構造を守らないimportを警告するlinterを作った</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Feb 7, 2021</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/newrelic">newrelic</a>  <a class="category" href="https://budougumi0617.github.io/tags/actions">actions</a>  <a class="category" href="https://budougumi0617.github.io/tags/github">github</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2021/01/31/pull_cl_from_gerrit/" title="[Go] まだレビュー中のgerrit上のコードパッチをローカルに取得する">[Go] まだレビュー中のgerrit上のコードパッチをローカルに取得する</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/gotips/" title="意外と知らないGoのTIPS" >意外と知らないGoのTIPS</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2021/02/07/release_action_newrelic_segment_lint/">[Go] 新規追加した関数にNew RelicのSegmentを入れ忘れていたら警告するGitHub Actionsを作った</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2021/01/31/pull_cl_from_gerrit/">[Go] まだレビュー中のgerrit上のコードパッチをローカルに取得する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/01/22/detect_autogenerated_file/">[Go] ファイルが自動生成コードか判別したい</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/01/17/release_nrseg/">GoのアプリにNew Relic APMを導入する時とても便利なCLIを作った</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
