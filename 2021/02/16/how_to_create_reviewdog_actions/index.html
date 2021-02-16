@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>reviewdogを使ったGitHub Actionsの作り方 - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="Go,reviewdog,GitHub,GitHub Actions">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2021/02/16/how_to_create_reviewdog_actions/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="reviewdogを使ったGitHub Actionsの作り方 - My External Storage"/>
+  <meta property="og:description" content="reviewdogを使ったGitHub Actionsを作る過程をメモしておく。
+
+[Go] 新規追加した関数にNew RelicのSegmentを入れ忘れていたら警告するGitHub Actionsを作った
+"/>
+  
+  <meta name="twitter:title" content="reviewdogを使ったGitHub Actionsの作り方 - My External Storage"/>
+  <meta name="twitter:description" content="reviewdogを使ったGitHub Actionsを作る過程をメモしておく。
+
+[Go] 新規追加した関数にNew RelicのSegmentを入れ忘れていたら警告するGitHub Actionsを作った
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Feb 16, 2021
+     - 5 minute read 
+     - <a href="https://budougumi0617.github.io/2021/02/16/how_to_create_reviewdog_actions/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a><a class="label" href="https://budougumi0617.github.io/categories/github/">github </a>
+    
+  </p>
+  <h1 class="entry-title">
+     reviewdogを使ったGitHub Actionsの作り方 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#自作linterreviewdogでgithub-actionsを作りたい">自作linter+reviewdogでGitHub Actionsを作りたい</a></li>
+    <li><a href="#事前準備-自作linterで実装しておくべきポイント">事前準備: 自作linterで実装しておくべきポイント</a>
+      <ul>
+        <li><a href="#バイナリファイルをダウンロードできるようにしておく">バイナリファイルをダウンロードできるようにしておく</a></li>
+        <li><a href="#標準出力へエラーフォーマットどおりに結果を出力する">標準出力へエラーフォーマットどおりに結果を出力する</a></li>
+      </ul>
+    </li>
+    <li><a href="#実際の作成手順">実際の作成手順</a>
+      <ul>
+        <li><a href="#templateを利用する">templateを利用する</a></li>
+        <li><a href="#スクリプトを書く">スクリプトを書く</a></li>
+      </ul>
+    </li>
+    <li><a href="#reviewdogでパースできるlint結果の作り方">reviewdogでパースできるlint結果の作り方</a>
+      <ul>
+        <li><a href="#golangorgxtoolsgoanalysis-pkgを利用する">golang.org/x/tools/go/analysis pkgを利用する</a></li>
+        <li><a href="#tokenpositionを使う">token.Positionを使う</a></li>
+      </ul>
+    </li>
+    <li><a href="#その他">その他</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>reviewdogを使ったGitHub Actionsを作る過程をメモしておく。</p>
+<ul>
+<li><a href="/2021/02/07/release_action_newrelic_segment_lint/">[Go] 新規追加した関数にNew RelicのSegmentを入れ忘れていたら警告するGitHub Actionsを作った</a></li>
+</ul>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>template repositoryを使うと簡単にreviewdogのGitHub Actionsが作れる
+<ul>
+<li><a href="https://github.com/reviewdog/action-template%22">https://github.com/reviewdog/action-template&quot;</a></li>
+</ul>
+</li>
+<li>Goの場合はDockerfileも不要なのでスクリプトを書くだけでActionsが作れる</li>
+<li>Goのlinterを使う場合は以下の2つのどちらかを使っていればreviewdog対応が簡単
+<ul>
+<li><a href="https://pkg.go.dev/golang.org/x/tools/go/analysis">https://pkg.go.dev/golang.org/x/tools/go/analysis</a></li>
+<li><a href="https://pkg.go.dev/go/token#Position">https://pkg.go.dev/go/token#Position</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="自作linterreviewdogでgithub-actionsを作りたい">自作linter+reviewdogでGitHub Actionsを作りたい</h1>
+<p>CIでlinterを実行し、問題があったときは非ゼロでExitするだけでもいいのだが、reviewdogを使えばPRにコメントを残したり、GitHub checksに対応することができる。<br>
+効率的なレビューを実施するためにlinterによるチェックをreviewdogを使ったGitHub Actionsにしておいたほうが良いだろう。</p>
+<p>先日、実際にreviewdogを使ったGitHub Actionsを作ったが、とても簡単にできたのでその作成方法をメモしておく。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/action-newrelic-segment-lint" data-iframely-url="//cdn.iframe.ly/aLlaE2N"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<h1 id="事前準備-自作linterで実装しておくべきポイント">事前準備: 自作linterで実装しておくべきポイント</h1>
+<p>まずいくつかのポイントを抑えて自作linterを作っておくとreviewdog対応がとても簡単になる。</p>
+<h2 id="バイナリファイルをダウンロードできるようにしておく">バイナリファイルをダウンロードできるようにしておく</h2>
+<p>GitHubリリースページにバイナリが配布されていると簡単にActions内から実行できる。<br>
+Goの場合はGo Releaserなどを利用してリリースしておく。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://goreleaser.com/" data-iframely-url="//cdn.iframe.ly/zkcbliz?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<h2 id="標準出力へエラーフォーマットどおりに結果を出力する">標準出力へエラーフォーマットどおりに結果を出力する</h2>
+<p>reviewdogは設定さえすれば任意の出力フォーマットのエラー結果出力をパースすることができる。</p>
+<ul>
+<li><a href="https://github.com/reviewdog/reviewdog#input-format">https://github.com/reviewdog/reviewdog#input-format</a></li>
+</ul>
+<p>いくつかのメジャーなlinterのエラー出力は事前定義されている。<br>
+Goの場合は、golintやgolangci-lintと同じフォーマットでエラーを出力するようにしておくとよい。
+golintのフォーマットは後述する方法で簡単に実装できる。</p>
+<p>もし別の事情でエラーフォーマットが変更できないときでも、プレイグラウンドでフォーマットを検証しながら設定を考えることができる。</p>
+<ul>
+<li><a href="https://reviewdog.github.io/errorformat-playground/">https://reviewdog.github.io/errorformat-playground/</a></li>
+</ul>
+<h1 id="実際の作成手順">実際の作成手順</h1>
+<p>お作法を守ったlinterを作っておけば、Actionsを作ること自体は簡単だ。</p>
+<h2 id="templateを利用する">templateを利用する</h2>
+<p>reviewdogのGitHub Actionsはtemplate repositoryが用意されているので、まずはこれを使ってrepositoryを初期化すればよい。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/reviewdog/action-template" data-iframely-url="//cdn.iframe.ly/ykzZKkE"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>Goの場合はDockerを作らずともシェルスクリプトだけでActionsの実装ができるので、reviewdog/action-golangci-lintのファイルを移植しても良いと思う。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/reviewdog/action-golangci-lint" data-iframely-url="//cdn.iframe.ly/se1bvdE"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<h2 id="スクリプトを書く">スクリプトを書く</h2>
+<p>linterを実行するだけならば、Actionsの中で実際に行なうことは次のステップだけだ。</p>
+<ul>
+<li>ツールをダウンロードする</li>
+<li>linterを実行してreviewdogにパースしてもらう</li>
+</ul>
+<p>GitHubでバイナリをリリースしているならば、次のようなスクリプトだけでActions内でlinterが実行できるようになる。</p>
+<ul>
+<li><a href="https://github.com/budougumi0617/action-newrelic-segment-lint/blob/master/script.sh">https://github.com/budougumi0617/action-newrelic-segment-lint/blob/master/script.sh</a></li>
+</ul>
+<pre><code class="language-baash" data-lang="baash">TEMP_PATH=&quot;$(mktemp -d)&quot;
+PATH=&quot;${TEMP_PATH}:$PATH&quot;
+
+curl -L &quot;$(curl -Ls https://api.github.com/repos/budougumi0617/nrseg/releases/latest | grep -o -E &quot;https://.+?_Linux_x86_64.tar.gz&quot;)&quot; -o nrseg.tar.gz
+tar -zxvf nrseg.tar.gz -C &quot;${TEMP_PATH}&quot;
+rm nrseg.tar.gz
+</code></pre><p>あとはGitHubトークンを設定してreviewdogと一緒に実行すればよい。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">nrseg inspect <span style="color:#2aa198">${</span><span style="color:#268bd2">INPUT_NRSEG_FLAGS</span><span style="color:#2aa198">}</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  | reviewdog -f<span style="color:#719e07">=</span>golint <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>      -name<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">INPUT_TOOL_NAME</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>      -reporter<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">INPUT_REPORTER</span><span style="color:#719e07">:-</span><span style="color:#268bd2">github</span>-pr-check<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>      -filter-mode<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">INPUT_FILTER_MODE</span><span style="color:#719e07">:-</span><span style="color:#268bd2">added</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>      -fail-on-error<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">INPUT_FAIL_ON_ERROR</span><span style="color:#719e07">:-</span><span style="color:#268bd2">false</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>      -level<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">INPUT_LEVEL</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>      <span style="color:#2aa198">${</span><span style="color:#268bd2">INPUT_REVIEWDOG_FLAGS</span><span style="color:#2aa198">}</span>
+</code></pre></div><p>これと設定ファイルであるaction.ymlを清書すれば終わりだ。</p>
+<ul>
+<li><a href="https://github.com/budougumi0617/action-newrelic-segment-lint/blob/master/action.yml">https://github.com/budougumi0617/action-newrelic-segment-lint/blob/master/action.yml</a></li>
+</ul>
+<p>ここまでやっておくと、GitHubが自動的にリポジトリをGitHub Actions用のリポジトリであることを認識してくれる。<br>
+あとはリリースを行うと、リリースページ編集時に自動的に「Publish this Action to the GitHub Marketplace」などの操作が追加で行える。</p>
+<ul>
+<li><a href="https://docs.github.com/ja/actions/creating-actions/publishing-actions-in-github-marketplace">GitHub Marketplaceでのアクションの公開</a></li>
+</ul>
+<h1 id="reviewdogでパースできるlint結果の作り方">reviewdogでパースできるlint結果の作り方</h1>
+<p>reviewdogでPRに含まれるコードの特定行にコメントを残すにはlintエラーに位置情報を付与して出力する必要がある。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># main.goの24行目にlint errorを発見したとき出力</span>
+main.go:24:1: Server.Shutdown no insert segment
+</code></pre></div><p>Goの場合、reviewdogが<code>-f=golint</code>オプションでパースできる情報を簡単に作ることができる。</p>
+<h2 id="golangorgxtoolsgoanalysis-pkgを利用する">golang.org/x/tools/go/analysis pkgを利用する</h2>
+<p>golang.org/x/tools/go/analysis pkgを利用して作成されたlinterはgolintなどと同じフォーマットでエラーを出力する。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/golang/tools" data-iframely-url="//cdn.iframe.ly/T71XGV2"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>以前作った自作ツールの結果を例にすると、とくに意識せずともファイル名と該当エラー行の行情報などが出力される。</p>
+<ul>
+<li><a href="/2019/02/01/how-to-use-analisys-package/">golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">go vet -vettool<span style="color:#719e07">=</span><span style="color:#719e07">$(</span>which regexponce<span style="color:#719e07">)</span> ./testdata/src/a
+<span style="color:#586e75"># github.com/budougumi0617/regexponce/testdata/src/a</span>
+testdata/src/a/a.go:16:30: regexp.Compile must be called only once at initialize
+testdata/src/a/a.go:21:34: regexp.MustCompile must be called only once at initialize
+testdata/src/a/a.go:27:6: regexp.MustCompile must be called only once at initialize
+testdata/src/a/a.go:31:34: regexp.MustCompile must be called only once at initialize
+testdata/src/a/a.go:36:31: regexp.MustCompile must be called only once at initialize
+testdata/src/a/a.go:38:32: regexp.MustCompile must be called only once at initialize
+testdata/src/a/a.go:43:31: regexp.MustCompile must be called only once at initialize
+testdata/src/a/a.go:45:32: regexp.MustCompile must be called only once at initialize
+</code></pre></div><h2 id="tokenpositionを使う">token.Positionを使う</h2>
+<ul>
+<li><a href="https://pkg.go.dev/go/token#Position">https://pkg.go.dev/go/token#Position</a></li>
+</ul>
+<p>golang.org/x/tools/go/analysis pkgを利用していなくても、 <code>*token.FileSet</code> と <code>token.Pos</code> オブジェクトがあれば同様の出力を簡単に取得することができる。<br>
+静的解析をしていれば上記の情報は簡単にとれるのでこれを組み合わせると必要情報を所定フォーマットで出力できる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">p <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">File</span>(pos).<span style="color:#268bd2">Position</span>(pos)
+fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s:%d:%d: lint error message\n&#34;</span>, p.Filename, p.Line, p.Column)
+</code></pre></div><h1 id="その他">その他</h1>
+<ul>
+<li><a href="https://github.com/reviewdog/action-template/tree/master/.github/workflows">https://github.com/reviewdog/action-template/tree/master/.github/workflows</a></li>
+</ul>
+<p>templateに入っているGitHub ActionsはGitHub Actions自体のメンテに便利なCI定義ばかりなのでぜひ使っておいたほうが良い。</p>
+<ul>
+<li>ラベルをつけてPRをマージすると自動で所定のセマンティックバージョンをインクリメントしたリリースをつくるrelease.yml</li>
+<li>依存ツールがバージョンアップされたことを検知し、GitHub Actions内のバージョン設定の更新PRを作成するdepup.yml</li>
+</ul>
+<p>などが同梱されている。</p>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a href="https://github.com/reviewdog/action-template">https://github.com/reviewdog/action-template</a></li>
+<li><a href="https://github.com/reviewdog/action-golangci-lint">https://github.com/reviewdog/action-golangci-lint</a></li>
+<li><a href="https://reviewdog.github.io/errorformat-playground/">https://reviewdog.github.io/errorformat-playground/</a></li>
+<li><a href="https://docs.github.com/ja/actions/creating-actions/publishing-actions-in-github-marketplace">GitHub Marketplaceでのアクションの公開</a></li>
+<li><a href="https://pkg.go.dev/golang.org/x/tools/go/analysis">https://pkg.go.dev/golang.org/x/tools/go/analysis</a></li>
+<li><a href="https://pkg.go.dev/go/token#Position">https://pkg.go.dev/go/token#Position</a></li>
+<li><a href="/2019/02/01/how-to-use-analisys-package/">golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang</a></li>
+<li><a href="/2021/02/07/release_action_newrelic_segment_lint/">[Go] 新規追加した関数にNew RelicのSegmentを入れ忘れていたら警告するGitHub Actionsを作った</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2020/05/01/use-datastore-emulator-on-github-actions/">GitHub Actions上でGCP Datastoreエミュレータを使ったテストを実行する</a></li>
+  
+  <li><a href="/2019/11/03/use-cache-in-github-actions/">[Go] GitHub Actionsでキャッシュ機能を使う #github</a></li>
+  
+  <li><a href="/2021/02/07/release_action_newrelic_segment_lint/">[Go] 新規追加した関数にNew RelicのSegmentを入れ忘れていたら警告するGitHub Actionsを作った</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Feb 16, 2021</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/reviewdog">reviewdog</a>  <a class="category" href="https://budougumi0617.github.io/tags/github">github</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2021/02/07/release_action_newrelic_segment_lint/" title="[Go] 新規追加した関数にNew RelicのSegmentを入れ忘れていたら警告するGitHub Actionsを作った">[Go] 新規追加した関数にNew RelicのSegmentを入れ忘れていたら警告するGitHub Actionsを作った</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/gotips/" title="意外と知らないGoのTIPS" >意外と知らないGoのTIPS</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2021/02/16/how_to_create_reviewdog_actions/">reviewdogを使ったGitHub Actionsの作り方</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/02/07/release_action_newrelic_segment_lint/">[Go] 新規追加した関数にNew RelicのSegmentを入れ忘れていたら警告するGitHub Actionsを作った</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/01/31/pull_cl_from_gerrit/">[Go] まだレビュー中のgerrit上のコードパッチをローカルに取得する</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/01/22/detect_autogenerated_file/">[Go] ファイルが自動生成コードか判別したい</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
