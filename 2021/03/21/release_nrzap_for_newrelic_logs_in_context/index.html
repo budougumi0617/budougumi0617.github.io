@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go] go.uber.org/zapでNew Relic logs in contextをするためのライブラリを書き始めた - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="New Relic,Go,logs in context,o11y">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/newrelic.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/newrelic.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2021/03/21/release_nrzap_for_newrelic_logs_in_context/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go] go.uber.org/zapでNew Relic logs in contextをするためのライブラリを書き始めた - My External Storage"/>
+  <meta property="og:description" content="uber-go/zapを使いつつNew Relic Logs in contextを利用するためのライブラリを作り始めた。
+"/>
+  
+  <meta name="twitter:title" content="[Go] go.uber.org/zapでNew Relic logs in contextをするためのライブラリを書き始めた - My External Storage"/>
+  <meta name="twitter:description" content="uber-go/zapを使いつつNew Relic Logs in contextを利用するためのライブラリを作り始めた。
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Mar 21, 2021
+     - 3 minute read 
+     - <a href="https://budougumi0617.github.io/2021/03/21/release_nrzap_for_newrelic_logs_in_context/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a><a class="label" href="https://budougumi0617.github.io/categories/newrelic/">newrelic </a>
+    
+  </p>
+  <h1 class="entry-title">
+     [Go] go.uber.org/zapでNew Relic logs in contextをするためのライブラリを書き始めた 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#new-relic-logs-in-context">New Relic logs in context</a></li>
+    <li><a href="#logs-in-contextを実現するために必要なこと">logs in contextを実現するために必要なこと</a></li>
+    <li><a href="#nrzap">nrzap</a>
+      <ul>
+        <li><a href="#gtnrmetadatafields">GtNrMetadataFields</a></li>
+      </ul>
+    </li>
+    <li><a href="#注意">注意</a></li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p><code>uber-go/zap</code>を使いつつNew Relic Logs in contextを利用するためのライブラリを作り始めた。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/nrzap" data-iframely-url="//cdn.iframe.ly/2Ijbpvo"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<h1 id="new-relic-logs-in-context">New Relic logs in context</h1>
+<ul>
+<li><a href="https://docs.newrelic.com/docs/logs/enable-log-management-new-relic/logs-context-go/configure-logs-context-go/">Configure logs in context for Go</a></li>
+</ul>
+<p>New Relic Oneを使っていると分散トレーシングを取得することができる。<br>
+そしてNew Relic Oneはログも取得することができるためログに適切な情報を含んでいれば分散トレースとログを紐付けて確認することができる。</p>
+<p>GoでNew Relic Oneを利用する場合は <code>newrelic/go-agent/v3</code> を使ってもろもろを仕込む。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/newrelic/go-agent" data-iframely-url="//cdn.iframe.ly/MG601Cq"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p><code>newrelic/go-agent/v3</code> に含まれているlogs in context用の実装は <code>logrus</code> logger向けの実装しかなく、私が普段使っている <code>zap</code> logger向けの実装が存在しなかった。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/uber-go/zap" data-iframely-url="//cdn.iframe.ly/n67ZiPe"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>そこで、せっかくなので自作してみようと考えた。</p>
+<h1 id="logs-in-contextを実現するために必要なこと">logs in contextを実現するために必要なこと</h1>
+<ul>
+<li><a href="https://github.com/newrelic/go-agent/tree/master/v3/integrations/logcontext">https://github.com/newrelic/go-agent/tree/master/v3/integrations/logcontext</a></li>
+</ul>
+<p>New Relicである分散トレースにログを結びつけるにはどうしたらいいか？<br>
+既存のプラグインのコードを確認したところ、ログのJSONのルートへ<code>logscontext</code> pkgに定義されるキーワードを使って分散トレースIDなどを埋め込めば良さそうだった。<br>
+Webアプリケーションを実装している場合、これらの情報は<code>context.Context</code>の中から<code>newrelic.LinkingMetadata</code>を取り出せば取得できる。<br>
+<code>zap</code>logger自体は<code>context.Context</code>を扱うようなインターフェイスではないため、まずは<code>context.Context</code>から<code>[]zap.FIeld</code>として情報を取り出すヘルパー関数だけ作ることにした。</p>
+<h1 id="nrzap">nrzap</h1>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/nrzap" data-iframely-url="//cdn.iframe.ly/2Ijbpvo"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>nrzapは<code>zap</code>でNew Relic Logs in contextをよしなにするための実装ライブラリ（の予定）だ。</p>
+<h2 id="gtnrmetadatafields">GtNrMetadataFields</h2>
+<p>2021/03/21現在nrzapは1つの機能しか提供していない。<br>
+<code>GtNrMetadataFields</code> 関数は分散トレースIDなどの情報を<code>zap</code>loggerの<code>Info</code>メソッドや<code>Error</code>メソッドの引数に渡す<code>[]zap.Field</code>として生成する。<br>
+単純な利用方法だとこのようになる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">ExampleHandler</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
+	logger, _ <span style="color:#719e07">:=</span> zap.<span style="color:#268bd2">NewProduction</span>()
+    <span style="color:#719e07">defer</span> logger.<span style="color:#268bd2">Sync</span>()
+    <span style="color:#586e75">// nrgorillaなどでcontextから*newrelic.Transactionが取れる前提
+</span><span style="color:#586e75"></span>    nrfs <span style="color:#719e07">:=</span> nrzap.<span style="color:#268bd2">GetNrMetadataFields</span>(r.<span style="color:#268bd2">Context</span>())
+    logger.<span style="color:#268bd2">Info</span>(<span style="color:#2aa198">&#34;failed to fetch URL&#34;</span>,
+        <span style="color:#586e75">// Structured context as strongly typed Field values.
+</span><span style="color:#586e75"></span>        zap.<span style="color:#268bd2">String</span>(<span style="color:#2aa198">&#34;url&#34;</span>, url),
+        zap.<span style="color:#268bd2">Int</span>(<span style="color:#2aa198">&#34;attempt&#34;</span>, <span style="color:#2aa198">3</span>),
+        zap.<span style="color:#268bd2">Duration</span>(<span style="color:#2aa198">&#34;backoff&#34;</span>, time.Second),
+        nrfs<span style="color:#719e07">...</span>,
+    )
+}
+</code></pre></div><p>このようにロギングメソッドを呼ぶと、New Relicが識別するためのログトレースIDなどがログの中へ含まれるようになる。</p>
+<h1 id="注意">注意</h1>
+<p>なお、今回作成した関数はあくまでログのJSONに情報を埋め込むだけなので、実際に利用するには次の前提条件がある。</p>
+<ul>
+<li>すでに分散トレースをNew Relic One上で計測する仕組みが存在する</li>
+<li>別途アプリケーションのログをNew Relicに送信している</li>
+</ul>
+<p>この条件を満たしている状態でライブラリを使ってログを加工すればlogs in contextが実現する。</p>
+<h1 id="終わりに">終わりに</h1>
+<p>実はlogs in contextはまだあまり使いこなせていないので、もうすこし使い込んだら他の実装も増えるかもしれない。</p>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a href="https://github.com/budougumi0617/nrzap">https://github.com/budougumi0617/nrzap</a></li>
+<li><a href="https://github.com/uber-go/zap">https://github.com/uber-go/zap</a></li>
+<li><a href="https://github.com/newrelic/go-agent/tree/master/v3/integrations/logcontext">https://github.com/newrelic/go-agent/tree/master/v3/integrations/logcontext</a></li>
+<li><a href="https://docs.newrelic.com/docs/logs/enable-log-management-new-relic/logs-context-go/configure-logs-context-go/">Configure logs in context for Go</a></li>
+<li><a href="https://docs.newrelic.com/docs/logs/enable-log-management-new-relic/enable-log-monitoring-new-relic/aws-firelens-plugin-log-forwarding/">AWS FireLens plugin for log forwarding</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2021/01/17/release_nrseg/">GoのアプリにNew Relic APMを導入する時とても便利なCLIを作った</a></li>
+  
+  <li><a href="/2021/02/07/release_action_newrelic_segment_lint/">[Go] 新規追加した関数にNew RelicのSegmentを入れ忘れていたら警告するGitHub Actionsを作った</a></li>
+  
+  <li><a href="/2021/02/22/update_capacity/">Go1.16で追加されたio#ReadAll関数から読むストリーミング中のバッファ拡張の仕方</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Mar 21, 2021</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/newrelic">newrelic</a>  <a class="category" href="https://budougumi0617.github.io/tags/o11y">o11y</a>  <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2021/03/08/read_kindle_by_alexa/" title="Amazon AlexaアプリでKindleを読み上げて積ん読を消化する（ながら読書をする）">Amazon AlexaアプリでKindleを読み上げて積ん読を消化する（ながら読書をする）</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/gotips/" title="意外と知らないGoのTIPS" >意外と知らないGoのTIPS</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2021/03/21/release_nrzap_for_newrelic_logs_in_context/">[Go] go.uber.org/zapでNew Relic logs in contextをするためのライブラリを書き始めた</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2021/03/08/read_kindle_by_alexa/">Amazon AlexaアプリでKindleを読み上げて積ん読を消化する（ながら読書をする）</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/02/22/update_capacity/">Go1.16で追加されたio#ReadAll関数から読むストリーミング中のバッファ拡張の仕方</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/02/16/how_to_create_reviewdog_actions/">reviewdogを使ったGitHub Actionsの作り方</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
