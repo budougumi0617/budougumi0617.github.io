@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go] stringの比較でヌルポのpanicが発生する（こともある） #横浜Go読書会 - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="Go">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2021/03/31/go-string-null-pointer-panic/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go] stringの比較でヌルポのpanicが発生する（こともある） #横浜Go読書会 - My External Storage"/>
+  <meta property="og:description" content="誤った並行処理の実装をしていると、stringの比較でもヌルポのセグフォが発生する。
+正しく実装していればお目にかかることはないが、とても学びになったのでメモしておく。"/>
+  
+  <meta name="twitter:title" content="[Go] stringの比較でヌルポのpanicが発生する（こともある） #横浜Go読書会 - My External Storage"/>
+  <meta name="twitter:description" content="誤った並行処理の実装をしていると、stringの比較でもヌルポのセグフォが発生する。
+正しく実装していればお目にかかることはないが、とても学びになったのでメモしておく。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Mar 31, 2021
+     - 5 minute read 
+     - <a href="https://budougumi0617.github.io/2021/03/31/go-string-null-pointer-panic/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://budougumi0617.github.io/2021/03/31/go-string-null-pointer-panic/">[Go] stringの比較でヌルポのpanicが発生する（こともある） #横浜Go読書会</a>
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#stringなのにnil-pointer-dereference">stringなのにnil pointer dereference</a></li>
+    <li><a href="#メモリモデルと並行処理">メモリモデルと並行処理</a></li>
+    <li><a href="#runtime上での実体確認">runtime上での実体確認</a></li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>誤った並行処理の実装をしていると、<code>string</code>の比較でもヌルポのセグフォが発生する。<br>
+正しく実装していればお目にかかることはないが、とても学びになったのでメモしておく。</p>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>Goの<code>string</code>はプリミティブな型でポインタ参照はしていない（ように操作できる）</li>
+<li>が、誤った並行処理を行っていると、ヌルポのpanicが発生する
+<ul>
+<li><code>panic: runtime error: invalid memory address or nil pointer dereference</code></li>
+</ul>
+</li>
+<li>runtime上で<code>string</code>は<code>stringStruct</code>型で長さと具体的な値へのポインタを持つ
+<ul>
+<li><a href="https://github.com/golang/go/blob/go1.16.2/src/runtime/string.go#L228-L231">https://github.com/golang/go/blob/go1.16.2/src/runtime/string.go#L228-L231</a></li>
+</ul>
+</li>
+<li>並行処理の実装が誤っていると、長さを有した状態でヌルポインタなオンメモリデータが生成される
+<ul>
+<li>CPUのレジスタあるいはキャッシュの状態がメモリに半端な状態で反映されるため</li>
+</ul>
+</li>
+</ul>
+<p>サンプルコードは以下。</p>
+<p><a href="https://play.golang.org/p/lD5-kBCwET4">https://play.golang.org/p/lD5-kBCwET4</a></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+        <span style="color:#268bd2">hello</span>()
+}
+
+<span style="color:#268bd2">var</span> a <span style="color:#dc322f">string</span>
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">hello</span>() {
+        <span style="color:#719e07">go</span> <span style="color:#268bd2">func</span>() { a = <span style="color:#2aa198">&#34;hello&#34;</span> }()
+        <span style="color:#719e07">for</span> a <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;hello&#34;</span> {
+        }
+        <span style="color:#b58900">print</span>(a)
+}
+</code></pre></div><p>play ground上でも何回か実行すると実際に文字列<code>a</code>変数を<code>a != &quot;hello&quot;</code>と比較しているところで以下のような結果が得られる。</p>
+<pre><code>panic: runtime error: invalid memory address or nil pointer dereference
+[signal SIGSEGV: segmentation violation code=0x1 addr=0x0 pc=0x45eb46]
+
+goroutine 1 [running]:
+main.hello()
+	/tmp/sandbox884085650/prog.go:11 +0x46
+main.main()
+	/tmp/sandbox884085650/prog.go:4 +0x25
+</code></pre><h1 id="stringなのにnil-pointer-dereference">stringなのにnil pointer dereference</h1>
+<p>横浜Go読書会でGoのメモリモデルの勉強をしていた。</p>
+<ul>
+<li>The Go Memory Model
+<ul>
+<li><a href="https://golang.org/ref/mem">https://golang.org/ref/mem</a></li>
+</ul>
+</li>
+</ul>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://yokohama-go-reading.connpass.com/event/206437/" data-iframely-url="//cdn.iframe.ly/XYG9EVf"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>発端は忘れたが、誤った並行処理のサンプルコードを書いていたら文字列の比較でヌルポが発生してしまった。<br>
+サンプルコードはTL;DRに書いた先の通り。</p>
+<h1 id="メモリモデルと並行処理">メモリモデルと並行処理</h1>
+<p>資料を読む中で柴田（<a href="https://twitter.com/yoshiki_shibata">@yoshiki_shibata</a>)さんから以下の補足があった。</p>
+<blockquote>
+<p>f()を実行するゴルーチンとg()を実行するゴルーチンが、別々のOSスレッド上で実行された場合、コンパイラによる実行命令の入れ替え、あるいはout-of-order CPUのreorder bufferの影響でg()関数内で a をメ モリから読み出したときに、f()関数内でのa = 1の書き込みはメモリに反映されていない可能性があります。</p>
+</blockquote>
+<p>また、メモリモデル本文にも次のような一節がある。</p>
+<blockquote>
+<p>If the channel were buffered (e.g., c = make(chan int, 1)) then the program would not be guaranteed to print &ldquo;hello, world&rdquo;. (It might print the empty string, crash, or do something else.)</p>
+</blockquote>
+<p>（チャネル操作を間違えると文字列の値が不定になったりクラッシュする）</p>
+<p>ざっくりいうと、CPUのコアはコアごとにキャッシュやレジスタを持っている。キャッシュやレジスタは個別のコアのみアクセス可能である。<br>
+なので、マルチコアCPUの場合、その下の層のメモリにまでコアの処理結果が反映されてないと他のコアの変更結果が見えない。</p>
+<ul>
+<li><a href="https://nipponkaigi.net/wiki/Re-order_buffer">https://nipponkaigi.net/wiki/Re-order_buffer</a></li>
+<li><a href="https://nipponkaigi.net/wiki/Out-of-order_execution">https://nipponkaigi.net/wiki/Out-of-order_execution</a></li>
+</ul>
+<p>ここで、CPUは必ずしも処理の順でメモリに結果を反映するわけではない。<br>
+また、他のゴルーチンがアクセスする際に、メモリへの反映が正しく完了している保証もない<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>。<br>
+では、それが<code>string</code>の参照でヌルポが発生するのとどんな関係があるのだろうか？</p>
+<h1 id="runtime上での実体確認">runtime上での実体確認</h1>
+<p>まず、runtime上の<code>string</code>型は<code>stringStruct</code>という長さと参照ポインタをもった構造体として処理される。</p>
+<ul>
+<li><a href="https://github.com/golang/go/blob/go1.16.2/src/runtime/string.go#L228-L231">https://github.com/golang/go/blob/go1.16.2/src/runtime/string.go#L228-L231</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> stringStruct <span style="color:#268bd2">struct</span> {
+	str unsafe.Pointer
+	len <span style="color:#dc322f">int</span>
+}
+</code></pre></div><p>この構造体の動きは<code>reflect#StringHeader</code>で確認することができる。</p>
+<ul>
+<li><a href="https://golang.org/pkg/reflect/#StringHeader">https://golang.org/pkg/reflect/#StringHeader</a></li>
+</ul>
+<p>先述のコードに<code>reflect#StringHeader</code>を使って<code>stringStruct</code>の状態を出力しつづけるようにしたのが次のコードだ。</p>
+<p><a href="https://play.golang.org/p/1oCesyqPjh-">https://play.golang.org/p/1oCesyqPjh-</a></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+	<span style="color:#2aa198">&#34;fmt&#34;</span>
+	<span style="color:#2aa198">&#34;reflect&#34;</span>
+	<span style="color:#2aa198">&#34;unsafe&#34;</span>
+)
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+	<span style="color:#268bd2">hello</span>()
+}
+
+<span style="color:#268bd2">var</span> a <span style="color:#dc322f">string</span>
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">hello</span>() {
+	sh <span style="color:#719e07">:=</span> (<span style="color:#719e07">*</span>reflect.StringHeader)(unsafe.<span style="color:#268bd2">Pointer</span>(<span style="color:#719e07">&amp;</span>a))
+	<span style="color:#719e07">go</span> <span style="color:#268bd2">func</span>() {
+		<span style="color:#719e07">for</span> ;a <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;hello?&#34;</span> ;{
+			fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%#v\n&#34;</span>, sh)
+		}
+	}()
+	<span style="color:#719e07">go</span> <span style="color:#268bd2">func</span>() { a = <span style="color:#2aa198">&#34;hello&#34;</span> }()
+	<span style="color:#719e07">for</span> a <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;hello&#34;</span> {
+	}
+	<span style="color:#b58900">print</span>(a)
+}
+</code></pre></div><p>このコードは何も排他制御をしていないため、<code>hello</code>関数内のゴルーチンが<code>a = &quot;hello&quot;</code>と<code>stringStruct</code>を操作している。
+そして、その結果が正しくメモリへ反映されるかされていないかにかかわらず <code>a != &quot;hello&quot;</code> といった参照を行う。その結果<code>stringStruct.len</code>の長さが<code>!0</code>なのに<code>stringStruct.str</code>が<code>nil</code>の状態が発生していると考えられる。</p>
+<p>出力としては <code>&amp;reflect.StringHeader{Data:0x4bcccf, Len:5}</code> というデータも取れているが、
+実際はメモリ上で<code>Len != 0</code>の状態でも<code>Data</code>フィールドは<code>nil</code>の状態になってしまったのだと思われる。</p>
+<pre><code>&amp;reflect.StringHeader{Data:0x0, Len:0}
+&amp;reflect.StringHeader{Data:0x0, Len:0}
+&amp;reflect.StringHeader{Data:0x0, Len:0}
+&amp;reflect.StringHeader{Data:0x4bcccf, Len:5}
+panic: runtime error: invalid memory address or nil pointer dereference
+[signal SIGSEGV: segmentation violation code=0x1 addr=0x0 pc=0x498ece]
+
+goroutine 1 [running]:
+main.hello()
+	/tmp/sandbox091726292/prog.go:23 +0x6e
+main.main()
+	/tmp/sandbox091726292/prog.go:10 +0x25
+</code></pre><h1 id="終わりに">終わりに</h1>
+<p>以前はHPCや組み込み系のプログラムを書いていたので、久しぶりにCPUなどを意識した気がする。<br>
+普段Webサービスを作る上でCPU上のデータの挙動やメモリモデルまで気にしないが、いつかなにかのデバッグとかで役に立つかなと思う<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>。</p>
+<p>また、今回のようなサンプルコードを動かしてみてやっと一見当たり前のことしか書いていない事前発生（<em>happens before</em>）の意味がわかってきた気がする。</p>
+<blockquote>
+<p>To specify the requirements of reads and writes, we define happens before, a partial order on the execution of memory operations in a Go program. If event e1 happens before event e2, then we say that e2 happens after e1. Also, if e1 does not happen before e2 and does not happen after e2, then we say that e1 and e2 happen concurrently.</p>
+</blockquote>
+<p>詳細は忘れたとしても次の理解だけでもしておくほうがよさそうだ。</p>
+<ul>
+<li>並行処理を書くときは正しく排他制御をしておくこと</li>
+<li>文字列型の処理行でセグフォが出たら並行処理の排他制御を疑うこと</li>
+</ul>
+<p>余談だが、メモリモデルの文書の冒頭にも「この文書の理解が必要になる&quot;賢い&quot;プログラミングするな」と注意書きがある（とはいえ書かなくても理解しているのが望ましいだろう）。</p>
+<blockquote>
+<p>If you must read the rest of this document to understand the behavior of your program, you are being too clever.
+Don&rsquo;t be clever.</p>
+</blockquote>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a href="https://yokohama-go-reading.connpass.com/event/206437/">https://yokohama-go-reading.connpass.com/event/206437/</a></li>
+<li><a href="https://golang.org/ref/mem">https://golang.org/ref/mem</a></li>
+<li><a href="https://nipponkaigi.net/wiki/Re-order_buffer">https://nipponkaigi.net/wiki/Re-order_buffer</a></li>
+<li><a href="https://nipponkaigi.net/wiki/Out-of-order_execution">https://nipponkaigi.net/wiki/Out-of-order_execution</a></li>
+</ul>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>RDBでトランザクションを貼る状況をイメージすればよい <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2" role="doc-endnote">
+<p>こんなところまで見ないといけないバグには遭遇したくないが <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2021/02/22/update_capacity/">Go1.16で追加されたio#ReadAll関数から読むストリーミング中のバッファ拡張の仕方</a></li>
+  
+  <li><a href="/2021/01/31/pull_cl_from_gerrit/">[Go] まだレビュー中のgerrit上のコードパッチをローカルに取得する</a></li>
+  
+  <li><a href="/2020/12/04/goroutine_tuning_with_benchmark_benchstat_trace/">[Go] benchstat/go tool traceコマンドをつかったベンチマークの可視化</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Mar 31, 2021</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/gotips">gotips</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2021/03/21/release_nrzap_for_newrelic_logs_in_context/" title="[Go] go.uber.org/zapでNew Relic logs in contextをするためのライブラリを書き始めた">[Go] go.uber.org/zapでNew Relic logs in contextをするためのライブラリを書き始めた</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/gotips/" title="意外と知らないGoのTIPS" >意外と知らないGoのTIPS</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2021/03/31/go-string-null-pointer-panic/">[Go] stringの比較でヌルポのpanicが発生する（こともある） #横浜Go読書会</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2021/03/21/release_nrzap_for_newrelic_logs_in_context/">[Go] go.uber.org/zapでNew Relic logs in contextをするためのライブラリを書き始めた</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/03/08/read_kindle_by_alexa/">Amazon AlexaアプリでKindleを読み上げて積ん読を消化する（ながら読書をする）</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/02/22/update_capacity/">Go1.16で追加されたio#ReadAll関数から読むストリーミング中のバッファ拡張の仕方</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
