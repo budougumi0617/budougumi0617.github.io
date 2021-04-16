@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go]環境変数を使ったテストを書く - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="test,env,Go,golang">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2021/04/16/setenv_on_test/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go]環境変数を使ったテストを書く - My External Storage"/>
+  <meta property="og:description" content="Goで環境変数を使ってテストを行なうときに便利な関数を紹介する。"/>
+  
+  <meta name="twitter:title" content="[Go]環境変数を使ったテストを書く - My External Storage"/>
+  <meta name="twitter:description" content="Goで環境変数を使ってテストを行なうときに便利な関数を紹介する。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Apr 16, 2021
+     - 3 minute read 
+     - <a href="https://budougumi0617.github.io/2021/04/16/setenv_on_test/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+    
+  </p>
+  <h1 class="entry-title">
+     [Go]環境変数を使ったテストを書く 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#テストケースの中で環境変数を利用したい">テストケースの中で環境変数を利用したい</a></li>
+    <li><a href="#osgetenvとoslookupenv"><code>os.Getenv</code>と<code>os.LookupEnv</code></a></li>
+    <li><a href="#テストコードで環境変数を使いこなすスニペット">テストコードで環境変数を使いこなすスニペット</a></li>
+    <li><a href="#go117以降は標準パッケージにtsetenv関数が追加される">Go1.17以降は標準パッケージに<code>T.Setenv</code>関数が追加される。</a></li>
+    <li><a href="#終わりに">終わりに</a></li>
+  </ul>
+</nav>
+          
+          <p>Goで環境変数を使ってテストを行なうときに便利な関数を紹介する。</p>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>テストケースで特定の環境変数を使いたい</li>
+<li>テストケース終了後は元の環境変数の状態に戻しておきたい</li>
+<li><code>os.LookupEnv</code> と <code>os.Setenv</code> を駆使する
+<ul>
+<li><a href="https://golang.org/pkg/os/#LookupEnv">https://golang.org/pkg/os/#LookupEnv</a></li>
+<li><a href="https://golang.org/pkg/os/#Setenv">https://golang.org/pkg/os/#Setenv</a></li>
+</ul>
+</li>
+<li>Go1.17からは<code>T.Setenv</code>が入るので、それを使えばよい
+<ul>
+<li><a href="https://github.com/golang/go/issues/41260">https://github.com/golang/go/issues/41260</a></li>
+<li><a href="https://github.com/golang/go/blob/ab02cbd29f9b9c76d8f7af0d625ac56fcf8d4e75/src/testing/testing.go#L967-L988">https://github.com/golang/go/blob/ab02cbd29f9b9c76d8f7af0d625ac56fcf8d4e75/src/testing/testing.go#L967-L988</a></li>
+</ul>
+</li>
+</ul>
+<p>現時点のサンプルコードは以下の通り。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// 環境変数名をキー、環境変数値をバリューとするマップ
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">setup</span>(t <span style="color:#719e07">*</span>testing.T, envs <span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]<span style="color:#dc322f">string</span>) {
+  <span style="color:#719e07">for</span> k, v <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> envs {
+    prev, ok <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">LookupEnv</span>(k)
+    <span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Setenv</span>(k, v); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+      t.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;cannot set environment key: %q&#34;</span>, k)
+    }
+    k <span style="color:#719e07">:=</span> k <span style="color:#586e75">// 束縛しておく
+</span><span style="color:#586e75"></span>    <span style="color:#719e07">if</span> ok {
+      t.<span style="color:#268bd2">Cleanup</span>(<span style="color:#268bd2">func</span>() { _ = os.<span style="color:#268bd2">Setenv</span>(k, prev) })
+    } <span style="color:#719e07">else</span> {
+      t.<span style="color:#268bd2">Cleanup</span>(<span style="color:#268bd2">func</span>() { _ = os.<span style="color:#268bd2">Unsetenv</span>(k) })
+    }
+  }
+}
+</code></pre></div><h1 id="テストケースの中で環境変数を利用したい">テストケースの中で環境変数を利用したい</h1>
+<p>なるべく環境変数への依存はおさえるべきだ。とは言え環境変数を使わずにアプリケーションを書くことはほとんどない。
+環境変数の利用を含んだテストコードを書いて、そのテストコードの中でだけ環境変数を定義しておきたい。<br>
+また、テストケースが完了したら他のテストケースの邪魔にならないように環境変数をもとに戻したい。</p>
+<h1 id="osgetenvとoslookupenv"><code>os.Getenv</code>と<code>os.LookupEnv</code></h1>
+<p>ざっと標準パッケージを見ると環境変数を取得する関数は<code>os.Getenv</code>だ。
+しかし、<code>os.Getenv</code>関数は「未定義の環境変数」からも空文字を取得してしまう。</p>
+<ul>
+<li><a href="https://golang.org/pkg/os/#Getenv">https://golang.org/pkg/os/#Getenv</a></li>
+</ul>
+<blockquote>
+<p>To distinguish between an empty value and an unset value, use LookupEnv.</p>
+</blockquote>
+<p>よって、「未定義の環境変数」と「空文字が設定された環境変数」を見分けるには<code>os.LookupEnv</code>関数を利用する。<br>
+<code>os.LookupEnv</code>関数が事前に定義された値を見つければ<code>t.Cleanup</code>メソッドでテスト終了後に元の値をセットする。<br>
+そうでなければ<code>os.UnsetEnv</code>関数で環境変数の設定を削除すればよい。</p>
+<h1 id="テストコードで環境変数を使いこなすスニペット">テストコードで環境変数を使いこなすスニペット</h1>
+<p><code>defer</code>を使うようなこともあったが、Go1.14からは<code>t.Cleanup</code>関数を利用すればスッキリ書ける。<br>
+スニペット利用者が正しく後処理関数の実行を行わず環境変数が定義されっぱなしになったという心配もない。<br>
+注意点としては当然ながら<code>t.Parallel()</code>関数との併用はできない。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">環境変数名をキー、環境変数値をバリューとするマップ
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">setup</span>(t <span style="color:#719e07">*</span>testing.T, envs <span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]<span style="color:#dc322f">string</span>) {
+  <span style="color:#719e07">for</span> k, v <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> envs {
+    prev, ok <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">LookupEnv</span>(k)
+    <span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Setenv</span>(k, v); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+      t.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;cannot set environment key: %q&#34;</span>, k)
+    }
+    k <span style="color:#719e07">:=</span> k <span style="color:#586e75">// 束縛しておく
+</span><span style="color:#586e75"></span>    <span style="color:#719e07">if</span> ok {
+      t.<span style="color:#268bd2">Cleanup</span>(<span style="color:#268bd2">func</span>() { _ = os.<span style="color:#268bd2">Setenv</span>(k, prev) })
+    } <span style="color:#719e07">else</span> {
+      t.<span style="color:#268bd2">Cleanup</span>(<span style="color:#268bd2">func</span>() { _ = os.<span style="color:#268bd2">Unsetenv</span>(k) })
+    }
+  }
+}
+</code></pre></div><h1 id="go117以降は標準パッケージにtsetenv関数が追加される">Go1.17以降は標準パッケージに<code>T.Setenv</code>関数が追加される。</h1>
+<p>ここまで書いたが、このような仕組みはGo1.17で<code>testing</code>パッケージ提供される予定だ。</p>
+<ul>
+<li><a href="https://github.com/golang/go/issues/41260">https://github.com/golang/go/issues/41260</a></li>
+<li><a href="https://github.com/golang/go/blob/ab02cbd29f9b9c76d8f7af0d625ac56fcf8d4e75/src/testing/testing.go#L1097-L1110">https://github.com/golang/go/blob/ab02cbd29f9b9c76d8f7af0d625ac56fcf8d4e75/src/testing/testing.go#L1097-L1110</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// Setenv calls os.Setenv(key, value) and uses Cleanup to
+</span><span style="color:#586e75">// restore the environment variable to its original value
+</span><span style="color:#586e75">// after the test.
+</span><span style="color:#586e75">//
+</span><span style="color:#586e75">// This cannot be used in parallel tests.
+</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (t <span style="color:#719e07">*</span>T) <span style="color:#268bd2">Setenv</span>(key, value <span style="color:#dc322f">string</span>)
+</code></pre></div><p>リストア処理もやってくれるので、Go1.17以降はこのように書き直せる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">環境変数名をキー、環境変数値をバリューとするマップ
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">setup</span>(t <span style="color:#719e07">*</span>testing.T, envs <span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]<span style="color:#dc322f">string</span>) {
+  <span style="color:#719e07">for</span> k, v <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> envs {
+    t.<span style="color:#268bd2">Setenv</span>(k, v)
+  }
+}
+</code></pre></div><h1 id="終わりに">終わりに</h1>
+<p>さっと書こうとしたが、実は<code>k := k</code>を書かないまま動かして少しハマっていた。<br>
+ちゃんとテストを書くのは大事だ。</p>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2020/05/08/go-cmp-diif-with-ignore-fields/">[Go] 一部のフィールドを無視して構造体を比較したいときはgo-cmpを使う</a></li>
+  
+  <li><a href="/2019/10/30/go-testing2019/">Goのtestを理解する in 2019</a></li>
+  
+  <li><a href="/2020/03/27/http-test-in-go/">Goでサーバを立ち上げてE2Eテストを実施するCI用のテストコードを書く</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Apr 16, 2021</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/gotips">gotips</a>  <a class="category" href="https://budougumi0617.github.io/tags/test">test</a>  <a class="category" href="https://budougumi0617.github.io/tags/env">env</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2021/03/31/go-string-null-pointer-panic/" title="[Go] stringの比較でヌルポのpanicが発生する（こともある） #横浜Go読書会">[Go] stringの比較でヌルポのpanicが発生する（こともある） #横浜Go読書会</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/gotips/" title="意外と知らないGoのTIPS" >意外と知らないGoのTIPS</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2021/04/16/setenv_on_test/">[Go]環境変数を使ったテストを書く</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2021/03/31/go-string-null-pointer-panic/">[Go] stringの比較でヌルポのpanicが発生する（こともある） #横浜Go読書会</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/03/21/release_nrzap_for_newrelic_logs_in_context/">[Go] go.uber.org/zapでNew Relic logs in contextをするためのライブラリを書き始めた</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/03/08/read_kindle_by_alexa/">Amazon AlexaアプリでKindleを読み上げて積ん読を消化する（ながら読書をする）</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
