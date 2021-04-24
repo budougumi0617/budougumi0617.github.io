@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>gomockでモックメソッドの引数をいい感じに設定できるcmpmockを作った - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="Go,golang,test,モック,oss">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/twittercard.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/twittercard.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2021/04/25/reelase_cmpmock/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="gomockでモックメソッドの引数をいい感じに設定できるcmpmockを作った - My External Storage"/>
+  <meta property="og:description" content="gomock（github.com/golang/mock）のモックメソッドの引数をいい感じに設定できるカスタムマッチャーを作った。
+
+
+
+mrepo.EXPECT().Save(ctx, cmpmock.DiffEq(wantUser)).Return(nil)
+"/>
+  
+  <meta name="twitter:title" content="gomockでモックメソッドの引数をいい感じに設定できるcmpmockを作った - My External Storage"/>
+  <meta name="twitter:description" content="gomock（github.com/golang/mock）のモックメソッドの引数をいい感じに設定できるカスタムマッチャーを作った。
+
+
+
+mrepo.EXPECT().Save(ctx, cmpmock.DiffEq(wantUser)).Return(nil)
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Apr 25, 2021
+     - 4 minute read 
+     - <a href="https://budougumi0617.github.io/2021/04/25/reelase_cmpmock/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+    
+  </p>
+  <h1 class="entry-title">
+     gomockでモックメソッドの引数をいい感じに設定できるcmpmockを作った 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#goのテストでモックを使う">Goのテストでモックを使う</a>
+      <ul>
+        <li><a href="#モックのメソッド引数に期待値を指定するとき諦めたくなる時がある">モックのメソッド引数に期待値を指定するとき諦めたくなる時がある</a></li>
+        <li><a href="#gomock用にカスタムマッチャーを作った">gomock用にカスタムマッチャーを作った</a></li>
+      </ul>
+    </li>
+    <li><a href="#内部でgooglego-cmpを使っているだけ">内部で<code>google/go-cmp</code>を使っているだけ</a>
+      <ul>
+        <li><a href="#挙動はgo-cmpのcmpoptsなどで変更できる">挙動はgo-cmpのcmpoptsなどで変更できる</a></li>
+      </ul>
+    </li>
+    <li><a href="#終わりに">終わりに</a></li>
+  </ul>
+</nav>
+          
+          <p><code>gomock</code>（<code>github.com/golang/mock</code>）のモックメソッドの引数をいい感じに設定できるカスタムマッチャーを作った。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/cmpmock" data-iframely-url="//cdn.iframe.ly/TTjYmqy?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<br>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">
+mrepo.<span style="color:#268bd2">EXPECT</span>().<span style="color:#268bd2">Save</span>(ctx, cmpmock.<span style="color:#268bd2">DiffEq</span>(wantUser)).<span style="color:#268bd2">Return</span>(<span style="color:#cb4b16">nil</span>)
+</code></pre></div><h1 id="tldr">TL;DR</h1>
+<ul>
+<li>Goのテストでモックを使いたいときのデファクトスタンダードはgomock
+<ul>
+<li><a href="https://github.com/golang/mock">https://github.com/golang/mock</a></li>
+</ul>
+</li>
+<li>モックのメソッド引数に期待値を指定するとき諦めたくなる時がある
+<ul>
+<li><code>gomock.Any()</code> でごまかして終わりそうになる</li>
+</ul>
+</li>
+<li>gomock用にカスタムマッチャーを作った
+<ul>
+<li><a href="https://github.com/budougumi0617/cmpmock">https://github.com/budougumi0617/cmpmock</a></li>
+<li><code>cmpmock.DiffEq</code></li>
+<li>期待値を異なっていたときの差分が見やすい</li>
+<li><code>google/go-cmp/cmp#Option</code> で挙動を変更できる</li>
+</ul>
+</li>
+<li>内部で<code>google/go-cmp</code> を使っている
+<ul>
+<li><a href="https://github.com/google/go-cmp/">https://github.com/google/go-cmp/</a></li>
+</ul>
+</li>
+</ul>
+<p>使い方はこんな感じ。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> UserRepo <span style="color:#268bd2">interface</span> {
+  <span style="color:#268bd2">Save</span>(context.Context, <span style="color:#719e07">*</span>User) <span style="color:#dc322f">error</span>
+}
+
+wantUser <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>User{}
+mrepo <span style="color:#719e07">:=</span> mock.<span style="color:#268bd2">NewMockUserRepo</span>(ctrl)
+mrepo.<span style="color:#268bd2">EXPECT</span>().<span style="color:#268bd2">Save</span>(ctx, cmpmock.<span style="color:#268bd2">DiffEq</span>(wantUser)).<span style="color:#268bd2">Return</span>(<span style="color:#cb4b16">nil</span>)
+</code></pre></div><h1 id="goのテストでモックを使う">Goのテストでモックを使う</h1>
+<ul>
+<li><a href="https://github.com/golang/mock">https://github.com/golang/mock</a></li>
+</ul>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/golang/mock" data-iframely-url="//cdn.iframe.ly/RivSfnz"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>Goでモックをテストに使いたいとき、デファクトスタンダードとして使われているのが<code>gomock</code>だろう。
+本記事は<code>gomock</code>用にカスタムマッチャーを作った話なのだが、<code>gomock</code>自体の説明は省略する。
+使ったことがない方はpkg.go.devを見てみると雰囲気がわかるだろう。</p>
+<p><a href="https://pkg.go.dev/github.com/golang/mock@v1.5.0/gomock">https://pkg.go.dev/github.com/golang/mock@v1.5.0/gomock</a></p>
+<h2 id="モックのメソッド引数に期待値を指定するとき諦めたくなる時がある">モックのメソッド引数に期待値を指定するとき諦めたくなる時がある</h2>
+<p><code>gomock</code>は柔軟に挙動を変えたり
+ただ、モックの引数にそこそこでかい構造体を指定したり、時刻情報を用いているとうまく期待値を設置できないときがないだろうか？
+そういうときは<code>gomock.Any()</code>関数を引数に指定したりして、モックの設定を妥協したりすることがあった。
+毎回<code>DoAndReturn</code>などで構造体をパースする処理をテストコードに書くのもめんどくさい。</p>
+<ul>
+<li><a href="/2019/03/10/define-gomock-method-by-doandreturn/">[Go][gomcok]引数によって挙動を変えるモックメソッドを定義する #golangjp</a></li>
+</ul>
+<p>また、指定できていたとしても期待値と異なる値がモックメソッドに指定されたとき「どこか期待と異なるのか」が非常にわかりにくい。</p>
+<p>たとえば、モックメソッドの引数が次の<code>User</code>構造体の場合をみてみる、</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> User <span style="color:#268bd2">struct</span> {
+  Name, Address <span style="color:#dc322f">string</span>
+  CreateAt      time.Time
+}
+</code></pre></div><p>期待値と異なった場合、テスト実行時に以下が出力されるのだが、どこに差異があるのかわかるだろうか？</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">expected call at /Users/budougumi0617/go/src/github.com/budougumi0617/cmpmock/_example/repo_test.go:26 doesn&#39;t match the argument at index 1.
+Got: &amp;<span style="color:#719e07">{</span>John Due Tokyo 2021-04-23 02:46:58.145696 +0900 JST <span style="color:#268bd2">m</span><span style="color:#719e07">=</span>+0.000595005<span style="color:#719e07">}</span>
+Want: is equal to &amp;<span style="color:#719e07">{</span>John Due Tokyo 2021-04-23 02:46:48.145646 +0900 JST <span style="color:#268bd2">m</span><span style="color:#719e07">=</span>-9.999455563<span style="color:#719e07">}</span>
+</code></pre></div><h2 id="gomock用にカスタムマッチャーを作った">gomock用にカスタムマッチャーを作った</h2>
+<ul>
+<li><a href="https://github.com/budougumi0617/cmpmock">https://github.com/budougumi0617/cmpmock</a></li>
+</ul>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/cmpmock" data-iframely-url="//cdn.iframe.ly/TTjYmqy?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p><code>gomock</code>のモックメソッドの引数は<code>gomock#Matcher</code>インターフェイスを満たす構造体を定義すれば自分でカスタムマッチャーを用意することができる。
+<code>gomock.Any()</code>関数も定義済み<code>gomock#Matcher</code>の一種だ。</p>
+<ul>
+<li><a href="https://pkg.go.dev/github.com/golang/mock@v1.5.0/gomock#Matcher">https://pkg.go.dev/github.com/golang/mock@v1.5.0/gomock#Matcher</a></li>
+</ul>
+<p>使い方は次のように使う。「いい感じに比較してほしい」モックメソッドの期待値を指定するときに<code>cmpmock.DiffEq</code>メソッドでラップして指定すればよい。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> UserRepo <span style="color:#268bd2">interface</span> {
+  <span style="color:#268bd2">Save</span>(context.Context, <span style="color:#719e07">*</span>User) <span style="color:#dc322f">error</span>
+}
+
+wantUser <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>User{}
+mrepo <span style="color:#719e07">:=</span> mock.<span style="color:#268bd2">NewMockUserRepo</span>(ctrl)
+mrepo.<span style="color:#268bd2">EXPECT</span>().<span style="color:#268bd2">Save</span>(ctx, cmpmock.<span style="color:#268bd2">DiffEq</span>(wantUser)).<span style="color:#268bd2">Return</span>(<span style="color:#cb4b16">nil</span>)
+</code></pre></div><p>期待結果と異なると、以下のような出力が得られる。</p>
+<pre><code>expected call at /Users/budougumi0617/go/src/github.com/budougumi0617/cmpmock/_example/repo_test.go:27 doesn't match the argument at index 1.
+Got: &amp;{John Due Tokyo 2021-04-23 02:46:33.290458 +0900 JST m=+0.001035665}
+Want: diff(-got +want) is   &amp;_example.User{
+  Name:     &quot;John Due&quot;,
+  Address:  &quot;Tokyo&quot;,
+-   CreateAt: s&quot;2021-04-23 02:46:33.290458 +0900 JST m=+0.001035665&quot;,
++   CreateAt: s&quot;2021-04-23 02:46:23.290383 +0900 JST m=-9.999039004&quot;,
+}
+</code></pre><p>前述の出力結果と比較してだいぶわかりやすい。</p>
+<h1 id="内部でgooglego-cmpを使っているだけ">内部で<code>google/go-cmp</code>を使っているだけ</h1>
+<ul>
+<li><a href="https://github.com/google/go-cmp/">https://github.com/google/go-cmp/</a></li>
+</ul>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/google/go-cmp" data-iframely-url="//cdn.iframe.ly/Q4XPfBv?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>出力結果を見て気づく方はすぐわかるだろうが、<code>DiffEq</code>メソッドは内部で<code>go-cmp</code>を使って期待値と入力値を比較しているだけだ。<br>
+なので正直OSSというより、既存のOSSを組み合わせただけのスニペットである。</p>
+<h2 id="挙動はgo-cmpのcmpoptsなどで変更できる">挙動はgo-cmpのcmpoptsなどで変更できる</h2>
+<p><code>DiffEq</code>関数はシグネチャとして<code>cmp.Option</code>を受け取るので、<code>go-cmp</code>を使いなれているひとならば柔軟に比較方法を変更できる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">DiffEq</span>(v <span style="color:#268bd2">interface</span>{}, opts <span style="color:#719e07">...</span>cmp.Option) gomock.Matcher
+</code></pre></div><p>何も指定しない場合は<code>time.Time</code>の差が1秒未満だった場合無視するようにしている。<br>
+テストでそこまで厳密な時刻の比較は必要にないと思っている（というより、これが原因で比較を諦めることが大半…）。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">DiffEq</span>(v <span style="color:#268bd2">interface</span>{}, opts <span style="color:#719e07">...</span>cmp.Option) gomock.Matcher {
+  <span style="color:#268bd2">var</span> lopts cmp.Options
+  <span style="color:#719e07">if</span> <span style="color:#b58900">len</span>(opts) <span style="color:#719e07">==</span> <span style="color:#2aa198">0</span> {
+    lopts = <span style="color:#b58900">append</span>(lopts, cmpopts.<span style="color:#268bd2">EquateApproxTime</span>(<span style="color:#2aa198">1</span><span style="color:#719e07">*</span>time.Second))
+  } <span style="color:#719e07">else</span> {
+    lopts = <span style="color:#b58900">append</span>(lopts, opts<span style="color:#719e07">...</span>)
+  }
+  <span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>diffMatcher{want: v, opts: lopts}
+}
+</code></pre></div><h1 id="終わりに">終わりに</h1>
+<p>モックの設定に時間を書けるのは非常にストレスなのでいい感じにモック引数を設定できる<code>DiffEq</code>関数を作った。<br>
+既存のOSSを組み合わせただけだが、コスパよく便利なマッチャーを作れた気がする。<br>
+これでもっとテストが書けるぞ！！</p>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/03/10/define-gomock-method-by-doandreturn/">[Go][gomcok]引数によって挙動を変えるモックメソッドを定義する #golangjp</a></li>
+  
+  <li><a href="/2021/04/16/setenv_on_test/">[Go]環境変数を使ったテストを書く</a></li>
+  
+  <li><a href="/2020/05/08/go-cmp-diif-with-ignore-fields/">[Go] 一部のフィールドを無視して構造体を比較したいときはgo-cmpを使う</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Apr 25, 2021</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/test">test</a>  <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/gomock">gomock</a>  <a class="category" href="https://budougumi0617.github.io/tags/oss">oss</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2021/04/16/setenv_on_test/" title="[Go]環境変数を使ったテストを書く">[Go]環境変数を使ったテストを書く</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/gotips/" title="意外と知らないGoのTIPS" >意外と知らないGoのTIPS</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2021/04/25/reelase_cmpmock/">gomockでモックメソッドの引数をいい感じに設定できるcmpmockを作った</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2021/04/16/setenv_on_test/">[Go]環境変数を使ったテストを書く</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/03/31/go-string-null-pointer-panic/">[Go] stringの比較でヌルポのpanicが発生する（こともある） #横浜Go読書会</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/03/21/release_nrzap_for_newrelic_logs_in_context/">[Go] go.uber.org/zapでNew Relic logs in contextをするためのライブラリを書き始めた</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
