@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>テストコードなどは除外してからPRのサイズを警告するActionsを作った - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="GitHub,Pull Request">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/github.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/github.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2021/05/07/reelase_action-pr-size-checker/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="テストコードなどは除外してからPRのサイズを警告するActionsを作った - My External Storage"/>
+  <meta property="og:description" content="Pull Request（PR）の追加行数を計測して、指定行数以上だった場合はPRにコメントするGitHub Actionsをつくった。
+フィルターパターンを設定しておけば、テストコードや設定ファイルの追加行数を無視する。
+https://github.com/budougumi0617/action-pr-size-checker
+"/>
+  
+  <meta name="twitter:title" content="テストコードなどは除外してからPRのサイズを警告するActionsを作った - My External Storage"/>
+  <meta name="twitter:description" content="Pull Request（PR）の追加行数を計測して、指定行数以上だった場合はPRにコメントするGitHub Actionsをつくった。
+フィルターパターンを設定しておけば、テストコードや設定ファイルの追加行数を無視する。
+https://github.com/budougumi0617/action-pr-size-checker
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">May 7, 2021
+     - 4 minute read 
+     - <a href="https://budougumi0617.github.io/2021/05/07/reelase_action-pr-size-checker/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/github/">github </a><a class="label" href="https://budougumi0617.github.io/categories/oss/">oss </a>
+    
+  </p>
+  <h1 class="entry-title">
+     テストコードなどは除外してからPRのサイズを警告するActionsを作った 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#prは小さい方がいい">PRは小さい方がいい</a></li>
+    <li><a href="#既存のツールとの比較">既存のツールとの比較</a>
+      <ul>
+        <li><a href="#テストを書く人ほど差分が増えてエラーになってしまう問題">テストを書く人ほど差分が増えてエラーになってしまう問題</a></li>
+      </ul>
+    </li>
+    <li><a href="#ファイルパターンで特定ファイルは無視するaction-pr-size-checker">ファイルパターンで特定ファイルは無視するaction-pr-size-checker</a>
+      <ul>
+        <li><a href="#ファイルパターンの正規表現">ファイルパターンの正規表現</a></li>
+      </ul>
+    </li>
+    <li><a href="#中身の話">中身の話</a></li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>Pull Request（PR）の追加行数を計測して、指定行数以上だった場合はPRにコメントするGitHub Actionsをつくった。<br>
+フィルターパターンを設定しておけば、テストコードや設定ファイルの追加行数を無視する。</p>
+<p><a href="https://github.com/budougumi0617/action-pr-size-checker">https://github.com/budougumi0617/action-pr-size-checker</a></p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/marketplace/actions/action-pr-size-checker" data-iframely-url="//cdn.iframe.ly/2rVGShx"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>PRは小さい方がいい
+<ul>
+<li><a href="https://blog.ploeh.dk/2015/01/15/10-tips-for-better-pull-requests/">https://blog.ploeh.dk/2015/01/15/10-tips-for-better-pull-requests/</a></li>
+<li>邦訳: <a href="https://yakst.com/ja/posts/1625">https://yakst.com/ja/posts/1625</a></li>
+</ul>
+</li>
+<li>GitHub ActionsでPRの追加行数を計測するツールを作成した
+<ul>
+<li><a href="https://github.com/budougumi0617/action-pr-size-checker">https://github.com/budougumi0617/action-pr-size-checker</a></li>
+</ul>
+</li>
+<li>設定したファイルパターンを無視するのが特徴
+<ul>
+<li>テストコードや設定ファイルならばいくら追加してもよいと考える</li>
+</ul>
+</li>
+</ul>
+<p>利用したいリポジトリで次のように <code>YOUR_REPO/.github/workflows/check_pr_size.yml</code> を作成するだけで利用できる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">name</span>: check-pr-size
+<span style="color:#719e07">on</span>: [pull_request]
+<span style="color:#719e07">jobs</span>:
+  <span style="color:#719e07">linter_name</span>:
+    <span style="color:#719e07">name</span>: runner / check-pr-size
+    <span style="color:#719e07">runs-on</span>: ubuntu-latest
+    <span style="color:#719e07">steps</span>:
+      - <span style="color:#719e07">uses</span>: budougumi0617/action-pr-size-checker@v0
+        <span style="color:#719e07">with</span>:
+          <span style="color:#719e07">github_token</span>: ${{ secrets.github_token }}
+          <span style="color:#719e07">max_added_count</span>: <span style="color:#2aa198">300</span>
+          <span style="color:#719e07">filter_pattern</span>: <span style="color:#2aa198">&#34;go.mod|go.sum|.*_test.go|.*.md|.*.golden|.*.yml&#34;</span>
+</code></pre></div><p>2021/05/07時点では指定行数以上の変更を行なったPRには次のようなコメントが行われる。</p>
+<img src="/2021/05/07_gigi_report.png" alt="PRへのコメントイメージ" width="500">
+<h1 id="prは小さい方がいい">PRは小さい方がいい</h1>
+<p>流派や諸説あるとは思うが、PRは小さい方が良いと思っている。理由は以下のブログが説明してくれている。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://blog.ploeh.dk/2015/01/15/10-tips-for-better-pull-requests/" data-iframely-url="//cdn.iframe.ly/E7JgqyT"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+日本語訳
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://yakst.com/ja/posts/1625" data-iframely-url="//cdn.iframe.ly/cKyyp92"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>記載以外の理由を挙げるとそもそもの方向性が間違っていた場合、デカイいPRは手戻りも大きいしマージするときの心理的負荷がレビューア・レビューイ双方にとって大きい。</p>
+<h1 id="既存のツールとの比較">既存のツールとの比較</h1>
+<p>すでにPRのサイズをチェックするツールは世の中にいくつか存在する。
+有名なOSSでいうとDangerなどがPRのサイズをチェックしてくれる。</p>
+<ul>
+<li><a href="https://github.com/danger/danger">https://github.com/danger/danger</a></li>
+</ul>
+<iframe src="https://hatenablog-parts.com/embed?url=https%3A%2F%2Ftech.connehito.com%2Fentry%2Fdanger" style="border: 0; width: 100%; height: 190px;" allowfullscreen scrolling="no"></iframe>
+<p>他にも、GitHub ActionsのMarketplaceで「PR size」などで検索するといくつかActionsが見つかる。
+しかし、既存ツールにはひとつ懸念事項があり、今回自作した。</p>
+<h2 id="テストを書く人ほど差分が増えてエラーになってしまう問題">テストを書く人ほど差分が増えてエラーになってしまう問題</h2>
+<p>PRのサイズを計測するときのデメリットとしては、テストコードの追加も考慮に入れてしまうと本末転倒な事態が発生してしまうことだ。<br>
+TDDやレガシーコード改善ガイドの「テストコードがないコードはレガシーコードだ！」という言葉、テストの重要性が叫ばれている現在PRを作るときは一緒にテストコードを含めることがデファクトになっているはずだ。<br>
+テストコードが含まれたPRで闇雲に追加行数でPRをリジェクトしてしまうと、「テストをしっかり書く人」が不幸になってしまう。
+私はテストコードについては適切なないようならばどんどん追加してもう良いと思っている。よいテストコードは仕様を明らかにするため、テストコードを含んでいるほうがPRの理解しやすいという点もある。</p>
+<p>既存のツールをざっとみたところ「特定のファイルを無視してPRの行数を確認する」という機能はなさそうだったので、今回のツールを作成した。</p>
+<h1 id="ファイルパターンで特定ファイルは無視するaction-pr-size-checker">ファイルパターンで特定ファイルは無視するaction-pr-size-checker</h1>
+<p>今回作ったGitHub Actionsは前節の問題に対応するため、正規表現でファイルパターンを登録できる。
+なので、テストコードやテストで利用する設定ファイル（ゴールデンファイル・YAML etc）を無視してPRの追加行数を確認する。</p>
+<p><a href="https://github.com/budougumi0617/action-pr-size-checker">https://github.com/budougumi0617/action-pr-size-checker</a></p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/marketplace/actions/action-pr-size-checker" data-iframely-url="//cdn.iframe.ly/2rVGShx"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>利用するときはリポジトリで次のように <code>YOUR_REPO/.github/workflows/check_pr_size.yml</code> を作成するだけで利用できる。<br>
+閾値となる追加行数の上限は<code>max_added_count</code>、無視するファイルパターンを<code>filter_pattern</code>で指定するだけた。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">name</span>: check-pr-size
+<span style="color:#719e07">on</span>: [pull_request]
+<span style="color:#719e07">jobs</span>:
+  <span style="color:#719e07">linter_name</span>:
+    <span style="color:#719e07">name</span>: runner / check-pr-size
+    <span style="color:#719e07">runs-on</span>: ubuntu-latest
+    <span style="color:#719e07">steps</span>:
+      - <span style="color:#719e07">uses</span>: budougumi0617/action-pr-size-checker@v0
+        <span style="color:#719e07">with</span>:
+          <span style="color:#719e07">github_token</span>: ${{ secrets.github_token }}
+          <span style="color:#719e07">max_added_count</span>: <span style="color:#2aa198">300</span>
+          <span style="color:#719e07">filter_pattern</span>: <span style="color:#2aa198">&#34;go.mod|go.sum|.*_test.go|.*.md|.*.golden|.*.yml&#34;</span>
+</code></pre></div><p>上限を超えるPRはCheck Statusがレッドになり、解析結果が以下のようにコメントされる。</p>
+<img src="/2021/05/07_gigi_report.png" alt="PRへのコメントイメージ" width="500">
+<h2 id="ファイルパターンの正規表現">ファイルパターンの正規表現</h2>
+<p>内部的にはGoで実装しているので、ファイルパターンはRE2形式の正規表現を利用できる。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/google/re2" data-iframely-url="//cdn.iframe.ly/to1VyVj?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<h1 id="中身の話">中身の話</h1>
+<p>実装はGoのバイナリをシェルスクリプトで動かしているだけだ。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/gigi" data-iframely-url="//cdn.iframe.ly/Aytf2mH?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/action-pr-size-checker" data-iframely-url="//cdn.iframe.ly/PAqCOtF?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>GitHub ActionsはreviewdogのActionsテンプレートを流用している。</p>
+<ul>
+<li><a href="https://github.com/reviewdog/action-template">https://github.com/reviewdog/action-template</a></li>
+</ul>
+<p>ファイルごとの追加行数の計算にもreviewdogの実装をライブラリ的に利用している。</p>
+<ul>
+<li><a href="https://pkg.go.dev/github.com/reviewdog/reviewdog@v0.11.0/diff">https://pkg.go.dev/github.com/reviewdog/reviewdog@v0.11.0/diff</a></li>
+</ul>
+<h1 id="終わりに">終わりに</h1>
+<p>reviewdogには普段からお世話になっているが、今回はコードでもお世話になってしまった。とても感謝。<br>
+余裕があったらcheck statusの変更オプションや任意のコメントに変更できる機能をつけたい<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>。</p>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a href="https://blog.ploeh.dk/2015/01/15/10-tips-for-better-pull-requests/">10 tips for better Pull Requests by Mark Seemann</a></li>
+<li><a href="https://github.com/budougumi0617/action-pr-size-checker">https://github.com/budougumi0617/action-pr-size-checker</a></li>
+<li><a href="https://github.com/budougumi0617/gigi">https://github.com/budougumi0617/gigi</a></li>
+<li><a href="https://tech.connehito.com/entry/danger">Dangerで始めるPull Requestチェック自動化 - コネヒト開発者ブログ</a></li>
+<li><a href="https://github.com/google/re2/wiki/Syntax">https://github.com/google/re2/wiki/Syntax</a></li>
+<li><a href="https://github.com/reviewdog/action-template">https://github.com/reviewdog/action-template</a></li>
+<li><a href="https://pkg.go.dev/github.com/reviewdog/reviewdog@v0.11.0/diff">https://pkg.go.dev/github.com/reviewdog/reviewdog@v0.11.0/diff</a></li>
+</ul>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>深夜のテンションで「<a href="https://dic.nicovideo.jp/a/%E3%83%87%E3%82%AB%E9%81%8E%E3%81%8E%E3%82%93%E3%81%A0%E3%82%8D...">デカ過ぎんだろ&hellip;</a>」とコメントするように実装しようと思ったがさすがにやめた。 <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2021/02/16/how_to_create_reviewdog_actions/">reviewdogを使ったGitHub Actionsの作り方</a></li>
+  
+  <li><a href="/2020/12/15/retrospective-on-github-2020/">2020年振り返り(GitHub編)</a></li>
+  
+  <li><a href="/2020/11/21/execute_steps_with_iflese_in_github_actions/">ifelseやswitch文のようにGitHub Actionsのステップの実行を制御したい</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>May 7, 2021</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/review">review</a>  <a class="category" href="https://budougumi0617.github.io/tags/pr">pr</a>  <a class="category" href="https://budougumi0617.github.io/tags/github">github</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2021/04/25/reelase_cmpmock/" title="gomockでモックメソッドの引数をいい感じに設定できるcmpmockを作った">gomockでモックメソッドの引数をいい感じに設定できるcmpmockを作った</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/gotips/" title="意外と知らないGoのTIPS" >意外と知らないGoのTIPS</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2021/05/07/reelase_action-pr-size-checker/">テストコードなどは除外してからPRのサイズを警告するActionsを作った</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/04/25/reelase_cmpmock/">gomockでモックメソッドの引数をいい感じに設定できるcmpmockを作った</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/04/16/setenv_on_test/">[Go]環境変数を使ったテストを書く</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/03/31/go-string-null-pointer-panic/">[Go] stringの比較でヌルポのpanicが発生する（こともある） #横浜Go読書会</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
