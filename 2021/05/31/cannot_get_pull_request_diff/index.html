@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>GitHub API v3でPrivateリポジトリのPull Requestのdiffを取得する - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="go-github,GitHub,pull request">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/github.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/github.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2021/05/31/cannot_get_pull_request_diff/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="GitHub API v3でPrivateリポジトリのPull Requestのdiffを取得する - My External Storage"/>
+  <meta property="og:description" content="GitHub API v3でPull Requestの情報をごにょごにょしようとしたらハマったのでメモ。
+GitHub API v3のPull RequestのJSONに含まれるdiff_urlは役に立たない。Acceptヘッダーでレスポンスが変化する。"/>
+  
+  <meta name="twitter:title" content="GitHub API v3でPrivateリポジトリのPull Requestのdiffを取得する - My External Storage"/>
+  <meta name="twitter:description" content="GitHub API v3でPull Requestの情報をごにょごにょしようとしたらハマったのでメモ。
+GitHub API v3のPull RequestのJSONに含まれるdiff_urlは役に立たない。Acceptヘッダーでレスポンスが変化する。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">May 31, 2021
+     - 3 minute read 
+     - <a href="https://budougumi0617.github.io/2021/05/31/cannot_get_pull_request_diff/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/github/">github </a>
+    
+  </p>
+  <h1 class="entry-title">
+     GitHub API v3でPrivateリポジトリのPull Requestのdiffを取得する 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#pull-requestのdiffを取得したい">Pull Requestのdiffを取得したい</a></li>
+    <li><a href="#diff_urlはprivateリポジトリでは使えない">diff_urlはprivateリポジトリでは使えない</a></li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>GitHub API v3でPull Requestの情報をごにょごにょしようとしたらハマったのでメモ。<br>
+GitHub API v3のPull RequestのJSONに含まれる<code>diff_url</code>は役に立たない。<code>Accept</code>ヘッダーでレスポンスが変化する。</p>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>GitHub API v3でPull Requestの情報をdiff情報を取得したい</li>
+<li><code>Get a pull request</code> APIのレスポンスの中にdiffのURLが存在する
+<ul>
+<li>このURLはprivateリポジトリの場合認証がとれず失敗する</li>
+</ul>
+</li>
+<li>Acceptヘッダーを付けて<code>Get a pull request</code> APIを実行すればdiffを取得できる
+<ul>
+<li><a href="https://docs.github.com/en/rest/overview/media-types#commits-commit-comparison-and-pull-requests">https://docs.github.com/en/rest/overview/media-types#commits-commit-comparison-and-pull-requests</a></li>
+</ul>
+</li>
+</ul>
+<p>サンプルコードは以下。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">hc = oauth2.<span style="color:#268bd2">NewClient</span>(ctx, oauth2.<span style="color:#268bd2">StaticTokenSource</span>(
+    <span style="color:#719e07">&amp;</span>oauth2.Token{AccessToken: cfg.GitHubToken},
+))
+
+cli <span style="color:#719e07">:=</span> github.<span style="color:#268bd2">NewClient</span>(hc)
+pr, _, _ <span style="color:#719e07">:=</span> cli.PullRequests.<span style="color:#268bd2">Get</span>(ctx, cfg.Owner, cfg.Repository, cfg.PullRequestNumber)
+url <span style="color:#719e07">:=</span> pr.<span style="color:#268bd2">GetURL</span>()
+
+req, _ <span style="color:#719e07">:=</span> http.<span style="color:#268bd2">NewRequestWithContext</span>(ctx, http.MethodGet, url, <span style="color:#cb4b16">nil</span>)
+req.Header.<span style="color:#268bd2">Add</span>(<span style="color:#2aa198">&#34;Accept&#34;</span>, <span style="color:#2aa198">&#34;application/vnd.github.v3.diff&#34;</span>)
+
+resp, err <span style="color:#719e07">:=</span> hc.<span style="color:#268bd2">Do</span>(req)
+</code></pre></div><h1 id="pull-requestのdiffを取得したい">Pull Requestのdiffを取得したい</h1>
+<p>GitHub API v3を利用してPull Requestの情報を取得すると、次のようなJSONが取得できる。</p>
+<ul>
+<li>Get a pull request | Pulls GitHub Docs
+<ul>
+<li><a href="https://docs.github.com/en/rest/reference/pulls#get-a-pull-request">https://docs.github.com/en/rest/reference/pulls#get-a-pull-request</a></li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+  <span style="color:#268bd2">&#34;url&#34;</span>: <span style="color:#2aa198">&#34;https://api.github.com/repos/octocat/Hello-World/pulls/1347&#34;</span>,
+  <span style="color:#268bd2">&#34;id&#34;</span>: <span style="color:#2aa198">1</span>,
+  <span style="color:#268bd2">&#34;node_id&#34;</span>: <span style="color:#2aa198">&#34;MDExOlB1bGxSZXF1ZXN0MQ==&#34;</span>,
+  <span style="color:#268bd2">&#34;html_url&#34;</span>: <span style="color:#2aa198">&#34;https://github.com/octocat/Hello-World/pull/1347&#34;</span>,
+  <span style="color:#268bd2">&#34;diff_url&#34;</span>: <span style="color:#2aa198">&#34;https://github.com/octocat/Hello-World/pull/1347.diff&#34;</span>,
+  ....
+}
+</code></pre></div><p>ここで、<code>diff_url</code>に含まれるURLを取得すると、diffファイルが取得できる。<br>
+たとえば以下のような内容だ。</p>
+<ul>
+<li><a href="https://github.com/budougumi0617/nrseg/pull/14.diff">https://github.com/budougumi0617/nrseg/pull/14.diff</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="color:#cb4b16">diff --git a/inspect.go b/inspect.go
+</span><span style="color:#cb4b16"></span>new file mode 100644
+<span style="color:#cb4b16">index 0000000..9bfc74a
+</span><span style="color:#cb4b16"></span><span style="color:#dc322f">--- /dev/null
+</span><span style="color:#dc322f"></span><span style="color:#719e07">+++ b/inspect.go
+</span><span style="color:#719e07"></span><span style="color:#268bd2">@@ -0,0 +1,51 @@
+</span><span style="color:#268bd2"></span><span style="color:#719e07">+package nrseg
+</span><span style="color:#719e07">+
+</span><span style="color:#719e07">+import (
+</span><span style="color:#719e07">+	&#34;errors&#34;
+</span><span style="color:#719e07">+	&#34;go/ast&#34;
+</span><span style="color:#719e07">+	&#34;go/parser&#34;
+</span><span style="color:#719e07">+	&#34;go/token&#34;
+</span><span style="color:#719e07"></span>...
+</code></pre></div><p>これを<a href="https://github.com/google/go-github">go-github</a>で実装すると以下のようになるだろう。
+privateリポジトリでも利用できるようにOAuth2で認証を付けておく。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">import</span> (
+  <span style="color:#2aa198">&#34;github.com/google/go-github/v35/github&#34;</span>
+  <span style="color:#2aa198">&#34;golang.org/x/oauth2&#34;</span>
+)
+
+<span style="color:#586e75">// ...
+</span><span style="color:#586e75"></span>
+hc <span style="color:#719e07">:=</span> oauth2.<span style="color:#268bd2">NewClient</span>(ctx, oauth2.<span style="color:#268bd2">StaticTokenSource</span>(
+  <span style="color:#719e07">&amp;</span>oauth2.Token{AccessToken: GitHubToken},
+))
+
+cli <span style="color:#719e07">:=</span> github.<span style="color:#268bd2">NewClient</span>(hc)
+pr, _, _ <span style="color:#719e07">:=</span> cli.PullRequests.<span style="color:#268bd2">Get</span>(ctx, <span style="color:#2aa198">&#34;budougumi0617&#34;</span>, <span style="color:#2aa198">&#34;nrseg&#34;</span>, <span style="color:#2aa198">14</span>)
+durl <span style="color:#719e07">:=</span> pr.<span style="color:#268bd2">GetDiffURL</span>()
+resp, err <span style="color:#719e07">:=</span> hc.<span style="color:#268bd2">Get</span>(pr.<span style="color:#268bd2">GetDiffURL</span>())
+</code></pre></div><p>しかし、OAuth2で認証を付け<code>Get a pull request</code>は成功する状態でもdiffファイルの取得で404になる現象が発生した。</p>
+<h1 id="diff_urlはprivateリポジトリでは使えない">diff_urlはprivateリポジトリでは使えない</h1>
+<p>調査したところ、<code>diff_url</code>に含まれるURLはprivateリポジトリでは利用できないようだった。<br>
+ではどうすると言うかというとメディアタイプを指定することで<code>Get a pull request</code>のAPIエンドポイントからdiff情報が取得できた…</p>
+<p>実はこのことはAPIドキュメントを読むとちゃんと記載があった。</p>
+<ul>
+<li>Custom media types for pull requests
+<ul>
+<li><a href="https://docs.github.com/en/rest/reference/pulls#custom-media-types-for-pull-request">https://docs.github.com/en/rest/reference/pulls#custom-media-types-for-pull-request</a></li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>Pass the appropriate <a href="https://docs.github.com/rest/overview/media-types/#commits-commit-comparison-and-pull-requests">media type</a> to fetch diff and patch formats.</p>
+</blockquote>
+<p>改めてgo-githubで実装すると、diffを取得するコードは次のようになる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">hc = oauth2.<span style="color:#268bd2">NewClient</span>(ctx, oauth2.<span style="color:#268bd2">StaticTokenSource</span>(
+    <span style="color:#719e07">&amp;</span>oauth2.Token{AccessToken: cfg.GitHubToken},
+))
+
+cli <span style="color:#719e07">:=</span> github.<span style="color:#268bd2">NewClient</span>(hc)
+pr, _, _ <span style="color:#719e07">:=</span> cli.PullRequests.<span style="color:#268bd2">Get</span>(ctx, cfg.Owner, cfg.Repository, cfg.PullRequestNumber)
+url <span style="color:#719e07">:=</span> pr.<span style="color:#268bd2">GetURL</span>()
+
+req, _ <span style="color:#719e07">:=</span> http.<span style="color:#268bd2">NewRequestWithContext</span>(ctx, http.MethodGet, url, <span style="color:#cb4b16">nil</span>)
+req.Header.<span style="color:#268bd2">Add</span>(<span style="color:#2aa198">&#34;Accept&#34;</span>, <span style="color:#2aa198">&#34;application/vnd.github.v3.diff&#34;</span>)
+
+resp, err <span style="color:#719e07">:=</span> hc.<span style="color:#268bd2">Do</span>(req)
+</code></pre></div><h1 id="終わりに">終わりに</h1>
+<p><code>diff_url</code>ってパラメータは何のためにあるんだという気持ちになった。OSSのリポジトリ（publicリポジトリ）だと使えるけれど…<br>
+そして今回もドキュメントはちゃんと読もうね&amp;動作確認ちゃんとしようね案件だった。<br>
+JSONの構造だけみて油断してはいけない。また、publicリポジトリでテストしていたので認証周りのトラップに気づけなかった。使いたい環境でしっかりと動作確認すべきだった。</p>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a href="https://docs.github.com/en/rest/reference/pulls#get-a-pull-request">Get a pull request | Pulls GitHub Docs</a></li>
+<li><a href="https://stackoverflow.com/questions/35471316/using-curl-how-do-i-download-a-diff-file-from-a-private-repository-on-github">Using curl, how do I download a .diff file from a private repository on github</a></li>
+<li><a href="https://github.com/google/go-github">https://github.com/google/go-github</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2021/05/07/reelase_action-pr-size-checker/">テストコードなどは除外してからPRのサイズを警告するActionsを作った</a></li>
+  
+  <li><a href="/2021/02/16/how_to_create_reviewdog_actions/">reviewdogを使ったGitHub Actionsの作り方</a></li>
+  
+  <li><a href="/2020/12/15/retrospective-on-github-2020/">2020年振り返り(GitHub編)</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>May 31, 2021</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/github">github</a>  <a class="category" href="https://budougumi0617.github.io/tags/api">api</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2021/05/23/review_pomodoro_technique/" title="[書評] ポモドーロ・テクニック入門を読んで正しくポモドーロをしようと反省した">[書評] ポモドーロ・テクニック入門を読んで正しくポモドーロをしようと反省した</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/gotips/" title="意外と知らないGoのTIPS" >意外と知らないGoのTIPS</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2021/05/31/cannot_get_pull_request_diff/">GitHub API v3でPrivateリポジトリのPull Requestのdiffを取得する</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2021/05/23/review_pomodoro_technique/">[書評] ポモドーロ・テクニック入門を読んで正しくポモドーロをしようと反省した</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/05/07/reelase_action-pr-size-checker/">テストコードなどは除外してからPRのサイズを警告するActionsを作った</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/04/25/reelase_cmpmock/">gomockでモックメソッドの引数をいい感じに設定できるcmpmockを作った</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
