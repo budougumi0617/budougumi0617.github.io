@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>Terraformでimportを使う理由とfor_eachをつかってリソース定義に実リソースをimportする方法 - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="terraform,import">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/terraform.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/terraform.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2021/07/26/terraform_import_into_for_each_resource/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="Terraformでimportを使う理由とfor_eachをつかってリソース定義に実リソースをimportする方法 - My External Storage"/>
+  <meta property="og:description" content="for_each文を使ったTerraformのリソース定義に対してもimportができるよという話。
+なお、「どうしてそのようなことをする必要があるのか？」を説明する前置きのほうが長い。"/>
+  
+  <meta name="twitter:title" content="Terraformでimportを使う理由とfor_eachをつかってリソース定義に実リソースをimportする方法 - My External Storage"/>
+  <meta name="twitter:description" content="for_each文を使ったTerraformのリソース定義に対してもimportができるよという話。
+なお、「どうしてそのようなことをする必要があるのか？」を説明する前置きのほうが長い。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Jul 26, 2021
+     - 5 minute read 
+     - <a href="https://budougumi0617.github.io/2021/07/26/terraform_import_into_for_each_resource/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/terraform/">terraform </a>
+    
+  </p>
+  <h1 class="entry-title">
+     Terraformでimportを使う理由とfor_eachをつかってリソース定義に実リソースをimportする方法 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#凡人がterraformで新規リソースを最速で定義する">凡人がTerraformで新規リソースを最速で定義する</a></li>
+    <li><a href="#importしたリソース定義を使って他の環境にもリソースを作成していく">importしたリソース定義を使って他の環境にもリソースを作成していく</a>
+      <ul>
+        <li><a href="#for_eachを使ったリソース定義">for_eachを使ったリソース定義</a></li>
+      </ul>
+    </li>
+    <li><a href="#キーの名前をつかって配列アクセスのようにimportする">キーの名前をつかって配列アクセスのようにimportする</a></li>
+    <li><a href="#終わりに">終わりに</a></li>
+  </ul>
+</nav>
+          
+          <p><code>for_each</code>文を使ったTerraformのリソース定義に対してもimportができるよという話。<br>
+なお、「どうしてそのようなことをする必要があるのか？」を説明する前置きのほうが長い。</p>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>terraformで新規に定義を作るときは<code>terraform import</code>から始めるのが良い</li>
+<li>複数の開発環境などで柔軟に利用できるリソースを定義する場合は`文を使う
+<ul>
+<li><a href="https://www.terraform.io/docs/language/meta-arguments/for_each.html">https://www.terraform.io/docs/language/meta-arguments/for_each.html</a></li>
+</ul>
+</li>
+<li><code>for_each</code>文を使ったリソース定義に<code>import</code>するときは配列表記を使う</li>
+</ul>
+<p>対応するterraformのバージョンは0.13以上ならば問題ないはず。2021年07月時点最新版の1.0.x系でも動作する。</p>
+<h1 id="凡人がterraformで新規リソースを最速で定義する">凡人がTerraformで新規リソースを最速で定義する</h1>
+<p>Terraformで新しいリソースを作るときに最速な方法はなんだろうか？
+「オレはPaaSのすべてのパラメータを理解している」というような凄腕でもない限り最速手順は手動で実リソースを作ってimportだ。
+やはり調査したり編集しながらリソースを作る場合はコンソールなどから作る方が圧倒的に効率が良い。
+詳細については以下のブログなどが参考になるだろう。</p>
+<div style="left: 0; width: 100%; height: 190px; position: relative;"><iframe src="https://hatenablog-parts.com/embed?url=https%3A%2F%2Ftech.layerx.co.jp%2Fentry%2Fimprove-iac-development-with-terraform-import" style="top: 0; left: 0; width: 100%; height: 100%; position: absolute; border: 0;" allowfullscreen scrolling="no"></iframe></div>
+<h1 id="importしたリソース定義を使って他の環境にもリソースを作成していく">importしたリソース定義を使って他の環境にもリソースを作成していく</h1>
+<p>組織開発の中ではdevelopment/staging/pdoduction環境のようにクラウド上の構成を複数用意していることが多い。
+そしてそれぞれの環境に対して共通のTerraform定義をapplyしていくことがほとんどだろう。
+私の場合はmodule化してTerraformのリソース定義を各環境で共有している。
+そのため前述の手順でリソースを作るときは次のような手順で行なう。</p>
+<ol>
+<li>dev環境に実リソースをTerraformを使わず手動で作る</li>
+<li>実リソースをimportするためのTerraformリソースの定義をmoudleに作る</li>
+<li>手動で作ったリソースをmoduleに<code>terraform import</code>する</li>
+<li>各環境で<code>terraform apply</code>していく
+<ul>
+<li>dev環境では差分なし、他の環境では新規実リソースが生成される</li>
+</ul>
+</li>
+</ol>
+<p>この時必要になるテクニックとして、moduleには若干環境ごとに構成が異なる実リソースを作成できる拡張性をもたせておく。
+よくやるのが次のようなオプションだ。</p>
+<ul>
+<li>検証がしやすい様にdevだけワイルドカード的なルールをSecurityGroupに追加しておく</li>
+<li>dev/stgだけ踏み台サーバ、動作確認用のサーバからのアクセスを許可しておく</li>
+</ul>
+<p>…などだ。この様な環境構成を設計するのに最適なのが<code>for_each</code>を使った構成だ。</p>
+<h2 id="for_eachを使ったリソース定義">for_eachを使ったリソース定義</h2>
+<ul>
+<li><a href="https://www.terraform.io/docs/language/meta-arguments/for_each.html">https://www.terraform.io/docs/language/meta-arguments/for_each.html</a></li>
+<li><a href="https://www.terraform.io/docs/language/functions/concat.html">https://www.terraform.io/docs/language/functions/concat.html</a></li>
+</ul>
+<p><code>for_each</code>と<code>concat</code>を組み合わせると可変長引数を使っているかの様に動的な数のリソースを宣言できる。</p>
+<p>下の例は変数の値によって作成される数が変わるセキュリティーグループルールのリソース定義だ。</p>
+<ul>
+<li>必ず<code>default_group</code>からのssh接続を許可するルールが生成される</li>
+<li><code>additional_ids</code>変数に要素があれば、その要素を許可するセキュリティーグループIDとしてルールが生成される</li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">variable</span> <span style="color:#2aa198">&#34;additional_ids&#34;</span> {
+  description <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;環境によって追加でsshを許可したいセキュリティーグループのIDリスト&#34;</span>
+  type        <span style="color:#719e07">=</span> <span style="color:#719e07">list</span>(<span style="color:#719e07">string</span>)
+}<span style="color:#586e75">
+</span><span style="color:#586e75">
+</span><span style="color:#586e75"># foo module内に定義されたリソースとする。
+</span><span style="color:#586e75"></span><span style="color:#719e07">resource</span> <span style="color:#2aa198">&#34;aws_security_group_rule&#34; &#34;dynamic_rules&#34;</span> {
+  for_each <span style="color:#719e07">=</span> <span style="color:#719e07">toset</span>(<span style="color:#719e07">concat</span>([<span style="color:#719e07">aws_security_group</span>.<span style="color:#719e07">default_group</span>.<span style="color:#719e07">id</span>], <span style="color:#719e07">var</span>.<span style="color:#719e07">additional_ids</span>))
+
+  security_group_id        <span style="color:#719e07">=</span> <span style="color:#719e07">aws_security_group</span>.<span style="color:#719e07">target_group</span>.<span style="color:#719e07">id</span>
+  type                     <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;ingress&#34;</span>
+  description              <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;allow access by sg id&#34;</span>
+  from_port                <span style="color:#719e07">=</span> <span style="color:#2aa198">443</span>
+  to_port                  <span style="color:#719e07">=</span> <span style="color:#2aa198">443</span>
+  protocol                 <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;tcp&#34;</span>
+  source_security_group_id <span style="color:#719e07">=</span> <span style="color:#719e07">each</span>.<span style="color:#719e07">key</span>
+}
+</code></pre></div><p><code>for_each</code>に与える要素はSetかMapの必要がある。またリストのマージをスマートにできないので少し冗長に書いてある。</p>
+<p>では<code>for_each</code>文を使ってこのようなTerraformの定義を用意した場合、手動作成した実リソースを冒頭に書いたようにこの定義へimportするにはどうしたら良いのだろうか？</p>
+<h1 id="キーの名前をつかって配列アクセスのようにimportする">キーの名前をつかって配列アクセスのようにimportする</h1>
+<p>importする際には基本的にリソース名が必要になる。<code>for_each</code>を使ったリソースの場合、<code>for_each</code>によって生成されるキーがリソース名の一部になる。これを使ってimportを行えば良い。<br>
+たとえば<code>foo module</code>の<code>aws_security_group_rule.dynamic_rules</code>から生成されるリソースは<code>aws_security_group.target_group.id</code>が<code>&quot;sg-hogeohge1&quot;</code>だった場合、
+<code>module.foo.aws_security_group_rule.dynamic_rules[&quot;sg-hogeohge1&quot;]</code>というようなリソース名になる。
+よって先ほど例にあげた<code>aws_security_group_rule</code>をimportする場合は次のようになる。</p>
+<ul>
+<li><a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule">https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule</a></li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># target_group sgのidがsg-foofoo1、default_group sgのidがsg-hogeohge1だった場合</span>
+$ terraform import <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    <span style="color:#2aa198">&#39;module.foo.aws_security_group_rule.dynamic_rules[&#34;sg-hogeohge1&#34;]&#39;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    sg-foofoo1_ingress_tcp_443_443_sg-hogehoge1
+</code></pre></div><h1 id="終わりに">終わりに</h1>
+<p>背景の説明が長くなったが、<code>for_each</code>を使った定義でimportする方法を紹介した。<br>
+Terraformの<code>for_each</code>は<code>for_each</code>文の外に置かれたリソースが<code>for_each</code>で増えるので通常のプログラム言語のループのスコープで考えると難しい。</p>
+<p>完全に余談だが、<code>aws_security_group_rule</code>はsecurity group rule idでimportしたいんだけれどaws cliが対応していないのだろうか？</p>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2020/12/11/terraform_provider_pixela/">TerraformでPixelaのグラフを宣言できるProviderを作った #pixela</a></li>
+  
+  <li><a href="/2020/11/17/unittest_for_terraform_custom_provider/">自作Terraform Providerのユニットテストの書き方</a></li>
+  
+  <li><a href="/2020/11/07/define_https_subdomain_by_terraform/">TerraformでAWS上にHTTPS化したサブドメインを定義する</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Jul 26, 2021</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/terraform">terraform</a>  <a class="category" href="https://budougumi0617.github.io/tags/import">import</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2021/07/12/kindle_highlight_tips/" title="Kindleで画像として引用する/WebブラウザでKindleのハイライト一覧を眺める">Kindleで画像として引用する/WebブラウザでKindleのハイライト一覧を眺める</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/gotips/" title="意外と知らないGoのTIPS" >意外と知らないGoのTIPS</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2021/07/26/terraform_import_into_for_each_resource/">Terraformでimportを使う理由とfor_eachをつかってリソース定義に実リソースをimportする方法</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/07/12/kindle_highlight_tips/">Kindleで画像として引用する/WebブラウザでKindleのハイライト一覧を眺める</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/06/30/which_termination_method_should_choose_on_go/">Goでプログラムを終了するときのお作法</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/06/29/review_million_dollar_coach/">[書評] 1兆ドルコーチを仕事や仲間に対する姿勢について感銘をうけた</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
