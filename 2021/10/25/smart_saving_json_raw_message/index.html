@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Go] JSONを構造体にマッピングしつつ生データを保存するUnmarshalJSONの実装方法 - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="Go,golang,json,RawMessage">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/Go-Logo_Aqua.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2021/10/25/smart_saving_json_raw_message/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Go] JSONを構造体にマッピングしつつ生データを保存するUnmarshalJSONの実装方法 - My External Storage"/>
+  <meta property="og:description" content="GoではJSONを扱うときでもしっかり型定義に当てはめて利用するのが一般的だ。
+しかし、外部から受け取ったJSONデータは型に当てはめつつ併せて生データも保存しておきたいときがある。
+Defind Typeをうまく使うとシンプルなUnmarshalJSON(data []byte)メソッドを定義できる。
+type Event struct {
+    ID   string          `json:&#34;id&#34;`
+    Type string          `json:&#34;type&#34;`
+    Payload Payload      `json:&#34;pyload&#34;`
+    // 構造体にマッピングする前のJSONを保存しておきたい
+    Raw  json.RawMessage `json:&#34;-&#34;`
+}
+"/>
+  
+  <meta name="twitter:title" content="[Go] JSONを構造体にマッピングしつつ生データを保存するUnmarshalJSONの実装方法 - My External Storage"/>
+  <meta name="twitter:description" content="GoではJSONを扱うときでもしっかり型定義に当てはめて利用するのが一般的だ。
+しかし、外部から受け取ったJSONデータは型に当てはめつつ併せて生データも保存しておきたいときがある。
+Defind Typeをうまく使うとシンプルなUnmarshalJSON(data []byte)メソッドを定義できる。
+type Event struct {
+    ID   string          `json:&#34;id&#34;`
+    Type string          `json:&#34;type&#34;`
+    Payload Payload      `json:&#34;pyload&#34;`
+    // 構造体にマッピングする前のJSONを保存しておきたい
+    Raw  json.RawMessage `json:&#34;-&#34;`
+}
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Oct 25, 2021
+     - 5 minute read 
+     - <a href="https://budougumi0617.github.io/2021/10/25/smart_saving_json_raw_message/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+    
+  </p>
+  <h1 class="entry-title">
+     [Go] JSONを構造体にマッピングしつつ生データを保存するUnmarshalJSONの実装方法 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#goでjsonを扱うとき">GoでJSONを扱うとき</a>
+      <ul>
+        <li><a href="#unmarshaljsondata-byteメソッドを使うと独自のjsonパースができる"><code>UnmarshalJSON(data []byte)</code>メソッドを使うと独自のJSONパースができる</a></li>
+        <li><a href="#jsonの生データを扱うときはjsonrawmessageを使うとよい">JSONの生データを扱うときは<code>json.RawMessage</code>を使うとよい</a></li>
+      </ul>
+    </li>
+    <li><a href="#外部から受け取るjsonは構造が不意に変わることを想定したいときがある">外部から受け取るJSONは構造が不意に変わることを想定したいときがある</a>
+      <ul>
+        <li><a href="#生データを保存する独自unmarshaljsondata-byteメソッド">生データを保存する独自<code>UnmarshalJSON(data []byte)</code>メソッド</a></li>
+        <li><a href="#defind-typeで名前を変えると独自定義したunmarshaljsondata-byteメソッドを呼ばなくなる"><code>Defind Type</code>で名前を変えると独自定義した<code>UnmarshalJSON(data []byte)</code>メソッドを呼ばなくなる</a></li>
+      </ul>
+    </li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>GoではJSONを扱うときでもしっかり型定義に当てはめて利用するのが一般的だ。<br>
+しかし、外部から受け取ったJSONデータは型に当てはめつつ併せて生データも保存しておきたいときがある。<br>
+<code>Defind Type</code>をうまく使うとシンプルな<code>UnmarshalJSON(data []byte)</code>メソッドを定義できる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Event <span style="color:#268bd2">struct</span> {
+    ID   <span style="color:#dc322f">string</span>          <span style="color:#2aa198">`json:&#34;id&#34;`</span>
+    Type <span style="color:#dc322f">string</span>          <span style="color:#2aa198">`json:&#34;type&#34;`</span>
+    Payload Payload      <span style="color:#2aa198">`json:&#34;pyload&#34;`</span>
+    <span style="color:#586e75">// 構造体にマッピングする前のJSONを保存しておきたい
+</span><span style="color:#586e75"></span>    Raw  json.RawMessage <span style="color:#2aa198">`json:&#34;-&#34;`</span>
+}
+</code></pre></div><h1 id="tldr">TL;DR</h1>
+<ul>
+<li>外部から受け取るJSONは構造が不意に変わることを想定したいときがある</li>
+<li><code>UnmarshalJSON(data []byte)</code>メソッドを使うと独自のJSONパースができる</li>
+<li>構造体にマッピングすると、構造体に定義されていないデータが欠落する</li>
+<li>JSONの生データを扱うときは<code>json.RawMessage</code>を使うとよい</li>
+<li><code>Defind Type</code>で名前を変えると独自定義した<code>UnmarshalJSON(data []byte)</code>メソッドを呼ばなくなる</li>
+</ul>
+<p><a href="https://play.golang.org/p/n7qvO3vTiV0">https://play.golang.org/p/n7qvO3vTiV0</a></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Event <span style="color:#268bd2">struct</span> {
+    ID   <span style="color:#dc322f">string</span>          <span style="color:#2aa198">`json:&#34;id&#34;`</span>
+    Type <span style="color:#dc322f">string</span>          <span style="color:#2aa198">`json:&#34;type&#34;`</span>
+    Payload Payload      <span style="color:#2aa198">`json:&#34;pyload&#34;`</span>
+    Raw  json.RawMessage <span style="color:#2aa198">`json:&#34;-&#34;`</span>
+}
+
+<span style="color:#268bd2">func</span> (e <span style="color:#719e07">*</span>Event) <span style="color:#268bd2">UnmarshalJSON</span>(data []<span style="color:#dc322f">byte</span>) <span style="color:#dc322f">error</span> {
+  <span style="color:#268bd2">type</span> event Event
+  <span style="color:#268bd2">var</span> ee event
+  err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmarshal</span>(data, <span style="color:#719e07">&amp;</span>ee)
+  <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+    <span style="color:#719e07">return</span> err
+  }
+  <span style="color:#719e07">*</span>e = (Event)(ee)
+  e.Raw = data
+  <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
+}
+</code></pre></div><h1 id="goでjsonを扱うとき">GoでJSONを扱うとき</h1>
+<p>GoではJSONを使うときもしっかり型を意識して取り扱う。
+受け取ったJSONデータは<code>encoding/json</code>パッケージを使ってデコードして構造体にマッピングする。</p>
+<p><a href="https://pkg.go.dev/encoding/json">https://pkg.go.dev/encoding/json</a></p>
+<h2 id="unmarshaljsondata-byteメソッドを使うと独自のjsonパースができる"><code>UnmarshalJSON(data []byte)</code>メソッドを使うと独自のJSONパースができる</h2>
+<p><code>encoding/json</code>パッケージは通常構造体のフィールドに記載された<code>json</code>タグを見て構造体にJSONのデータを当てはめていく。
+しかし構造体に対して<code>UnmarshalJSON(data []byte)</code>メソッドを定義しておくと、独自ロジックのJSONデコードが行える。</p>
+<ul>
+<li>JSONの変換をカスタマイズするメソッドを生成する | DeNA Codelab
+<ul>
+<li><a href="https://dena.github.io/codelabs/encodingjson-generator/#0">https://dena.github.io/codelabs/encodingjson-generator/#0</a></li>
+</ul>
+</li>
+</ul>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://engineering.linecorp.com/ja/blog/flex-message-line-bot-sdk-go/" data-iframely-url="//cdn.iframe.ly/1qPQa7b?card=small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<h2 id="jsonの生データを扱うときはjsonrawmessageを使うとよい">JSONの生データを扱うときは<code>json.RawMessage</code>を使うとよい</h2>
+<p>また、JSONの元データを扱うときは<code>json.RawMessage</code>型を利用する。</p>
+<ul>
+<li><a href="https://pkg.go.dev/encoding/json#RawMessage">https://pkg.go.dev/encoding/json#RawMessage</a></li>
+</ul>
+<h1 id="外部から受け取るjsonは構造が不意に変わることを想定したいときがある">外部から受け取るJSONは構造が不意に変わることを想定したいときがある</h1>
+<p>上記の仕組みを使ってJSONデータを使うとき、問題になることがある。
+当然といえば当然なのだが、構造体に未定義のキーはJSONデータから構造体へマッピングするときに欠落する。
+そのため、たとえば次のようなステップを踏んでいると、HTTPレスポンス中の未定義のキーのデータは喪失する。</p>
+<ul>
+<li>HTTPレスポンスをJSONで受け取る</li>
+<li>構造体にデコードする</li>
+<li>DBに保存する</li>
+</ul>
+<p>しっかりとした仕様の元でJSONを扱っていれば未定義のキーの心配などしなくてもよいのだが、お行儀の悪いAPIだと未定義のデータも混じる可能性が発生しうる。
+そのため構造体にマッピングしつつJSON生データの保存するロジックを書きたい時がある。</p>
+<h2 id="生データを保存する独自unmarshaljsondata-byteメソッド">生データを保存する独自<code>UnmarshalJSON(data []byte)</code>メソッド</h2>
+<p>実装の完成形を先に書くと、このような<code>UnmarshalJSON(data []byte)</code>メソッドを書けばよい。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Event <span style="color:#268bd2">struct</span> {
+    <span style="color:#586e75">// もろもろのJSON構造の定義
+</span><span style="color:#586e75"></span>
+    <span style="color:#586e75">// 構造体にマッピングする前のJSONを保存する場所
+</span><span style="color:#586e75"></span>    Raw  json.RawMessage <span style="color:#2aa198">`json:&#34;-&#34;`</span>
+}
+
+<span style="color:#268bd2">func</span> (e <span style="color:#719e07">*</span>Event) <span style="color:#268bd2">UnmarshalJSON</span>(data []<span style="color:#dc322f">byte</span>) <span style="color:#dc322f">error</span> {
+  <span style="color:#268bd2">type</span> event Event
+  <span style="color:#268bd2">var</span> ee event
+  err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmarshal</span>(data, <span style="color:#719e07">&amp;</span>ee)
+  <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+    <span style="color:#719e07">return</span> err
+  }
+  <span style="color:#719e07">*</span>e = (Event)(ee)
+  e.Raw = data
+  <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
+}
+</code></pre></div><p>やっていることは単純でアンマーシャルしたあと元データを<code>json.RawMessage</code>フィールドで参照しているだけだ。
+ただ型を定義しなおしてからアンマーシャルしているのがポイントとなる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> event Event
+<span style="color:#268bd2">var</span> ee event
+err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmarshal</span>(data, <span style="color:#719e07">&amp;</span>ee)
+</code></pre></div><h2 id="defind-typeで名前を変えると独自定義したunmarshaljsondata-byteメソッドを呼ばなくなる"><code>Defind Type</code>で名前を変えると独自定義した<code>UnmarshalJSON(data []byte)</code>メソッドを呼ばなくなる</h2>
+<p>型を定義しなおす理由は2つある。</p>
+<p>最初の理由は「型を定義しなおさないといけない理由」で、同じ型のまま<code>json.Unmarshal</code>関数を使うと<code>(e *Event) UnmarshalJSON(data []byte)</code>が再帰的に呼び出されるだけになってしまうからだ。
+別定義した<code>event</code>型には<code>(e *event) UnmarshalJSON(data []byte)</code>メソッドは定義されていない。そのため、通常のアンマーシャルが行われるだけになる。</p>
+<p>もうひとつの理由は「型を定義しなおしたほうがよい理由」で、このように定義された<code>event</code>型は<code>Event</code>型とまったく同じ構造体定義をもつ。
+そのため、<code>(Event)(ee)</code>のようなキャストも必ず成功する。また、<code>Event</code>型の構造体定義に変更が入ったときは<code>event</code>型の定義も当然更新される。
+メンテフリーで<code>Event</code>型の内容に<code>event</code>型が追従するため、「いつの間にか壊れていた」ということも発生しない。</p>
+<h1 id="終わりに">終わりに</h1>
+<p>今回のやりかたは<code>stripe-go</code>を参考にしている。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/stripe/stripe-go/blob/f1847e5d06c4d13389d10629c6827dc375bfd015/event.go" data-iframely-url="//cdn.iframe.ly/tHrkXv6?card=small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>もっというと<a href="https://twitter.com/vvakame">@vvakame</a>さんのツイートで見かけたから把握していたという背景もある。</p>
+<blockquote class="twitter-tweet"><p lang="ja" dir="ltr">おぉー Stripeのライブラリで面白いテクニック見つけた… type hoge Hoge; var v hoge; json.Unmarshal(b, &amp;v) とかしてUnmarshalJSONを適用しない的なやつ</p>&mdash; わかめ@毎日猫がいる (@vvakame) <a href="https://twitter.com/vvakame/status/1307658461711392768?ref_src=twsrc%5Etfw">September 20, 2020</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<p>OSSのコードを読むのは大事。</p>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a href="https://play.golang.org/p/n7qvO3vTiV0">https://play.golang.org/p/n7qvO3vTiV0</a></li>
+<li><a href="https://github.com/stripe/stripe-go/blob/f1847e5d06c4d13389d10629c6827dc375bfd015/event.go#L79-L91">https://github.com/stripe/stripe-go/blob/f1847e5d06c4d13389d10629c6827dc375bfd015/event.go#L79-L91</a></li>
+<li><a href="https://dena.github.io/codelabs/encodingjson-generator/#0">JSONの変換をカスタマイズするメソッドを生成する | DeNA Codelab</a></li>
+<li><a href="https://engineering.linecorp.com/ja/blog/flex-message-line-bot-sdk-go/">line-bot-sdk-go での Flex Message | LINE Engineering</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2021/04/25/reelase_cmpmock/">gomockでモックメソッドの引数をいい感じに設定できるcmpmockを作った</a></li>
+  
+  <li><a href="/2021/04/16/setenv_on_test/">[Go]環境変数を使ったテストを書く</a></li>
+  
+  <li><a href="/2020/09/18/shoten9_golangtokyo/"> #golangtokyo 技術書典9の新刊に「LeetCodeでアルゴリズムとデータ構造エクササイズ」を寄稿しました #技術書典</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Oct 25, 2021</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/golang">golang</a>  <a class="category" href="https://budougumi0617.github.io/tags/json">json</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2021/09/30/review_black_box_thinking/" title="[書評] 失敗の科学 失敗から学習する組織、学習できない組織">[書評] 失敗の科学 失敗から学習する組織、学習できない組織</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/gotips/" title="意外と知らないGoのTIPS" >意外と知らないGoのTIPS</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2021/10/25/smart_saving_json_raw_message/">[Go] JSONを構造体にマッピングしつつ生データを保存するUnmarshalJSONの実装方法</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2021/09/30/review_black_box_thinking/">[書評] 失敗の科学 失敗から学習する組織、学習できない組織</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/09/24/review_frozen_brain/"> [書評] フリーズする脳　思考が止まる、言葉に詰まる</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/09/13/how_to_copy_default_transport/">[Go] 前方互換性を保ちながらhttp.DefaultTransportからチューニングしたhttp.Transportをつくる</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
