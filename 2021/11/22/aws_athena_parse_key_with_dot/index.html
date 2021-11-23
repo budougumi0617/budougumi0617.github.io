@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>AWS Athenaでドットが含まれたJSONキーをパースする - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="Athena,ドット,JSON,AWS">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/aws.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/aws.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2021/11/22/aws_athena_parse_key_with_dot/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="AWS Athenaでドットが含まれたJSONキーをパースする - My External Storage"/>
+  <meta property="og:description" content="ググっても答えがほとんど見つからなかったのでメモしておく。"/>
+  
+  <meta name="twitter:title" content="AWS Athenaでドットが含まれたJSONキーをパースする - My External Storage"/>
+  <meta name="twitter:description" content="ググっても答えがほとんど見つからなかったのでメモしておく。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Nov 22, 2021
+     - 4 minute read 
+     - <a href="https://budougumi0617.github.io/2021/11/22/aws_athena_parse_key_with_dot/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/aws/">aws </a>
+    
+  </p>
+  <h1 class="entry-title">
+     AWS Athenaでドットが含まれたJSONキーをパースする 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#aws-athenaではjson_extractを使ってjson文字列を構造化してパースできる">AWS Athenaでは<code>json_extract</code>を使ってJSON文字列を構造化してパースできる</a></li>
+    <li><a href="#ネストしたjsonのキーはjson_extractbody-httprequestmethodのようにアクセスする">ネストしたJSONのキーは<code>json_extract(body, '$.http.request.method')</code>のようにアクセスする</a>
+      <ul>
+        <li><a href="#テーブル定義">テーブル定義</a></li>
+      </ul>
+    </li>
+    <li><a href="#spanidのようなキーはjson_extract_scalarlog-spanidと書けばアクセスできる"><code>span.id</code>のようなキーは<code>json_extract_scalar(log, '$[&quot;span.id&quot;]')</code>と書けばアクセスできる</a></li>
+    <li><a href="#終わりに">終わりに</a>
+      <ul>
+        <li><a href="#余談">余談</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>ググっても答えがほとんど見つからなかったのでメモしておく。</p>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>AWS Athenaでは<code>json_extract</code>を使ってJSON文字列を構造化してパースできる</li>
+<li>ネストしたJSONのキーは<code>json_extract(body, '$.log.request.method')</code>のようにアクセスする</li>
+<li><code>span.id</code>のようなキーは<code>json_extract_scalar(log, '$[&quot;span.id&quot;]')</code>と書けばアクセスできる</li>
+</ul>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#719e07">SELECT</span>
+json_extract(log, <span style="color:#2aa198">&#39;$.http.request.method&#39;</span>) <span style="color:#719e07">as</span> req_method,
+json_extract(log, <span style="color:#2aa198">&#39;$.http.request.path&#39;</span>) <span style="color:#719e07">as</span> req_path,
+json_extract(log, <span style="color:#2aa198">&#39;$.http.response.status&#39;</span>) <span style="color:#719e07">as</span> rsp_status,
+json_extract_scalar(log, <span style="color:#2aa198">&#39;$[&#34;trace.id&#34;]&#39;</span>) <span style="color:#719e07">as</span> trace_id,
+json_extract_scalar(log, <span style="color:#2aa198">&#39;$[&#34;span.id&#34;]&#39;</span>) <span style="color:#719e07">as</span> span_id,
+<span style="color:#719e07">FROM</span> app_logs
+<span style="color:#719e07">LIMIT</span> <span style="color:#2aa198">10</span>;
+</code></pre></div><h1 id="aws-athenaではjson_extractを使ってjson文字列を構造化してパースできる">AWS Athenaでは<code>json_extract</code>を使ってJSON文字列を構造化してパースできる</h1>
+<p>アプリケーションログのJSONをS3に大量に保存している。
+普段はNew Relicでログを見ているのだが、New Relic上には1か月分のログしかないため昔のログデータについてはAthenaを経由してS3上でのログを確認したかった。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://dev.classmethod.jp/articles/athena-json/" data-iframely-url="//cdn.iframe.ly/qbfaw5o"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>今回確認したいログは次のようなJSON形式のログだ。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+  <span style="color:#268bd2">&#34;container_name&#34;</span>: <span style="color:#2aa198">&#34;my_app&#34;</span>,
+  <span style="color:#268bd2">&#34;ecs_cluster&#34;</span>: <span style="color:#2aa198">&#34;prd-cluster&#34;</span>,
+  <span style="color:#268bd2">&#34;ecs_task_arn&#34;</span>: <span style="color:#2aa198">&#34;arn:aws:ecs:ap-northeast-1:3...&#34;</span>,
+  <span style="color:#268bd2">&#34;log&#34;</span>: <span style="color:#2aa198">&#34;{\&#34;level\&#34;:\&#34;info\&#34;,\&#34;http\&#34;:{\&#34;request\&#34;:{\&#34;hostname\&#34;:\&#34;example.com\&#34;,\&#34;method\&#34;:\&#34;GET\&#34;,\&#34;path\&#34;:\&#34;/users\&#34;},\&#34;response\&#34;:{\&#34;status\&#34;:200}},\&#34;trace.id\&#34;:\&#34;9a....\&#34;,\&#34;span.id\&#34;:\&#34;h34....\&#34;}&#34;</span>
+}
+</code></pre></div><p><code>log</code>部分の文字列は次のようなJSON文字列になる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">
+{
+  <span style="color:#268bd2">&#34;level&#34;</span>: <span style="color:#2aa198">&#34;info&#34;</span>,
+  <span style="color:#268bd2">&#34;http&#34;</span>: {
+    <span style="color:#268bd2">&#34;request&#34;</span>: {
+      <span style="color:#268bd2">&#34;hostname&#34;</span>: <span style="color:#2aa198">&#34;example.com&#34;</span>,
+      <span style="color:#268bd2">&#34;method&#34;</span>: <span style="color:#2aa198">&#34;GET&#34;</span>,
+      <span style="color:#268bd2">&#34;path&#34;</span>: <span style="color:#2aa198">&#34;/users&#34;</span>
+    },
+    <span style="color:#268bd2">&#34;response&#34;</span>: {
+      <span style="color:#268bd2">&#34;status&#34;</span>: <span style="color:#2aa198">200</span>
+    }
+  },
+  <span style="color:#268bd2">&#34;trace.id&#34;</span>: <span style="color:#2aa198">&#34;9a....&#34;</span>,
+  <span style="color:#268bd2">&#34;span.id&#34;</span>: <span style="color:#2aa198">&#34;h34....&#34;</span>
+}
+</code></pre></div><p>このJSONの中身を使ってAthenaでクエリを書きたかった。</p>
+<h1 id="ネストしたjsonのキーはjson_extractbody-httprequestmethodのようにアクセスする">ネストしたJSONのキーは<code>json_extract(body, '$.http.request.method')</code>のようにアクセスする</h1>
+<p>まずAthenaでS3上のログを検索するにはテーブル定義が必要だ。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://docs.aws.amazon.com/athena/latest/ug/creating-tables.html" data-iframely-url="//cdn.iframe.ly/Vij1ANI"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>今回のアプリケーションログは次のようなテーブルを使って検索する。</p>
+<h2 id="テーブル定義">テーブル定義</h2>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#719e07">CREATE</span> <span style="color:#719e07">EXTERNAL</span> <span style="color:#719e07">TABLE</span> <span style="color:#719e07">IF</span> <span style="color:#719e07">NOT</span> <span style="color:#719e07">EXISTS</span> app_logs (
+    container_name string,
+    ecs_cluster string,
+    ecs_task_arn string,
+    log string
+)
+<span style="color:#719e07">ROW</span> FORMAT SERDE <span style="color:#2aa198">&#39;org.openx.data.jsonserde.JsonSerDe&#39;</span>
+<span style="color:#719e07">WITH</span> SERDEPROPERTIES (
+	<span style="color:#2aa198">&#39;ignore.malformed.json&#39;</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;true&#39;</span>
+<span style="color:#719e07">LOCATION</span> <span style="color:#2aa198">&#39;s3://our-application-logs/ecs/my_app/&#39;</span>;
+</code></pre></div><p><code>log</code>キーの中身は動的に変わるしJSON文字列として保存されている。
+もっと<code>log</code>キー部分を構造化しようとしてもよいのだが、今回は検索クエリのほうでその中身をパースして利用する。
+上記のようなテーブル定義では<code>log</code>フィールドはただの文字列だ。しかし、AWS Athenaでは文字列内のJSONの構造を利用してクエリを書くができる。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://docs.aws.amazon.com/athena/latest/ug/extracting-data-from-JSON.html" data-iframely-url="//cdn.iframe.ly/N0Xy4PR"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p><code>log</code>フィールドは有効なJSON文字列なのでネストしたその中身も<code>json_extract</code>または<code>json_extract_scalar</code>でアクセスすることができる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#719e07">SELECT</span>
+json_extract(log, <span style="color:#2aa198">&#39;$.http.request.method&#39;</span>) <span style="color:#719e07">as</span> req_method,
+json_extract(log, <span style="color:#2aa198">&#39;$.http.request.path&#39;</span>) <span style="color:#719e07">as</span> req_path,
+json_extract(log, <span style="color:#2aa198">&#39;$.http.response.status&#39;</span>) <span style="color:#719e07">as</span> rsp_status,
+json_extract_scalar(log, <span style="color:#2aa198">&#39;$.trace.id&#39;</span>) <span style="color:#719e07">as</span> trace_id,
+<span style="color:#719e07">FROM</span> app_logs
+<span style="color:#719e07">LIMIT</span> <span style="color:#2aa198">10</span>;
+</code></pre></div><p>ただし、<code>span.id</code>などのキーはドットが入っているため通常のアクセスでは利用できない。
+<strong><code>$.trace.id</code>はネストしているJSON構造と判断され、値が取得できない。</strong></p>
+<h1 id="spanidのようなキーはjson_extract_scalarlog-spanidと書けばアクセスできる"><code>span.id</code>のようなキーは<code>json_extract_scalar(log, '$[&quot;span.id&quot;]')</code>と書けばアクセスできる</h1>
+<p>このようなドットを含むJSONキーは<code>'$[&quot;span.id&quot;]'</code>と書けばAthenaがパースしてくれる。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#719e07">SELECT</span>
+json_extract_scalar(log, <span style="color:#2aa198">&#39;$[&#34;trace.id&#34;]&#39;</span>) <span style="color:#719e07">as</span> trace_id,
+json_extract_scalar(log, <span style="color:#2aa198">&#39;$[&#34;span.id&#34;]&#39;</span>) <span style="color:#719e07">as</span> span_id,
+<span style="color:#719e07">FROM</span> app_logs
+<span style="color:#719e07">LIMIT</span> <span style="color:#2aa198">10</span>;
+</code></pre></div><p>上記と違い<code>[&quot;&quot;]</code>で囲めば「<code>trace</code> オブジェクトの <code>id</code> キー」ではなく、「<code>trace.id</code>キー」と判断してくれる。</p>
+<h1 id="終わりに">終わりに</h1>
+<p><code>span.id</code>などはNew Relic　Oneが自動付与するキー名であり自分たちでキー名を変更できる要素ではなかった。
+<code>span.id</code>などはSentryでも記録しているIDだったのでどうしても検索キーとして使いたい背景があった。
+だいぶ調べるのに時間がかかったが、目的のログ解析はできそうなのでよかった。</p>
+<h2 id="余談">余談</h2>
+<p>ちなみに最近知ったのだがAWSリソースのドキュメントは全部無料のKindleになっている。Auroraとかハイライトつけて読めば理解できるかな？（ただしすごいボリューム）</p>
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=B08BF4RZV4&linkId=4b441411818d4610260e9481e04a97ce"></iframe>
+<h1 id="参考">参考</h1>
+<ul>
+<li>Extracting Data from JSON
+<ul>
+<li><a href="https://docs.aws.amazon.com/athena/latest/ug/extracting-data-from-JSON.html">https://docs.aws.amazon.com/athena/latest/ug/extracting-data-from-JSON.html</a></li>
+</ul>
+</li>
+<li>Best Practices for Reading JSON Data
+<ul>
+<li><a href="https://docs.aws.amazon.com/athena/latest/ug/parsing-JSON.html">https://docs.aws.amazon.com/athena/latest/ug/parsing-JSON.html</a></li>
+</ul>
+</li>
+<li>Aws Athena - is it possible to query a JSON property that has dots in name
+<ul>
+<li><a href="https://stackoverflow.com/questions/58137161/aws-athena-is-it-possible-to-query-a-json-property-that-has-dots-in-name">https://stackoverflow.com/questions/58137161/aws-athena-is-it-possible-to-query-a-json-property-that-has-dots-in-name</a></li>
+</ul>
+</li>
+</ul>
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=491031301X&linkId=6f1444c5de095d2d2832a6b258a3022d"></iframe>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/06/02/use-dynamodb-local-on-circleci/">DynamoDBを操作するコードをamazon/dynamodb-localコンテナとCircleCIを使ってCIする #aws</a></li>
+  
+  <li><a href="/2019/02/24/go-print-detail-of-json-syntax-error/">GoでJSONのUnmarshalがシンタックスエラーで失敗した時、エラー周辺の文字列を表示する</a></li>
+  
+  <li><a href="/2021/08/30/aws_s3_snippet_check_access_log/">S3に保存されたAWS ALBのアクセスログをローカルでさっと確認するワンライナー</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Nov 22, 2021</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/aws">aws</a>  <a class="category" href="https://budougumi0617.github.io/tags/athena">athena</a>  <a class="category" href="https://budougumi0617.github.io/tags/sql">sql</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2021/10/31/review_the_fearless_organization/" title="[書評] 恐れのない組織 「心理的安全性」が学習・イノベーション・成長をもたらす">[書評] 恐れのない組織 「心理的安全性」が学習・イノベーション・成長をもたらす</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/gotips/" title="意外と知らないGoのTIPS" >意外と知らないGoのTIPS</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2021/11/22/aws_athena_parse_key_with_dot/">AWS Athenaでドットが含まれたJSONキーをパースする</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2021/10/31/review_the_fearless_organization/">[書評] 恐れのない組織 「心理的安全性」が学習・イノベーション・成長をもたらす</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/10/26/review_work_with_others/">[書評] 他者と働く─「わかりあえなさ」から始める組織論</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/10/25/smart_saving_json_raw_message/">[Go] JSONを構造体にマッピングしつつ生データを保存するUnmarshalJSONの実装方法</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
