@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[Notion] 完了ステータスのタスクの数を集計する（あるDBのSelectプロパティの特定値の数を集計する） - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="Notion,タスク管理,Rollup,GTD">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.66.0" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/notion.jpeg"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/notion.jpeg"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2021/11/26/notion_count_done/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[Notion] 完了ステータスのタスクの数を集計する（あるDBのSelectプロパティの特定値の数を集計する） - My External Storage"/>
+  <meta property="og:description" content="最近Notionを使い始めた。ステータスプロパティを追加した「タスク」DBでタスク管理をしている。
+「Done」タスクの数を数えるには少し回り道が必要だったのでメモしておく。
+なお、この記事は2021/11/26時点のNotionの機能をベースに記載されている。"/>
+  
+  <meta name="twitter:title" content="[Notion] 完了ステータスのタスクの数を集計する（あるDBのSelectプロパティの特定値の数を集計する） - My External Storage"/>
+  <meta name="twitter:description" content="最近Notionを使い始めた。ステータスプロパティを追加した「タスク」DBでタスク管理をしている。
+「Done」タスクの数を数えるには少し回り道が必要だったのでメモしておく。
+なお、この記事は2021/11/26時点のNotionの機能をベースに記載されている。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Nov 26, 2021
+     - 4 minute read 
+     - <a href="https://budougumi0617.github.io/2021/11/26/notion_count_done/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/notion/">notion </a>
+    
+  </p>
+  <h1 class="entry-title">
+     [Notion] 完了ステータスのタスクの数を集計する（あるDBのSelectプロパティの特定値の数を集計する） 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#notionでタスク管理">Notionでタスク管理</a></li>
+    <li><a href="#selectプロパティの特定ステータスの数はrollupでカウントできない">Selectプロパティの特定ステータスの数はRollupでカウントできない</a></li>
+    <li><a href="#タスク側でdoneかどうかをみるfomulaを作っておく">タスク側で「<code>Done</code>かどうか」をみるFomulaを作っておく</a></li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>最近Notionを使い始めた。ステータスプロパティを追加した「タスク」DBでタスク管理をしている。<br>
+「Done」タスクの数を数えるには少し回り道が必要だったのでメモしておく。<br>
+なお、この記事は2021/11/26時点のNotionの機能をベースに記載されている。</p>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>Notionで「タスク」と「週報」のDBを作っている
+<ul>
+<li>「タスク」には<code>Select</code>型の「ステータス」プロパティを作っている</li>
+</ul>
+</li>
+<li>「週報」ページのRollupで「<code>Done</code>ステータスのタスク数」を計算できなかった</li>
+<li>「タスク」に<code>prop(&quot;Status&quot;) == &quot;Done&quot;</code>という<code>Formula</code>型の<code>Checked</code>プロパティを作ってこれをRollupで集計するとできた</li>
+</ul>
+<p><img src="/2021/11/26_notion_result.png" alt="カスタマイズ結果"></p>
+<h1 id="notionでタスク管理">Notionでタスク管理</h1>
+<p>最近Notionでタスク管理を始めた。
+フォーマットは次の記事の「タスク」と「週報レトロスペクティブ」の作り方とデータベースを参考にカスタマイズしている。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://www.bsoundarya.com/2021-notion-gtd-weekly-planner/" data-iframely-url="//cdn.iframe.ly/w2WCIDM?card=small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://www.notion.so" data-iframely-url="//cdn.iframe.ly/fGosCWC?card=small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<p>タスクにはこんな感じで<code>Select</code>プロパティとしてステータスを用意している。</p>
+<p><img src="/2021/11/26_notion_task.png" alt="タスクのイメージ"></p>
+<p>タスクはDBのページとして登録しており、週報用のDBのページ多:多のリレーションを貼っている。<br>
+（同じタスクを数週間使いまわしていたりするので、多:多になっている）</p>
+<p><img src="/2021/11/26_notion_weekly.png" alt="週報のイメージ"></p>
+<h1 id="selectプロパティの特定ステータスの数はrollupでカウントできない">Selectプロパティの特定ステータスの数はRollupでカウントできない</h1>
+<p>週末に「今週どれくらいタスクを消化できたか？」を計測するため、タスクのステータスが「Done」になっているタスクの数を数えたかった。
+疑似SQL的に言うとこんな感じ。</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#719e07">SELECT</span> <span style="color:#719e07">COUNT</span>(<span style="color:#719e07">*</span>)
+<span style="color:#719e07">FROM</span> <span style="color:#719e07">`</span>タスク<span style="color:#2aa198">&#39;`
+</span><span style="color:#2aa198">WHERE `タスク`.`ステータス` = &#39;</span>Done<span style="color:#2aa198">&#39;
+</span><span style="color:#2aa198">AND `タスク`.`Week` CONTAINS &#39;</span>調べたい週のページ<span style="color:#2aa198">&#39;
+</span></code></pre></div><p>Notionには関連DBの特定要素を集計するロールアップというプロパティがあるのでこれでできるかと思った。</p>
+<ul>
+<li>リレーションとロールアップ
+<ul>
+<li><a href="https://extns.notion.site/e730a4e9ef214cf09b9d6e8428354510">https://extns.notion.site/e730a4e9ef214cf09b9d6e8428354510</a></li>
+</ul>
+</li>
+</ul>
+<p>しかし、次のようにロールアップを選択しても<code>Select</code>型のプロパティの特定値をカウントすることはできないようだった。</p>
+<table>
+<thead>
+<tr>
+<th>RELATION</th>
+<th>All tasks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PROPERTY</td>
+<td><code>Status</code></td>
+</tr>
+<tr>
+<td>CALCULATE</td>
+<td>???</td>
+</tr>
+</tbody>
+</table>
+<p>2021/11/26現在のロールアップでは次のような集計しかできないので、「<code>Done</code>の数だけ数える」ができない。</p>
+<ul>
+<li>Show original</li>
+<li>Show unique values</li>
+<li>Count all</li>
+<li>Count values</li>
+<li>Count unique values</li>
+<li>Count empty</li>
+<li>Count not empty</li>
+<li>Percent empty</li>
+<li>Percent not empty</li>
+</ul>
+<h1 id="タスク側でdoneかどうかをみるfomulaを作っておく">タスク側で「<code>Done</code>かどうか」をみるFomulaを作っておく</h1>
+<p>毎回Doneの数を数えたくなかったので、隠しプロパティを設定することで解決した。
+<code>Select</code>プロパティは集計できないようだったので、各タスク側に<code>Status</code>プロパティが<code>Done</code>だったらチェック状態になる<code>Formula</code>プロパティを設定した。
+設定内容は次の通り。</p>
+<pre><code>prop(&quot;Status&quot;) == &quot;Done&quot;
+</code></pre><p>これを使えば、各タスクに「<code>Status</code> == <code>Done</code>のときは自動でチェック状態」になるプロパティが設定できる。
+このような隠しプロパティを用意して、あとは週報側でこのプロパティを集計するロールアップを設定すれば良い。</p>
+<table>
+<thead>
+<tr>
+<th>RELATION</th>
+<th>All tasks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PROPERTY</td>
+<td><code>done</code></td>
+</tr>
+<tr>
+<td>CALCULATE</td>
+<td><code>checked</code></td>
+</tr>
+</tbody>
+</table>
+<p>スクショは27タスクがこの週報に登録されていて、9タスクが<code>Done</code>ステータスになっている集計ができている状態。</p>
+<p><img src="/2021/11/26_notion_result.png" alt="カスタマイズ結果"></p>
+<h1 id="終わりに">終わりに</h1>
+<p><code>Done</code>の数は自動で集計できたが、これはリレーショナルな情報なので、未完のタスクが翌週<code>Done</code>になると数字が更新されてしまう。
+そうすると年末に振り返ったとき、すべての週で登録したタスクがすべて<code>Done</code>ステータスになりかねない。
+なので、週末振り返るときに集計された<code>Done</code>の数を固定値として保存するプロパティも用意してある（ここはRollupの値を手動でコピペするしかない）。</p>
+<p>プログラマとしてはNotionはノーコードでいろいろなデータの表現をリレーショナルにできるのでおもしろい。
+あまりカスタマイズしすぎるとあとでメンテできなくなりそうだが、適度にカスタマイズして利用していきたい。</p>
+<h1 id="参考">参考</h1>
+<ul>
+<li>リレーションとロールアップ
+<ul>
+<li><a href="https://extns.notion.site/e730a4e9ef214cf09b9d6e8428354510">https://extns.notion.site/e730a4e9ef214cf09b9d6e8428354510</a></li>
+</ul>
+</li>
+<li>Planning Your 2021 With Notion: My Weekly GTD Planner
+<ul>
+<li><a href="https://www.bsoundarya.com/2021-notion-gtd-weekly-planner/">https://www.bsoundarya.com/2021-notion-gtd-weekly-planner/</a></li>
+</ul>
+</li>
+<li>2021 GTD Planner &amp; Retrospective
+<ul>
+<li><a href="https://www.notion.so/2021-GTD-Planner-Retrospective-979c56adecba49fe855fea1e9b13729e">https://www.notion.so/2021-GTD-Planner-Retrospective-979c56adecba49fe855fea1e9b13729e</a></li>
+</ul>
+</li>
+</ul>
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=B09JS3D9C6&linkId=1d219b07acacb2d9e8c732fb0bcaf8f4"></iframe>
+        </div>
+        
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Nov 26, 2021</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/notion">notion</a>  <a class="category" href="https://budougumi0617.github.io/tags/gtd">gtd</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2021/11/23/aws_athena_parse_key_with_dot/" title="AWS Athenaでドットが含まれたJSONキーをパースする">AWS Athenaでドットが含まれたJSONキーをパースする</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/gotips/" title="意外と知らないGoのTIPS" >意外と知らないGoのTIPS</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2021/11/26/notion_count_done/">[Notion] 完了ステータスのタスクの数を集計する（あるDBのSelectプロパティの特定値の数を集計する）</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2021/11/23/aws_athena_parse_key_with_dot/">AWS Athenaでドットが含まれたJSONキーをパースする</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/10/31/review_the_fearless_organization/">[書評] 恐れのない組織 「心理的安全性」が学習・イノベーション・成長をもたらす</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2021/10/26/review_work_with_others/">[書評] 他者と働く─「わかりあえなさ」から始める組織論</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
