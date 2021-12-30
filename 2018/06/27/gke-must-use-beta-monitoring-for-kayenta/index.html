@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -210,18 +210,18 @@ https://medium.com/netflix-techblog/automated-canary-analysis-at-netflix-with-ka
 <li>Spinnaker1.8.0がサポートしているメトリクスのResource Typeに<code>gke_container</code>は含まれていない</li>
 <li>そのため、k8sを<code>1.10</code>系にしてStackdriver k8s MonitoringのBeta版を有効にする必要がある。</li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#268bd2">GCP_PROJECT</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>gcloud info --format<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;value(config.project)&#39;</span><span style="color:#719e07">)</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#268bd2">GCP_PROJECT</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>gcloud info --format<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;value(config.project)&#39;</span><span style="color:#719e07">)</span>
 <span style="color:#268bd2">CLUSTER_NAME</span><span style="color:#719e07">=</span>cluster-1
 <span style="color:#268bd2">CLUSTER_VERSION</span><span style="color:#719e07">=</span>1.10.4-gke.2
 <span style="color:#268bd2">ZONE</span><span style="color:#719e07">=</span>us-central1-a
 <span style="color:#268bd2">CLOUDSDK_CONTAINER_USE_V1_API</span><span style="color:#719e07">=</span><span style="color:#b58900">false</span>
 <span style="color:#268bd2">CLOUDSDK_API_CLIENT_OVERRIDES_CONTAINER</span><span style="color:#719e07">=</span>v1beta1
-gcloud beta container clusters create <span style="color:#268bd2">$CLUSTER_NAME</span> <span style="color:#cb4b16">\</span>
-  --zone<span style="color:#719e07">=</span><span style="color:#268bd2">$ZONE</span> <span style="color:#cb4b16">\</span>
-  --project<span style="color:#719e07">=</span><span style="color:#268bd2">$GCP_PROJECT</span> <span style="color:#cb4b16">\</span>
-  --cluster-version<span style="color:#719e07">=</span><span style="color:#268bd2">$CLUSTER_VERSION</span> <span style="color:#cb4b16">\</span>
-  --enable-stackdriver-kubernetes <span style="color:#cb4b16">\</span>
-  --enable-legacy-authorization
+gcloud beta container clusters create <span style="color:#268bd2">$CLUSTER_NAME</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  --zone<span style="color:#719e07">=</span><span style="color:#268bd2">$ZONE</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  --project<span style="color:#719e07">=</span><span style="color:#268bd2">$GCP_PROJECT</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  --cluster-version<span style="color:#719e07">=</span><span style="color:#268bd2">$CLUSTER_VERSION</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  --enable-stackdriver-kubernetes <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  --enable-legacy-authorization
 </code></pre></div><h1 id="kayentaにメトリクスデータが入ってこない">Kayentaにメトリクスデータが入ってこない</h1>
 <p>先日GKE上に自動カナリー分析を有効にしたSpinnakerを構築した。</p>
 <ul>
@@ -249,18 +249,18 @@ gcloud beta container clusters create <span style="color:#268bd2">$CLUSTER_NAME<
 <p><strong>Migrating to Kubernetes Monitoring</strong><br>
 <a href="https://cloud.google.com/monitoring/kubernetes-engine/migration">https://cloud.google.com/monitoring/kubernetes-engine/migration</a></p>
 <p>自分は新しくk8sクラスターを作り直した。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#268bd2">GCP_PROJECT</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>gcloud info --format<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;value(config.project)&#39;</span><span style="color:#719e07">)</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#268bd2">GCP_PROJECT</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>gcloud info --format<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;value(config.project)&#39;</span><span style="color:#719e07">)</span>
 <span style="color:#268bd2">CLUSTER_NAME</span><span style="color:#719e07">=</span>cluster-1
 <span style="color:#268bd2">CLUSTER_VERSION</span><span style="color:#719e07">=</span>1.10.4-gke.2
 <span style="color:#268bd2">ZONE</span><span style="color:#719e07">=</span>us-central1-a
 <span style="color:#268bd2">CLOUDSDK_CONTAINER_USE_V1_API</span><span style="color:#719e07">=</span><span style="color:#b58900">false</span>
 <span style="color:#268bd2">CLOUDSDK_API_CLIENT_OVERRIDES_CONTAINER</span><span style="color:#719e07">=</span>v1beta1
-gcloud beta container clusters create <span style="color:#268bd2">$CLUSTER_NAME</span> <span style="color:#cb4b16">\</span>
-  --zone<span style="color:#719e07">=</span><span style="color:#268bd2">$ZONE</span> <span style="color:#cb4b16">\</span>
-  --project<span style="color:#719e07">=</span><span style="color:#268bd2">$GCP_PROJECT</span> <span style="color:#cb4b16">\</span>
-  --cluster-version<span style="color:#719e07">=</span><span style="color:#268bd2">$CLUSTER_VERSION</span> <span style="color:#cb4b16">\</span>
-  --enable-stackdriver-kubernetes <span style="color:#cb4b16">\</span>
-  --enable-legacy-authorization
+gcloud beta container clusters create <span style="color:#268bd2">$CLUSTER_NAME</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  --zone<span style="color:#719e07">=</span><span style="color:#268bd2">$ZONE</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  --project<span style="color:#719e07">=</span><span style="color:#268bd2">$GCP_PROJECT</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  --cluster-version<span style="color:#719e07">=</span><span style="color:#268bd2">$CLUSTER_VERSION</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  --enable-stackdriver-kubernetes <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  --enable-legacy-authorization
 </code></pre></div><p>この状態でk8sでコンテナーを起動して、GCP Consoleから<a href="https://console.cloud.google.com/logs/viewer">Stackdriver Logging</a>を確認する。
 <code>GKE Container</code>ではなく、<code>Kubernetes Container</code>というResourceが選択できるようになったら変更成功だ。</p>
 <p><img src="/2018/06/27_exists-resource-k8s-container.png" alt="Exsits k8s Container"></p>
@@ -457,10 +457,16 @@ gcloud beta container clusters create <span style="color:#268bd2">$CLUSTER_NAME<
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -472,12 +478,6 @@ gcloud beta container clusters create <span style="color:#268bd2">$CLUSTER_NAME<
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

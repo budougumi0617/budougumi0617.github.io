@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -206,7 +206,7 @@ MySQLサーバとの接続パラメータを変えることでうまくいった
 <li>Go 1.12.1</li>
 </ul>
 <p>サンプルコードの<code>go.mod</code>は以下の状態。</p>
-<pre><code>module github.com/budougumi0617/til/go/db/sql-migrate
+<pre tabindex="0"><code>module github.com/budougumi0617/til/go/db/sql-migrate
 
 go 1.12
 
@@ -217,7 +217,7 @@ require (
 )
 </code></pre><h1 id="構造体からレコードを書き込めたのに読み込みは失敗した">構造体からレコードを書き込めたのに読み込みは失敗した</h1>
 <p>自分でイチからDB操作を行なうコードを書こうと思い、以下のようなソースコードを作成した。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
 	<span style="color:#2aa198">&#34;log&#34;</span>
@@ -263,7 +263,7 @@ require (
 	<span style="color:#719e07">return</span> r.<span style="color:#268bd2">LastInsertId</span>()
 }
 </code></pre></div><p>なお、<code>43306</code>ポートでリッスンしているMySQL内には、コード中で参照しているデータベース(<code>sqlx_development</code>)やテーブル(<code>user</code>)をすでに作成している。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">mysql<span style="color:#719e07">&gt;</span> <span style="color:#719e07">desc</span> <span style="color:#719e07">user</span>;
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">mysql<span style="color:#719e07">&gt;</span> <span style="color:#719e07">desc</span> <span style="color:#719e07">user</span>;
 <span style="color:#719e07">+</span><span style="color:#586e75">------------+---------------------+------+-----+---------+----------------+
 </span><span style="color:#586e75"></span><span style="color:#719e07">|</span> Field      <span style="color:#719e07">|</span> <span style="color:#719e07">Type</span>                <span style="color:#719e07">|</span> <span style="color:#719e07">Null</span> <span style="color:#719e07">|</span> <span style="color:#719e07">Key</span> <span style="color:#719e07">|</span> <span style="color:#719e07">Default</span> <span style="color:#719e07">|</span> Extra          <span style="color:#719e07">|</span>
 <span style="color:#719e07">+</span><span style="color:#586e75">------------+---------------------+------+-----+---------+----------------+
@@ -276,7 +276,7 @@ require (
 </span><span style="color:#586e75"></span><span style="color:#2aa198">5</span> <span style="color:#719e07">rows</span> <span style="color:#719e07">in</span> <span style="color:#719e07">set</span> (<span style="color:#2aa198">0</span>.<span style="color:#2aa198">01</span> sec)
 </code></pre></div><p>そして前述のコードを実行すると、<code>addUser</code>関数によるレコードの書き込みはうまくいった。
 しかし、結果を<code>User</code>構造体に読み込むための<code>db.QueryRowx(userState, id).StructScan(&amp;user)</code>部分の処理は次のような出力を出して失敗してしまった。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># 読みやすさのために出力結果に改行を入れている</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># 読みやすさのために出力結果に改行を入れている</span>
 $ go run adduser.go
 2019/03/30 19:33:37 Added user was <span style="color:#719e07">{</span><span style="color:#2aa198">6</span> John Doe john@example.com <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>    2019-03-30 10:33:38 +0000 UTC 2019-03-30 10:33:38 +0000 UTC<span style="color:#719e07">}</span>
@@ -290,9 +290,9 @@ $ go run adduser.go
 </li>
 </ul>
 <p><code>jmoiron/sqlx</code>パッケージの<code>sql.Open</code>に該当する操作は<code>sqlx.Connect</code>なので、修正は以下のようになる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">db, err <span style="color:#719e07">:=</span> sqlx.<span style="color:#268bd2">Connect</span>(<span style="color:#2aa198">&#34;mysql&#34;</span>, <span style="color:#2aa198">&#34;root:@(localhost:43306)/sqlx_development?parseTime=true&#34;</span>)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">db, err <span style="color:#719e07">:=</span> sqlx.<span style="color:#268bd2">Connect</span>(<span style="color:#2aa198">&#34;mysql&#34;</span>, <span style="color:#2aa198">&#34;root:@(localhost:43306)/sqlx_development?parseTime=true&#34;</span>)
 </code></pre></div><p>実際に修正したコードで再度実行したところ、今度はレコード情報を読込できた。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run adduser.go
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run adduser.go
 2019/03/30 19:33:37 Added user was <span style="color:#719e07">{</span><span style="color:#2aa198">6</span> John Doe john@example.com 2019-03-30 10:33:38 +0000 UTC 2019-03-30 10:33:38 +0000 UTC<span style="color:#719e07">}</span>
 </code></pre></div><h1 id="終わりに">終わりに</h1>
 <p>業務では既製のライブラリ化を使ってDBに接続・操作している。<br>
@@ -494,10 +494,16 @@ $ go run adduser.go
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -509,12 +515,6 @@ $ go run adduser.go
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

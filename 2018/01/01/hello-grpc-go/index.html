@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -212,12 +212,12 @@
 <a href="https://www.school.ctc-g.co.jp/columns/nakai2/nakai224.html">https://www.school.ctc-g.co.jp/columns/nakai2/nakai224.html</a></p>
 <h1 id="grpcを利用するための準備">gRPCを利用するための準備。</h1>
 <p>Macの場合、<code>protobuf</code>は<code>brew</code>経由でインストールできる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get -u google.golang.org/grpc
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get -u google.golang.org/grpc
 $ brew install protobuf
 $ go get -u github.com/golang/protobuf/protoc-gen-go
 </code></pre></div><p><code>GOPATH</code>に<code>PATH</code>を通していない場合は、<code>$ export PATH=$PATH:$GOPATH/bin</code>もしておく。</p>
 <p><code>google.golang.org/grpc</code>の中にサンプルコードがあるのでカレントディレクトリを移動する。サンプルコードの構成は以下。</p>
-<pre><code>.
+<pre tabindex="0"><code>.
 ├── greeter_client
 │   └── main.go
 ├── greeter_server
@@ -235,7 +235,7 @@ $ go get -u github.com/golang/protobuf/protoc-gen-go
 <p><strong>gRPC Basics: Go.</strong><br>
 <a href="https://grpc.io/docs/tutorials/basic/go.html">https://grpc.io/docs/tutorials/basic/go.html</a></p>
 <p>サーバ側を起動しておいてクライアントコードを実行すると、レスポンスが受け取れることを確認できる。</p>
-<pre><code>$ go run greeter_server/main.go
+<pre tabindex="0"><code>$ go run greeter_server/main.go
 
 -----------------
 
@@ -243,7 +243,7 @@ $ go run greeter_client/main.go
 2017/12/31 14:11:52 Greeting: Hello world
 </code></pre><h1 id="プロトコルバッファーの更新">プロトコルバッファーの更新</h1>
 <p><code>.proto</code>ファイルに新しいプロトコルをひとつ追加する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="color:#cb4b16">diff --git a/examples/helloworld/helloworld/helloworld.proto b/examples/helloworld/helloworld/helloworld.proto
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="color:#cb4b16">diff --git a/examples/helloworld/helloworld/helloworld.proto b/examples/helloworld/helloworld/helloworld.proto
 </span><span style="color:#cb4b16">index d79a6a0..becd915 100644
 </span><span style="color:#cb4b16"></span><span style="color:#dc322f">--- a/examples/helloworld/helloworld/helloworld.proto
 </span><span style="color:#dc322f"></span><span style="color:#719e07">+++ b/examples/helloworld/helloworld/helloworld.proto
@@ -257,9 +257,9 @@ $ go run greeter_client/main.go
 
  // The request message containing the user&#39;s name.
 </code></pre></div><p>その後、<code>protoc</code>コマンドで再コンパイルをする。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ protoc -I helloworld/ helloworld/helloworld.proto --go_out<span style="color:#719e07">=</span><span style="color:#268bd2">plugins</span><span style="color:#719e07">=</span>grpc:helloworld
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ protoc -I helloworld/ helloworld/helloworld.proto --go_out<span style="color:#719e07">=</span><span style="color:#268bd2">plugins</span><span style="color:#719e07">=</span>grpc:helloworld
 </code></pre></div><p>そうすると、<code>.pb.go</code>ファイルが更新され、新しいコードが自動生成される。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff">        SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff">        SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
 <span style="color:#719e07">+       // Sends another greeting
 </span><span style="color:#719e07">+       SayHelloAgain(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
 </span><span style="color:#719e07"></span> }
@@ -281,7 +281,7 @@ $ go run greeter_client/main.go
 </span><span style="color:#719e07"></span> // Server API for Greeter service
 ...
 </code></pre></div><p><code>greeter_server/main.go</code>と<code>greeter_client/main.go</code>にチュートリアル通りの実装を追加して、実行すると、追加した定義を使った通信ができた。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run greeter_client/main.go
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run greeter_client/main.go
 2017/12/31 16:35:46 Greeting: Hello world
 2017/12/31 16:35:46 Greeting: Hello again world
 </code></pre></div><h1 id="サンプルコードの実装">サンプルコードの実装</h1>
@@ -515,10 +515,16 @@ $ go run greeter_client/main.go
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -530,12 +536,6 @@ $ go run greeter_client/main.go
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -200,7 +200,7 @@
 </li>
 <li><code>TestMain</code>でしか使ってほしくない関数は<code>*testing.M</code>を引数にすればよいのでは？というアイデア</li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">SetupHelper</span>(m <span style="color:#719e07">*</span>testing.M) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">SetupHelper</span>(m <span style="color:#719e07">*</span>testing.M) {
     <span style="color:#586e75">// そのpkgのテスト全体でで一度しか実行しない処理
 </span><span style="color:#586e75"></span>}
 </code></pre></div><h1 id="共通ライブラリを作っている">共通ライブラリを作っている</h1>
@@ -226,7 +226,7 @@
 <p>今回はテストの中で使うヘルパー関数を例に考える。</p>
 <p>Goのテストは<code>func TestXxx(*testing.T)</code>というシグネチャで定義し、<code>*testing.T</code>オブジェクトは一般にテストコードの中にしか出てこない。<br>
 このテストコードの中で利用する関数を定義するときは<code>*testing.T</code>を引数に与える。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">helper</span>(t <span style="color:#719e07">*</span>testing.T)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">helper</span>(t <span style="color:#719e07">*</span>testing.T)
 </code></pre></div><p><code>*testing.T</code>オブジェクトを引数にする理由は、<code>*testing.T</code>オブジェクトが持つメソッドを利用できるというのが一番の動機だ。<br>
 ただ副次的な効果として、「この関数はテストコードの中で利用する関数なんだな」という認識を与えてくれる。</p>
 <p>同様の効果を期待して、<code>TestMain</code>関数の中でしか利用してほしくないテストユーティリティ関数は<code>*testing.M</code>を引数に持たせればよいのではと考えた。</p>
@@ -235,13 +235,13 @@
 <ul>
 <li><a href="https://golang.org/pkg/testing/#hdr-Main">https://golang.org/pkg/testing/#hdr-Main</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestMain</span>(m <span style="color:#719e07">*</span>testing.M)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestMain</span>(m <span style="color:#719e07">*</span>testing.M)
 </code></pre></div><p>そのため、DBのセットアップのような事前処理を<code>TestMain</code>関数の中に定義することが多い。<br>
 逆に言うとここで呼ぶ事前処理はpkg内で複数回呼ばれることを期待しない。</p>
 <p><code>TestMain</code>関数を定義するときは<code>*testing.M</code>オブジェクトを引数にとる必要がある。<br>
 この<code>*testing.M</code>オブジェクトは<code>TestMain</code>関数の中でしか使われることはない。<br>
 つまり、<code>*testing.M</code>オブジェクトを引数にとる関数を定義すれば、それは<code>TestMain</code>関数の中でしか使わない関数とシグネチャで主張することができる<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">SetupHelper</span>(m <span style="color:#719e07">*</span>testing.M)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">SetupHelper</span>(m <span style="color:#719e07">*</span>testing.M)
 </code></pre></div><p><code>*testing.M</code>オブジェクトは<code>*testing.T</code>オブジェクトと違い、ヘルパー関数の中で利用できる便利なメソッドはない。<br>
 しかし、テスト関数の中で<code>*testing.M</code>オブジェクトが現れることはないため、シグネチャからテスト関数の中で利用することを想定していないことを主張できる。</p>
 <h1 id="終わりに">終わりに</h1>
@@ -252,7 +252,7 @@
 <hr>
 <ol>
 <li id="fn:1" role="doc-endnote">
-<p>処理内容を<code>sync.Once</code>で一度しか実行できないようにしておけば更に万全かもしれない。 <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>処理内容を<code>sync.Once</code>で一度しか実行できないようにしておけば更に万全かもしれない。&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 </ol>
 </section>
@@ -429,10 +429,16 @@
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -444,12 +450,6 @@
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

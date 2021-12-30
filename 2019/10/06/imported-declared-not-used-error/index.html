@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -211,7 +211,7 @@
 <h1 id="imported-and-not-usedエラー">&ldquo;imported and not used&quot;エラー</h1>
 <p><code>imported and not used</code>は依存していないパッケージを<code>import</code>していたときに発生するエラーだ。</p>
 <p>次のようなコードを実行しようとすると、<code>./prog.go:5:2: imported and not used: &quot;log&quot;</code>というエラーが発生する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
 	<span style="color:#2aa198">&#34;fmt&#34;</span>
@@ -227,7 +227,7 @@
 単純性・簡潔性を考えたときに、不要なパッケージに依存するデメリットは大きい。</p>
 <p>唯一の例外例として、「直接依存していないが、そのパッケージの<code>init</code>関数を実行する必要がある」場合がある。具体的に言うと、データベースに接続したいときの各種ドライバーパッケージなどだ。
 そのような場合は<code>blank import</code>で<code>import</code>する。こうすると、コード上そのパッケージを利用していなくても<code>imported and not used</code>エラーは発生しない。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">import</span> (
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">import</span> (
 	<span style="color:#2aa198">&#34;database/sql&#34;</span>
 	_ <span style="color:#2aa198">&#34;github.com/go-sql-driver/mysql&#34;</span>
 )
@@ -245,10 +245,10 @@
 <h2 id="imported-and-not-usedエラーの対処方法">&ldquo;imported and not used&quot;エラーの対処方法</h2>
 <p>エディタやIDEを正しく設定していると<code>imported and not used</code>エラーにはほとんど遭遇することはない。
 <code>goimports</code>コマンドという<code>import</code>文を整理するコマンドがある。インストール方法は次の通り。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get golang.org/x/tools/cmd/goimports
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get golang.org/x/tools/cmd/goimports
 </code></pre></div><p>これを使うと不要な<code>import</code>文は削除される。</p>
 <p>たとえば利用していない<code>log</code>パッケージを<code>import</code>している<code>go</code>ファイルに対して<code>goimports</code>コマンドを実行すると、以下の通り。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ goimports -d three_index.go
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ goimports -d three_index.go
 diff -u three_index.go.orig three_index.go
 --- three_index.go.orig 2019-10-06 09:42:41.000000000 +0900
 +++ three_index.go      2019-10-06 09:42:41.000000000 +0900
@@ -272,7 +272,7 @@ func main<span style="color:#719e07">()</span> <span style="color:#719e07">{</sp
 <h1 id="declared-and-not-usedエラー">&ldquo;declared and not used&quot;エラー</h1>
 <p><code>declared and not used</code>エラーは関数やメソッド内で利用されていない変数があった場合のエラーだ。</p>
 <p>次のようなコードは<code>unused</code>変数が利用されていないので、<code>./prog.go:8:6: unused declared and not used</code>というエラーが発生する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
 	<span style="color:#2aa198">&#34;fmt&#34;</span>
@@ -301,7 +301,7 @@ func main<span style="color:#719e07">()</span> <span style="color:#719e07">{</sp
 <h2 id="declared-and-not-usedエラーの対処方法">&ldquo;declared and not used&quot;エラーの対処方法</h2>
 <p><code>declared and not used</code>エラーは該当の変数名や行数が一緒に出力されているので、言われたとおりに消してしまえばいいと思う。</p>
 <p>「ある関数の戻り値の中に使わない値がある」場合に<code>declared and not used</code>エラーが出る場合は<code>_</code>で受け取れば問題ない。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// func StdCopy(dstout, dsterr io.Writer, src io.Reader) (written int64, err error)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// func StdCopy(dstout, dsterr io.Writer, src io.Reader) (written int64, err error)
 </span><span style="color:#586e75">// 戻り値のint64は利用しない場合
 </span><span style="color:#586e75"></span>_, err = stdcopy.<span style="color:#268bd2">StdCopy</span>(<span style="color:#719e07">&amp;</span>outBuf, <span style="color:#719e07">&amp;</span>errBuf, aresp.Reader)
 <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
@@ -498,10 +498,16 @@ func main<span style="color:#719e07">()</span> <span style="color:#719e07">{</sp
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -513,12 +519,6 @@ func main<span style="color:#719e07">()</span> <span style="color:#719e07">{</sp
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

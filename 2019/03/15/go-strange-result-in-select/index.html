@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -189,7 +189,7 @@
 <li>チャネルを使ったselectのcase文中で、別のチャネルから受信した結果でチャネルへの送信をしないほうがよい</li>
 </ul>
 <p>文章で書くとわかりにくいのだが、コードで書くと以下のような処理を書くのは避けたほうがよい、というのが主題だ。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"> <span style="color:#719e07">select</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"> <span style="color:#719e07">select</span> {
  <span style="color:#719e07">case</span> ch1 <span style="color:#719e07">&lt;-</span> <span style="color:#268bd2">f</span>(): <span style="color:#586e75">// チャネルへ関数を呼び出した結果を送信する
 </span><span style="color:#586e75"></span> <span style="color:#719e07">case</span> ch1 <span style="color:#719e07">&lt;-</span> <span style="color:#719e07">&lt;-</span> ch2: <span style="color:#586e75">// チャネルへ別のチャネルからの受信結果を送信する
 </span><span style="color:#586e75"></span> }
@@ -205,7 +205,7 @@
 <ul>
 <li><a href="https://play.golang.org/p/ZvypfcE-oPe">https://play.golang.org/p/ZvypfcE-oPe</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
 	<span style="color:#2aa198">&#34;fmt&#34;</span>
@@ -238,20 +238,20 @@
 }
 </code></pre></div><p>私は<code>fmt.Printf(&quot;f return = %d\n&quot;, &lt;-ch1)</code>の時に<code>ch1</code>から値を受け取るときだけ<code>f</code>関数が呼び出されると思ったので1回と予想していた。<br>
 だが、答えは4回だ。</p>
-<pre><code>called f
+<pre tabindex="0"><code>called f
 called f
 f return = 1
 called f
 called f
 done
-</code></pre><p>どうやら<strong><code>select</code>文に突入した時点でチャネルへの送信文(<code>channel &lt;- XXXX</code>)の右辺(<code>XXXX</code>)が実行されなかった<code>case</code>も含めて確定的に行われてしまう</strong>らしい。<br>
+</code></pre><p>どうやら**<code>select</code>文に突入した時点でチャネルへの送信文(<code>channel &lt;- XXXX</code>)の右辺(<code>XXXX</code>)が実行されなかった<code>case</code>も含めて確定的に行われてしまう**らしい。<br>
 この挙動はselectのcase文でチャネルからの受信式(<code>&lt;-channel</code>)を使っても同様に発生する。</p>
 <h1 id="チャネルを使ったselectのcase文中で別のチャネルから受信した結果でチャネルへの送信をしないほうがよい">チャネルを使ったselectのcase文中で、別のチャネルから受信した結果でチャネルへの送信をしないほうがよい</h1>
 <p>以下のコードは別のチャネル（<code>fchX</code>）から送信された<code>int</code>を受信するチャネル（<code>chX</code>）を複数<code>select</code>文で並べて待機するコードだ。</p>
 <ul>
 <li><a href="https://play.golang.org/p/cdZORmhc8k7">https://play.golang.org/p/cdZORmhc8k7</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
 	<span style="color:#2aa198">&#34;fmt&#34;</span>
@@ -299,12 +299,12 @@ done
 	}
 }
 </code></pre></div><p>この実行結果は以下となる。</p>
-<pre><code>fch1 return = 0
+<pre tabindex="0"><code>fch1 return = 0
 fch2 return = 1
 fch1 return = 2
 done
 </code></pre><p>標準出力している部分のコードを確認する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;fch1 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch1)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;fch1 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch1)
 fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;fch2 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch2)
 fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;fch1 return = %d\n&#34;</span>, <span style="color:#719e07">&lt;-</span>ch1)
 </code></pre></div><p>最初の<code>fmt.Printf(&quot;fch1 return = %d\n&quot;, &lt;-ch1)</code>の結果は<code>0</code>だ。<code>ch1</code>への入力の<code>fch1</code>（<code>f()</code>で生成したチャネル）は<code>0</code>からインクメントされた整数を返すチャネルなので、期待通りだ。
@@ -502,10 +502,16 @@ fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;f
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -517,12 +523,6 @@ fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;f
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

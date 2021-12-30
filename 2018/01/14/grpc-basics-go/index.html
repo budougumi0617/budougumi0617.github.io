@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -218,7 +218,7 @@ Basicsで使うサンプルコードは以下のリポジトリURLにある。</
 <p>gRPCではクライアント/サーバ（あるいは両方）からデータをストリーミング処理で渡すメソッドの定義も行う事ができる。
 protoファイルにある該当部分の定義は以下。</p>
 <p><a href="https://github.com/grpc/grpc-go/blob/master/examples/route_guide/routeguide/route_guide.proto">https://github.com/grpc/grpc-go/blob/master/examples/route_guide/routeguide/route_guide.proto</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  <span style="color:#586e75">// A server-to-client streaming RPC.
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  <span style="color:#586e75">// A server-to-client streaming RPC.
 </span><span style="color:#586e75"></span>  <span style="color:#586e75">//
 </span><span style="color:#586e75"></span>  <span style="color:#586e75">// Obtains the Features available within the given Rectangle.  Results are
 </span><span style="color:#586e75"></span>  <span style="color:#586e75">// streamed rather than returned at once (e.g. in a response message with a
@@ -247,7 +247,7 @@ protoファイルにある該当部分の定義は以下。</p>
 <h2 id="サーバサイドの定義">サーバサイドの定義</h2>
 <p><a href="https://github.com/grpc/grpc-go/blob/1cd234627e6f392ade0527d593eb3fe53e832d4a/examples/route_guide/routeguide/route_guide.pb.go#L375">https://github.com/grpc/grpc-go/blob/1cd234627e6f392ade0527d593eb3fe53e832d4a/examples/route_guide/routeguide/route_guide.pb.go#L375</a></p>
 <p>Goの場合は以下のようなメソッドと構造体定義がprotoファイルから生成される。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// プロトコルバッファーの定義は以下。
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// プロトコルバッファーの定義は以下。
 </span><span style="color:#586e75">// rpc ListFeatures(Rectangle) returns (stream Feature) {}
 </span><span style="color:#586e75"></span><span style="color:#268bd2">ListFeatures</span>(<span style="color:#719e07">*</span>Rectangle, RouteGuide_ListFeaturesServer) <span style="color:#dc322f">error</span>
 
@@ -258,7 +258,7 @@ protoファイルにある該当部分の定義は以下。</p>
 }
 </code></pre></div><h2 id="サーバサイドでストリーミングを送信する実装">サーバサイドでストリーミングを送信する実装</h2>
 <p><a href="https://github.com/grpc/grpc-go/blob/master/examples/gotutorial.md#server-side-streaming-rpc">https://github.com/grpc/grpc-go/blob/master/examples/gotutorial.md#server-side-streaming-rpc</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> (s <span style="color:#719e07">*</span>routeGuideServer) <span style="color:#268bd2">ListFeatures</span>(rect <span style="color:#719e07">*</span>pb.Rectangle, stream pb.RouteGuide_ListFeaturesServer) <span style="color:#dc322f">error</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> (s <span style="color:#719e07">*</span>routeGuideServer) <span style="color:#268bd2">ListFeatures</span>(rect <span style="color:#719e07">*</span>pb.Rectangle, stream pb.RouteGuide_ListFeaturesServer) <span style="color:#dc322f">error</span> {
     <span style="color:#719e07">for</span> _, feature <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> s.savedFeatures {
         <span style="color:#719e07">if</span> <span style="color:#268bd2">inRange</span>(feature.Location, rect) {
             <span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> stream.<span style="color:#268bd2">Send</span>(feature); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
@@ -273,7 +273,7 @@ protoファイルにある該当部分の定義は以下。</p>
 <h2 id="クライアントサイドの定義">クライアントサイドの定義</h2>
 <p><a href="https://github.com/grpc/grpc-go/blob/1cd234627e6f392ade0527d593eb3fe53e832d4a/examples/route_guide/routeguide/route_guide.pb.go#L232">https://github.com/grpc/grpc-go/blob/1cd234627e6f392ade0527d593eb3fe53e832d4a/examples/route_guide/routeguide/route_guide.pb.go#L232</a></p>
 <p>サーバーからストリームを受け取るクライアント側のメソッド定義は以下。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// プロトコルバッファーの定義は以下。
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// プロトコルバッファーの定義は以下。
 </span><span style="color:#586e75">// rpc ListFeatures(Rectangle) returns (stream Feature) {}
 </span><span style="color:#586e75"></span><span style="color:#268bd2">ListFeatures</span>(ctx context.Context, in <span style="color:#719e07">*</span>Rectangle, opts <span style="color:#719e07">...</span>grpc.CallOption) (RouteGuide_ListFeaturesClient, <span style="color:#dc322f">error</span>)
 
@@ -286,7 +286,7 @@ protoファイルにある該当部分の定義は以下。</p>
 <h2 id="クライアントサイドでストリーミングを受け取る実装">クライアントサイドでストリーミングを受け取る実装</h2>
 <p><a href="https://github.com/grpc/grpc-go/blob/master/examples/gotutorial.md#server-side-streaming-rpc-1">https://github.com/grpc/grpc-go/blob/master/examples/gotutorial.md#server-side-streaming-rpc-1</a></p>
 <p>サーバ側の<code>RouteGuide_ListFeaturesServer.Send</code>メソッドでストリーミングされたデータを、<code>RouteGuide_ListFeaturesClient.Recv</code>メソッドで受け取る。実際にメソッドを利用する際は次のような形になる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">rect <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>pb.Rectangle{ <span style="color:#719e07">...</span> }  <span style="color:#586e75">// initialize a pb.Rectangle
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">rect <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>pb.Rectangle{ <span style="color:#719e07">...</span> }  <span style="color:#586e75">// initialize a pb.Rectangle
 </span><span style="color:#586e75"></span>stream, err <span style="color:#719e07">:=</span> client.<span style="color:#268bd2">ListFeatures</span>(context.<span style="color:#268bd2">Background</span>(), rect)
 <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
     <span style="color:#719e07">...</span>
@@ -306,7 +306,7 @@ protoファイルにある該当部分の定義は以下。</p>
 <p>クライアントからサーバに対してストリームでデータを渡すRPC。</p>
 <h2 id="サーバサイドの定義-1">サーバサイドの定義</h2>
 <p><a href="https://github.com/grpc/grpc-go/blob/1cd234627e6f392ade0527d593eb3fe53e832d4a/examples/route_guide/routeguide/route_guide.pb.go#L380">https://github.com/grpc/grpc-go/blob/1cd234627e6f392ade0527d593eb3fe53e832d4a/examples/route_guide/routeguide/route_guide.pb.go#L380</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// プロトコルバッファーの定義は以下。
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// プロトコルバッファーの定義は以下。
 </span><span style="color:#586e75">// rpc RecordRoute(stream Point) returns (RouteSummary) {}
 </span><span style="color:#586e75"></span><span style="color:#268bd2">RecordRoute</span>(RouteGuide_RecordRouteServer) <span style="color:#dc322f">error</span>
 
@@ -320,7 +320,7 @@ protoファイルにある該当部分の定義は以下。</p>
 <h2 id="サーバサイドでストリーミングを受け取る実装">サーバサイドでストリーミングを受け取る実装</h2>
 <p><a href="https://github.com/grpc/grpc-go/blob/master/examples/gotutorial.md#client-side-streaming-rpc">https://github.com/grpc/grpc-go/blob/master/examples/gotutorial.md#client-side-streaming-rpc</a></p>
 <p>サーバ側の実装の概要は以下。クライアントからのストリーミングが終了した時、<code>RouteGuide_RecordRouteServer.Recv</code>メソッドの戻り値が<code>io.EOF</code>となるので、<code>RouteGuide_RecordRouteServer.SendAndClose</code>メソッドを実行してメソッドを終了する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">for</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">for</span> {
     point, err <span style="color:#719e07">:=</span> stream.<span style="color:#268bd2">Recv</span>() <span style="color:#586e75">// streamはメソッド引数のRouteGuide_RecordRouteServer
 </span><span style="color:#586e75"></span>    <span style="color:#719e07">if</span> err <span style="color:#719e07">==</span> io.EOF {
         endTime <span style="color:#719e07">:=</span> time.<span style="color:#268bd2">Now</span>()
@@ -335,7 +335,7 @@ protoファイルにある該当部分の定義は以下。</p>
 </span><span style="color:#586e75"></span>}
 </code></pre></div><h2 id="クライアントサイドの定義-1">クライアントサイドの定義</h2>
 <p><a href="https://github.com/grpc/grpc-go/blob/1cd234627e6f392ade0527d593eb3fe53e832d4a/examples/route_guide/routeguide/route_guide.pb.go#L237">https://github.com/grpc/grpc-go/blob/1cd234627e6f392ade0527d593eb3fe53e832d4a/examples/route_guide/routeguide/route_guide.pb.go#L237</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// プロトコルバッファーの定義は以下。
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// プロトコルバッファーの定義は以下。
 </span><span style="color:#586e75">// rpc RecordRoute(stream Point) returns (RouteSummary) {}
 </span><span style="color:#586e75"></span><span style="color:#268bd2">RecordRoute</span>(ctx context.Context, opts <span style="color:#719e07">...</span>grpc.CallOption) (RouteGuide_RecordRouteClient, <span style="color:#dc322f">error</span>)
 
@@ -349,7 +349,7 @@ protoファイルにある該当部分の定義は以下。</p>
 <h2 id="クライアントでストリーミングを送信する実装">クライアントでストリーミングを送信する実装</h2>
 <p><a href="https://github.com/grpc/grpc-go/blob/master/examples/gotutorial.md#client-side-streaming-rpc-1">https://github.com/grpc/grpc-go/blob/master/examples/gotutorial.md#client-side-streaming-rpc-1</a></p>
 <p>エラー処理などをほぼ省略した実装は以下の通り。明示的に<code>CloseAndRecv</code>メソッドを呼ぶ。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">stream, err <span style="color:#719e07">:=</span> client.<span style="color:#268bd2">RecordRoute</span>(context.<span style="color:#268bd2">Background</span>())
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">stream, err <span style="color:#719e07">:=</span> client.<span style="color:#268bd2">RecordRoute</span>(context.<span style="color:#268bd2">Background</span>())
 <span style="color:#719e07">for</span> _, point <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> points { <span style="color:#586e75">// pointsはストリーミングするPoint群
 </span><span style="color:#586e75"></span>    <span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> stream.<span style="color:#268bd2">Send</span>(point); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
         log.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;%v.Send(%v) = %v&#34;</span>, stream, point, err)
@@ -360,7 +360,7 @@ reply, err <span style="color:#719e07">:=</span> stream.<span style="color:#268b
 <p>サーバ/クライアント双方でストリーミングを行いながらやりとりするRPC</p>
 <h2 id="サーバサイドの定義-2">サーバサイドの定義</h2>
 <p><a href="https://github.com/grpc/grpc-go/blob/1cd234627e6f392ade0527d593eb3fe53e832d4a/examples/route_guide/routeguide/route_guide.pb.go#L385">https://github.com/grpc/grpc-go/blob/1cd234627e6f392ade0527d593eb3fe53e832d4a/examples/route_guide/routeguide/route_guide.pb.go#L385</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// プロトコルバッファーの定義は以下。
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// プロトコルバッファーの定義は以下。
 </span><span style="color:#586e75">// rpc RouteChat(stream RouteNote) returns (stream RouteNote) {}
 </span><span style="color:#586e75"></span><span style="color:#268bd2">RouteChat</span>(RouteGuide_RouteChatServer) <span style="color:#dc322f">error</span>
 
@@ -373,7 +373,7 @@ reply, err <span style="color:#719e07">:=</span> stream.<span style="color:#268b
 </code></pre></div><p>ひとつの構造体で送信用、受信用のストリームの送受信が行える。</p>
 <h2 id="双方向ストリーミングを行うサーバ側の実装">双方向ストリーミングを行うサーバ側の実装</h2>
 <p><a href="https://github.com/grpc/grpc-go/blob/master/examples/gotutorial.md#bidirectional-streaming-rpc">https://github.com/grpc/grpc-go/blob/master/examples/gotutorial.md#bidirectional-streaming-rpc</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">for</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">for</span> {
     in, err <span style="color:#719e07">:=</span> stream.<span style="color:#268bd2">Recv</span>() <span style="color:#586e75">// streamはメソッドの引数のRouteNote
 </span><span style="color:#586e75"></span>      <span style="color:#719e07">if</span> err <span style="color:#719e07">==</span> io.EOF {
           <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
@@ -392,7 +392,7 @@ reply, err <span style="color:#719e07">:=</span> stream.<span style="color:#268b
 </code></pre></div><p><code>Recv</code>メソッドと<code>Send</code>メソッドでストリームの送受信を行う点は変わらない。また、<code>io.EOF</code>をクライアントから受け取ったあとに<code>SendAndClose</code>メソッドの類を実行する必要もない。</p>
 <h2 id="クライアントサイドの定義-2">クライアントサイドの定義</h2>
 <p><a href="https://github.com/grpc/grpc-go/blob/1cd234627e6f392ade0527d593eb3fe53e832d4a/examples/route_guide/routeguide/route_guide.pb.go#L242">https://github.com/grpc/grpc-go/blob/1cd234627e6f392ade0527d593eb3fe53e832d4a/examples/route_guide/routeguide/route_guide.pb.go#L242</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// プロトコルバッファーの定義は以下。
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// プロトコルバッファーの定義は以下。
 </span><span style="color:#586e75">// rpc RouteChat(stream RouteNote) returns (stream RouteNote) {}
 </span><span style="color:#586e75"></span><span style="color:#268bd2">RouteChat</span>(ctx context.Context, opts <span style="color:#719e07">...</span>grpc.CallOption) (RouteGuide_RouteChatClient, <span style="color:#dc322f">error</span>)
 
@@ -405,7 +405,7 @@ reply, err <span style="color:#719e07">:=</span> stream.<span style="color:#268b
 </code></pre></div><p>サーバー側同様、送信用、受信用のストリームの操作がひとつのインターフェースにまとめられている。</p>
 <h2 id="双方向ストリーミングを行うクライアント側の実装">双方向ストリーミングを行うクライアント側の実装</h2>
 <p><a href="https://github.com/grpc/grpc-go/blob/master/examples/gotutorial.md#bidirectional-streaming-rpc-1">https://github.com/grpc/grpc-go/blob/master/examples/gotutorial.md#bidirectional-streaming-rpc-1</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">stream, err <span style="color:#719e07">:=</span> client.<span style="color:#268bd2">RouteChat</span>(context.<span style="color:#268bd2">Background</span>())
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">stream, err <span style="color:#719e07">:=</span> client.<span style="color:#268bd2">RouteChat</span>(context.<span style="color:#268bd2">Background</span>())
 waitc <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#268bd2">struct</span>{})
 <span style="color:#719e07">go</span> <span style="color:#268bd2">func</span>() {
     <span style="color:#719e07">for</span> {
@@ -612,10 +612,16 @@ stream.<span style="color:#268bd2">CloseSend</span>()
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -627,12 +633,6 @@ stream.<span style="color:#268bd2">CloseSend</span>()
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -190,7 +190,7 @@
 </ul>
 <p>実装したコードは以下<br>
 <a href="https://github.com/budougumi0617/sandbox-aws-lambda-go/blob/master/hello-lambda/main.go">https://github.com/budougumi0617/sandbox-aws-lambda-go/blob/master/hello-lambda/main.go</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
 	<span style="color:#2aa198">&#34;context&#34;</span>
@@ -251,7 +251,7 @@
 </ul>
 </li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
   <span style="color:#268bd2">&#34;configRuleId&#34;</span>: <span style="color:#2aa198">&#34;config-rule-0123456&#34;</span>,
   <span style="color:#268bd2">&#34;version&#34;</span>: <span style="color:#2aa198">&#34;6.17&#34;</span>,
   <span style="color:#268bd2">&#34;configRuleName&#34;</span>: ...
@@ -277,7 +277,7 @@
 AWS内のイベントは既に構造体が定義されているので、それをつかえる。</p>
 <p><a href="https://godoc.org/github.com/aws/aws-lambda-go/events">https://godoc.org/github.com/aws/aws-lambda-go/events</a></p>
 <p>今回は<code>events.ConfigEvent</code>を使ってみた。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> events
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> events
 
 <span style="color:#586e75">// ConfigEvent contains data from an event sent from AWS Config
 </span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> ConfigEvent <span style="color:#268bd2">struct</span> {
@@ -289,7 +289,7 @@ AWS内のイベントは既に構造体が定義されているので、それ�
 <a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-context.html">https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-context.html</a></p>
 <p><a href="https://godoc.org/github.com/aws/aws-lambda-go/lambdacontext">https://godoc.org/github.com/aws/aws-lambda-go/lambdacontext</a></p>
 <p>ハンドラに渡される<code>context.Context</code>の中には、<code>LambdaContext</code>が入っていて、AWSの情報がよしなに入っている。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	lc, ok <span style="color:#719e07">:=</span> lambdacontext.<span style="color:#268bd2">FromContext</span>(ctx)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	lc, ok <span style="color:#719e07">:=</span> lambdacontext.<span style="color:#268bd2">FromContext</span>(ctx)
 	<span style="color:#719e07">if</span> !ok {
 		<span style="color:#719e07">return</span> <span style="color:#2aa198">&#34;&#34;</span>, errors.<span style="color:#268bd2">New</span>(<span style="color:#2aa198">&#34;Cannot find LambdaContext&#34;</span>)
 	}
@@ -301,7 +301,7 @@ AWS内のイベントは既に構造体が定義されているので、それ�
 <p><strong>Logging (Go）</strong><br>
 <a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-logging.html">https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-logging.html</a></p>
 <p>ログは他の言語で実装したとき同様標準出力に出力すれば<code>CloudWatch</code>に保存される。<code>log</code>を使えばタイムスタンプを付与しておく事もできる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">log.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;log:InvokedFunctionArn = %s\n&#34;</span>, lc.InvokedFunctionArn) <span style="color:#586e75">// 2018/01/16 23:07:46 log:Invoked...
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">log.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;log:InvokedFunctionArn = %s\n&#34;</span>, lc.InvokedFunctionArn) <span style="color:#586e75">// 2018/01/16 23:07:46 log:Invoked...
 </span><span style="color:#586e75"></span>fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;fmt:InvokedFunctionArn = %s\n&#34;</span>, lc.InvokedFunctionArn) <span style="color:#586e75">// fmt:Invoked...
 </span><span style="color:#586e75"></span>
 </code></pre></div><h1 id="エラー処理はerroやpanicなど標準のものが使える">エラー処理は<code>erro</code>や<code>panic</code>など標準のものが使える</h1>
@@ -310,7 +310,7 @@ AWS内のイベントは既に構造体が定義されているので、それ�
 <p>エラー処理は普通のGoとあまり変わらないようだ。ちゃんと試せてはいない。
 <code>panic</code>を仕込むとStackTraceなども取れるらしい？</p>
 <p>以下、上記公式の内容を引用。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
     <span style="color:#268bd2">&#34;errorMessage&#34;</span>: <span style="color:#2aa198">&#34;Something went wrong&#34;</span>,
        <span style="color:#268bd2">&#34;errorType&#34;</span>: <span style="color:#2aa198">&#34;errorString&#34;</span>,
     <span style="color:#268bd2">&#34;stackTrace&#34;</span>: [
@@ -327,7 +327,7 @@ AWS内のイベントは既に構造体が定義されているので、それ�
 <p><strong>Using Environment Variables (Go)</strong><br>
 <a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-env-variables.html">https://docs.aws.amazon.com/en_us/lambda/latest/dg/go-programming-model-env-variables.html</a></p>
 <p>他の言語と同様、<code>os.Getenv</code>で環境変数を取得できる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;\&#34;%s\&#34; executes on \&#34;%s\&#34;.\n&#34;</span>, os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;LAMBDA_TASK_ROOT&#34;</span>), os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;AWS_EXECUTION_ENV&#34;</span>))  <span style="color:#586e75">// &#34;/var/task&#34; executes on &#34;&#34;.
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;\&#34;%s\&#34; executes on \&#34;%s\&#34;.\n&#34;</span>, os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;LAMBDA_TASK_ROOT&#34;</span>), os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;AWS_EXECUTION_ENV&#34;</span>))  <span style="color:#586e75">// &#34;/var/task&#34; executes on &#34;&#34;.
 </span></code></pre></div><p>ちなみに<code>AWS_EXECUTION_ENV</code>がどうなるか書いてなかったので、興味本位で見ようと思ったら本当に設定されてなかった（？）</p>
 <p><strong>Environment Variables Available to Lambda Functions</strong><br>
 <a href="https://docs.aws.amazon.com/en_us/lambda/latest/dg/current-supported-versions.html#lambda-environment-variables">https://docs.aws.amazon.com/en_us/lambda/latest/dg/current-supported-versions.html#lambda-environment-variables</a></p>
@@ -338,10 +338,10 @@ AWS内のイベントは既に構造体が定義されているので、それ�
 <p>これをAWS Lambda上で動かしてみる。Goの(一番簡単な方法をする)場合はビルドしてzipに入れてアップするだけ。
 Linux用にビルドするのと、「前提・準備」で設定した「ハンドラ」と同じ名前のバイナリをするところだけ注意する。
 これをLambdaのWebコンソールからアップロードすれば実行できる</p>
-<pre><code>$ GOOS=linux go build -o main
+<pre tabindex="0"><code>$ GOOS=linux go build -o main
 $ zip deployment.zip main
 </code></pre><p>作成したテストイベントで実行した結果がこちら。</p>
-<pre><code>START RequestId: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXX Version: $LATEST
+<pre tabindex="0"><code>START RequestId: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXX Version: $LATEST
 2018/01/16 23:07:46 log:InvokedFunctionArn = arn:aws:lambda:ap-northeast-1:XXXXXXXXXXXXXX:function:myFirstLambda
 fmt:InvokedFunctionArn = arn:aws:lambda:ap-northeast-1:XXXXXXXXXXXX:function:myFirstLambda
 2018/01/16 23:14:26 config version is 6.17
@@ -552,10 +552,16 @@ Goでの実装はコードひとつだけでビルドできるので、非常に
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -567,12 +573,6 @@ Goでの実装はコードひとつだけでビルドできるので、非常に
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -259,7 +259,7 @@ Goの仕様の1文からその仕様に関係する処理系のコードを探�
 <blockquote>
 <p>Within a composite literal of array, slice, or map type T, elements or map keys that are themselves composite literals may elide the respective literal type if it is identical to the element or key type of T. Similarly, elements or keys that are addresses of composite literals may elide the &amp;T when the element or key type&hellip;</p>
 </blockquote>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">[<span style="color:#719e07">...</span>]Point{{<span style="color:#2aa198">1.5</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">3.5</span>}, {<span style="color:#2aa198">0</span>, <span style="color:#2aa198">0</span>}}     <span style="color:#586e75">// same as [...]Point{Point{1.5, -3.5}, Point{0, 0}}
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">[<span style="color:#719e07">...</span>]Point{{<span style="color:#2aa198">1.5</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">3.5</span>}, {<span style="color:#2aa198">0</span>, <span style="color:#2aa198">0</span>}}     <span style="color:#586e75">// same as [...]Point{Point{1.5, -3.5}, Point{0, 0}}
 </span><span style="color:#586e75"></span>[][]<span style="color:#dc322f">int</span>{{<span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>, <span style="color:#2aa198">3</span>}, {<span style="color:#2aa198">4</span>, <span style="color:#2aa198">5</span>}}          <span style="color:#586e75">// same as [][]int{[]int{1, 2, 3}, []int{4, 5}}
 </span><span style="color:#586e75"></span>[][]Point{{{<span style="color:#2aa198">0</span>, <span style="color:#2aa198">1</span>}, {<span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>}}}         <span style="color:#586e75">// same as [][]Point{[]Point{Point{0, 1}, Point{1, 2}}}
 </span><span style="color:#586e75"></span><span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]Point{<span style="color:#2aa198">&#34;orig&#34;</span>: {<span style="color:#2aa198">0</span>, <span style="color:#2aa198">0</span>}}    <span style="color:#586e75">// same as map[string]Point{&#34;orig&#34;: Point{0, 0}}
@@ -275,14 +275,14 @@ Goの仕様の1文からその仕様に関係する処理系のコードを探�
 </ul>
 <p>GoのLanguage SpecificationのHTMLはGo本体のリポジトリに一緒に格納されている。</p>
 <p>まず、探したい仕様の行数を<code>grep</code>コマンドで確認する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ grep -n <span style="color:#2aa198">&#34;Within a composite literal of array, slice&#34;</span> ./doc/go_spec.html
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ grep -n <span style="color:#2aa198">&#34;Within a composite literal of array, slice&#34;</span> ./doc/go_spec.html
 2569:Within a composite literal of array, slice, or map <span style="color:#b58900">type</span> &lt;code&gt;T&lt;/code&gt;,
 </code></pre></div><p>HTMLでは2569行目にあるらしい。</p>
 <ul>
 <li><a href="https://github.com/golang/go/blob/82cf8bca9cf20297bc0edf481cc530c9b3f4bf1e/doc/go_spec.html#L2569">golang/go/doc/go_spec.html#L2569</a></li>
 </ul>
 <p>この周辺のコミットログを探してみると、このコミットで仕様の1文が追加されたようだ。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git log --reverse  -L 2569,2579:./doc/go_spec.html
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git log --reverse  -L 2569,2579:./doc/go_spec.html
 commit a12141e5f4e905045dca5dff2669b64d9b93788f
 Author: Robert Griesemer &lt;gri@golang.org&gt;
 Date:   Fri Oct <span style="color:#2aa198">22</span> 08:58:52 <span style="color:#2aa198">2010</span> -0700
@@ -324,7 +324,7 @@ Date:   Fri Dec <span style="color:#2aa198">2</span> 14:12:53 <span style="color
 <h1 id="仕様が追加された日の周辺コミットログから実装の追加コミットログを探す">仕様が追加された日の周辺コミットログから実装の追加コミットログを探す</h1>
 <p>仕様が書き足されたのは<code>Fri Dec 2 14:12:53 2011</code>だった。この日付の周辺で実装が追加されたコミットがないか探してみる。
 <code>git log</code>コマンドで日付範囲を指定し、今回の実装に関連しそうな<code>compoiste</code>をキーワードにコミットを探してみる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git log --since<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2010/10/01&#34;</span> --until<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2010/10/31&#34;</span> --grep <span style="color:#2aa198">&#34;composite&#34;</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git log --since<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2010/10/01&#34;</span> --until<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2010/10/31&#34;</span> --grep <span style="color:#2aa198">&#34;composite&#34;</span>
 commit f613015e0eeb9560579bf40dbdb40fac5e371bbc
 Author: Robert Griesemer &lt;gri@golang.org&gt;
 Date:   Fri Oct <span style="color:#2aa198">22</span> 10:03:14 <span style="color:#2aa198">2010</span> -0700
@@ -379,7 +379,7 @@ Date:   Thu Oct <span style="color:#2aa198">21</span> 23:17:20 <span style="colo
 <h2 id="masterブランチにもう存在しないファイルのコミットログを見るときは--をつけてgit-log"><code>master</code>ブランチにもう存在しないファイルのコミットログを見るときは<code>--</code>をつけて<code>git log</code></h2>
 <p>現在の実装まで探すときはここからさらにコミットログをたどっていけば良い。<br>
 <code>master</code>ブランチにもう存在しないファイルの<code>src/cmd/gc/typecheck.c</code>に関連するコミットを探したいならば、&ndash;<code>をつけて</code>git log`コマンドを実行する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git log --oneline -- src/cmd/gc/typecheck.c
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git log --oneline -- src/cmd/gc/typecheck.c
 3af0d791be <span style="color:#719e07">[</span>dev.cc<span style="color:#719e07">]</span> cmd/6a, cmd/6g etc: replace C implementations with Go implementations
 5c87cf7608 cmd/gc: minor adjustments <span style="color:#719e07">for</span> C to Go translation
 4b27c9d72e cmd/gc: add .y to error about missing x in x.y
@@ -582,10 +582,16 @@ e82003e750 cmd/gc: simplify code <span style="color:#719e07">for</span> c2go
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -597,12 +603,6 @@ e82003e750 cmd/gc: simplify code <span style="color:#719e07">for</span> c2go
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

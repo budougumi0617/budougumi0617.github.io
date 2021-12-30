@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -187,13 +187,13 @@ Protocol BufferにREST用の定義を追加して<code>grpc-ecosystem/grpc-gatew
 <h1 id="grpc-ecosystemgrpc-gatewayを使ったrest-proxyサーバの構築">grpc-ecosystem/grpc-gatewayを使ったREST proxyサーバの構築</h1>
 <p>Protocol Bufferの定義に<code>protoc</code>を使ってGoのコードを作成し、gRPCサーバ/クライアントの作成が一通り出来る環境は出来ているとする。</p>
 <p>まずは<code>grpc-gateway</code>関連のライブラリを取得する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
 $ go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
 $ go get -u github.com/golang/protobuf/protoc-gen-go
 </code></pre></div><h2 id="rest-api定義をprotoファイルに追加する">REST API定義をprotoファイルに追加する</h2>
 <p>以下のページに文法が載っているので、gRPCとRPCの対比を見ながら<code>.proto</code>ファイルにオプションをつけていく。</p>
 <p><a href="https://cloud.google.com/service-management/reference/rpc/google.api#http">https://cloud.google.com/service-management/reference/rpc/google.api#http</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"> // For define null request
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"> // For define null request
  import &#34;google/protobuf/empty.proto&#34;;
 
 <span style="color:#719e07">+// For grpc gateway
@@ -215,15 +215,15 @@ $ go get -u github.com/golang/protobuf/protoc-gen-go
 </span><span style="color:#719e07"></span> }
 </code></pre></div><h2 id="protoc-gen-grpc-gatewayによるproxyサーバ用apiコードの自動生成"><code>protoc-gen-grpc-gateway</code>によるProxyサーバ用APIコードの自動生成</h2>
 <p>まずは普通の<code>protoc</code>コマンドでコンパイルする。<code>import</code>を増やしているので、<code>include</code>ディレクトリを増やす必要がある。<code>README</code>はもう少し<code>-I</code>オプションが多いが、自分はこれだけでOKだった。</p>
-<pre><code>protoc -I. \
+<pre tabindex="0"><code>protoc -I. \
   -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
   --go_out=plugins=grpc:. proto/task_list.proto
 </code></pre><p>次に、Gateway用のコンパイルを行う。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">protoc -I/usr/local/include -I. -I<span style="color:#268bd2">$GOPATH</span>/src <span style="color:#cb4b16">\
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">protoc -I/usr/local/include -I. -I<span style="color:#268bd2">$GOPATH</span>/src <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  -I<span style="color:#268bd2">$GOPATH</span>/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  --grpc-gateway_out<span style="color:#719e07">=</span><span style="color:#268bd2">logtostderr</span><span style="color:#719e07">=</span>true:. proto/task_list.proto
 </code></pre></div><p><code>grpc-gateway</code>で使えるオプションは2018/01/28の時点では以下の通りだった。<code>protoc</code>を実行するときに<code>--grpc-gateway_out=logtostderr=true</code>にカンマ区切りでオプションを追加できる。</p>
-<pre><code>go run $GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway/main.go -h
+<pre tabindex="0"><code>go run $GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway/main.go -h
 Usage of /var/folders/sy/ls4cfp216x774g54brzl67yw0000gn/T/go-build442506345/command-line-arguments/_obj/exe/main:
   -allow_delete_body
     	unless set, HTTP DELETE methods may not have a body
@@ -248,19 +248,19 @@ Usage of /var/folders/sy/ls4cfp216x774g54brzl67yw0000gn/T/go-build442506345/comm
   -vmodule value
     	comma-separated list of pattern=N settings for file-filtered logging
 </code></pre><p>例えば、こんな感じ。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">protoc -I/usr/local/include -I. -I<span style="color:#268bd2">$GOPATH</span>/src <span style="color:#cb4b16">\
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">protoc -I/usr/local/include -I. -I<span style="color:#268bd2">$GOPATH</span>/src <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  -I<span style="color:#268bd2">$GOPATH</span>/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  --grpc-gateway_out<span style="color:#719e07">=</span><span style="color:#268bd2">logtostderr</span><span style="color:#719e07">=</span>true,request_context<span style="color:#719e07">=</span>false,allow_delete_body<span style="color:#719e07">=</span>true:. <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  proto/task_list.proto
 </code></pre></div><p><code>swagger.json</code>も生成できる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">protoc -I/usr/local/include -I. -I<span style="color:#268bd2">$GOPATH</span>/src <span style="color:#cb4b16">\
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">protoc -I/usr/local/include -I. -I<span style="color:#268bd2">$GOPATH</span>/src <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  -I<span style="color:#268bd2">$GOPATH</span>/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  --swagger_out<span style="color:#719e07">=</span><span style="color:#268bd2">logtostderr</span><span style="color:#719e07">=</span>true:. proto/task_list.proto
 </code></pre></div><p><code>swagger</code>生成用のオプションは<code>go run $GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/main.go -h</code>で知ることができる。</p>
 <h2 id="サーバコードの実装">サーバコードの実装</h2>
 <p>もろもろのコードを自動生成できたので、あとはサーバーのコードを実装する。</p>
 <p>gRPCサーバは適当なデータを返すように実装しておく。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// sandbox-grpc/tasklist-gateway/server/main.go
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// sandbox-grpc/tasklist-gateway/server/main.go
 </span><span style="color:#586e75"></span>
 <span style="color:#586e75">// It implements the route guide service whose definition can be found in proto/task_list.proto
 </span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
@@ -338,7 +338,7 @@ Usage of /var/folders/sy/ls4cfp216x774g54brzl67yw0000gn/T/go-build442506345/comm
 	}
 }
 </code></pre></div><p>Proxyサーバはサンプルコードの<code>import</code>を変えるだけで良かった。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// sandbox-grpc/tasklist-gateway/gateway/main.go
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// sandbox-grpc/tasklist-gateway/gateway/main.go
 </span><span style="color:#586e75"></span>
 <span style="color:#719e07">package</span> main
 
@@ -382,11 +382,11 @@ Usage of /var/folders/sy/ls4cfp216x774g54brzl67yw0000gn/T/go-build442506345/comm
 }
 </code></pre></div><h2 id="動作確認">動作確認</h2>
 <p>それぞれのサーバーを起動する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run ./gateway/main.go
-</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run ./server/main.go
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run ./gateway/main.go
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run ./server/main.go
 </code></pre></div><p><code>curl</code>コマンドでREST APIを実行してみた。
 期待通りにデータが取得できている。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ curl -D - -X GET http://localhost:8080/v1/tasklist-gateway/task
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ curl -D - -X GET http://localhost:8080/v1/tasklist-gateway/task
 HTTP/1.1 <span style="color:#2aa198">200</span> OK
 Content-Type: application/json
 Grpc-Metadata-Content-Type: application/grpc
@@ -415,7 +415,7 @@ Content-Length: <span style="color:#2aa198">72</span>
 
 <span style="color:#719e07">{</span><span style="color:#2aa198">&#34;id&#34;</span>:10,<span style="color:#2aa198">&#34;title&#34;</span>:<span style="color:#2aa198">&#34;Implement gRPC server&#34;</span>,<span style="color:#2aa198">&#34;detail&#34;</span>:<span style="color:#2aa198">&#34;Implement interface&#34;</span><span style="color:#719e07">}</span>%
 </code></pre></div><p>当然だが、gRPC API内に仕込んでおいた実行ログも確認できた。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">go run ./server/main.go
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">go run ./server/main.go
 2018/01/28 13:00:48 gRPC Server started: localhost:50051
 2018/01/28 13:03:14 ListTasks in gPRC server
 2018/01/28 13:03:29 GetTask in gPRC server
@@ -612,10 +612,16 @@ IssueをたててPR作ったらマージされた。今まではREADMEなどへ�
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -627,12 +633,6 @@ IssueをたててPR作ったらマージされた。今まではREADMEなどへ�
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

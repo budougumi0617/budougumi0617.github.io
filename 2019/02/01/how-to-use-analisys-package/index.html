@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -284,7 +284,7 @@ https://speakerdeck.com/budougumi0617/how-to-create-the-static-analysis-tool-for
 <ul>
 <li><a href="https://github.com/golang/tools/blob/master/go/analysis/cmd/vet/vet.go">https://github.com/golang/tools/blob/master/go/analysis/cmd/vet/vet.go</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/golang/tools/blob/master/go/analysis/cmd/vet/vet.go
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/golang/tools/blob/master/go/analysis/cmd/vet/vet.go
 </span><span style="color:#586e75"></span>
 <span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 	multichecker.<span style="color:#268bd2">Main</span>(
@@ -308,7 +308,7 @@ https://speakerdeck.com/budougumi0617/how-to-create-the-static-analysis-tool-for
 <li><a href="https://godoc.org/golang.org/x/tools/go/analysis#Analyzer">https://godoc.org/golang.org/x/tools/go/analysis#Analyzer</a></li>
 </ul>
 <p>各静的解析のモジュールの実態が<code>Analyzer</code>構造体となる。<code>Analyzer</code>構造体の<code>Run</code>メソッドに静的解析ロジックを実装することで静的解析が実現する。<code>Analyzer</code>では他の<code>Analyzer</code>に解析結果を提供する際の<code>ResultType</code>、依存する他の<code>Analyzer</code>を指定する<code>Requires</code>などのフィールドが存在する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Analyzer <span style="color:#268bd2">struct</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Analyzer <span style="color:#268bd2">struct</span> {
     <span style="color:#586e75">// ...
 </span><span style="color:#586e75"></span>
     <span style="color:#586e75">// ロジック本体。戻り値はなくても良いが、Resultとして他のAnalyzerに結果を渡す場合は返す。
@@ -331,7 +331,7 @@ https://speakerdeck.com/budougumi0617/how-to-create-the-static-analysis-tool-for
 </ul>
 <p>静的解析は実行時に受け取った解析対象のパッケージに対して<code>Analyzer</code>の<code>Run</code>メソッドを実行していく。
 <code>Run</code>メソッドの引数として解析対象パッケージの情報を持つのが<code>Pass</code>構造体だ。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Pass <span style="color:#268bd2">struct</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Pass <span style="color:#268bd2">struct</span> {
     Analyzer <span style="color:#719e07">*</span>Analyzer <span style="color:#586e75">// the identity of the current analyzer
 </span><span style="color:#586e75"></span>
     <span style="color:#586e75">// 解析対象パッケージの静的解析用の情報
@@ -379,7 +379,7 @@ https://speakerdeck.com/budougumi0617/how-to-create-the-static-analysis-tool-for
 <p>ここからは実際に自作のLinterを作ってみる。まず最初は@tenntennさんが公開している<code>skeleten</code>コマンドを使うと簡単にテンプレートが生成される。</p>
 <div class="iframely-embed"><div class="iframely-responsive" style="height: 168px; padding-bottom: 0;"><a href="https://github.com/tenntenn/gosa/tree/master/skeleton" data-iframely-url="//cdn.iframe.ly/bG7XmYw"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
 <p><code>mylinter</code>という名前で静的解析モジュールのテンプレートを作成するときは以下のように使う。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get github.com/tenntenn/gosa/skeleton
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get github.com/tenntenn/gosa/skeleton
 $ skeleton mylinter
 mylinter
 ├── mylinter.go  <span style="color:#586e75"># 静的解析ロジックを書く本体</span>
@@ -389,7 +389,7 @@ mylinter
         └── a <span style="color:#586e75"># テストを書くときのテストケースパッケージ</span>
             └── a.go
 </code></pre></div><p>これで静的解析ロジックを<code>mylinter.go</code>の中の<code>Analyzer.Run</code>に自作の静的解析ロジックを実装していくだけでよい。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> mylinter
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> mylinter
 
 <span style="color:#719e07">import</span> (
         <span style="color:#2aa198">&#34;go/ast&#34;</span>
@@ -414,7 +414,7 @@ mylinter
   <span style="color:#586e75">// 省略
 </span><span style="color:#586e75"></span>}
 </code></pre></div><p>このまま<code>Analyzer</code>をコマンドとして実行したい場合は以下のような<code>cmd/main.go</code>ファイルを用意すればよいだろう。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// cmd/main.go
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// cmd/main.go
 </span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
@@ -439,7 +439,7 @@ mylinter
 <li><a href="https://godoc.org/golang.org/x/tools/go/analysis/multichecker">https://godoc.org/golang.org/x/tools/go/analysis/multichecker</a></li>
 </ul>
 <p>あとは通常どおり<code>go buid</code>すればLinterコマンドがもう利用できる。（以下はサンプルリポジトリを実行した例）</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go build -o icheck ./cmd/main.go
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go build -o icheck ./cmd/main.go
 
 <span style="color:#586e75"># testdataディレクトリ以下のサンプルコードのimport構成が特殊なので</span>
 <span style="color:#586e75"># GOPATHをちょっと変えているが、本来はGOPATHの再定義は必要ない</span>
@@ -458,7 +458,7 @@ $ <span style="color:#268bd2">GOPATH</span><span style="color:#719e07">=</span><
 <ul>
 <li><a href="https://godoc.org/golang.org/x/tools/go/analysis/passes/inspect">https://godoc.org/golang.org/x/tools/go/analysis/passes/inspect</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">run</span>(pass <span style="color:#719e07">*</span>analysis.Pass) (<span style="color:#268bd2">interface</span>{}, <span style="color:#dc322f">error</span>) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">run</span>(pass <span style="color:#719e07">*</span>analysis.Pass) (<span style="color:#268bd2">interface</span>{}, <span style="color:#dc322f">error</span>) {
         inspect <span style="color:#719e07">:=</span> pass.ResultOf[inspect.Analyzer].(<span style="color:#719e07">*</span>inspector.Inspector)
 
         <span style="color:#586e75">// 調べたいNodeの型でフィルタリングできる
@@ -486,7 +486,7 @@ $ <span style="color:#268bd2">GOPATH</span><span style="color:#719e07">=</span><
 <p><code>analysistest</code>パッケージを使うと、簡単に<code>Analyzer</code>をテストすることができる。
 下記のように静的解析でエラーを出したいテスト用のサンプルコードを準備するだけだ。
 エラーを出したい行に対して、<code>// want </code>と始めて期待出力文字列をコメントしておくだけでよい。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// testdata/src/handler/h.go
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// testdata/src/handler/h.go
 </span><span style="color:#586e75"></span><span style="color:#719e07">package</span> handler
 
 <span style="color:#719e07">import</span> (
@@ -497,7 +497,7 @@ $ <span style="color:#268bd2">GOPATH</span><span style="color:#719e07">=</span><
 <span style="color:#719e07">...</span>
 </code></pre></div><p>あとは用意したサンプルコードを読み込んで、<code>Analyzer</code>を実行するテストケースを用意する。<code>skeleteon</code>コマンドでテンプレートを生成した場合、<code>xxx_test.go</code>にそのようなテストケースがすでに生成されている。
 テストコードには「<code>./testdata/src</code>ディレクトリにある<code>&quot;a&quot;</code>パッケージを一緒に生成した<code>Analyzer</code>で静的解析する」テストケースがすでにあるので、<code>testdata/src/a/a.go</code>ファイルに自分が実装した静的解析ロジックで見つけたいエラーを書いておくだけだ。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> mylinter_test
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> mylinter_test
 
 <span style="color:#719e07">import</span> (
         <span style="color:#2aa198">&#34;testing&#34;</span>
@@ -511,7 +511,7 @@ $ <span style="color:#268bd2">GOPATH</span><span style="color:#719e07">=</span><
         analysistest.<span style="color:#268bd2">Run</span>(t, testdata, mylinter.Analyzer, <span style="color:#2aa198">&#34;a&#34;</span>)
 }
 </code></pre></div><p><code>skeleton</code>で生成したコードでそのまま<code>go test</code>すれば、サンプルコードに書かれた<code>// want</code>が満たされずFAILするのがわかる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span>
 --- FAIL: Test <span style="color:#719e07">(</span>0.03s<span style="color:#719e07">)</span>
     analysistest.go:311: a/a.go:4: no diagnostic was reported matching <span style="color:#2aa198">&#34;pattern&#34;</span>
 FAIL
@@ -534,7 +534,7 @@ FAIL    github.com/budougumi0617/mylinter       0.042s
 </ul>
 <h2 id="テストケースの書き方について">テストケースの書き方について</h2>
 <p>テスト用のサンプルコードは<code>testdata</code>ディレクトリ以下に作成することになるが、<code>analysistest</code>パッケージでテストを実行するときは<code>testdata</code>ディレクトリが<code>GOPATH</code>になる。なので、たとえば<code>repository</code>パッケージを<code>import</code>する<code>handler</code>パッケージというサンプルコードを作ったとすると、ディレクトリ構成は以下のようになる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ tree testdata
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ tree testdata
 testdata
 └── src
     ├── domain
@@ -545,7 +545,7 @@ testdata
     │   └── r.go
     └── service
         └── s.go
-</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// testdata/src/handler/h.go
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// testdata/src/handler/h.go
 </span><span style="color:#586e75"></span>
 <span style="color:#719e07">package</span> handler
 
@@ -560,7 +560,7 @@ testdata
 <span style="color:#586e75">// Do anything...
 </span></code></pre></div><h2 id="フラグ">フラグ</h2>
 <p>CLIツールの場合フラグ処理を入れたくなるのが常だ。<code>analysis</code>パッケージを使った実装した場合、実行時のフラグは<code>Analyzer.Flags</code>に入って渡ってくる。具体的な呼び出し方は<a href="https://tech.mercari.com/entry/2018/12/16/150000">Mercariのブログ</a>を見るとよいだろう。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Analyzer <span style="color:#268bd2">struct</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Analyzer <span style="color:#268bd2">struct</span> {
     <span style="color:#586e75">// ...
 </span><span style="color:#586e75"></span>
     <span style="color:#586e75">// Flags defines any flags accepted by the analyzer.
@@ -767,10 +767,16 @@ testdata
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -782,12 +788,6 @@ testdata
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

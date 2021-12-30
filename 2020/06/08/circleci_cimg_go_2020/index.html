@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -223,27 +223,27 @@ cimg/goを使ったGo向けのCircleCIの設定をまとめる。"/>
 </li>
 </ul>
 <p>最小構成のサンプルコードは次のとおり。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">version</span>: <span style="color:#2aa198">2.1</span>
-<span style="color:#719e07">orbs</span>:
-  <span style="color:#719e07">go</span>: circleci/go@<span style="color:#2aa198">1.2.0</span>
-<span style="color:#719e07">jobs</span>:
-  <span style="color:#719e07">build</span>:
-    <span style="color:#719e07">executor</span>:
-      <span style="color:#719e07">name</span>: go/default
-      <span style="color:#719e07">tag</span>: <span style="color:#2aa198">&#39;1.14.4&#39;</span>
-    <span style="color:#719e07">environment</span>:
-      <span style="color:#719e07">TEST_RESULTS</span>: /tmp/test-results
-    <span style="color:#719e07">steps</span>:
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">version</span>: <span style="color:#2aa198">2.1</span>
+<span style="color:#268bd2">orbs</span>:
+  <span style="color:#268bd2">go</span>: circleci/go@1.2.0
+<span style="color:#268bd2">jobs</span>:
+  <span style="color:#268bd2">build</span>:
+    <span style="color:#268bd2">executor</span>:
+      <span style="color:#268bd2">name</span>: go/default
+      <span style="color:#268bd2">tag</span>: <span style="color:#2aa198">&#39;1.14.4&#39;</span>
+    <span style="color:#268bd2">environment</span>:
+      <span style="color:#268bd2">TEST_RESULTS</span>: /tmp/test-results
+    <span style="color:#268bd2">steps</span>:
       - checkout
-      - <span style="color:#719e07">run</span>: mkdir -p $TEST_RESULTS
+      - <span style="color:#268bd2">run</span>: mkdir -p $TEST_RESULTS
       - go/mod-download-cached
-      - <span style="color:#719e07">run</span>: gotestsum --junitfile ${TEST_RESULTS}/unit-tests.xml -- -p <span style="color:#2aa198">6</span> -race -cover ./...
-      - <span style="color:#719e07">run</span>: go build ./...
-      - <span style="color:#719e07">store_artifacts</span>:
-          <span style="color:#719e07">path</span>: /tmp/test-results
-          <span style="color:#719e07">destination</span>: raw-test-output
-      - <span style="color:#719e07">store_test_results</span>:
-          <span style="color:#719e07">path</span>: /tmp/test-results
+      - <span style="color:#268bd2">run</span>: gotestsum --junitfile ${TEST_RESULTS}/unit-tests.xml -- -p 6 -race -cover ./...
+      - <span style="color:#268bd2">run</span>: go build ./...
+      - <span style="color:#268bd2">store_artifacts</span>:
+          <span style="color:#268bd2">path</span>: /tmp/test-results
+          <span style="color:#268bd2">destination</span>: raw-test-output
+      - <span style="color:#268bd2">store_test_results</span>:
+          <span style="color:#268bd2">path</span>: /tmp/test-results
 </code></pre></div><p>サンプルリポジトリは以下。</p>
 <div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/cimg_go" data-iframely-url="//cdn.iframe.ly/6jm5N1X"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
 <p>なお、動作確認で使ったツールの各バージョン情報は次のとおり。</p>
@@ -292,69 +292,69 @@ Go以外にもRubyやRust用のイメージもリリースされている。</p>
 <p>まず、公式のGo用の環境構築に記載されている従来の設定は次のとおり（CircleCIの設定ファイルバージョンとGoのバージョンは変更している）。
 明示的にGo Modulesを実行していない。
 テスト結果を保存するために<code>jstemmer/go-junit-report</code>を<code>go get</code>していたり冗長な処理が多い。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">version</span>: <span style="color:#2aa198">2.1</span>
-<span style="color:#719e07">jobs</span>:
-  <span style="color:#719e07">build</span>:
-    <span style="color:#719e07">docker</span>:
-      - <span style="color:#719e07">image</span>: circleci/golang:<span style="color:#2aa198">1.14.4</span>
-    <span style="color:#719e07">environment</span>:
-      <span style="color:#719e07">TEST_RESULTS</span>: /tmp/test-results
-    <span style="color:#719e07">steps</span>:
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">version</span>: <span style="color:#2aa198">2.1</span>
+<span style="color:#268bd2">jobs</span>:
+  <span style="color:#268bd2">build</span>:
+    <span style="color:#268bd2">docker</span>:
+      - <span style="color:#268bd2">image</span>: circleci/golang:1.14.4
+    <span style="color:#268bd2">environment</span>:
+      <span style="color:#268bd2">TEST_RESULTS</span>: /tmp/test-results
+    <span style="color:#268bd2">steps</span>:
       - checkout
-      - <span style="color:#719e07">run</span>: mkdir -p $TEST_RESULTS
-      - <span style="color:#719e07">restore_cache</span>:
-          <span style="color:#719e07">keys</span>:
+      - <span style="color:#268bd2">run</span>: mkdir -p $TEST_RESULTS
+      - <span style="color:#268bd2">restore_cache</span>:
+          <span style="color:#268bd2">keys</span>:
             - v1-pkg-cache
-      - <span style="color:#719e07">run</span>: go get github.com/jstemmer/go-junit-report
-      - <span style="color:#719e07">run</span>:
-          <span style="color:#719e07">name</span>: Run unit tests
-          <span style="color:#719e07">command</span>: <span style="color:#2aa198">|
-</span><span style="color:#2aa198">            trap &#34;go-junit-report &lt;${TEST_RESULTS}/go-test.out &gt; ${TEST_RESULTS}/go-test-report.xml&#34; EXIT</span>
-            go test -v -p <span style="color:#2aa198">6</span> -race -cover ./... | tee ${TEST_RESULTS}/go-test.out
-      - <span style="color:#719e07">run</span>: go build ./...
-      - <span style="color:#719e07">save_cache</span>:
-          <span style="color:#719e07">key</span>: v1-pkg-cache
-          <span style="color:#719e07">paths</span>:
+      - <span style="color:#268bd2">run</span>: go get github.com/jstemmer/go-junit-report
+      - <span style="color:#268bd2">run</span>:
+          <span style="color:#268bd2">name</span>: Run unit tests
+          <span style="color:#268bd2">command</span>: |<span style="color:#2aa198">
+</span><span style="color:#2aa198">            trap &#34;go-junit-report &lt;${TEST_RESULTS}/go-test.out &gt; ${TEST_RESULTS}/go-test-report.xml&#34; EXIT
+</span><span style="color:#2aa198">            go test -v -p 6 -race -cover ./... | tee ${TEST_RESULTS}/go-test.out</span>            
+      - <span style="color:#268bd2">run</span>: go build ./...
+      - <span style="color:#268bd2">save_cache</span>:
+          <span style="color:#268bd2">key</span>: v1-pkg-cache
+          <span style="color:#268bd2">paths</span>:
             - <span style="color:#2aa198">&#34;/go/pkg&#34;</span>
-      - <span style="color:#719e07">store_artifacts</span>:
-          <span style="color:#719e07">path</span>: /tmp/test-results
-          <span style="color:#719e07">destination</span>: raw-test-output
-      - <span style="color:#719e07">store_test_results</span>:
-          <span style="color:#719e07">path</span>: /tmp/test-results
+      - <span style="color:#268bd2">store_artifacts</span>:
+          <span style="color:#268bd2">path</span>: /tmp/test-results
+          <span style="color:#268bd2">destination</span>: raw-test-output
+      - <span style="color:#268bd2">store_test_results</span>:
+          <span style="color:#268bd2">path</span>: /tmp/test-results
 </code></pre></div><h2 id="cimggoとcirclecigo-orbsを使った2020年版の設定">cimg/goとcircleci/go orbsを使った2020年版の設定</h2>
 <p>次世代イメージを使った環境設定は次のとおりになる。
 <code>cimg/go</code>イメージをベースに作成された公式orbsイメージを使えばかなりシンプルに書けるようになる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">version</span>: <span style="color:#2aa198">2.1</span>
-<span style="color:#719e07">orbs</span>:
-  <span style="color:#719e07">go</span>: circleci/go@<span style="color:#2aa198">1.2.0</span> <span style="color:#586e75"># https://circleci.com/orbs/registry/orb/circleci/go</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">version</span>: <span style="color:#2aa198">2.1</span>
+<span style="color:#268bd2">orbs</span>:
+  <span style="color:#268bd2">go</span>: circleci/go@1.2.0 <span style="color:#586e75"># https://circleci.com/orbs/registry/orb/circleci/go</span>
 
-<span style="color:#719e07">jobs</span>:
-  <span style="color:#719e07">build</span>:
+<span style="color:#268bd2">jobs</span>:
+  <span style="color:#268bd2">build</span>:
     <span style="color:#586e75"># mysqlイメージなども使いたいならばdockerタグでcimg/goを指定すればよいだろう。</span>
-    <span style="color:#719e07">executor</span>:
-      <span style="color:#719e07">name</span>: go/default <span style="color:#586e75"># the base image is cimg/go</span>
-      <span style="color:#719e07">tag</span>: <span style="color:#2aa198">&#39;1.14.4&#39;</span>
+    <span style="color:#268bd2">executor</span>:
+      <span style="color:#268bd2">name</span>: go/default <span style="color:#586e75"># the base image is cimg/go</span>
+      <span style="color:#268bd2">tag</span>: <span style="color:#2aa198">&#39;1.14.4&#39;</span>
 
-    <span style="color:#719e07">environment</span>:
-      <span style="color:#719e07">TEST_RESULTS</span>: /tmp/test-results
+    <span style="color:#268bd2">environment</span>:
+      <span style="color:#268bd2">TEST_RESULTS</span>: /tmp/test-results
 
-    <span style="color:#719e07">steps</span>:
+    <span style="color:#268bd2">steps</span>:
       - checkout
-      - <span style="color:#719e07">run</span>: mkdir -p $TEST_RESULTS
+      - <span style="color:#268bd2">run</span>: mkdir -p $TEST_RESULTS
       - go/mod-download-cached
 
-      - <span style="color:#719e07">run</span>:
-          <span style="color:#719e07">name</span>: Run unit tests
-          <span style="color:#719e07">command</span>: <span style="color:#2aa198">|
-</span><span style="color:#2aa198">            gotestsum --junitfile ${TEST_RESULTS}/unit-tests.xml -- -p 6 -race -cover ./...</span>
-      - <span style="color:#719e07">run</span>: go build ./...
+      - <span style="color:#268bd2">run</span>:
+          <span style="color:#268bd2">name</span>: Run unit tests
+          <span style="color:#268bd2">command</span>: |<span style="color:#2aa198">
+</span><span style="color:#2aa198">            </span>            gotestsum --junitfile ${TEST_RESULTS}/unit-tests.xml -- -p 6 -race -cover ./...
+      - <span style="color:#268bd2">run</span>: go build ./...
 
-      - <span style="color:#719e07">store_artifacts</span>:
-          <span style="color:#719e07">path</span>: /tmp/test-results
-          <span style="color:#719e07">destination</span>: raw-test-output
+      - <span style="color:#268bd2">store_artifacts</span>:
+          <span style="color:#268bd2">path</span>: /tmp/test-results
+          <span style="color:#268bd2">destination</span>: raw-test-output
 
-      - <span style="color:#719e07">store_test_results</span>:
-          <span style="color:#719e07">path</span>: /tmp/test-results
+      - <span style="color:#268bd2">store_test_results</span>:
+          <span style="color:#268bd2">path</span>: /tmp/test-results
 </code></pre></div><p>CircleCIの実行結果は次の通り。</p>
 <ul>
 <li><a href="https://app.circleci.com/pipelines/github/budougumi0617/cimg_go/12/workflows/ededb9df-62e9-4186-bf90-26d6a772d117/jobs/12/steps">https://app.circleci.com/pipelines/github/budougumi0617/cimg_go/12/workflows/ededb9df-62e9-4186-bf90-26d6a772d117/jobs/12/steps</a></li>
@@ -379,15 +379,15 @@ Go以外にもRubyやRust用のイメージもリリースされている。</p>
 <p>もちろん個別に利用することもできる。</p>
 <h2 id="gotestsumを使ったテスト結果の集計">gotestsumを使ったテスト結果の集計</h2>
 <p>従来の設定では、<code>go-junit-report</code>を使ってテスト結果をXMLで集計していた。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">- <span style="color:#719e07">run</span>:
-  <span style="color:#719e07">name</span>: Run unit tests
-  <span style="color:#719e07">command</span>: <span style="color:#2aa198">|
-</span><span style="color:#2aa198">    trap &#34;go-junit-report &lt;${TEST_RESULTS}/go-test.out &gt; ${TEST_RESULTS}/go-test-report.xml&#34; EXIT</span>
-    go test -v -p <span style="color:#2aa198">6</span> -race -cover ./... | tee ${TEST_RESULTS}/go-test.out
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">- <span style="color:#268bd2">run</span>:
+  <span style="color:#268bd2">name</span>: Run unit tests
+  <span style="color:#268bd2">command</span>: |<span style="color:#2aa198">
+</span><span style="color:#2aa198">    trap &#34;go-junit-report &lt;${TEST_RESULTS}/go-test.out &gt; ${TEST_RESULTS}/go-test-report.xml&#34; EXIT
+</span><span style="color:#2aa198">    go test -v -p 6 -race -cover ./... | tee ${TEST_RESULTS}/go-test.out</span>    
 </code></pre></div><p><code>cimg/go</code>イメージには、<code>gotestsum</code>コマンドが標準で含められており、これを使えばわざわざ<code>go get</code>せずともXMLでテスト結果を集計できる。</p>
 <div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://circleci.com/blog/level-up-go-test-with-gotestsum/" data-iframely-url="//cdn.iframe.ly/yCFsBxM?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
 <p>そのため、次のような1行でテスト結果を集計しながらこちらで決めたオプションを使って<code>go test</code>が実行できる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">- <span style="color:#719e07">run</span>: gotestsum --junitfile ${TEST_RESULTS}/unit-tests.xml -- -p <span style="color:#2aa198">6</span> -race -cover ./...
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">- <span style="color:#268bd2">run</span>: gotestsum --junitfile ${TEST_RESULTS}/unit-tests.xml -- -p 6 -race -cover ./...
 </code></pre></div><p>ちゃんと設定できていると、ジョブ実行結果のテストタブでテスト結果が集計される。</p>
 <ul>
 <li><a href="https://app.circleci.com/pipelines/github/budougumi0617/cimg_go/4/workflows/eda37ff8-0026-4805-b5b0-e70b2eb5712e/jobs/4">https://app.circleci.com/pipelines/github/budougumi0617/cimg_go/4/workflows/eda37ff8-0026-4805-b5b0-e70b2eb5712e/jobs/4</a></li>
@@ -586,10 +586,16 @@ Go以外にもRubyやRust用のイメージもリリースされている。</p>
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -601,12 +607,6 @@ Go以外にもRubyやRust用のイメージもリリースされている。</p>
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

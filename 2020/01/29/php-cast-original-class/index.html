@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -199,20 +199,20 @@ arrayやインターフェイスで受け取った引数に、型をキャスト
 <li>PHP7.4からはアロー関数を使った簡易関数も作れる</li>
 <li>型を指定しておくとIDEに支援もフルに受けることができる</li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">final class CastObject extends ParentObject
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#719e07">final</span> <span style="color:#719e07">class</span> <span style="color:#268bd2">CastObject</span> <span style="color:#719e07">extends</span> ParentObject
 {
-    // 型キャストを行なうだけの関数
-    public static function cast($obj): self
+    <span style="color:#586e75">// 型キャストを行なうだけの関数
+</span><span style="color:#586e75"></span>    <span style="color:#719e07">public</span> <span style="color:#719e07">static</span> <span style="color:#719e07">function</span> <span style="color:#268bd2">cast</span>(<span style="color:#268bd2">$obj</span>)<span style="color:#719e07">:</span> self
     {
-        if (!($obj instanceof self)) {
-            throw new InvalidArgumentException(&#34;{$obj} is not instance of CastObject&#34;);
+        <span style="color:#719e07">if</span> (<span style="color:#719e07">!</span>(<span style="color:#268bd2">$obj</span> instanceof self)) {
+            <span style="color:#719e07">throw</span> <span style="color:#719e07">new</span> InvalidArgumentException(<span style="color:#2aa198">&#34;</span><span style="color:#2aa198">{</span><span style="color:#268bd2">$obj</span><span style="color:#2aa198">}</span><span style="color:#2aa198"> is not instance of CastObject&#34;</span>);
         }
-        return $obj;
+        <span style="color:#719e07">return</span> <span style="color:#268bd2">$obj</span>;
     }
 }
 
-// アロー関数を使ったキャスト関数
-$cast = fn($orig): CastObject =&gt; $orig;
+<span style="color:#586e75">// アロー関数を使ったキャスト関数
+</span><span style="color:#586e75"></span><span style="color:#268bd2">$cast</span> <span style="color:#719e07">=</span> fn(<span style="color:#268bd2">$orig</span>)<span style="color:#719e07">:</span> CastObject <span style="color:#719e07">=&gt;</span> <span style="color:#268bd2">$orig</span>;
 </code></pre></div><h1 id="独自クラスへの型キャストがしたい">独自クラスへの型キャストがしたい。</h1>
 <p><code>php-go</code>というPHP製のGoインタプリタを作っている。</p>
 <div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/php-go" data-iframely-url="//cdn.iframe.ly/SfTZMuB?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
@@ -238,32 +238,32 @@ $cast = fn($orig): CastObject =&gt; $orig;
 </li>
 </ul>
 <p>たとえば、こんな継承関係の<code>ParentObject</code>クラスと<code>CastObject</code>クラスがあったとする。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">class ParentObject{}
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#719e07">class</span> <span style="color:#268bd2">ParentObject</span>{}
 
-final class CastObject extends ParentObject
+<span style="color:#719e07">final</span> <span style="color:#719e07">class</span> <span style="color:#268bd2">CastObject</span> <span style="color:#719e07">extends</span> ParentObject
 {
-    public string $prop;
+    <span style="color:#719e07">public</span> string <span style="color:#268bd2">$prop</span>;
 
-    public function __construct(string $prop)
+    <span style="color:#719e07">public</span> <span style="color:#719e07">function</span> __construct(string <span style="color:#268bd2">$prop</span>)
     {
-        $this-&gt;prop = $prop;
+        <span style="color:#268bd2">$this</span><span style="color:#719e07">-&gt;</span>prop <span style="color:#719e07">=</span> <span style="color:#268bd2">$prop</span>;
     }
 }
 </code></pre></div><p>あらかじめ、キャスト用の関数を用意しておく（多用するならば、クラスに<code>static</code>関数として用意すればよいだろう）。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">final class CastObject extends ParentObject
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#719e07">final</span> <span style="color:#719e07">class</span> <span style="color:#268bd2">CastObject</span> <span style="color:#719e07">extends</span> ParentObject
 {
-    public static function cast($obj): self
+    <span style="color:#719e07">public</span> <span style="color:#719e07">static</span> <span style="color:#719e07">function</span> <span style="color:#268bd2">cast</span>(<span style="color:#268bd2">$obj</span>)<span style="color:#719e07">:</span> self
     {
-        if (!($obj instanceof self)) {
-            throw new InvalidArgumentException(&#34;{$obj} is not instance of CastObject&#34;);
+        <span style="color:#719e07">if</span> (<span style="color:#719e07">!</span>(<span style="color:#268bd2">$obj</span> instanceof self)) {
+            <span style="color:#719e07">throw</span> <span style="color:#719e07">new</span> InvalidArgumentException(<span style="color:#2aa198">&#34;</span><span style="color:#2aa198">{</span><span style="color:#268bd2">$obj</span><span style="color:#2aa198">}</span><span style="color:#2aa198"> is not instance of CastObject&#34;</span>);
         }
-        return $obj;
+        <span style="color:#719e07">return</span> <span style="color:#268bd2">$obj</span>;
     }
 }
 </code></pre></div><p>どこからか受け取った<code>ParentObject</code>オブジェクトに<code>CastObject</code>クラスをキャストしたいならば、以下のように書けばよい。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">// どこからか受け取ったParentbjectな $obj
-if ($obj instanceof CastObject) {
-    $casted = CastObject::cast($obj);
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#586e75">// どこからか受け取ったParentbjectな $obj
+</span><span style="color:#586e75"></span><span style="color:#719e07">if</span> (<span style="color:#268bd2">$obj</span> instanceof CastObject) {
+    <span style="color:#268bd2">$casted</span> <span style="color:#719e07">=</span> CastObject<span style="color:#719e07">::</span>cast(<span style="color:#268bd2">$obj</span>);
 }
 </code></pre></div><h2 id="74からはアロー関数も利用できる">7.4からはアロー関数も利用できる</h2>
 <p>PHP7.4からはアロー関数という無名関数の書き方が用意されている。</p>
@@ -275,11 +275,11 @@ if ($obj instanceof CastObject) {
 </li>
 </ul>
 <p>何度も使わないようなキャストならば、その場で使い捨ての関数として宣言してもよいだろう。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">$cast = fn($orig): CastObject =&gt; $orig;
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#268bd2">$cast</span> <span style="color:#719e07">=</span> fn(<span style="color:#268bd2">$orig</span>)<span style="color:#719e07">:</span> CastObject <span style="color:#719e07">=&gt;</span> <span style="color:#268bd2">$orig</span>;
 
-// どこからか受け取ったParentbjectな $obj
-if ($obj instanceof CastObject) {
-    $casted = CastObject::cast($obj);
+<span style="color:#586e75">// どこからか受け取ったParentbjectな $obj
+</span><span style="color:#586e75"></span><span style="color:#719e07">if</span> (<span style="color:#268bd2">$obj</span> instanceof CastObject) {
+    <span style="color:#268bd2">$casted</span> <span style="color:#719e07">=</span> CastObject<span style="color:#719e07">::</span>cast(<span style="color:#268bd2">$obj</span>);
 }
 </code></pre></div><h1 id="終わりに">終わりに</h1>
 <p>明示的に型がわからなくてもメソッド呼び出しなどはエラーにならない。<br>
@@ -474,10 +474,16 @@ if ($obj instanceof CastObject) {
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -489,12 +495,6 @@ if ($obj instanceof CastObject) {
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -203,7 +203,7 @@
 </li>
 </ul>
 <p>現時点のサンプルコードは以下の通り。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// 環境変数名をキー、環境変数値をバリューとするマップ
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// 環境変数名をキー、環境変数値をバリューとするマップ
 </span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">setup</span>(t <span style="color:#719e07">*</span>testing.T, envs <span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]<span style="color:#dc322f">string</span>) {
   <span style="color:#719e07">for</span> k, v <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> envs {
     prev, ok <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">LookupEnv</span>(k)
@@ -238,7 +238,7 @@
 <p><code>defer</code>を使うようなこともあったが、Go1.14からは<code>t.Cleanup</code>関数を利用すればスッキリ書ける。<br>
 スニペット利用者が正しく後処理関数の実行を行わず環境変数が定義されっぱなしになったという心配もない。<br>
 注意点としては当然ながら<code>t.Parallel()</code>関数との併用はできない。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">環境変数名をキー、環境変数値をバリューとするマップ
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">環境変数名をキー、環境変数値をバリューとするマップ
 <span style="color:#268bd2">func</span> <span style="color:#268bd2">setup</span>(t <span style="color:#719e07">*</span>testing.T, envs <span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]<span style="color:#dc322f">string</span>) {
   <span style="color:#719e07">for</span> k, v <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> envs {
     prev, ok <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">LookupEnv</span>(k)
@@ -259,14 +259,14 @@
 <li><a href="https://github.com/golang/go/issues/41260">https://github.com/golang/go/issues/41260</a></li>
 <li><a href="https://github.com/golang/go/blob/ab02cbd29f9b9c76d8f7af0d625ac56fcf8d4e75/src/testing/testing.go#L1097-L1110">https://github.com/golang/go/blob/ab02cbd29f9b9c76d8f7af0d625ac56fcf8d4e75/src/testing/testing.go#L1097-L1110</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// Setenv calls os.Setenv(key, value) and uses Cleanup to
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// Setenv calls os.Setenv(key, value) and uses Cleanup to
 </span><span style="color:#586e75">// restore the environment variable to its original value
 </span><span style="color:#586e75">// after the test.
 </span><span style="color:#586e75">//
 </span><span style="color:#586e75">// This cannot be used in parallel tests.
 </span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (t <span style="color:#719e07">*</span>T) <span style="color:#268bd2">Setenv</span>(key, value <span style="color:#dc322f">string</span>)
 </code></pre></div><p>リストア処理もやってくれるので、Go1.17以降はこのように書き直せる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">環境変数名をキー、環境変数値をバリューとするマップ
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">環境変数名をキー、環境変数値をバリューとするマップ
 <span style="color:#268bd2">func</span> <span style="color:#268bd2">setup</span>(t <span style="color:#719e07">*</span>testing.T, envs <span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]<span style="color:#dc322f">string</span>) {
   <span style="color:#719e07">for</span> k, v <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> envs {
     t.<span style="color:#268bd2">Setenv</span>(k, v)
@@ -448,10 +448,16 @@
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -463,12 +469,6 @@
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

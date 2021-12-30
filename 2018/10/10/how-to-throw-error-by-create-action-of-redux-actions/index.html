@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -192,7 +192,7 @@ https://redux-actions.js.org/api/createaction
     <li><a href="#tldr">TL;DR</a></li>
     <li><a href="#fsa準拠のアクションを作る">FSA準拠のアクションを作る</a></li>
     <li><a href="#redux-actionsのcreateactionでactionを作る">redux-actionsのcreateActionでActionを作る</a></li>
-    <li><a href="#createactionで">createActionで</a></li>
+    <li><a href="#createactionでtypefoo-payloaderror-errortrueなオブジェクトを返す">createActionで{type=FOO, payload=Error, error=true}なオブジェクトを返す</a></li>
     <li><a href="#最後に">最後に</a></li>
     <li><a href="#参考">参考</a></li>
   </ul>
@@ -222,7 +222,7 @@ https://redux-actions.js.org/api/createaction
 </ul>
 </li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-react" data-lang="react"><span style="color:#586e75">// 通常は{type=&#34;READ_EVENTS&#34;, payload=response.data}なActionが生成される。
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-react" data-lang="react"><span style="color:#586e75">// 通常は{type=&#34;READ_EVENTS&#34;, payload=response.data}なActionが生成される。
 </span><span style="color:#586e75">// 例外発生時は{type=&#34;READ_EVENTS&#34;, payload=Error, error=true}なActionが生成される。
 </span><span style="color:#586e75"></span><span style="color:#268bd2">export</span> <span style="color:#268bd2">const</span> readEvents <span style="color:#719e07">=</span> createAction(<span style="color:#2aa198">&#34;READ_EVENTS&#34;</span>, () =&gt;
   axios.get(<span style="color:#586e75">`</span><span style="color:#2aa198">${</span>RESOURCE_URL<span style="color:#2aa198">}</span><span style="color:#586e75">`</span>).then(response =&gt; {
@@ -247,7 +247,7 @@ https://redux-actions.js.org/api/createaction
 </li>
 </ul>
 <p>Flowtypeの記法で型を書くと、<code>Action</code>は以下のような型になる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-react" data-lang="react"><span style="color:#268bd2">export</span> type ActionT&lt;<span style="color:#268bd2">A</span>: Action, P&gt; <span style="color:#719e07">=</span> {<span style="color:#719e07">|</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-react" data-lang="react"><span style="color:#268bd2">export</span> type ActionT&lt;<span style="color:#268bd2">A</span>: Action, P&gt; <span style="color:#719e07">=</span> {<span style="color:#719e07">|</span>
   type<span style="color:#719e07">:</span> A,
   payload<span style="color:#719e07">?:</span> P <span style="color:#719e07">|</span> <span style="color:#b58900">Error</span>,
   error<span style="color:#719e07">?:</span> <span style="color:#268bd2">boolean</span>,
@@ -297,7 +297,7 @@ https://redux-actions.js.org/api/createaction
 </ul>
 </li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-react" data-lang="react"><span style="color:#268bd2">import</span> axios from <span style="color:#2aa198">&#39;axios&#39;</span>;
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-react" data-lang="react"><span style="color:#268bd2">import</span> axios from <span style="color:#2aa198">&#39;axios&#39;</span>;
 <span style="color:#268bd2">import</span> { createAction } from <span style="color:#2aa198">&#39;redux-actions&#39;</span>;
 
 <span style="color:#268bd2">export</span> type ReadEventsAction <span style="color:#719e07">=</span> {
@@ -313,10 +313,10 @@ https://redux-actions.js.org/api/createaction
     <span style="color:#719e07">return</span> response.data;
   })
 );
-</code></pre></div><h1 id="createactionで">createActionで</h1>
+</code></pre></div><h1 id="createactionでtypefoo-payloaderror-errortrueなオブジェクトを返す">createActionで{type=FOO, payload=Error, error=true}なオブジェクトを返す</h1>
 <p>上記のサンプルコードのコメントに書いたが、内部でエラーが発生すれば自動的に<code>Action</code>のなかの<code>error</code>が<code>true</code>になる。<br>
 <code>reducer</code>の中で使える<code>handleAction</code>関数も用意されているので、<code>error = true</code>のときの処理を<code>throw</code>に書けばよい。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-react" data-lang="react"><span style="color:#268bd2">import</span> { handleActions, type ActionType } from <span style="color:#2aa198">&#39;redux-actions&#39;</span>;
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-react" data-lang="react"><span style="color:#268bd2">import</span> { handleActions, type ActionType } from <span style="color:#2aa198">&#39;redux-actions&#39;</span>;
 
 <span style="color:#268bd2">const</span> initialState<span style="color:#719e07">:</span> {
   events<span style="color:#719e07">:</span> EventMap <span style="color:#719e07">|</span> {}
@@ -560,10 +560,16 @@ https://redux-actions.js.org/api/createaction
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -575,12 +581,6 @@ https://redux-actions.js.org/api/createaction
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

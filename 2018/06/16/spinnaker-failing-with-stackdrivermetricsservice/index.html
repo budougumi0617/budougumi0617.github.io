@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -198,17 +198,17 @@
 <p>ログを見るときは「リソース」がGKEコンテナになっていることを確認すること。<br>
 自分は「Kubernetesクラスタ」のログを見ていて（別の場所を見ていて）「エラーログがない」と勘違いしていた。</p>
 <p>ログを確認してみると、以下のようなエラーが繰り返し出続けていた。</p>
-<pre><code>2018-06-16 03:31:44.000 JST
+<pre tabindex="0"><code>2018-06-16 03:31:44.000 JST
 18:31:44 Caught &lt;HttpError 403 when requesting https://monitoring.googleapis.com/v3/projects/PROJECT_ID/timeSeries?alt=json returned &quot;User is not authorized to access the project monitoring records: Requires permission monitoring.timeSeries.create&quot;&gt;
-</code></pre><pre><code>2018-06-16 03:35:59.000 JST
+</code></pre><pre tabindex="0"><code>2018-06-16 03:35:59.000 JST
 18:35:59 Caught &lt;HttpError 400 when requesting https://monitoring.googleapis.com/v3/projects/PROJECT_ID/timeSeries?alt=json returned &quot;Field timeSeries[106].metricKind had an invalid value of &quot;GAUGE&quot;: Metric kind for metric custom.googleapis.com/spinnaker/clouddriver/redis.command.payloadSize.eval must be CUMULATIVE.&quot;&gt;
 </code></pre><p>エラーを見ればなんのことはない、結局サービスアカウントの権限不足だった。<br>
 ログをもう少し漁ると、以下のようなログも見つかるはずだ。</p>
-<pre><code>2018-06-16 04:50:11.000 JST
+<pre tabindex="0"><code>2018-06-16 04:50:11.000 JST
 19:50:11 Using Stackdriver Credentials from &quot;/home/USER/.hal/default/staging/dependencies/926556552-gcp.json&quot;
 </code></pre><h1 id="iamロールを修正してspinnakerを再起動する">IAMロールを修正してSpinnakerを再起動する</h1>
 <p>上記のjsonの中をみると紐付いているサービスアカウントのメールアドレスがわかるので、</p>
-<pre><code>cat .hal/default/staging/dependencies/926556552-gcp.json
+<pre tabindex="0"><code>cat .hal/default/staging/dependencies/926556552-gcp.json
 {
   &quot;type&quot;: &quot;service_account&quot;,
   &quot;project_id&quot;: &quot;PROJECT_ID&quot;,
@@ -408,10 +408,16 @@
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -423,12 +429,6 @@
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

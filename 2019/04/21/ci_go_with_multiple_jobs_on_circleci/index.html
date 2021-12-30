@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -272,52 +272,52 @@ CicrcleCI2.1でGo Modulesを使いながらマルチJobを定義したWorkflow�
 <code>e2e</code>ジョブと<code>lint</code>ジョブは互いの実行結果を必要としないので、同時に実行することができる。
 並行に実行できるようにしておくことで、Workflow全体の実行時間を短縮することができる。</p>
 <p>3つのジョブを定義してジョブ間の依存関係を定義すると<code>.circleci/config.yml</code>は以下のような設定になる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">version</span>: <span style="color:#2aa198">2.1</span>
-<span style="color:#719e07">executors</span>:
-  <span style="color:#719e07">default</span>:
-    <span style="color:#719e07">docker</span>:
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">version</span>: <span style="color:#2aa198">2.1</span>
+<span style="color:#268bd2">executors</span>:
+  <span style="color:#268bd2">default</span>:
+    <span style="color:#268bd2">docker</span>:
       <span style="color:#586e75"># CircleCI Go images available at: https://hub.docker.com/r/circleci/golang/</span>
-      - <span style="color:#719e07">image</span>: circleci/golang:<span style="color:#2aa198">1.12.2</span>
-    <span style="color:#719e07">working_directory</span>: /go/src/github.com/budougumi0617/caww
-    <span style="color:#719e07">environment</span>:
-      - <span style="color:#719e07">GO111MODULE</span>: <span style="color:#2aa198">&#34;on&#34;</span>
+      - <span style="color:#268bd2">image</span>: circleci/golang:1.12.2
+    <span style="color:#268bd2">working_directory</span>: /go/src/github.com/budougumi0617/caww
+    <span style="color:#268bd2">environment</span>:
+      - <span style="color:#268bd2">GO111MODULE</span>: <span style="color:#2aa198">&#34;on&#34;</span>
 
-<span style="color:#719e07">jobs</span>:
+<span style="color:#268bd2">jobs</span>:
   <span style="color:#586e75"># 事前にもろもろのダウンロードなどを済ませておくジョブ</span>
-  <span style="color:#719e07">setup</span>:
-    <span style="color:#719e07">executor</span>:
-      <span style="color:#719e07">name</span>: default
-    <span style="color:#719e07">steps</span>:
+  <span style="color:#268bd2">setup</span>:
+    <span style="color:#268bd2">executor</span>:
+      <span style="color:#268bd2">name</span>: default
+    <span style="color:#268bd2">steps</span>:
       - checkout
-      - <span style="color:#719e07">run</span>:
-          <span style="color:#719e07">name</span>: Vendoring
-          <span style="color:#719e07">command</span>: go mod download
+      - <span style="color:#268bd2">run</span>:
+          <span style="color:#268bd2">name</span>: Vendoring
+          <span style="color:#268bd2">command</span>: go mod download
 
   <span style="color:#586e75"># e2eテストを実行するジョブ</span>
-  <span style="color:#719e07">e2e</span>:
-    <span style="color:#719e07">executor</span>:
-      <span style="color:#719e07">name</span>: default
-    <span style="color:#719e07">steps</span>:
+  <span style="color:#268bd2">e2e</span>:
+    <span style="color:#268bd2">executor</span>:
+      <span style="color:#268bd2">name</span>: default
+    <span style="color:#268bd2">steps</span>:
       <span style="color:#586e75"># テストの実行、結果のアップロードなど...</span>
 
   <span style="color:#586e75"># linterを実行するジョブ。e2eジョブとは並行で実行することができる</span>
-  <span style="color:#719e07">lint</span>:
-    <span style="color:#719e07">executor</span>:
-      <span style="color:#719e07">name</span>: default
-    <span style="color:#719e07">steps</span>:
+  <span style="color:#268bd2">lint</span>:
+    <span style="color:#268bd2">executor</span>:
+      <span style="color:#268bd2">name</span>: default
+    <span style="color:#268bd2">steps</span>:
       <span style="color:#586e75"># 静的解析の実行など...</span>
 
-<span style="color:#719e07">workflows</span>:
-  <span style="color:#719e07">build-and-test</span>:
-    <span style="color:#719e07">jobs</span>:
+<span style="color:#268bd2">workflows</span>:
+  <span style="color:#268bd2">build-and-test</span>:
+    <span style="color:#268bd2">jobs</span>:
       - setup
-      - <span style="color:#719e07">e2e</span>:
+      - <span style="color:#268bd2">e2e</span>:
           <span style="color:#586e75"># e2e jobはsetupジョブが完了後に実行される</span>
-          <span style="color:#719e07">requires</span>:
+          <span style="color:#268bd2">requires</span>:
             - setup
-      - <span style="color:#719e07">lint</span>:
+      - <span style="color:#268bd2">lint</span>:
           <span style="color:#586e75"># lint jobはsetupジョブが完了後に実行される</span>
-          <span style="color:#719e07">requires</span>:
+          <span style="color:#268bd2">requires</span>:
             - setup
 </code></pre></div><h2 id="save_cacheを使ってgo-mod-downloadの結果を保存しておく">save_cacheを使ってgo mod downloadの結果を保存しておく</h2>
 <p>毎回Worlflowを実行するたびにmodulesのダウンロードをするのは時間がかかる。ここで、CircleCIには前回のWorkflowで使ったデータをキャッシュしておく機能がある。</p>
@@ -329,25 +329,25 @@ CicrcleCI2.1でGo Modulesを使いながらマルチJobを定義したWorkflow�
 </li>
 </ul>
 <p><code>go.mod</code>ファイルの内容が同じ（checksumした結果が同じ）だったら前回のWorkflowでダウンロードした結果を再利用してダウンロード時間の短縮を行なう。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">jobs</span>:
-  <span style="color:#719e07">setup</span>:
-    <span style="color:#719e07">executor</span>:
-      <span style="color:#719e07">name</span>: default
-    <span style="color:#719e07">steps</span>:
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">jobs</span>:
+  <span style="color:#268bd2">setup</span>:
+    <span style="color:#268bd2">executor</span>:
+      <span style="color:#268bd2">name</span>: default
+    <span style="color:#268bd2">steps</span>:
       - checkout
       <span style="color:#586e75"># もし前回のWorkflow時に保存したキャッシュが利用できるなら再利用する</span>
-      - <span style="color:#719e07">restore_cache</span>:
-          <span style="color:#719e07">name</span>: Restore go modules cache
-          <span style="color:#719e07">keys</span>:
-              - v1-mod-{{ .Branch }}-{{ checksum <span style="color:#2aa198">&#34;go.mod&#34;</span> }}
-      - <span style="color:#719e07">run</span>:
-          <span style="color:#719e07">name</span>: Vendoring
-          <span style="color:#719e07">command</span>: go mod download
+      - <span style="color:#268bd2">restore_cache</span>:
+          <span style="color:#268bd2">name</span>: Restore go modules cache
+          <span style="color:#268bd2">keys</span>:
+              - v1-mod-{{ .Branch }}-{{ checksum &#34;go.mod&#34; }}
+      - <span style="color:#268bd2">run</span>:
+          <span style="color:#268bd2">name</span>: Vendoring
+          <span style="color:#268bd2">command</span>: go mod download
       <span style="color:#586e75"># ダウンロードしたmoduleをCircleCIにキャッシュとして保存しておく</span>
-      - <span style="color:#719e07">save_cache</span>:
-          <span style="color:#719e07">name</span>: Save go modules cache
-          <span style="color:#719e07">key</span>: v1-mod-{{ .Branch }}-{{ checksum <span style="color:#2aa198">&#34;go.mod&#34;</span> }}
-          <span style="color:#719e07">paths</span>:
+      - <span style="color:#268bd2">save_cache</span>:
+          <span style="color:#268bd2">name</span>: Save go modules cache
+          <span style="color:#268bd2">key</span>: v1-mod-{{ .Branch }}-{{ checksum &#34;go.mod&#34; }}
+          <span style="color:#268bd2">paths</span>:
               - /go/pkg/mod/cache
 </code></pre></div><p><code>go mod</code>を使ってダウンロードされるmoduleは<code>$GOPATH/pkg/mod/cache</code>に保存される。CircleCI公式のGo実行イメージの<code>$GOPATH</code>は<code>/go</code>なので<code>/go/pkg/mod/cache</code>をキャッシュすることになる。</p>
 <h2 id="persist_to_workspaceを使ってジョブ間でデータを共有する">persist_to_workspaceを使ってジョブ間でデータを共有する</h2>
@@ -360,25 +360,25 @@ CicrcleCI2.1でGo Modulesを使いながらマルチJobを定義したWorkflow�
 </ul>
 </li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">jobs</span>:
-  <span style="color:#719e07">setup</span>:
-    <span style="color:#719e07">executor</span>:
-      <span style="color:#719e07">name</span>: default
-    <span style="color:#719e07">steps</span>:
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">jobs</span>:
+  <span style="color:#268bd2">setup</span>:
+    <span style="color:#268bd2">executor</span>:
+      <span style="color:#268bd2">name</span>: default
+    <span style="color:#268bd2">steps</span>:
       <span style="color:#586e75"># 前述したgo mod downloadなどの処理</span>
-      - <span style="color:#719e07">persist_to_workspace</span>:
-          <span style="color:#719e07">root</span>: /go
-          <span style="color:#719e07">paths</span>:
+      - <span style="color:#268bd2">persist_to_workspace</span>:
+          <span style="color:#268bd2">root</span>: /go
+          <span style="color:#268bd2">paths</span>:
             - src
             - bin
             - pkg/mod/cache
 
-  <span style="color:#719e07">e2e</span>:
-    <span style="color:#719e07">executor</span>:
-      <span style="color:#719e07">name</span>: with_mysql
-    <span style="color:#719e07">steps</span>:
-      - <span style="color:#719e07">attach_workspace</span>:
-          <span style="color:#719e07">at</span>: /go
+  <span style="color:#268bd2">e2e</span>:
+    <span style="color:#268bd2">executor</span>:
+      <span style="color:#268bd2">name</span>: with_mysql
+    <span style="color:#268bd2">steps</span>:
+      - <span style="color:#268bd2">attach_workspace</span>:
+          <span style="color:#268bd2">at</span>: /go
       <span style="color:#586e75"># テストの実行、結果のアップロードなど...</span>
 </code></pre></div><p><code>setup</code>ジョブに<code>persist_to_workspace</code>を設定し、ジョブ間で共有したいデータの場所を設定しておく。<code>e2e</code>ジョブ(<code>lint</code>ジョブ)に<code>attach_workspace</code>を設定し、共有したいデータをマウントする場所を設定する。
 前述したとおり<code>$GOPATH</code>は<code>/go</code>なので、<code>/go</code>配下のデータを全て共有する。</p>
@@ -394,7 +394,7 @@ CicrcleCI2.1でGo Modulesを使いながらマルチJobを定義したWorkflow�
 <ul>
 <li><a href="https://circleci.com/gh/budougumi0617/caww/13">https://circleci.com/gh/budougumi0617/caww/13</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">Downloading workspace layers
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">Downloading workspace layers
   workflows/workspaces/2a7d4f28-c4f5-477a-90ab-190809d6e4f9/0/c5acd0fa-dc09-4e94-83b8-5e1f2e8a0e96/0/109.tar.gz - <span style="color:#2aa198">171</span> MB
 Applying workspace layers
   c5acd0fa-dc09-4e94-83b8-5e1f2e8a0e96
@@ -405,76 +405,76 @@ Error applying workspace layer <span style="color:#719e07">for</span> job c5acd0
 <p>結論から言うと、単純に<code>circleci</code>ユーザで解凍したデータを<code>root</code>ユーザ所有の<code>/go</code>ディレクトリ以下に展開しようとしていたのが原因だった。
 <code>circleci/golang</code>イメージでは、<code>/go</code>は<code>root</code>ユーザ所有らしい。</p>
 <p><code>docker</code>の設定に<code>user: root</code>としておくと、各Jobの実行ユーザが<code>root</code>ユーザになるので<code>attach_workspace</code>が成功するようになった。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">version</span>: <span style="color:#2aa198">2.1</span>
-<span style="color:#719e07">executors</span>:
-  <span style="color:#719e07">default</span>:
-    <span style="color:#719e07">docker</span>:
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">version</span>: <span style="color:#2aa198">2.1</span>
+<span style="color:#268bd2">executors</span>:
+  <span style="color:#268bd2">default</span>:
+    <span style="color:#268bd2">docker</span>:
       <span style="color:#586e75"># CircleCI Go images available at: https://hub.docker.com/r/circleci/golang/</span>
-      - <span style="color:#719e07">image</span>: circleci/golang:<span style="color:#2aa198">1.12.2</span>
-        <span style="color:#719e07">user</span>: root
-    <span style="color:#719e07">working_directory</span>: /go/src/github.com/budougumi0617/caww
-    <span style="color:#719e07">environment</span>:
-      - <span style="color:#719e07">GO111MODULE</span>: <span style="color:#2aa198">&#34;on&#34;</span>
+      - <span style="color:#268bd2">image</span>: circleci/golang:1.12.2
+        <span style="color:#268bd2">user</span>: root
+    <span style="color:#268bd2">working_directory</span>: /go/src/github.com/budougumi0617/caww
+    <span style="color:#268bd2">environment</span>:
+      - <span style="color:#268bd2">GO111MODULE</span>: <span style="color:#2aa198">&#34;on&#34;</span>
 </code></pre></div><h1 id="完成したcircleciconfigyml">完成した.circleci/config.yml</h1>
 <p>以上の設定を全て行った<code>.circleci/config.yml</code>は以下のようになる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">version</span>: <span style="color:#2aa198">2.1</span>
-<span style="color:#719e07">executors</span>:
-  <span style="color:#719e07">default</span>:
-    <span style="color:#719e07">docker</span>:
-      - <span style="color:#719e07">image</span>: circleci/golang:<span style="color:#2aa198">1.12.2</span>
-        <span style="color:#719e07">user</span>: root
-    <span style="color:#719e07">working_directory</span>: /go/src/github.com/budougumi0617/caww
-    <span style="color:#719e07">environment</span>:
-      - <span style="color:#719e07">GO111MODULE</span>: <span style="color:#2aa198">&#34;on&#34;</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">version</span>: <span style="color:#2aa198">2.1</span>
+<span style="color:#268bd2">executors</span>:
+  <span style="color:#268bd2">default</span>:
+    <span style="color:#268bd2">docker</span>:
+      - <span style="color:#268bd2">image</span>: circleci/golang:1.12.2
+        <span style="color:#268bd2">user</span>: root
+    <span style="color:#268bd2">working_directory</span>: /go/src/github.com/budougumi0617/caww
+    <span style="color:#268bd2">environment</span>:
+      - <span style="color:#268bd2">GO111MODULE</span>: <span style="color:#2aa198">&#34;on&#34;</span>
 
-<span style="color:#719e07">jobs</span>:
-  <span style="color:#719e07">setup</span>:
-    <span style="color:#719e07">executor</span>:
-      <span style="color:#719e07">name</span>: default
-    <span style="color:#719e07">steps</span>:
+<span style="color:#268bd2">jobs</span>:
+  <span style="color:#268bd2">setup</span>:
+    <span style="color:#268bd2">executor</span>:
+      <span style="color:#268bd2">name</span>: default
+    <span style="color:#268bd2">steps</span>:
       - checkout
-      - <span style="color:#719e07">restore_cache</span>:
-          <span style="color:#719e07">name</span>: Restore go modules cache
-          <span style="color:#719e07">keys</span>:
-              - v1-mod-{{ .Branch }}-{{ checksum <span style="color:#2aa198">&#34;go.mod&#34;</span> }}
-      - <span style="color:#719e07">run</span>:
-          <span style="color:#719e07">name</span>: Vendoring
-          <span style="color:#719e07">command</span>: go mod download
-      - <span style="color:#719e07">save_cache</span>:
-          <span style="color:#719e07">name</span>: Save go modules cache
-          <span style="color:#719e07">key</span>: v1-mod-{{ .Branch }}-{{ checksum <span style="color:#2aa198">&#34;go.mod&#34;</span> }}
-          <span style="color:#719e07">paths</span>:
+      - <span style="color:#268bd2">restore_cache</span>:
+          <span style="color:#268bd2">name</span>: Restore go modules cache
+          <span style="color:#268bd2">keys</span>:
+              - v1-mod-{{ .Branch }}-{{ checksum &#34;go.mod&#34; }}
+      - <span style="color:#268bd2">run</span>:
+          <span style="color:#268bd2">name</span>: Vendoring
+          <span style="color:#268bd2">command</span>: go mod download
+      - <span style="color:#268bd2">save_cache</span>:
+          <span style="color:#268bd2">name</span>: Save go modules cache
+          <span style="color:#268bd2">key</span>: v1-mod-{{ .Branch }}-{{ checksum &#34;go.mod&#34; }}
+          <span style="color:#268bd2">paths</span>:
               - /go/pkg/mod/cache
-      - <span style="color:#719e07">persist_to_workspace</span>:
-          <span style="color:#719e07">root</span>: /go
-          <span style="color:#719e07">paths</span>:
+      - <span style="color:#268bd2">persist_to_workspace</span>:
+          <span style="color:#268bd2">root</span>: /go
+          <span style="color:#268bd2">paths</span>:
             - src
             - bin
             - pkg/mod/cache
 
-  <span style="color:#719e07">e2e</span>:
-    <span style="color:#719e07">executor</span>:
-      <span style="color:#719e07">name</span>: default
-    <span style="color:#719e07">steps</span>:
-      - <span style="color:#719e07">attach_workspace</span>:
-          <span style="color:#719e07">at</span>: /go
+  <span style="color:#268bd2">e2e</span>:
+    <span style="color:#268bd2">executor</span>:
+      <span style="color:#268bd2">name</span>: default
+    <span style="color:#268bd2">steps</span>:
+      - <span style="color:#268bd2">attach_workspace</span>:
+          <span style="color:#268bd2">at</span>: /go
       <span style="color:#586e75"># 以下テスト実行など</span>
 
   <span style="color:#586e75"># lint</span>
-  <span style="color:#719e07">lint</span>:
-    <span style="color:#719e07">executor</span>:
-      <span style="color:#719e07">name</span>: default
-    <span style="color:#719e07">steps</span>:
-      - <span style="color:#719e07">attach_workspace</span>:
-          <span style="color:#719e07">at</span>: /go
+  <span style="color:#268bd2">lint</span>:
+    <span style="color:#268bd2">executor</span>:
+      <span style="color:#268bd2">name</span>: default
+    <span style="color:#268bd2">steps</span>:
+      - <span style="color:#268bd2">attach_workspace</span>:
+          <span style="color:#268bd2">at</span>: /go
       <span style="color:#586e75"># 以下静的解析実行など</span>
 
-<span style="color:#719e07">workflows</span>:
-  <span style="color:#719e07">build-and-test</span>:
-    <span style="color:#719e07">jobs</span>:
+<span style="color:#268bd2">workflows</span>:
+  <span style="color:#268bd2">build-and-test</span>:
+    <span style="color:#268bd2">jobs</span>:
       - setup
-      - <span style="color:#719e07">e2e</span>:
-          <span style="color:#719e07">requires</span>:
+      - <span style="color:#268bd2">e2e</span>:
+          <span style="color:#268bd2">requires</span>:
             - setup
 </code></pre></div><p>実際に動いているの結果を見たい場合は以下を確認すること（GitHub上の設定には<code>MySQL</code>を使う設定なども含まれている）。</p>
 <ul>
@@ -669,10 +669,16 @@ Error applying workspace layer <span style="color:#719e07">for</span> job c5acd0
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -684,12 +690,6 @@ Error applying workspace layer <span style="color:#719e07">for</span> job c5acd0
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

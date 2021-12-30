@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -152,7 +152,7 @@
 
 <header>
   <p class="meta">Aug 17, 2019
-     - 3 minute read 
+     - 4 minute read 
      - <a href="https://budougumi0617.github.io/2019/08/17/must-use-key-in-struct-initialize/#disqus_thread">Comments</a>
 
     
@@ -178,7 +178,7 @@
     <li><a href="#tldr">TL;DR</a></li>
     <li><a href="#goにおける構造体の初期化方法">Goにおける構造体の初期化方法</a></li>
     <li><a href="#構造体に非公開フィールドを含めることでフィールド名を明示的に指定しないとcomposite-literalsが使えなくなる">構造体に非公開フィールドを含めることでフィールド名を明示的に指定しないとComposite literalsが使えなくなる</a></li>
-    <li><a href="#非公開フィールドはsturct">非公開フィールドは`sturct</a></li>
+    <li><a href="#非公開フィールドはsturctを使えばメモリサイズも増えない">非公開フィールドは<code>sturct{}</code>を使えばメモリサイズも増えない</a></li>
     <li><a href="#終わりに">終わりに</a></li>
   </ul>
 </nav>
@@ -206,7 +206,7 @@
 <h1 id="goにおける構造体の初期化方法">Goにおける構造体の初期化方法</h1>
 <p>Goでは構造体を初期化するときに<code>new</code>(<code>map</code>などの場合は<code>make</code>)を使う他にComposite literalsを使うことができる。<br>
 このとき、フィールド名を指定せずに値を指定していた場合は、構造体のフィールド定義順に初期化されていく。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Person <span style="color:#268bd2">struct</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Person <span style="color:#268bd2">struct</span> {
     Name <span style="color:#dc322f">string</span>
     Age  <span style="color:#dc322f">int</span>
 }
@@ -231,7 +231,7 @@
 <li>パッケージ外で非公開フィールドの値は指定できない</li>
 </ul>
 <p><a href="https://play.golang.org/p/WAynji8JGkt">https://play.golang.org/p/WAynji8JGkt</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">--</span> <span style="color:#719e07">go</span>.mod <span style="color:#719e07">--</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">--</span> <span style="color:#719e07">go</span>.mod <span style="color:#719e07">--</span>
 module sample
 
 <span style="color:#719e07">go</span> <span style="color:#2aa198">1.12</span>
@@ -260,12 +260,12 @@ module sample
 
 </code></pre></div><p>フィールド名を省略していると、非公開フィールド以外を埋めるだけでは値が少ないとエラーになり、
 非公開フィールドの初期化も行おうとすると暗黙的に非公開フィールドを初期化しようとしてエラーになる。</p>
-<h1 id="非公開フィールドはsturct">非公開フィールドは`sturct</h1>
+<h1 id="非公開フィールドはsturctを使えばメモリサイズも増えない">非公開フィールドは<code>sturct{}</code>を使えばメモリサイズも増えない</h1>
 <p>このような実装は公式パッケージ内でも行われている。</p>
 <ul>
 <li><a href="https://github.com/golang/go/blob/0212f0410f845815f5327a7f2e705891a9598f3d/src/database/sql/sql.go#L81-L96">database/sql/sql.go#L81-L96</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> NamedArg <span style="color:#268bd2">struct</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> NamedArg <span style="color:#268bd2">struct</span> {
 	_Named_Fields_Required <span style="color:#268bd2">struct</span>{}
 
 	<span style="color:#586e75">// Name is the name of the parameter placeholder.
@@ -286,7 +286,7 @@ module sample
 <ul>
 <li><a href="https://play.golang.org/p/DriUkPxU_EQ">https://play.golang.org/p/DriUkPxU_EQ</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
 	<span style="color:#2aa198">&#34;fmt&#34;</span>
@@ -483,10 +483,16 @@ module sample
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -498,12 +504,6 @@ module sample
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

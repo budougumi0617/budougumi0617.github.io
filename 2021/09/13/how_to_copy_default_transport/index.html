@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -213,7 +213,7 @@ https://pkg.go.dev/net/http#Transport.Clone"/>
 </ul>
 <p>サンプルコードは次の通り。</p>
 <p><a href="https://play.golang.org/p/niRAgxrIv8V">https://play.golang.org/p/niRAgxrIv8V</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
   <span style="color:#2aa198">&#34;net&#34;</span>
@@ -265,7 +265,7 @@ Webアプリケーションのサーバを書いているときでも外部サ�
 <h1 id="httpdefaultclientはタイムアウトの設定がされていないので独自定義するのが一般的"><code>http.DefaultClient</code>はタイムアウトの設定がされていないので独自定義するのが一般的</h1>
 <p>他方、<code>*http.Client</code>オブジェクトは<code>net/http</code>パッケージに宣言済みの<code>http.DefaultClient</code>変数が存在する。これを使うことは基本的に避ける。
 なぜならば、この<code>http.DefaultClient</code>はタイムアウトの設定がされていないためだ。そのため、<code>*http.Client</code>オブジェクトを用意するときは次のように宣言したりする。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">cli <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>http.Client{
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">cli <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>http.Client{
     <span style="color:#586e75">// Transport: 未初期化の場合はhttp.DefaultTransportが呼ばれる。
 </span><span style="color:#586e75"></span>    Timeout:   <span style="color:#2aa198">3</span> <span style="color:#719e07">*</span> time.Second,
 }
@@ -275,14 +275,14 @@ Webアプリケーションのサーバを書いているときでも外部サ�
 <p><code>http.Transport</code>型には<code>MaxIdleConnsPerHost</code>というフィールドがある。名前の通り、ホストごとのアイドルするコネクションの最大値を制御する設定だ。
 未初期化だと<code>http.DefaultMaxIdleConnsPerHost</code>が利用される。Go1.17時点で<code>http.DefaultMaxIdleConnsPerHost</code>は<code>2</code>だ。
 マイクロサービス構成のバックエンドサーバなどで<code>*http.Client</code>オブジェクトを利用するシーンでは外部サービスや別のマイクロサービスサーバなど接続先ホストがいくつかに限定されることが多いだろう。限定された接続先にスループットの数だけ並列リクエストが飛ぶことを考慮すると<code>MaxIdleConnsPerHost</code>を<code>2</code>以上に設定したくなる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">transport <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>http.Transport{
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">transport <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>http.Transport{
         DefaultMaxIdleConnsPerHost: <span style="color:#2aa198">100</span>,
   }
 </code></pre></div><p>しかし上記のような宣言では<code>MaxIdleConnsPerHost</code>フィールド以外のフィールドがゼロ値になってしまうため、よくない宣言だ。
 ではどのように<code>*http.Transport</code>オブジェクトを初期化すればよいのだろうか？一番イージーなのは<code>http.DefaultTransport</code>変数の宣言をコピペだろう。
 Go1.17時点の<code>http.DefaultTransport</code>変数の宣言は次のような設定値で初期化されている。</p>
 <p><a href="https://github.com/golang/go/blob/go1.17.1/src/net/http/transport.go#L38-L54">https://github.com/golang/go/blob/go1.17.1/src/net/http/transport.go#L38-L54</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">transport  <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>http.Transport{
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">transport  <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>http.Transport{
   Proxy: ProxyFromEnvironment,
   DialContext: (<span style="color:#719e07">&amp;</span>net.Dialer{
     Timeout:   <span style="color:#2aa198">30</span> <span style="color:#719e07">*</span> time.Second,
@@ -301,7 +301,7 @@ Go1.17時点の<code>http.DefaultTransport</code>変数の宣言は次のよう�
 この手法を利用しているのが、Google APIのGoクライアントだ。
 こちらも接続先がGoogle API用のホストに限定されるからか<code>MaxIdleConnsPerHost</code>を100に設定している。</p>
 <p><a href="https://github.com/googleapis/google-api-go-client/blob/v0.56.0/transport/http/default_transport_go113.go#L12-L21">https://github.com/googleapis/google-api-go-client/blob/v0.56.0/transport/http/default_transport_go113.go#L12-L21</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// clonedTransport returns the given RoundTripper as a cloned *http.Transport.
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// clonedTransport returns the given RoundTripper as a cloned *http.Transport.
 </span><span style="color:#586e75">// It returns nil if the RoundTripper can&#39;t be cloned or coerced to
 </span><span style="color:#586e75">// *http.Transport.
 </span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">clonedTransport</span>(rt http.RoundTripper) <span style="color:#719e07">*</span>http.Transport {
@@ -312,7 +312,7 @@ Go1.17時点の<code>http.DefaultTransport</code>変数の宣言は次のよう�
   <span style="color:#719e07">return</span> t.<span style="color:#268bd2">Clone</span>()
 }
 </code></pre></div><p><a href="https://github.com/googleapis/google-api-go-client/blob/v0.56.0/transport/http/dial.go#L163-L171">https://github.com/googleapis/google-api-go-client/blob/v0.56.0/transport/http/dial.go#L163-L171</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  <span style="color:#586e75">// Copy http.DefaultTransport except for MaxIdleConnsPerHost setting,
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  <span style="color:#586e75">// Copy http.DefaultTransport except for MaxIdleConnsPerHost setting,
 </span><span style="color:#586e75"></span>  <span style="color:#586e75">// which is increased due to reported performance issues under load in the GCS
 </span><span style="color:#586e75"></span>  <span style="color:#586e75">// client. Transport.Clone is only available in Go 1.13 and up.
 </span><span style="color:#586e75"></span>  trans <span style="color:#719e07">:=</span> <span style="color:#268bd2">clonedTransport</span>(http.DefaultTransport)
@@ -505,10 +505,16 @@ Go1.17時点の<code>http.DefaultTransport</code>変数の宣言は次のよう�
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -520,12 +526,6 @@ Go1.17時点の<code>http.DefaultTransport</code>変数の宣言は次のよう�
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

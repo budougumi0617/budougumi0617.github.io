@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -217,12 +217,12 @@ New RelicをGoのアプリケーションへ導入するときに利用をオス
 </li>
 </ul>
 <p>ざっくりとまとめると、まずアプリ起動時にNew Relicと接続するための<code>Application</code>オブジェクトを生成する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">app, err <span style="color:#719e07">:=</span> newrelic.<span style="color:#268bd2">NewApplication</span>(
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">app, err <span style="color:#719e07">:=</span> newrelic.<span style="color:#268bd2">NewApplication</span>(
     newrelic.<span style="color:#268bd2">ConfigAppName</span>(<span style="color:#2aa198">&#34;Your Application Name&#34;</span>),
     newrelic.<span style="color:#268bd2">ConfigLicense</span>(<span style="color:#2aa198">&#34;__YOUR_NEW_RELIC_LICENSE_KEY__&#34;</span>),
 )
 </code></pre></div><p>そして各種ハンドラーのエンドポイントを次のようにラップする。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">http.<span style="color:#268bd2">HandleFunc</span>(newrelic.<span style="color:#268bd2">WrapHandleFunc</span>(app, <span style="color:#2aa198">&#34;/users&#34;</span>, usersHandler))
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">http.<span style="color:#268bd2">HandleFunc</span>(newrelic.<span style="color:#268bd2">WrapHandleFunc</span>(app, <span style="color:#2aa198">&#34;/users&#34;</span>, usersHandler))
 </code></pre></div><p>主要なフレームワーク、MySQLなどならば専用のラッパーも用意されている。</p>
 <ul>
 <li><a href="https://github.com/newrelic/go-agent/tree/master/v3/integrations">https://github.com/newrelic/go-agent/tree/master/v3/integrations</a></li>
@@ -243,15 +243,15 @@ New RelicをGoのアプリケーションへ導入するときに利用をオス
 </li>
 </ul>
 <p>Goのアプリケーション上でSpanを取得するには、関数やメソッドごとにFunction segmentsを明示的に埋め込んでいく必要がある。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">defer</span> txn.<span style="color:#268bd2">StartSegment</span>(<span style="color:#2aa198">&#34;mySegmentName&#34;</span>).<span style="color:#268bd2">End</span>()
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">defer</span> txn.<span style="color:#268bd2">StartSegment</span>(<span style="color:#2aa198">&#34;mySegmentName&#34;</span>).<span style="color:#268bd2">End</span>()
 </code></pre></div><p>これを中規模以上の既存のアプリケーションに実施しようとすると、<strong>関数/メソッド1つ1つを修正していく必要</strong>があり非常に面倒なことになる。</p>
 <h1 id="nrseg">nrseg</h1>
 <p>上記の面倒くささを解消するためのコマンドラインツールがnrsegだ。</p>
 <div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/nrseg" data-iframely-url="//cdn.iframe.ly/HrUY585?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
 <p>Macの場合はBrewでインストールすることができる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ brew install budougumi0617/tap/nrseg
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ brew install budougumi0617/tap/nrseg
 </code></pre></div><p>このような既存のコードがあったとする。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> input
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> input
 
 <span style="color:#719e07">import</span> (
   <span style="color:#2aa198">&#34;context&#34;</span>
@@ -280,9 +280,9 @@ New RelicをGoのアプリケーションへ導入するときに利用をオス
   fmt.<span style="color:#268bd2">Fprintf</span>(w, <span style="color:#2aa198">&#34;Hello, %q&#34;</span>, req.URL.Path)
 }
 </code></pre></div><p>上記のコードを含んだディレクトリにnrsegを実行する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ nrseg .
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ nrseg .
 </code></pre></div><p>そうすると、上記のようなコードが次のようになる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> input
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> input
 
 <span style="color:#719e07">import</span> (
   <span style="color:#2aa198">&#34;context&#34;</span>
@@ -347,13 +347,13 @@ nrsegコマンドはディレクトリの下のすべてのGoコード<sup id="f
 <hr>
 <ol>
 <li id="fn:1" role="doc-endnote">
-<p><a href="https://newrelic.com/jp/press-release/20201217">https://newrelic.com/jp/press-release/20201217</a> <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p><a href="https://newrelic.com/jp/press-release/20201217">https://newrelic.com/jp/press-release/20201217</a>&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:2" role="doc-endnote">
-<p>1つのTraceの中にあるオペレーションの1つ１つの実行処理時間などを計測したもの <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>1つのTraceの中にあるオペレーションの1つ１つの実行処理時間などを計測したもの&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:3" role="doc-endnote">
-<p>testdataディレクトリや<code>-i</code>オプションで指定されたディレクトリは除く <a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>testdataディレクトリや<code>-i</code>オプションで指定されたディレクトリは除く&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 </ol>
 </section>
@@ -530,10 +530,16 @@ nrsegコマンドはディレクトリの下のすべてのGoコード<sup id="f
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -545,12 +551,6 @@ nrsegコマンドはディレクトリの下のすべてのGoコード<sup id="f
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -255,7 +255,7 @@
 <p>ベンチマークで実行する対象は<strong>一言でいうと、「非同期で実行可能な大量の重たい処理」だ</strong>。<br>
 具体的には次のフィボナッチ関数を1,000回実行する。<br>
 フィボナッチ関数（数値計算関数）を選んだ理由はgoroutineによるメモリ利用状況なども確認しやすいため。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">fibonacci</span>(n <span style="color:#dc322f">int</span>) <span style="color:#dc322f">int</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">fibonacci</span>(n <span style="color:#dc322f">int</span>) <span style="color:#dc322f">int</span> {
   <span style="color:#719e07">if</span> n &lt; <span style="color:#2aa198">2</span> {
     <span style="color:#719e07">return</span> n
   }
@@ -269,13 +269,13 @@
 }
 
 <span style="color:#268bd2">func</span> <span style="color:#268bd2">fibonacciTask</span>() <span style="color:#dc322f">int</span> {
-  <span style="color:#719e07">return</span> <span style="color:#268bd2">fibonacci</span>(<span style="color:#2aa198">1</span>_000_000) <span style="color:#586e75">// million
+  <span style="color:#719e07">return</span> <span style="color:#268bd2">fibonacci</span>(<span style="color:#2aa198">1_000_000</span>) <span style="color:#586e75">// million
 </span><span style="color:#586e75"></span>}
 </code></pre></div><p>上記の計算量の多い関数を1,000個生成し、<code>execute</code>関数ですべて実行終了するまでの時間を計測する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> task <span style="color:#268bd2">func</span>() <span style="color:#dc322f">int</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> task <span style="color:#268bd2">func</span>() <span style="color:#dc322f">int</span>
 
 <span style="color:#268bd2">func</span> <span style="color:#268bd2">genTasks</span>() []task {
-  <span style="color:#268bd2">const</span> n = <span style="color:#2aa198">1</span>_000
+  <span style="color:#268bd2">const</span> n = <span style="color:#2aa198">1_000</span>
   ts <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>([]task, <span style="color:#2aa198">0</span>, n)
   <span style="color:#719e07">for</span> i <span style="color:#719e07">:=</span> <span style="color:#2aa198">0</span>; i &lt; n; i<span style="color:#719e07">++</span> {
     ts = <span style="color:#b58900">append</span>(ts, fibonacciTask)
@@ -283,7 +283,7 @@
   <span style="color:#719e07">return</span> ts
 }
 </code></pre></div><p>ベンチマーク関数は素朴に次のように実装する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">BenchmarkFibonacci</span>(b <span style="color:#719e07">*</span>testing.B) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">BenchmarkFibonacci</span>(b <span style="color:#719e07">*</span>testing.B) {
   ts <span style="color:#719e07">:=</span> <span style="color:#268bd2">genTasks</span>() <span style="color:#586e75">// 1,0000個のタスクを用意
 </span><span style="color:#586e75"></span>  b.<span style="color:#268bd2">ResetTimer</span>()
   <span style="color:#719e07">for</span> i <span style="color:#719e07">:=</span> <span style="color:#2aa198">0</span>; i &lt; b.N; i<span style="color:#719e07">++</span> {
@@ -295,7 +295,7 @@
 <p>本来は「単位時間あたり」の実行回数でベンチマークをすべきだろうが、後にgoroutineの実行状況を確認したいので、
 あえて「1回実行（<code>-benchtime 1x</code>）」するベンチマークを「10回（<code>-count 10</code>）」実行してみる。<br>
 これに加え、メモリ利用状況を可視化する<code>-benchmem</code>、実行トレースを保存しておく<code>-trace</code>オプションを利用する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> -bench . -benchmem -benchtime 1x -count <span style="color:#2aa198">10</span> -trace first.trace &gt; first.out
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> -bench . -benchmem -benchtime 1x -count <span style="color:#2aa198">10</span> -trace first.trace &gt; first.out
 $ cat first.out
 goos: darwin
 goarch: amd64
@@ -315,9 +315,9 @@ ok      github.com/budougumi0617/til/go/goroutine/benchstat     10.110s
 </code></pre></div><h2 id="benchstatを使ってベンチマーク結果を分析する">benchstatを使ってベンチマーク結果を分析する</h2>
 <p><code>benchstat</code>コマンドはベンチマークの出力結果をよしなに集計してくれるコマンドだ。<br>
 次の<code>go get</code>コマンドで取得できる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get -u golang.org/x/perf/cmd/benchstat
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get -u golang.org/x/perf/cmd/benchstat
 </code></pre></div><p>引数としてベンチマーク実行結果を保存したファイルをひとつ渡すと、平均値などを集計してくれる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ benchstat first.out
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ benchstat first.out
 name         time/op
 Fibonacci-8  504ms ± 1%
 
@@ -330,7 +330,7 @@ Fibonacci-8   0.00
 <p>ここからベンチマークの結果を確認しながらリファクタリングを始める。</p>
 <h1 id="goroutineを使って並行処理をする">goroutineを使って並行処理をする</h1>
 <p>まず<code>sync.WaitGroup</code>を使って並行処理をしてみる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">execute</span>(ts []task) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">execute</span>(ts []task) {
   <span style="color:#268bd2">var</span> wg sync.WaitGroup
   <span style="color:#719e07">for</span> _, t <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> ts {
     wg.<span style="color:#268bd2">Add</span>(<span style="color:#2aa198">1</span>)
@@ -344,7 +344,7 @@ Fibonacci-8   0.00
 </code></pre></div><p>ひたすらgoroutineを起動してそれぞれのタスクを並行実行していく処理だ。
 ただし、実行環境は8コアなので、同時に実行できるgoroutineの数は最大で8だ。</p>
 <p>ベンチマーク関数、（ファイル名以外の）実行引数は変更せずに再度ベンチマークを実行する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> -bench . -benchmem -benchtime 1x -count <span style="color:#2aa198">10</span> -trace second.trace &gt; second.out
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> -bench . -benchmem -benchtime 1x -count <span style="color:#2aa198">10</span> -trace second.trace &gt; second.out
 $ cat second.out
 goos: darwin
 goarch: amd64
@@ -364,7 +364,7 @@ ok      github.com/budougumi0617/til/go/goroutine/benchstat     1.698s
 </code></pre></div><h2 id="benchstatコマンドで実行結果を比較する">benchstatコマンドで実行結果を比較する</h2>
 <p>実装を変更した結果パフォーマンスはどのように変わったのだろうか？<br>
 <strong>2つの実行結果が揃えば、<code>benchstat</code>コマンドで差異を確認することができる。</strong></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ benchstat first.out second.out
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ benchstat first.out second.out
 name         old time/op    new time/op    delta
 Fibonacci-8     504ms ± 1%      83ms ± 7%  -83.54%  <span style="color:#719e07">(</span><span style="color:#268bd2">p</span><span style="color:#719e07">=</span>0.000 <span style="color:#268bd2">n</span><span style="color:#719e07">=</span>10+10<span style="color:#719e07">)</span>
 
@@ -380,7 +380,7 @@ Fibonacci-8      0.00        1002.00 ± 0%    +Inf%  <span style="color:#719e07"
 <strong><code>-trace</code>コマンドで保存していたトレースファイルを<code>go tool trace</code>コマンドで可視化すれば、ベンチマーク実行中のgoroutineの実行状況が確認できる。</strong></p>
 <div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://yuroyoro.hatenablog.com/entry/2017/12/11/192341" data-iframely-url="//cdn.iframe.ly/1Mo1Fcu?iframe=card-small&amp;media=0"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
 <p><code>go tool trace</code>コマンドでwebサーバを起動するには次の通り。</p>
-<pre><code>$ go tool trace --http localhost:6061 second.trace
+<pre tabindex="0"><code>$ go tool trace --http localhost:6061 second.trace
 </code></pre><p><code>http://127.0.0.1:6061/trace</code>で可視化されたgoroutineの実行状況を確認できる（図の青いグラフ）。</p>
 <p><img src="/2020/12/04_second.png" alt="2回目の実装のgoroutineパフォーマンス"></p>
 <p>何も考えずにタスクの数だけgorotuineを起動しているので、1,000弱のgoroutineが最初に積まれ、（実行環境が論理8コアなので、）8 goroutineずつ消化されている。<br>
@@ -388,7 +388,7 @@ Fibonacci-8      0.00        1002.00 ± 0%    +Inf%  <span style="color:#719e07"
 <h1 id="goroutineの同時実行数を制御してみる">goroutineの同時実行数を制御してみる</h1>
 <p>簡単にgoroutineの起動を制御すると次のようになる。<br>
 goroutine同時実行上限（<code>GOMAXPROCS</code>）分のgoroutineしか起動させない。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">execute</span>(ts []task) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">execute</span>(ts []task) {
   sem <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#268bd2">struct</span>{}, runtime.<span style="color:#268bd2">GOMAXPROCS</span>(<span style="color:#2aa198">0</span>))
 
   <span style="color:#719e07">for</span> _, t <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> ts {
@@ -400,7 +400,7 @@ goroutine同時実行上限（<code>GOMAXPROCS</code>）分のgoroutineしか起
   }
 }
 </code></pre></div><p>先ほど同様にベンチマークを実行する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> -bench . -benchmem -benchtime 1x -count <span style="color:#2aa198">10</span> -trace third.trace &gt; third.out
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">test</span> -bench . -benchmem -benchtime 1x -count <span style="color:#2aa198">10</span> -trace third.trace &gt; third.out
 $ cat third.out
 goos: darwin
 goarch: amd64
@@ -419,7 +419,7 @@ PASS
 ok      github.com/budougumi0617/til/go/goroutine/benchstat     2.699s
 </code></pre></div><p>待ち合わせをするようにしたので実行時間はシンプルな<code>sync.WaitGroup</code>の実装よりも悪化してしまった。
 利用メモリ量はchannel利用分だけやや悪化、アロケーション回数は変わらずとなっている。</p>
-<pre><code>benchstat second.out third.out
+<pre tabindex="0"><code>benchstat second.out third.out
 name         old time/op    new time/op    delta
 Fibonacci-8    82.9ms ± 7%   132.1ms ± 2%  +59.35%  (p=0.000 n=10+9)
 
@@ -430,14 +430,14 @@ name         old allocs/op  new allocs/op  delta
 Fibonacci-8     1.00k ± 0%     1.01k ± 1%   +0.49%  (p=0.000 n=8+10)
 
 </code></pre><p>ただ、goroutineの同時実行という観点では少なくできたようだ。</p>
-<pre><code>$ go tool trace --http localhost:6061 third.trace
+<pre tabindex="0"><code>$ go tool trace --http localhost:6061 third.trace
 </code></pre><p>実行待機中（Runnable）なgoroutineはほぼないままベンチマークが進行している。</p>
 <p><img src="/2020/12/04_third.png" alt="3回目の実装のgoroutineパフォーマンス"></p>
 <p>しかし、遅くなっては意味がないのでさらにリファクタリングする。</p>
 <h1 id="さらにチューニングする">さらにチューニングする</h1>
 <p>アロケーションの回数が減らないのは毎回新しいgoroutineを起動しているからだ。<br>
 ワーカースレッドパターンを実装して、一度起動したgoroutineを最後まで使い、channelを使ってタスクを流し込むように実装し直す。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">execute</span>(ts []task) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">execute</span>(ts []task) {
   n <span style="color:#719e07">:=</span> runtime.<span style="color:#268bd2">GOMAXPROCS</span>(<span style="color:#2aa198">0</span>)
   queue <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> task, n)
   <span style="color:#268bd2">var</span> wg sync.WaitGroup
@@ -463,7 +463,7 @@ Fibonacci-8     1.00k ± 0%     1.01k ± 1%   +0.49%  (p=0.000 n=8+10)
   wg.<span style="color:#268bd2">Wait</span>()
 }
 </code></pre></div><p>4回目の実装結果のベンチマークは次の通り。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#268bd2">$go</span> <span style="color:#b58900">test</span> -bench . -benchmem -benchtime 1x -count <span style="color:#2aa198">10</span> -trace fourth.trace &gt; fourth.out
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#268bd2">$go</span> <span style="color:#b58900">test</span> -bench . -benchmem -benchtime 1x -count <span style="color:#2aa198">10</span> -trace fourth.trace &gt; fourth.out
 $ cat fourth.out
 goos: darwin
 goarch: amd64
@@ -481,7 +481,7 @@ BenchmarkFibonacci-8           <span style="color:#2aa198">1</span>         <spa
 PASS
 ok      github.com/budougumi0617/til/go/goroutine/benchstat     2.550s
 </code></pre></div><p>今までのすべての実行結果の平均値をbenchstatコマンドで並べると次の通り</p>
-<pre><code>$ benchstat first.out second.out third.out fourth.out
+<pre tabindex="0"><code>$ benchstat first.out second.out third.out fourth.out
 name \ time/op    first.out   second.out     third.out       fourth.out
 Fibonacci-8       504ms ± 1%      83ms ± 7%      132ms ± 2%     123ms ± 1%
 
@@ -492,7 +492,7 @@ name \ allocs/op  first.out   second.out     third.out       fourth.out
 Fibonacci-8        0.00        1002.00 ± 0%    1006.90 ± 1%     21.22 ±43%
 </code></pre><p>4回目の実装は実行結果にばらつきはあるものの、そこそこのメモリ使用量と実行速度になった。</p>
 <p><strong>逐次実行と比較して75%以上高速化できた。</strong></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ benchstat first.out fourth.out
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ benchstat first.out fourth.out
 name         old time/op    new time/op    delta
 Fibonacci-8     504ms ± 1%     123ms ± 1%  -75.51%  <span style="color:#719e07">(</span><span style="color:#268bd2">p</span><span style="color:#719e07">=</span>0.000 <span style="color:#268bd2">n</span><span style="color:#719e07">=</span>10+10<span style="color:#719e07">)</span>
 
@@ -502,7 +502,7 @@ Fibonacci-8     0.00B       3225.14B ±37%    +Inf%  <span style="color:#719e07"
 name         old allocs/op  new allocs/op  delta
 Fibonacci-8      0.00          21.22 ±43%    +Inf%  <span style="color:#719e07">(</span><span style="color:#268bd2">p</span><span style="color:#719e07">=</span>0.000 <span style="color:#268bd2">n</span><span style="color:#719e07">=</span>10+9<span style="color:#719e07">)</span>
 </code></pre></div><p>素朴な並行処理と比較すると、<strong>実行時間が50%ほど増加した代わりにメモリ利用状況がかなりカイゼン</strong>している。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ benchstat second.out fourth.out
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ benchstat second.out fourth.out
 name         old time/op    new time/op    delta
 Fibonacci-8    82.9ms ± 7%   123.3ms ± 1%  +48.83%  <span style="color:#719e07">(</span><span style="color:#268bd2">p</span><span style="color:#719e07">=</span>0.000 <span style="color:#268bd2">n</span><span style="color:#719e07">=</span>10+10<span style="color:#719e07">)</span>
 
@@ -723,10 +723,16 @@ Fibonacci-8     1.00k ± 0%     0.02k ±43%  -97.88%  <span style="color:#719e07
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -738,12 +744,6 @@ Fibonacci-8     1.00k ± 0%     0.02k ±43%  -97.88%  <span style="color:#719e07
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

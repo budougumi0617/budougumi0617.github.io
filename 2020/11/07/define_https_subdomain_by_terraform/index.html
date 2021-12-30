@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -208,7 +208,7 @@
 <li>ハマりどころを解決できれば少々の定義で構築できた</li>
 </ul>
 <p>なお、本記事で利用しているTerraformとAWS Providerのバージョンは以下となる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">terraform</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">terraform</span> {
   required_version <span style="color:#719e07">=</span> &#34;&gt;<span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>.<span style="color:#2aa198">13</span>.<span style="color:#2aa198">4</span>&#34;
 }
 
@@ -238,7 +238,7 @@ ACMはSSL/TLS証明書を管理するサービスで、今回はHTTPS通信に�
 </ul>
 <p>なお、Route53でexample.comを登録済みドメインにしている場合、すでにホストゾーンが作成されているはずである。<br>
 Terraform上では、既成のexample.com（ルートドメイン）に対応するホストゾーンをデータソースで参照する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">data</span> <span style="color:#719e07">aws_route53_zone</span> <span style="color:#719e07">example_com</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">data</span> <span style="color:#719e07">aws_route53_zone</span> <span style="color:#719e07">example_com</span> {
   name <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;example.com&#34;</span>
 }
 
@@ -273,7 +273,7 @@ Terraformでルートドメインを定義した場合、定義したルート�
 <ul>
 <li><a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record">https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_route53_record</span> <span style="color:#719e07">ns_record_for_subdomain</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_route53_record</span> <span style="color:#719e07">ns_record_for_subdomain</span> {
   name    <span style="color:#719e07">=</span> <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">name</span>
   zone_id <span style="color:#719e07">=</span> <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">id</span>
   records <span style="color:#719e07">=</span> [
@@ -308,7 +308,7 @@ AWSでHTTPS用の証明書を発行する場合、DNS認証を使っておけば
 <ul>
 <li><a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate">https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_acm_certificate</span> <span style="color:#719e07">example_com</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_acm_certificate</span> <span style="color:#719e07">example_com</span> {
   domain_name               <span style="color:#719e07">=</span> <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">name</span>
   subject_alternative_names <span style="color:#719e07">=</span> [<span style="color:#719e07">format</span>(<span style="color:#2aa198">&#34;*.%s&#34;</span>, <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">name</span>)]
   validation_method <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;DNS&#34;</span>
@@ -326,7 +326,7 @@ AWSでHTTPS用の証明書を発行する場合、DNS認証を使っておけば
 </li>
 </ul>
 <p>証明書の検証につかうレコードはこのように定義する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_route53_record</span> <span style="color:#719e07">certificate</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_route53_record</span> <span style="color:#719e07">certificate</span> {
   for_each <span style="color:#719e07">=</span> {
     for dvo in aws_acm_certificate.example_com.domain_validation_options : dvo.domain_name <span style="color:#719e07">=</span>&gt; {
       name   <span style="color:#719e07">=</span> <span style="color:#719e07">dvo</span>.<span style="color:#719e07">resource_record_name</span>
@@ -345,7 +345,7 @@ AWSでHTTPS用の証明書を発行する場合、DNS認証を使っておけば
 <ul>
 <li><a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate_validation">https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate_validation</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_acm_certificate_validation</span> <span style="color:#719e07">cert</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_acm_certificate_validation</span> <span style="color:#719e07">cert</span> {
   certificate_arn         <span style="color:#719e07">=</span> <span style="color:#719e07">aws_acm_certificate</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">arn</span>
   validation_record_fqdns <span style="color:#719e07">=</span> [<span style="color:#719e07">for</span> <span style="color:#719e07">record</span> <span style="color:#719e07">in</span> <span style="color:#719e07">aws_route53_record</span>.<span style="color:#719e07">certificate</span> : <span style="color:#719e07">record</span>.<span style="color:#719e07">fqdn</span>]
 }
@@ -374,7 +374,7 @@ AWS Provider v2などで同様の現象を回避したい場合は次のブロ�
 </ul>
 <h1 id="albへ通信を流す">ALBへ通信を流す</h1>
 <p>ここまでできればあとはサブドメインのホストゾーンからALBへ通信を流し込むAレコードを作成すればよい。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">resource</span> <span style="color:#2aa198">&#34;aws_route53_record&#34; &#34;subdomain_example_com&#34;</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">resource</span> <span style="color:#2aa198">&#34;aws_route53_record&#34; &#34;subdomain_example_com&#34;</span> {
   zone_id <span style="color:#719e07">=</span> <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">zone_id</span>
   name    <span style="color:#719e07">=</span> <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name</span>
   type    <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;A&#34;</span><span style="color:#586e75">
@@ -407,7 +407,7 @@ AWS Provider v2などで同様の現象を回避したい場合は次のブロ�
 ただ、アプリケーションを作ってObservabilityの勉強をしたいのが目的なので、ゴール（スタート？）はまだまだ遠い…</p>
 <iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=B07XT7LJLC&linkId=f7b69fcc728d07bb0be7d26f22163b8a"></iframe>
 <p>最後に今回使ったサンプルコードをまとめておく。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">terraform</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">terraform</span> {
   required_version <span style="color:#719e07">=</span> &#34;&gt;<span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>.<span style="color:#2aa198">13</span>.<span style="color:#2aa198">4</span>&#34;
 }
 
@@ -730,10 +730,16 @@ AWS Provider v2などで同様の現象を回避したい場合は次のブロ�
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -745,12 +751,6 @@ AWS Provider v2などで同様の現象を回避したい場合は次のブロ�
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

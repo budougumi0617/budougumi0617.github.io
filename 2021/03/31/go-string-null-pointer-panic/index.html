@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -209,7 +209,7 @@
 </ul>
 <p>サンプルコードは以下。</p>
 <p><a href="https://play.golang.org/p/lD5-kBCwET4">https://play.golang.org/p/lD5-kBCwET4</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
         <span style="color:#268bd2">hello</span>()
@@ -224,7 +224,7 @@
         <span style="color:#b58900">print</span>(a)
 }
 </code></pre></div><p>play ground上でも何回か実行すると実際に文字列<code>a</code>変数を<code>a != &quot;hello&quot;</code>と比較しているところで以下のような結果が得られる。</p>
-<pre><code>panic: runtime error: invalid memory address or nil pointer dereference
+<pre tabindex="0"><code>panic: runtime error: invalid memory address or nil pointer dereference
 [signal SIGSEGV: segmentation violation code=0x1 addr=0x0 pc=0x45eb46]
 
 goroutine 1 [running]:
@@ -268,7 +268,7 @@ main.main()
 <ul>
 <li><a href="https://github.com/golang/go/blob/go1.16.2/src/runtime/string.go#L228-L231">https://github.com/golang/go/blob/go1.16.2/src/runtime/string.go#L228-L231</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> stringStruct <span style="color:#268bd2">struct</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> stringStruct <span style="color:#268bd2">struct</span> {
 	str unsafe.Pointer
 	len <span style="color:#dc322f">int</span>
 }
@@ -278,7 +278,7 @@ main.main()
 </ul>
 <p>先述のコードに<code>reflect#StringHeader</code>を使って<code>stringStruct</code>の状態を出力しつづけるようにしたのが次のコードだ。</p>
 <p><a href="https://play.golang.org/p/1oCesyqPjh-">https://play.golang.org/p/1oCesyqPjh-</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
 	<span style="color:#2aa198">&#34;fmt&#34;</span>
@@ -308,7 +308,7 @@ main.main()
 そして、その結果が正しくメモリへ反映されるかされていないかにかかわらず <code>a != &quot;hello&quot;</code> といった参照を行う。その結果<code>stringStruct.len</code>の長さが<code>!0</code>なのに<code>stringStruct.str</code>が<code>nil</code>の状態が発生していると考えられる。</p>
 <p>出力としては <code>&amp;reflect.StringHeader{Data:0x4bcccf, Len:5}</code> というデータも取れているが、
 実際はメモリ上で<code>Len != 0</code>の状態でも<code>Data</code>フィールドは<code>nil</code>の状態になってしまったのだと思われる。</p>
-<pre><code>&amp;reflect.StringHeader{Data:0x0, Len:0}
+<pre tabindex="0"><code>&amp;reflect.StringHeader{Data:0x0, Len:0}
 &amp;reflect.StringHeader{Data:0x0, Len:0}
 &amp;reflect.StringHeader{Data:0x0, Len:0}
 &amp;reflect.StringHeader{Data:0x4bcccf, Len:5}
@@ -348,10 +348,10 @@ Don&rsquo;t be clever.</p>
 <hr>
 <ol>
 <li id="fn:1" role="doc-endnote">
-<p>RDBでトランザクションを貼る状況をイメージすればよい <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>RDBでトランザクションを貼る状況をイメージすればよい&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:2" role="doc-endnote">
-<p>こんなところまで見ないといけないバグには遭遇したくないが <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>こんなところまで見ないといけないバグには遭遇したくないが&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 </ol>
 </section>
@@ -528,10 +528,16 @@ Don&rsquo;t be clever.</p>
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -543,12 +549,6 @@ Don&rsquo;t be clever.</p>
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -190,7 +190,7 @@
 <h1 id="実際にコードを見てみる">実際にコードを見てみる</h1>
 <p><code>go get</code>の実装コードを見てみる。何やら<code>tags</code>というスライスの中から<code>go1</code>を探しているコードがある。</p>
 <p><a href="https://github.com/golang/go/blob/master/src/cmd/go/internal/get/get.go#L513-L528">https://github.com/golang/go/blob/master/src/cmd/go/internal/get/get.go#L513-L528</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// selectTag returns the closest matching tag for a given version.
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// selectTag returns the closest matching tag for a given version.
 </span><span style="color:#586e75">// Closest means the latest one that is not after the current release.
 </span><span style="color:#586e75">// Version &#34;goX&#34; (or &#34;goX.Y&#34; or &#34;goX.Y.Z&#34;) matches tags of the same form.
 </span><span style="color:#586e75">// Version &#34;release.rN&#34; matches tags of the form &#34;go.rN&#34; (N being a floating-point number).
@@ -209,10 +209,10 @@
 </code></pre></div><p>（コメントの通り、現状go1.X系しか存在しないので、手抜き実装になっている。）</p>
 <p>上記引数の<code>tags</code>は<code>vcsCmd</code>オブジェクトの<code>tags</code>メソッドで生成される<code>string</code>スライスだ。
 <a href="https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/get.go#L497-L498">https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/get.go#L497-L498</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#586e75">// Select and sync to appropriate version of the repository.
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#586e75">// Select and sync to appropriate version of the repository.
 </span><span style="color:#586e75"></span>	tags, err <span style="color:#719e07">:=</span> vcs.<span style="color:#268bd2">tags</span>(root)
 </code></pre></div><p><a href="https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/vcs.go#L472-L486">https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/vcs.go#L472-L486</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// tags returns the list of available tags for the repo in dir.
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// tags returns the list of available tags for the repo in dir.
 </span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (v <span style="color:#719e07">*</span>vcsCmd) <span style="color:#268bd2">tags</span>(dir <span style="color:#dc322f">string</span>) ([]<span style="color:#dc322f">string</span>, <span style="color:#dc322f">error</span>) {
 	<span style="color:#268bd2">var</span> tags []<span style="color:#dc322f">string</span>
 	<span style="color:#719e07">for</span> _, tc <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> v.tagCmd {
@@ -229,13 +229,13 @@
 }
 </code></pre></div><p><code>v.tagCmd</code>のコマンドによって<code>tags</code>の一覧が取得されるが、<code>git</code>の場合は<code>git show-ref</code>コマンドで、このコマンドを使うと<code>tag</code>と<code>branch</code>の一覧が取得できる。</p>
 <p><a href="https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/vcs.go#L151-L155">https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/vcs.go#L151-L155</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	tagCmd: []tagCmd{
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	tagCmd: []tagCmd{
 		<span style="color:#586e75">// tags/xxx matches a git tag named xxx
 </span><span style="color:#586e75"></span>		<span style="color:#586e75">// origin/xxx matches a git branch named xxx on the default remote repository
 </span><span style="color:#586e75"></span>		{<span style="color:#2aa198">&#34;show-ref&#34;</span>, <span style="color:#2aa198">`(?:tags|origin)/(\S+)$`</span>},
 	},
 </code></pre></div><p>ちなみに<code>git show-ref</code>コマンドの出力はこんな感じ。（自分は使ったことがなかった）</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git show-ref
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git show-ref
 814c749c8fa815a8ddf8184bcac8990ef0dea006 refs/heads/master
 814c749c8fa815a8ddf8184bcac8990ef0dea006 refs/remotes/origin/HEAD
 ...
@@ -248,7 +248,7 @@ cb6c6570b73a1c4d19cad94570ed277f7dae55ac refs/tags/go1.0.2
 ...
 </code></pre></div><p>ここまでの一連の流れで、<code>tag</code>、<code>branch</code> の一覧の中に<code>go1</code>があった場合は、そこから<code>go get</code>される実装になっていることがわかった。</p>
 <p><a href="https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/get.go#L506">https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/get.go#L506</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">vcs.<span style="color:#268bd2">tagSync</span>(root, <span style="color:#268bd2">selectTag</span>(vers, tags))
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">vcs.<span style="color:#268bd2">tagSync</span>(root, <span style="color:#268bd2">selectTag</span>(vers, tags))
 </code></pre></div><h1 id="終わりに">終わりに</h1>
 <p>コマンドの実装もコードで簡単に追えるのが<code>go</code>のいいところだなと改めて思った。<br>
 <code>go2</code>が出たら思い出すと良いかも？<br>
@@ -427,10 +427,16 @@ cb6c6570b73a1c4d19cad94570ed277f7dae55ac refs/tags/go1.0.2
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -442,12 +448,6 @@ cb6c6570b73a1c4d19cad94570ed277f7dae55ac refs/tags/go1.0.2
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

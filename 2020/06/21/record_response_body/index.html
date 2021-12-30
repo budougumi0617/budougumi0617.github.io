@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -203,7 +203,7 @@ Middlewareを作成して、HTTPレスポンスをLoggerに出力するやり方
 <li>レスポンスをloggerに出力するHTTP Middlewareのサンプルを作った。</li>
 </ul>
 <p>サンプルコードの主旨は以下。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> rwWrapper <span style="color:#268bd2">struct</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> rwWrapper <span style="color:#268bd2">struct</span> {
 	rw http.ResponseWriter
 	mw io.Writer
 }
@@ -256,10 +256,10 @@ Middlewareを作成して、HTTPレスポンスをLoggerに出力するやり方
 <ul>
 <li><a href="https://golang.org/pkg/io/#MultiWriter">https://golang.org/pkg/io/#MultiWriter</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">MultiWriter</span>(writers <span style="color:#719e07">...</span>Writer) Writer
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">MultiWriter</span>(writers <span style="color:#719e07">...</span>Writer) Writer
 </code></pre></div><p><code>io.MultiWriter</code>関数の戻り値として得られる<code>io.Writer</code>オブジェクトは引数の<code>writers</code>の<code>io.Writer</code>オブジェクトに同じ内容を書き込む。
 これを使ってレスポンスとロガー（で記録するバッファ）に同じ内容を書き込むようなラッパー構造体を作成する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// http.ResponseWriterインターフェースを満たすためにHeaderとWriteHeaderメソッドも実装する
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// http.ResponseWriterインターフェースを満たすためにHeaderとWriteHeaderメソッドも実装する
 </span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> rwWrapper <span style="color:#268bd2">struct</span> {
 	rw http.ResponseWriter
 	mw io.Writer
@@ -279,7 +279,7 @@ Middlewareを作成して、HTTPレスポンスをLoggerに出力するやり方
 レスポンスボディへの書き込みが行われるとき、<code>io.Writer</code>を使って<code>buf</code>オブジェクトにその内容を横流しする。</p>
 <p>あとは実際のハンドラーにわたす<code>http.ResponseWriter</code>オブジェクトをすげ替えるMiddlewareを作成する。
 実際のハンドラーの処理がおわったあとにバッファからレスポンスを読み出せばよい。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// ロガーをDIしてmiddlewareを返す
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// ロガーをDIしてmiddlewareを返す
 </span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewLogger</span>(l <span style="color:#719e07">*</span>log.Logger) <span style="color:#268bd2">func</span>(http.Handler) http.Handler {
     <span style="color:#586e75">// nextハンドラーのレスポンスをロガーに出力するmiddleware
 </span><span style="color:#586e75"></span>	<span style="color:#719e07">return</span> <span style="color:#268bd2">func</span>(next http.Handler) http.Handler {
@@ -297,7 +297,7 @@ Middlewareを作成して、HTTPレスポンスをLoggerに出力するやり方
 <ul>
 <li><a href="https://play.golang.org/p/2JoamybGQzn">https://play.golang.org/p/2JoamybGQzn</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
 	<span style="color:#2aa198">&#34;bytes&#34;</span>
@@ -565,10 +565,16 @@ Middlewareを作成して、HTTPレスポンスをLoggerに出力するやり方
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -580,12 +586,6 @@ Middlewareを作成して、HTTPレスポンスをLoggerに出力するやり方
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

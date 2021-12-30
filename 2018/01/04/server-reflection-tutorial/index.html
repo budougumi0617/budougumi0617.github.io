@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -185,26 +185,26 @@
 <a href="https://github.com/grpc/grpc-go/blob/master/Documentation/server-reflection-tutorial.md">https://github.com/grpc/grpc-go/blob/master/Documentation/server-reflection-tutorial.md</a></p>
 <h2 id="grpc_cliのビルド">grpc_cliのビルド</h2>
 <p>サーバ側の<code>Server Reflection</code>情報を確認するためのクライアントツールを用意する。実装は<code>c++</code>のみ提供されているようだ。<code>grpc/grpc</code>リポジトリを取得してクライアントツールをビルドする。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git clone https://github.com/grpc/grpc
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git clone https://github.com/grpc/grpc
 $ <span style="color:#b58900">cd</span> grpc
 $ make grpc_cli
 </code></pre></div><p>サーバーリフレクションのチュートリアルにはこれしか書かれていないが、依存ライブラリがあるのでそちらのインストールもする。<br>
 自分の場合はMacOSなので以下を行ったあとビルドできた。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git submodule update --init
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git submodule update --init
 $ brew install autoconf automake libtool shtool
 $ brew install gflags
 </code></pre></div><p>もし動かなかったり、他のOS環境の場合は、<code>make run_dep_checks</code>コマンドでビルド環境が整っているか確認する。または、以下のページで他に依存しているものが無いか確認する。</p>
 <p><a href="https://github.com/grpc/grpc/blob/master/INSTALL.md">https://github.com/grpc/grpc/blob/master/INSTALL.md</a></p>
 <h2 id="サーバーに対してgprc_cliを使ってみる">サーバーに対してgprc_cliを使ってみる</h2>
 <p><code>grpc_cli</code>のビルドが終わったり<code>google.golang.org/grpc</code>リポジトリで、サンプルのhelloworldサーバーを立ち上げておく。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run examples/helloworld/greeter_server/main.go
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run examples/helloworld/greeter_server/main.go
 </code></pre></div><p>helloworldサーバーは<code>git clone</code>した直後でも、<code>reflection.Register</code>が既に呼ばれている。（以下の実行結果はクイックスタートのチュートリアルを行ったあとのサーバのコードなので、<code>SayHelloAgain</code>メソッドが追加されている)</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">s <span style="color:#719e07">:=</span> grpc.<span style="color:#268bd2">NewServer</span>()
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">s <span style="color:#719e07">:=</span> grpc.<span style="color:#268bd2">NewServer</span>()
 pb.<span style="color:#268bd2">RegisterGreeterServer</span>(s, <span style="color:#719e07">&amp;</span>server{})
 <span style="color:#586e75">// Register reflection service on gRPC server.
 </span><span style="color:#586e75"></span>reflection.<span style="color:#268bd2">Register</span>(s)
 </code></pre></div><p>あとは立ち上げたサーバーに向けて<code>grpc_cli ls</code>コマンドを実行すると、プロトコルバッファーが取得できる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">./bins/opt/grpc_cli ls localhost:50051 -l
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">./bins/opt/grpc_cli ls localhost:50051 -l
 filename: helloworld.proto
 package: helloworld;
 service Greeter <span style="color:#719e07">{</span>
@@ -218,7 +218,7 @@ service ServerReflection <span style="color:#719e07">{</span>
   rpc ServerReflectionInfo<span style="color:#719e07">(</span>stream grpc.reflection.v1alpha.ServerReflectionRequest<span style="color:#719e07">)</span> returns <span style="color:#719e07">(</span>stream grpc.reflection.v1alpha.ServerReflectionResponse<span style="color:#719e07">)</span> <span style="color:#719e07">{}</span>
 <span style="color:#719e07">}</span>
 </code></pre></div><p><code>call</code>オプションでメソッドを実行させることもできた。</p>
-<pre><code>$ ./bins/opt/grpc_cli call localhost:50051 SayHelloAgain &quot;name: 'gRPC CLI'&quot;
+<pre tabindex="0"><code>$ ./bins/opt/grpc_cli call localhost:50051 SayHelloAgain &quot;name: 'gRPC CLI'&quot;
 connecting to localhost:50051
 message: &quot;Hello again gRPC CLI&quot;
 
@@ -229,7 +229,7 @@ Rpc succeeded with OK status
 <p>現状<code>Go</code>のコードで直接リフレクションデータを取得できるようにはなっていないっぽいが、<code>grpc_reflection_v1alpha</code>にリフレクション結果の構造体定義がもろもろされている（<code>grpc_cli ls</code>コマンドの結果にも含まれている）。後々<code>Go</code>のコードからでも扱えるようになるのかな？</p>
 <p><a href="https://godoc.org/google.golang.org/grpc/reflection/grpc_reflection_v1alpha">https://godoc.org/google.golang.org/grpc/reflection/grpc_reflection_v1alpha</a></p>
 <p><code>grpc_cli</code>のコマンドのusageでオプションを見ると、もろもろの認証情報も付加できるようなので、本番用に構築したgRPCサーバでも利用できそう。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">./bins/opt/grpc_cli ls
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">./bins/opt/grpc_cli ls
 
 Wrong number of arguments <span style="color:#719e07">for</span> ls
 
@@ -435,10 +435,16 @@ List services
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -450,12 +456,6 @@ List services
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

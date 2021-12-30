@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -224,15 +224,15 @@ https://helm.sh/
 </li>
 <li><code>range</code>構文と<code>if</code>構文を使うことで定義できた。</li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">{{- range $i, $server := .Values.servers -}}
-{{- if ne $i <span style="color:#2aa198">0</span> }}
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">{{- range $i, $server := .Values.servers -}}
+{{- if ne $i 0 }}
 ---
 {{- end }}
-<span style="color:#719e07">apiVersion</span>: v1
-<span style="color:#719e07">kind</span>: Service
-<span style="color:#719e07">metadata</span>:
-  <span style="color:#719e07">name</span>: = {{ $server }}-{{ include <span style="color:#2aa198">&#34;repeated-service.fullname&#34;</span> $ }}
-  <span style="color:#719e07">labels</span>:
+<span style="color:#268bd2">apiVersion</span>: v1
+<span style="color:#268bd2">kind</span>: Service
+<span style="color:#268bd2">metadata</span>:
+  <span style="color:#268bd2">name</span>: = {{ $server }}-{{ include &#34;repeated-service.fullname&#34; $ }}
+  <span style="color:#268bd2">labels</span>:
 <span style="color:#586e75"># ...</span>
 </code></pre></div><p>なお、文中で利用しているサンプルコードは以下。</p>
 <ul>
@@ -241,7 +241,7 @@ https://helm.sh/
 <h2 id="環境情報">環境情報</h2>
 <p>本記事で利用しているHelm関連のバージョンは以下の通り。
 helm-tillerを使っているため、k8sクラスタ上にTiller serverは存在しない。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ tiller -version
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ tiller -version
 v2.14.3
 $ helm version
 Client: &amp;version.Version<span style="color:#719e07">{</span>SemVer:<span style="color:#2aa198">&#34;v2.14.3&#34;</span>, GitCommit:<span style="color:#2aa198">&#34;0e7f3b6637f7af8fcfddb3d2941fcc7cbebb0085&#34;</span>, GitTreeState:<span style="color:#2aa198">&#34;clean&#34;</span><span style="color:#719e07">}</span>
@@ -259,7 +259,7 @@ Server Version: version.Info<span style="color:#719e07">{</span>Major:<span styl
 <h1 id="事前準備">事前準備</h1>
 <h2 id="helm-tillerの準備">helm-tillerの準備</h2>
 <p>必須ではないが、tillerサーバを作らないで済むようにhelm-tillerをインストールしておく。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ helm plugin install https://github.com/rimusz/helm-tiller
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ helm plugin install https://github.com/rimusz/helm-tiller
 </code></pre></div><h2 id="minikubeを使ってローカルでhelmがdry-runできるようにしておく">minikubeを使ってローカルでHelmがdry-runできるようにしておく</h2>
 <p>Helmは<code>--dry-run</code>を使うとHelm Chartがどんなマニフェストに展開されるか確認することができる。
 しかし、<code>--dry-run</code>時にもクラスター自体は存在する必要がある。<code>minikube</code>を使うと比較的簡単にk8sクラスターをローカルPC上に作成できる（Dockerの for MacなどでKubernetesを構築しても良いかもしれない。）。</p>
@@ -272,27 +272,27 @@ Server Version: version.Info<span style="color:#719e07">{</span>Major:<span styl
 </ul>
 <h2 id="ベースとなるhelmを準備する">ベースとなるHelmを準備する</h2>
 <p>まずはじめにベースとしてChartを作成しておく。本記事では<code>helm create</code>で作成されるYAMLを例に進める。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ helm create repeated-service
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ helm create repeated-service
 $ <span style="color:#b58900">cd</span> repeated-service
 </code></pre></div><p><code>helm create</code>で作成される<code>templates/service.yaml</code>の内容は以下の通り。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">apiVersion</span>: v1
-<span style="color:#719e07">kind</span>: Service
-<span style="color:#719e07">metadata</span>:
-  <span style="color:#719e07">name</span>: {{ include <span style="color:#2aa198">&#34;repeated-service.fullname&#34;</span> . }}
-  <span style="color:#719e07">labels</span>:
-{{ include <span style="color:#2aa198">&#34;repeated-service.labels&#34;</span> . | indent <span style="color:#2aa198">4</span> }}
-<span style="color:#719e07">spec</span>:
-  <span style="color:#719e07">type</span>: {{ .Values.service.type }}
-  <span style="color:#719e07">ports</span>:
-    - <span style="color:#719e07">port</span>: {{ .Values.service.port }}
-      <span style="color:#719e07">targetPort</span>: http
-      <span style="color:#719e07">protocol</span>: TCP
-      <span style="color:#719e07">name</span>: http
-  <span style="color:#719e07">selector</span>:
-    <span style="color:#719e07">app.kubernetes.io/name</span>: {{ include <span style="color:#2aa198">&#34;repeated-service.name&#34;</span> . }}
-    <span style="color:#719e07">app.kubernetes.io/instance</span>: {{ .Release.Name }}
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: v1
+<span style="color:#268bd2">kind</span>: Service
+<span style="color:#268bd2">metadata</span>:
+  <span style="color:#268bd2">name</span>: {{ include &#34;repeated-service.fullname&#34; . }}
+  <span style="color:#268bd2">labels</span>:
+{{ include &#34;repeated-service.labels&#34; . | indent 4 }}
+<span style="color:#268bd2">spec</span>:
+  <span style="color:#268bd2">type</span>: {{ .Values.service.type }}
+  <span style="color:#268bd2">ports</span>:
+    - <span style="color:#268bd2">port</span>: {{ .Values.service.port }}
+      <span style="color:#268bd2">targetPort</span>: http
+      <span style="color:#268bd2">protocol</span>: TCP
+      <span style="color:#268bd2">name</span>: http
+  <span style="color:#268bd2">selector</span>:
+    <span style="color:#268bd2">app.kubernetes.io/name</span>: {{ include &#34;repeated-service.name&#34; . }}
+    <span style="color:#268bd2">app.kubernetes.io/instance</span>: {{ .Release.Name }}
 </code></pre></div><p>このYAMLを使うと、以下のようなリソース定義となる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ helm tiller run -- helm install --debug --dry-run --name sample .
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ helm tiller run -- helm install --debug --dry-run --name sample .
 Installed Helm version v2.14.3
 Installed Tiller version v2.14.3
 
@@ -323,26 +323,26 @@ spec:
 ...
 
 </code></pre></div><p>いま、<code>values.yaml</code>に以下のような配列を追加したとする。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#586e75"># values.yaml</span>
-<span style="color:#719e07">servers</span>:
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#586e75"># values.yaml</span>
+<span style="color:#268bd2">servers</span>:
   - alice
   - bob
   - charlie
   - dave
 </code></pre></div><p>そして先ほどの<code>repeated-service/templates/service.yaml</code>を修正して、Valuesに定義した配列によって以下のように繰り返しマニフェストが出力される<code>service.yaml</code>を定義してみる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#586e75"># templates/service.yaml 以下のようにserversリストの要素だけServiceを出力するようにしたい。</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#586e75"># templates/service.yaml 以下のようにserversリストの要素だけServiceを出力するようにしたい。</span>
 <span style="color:#586e75"># servers[0]のalice-sample-repeated-serviceの定義</span>
-<span style="color:#719e07">apiVersion</span>: v1
-<span style="color:#719e07">kind</span>: Service
-<span style="color:#719e07">metadata</span>:
-  <span style="color:#719e07">name</span>: alice-sample-repeated-service
+<span style="color:#268bd2">apiVersion</span>: v1
+<span style="color:#268bd2">kind</span>: Service
+<span style="color:#268bd2">metadata</span>:
+  <span style="color:#268bd2">name</span>: alice-sample-repeated-service
 <span style="color:#586e75"># ...</span>
 ---
 <span style="color:#586e75"># servers[1]のbob-sample-repeated-serviceの定義</span>
-<span style="color:#719e07">apiVersion</span>: v1
-<span style="color:#719e07">kind</span>: Service
-<span style="color:#719e07">metadata</span>:
-  <span style="color:#719e07">name</span>: bob-sample-repeated-service
+<span style="color:#268bd2">apiVersion</span>: v1
+<span style="color:#268bd2">kind</span>: Service
+<span style="color:#268bd2">metadata</span>:
+  <span style="color:#268bd2">name</span>: bob-sample-repeated-service
 <span style="color:#586e75"># ...</span>
 ---
 <span style="color:#586e75"># ...</span>
@@ -361,7 +361,7 @@ spec:
 </ul>
 <p>なのでこの2つの情報を使ってYAML中にループを含んだりしながら定義できる。</p>
 <p>実際に編集した<code>templates/service.yaml</code>は以下のようになる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="color:#719e07">+{{- range $i, $server := .Values.servers -}}
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="color:#719e07">+{{- range $i, $server := .Values.servers -}}
 </span><span style="color:#719e07">+{{- if ne $i 0 }}
 </span><span style="color:#719e07">+---
 </span><span style="color:#719e07">+{{- end }}
@@ -394,12 +394,12 @@ spec:
 <h2 id="名前付きテンプレートにしないのか">名前付きテンプレートにしないのか？</h2>
 <p>名前付きテンプレートを使う場合、<code>include</code>文の引数としてで渡せるオブジェクトが1つしかない。<br>
 そのため、いちいち<code>dict</code>文を使って<code>$server</code>変数、<code>Service</code>、<code>Values</code>などを1つのオブジェクトに詰め直す必要があり、冗長な書き方になるので止めている。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#586e75"># こんな書き方をしないといけなくなってしまう</span>
-{{- include <span style="color:#2aa198">&#34;repeated-service.service&#34;</span> (dict <span style="color:#2aa198">&#34;Bank&#34;</span> $bank <span style="color:#2aa198">&#34;Realease&#34;</span> .Realese <span style="color:#2aa198">&#34;Values&#34;</span> .Values) -}}
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#586e75"># こんな書き方をしないといけなくなってしまう</span>
+{{- include &#34;repeated-service.service&#34; (dict &#34;Bank&#34; $bank &#34;Realease&#34; .Realese &#34;Values&#34; .Values) -}}
  
 </code></pre></div><h2 id="helm-installの実行結果">helm installの実行結果</h2>
 <p>実際にこの定義を使って<code>helm install --dry-run</code>してみた結果が以下。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ helm tiller run -- helm install --debug --dry-run --name sample .
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ helm tiller run -- helm install --debug --dry-run --name sample .
 Installed Helm version v2.14.3
 Installed Tiller version v2.14.3
 Helm and Tiller are the same version!
@@ -638,10 +638,16 @@ spec:
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -653,12 +659,6 @@ spec:
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

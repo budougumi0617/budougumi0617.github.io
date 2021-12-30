@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -209,7 +209,7 @@
 <p><a href="https://github.com/marketplace/actions/action-newrelic-segment-lint">https://github.com/marketplace/actions/action-newrelic-segment-lint</a></p>
 <h1 id="spanを計測していない関数を追加するpull-requestprはgithub-checksで警告したい">Spanを計測していない関数を追加するPull Request（PR）はGitHub Checksで警告したい</h1>
 <p>New RelicでGoのアプリケーションのSpanを取得するには、関数やメソッドごとにSegmentsを明示的に埋め込んでいく必要がある。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">SampleHandler</span>(w http.ResponseWriter, req <span style="color:#719e07">*</span>http.Request) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">SampleHandler</span>(w http.ResponseWriter, req <span style="color:#719e07">*</span>http.Request) {
   <span style="color:#719e07">defer</span> newrelic.<span style="color:#268bd2">FromContext</span>(req.<span style="color:#268bd2">Context</span>()).<span style="color:#268bd2">StartSegment</span>(<span style="color:#2aa198">&#34;sample_handler&#34;</span>).<span style="color:#268bd2">End</span>()
   fmt.<span style="color:#268bd2">Fprintf</span>(w, <span style="color:#2aa198">&#34;Hello, %q&#34;</span>, req.URL.Path)
 }
@@ -225,21 +225,21 @@
 我々は常にコードを変更したり、追加している。そのため、ある時点で存在するコードに対してだけでなく、<strong>今後追加されていく関数やメソッドもSpanを計測しているか確認していく必要がある</strong>。<br>
 そのため、GitHub Acrionsとreviewdogを使って「PRで追加された関数がSegmentを埋め込んでいなかったらエラーを返す」Actionを作成した。</p>
 <p>このようなYAMLを<code>.github/workflow</code>ディレクトリ以下に配置しておくだけで利用ができる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">name</span>: nrseg
-<span style="color:#719e07">on</span>: [pull_request]
-<span style="color:#719e07">jobs</span>:
-  <span style="color:#719e07">linter_name</span>:
-    <span style="color:#719e07">name</span>: runner / nrseg inspect
-    <span style="color:#719e07">runs-on</span>: ubuntu-latest
-    <span style="color:#719e07">steps</span>:
-      - <span style="color:#719e07">uses</span>: actions/checkout@v2
-      - <span style="color:#719e07">uses</span>: budougumi0617/action-newrelic-segment-lint@v0
-        <span style="color:#719e07">with</span>:
-          <span style="color:#719e07">github_token</span>: ${{ secrets.github_token }}
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">name</span>: nrseg
+<span style="color:#268bd2">on</span>: [pull_request]
+<span style="color:#268bd2">jobs</span>:
+  <span style="color:#268bd2">linter_name</span>:
+    <span style="color:#268bd2">name</span>: runner / nrseg inspect
+    <span style="color:#268bd2">runs-on</span>: ubuntu-latest
+    <span style="color:#268bd2">steps</span>:
+      - <span style="color:#268bd2">uses</span>: actions/checkout@v2
+      - <span style="color:#268bd2">uses</span>: budougumi0617/action-newrelic-segment-lint@v0
+        <span style="color:#268bd2">with</span>:
+          <span style="color:#268bd2">github_token</span>: ${{ secrets.github_token }}
           <span style="color:#586e75"># 無視したいディレクトリと対象ディレクトリ</span>
-          <span style="color:#719e07">nrseg_flags</span>: <span style="color:#2aa198">&#34;-i testing ./src&#34;</span>
-          <span style="color:#719e07">reporter</span>: github-pr-review
-          <span style="color:#719e07">level</span>: warning
+          <span style="color:#268bd2">nrseg_flags</span>: <span style="color:#2aa198">&#34;-i testing ./src&#34;</span>
+          <span style="color:#268bd2">reporter</span>: github-pr-review
+          <span style="color:#268bd2">level</span>: warning
 </code></pre></div><p>実際の挙動はサンプルPRを見てもらったほうが早いだろう。</p>
 <div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/action-newrelic-segment-lint-examples/pull/1" data-iframely-url="//cdn.iframe.ly/J6KT0YP"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
 <p>上記PRのコメントのように新しく追加されたコードの中でSegmentを呼んでいないコードに対して警告をコメントする。</p>
@@ -271,7 +271,7 @@
 <p>Actions内で<a href="https://github.com/budougumi0617/nrseg/releases"><code>github.com/budougumi0617/nrseg</code>のリリースされているTarファイル</a>を解凍して実行ファイルを使いたいとする。<br>
 このような場合以下のような<code>cURL</code>コマンドを実行すると該当のTarファイルが取得できる。grepはUbuntuで実行可能なバイナリが入っている圧縮ファイル名前を確認すること。<br>
 Goのコマンドならバイナリさえリリースされていれば、特別なコンテナを用意せずにActionsが書ける。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#268bd2">TEMP_PATH</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#719e07">$(</span>mktemp -d<span style="color:#719e07">)</span><span style="color:#2aa198">&#34;</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#268bd2">TEMP_PATH</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#719e07">$(</span>mktemp -d<span style="color:#719e07">)</span><span style="color:#2aa198">&#34;</span>
 <span style="color:#268bd2">PATH</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">TEMP_PATH</span><span style="color:#2aa198">}</span><span style="color:#2aa198">:</span><span style="color:#268bd2">$PATH</span><span style="color:#2aa198">&#34;</span>
 
 curl -L <span style="color:#2aa198">&#34;</span><span style="color:#719e07">$(</span>curl -Ls https://api.github.com/repos/budougumi0617/nrseg/releases/latest | grep -o -E <span style="color:#2aa198">&#34;https://.+?_Linux_x86_64.tar.gz&#34;</span><span style="color:#719e07">)</span><span style="color:#2aa198">&#34;</span> -o nrseg.tar.gz
@@ -462,10 +462,16 @@ rm nrseg.tar.gz
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -477,12 +483,6 @@ rm nrseg.tar.gz
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

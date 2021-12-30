@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -205,7 +205,7 @@
 <h1 id="ソースコードの事前準備">ソースコードの事前準備</h1>
 <p>確認では以下の構成のソースコードを作成した。<br>
 簡易の構成だが、AWS関係のパッケージに依存した<code>aws</code>パッケージと、GCP関係のパッケージに依存した<code>gcp</code>パッケージがある。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ tree
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ tree
 .
 ├── LICENSE
 ├── README.md
@@ -218,7 +218,7 @@
 ├── main.go
 └── sandbox-go-cloud
 </code></pre></div><p><code>main.go</code>では<code>test()</code>関数を呼ぶ。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 	<span style="color:#586e75">// tags=gcpのときはgcp.goのtest()が呼ばれる
@@ -234,7 +234,7 @@
 <p>Goは他言語の<code>#ifdef</code>のように、ビルドタグを使ってファイル単位でビルドスイッチを定義することができる。<br>
 利用するときはファイルの先頭に<code>// +build</code>から始まるビルドタグを書く。必ず二行目は空行にする必要がある。複数のビルドタグを付けることも可能。</p>
 <p><code>gcp.go</code>は<code>gcp</code>タグがついている時にしかビルドに含まれないファイルになる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// +build gcp
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// +build gcp
 </span><span style="color:#586e75"></span>
 <span style="color:#719e07">package</span> main
 
@@ -247,7 +247,7 @@
 	gcp.<span style="color:#268bd2">Print</span>()
 }
 </code></pre></div><p>ビルドタグの定義には倫理式も使えるので、<code>aws.go</code>は<code>gcp</code>タグがついて「いない」時にビルドに含まれるファイルになる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// +build !gcp
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// +build !gcp
 </span><span style="color:#586e75"></span>
 <span style="color:#719e07">package</span> main
 
@@ -270,7 +270,7 @@
 <p>まず、<code>gcp</code>タグ無しで依存パッケージの一覧を出力する。<br>
 <code>go list</code>コマンドでは<a href="https://qiita.com/suin/items/edf59157ba010c04b50e">こちら</a>の記事を参考に標準パッケージ以外の依存パッケージを出力するようにしている。<br>
 結果はたしかにAWS関係の依存のみ出力された。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go list -f <span style="color:#2aa198">&#39;{{join .Deps &#34;\n&#34;}}&#39;</span> | xargs go list -f <span style="color:#2aa198">&#39;{{if not .Standard}}{{.ImportPath}}{{end}}&#39;</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go list -f <span style="color:#2aa198">&#39;{{join .Deps &#34;\n&#34;}}&#39;</span> | xargs go list -f <span style="color:#2aa198">&#39;{{if not .Standard}}{{.ImportPath}}{{end}}&#39;</span>
 github.com/aws/aws-sdk-go/aws
 github.com/aws/aws-sdk-go/aws/awserr
 ...
@@ -278,7 +278,7 @@ github.com/google/go-cloud/blob/s3blob
 </code></pre></div><p><code>gcp</code>タグをつけて<code>go list</code>コマンドを実行する。<br>
 (GCP関連のパッケージは<code>go get</code>していないのでエラーが出ているが、）GCP関連のパッケージへの依存を確認できた。<br>
 また、AWS関係の依存はなくなっていた。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go list -tags<span style="color:#719e07">=</span>gcp -f <span style="color:#2aa198">&#39;{{join .Deps &#34;\n&#34;}}&#39;</span> | xargs go list -f <span style="color:#2aa198">&#39;{{if not .Standard}}{{.ImportPath}}{{end}}&#39;</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go list -tags<span style="color:#719e07">=</span>gcp -f <span style="color:#2aa198">&#39;{{join .Deps &#34;\n&#34;}}&#39;</span> | xargs go list -f <span style="color:#2aa198">&#39;{{if not .Standard}}{{.ImportPath}}{{end}}&#39;</span>
 can&#39;t load package: package cloud.google.com/go/storage: cannot find package <span style="color:#2aa198">&#34;cloud.google.com/go/storage&#34;</span> in any of:
 	/usr/local/opt/go/libexec/src/cloud.google.com/go/storage <span style="color:#719e07">(</span>from <span style="color:#268bd2">$GOROOT</span><span style="color:#719e07">)</span>
 	/Users/shimizu-yoichiro/go/src/cloud.google.com/go/storage <span style="color:#719e07">(</span>from <span style="color:#268bd2">$GOPATH</span><span style="color:#719e07">)</span>
@@ -287,10 +287,10 @@ github.com/google/go-cloud/gcp
 github.com/google/go-cloud/wire
 </code></pre></div><h1 id="go-buildして依存を確認する">go buildして依存を確認する</h1>
 <p>今度は実際にビルドしてみる。ビルドタグがないときのビルドはAWS関係のパッケージにしか依存関係がないはずなので成功する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go build
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go build
 </code></pre></div><p>ビルドタグを付与してビルドすると、GCP関係のパッケージが見つからずビルドエラーになる。<br>
 ビルドタグで依存パッケージを制御することができた。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go build -tags<span style="color:#719e07">=</span>gcp
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go build -tags<span style="color:#719e07">=</span>gcp
 ../../google/go-cloud/blob/gcsblob/gcsblob.go:31:2: cannot find package <span style="color:#2aa198">&#34;cloud.google.com/go/storage&#34;</span> in any of:
 	/usr/local/opt/go/libexec/src/cloud.google.com/go/storage <span style="color:#719e07">(</span>from <span style="color:#268bd2">$GOROOT</span><span style="color:#719e07">)</span>
 	/Users/shimizu-yoichiro/go/src/cloud.google.com/go/storage <span style="color:#719e07">(</span>from <span style="color:#268bd2">$GOPATH</span><span style="color:#719e07">)</span>
@@ -495,10 +495,16 @@ github.com/google/go-cloud/wire
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -510,12 +516,6 @@ github.com/google/go-cloud/wire
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -244,7 +244,7 @@
 最初は引数に<code>context.Context</code>を含めるだけから始めればよいだろう。慣例的に、<code>context.Context</code>は第一引数にする。
 （<code>context.Contextが第一引数になっていない</code>と警告するlinterも存在する）</p>
 <p>ここは単純にメソッドの引数を変更していくだけだ。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"> // CompanyRepository is the repository to get company resource.
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"> // CompanyRepository is the repository to get company resource.
  type CompanyRepository interface {
 <span style="color:#dc322f">-       Get(CompanyID) (domain.Company, error)
 </span><span style="color:#dc322f"></span><span style="color:#719e07">+       Get(context.Context, CompanyID) (domain.Company, error)
@@ -252,7 +252,7 @@
 </code></pre></div><p>API呼び出し(<code>http.Request</code>構造体)や<code>database/sql</code>パッケージを使ったDB操作を行なっている場合は、その生成、呼び出しも<code>context.Context</code>に対応させると良いだろう。<br>
 <code>context.Context</code>を新しく引数に加えても、（呼び出し時に与えた<code>context.Context</code>のキャンセル処理などを実施しなければ、）何も挙動に影響を与えない。<br>
 一通り修正を終えた後に実際に<code>context.Context</code>を使ったログ生成や、キャンセル処理の実装を加えていけばよいだろう。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="color:#dc322f">-func (c *CompanyServiceClient) Get(cid CompanyID) (domain.Company, error) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="color:#dc322f">-func (c *CompanyServiceClient) Get(cid CompanyID) (domain.Company, error) {
 </span><span style="color:#dc322f"></span><span style="color:#719e07">+func (c *CompanyServiceClient) Get(ctx context.Context, cid CompanyID) (domain.Company, error) {
 </span><span style="color:#719e07"></span>        url := c.URL + &#34;/companies&#34;
 
@@ -286,7 +286,7 @@
 </li>
 </ul>
 <p>しかし、<code>context</code>パッケージにはこのようなときのために利用する、<code>context.TODO()</code>関数が用意されている。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"> // ListEmployees gets employees in comapany.
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"> // ListEmployees gets employees in comapany.
  func (e *EmployeesService) ListEmployees(cid CompanyID) (domain.Company, *ErrorResult) {
 <span style="color:#dc322f">-       company, err := s.CompanyRepository.Get(cid CompanyID)
 </span><span style="color:#dc322f"></span><span style="color:#719e07">+       company, err := s.CompanyRepository.Get(context.TODO(), cid CompanyID)
@@ -489,10 +489,16 @@ GoDocにも「どの<code>context.Context</code>を使うかわからないと�
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -504,12 +510,6 @@ GoDocにも「どの<code>context.Context</code>を使うかわからないと�
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

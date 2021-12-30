@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -208,16 +208,16 @@
 </li>
 <li>ユースケース層やドメイン層でリクエストIDなどを扱うときに便利</li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">REQUEST_ID_CONTEXT <span style="color:#719e07">=</span> ContextVar(<span style="color:#2aa198">&#39;VAR&#39;</span>, default<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;default&#39;</span>)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">REQUEST_ID_CONTEXT <span style="color:#719e07">=</span> ContextVar(<span style="color:#2aa198">&#39;VAR&#39;</span>, default<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;default&#39;</span>)
 
 
 <span style="color:#268bd2">@middleware</span>
-async <span style="color:#719e07">def</span> <span style="color:#268bd2">user_id_middleware</span>(request: Request, handler) <span style="color:#719e07">-&gt;</span> StreamResponse:
-    <span style="color:#719e07">if</span> request<span style="color:#719e07">.</span>headers <span style="color:#719e07">is</span> <span style="color:#719e07">not</span> <span style="color:#268bd2">None</span> <span style="color:#719e07">and</span> request<span style="color:#719e07">.</span>headers<span style="color:#719e07">.</span>get(<span style="color:#2aa198">&#39;x-request-id&#39;</span>, <span style="color:#2aa198">&#39;&#39;</span>) <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#39;&#39;</span>:
+<span style="color:#719e07">async</span> <span style="color:#719e07">def</span> <span style="color:#268bd2">user_id_middleware</span>(request: Request, handler) <span style="color:#719e07">-&gt;</span> StreamResponse:
+    <span style="color:#719e07">if</span> request<span style="color:#719e07">.</span>headers <span style="color:#719e07">is</span> <span style="color:#719e07">not</span> <span style="color:#cb4b16">None</span> <span style="color:#719e07">and</span> request<span style="color:#719e07">.</span>headers<span style="color:#719e07">.</span>get(<span style="color:#2aa198">&#39;x-request-id&#39;</span>, <span style="color:#2aa198">&#39;&#39;</span>) <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#39;&#39;</span>:
         REQUEST_ID_CONTEXT<span style="color:#719e07">.</span>set(request<span style="color:#719e07">.</span>headers<span style="color:#719e07">.</span>get(<span style="color:#2aa198">&#39;x-request-id&#39;</span>))
-    <span style="color:#719e07">return</span> await handler(request)
+    <span style="color:#719e07">return</span> <span style="color:#719e07">await</span> handler(request)
 
-async <span style="color:#719e07">def</span> <span style="color:#268bd2">handler</span>(request: Request) <span style="color:#719e07">-&gt;</span> StreamResponse:
+<span style="color:#719e07">async</span> <span style="color:#719e07">def</span> <span style="color:#268bd2">handler</span>(request: Request) <span style="color:#719e07">-&gt;</span> StreamResponse:
     request_id: <span style="color:#b58900">str</span> <span style="color:#719e07">=</span> REQUEST_ID_CONTEXT<span style="color:#719e07">.</span>get()
     <span style="color:#719e07">return</span> web<span style="color:#719e07">.</span>Response(text<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;previous request-id:&#39;</span> <span style="color:#719e07">+</span> request_id <span style="color:#719e07">+</span> <span style="color:#2aa198">&#39;</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#39;</span>)
 </code></pre></div><h2 id="環境">環境</h2>
@@ -258,7 +258,7 @@ Goでは<code>context.Context</code>を使って透過的な情報を扱うの�
 </blockquote>
 <p>引用部分を読むと、リクエストベースでContextの情報は管理されるようだ。
 さっそく以下のようなサンプルコードを書いてみる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">from</span> contextvars <span style="color:#719e07">import</span> ContextVar
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">from</span> contextvars <span style="color:#719e07">import</span> ContextVar
 <span style="color:#719e07">from</span> aiohttp <span style="color:#719e07">import</span> web
 <span style="color:#719e07">from</span> aiohttp.web <span style="color:#719e07">import</span> middleware
 <span style="color:#719e07">from</span> aiohttp.web_app <span style="color:#719e07">import</span> Application
@@ -270,14 +270,14 @@ REQUEST_ID_CONTEXT <span style="color:#719e07">=</span> ContextVar(<span style="
 
 
 <span style="color:#268bd2">@middleware</span>
-async <span style="color:#719e07">def</span> <span style="color:#268bd2">user_id_middleware</span>(request: Request, handler) <span style="color:#719e07">-&gt;</span> StreamResponse:
+<span style="color:#719e07">async</span> <span style="color:#719e07">def</span> <span style="color:#268bd2">user_id_middleware</span>(request: Request, handler) <span style="color:#719e07">-&gt;</span> StreamResponse:
     <span style="color:#586e75"># Request Headerにx-request-idがあったとき、Contextの情報を更新する</span>
-    <span style="color:#719e07">if</span> request<span style="color:#719e07">.</span>headers <span style="color:#719e07">is</span> <span style="color:#719e07">not</span> <span style="color:#268bd2">None</span> <span style="color:#719e07">and</span> request<span style="color:#719e07">.</span>headers<span style="color:#719e07">.</span>get(<span style="color:#2aa198">&#39;x-request-id&#39;</span>, <span style="color:#2aa198">&#39;&#39;</span>) <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#39;&#39;</span>:
+    <span style="color:#719e07">if</span> request<span style="color:#719e07">.</span>headers <span style="color:#719e07">is</span> <span style="color:#719e07">not</span> <span style="color:#cb4b16">None</span> <span style="color:#719e07">and</span> request<span style="color:#719e07">.</span>headers<span style="color:#719e07">.</span>get(<span style="color:#2aa198">&#39;x-request-id&#39;</span>, <span style="color:#2aa198">&#39;&#39;</span>) <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#39;&#39;</span>:
         REQUEST_ID_CONTEXT<span style="color:#719e07">.</span>set(request<span style="color:#719e07">.</span>headers<span style="color:#719e07">.</span>get(<span style="color:#2aa198">&#39;x-request-id&#39;</span>))
-    <span style="color:#719e07">return</span> await handler(request)
+    <span style="color:#719e07">return</span> <span style="color:#719e07">await</span> handler(request)
 
 
-async <span style="color:#719e07">def</span> <span style="color:#268bd2">handler</span>(request: Request) <span style="color:#719e07">-&gt;</span> StreamResponse:
+<span style="color:#719e07">async</span> <span style="color:#719e07">def</span> <span style="color:#268bd2">handler</span>(request: Request) <span style="color:#719e07">-&gt;</span> StreamResponse:
     <span style="color:#586e75"># Context情報をレスポンスに出力する</span>
     request_id: <span style="color:#b58900">str</span> <span style="color:#719e07">=</span> REQUEST_ID_CONTEXT<span style="color:#719e07">.</span>get()
     <span style="color:#719e07">return</span> web<span style="color:#719e07">.</span>Response(text<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;request-id:&#39;</span> <span style="color:#719e07">+</span> request_id <span style="color:#719e07">+</span> <span style="color:#2aa198">&#39;</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#39;</span>)
@@ -290,16 +290,16 @@ web<span style="color:#719e07">.</span>run_app(app, port<span style="color:#719e
 </code></pre></div><h2 id="動作確認">動作確認</h2>
 <p>（ドキュメントを信じるとして）リクエストを同時に渡してみるようなことはしていないが、簡単に動作を確認してみる。<br>
 ターミナルでサンプルコードを起動したあと、別のターミナルから<code>curl</code>コマンドでリクエストを送ってみる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ python -u main.py
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ python -u main.py
 <span style="color:#719e07">========</span> Running on http://0.0.0.0:33000 <span style="color:#719e07">========</span>
 <span style="color:#719e07">(</span>Press CTRL+C to quit<span style="color:#719e07">)</span>
 
 </code></pre></div><p>何もリクエストヘッダーを付けない場合は、デフォルト文字列が表示される。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ curl <span style="color:#2aa198">&#34;http://localhost:33000/&#34;</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ curl <span style="color:#2aa198">&#34;http://localhost:33000/&#34;</span>
 request-id:default
 </code></pre></div><p>リクエストヘッダーを付けて送信すると、middlewareで付与されたContext情報が付与されている。
 リクエストスコープな状態になっているので、次のリクエストを送信するとまたデフォルト文字列に戻っている。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ curl -H <span style="color:#2aa198">&#34;x-request-id: user02&#34;</span> <span style="color:#2aa198">&#34;http://localhost:33000/&#34;</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ curl -H <span style="color:#2aa198">&#34;x-request-id: user02&#34;</span> <span style="color:#2aa198">&#34;http://localhost:33000/&#34;</span>
 request-id:user02
 $ curl <span style="color:#2aa198">&#34;http://localhost:33000/&#34;</span>
 request-id:default
@@ -499,10 +499,16 @@ AWS LambdaなどでもContextが引数として必要になる。<br>
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -514,12 +520,6 @@ AWS LambdaなどでもContextが引数として必要になる。<br>
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

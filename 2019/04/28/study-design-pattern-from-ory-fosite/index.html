@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -255,7 +255,7 @@ ORY自体はドイツの会社で、他にも`ory/hydra`ライブラリなど、
 </ul>
 </li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> option <span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>Foo) <span style="color:#268bd2">interface</span>{}
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> option <span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>Foo) <span style="color:#268bd2">interface</span>{}
 
 <span style="color:#586e75">// Verbosity sets Foo&#39;s verbosity level to v.
 </span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Verbosity</span>(v <span style="color:#dc322f">int</span>) option {
@@ -280,7 +280,7 @@ ORY自体はドイツの会社で、他にも`ory/hydra`ライブラリなど、
 <h2 id="strategyパターンが使われているoryfositeの基本構造">strategyパターンが使われているory/fositeの基本構造</h2>
 <p>まず、<code>ory/fosite</code>を使うときの基本操作からデザインパターンを見てみる。ここではStrategyパターンによる実処理の移譲が行われている。<br>
 <code>ory/fosite</code>の利用者が扱う基本的なインターフェースは<a href="https://github.com/ory/fosite/blob/v0.29.6/oauth2.go#L42-L161"><code>fosite.OAuth2Provider</code></a>だ。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/oauth2.go#L42-L161
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/oauth2.go#L42-L161
 </span><span style="color:#586e75"></span>
 <span style="color:#586e75">// OAuth2Provider is an interface that enables you to write OAuth2 handlers with only a few lines of code.
 </span><span style="color:#586e75">// Check fosite.Fosite for an implementation of this interface.
@@ -299,7 +299,7 @@ ORY自体はドイツの会社で、他にも`ory/hydra`ライブラリなど、
 </span><span style="color:#586e75"></span>}
 </code></pre></div><p>SDK利用者はHTTPサーバを立ち上げたあと、各HTTPハンドラの中で<code>fosite.OAuth2Provider</code>インターフェースを使って認可コードを発行したり、トークンを払い出したりする処理を実装していく（OAuth2.0についての説明は主旨と異なるのでしない）。</p>
 <p>このインターフェースの具象型は<code>fosite.Fosite</code>型だ。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/fosite.go#L85-L105
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/fosite.go#L85-L105
 </span><span style="color:#586e75"></span>
 <span style="color:#586e75">// Fosite implements OAuth2Provider.
 </span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> Fosite <span style="color:#268bd2">struct</span> {
@@ -324,7 +324,7 @@ ORY自体はドイツの会社で、他にも`ory/hydra`ライブラリなど、
 }
 </code></pre></div><p>内部に複数の<code>FooHandlers</code>を持っている。<code>FooHandlers</code>型は<code>[]FooHandler</code>に名前付けした型だ。<code>fosite.Fosite</code>型は<code>FooHandlers</code>に実処理を移譲している。</p>
 <p>例えば、<code>fosite.OAuth2Provider</code>インターフェースに定義されていて、<code>fosite.Fosite</code>で実装されている<code>NewAccessRequest</code>メソッドの実装をみてみる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/access_request_handler.go#L87-L101
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/access_request_handler.go#L87-L101
 </span><span style="color:#586e75"></span>
 <span style="color:#268bd2">func</span> (f <span style="color:#719e07">*</span>Fosite) <span style="color:#268bd2">NewAccessRequest</span>(ctx context.Context, r <span style="color:#719e07">*</span>http.Request, session Session) (AccessRequester, <span style="color:#dc322f">error</span>) {
 	<span style="color:#586e75">// 前処理
@@ -352,7 +352,7 @@ ORY自体はドイツの会社で、他にも`ory/hydra`ライブラリなど、
 <p>では、次に<code>fosite.Fosite</code>の<code>FooHandlers</code>フィールドに実処理を行なう各<code>Handler</code>を格納する実装を見てみる。</p>
 <h2 id="functional-optionsパターンを利用したstrategyパターンの初期化とfactoryメソッドパターン">Functional Optionsパターンを利用したStrategyパターンの初期化とFactoryメソッドパターン</h2>
 <p><code>fosite.Fosite</code>オブジェクトのフィールドは外部に公開されている。そのため、地道に各オブジェクトを設定していくこともできるが、<code>ory/fosite</code>では初期化用の<code>compose.Compose</code>関数が用意されている。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">https:<span style="color:#586e75">//github.com/ory/fosite/blob/v0.29.6/compose/compose.go#L33-L91
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">https:<span style="color:#586e75">//github.com/ory/fosite/blob/v0.29.6/compose/compose.go#L33-L91
 </span><span style="color:#586e75"></span>
 <span style="color:#268bd2">type</span> Factory <span style="color:#268bd2">func</span>(config <span style="color:#719e07">*</span>Config, storage <span style="color:#268bd2">interface</span>{}, strategy <span style="color:#268bd2">interface</span>{}) <span style="color:#268bd2">interface</span>{}
 
@@ -400,7 +400,7 @@ ORY自体はドイツの会社で、他にも`ory/hydra`ライブラリなど、
 引数で受けた可変長引数の<code>factories</code>は後述する<code>FooHnadler</code>オブジェクトを初期化する<code>FooFactory</code>関数が満たしている<code>Factory</code>型の関数定義だ。
 Goはダックタイピングなので、<code>Factory</code>が生成した<code>FooHandler</code>オブジェクトの実体を知らずとも利用できる。型アサーションで<code>factory</code>関数から生成されたオブジェクトがどのインターフェースを満たしているか確認し、インターフェースを満たしていれば、<code>fosite.Fosite</code>オブジェクトに登録していく。</p>
 <p><code>factory</code>型を満たすファクトリーメソッド自体は、以下のような関数群が定義されている。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/compose/compose_oauth2.go
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/compose/compose_oauth2.go
 </span><span style="color:#586e75"></span>
 <span style="color:#586e75">// OAuth2ClientCredentialsGrantFactory creates an OAuth2 client credentials grant handler and registers
 </span><span style="color:#586e75">// an access token, refresh token and authorize code validator.
@@ -415,7 +415,7 @@ Goはダックタイピングなので、<code>Factory</code>が生成した<cod
 		AudienceMatchingStrategy: config.<span style="color:#268bd2">GetAudienceStrategy</span>(),
 	}
 }
-</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/compose/compose_openid.go
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/compose/compose_openid.go
 </span><span style="color:#586e75"></span>
 <span style="color:#586e75">// OpenIDConnectRefreshFactory creates a handler for refreshing openid connect tokens.
 </span><span style="color:#586e75">//
@@ -429,7 +429,7 @@ Goはダックタイピングなので、<code>Factory</code>が生成した<cod
 }
 </code></pre></div><p><code>ory/fosite</code>ユーザは自分が利用したい認証・認可形式のファクトリーメソッドを使って<code>compose.Compose</code>関数を呼び出すことで、任意の実装形式が設定された<code>fosite.Oauth2Providor</code>オブジェクトを取得することができる。</p>
 <p>以下は提供されている全てのFactoryを使って<code>compose.Compose</code>関数を呼び出して<code>fosite.OAuth2Provider</code>の初期化を行なう<code>compose.ComposeAllEnabled</code>の定義だ。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/compose/compose.go#L93-L122
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/compose/compose.go#L93-L122
 </span><span style="color:#586e75"></span>
 <span style="color:#586e75">// ComposeAllEnabled returns a fosite instance with all OAuth2 and OpenID Connect handlers enabled.
 </span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">ComposeAllEnabled</span>(config <span style="color:#719e07">*</span>Config, storage <span style="color:#268bd2">interface</span>{}, secret []<span style="color:#dc322f">byte</span>, key <span style="color:#719e07">*</span>rsa.PrivateKey) fosite.OAuth2Provider {
@@ -684,10 +684,16 @@ Goはダックタイピングなので、<code>Factory</code>が生成した<cod
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -699,12 +705,6 @@ Goはダックタイピングなので、<code>Factory</code>が生成した<cod
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

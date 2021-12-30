@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -205,12 +205,12 @@
 <li>単純にリネームしたいだけなら<code>gorename</code>コマンドのほうがよい</li>
 </ul>
 <p>なお、執筆時のGoのバージョンは以下の通り。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go version
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go version
 go version go1.12.9 darwin/amd64
 </code></pre></div><h1 id="gofmtコマンドのオプションについて">gofmtコマンドのオプションについて</h1>
 <p><code>gofmt</code>コマンドはGoの公式コードフォーマッタだ。<code>gofmt</code>コマンドはGoをソースコードからコンパイルすると<code>go</code>コマンドと一緒にビルドされる。<br>
 インデントや改行などを規律に則って実施してくれる。<code>gofmt</code>コマンドにはただフォーマットを整える以外に置換する機能も備わっている。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ gofmt -h
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ gofmt -h
 usage: gofmt <span style="color:#719e07">[</span>flags<span style="color:#719e07">]</span> <span style="color:#719e07">[</span>path ...<span style="color:#719e07">]</span>
   -cpuprofile string
     	write cpu profile to this file
@@ -243,7 +243,7 @@ usage: gofmt <span style="color:#719e07">[</span>flags<span style="color:#719e07
 <li><a href="https://github.com/golang/go/blob/d6143914e42e9373fbc02d08b224516b12807269/src/cmd/gofmt/rewrite.go">https://github.com/golang/go/blob/master/src/cmd/gofmt/rewrite.go</a></li>
 </ul>
 <p><code>initRewrite</code>関数をみると、たしかに<code>-&gt;</code>で文字列を分割し、それぞれがExpressionとして評価できるか確認している。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">initRewrite</span>() {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">initRewrite</span>() {
 	<span style="color:#719e07">if</span> <span style="color:#719e07">*</span>rewriteRule <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;&#34;</span> {
 		rewrite = <span style="color:#cb4b16">nil</span> <span style="color:#586e75">// disable any previous rewrite
 </span><span style="color:#586e75"></span>		<span style="color:#719e07">return</span>
@@ -258,13 +258,13 @@ usage: gofmt <span style="color:#719e07">[</span>flags<span style="color:#719e07
 	rewrite = <span style="color:#268bd2">func</span>(p <span style="color:#719e07">*</span>ast.File) <span style="color:#719e07">*</span>ast.File { <span style="color:#719e07">return</span> <span style="color:#268bd2">rewriteFile</span>(pattern, replace, p) }
 }
 </code></pre></div><p>また、<code>isWildcard</code>関数で小文字1文字か確認していた。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">isWildcard</span>(s <span style="color:#dc322f">string</span>) <span style="color:#dc322f">bool</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">isWildcard</span>(s <span style="color:#dc322f">string</span>) <span style="color:#dc322f">bool</span> {
 	<span style="color:#dc322f">rune</span>, size <span style="color:#719e07">:=</span> utf8.<span style="color:#268bd2">DecodeRuneInString</span>(s)
 	<span style="color:#719e07">return</span> size <span style="color:#719e07">==</span> <span style="color:#b58900">len</span>(s) <span style="color:#719e07">&amp;&amp;</span> unicode.<span style="color:#268bd2">IsLower</span>(<span style="color:#dc322f">rune</span>)
 }
 </code></pre></div><h1 id="実際の実行例">実際の実行例</h1>
 <p>実際に<code>gofomt</code>コマンドでソースコードを置換してみる。置換前のコードは以下になる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
 
@@ -291,7 +291,7 @@ usage: gofmt <span style="color:#719e07">[</span>flags<span style="color:#719e07
 	fmt.<span style="color:#268bd2">Println</span>(foovar)
 }
 </code></pre></div><p>構造体やフィールド名の置換を試みたところ、以下のように編集することができた。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">$ gofmt <span style="color:#719e07">-</span>r <span style="color:#2aa198">&#34;Foo -&gt; Bar&#34;</span> main.<span style="color:#719e07">go</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">$ gofmt <span style="color:#719e07">-</span>r <span style="color:#2aa198">&#34;Foo -&gt; Bar&#34;</span> main.<span style="color:#719e07">go</span>
 <span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
@@ -320,7 +320,7 @@ usage: gofmt <span style="color:#719e07">[</span>flags<span style="color:#719e07
 }
 </code></pre></div><p>あくまで構造体やフィールドの置換で、<code>&quot;Foo&quot;</code>のような文字列に関しては一緒に置換されないようだ。<br>
 また、構造体コメントも変更はしてくれなかった。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">$ gofmt <span style="color:#719e07">-</span>r <span style="color:#2aa198">&#34;Hoge -&gt; Bar&#34;</span> main.<span style="color:#719e07">go</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">$ gofmt <span style="color:#719e07">-</span>r <span style="color:#2aa198">&#34;Hoge -&gt; Bar&#34;</span> main.<span style="color:#719e07">go</span>
 <span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
@@ -356,7 +356,7 @@ usage: gofmt <span style="color:#719e07">[</span>flags<span style="color:#719e07
 <li><a href="https://golang.org/cmd/gofmt/#hdr-The_simplify_command">https://golang.org/cmd/gofmt/#hdr-The_simplify_command</a></li>
 </ul>
 <p><code>-s</code>オプションは以下のような冗長なコードをリファクタリングしてくれる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">An array, slice, or map composite literal of the form:
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">An array, slice, or map composite literal of the form:
 	<span style="color:#719e07">[]</span>T<span style="color:#719e07">{</span>T<span style="color:#719e07">{}</span>, T<span style="color:#719e07">{}}</span>
 will be simplified to:
 	<span style="color:#719e07">[]</span>T<span style="color:#719e07">{{}</span>, <span style="color:#719e07">{}}</span>
@@ -555,10 +555,16 @@ will be simplified to:
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -570,12 +576,6 @@ will be simplified to:
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -347,7 +347,7 @@ Our aim is for Go 1.13, scheduled for August 2019, to enable module mode by defa
 <p>Modulesの機能はモジュールのルートディレクトリに配置する<code>go.mod</code>ファイルと<code>go mod</code>コマンドから利用することができる。
 すでに解説記事がいくつかあるのでここでは<code>go.mod</code>ファイルについてだけ触れる。
 <code>go mod</code>コマンドの概要は以下の通り。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">help</span> mod
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go <span style="color:#b58900">help</span> mod
 Go mod provides access to operations on modules.
 
 Note that support <span style="color:#719e07">for</span> modules is built into all the go commands,
@@ -373,7 +373,7 @@ The commands are:
 Use <span style="color:#2aa198">&#34;go help mod &lt;command&gt;&#34;</span> <span style="color:#719e07">for</span> more information about a command.
 </code></pre></div><p>依存関係は<code>go.mod</code>ファイルに書き出される。<code>go.mod</code>ファイルは<code>go mod init</code>コマンドで作成することができる（<code>go mod download</code>をすると<code>Gemfile.Lock</code>や<code>package-lock.json</code>のように<code>go.sum</code>ファイルも生成される）。</p>
 <p>いくつかの依存関係を含んだ<code>go.mod</code>ファイルは以下のようになる。</p>
-<pre><code>module example.com/m
+<pre tabindex="0"><code>module example.com/m
 
 replace (
 	example.com/a =&gt; ./a
@@ -463,11 +463,11 @@ require (
 <h2 id="モジュール管理外でもgo-getなどができるようになった">モジュール管理外でも<code>go get</code>などができるようになった</h2>
 <p>1.11のときは<code>go.mod</code>がないディレクトリで<code>go get</code>をすると失敗していたが、1.12ではそれが解消された。
 （ただ、<code>go.mod</code>があるディレクトリで行なうと<code>go get</code>で取得した情報を<code>go.mod</code>に追加してしまうので注意が必要）。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.11 at outside module and  GOPATH</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.11 at outside module and  GOPATH</span>
 $ <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go get -u golang.org/x/lint/golint
 go: cannot find main module; see <span style="color:#2aa198">&#39;go help modules&#39;</span>
 make: *** <span style="color:#719e07">[</span>run111_go_get<span style="color:#719e07">]</span> Error <span style="color:#2aa198">1</span>
-</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.12 at outside module and  GOPATH</span>
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.12 at outside module and  GOPATH</span>
 $ <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go get -u golang.org/x/lint/golint
 go: finding golang.org/x/lint/golint latest
 go: finding golang.org/x/lint latest
@@ -480,11 +480,11 @@ go: finding golang.org/x/tools/go/ast latest
 go: finding golang.org/x/tools latest
 go: downloading golang.org/x/tools v0.0.0-20190214204934-8dcb7
 </code></pre></div><p><code>go.mod</code>がなくてもどこでも<code>go run</code>ができるようになった。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.11 in moudle outside</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.11 in moudle outside</span>
 $ <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go run -v main.go
 go: cannot find main module; see <span style="color:#2aa198">&#39;go help modules&#39;</span>
 make: *** <span style="color:#719e07">[</span>run111_run_module_on_outside<span style="color:#719e07">]</span> Error <span style="color:#2aa198">1</span>
-</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.12 in moudle outside</span>
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.12 in moudle outside</span>
 $ <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go run -v main.go
 Fetching https://gopkg.in/pressly/chi.v2?go-get<span style="color:#719e07">=</span><span style="color:#2aa198">1</span>
 Parsing meta tags from https://gopkg.in/pressly/chi.v2?go-get<span style="color:#719e07">=</span><span style="color:#2aa198">1</span> <span style="color:#719e07">(</span>status code 200<span style="color:#719e07">)</span>
@@ -494,16 +494,16 @@ go: finding gopkg.in/pressly/chi.v2 v2.1.0
 </code></pre></div><h2 id="go-env-gomodがdevnullを報告する"><code>go env GOMOD</code>が<code>/dev/null</code>を報告する</h2>
 <p>カレントディレクトリで参照している<code>go.mod</code>ファイルを示す<code>GOMOD</code>変数がある。
 module-aware modeの時、Go1.11では参照する<code>go.mod</code>ファイルがないと空白文字列を返していたが、Go1.12は<code>/dev/null</code>を返すようになった。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.11 with GO111MODULE=on</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.11 with GO111MODULE=on</span>
 root@2d5cbf159edc:/tmp/test# <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go env|grep GOMOD
 <span style="color:#268bd2">GOMOD</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;&#34;</span>
-</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.12 with GO111MODULE=on</span>
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Go1.12 with GO111MODULE=on</span>
 root@a36b23164e3d:/tmp/test# <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go env|grep GOMOD
 <span style="color:#268bd2">GOMOD</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;/dev/null&#34;</span>
 </code></pre></div><h1 id="言語バージョンが保存される">言語バージョンが保存される。</h1>
 <p><code>go.mod</code>に<code>go</code>ディレクティブが追加され、そのモジュール内のファイルで使用されている言語バージョンを示すようになった。
 <code>go.mod</code>に記載がない場合は、現在のリリースバージョンが設定される（1.12扱い）。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">root@b83f6e3b9a00:/tmp/test# <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go mod init <span style="color:#b58900">test</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">root@b83f6e3b9a00:/tmp/test# <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go mod init <span style="color:#b58900">test</span>
 go: creating new go.mod: module <span style="color:#b58900">test</span>
 root@b83f6e3b9a00:/tmp/test# cat go.mod
 module <span style="color:#b58900">test</span>
@@ -513,7 +513,7 @@ go 1.12
 <p>Go1.11でも<code>replace</code>ディレクティブを使ってルートディレクトリ以下のディレクトリに対して相対的に<code>replace</code>ディレクティブをおけるようになっていた。
 Go1.12からは同じmodulesをバージョンごとに異なるディレクトリとして設定できるようになった。(発表後<a href="https://twitter.com/hajimehoshi">@hajimehoshi</a>さんに指摘いただきました。ありがとうございます）。
 バージョンの指定は<code>v0.0.0-00010101000000-000000000000</code>のようになる。例えば以下のような<code>go.mod</code>ファイルと適切なローカルディレクトリを用意しておく。</p>
-<pre><code>module example.com/m
+<pre tabindex="0"><code>module example.com/m
 
 replace (
 	example.com/a =&gt; ./a
@@ -536,13 +536,13 @@ replace (
 	example.com/v v1.12.0 =&gt; ./v12
 )
 </code></pre><p>Go1.11で上記の<code>go.mod</code>は<code>example.com/v</code>の部分のパースに失敗してビルドできない。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go build -o test.exe
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#268bd2">GO111MODULE</span><span style="color:#719e07">=</span>on go build -o test.exe
 go: errors parsing go.mod:
 /tmp/replace_import/go.mod:19: invalid module path
 /tmp/replace_import/go.mod:20: invalid module path
 /tmp/replace_import/go.mod:21: invalid module path
 </code></pre></div><p>Go1.12ではビルドに成功し、<code>require</code>ディレクティブが自動生成される。</p>
-<pre><code>module example.com/m
+<pre tabindex="0"><code>module example.com/m
 
 replace (
 	example.com/a =&gt; ./a
@@ -824,10 +824,16 @@ require (
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -839,12 +845,6 @@ require (
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

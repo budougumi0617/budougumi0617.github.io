@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -265,14 +265,14 @@ golintのフォーマットは後述する方法で簡単に実装できる。</
 <ul>
 <li><a href="https://github.com/budougumi0617/action-newrelic-segment-lint/blob/master/script.sh">https://github.com/budougumi0617/action-newrelic-segment-lint/blob/master/script.sh</a></li>
 </ul>
-<pre><code class="language-baash" data-lang="baash">TEMP_PATH=&quot;$(mktemp -d)&quot;
+<pre tabindex="0"><code class="language-baash" data-lang="baash">TEMP_PATH=&quot;$(mktemp -d)&quot;
 PATH=&quot;${TEMP_PATH}:$PATH&quot;
 
 curl -L &quot;$(curl -Ls https://api.github.com/repos/budougumi0617/nrseg/releases/latest | grep -o -E &quot;https://.+?_Linux_x86_64.tar.gz&quot;)&quot; -o nrseg.tar.gz
 tar -zxvf nrseg.tar.gz -C &quot;${TEMP_PATH}&quot;
 rm nrseg.tar.gz
 </code></pre><p>あとはGitHubトークンを設定してreviewdogと一緒に実行すればよい。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">nrseg inspect <span style="color:#2aa198">${</span><span style="color:#268bd2">INPUT_NRSEG_FLAGS</span><span style="color:#2aa198">}</span> <span style="color:#cb4b16">\
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">nrseg inspect <span style="color:#2aa198">${</span><span style="color:#268bd2">INPUT_NRSEG_FLAGS</span><span style="color:#2aa198">}</span> <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  | reviewdog -f<span style="color:#719e07">=</span>golint <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>      -name<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">INPUT_TOOL_NAME</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>      -reporter<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">INPUT_REPORTER</span><span style="color:#719e07">:-</span><span style="color:#268bd2">github</span>-pr-check<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
@@ -291,7 +291,7 @@ rm nrseg.tar.gz
 </ul>
 <h1 id="reviewdogでパースできるlint結果の作り方">reviewdogでパースできるlint結果の作り方</h1>
 <p>reviewdogでPRに含まれるコードの特定行にコメントを残すにはlintエラーに位置情報を付与して出力する必要がある。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># main.goの24行目にlint errorを発見したとき出力</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># main.goの24行目にlint errorを発見したとき出力</span>
 main.go:24:1: Server.Shutdown no insert segment
 </code></pre></div><p>Goの場合、reviewdogが<code>-f=golint</code>オプションでパースできる情報を簡単に作ることができる。</p>
 <h2 id="golangorgxtoolsgoanalysis-pkgを利用する">golang.org/x/tools/go/analysis pkgを利用する</h2>
@@ -301,7 +301,7 @@ main.go:24:1: Server.Shutdown no insert segment
 <ul>
 <li><a href="/2019/02/01/how-to-use-analisys-package/">golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">go vet -vettool<span style="color:#719e07">=</span><span style="color:#719e07">$(</span>which regexponce<span style="color:#719e07">)</span> ./testdata/src/a
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">go vet -vettool<span style="color:#719e07">=</span><span style="color:#719e07">$(</span>which regexponce<span style="color:#719e07">)</span> ./testdata/src/a
 <span style="color:#586e75"># github.com/budougumi0617/regexponce/testdata/src/a</span>
 testdata/src/a/a.go:16:30: regexp.Compile must be called only once at initialize
 testdata/src/a/a.go:21:34: regexp.MustCompile must be called only once at initialize
@@ -317,7 +317,7 @@ testdata/src/a/a.go:45:32: regexp.MustCompile must be called only once at initia
 </ul>
 <p>golang.org/x/tools/go/analysis pkgを利用していなくても、 <code>*token.FileSet</code> と <code>token.Pos</code> オブジェクトがあれば同様の出力を簡単に取得することができる。<br>
 静的解析をしていれば上記の情報は簡単にとれるのでこれを組み合わせると必要情報を所定フォーマットで出力できる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">p <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">File</span>(pos).<span style="color:#268bd2">Position</span>(pos)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">p <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">File</span>(pos).<span style="color:#268bd2">Position</span>(pos)
 fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s:%d:%d: lint error message\n&#34;</span>, p.Filename, p.Line, p.Column)
 </code></pre></div><h1 id="その他">その他</h1>
 <ul>
@@ -513,10 +513,16 @@ fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -528,12 +534,6 @@ fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

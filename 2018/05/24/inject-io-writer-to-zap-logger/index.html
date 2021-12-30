@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -177,7 +177,7 @@
 <code>zao.Config</code>構造体を生成し、<code>Build()</code>メソッドから<code>zap.Logger</code>インスタンスを生成するやり方だ。<br>
 この生成方法だと、文字列で出力先を指定するため、一見標準(エラー)出力もしくはファイルにしか出力できないように読める。</p>
 <p><a href="https://godoc.org/go.uber.org/zap#Config">https://godoc.org/go.uber.org/zap#Config</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">    <span style="color:#586e75">// OutputPaths is a list of paths to write logging output to. See Open for
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">    <span style="color:#586e75">// OutputPaths is a list of paths to write logging output to. See Open for
 </span><span style="color:#586e75"></span>    <span style="color:#586e75">// details.
 </span><span style="color:#586e75"></span>    OutputPaths []<span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;outputPaths&#34; yaml:&#34;outputPaths&#34;`</span>
 </code></pre></div><p>このログ出力先を<code>bytes.Buffer</code>(<code>io.Writer</code>)に変更する。</p>
@@ -186,7 +186,7 @@
 <li><code>zap.Config</code>の<code>Build()</code>メソッドで<code>zap.Logger</code>を生成するとログ出力先を標準(エラー)出力orファイルにしかできない</li>
 <li><code>zap.New</code>関数で<code>zap.Logger</code>を生成すると任意の<code>io.Writer</code>にログを出力できる</li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// 引数のbytes.Bufferにログを出力するzap.Loggerを生成する
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// 引数のbytes.Bufferにログを出力するzap.Loggerを生成する
 </span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">getDummyLogger</span>(buf <span style="color:#719e07">*</span>bytes.Buffer) <span style="color:#719e07">*</span>zap.Logger {
         encoder <span style="color:#719e07">:=</span> zapcore.<span style="color:#268bd2">NewConsoleEncoder</span>(<span style="color:#719e07">...</span>)
         core <span style="color:#719e07">:=</span> zapcore.<span style="color:#268bd2">NewCore</span>(encoder, zapcore.<span style="color:#268bd2">AddSync</span>(buf), zapcore.InfoLevel)
@@ -201,28 +201,28 @@
 <code>Logger</code>に渡すログ出力自体を検証したいと考えることがある。<code>Go</code>の場合、出力先が<code>io.Writer</code>インターフェースならば、テストをするときだけ<code>bytes.Buffer</code>などに置き換えて検証することが出来る。<br>
 しかし、<code>zap.Config</code>にある<code>zap.Logger</code>を出力先を指定する設定方法は文字列指定であり、<code>stdout</code>(<code>stderr</code>)もしくは出力先のファイルパスしか設定出来ない。</p>
 <p><a href="https://godoc.org/go.uber.org/zap#Config">https://godoc.org/go.uber.org/zap#Config</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">    <span style="color:#586e75">// OutputPaths is a list of paths to write logging output to. See Open for
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">    <span style="color:#586e75">// OutputPaths is a list of paths to write logging output to. See Open for
 </span><span style="color:#586e75"></span>    <span style="color:#586e75">// details.
 </span><span style="color:#586e75"></span>    OutputPaths []<span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;outputPaths&#34; yaml:&#34;outputPaths&#34;`</span>
 </code></pre></div><p>なので<code>zapcore</code>パッケージを使う方法で<code>io.Writer</code>へログ出力をする<code>zap.Logger</code>インスタンスを取得する。</p>
 <h1 id="zapnewzapcorenewcoreを使ったzaploggerの生成">zap.New、zapcore.NewCoreを使ったzap.Loggerの生成</h1>
 <p><code>zap.Logger</code>のインスタンスを生成する方法は<code>Config</code>インスタンスの<code>Build()</code>メソッドを利用する他に、<code>zap.New()</code>関数を利用する方法がある。</p>
 <p><a href="https://godoc.org/go.uber.org/zap#New">https://godoc.org/go.uber.org/zap#New</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">New</span>(core zapcore.Core, options <span style="color:#719e07">...</span>Option) <span style="color:#719e07">*</span>Logger
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">New</span>(core zapcore.Core, options <span style="color:#719e07">...</span>Option) <span style="color:#719e07">*</span>Logger
 </code></pre></div><p><code>New()</code>関数の<code>zapcore.Core</code>は<code>zapcore.NewCore</code>関数から生成できる。</p>
 <p><a href="https://godoc.org/go.uber.org/zap/zapcore#NewCore">https://godoc.org/go.uber.org/zap/zapcore#NewCore</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewCore</span>(enc Encoder, ws WriteSyncer, enab LevelEnabler) Core
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewCore</span>(enc Encoder, ws WriteSyncer, enab LevelEnabler) Core
 </code></pre></div><p>この第二引数の<code>zapcore.WriteSyncer</code>インターフェースが<code>zap.New()</code>関数から生成したときの<code>zap.Logger</code>の出力先になる。<br>
 <code>zapcore.WriteSyncer</code>インターフェースは<code>io.Writer</code>と<code>Sync()</code>メソッドを満たしていればよい。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> WriteSyncer <span style="color:#268bd2">interface</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> WriteSyncer <span style="color:#268bd2">interface</span> {
     io.Writer
     <span style="color:#268bd2">Sync</span>() <span style="color:#dc322f">error</span>
 }
 </code></pre></div><p>そしてひとまずインターフェースを満たすだけで良いならば<code>io.Writer</code>を引数に<code>zapcore.WriteSyncer</code>を返す便利な関数が<code>zapcore</code>パッケージに存在する。</p>
 <p><a href="https://godoc.org/go.uber.org/zap/zapcore#AddSync">https://godoc.org/go.uber.org/zap/zapcore#AddSync</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">AddSync</span>(w io.Writer) WriteSyncer
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">AddSync</span>(w io.Writer) WriteSyncer
 </code></pre></div><p>よって、以下のような手順を踏めば、<code>zapcore.NewCore</code>関数、<code>zap.New</code>関数を経由すれば<code>bytes.Buffer</code>(<code>io.Writer</code>)にログ出力をする<code>zap.Logger</code>を取得できる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">getDummyLogger</span>(buf <span style="color:#719e07">*</span>bytes.Buffer) <span style="color:#719e07">*</span>zap.Logger {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">getDummyLogger</span>(buf <span style="color:#719e07">*</span>bytes.Buffer) <span style="color:#719e07">*</span>zap.Logger {
         <span style="color:#586e75">// ログ出力のフォーマットを指定できる
 </span><span style="color:#586e75"></span>        encoder <span style="color:#719e07">:=</span> zapcore.<span style="color:#268bd2">NewConsoleEncoder</span>(zapcore.EncoderConfig{
                 <span style="color:#586e75">// TimeKey: &#34;time&#34;, // 時刻情報は期待結果に含めにくいので省略
@@ -412,10 +412,16 @@
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -427,12 +433,6 @@
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

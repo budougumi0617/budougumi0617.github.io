@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -214,19 +214,19 @@
 </ul>
 </li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">jobs</span>:
-  <span style="color:#719e07">job-name</span>:
-    <span style="color:#719e07">runs-on</span>: ubuntu-latest
-    <span style="color:#719e07">services</span>:
-      <span style="color:#719e07">datastore</span>:
-        <span style="color:#719e07">image</span>: singularities/datastore-emulator
-        <span style="color:#719e07">env</span>:
-          <span style="color:#719e07">DATASTORE_LISTEN_ADDRESS</span>: <span style="color:#2aa198">0.0.0.0</span>:<span style="color:#2aa198">18001</span>
-          <span style="color:#719e07">DATASTORE_PROJECT_ID</span>: budougumi0617
-        <span style="color:#719e07">ports</span>:
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">jobs</span>:
+  <span style="color:#268bd2">job-name</span>:
+    <span style="color:#268bd2">runs-on</span>: ubuntu-latest
+    <span style="color:#268bd2">services</span>:
+      <span style="color:#268bd2">datastore</span>:
+        <span style="color:#268bd2">image</span>: singularities/datastore-emulator
+        <span style="color:#268bd2">env</span>:
+          <span style="color:#268bd2">DATASTORE_LISTEN_ADDRESS</span>: <span style="color:#2aa198">0.0.0.0</span>:<span style="color:#2aa198">18001</span>
+          <span style="color:#268bd2">DATASTORE_PROJECT_ID</span>: budougumi0617
+        <span style="color:#268bd2">ports</span>:
           - <span style="color:#2aa198">18001</span>:<span style="color:#2aa198">18001</span>
-    <span style="color:#719e07">env</span>:
-      <span style="color:#719e07">DATASTORE_EMULATOR_HOST</span>: localhost:<span style="color:#2aa198">18001</span>
+    <span style="color:#268bd2">env</span>:
+      <span style="color:#268bd2">DATASTORE_EMULATOR_HOST</span>: localhost:18001
 </code></pre></div><p>なお、引用しているGitHub Actions、GCPの説明は2020/05/01時点の説明である。</p>
 <h1 id="github-actionsの設定">GitHub Actionsの設定</h1>
 <p>さっそく、エミュレータについて確認し、Actinosの設定YAMLを書いていく。</p>
@@ -269,43 +269,43 @@
 </blockquote>
 <h2 id="設定したyaml">設定したYAML</h2>
 <p><code>jobs.&lt;job_id&gt;.services</code>を使い、PRに対してGoのテストを実行するYAMLの設定は次のとおりになる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#586e75"># .github/workflows/test.yml</span>
-<span style="color:#719e07">on</span>: [pull_request]
-<span style="color:#719e07">name</span>: test
-<span style="color:#719e07">jobs</span>:
-  <span style="color:#719e07">test</span>:
-    <span style="color:#719e07">runs-on</span>: ubuntu-latest
-    <span style="color:#719e07">timeout-minutes</span>: <span style="color:#2aa198">10</span>
-    <span style="color:#719e07">services</span>:
-      <span style="color:#719e07">datastore</span>:
-        <span style="color:#719e07">image</span>: singularities/datastore-emulator
-        <span style="color:#719e07">env</span>:
-          <span style="color:#719e07">DATASTORE_LISTEN_ADDRESS</span>: <span style="color:#2aa198">0.0.0.0</span>:<span style="color:#2aa198">18001</span>
-          <span style="color:#719e07">DATASTORE_PROJECT_ID</span>: budougumi0617
-        <span style="color:#719e07">ports</span>:
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#586e75"># .github/workflows/test.yml</span>
+<span style="color:#268bd2">on</span>: [pull_request]
+<span style="color:#268bd2">name</span>: test
+<span style="color:#268bd2">jobs</span>:
+  <span style="color:#268bd2">test</span>:
+    <span style="color:#268bd2">runs-on</span>: ubuntu-latest
+    <span style="color:#268bd2">timeout-minutes</span>: <span style="color:#2aa198">10</span>
+    <span style="color:#268bd2">services</span>:
+      <span style="color:#268bd2">datastore</span>:
+        <span style="color:#268bd2">image</span>: singularities/datastore-emulator
+        <span style="color:#268bd2">env</span>:
+          <span style="color:#268bd2">DATASTORE_LISTEN_ADDRESS</span>: <span style="color:#2aa198">0.0.0.0</span>:<span style="color:#2aa198">18001</span>
+          <span style="color:#268bd2">DATASTORE_PROJECT_ID</span>: budougumi0617
+        <span style="color:#268bd2">ports</span>:
           - <span style="color:#2aa198">18001</span>:<span style="color:#2aa198">18001</span>
-    <span style="color:#719e07">env</span>:
-      <span style="color:#719e07">DATASTORE_EMULATOR_HOST</span>: localhost:<span style="color:#2aa198">18001</span>
-    <span style="color:#719e07">steps</span>:
-    - <span style="color:#719e07">name</span>: Install Go
-      <span style="color:#719e07">if</span>: success()
-      <span style="color:#719e07">uses</span>: actions/setup-go@v1
-      <span style="color:#719e07">with</span>:
-        <span style="color:#719e07">go-version</span>: <span style="color:#2aa198">1.13</span>.x <span style="color:#586e75"># GAE/Go 1.13環境を想定して</span>
-    - <span style="color:#719e07">name</span>: Checkout code
-      <span style="color:#719e07">uses</span>: actions/checkout@v1
-    - <span style="color:#719e07">name</span>: Use Cache
-      <span style="color:#719e07">uses</span>: actions/cache@v1
-      <span style="color:#719e07">with</span>:
-        <span style="color:#719e07">path</span>: ~/go/pkg/mod
-        <span style="color:#719e07">key</span>: ubuntu-latest-go-${{ hashFiles(<span style="color:#2aa198">&#39;**/go.sum&#39;</span>) }}
-        <span style="color:#719e07">restore-keys</span>: <span style="color:#2aa198">|
-</span><span style="color:#2aa198">          ubuntu-latest-go-</span>
-    - <span style="color:#719e07">name</span>: Download Modules
-      <span style="color:#719e07">if</span>: steps.cache.outputs.cache-hit != <span style="color:#2aa198">&#39;true&#39;</span>
-      <span style="color:#719e07">run</span>: go mod download
-    - <span style="color:#719e07">name</span>: Run tests
-      <span style="color:#719e07">run</span>: go test -v -race -covermode=atomic
+    <span style="color:#268bd2">env</span>:
+      <span style="color:#268bd2">DATASTORE_EMULATOR_HOST</span>: localhost:18001
+    <span style="color:#268bd2">steps</span>:
+    - <span style="color:#268bd2">name</span>: Install Go
+      <span style="color:#268bd2">if</span>: success()
+      <span style="color:#268bd2">uses</span>: actions/setup-go@v1
+      <span style="color:#268bd2">with</span>:
+        <span style="color:#268bd2">go-version</span>: <span style="color:#2aa198">1.13</span>.x <span style="color:#586e75"># GAE/Go 1.13環境を想定して</span>
+    - <span style="color:#268bd2">name</span>: Checkout code
+      <span style="color:#268bd2">uses</span>: actions/checkout@v1
+    - <span style="color:#268bd2">name</span>: Use Cache
+      <span style="color:#268bd2">uses</span>: actions/cache@v1
+      <span style="color:#268bd2">with</span>:
+        <span style="color:#268bd2">path</span>: ~/go/pkg/mod
+        <span style="color:#268bd2">key</span>: ubuntu-latest-go-${{ hashFiles(&#39;**/go.sum&#39;) }}
+        <span style="color:#268bd2">restore-keys</span>: |<span style="color:#2aa198">
+</span><span style="color:#2aa198">          </span>          ubuntu-latest-go-
+    - <span style="color:#268bd2">name</span>: Download Modules
+      <span style="color:#268bd2">if</span>: steps.cache.outputs.cache-hit != &#39;true&#39;
+      <span style="color:#268bd2">run</span>: go mod download
+    - <span style="color:#268bd2">name</span>: Run tests
+      <span style="color:#268bd2">run</span>: go test -v -race -covermode=atomic
 </code></pre></div><h1 id="テストコードの作成">テストコードの作成</h1>
 <p>GitHub Actions上でDatastoreエミュレータを起動する準備はできた。
 実際にエミュレータを使ったテストを書く。</p>
@@ -316,7 +316,7 @@
 <ul>
 <li><a href="https://github.com/googleapis/google-cloud-go/blob/c9d3eadce82c530f46cf3c09fc607e329affe4b2/datastore/datastore.go#L67-L78">https://github.com/googleapis/google-cloud-go/blob/c9d3eadce82c530f46cf3c09fc607e329affe4b2/datastore/datastore.go#L67-L78</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewClient</span>(ctx context.Context, projectID <span style="color:#dc322f">string</span>, opts <span style="color:#719e07">...</span>option.ClientOption) (<span style="color:#719e07">*</span>Client, <span style="color:#dc322f">error</span>) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewClient</span>(ctx context.Context, projectID <span style="color:#dc322f">string</span>, opts <span style="color:#719e07">...</span>option.ClientOption) (<span style="color:#719e07">*</span>Client, <span style="color:#dc322f">error</span>) {
   <span style="color:#268bd2">var</span> o []option.ClientOption
   <span style="color:#719e07">if</span> addr <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;DATASTORE_EMULATOR_HOST&#34;</span>); addr <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;&#34;</span> {
     o = []option.ClientOption{
@@ -328,7 +328,7 @@
         <span style="color:#586e75">// ...
 </span></code></pre></div><p>よって、ActionsのYAMLファイル中で宣言した<code>DATASTORE_EMULATOR_HOST: localhost:18001</code>という環境変数設定があるだけでエミュレータへ接続してテストが実施される。</p>
 <p>テストコードは簡単に以下のとおり。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> gaebot
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> gaebot
 
 <span style="color:#719e07">import</span> (
   <span style="color:#2aa198">&#34;context&#34;</span>
@@ -544,10 +544,16 @@ Actionsの無料実行時間制限に達しないように、このような設�
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -559,12 +565,6 @@ Actionsの無料実行時間制限に達しないように、このような設�
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

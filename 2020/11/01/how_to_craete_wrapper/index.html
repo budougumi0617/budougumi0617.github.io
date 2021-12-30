@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -209,7 +209,7 @@
 たとえばサードパーティのクライアントをラップして一部のメソッドの動きだけ少し変えたいときだ。</p>
 <p>今回は次のような構造体をベースに考える。<br>
 <code>OriginClient</code>構造体は<code>Client</code>インターフェイスを満たす構造体だ。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// 満たすべきインターフェイス
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// 満たすべきインターフェイス
 </span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> Client <span style="color:#268bd2">interface</span> {
     <span style="color:#268bd2">PrintValue</span>()
     <span style="color:#268bd2">ShowInt</span>(<span style="color:#dc322f">int</span>) <span style="color:#dc322f">error</span>
@@ -242,7 +242,7 @@
 <ul>
 <li><a href="https://play.golang.org/p/a94bS26PX8A">https://play.golang.org/p/a94bS26PX8A</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">var</span> _ Client = <span style="color:#719e07">&amp;</span>MyClient{}
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">var</span> _ Client = <span style="color:#719e07">&amp;</span>MyClient{}
 <span style="color:#586e75">// ShowIntメソッドだけラップしているラッパー
 </span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> MyClient <span style="color:#268bd2">struct</span> {
 	oc <span style="color:#719e07">*</span>OriginClient
@@ -271,7 +271,7 @@
 <ul>
 <li><a href="https://play.golang.org/p/vzngwQ2pqYG">https://play.golang.org/p/vzngwQ2pqYG</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">var</span> _ Client = <span style="color:#719e07">&amp;</span>MyClient{}
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">var</span> _ Client = <span style="color:#719e07">&amp;</span>MyClient{}
 <span style="color:#586e75">// ShowIntメソッドだけラップしているラッパー
 </span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> MyClient <span style="color:#268bd2">struct</span> {
 	<span style="color:#719e07">*</span>OriginClient
@@ -291,7 +291,7 @@
 	mc.<span style="color:#268bd2">ShowInt</span>(<span style="color:#2aa198">10</span>)
 }
 </code></pre></div><p>大きく変わっている定義はここ。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> MyClient <span style="color:#268bd2">struct</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> MyClient <span style="color:#268bd2">struct</span> {
 	<span style="color:#719e07">*</span>OriginClient <span style="color:#586e75">// フィールドではない。
 </span><span style="color:#586e75"></span>}
 </code></pre></div><p>埋め込みフィールドを使うと、<code>MyClient</code>構造体で明示的に実装していないメソッドに関しては、<code>OriginClient</code>のメソッドが直接呼ばれる。
@@ -306,16 +306,16 @@
 </ul>
 </blockquote>
 <p>構造体フィールドとして宣言しているわけではないが、初期化するときは次のように代入できる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">mc <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>MyClient{OriginClient: <span style="color:#719e07">&amp;</span>OriginClient{Value: <span style="color:#2aa198">100</span>}}
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">mc <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>MyClient{OriginClient: <span style="color:#719e07">&amp;</span>OriginClient{Value: <span style="color:#2aa198">100</span>}}
 </code></pre></div><p>また、埋め込んだ構造体のメソッドを明示的に呼びたいときは次のように書ける。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> (m <span style="color:#719e07">*</span>MyClient) <span style="color:#268bd2">ShowInt</span>(i <span style="color:#dc322f">int</span>) <span style="color:#dc322f">error</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> (m <span style="color:#719e07">*</span>MyClient) <span style="color:#268bd2">ShowInt</span>(i <span style="color:#dc322f">int</span>) <span style="color:#dc322f">error</span> {
 	m.OriginClient.<span style="color:#268bd2">ShowInt</span>(i)
 	<span style="color:#586e75">// do anything...
 </span><span style="color:#586e75"></span>}
 </code></pre></div><h1 id="unexportedな構造体のラッパーを書きたいときは">unexportedな構造体のラッパーを書きたいときは？</h1>
 <p>ライブラリによっては構造体自体が公開されていないこともある。
 たとえば次のようなつくりのライブラリもあるだろう。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> thirdparty
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> thirdparty
 
 <span style="color:#268bd2">type</span> Client <span style="color:#268bd2">interface</span> {
 	<span style="color:#268bd2">PrintValue</span>()
@@ -330,7 +330,7 @@
 <ul>
 <li><a href="https://play.golang.org/p/VhRPUPDygm9">https://play.golang.org/p/VhRPUPDygm9</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#268bd2">var</span> _ thirdparty.Client = <span style="color:#719e07">&amp;</span>MyClient{}
 
@@ -355,7 +355,7 @@
 </code></pre></div><h1 id="ラッパーの初期化に注意すること">ラッパーの初期化に注意すること</h1>
 <p>以上のように埋め込みを使うことで簡単にラッパーメソッドを作成することができる。
 しかし、ポインタやインターフェイスを埋め込んだ場合は明示的に初期化をしないと実行時にパニックが発生する。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// Bメソッドだけラップしているラッパー
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// Bメソッドだけラップしているラッパー
 </span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> MyClient <span style="color:#268bd2">struct</span> {
 	thirdparty.Client <span style="color:#586e75">// インターフェイス
 </span><span style="color:#586e75"></span>}
@@ -550,10 +550,16 @@
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -565,12 +571,6 @@
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

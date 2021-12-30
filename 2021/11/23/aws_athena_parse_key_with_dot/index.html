@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -161,7 +161,7 @@
     
   </p>
   <h1 class="entry-title">
-    <a href="https://budougumi0617.github.io/2021/11/23/aws_athena_parse_key_with_dot/">AWS Athenaでドットが含まれたJSONキーをパースする</a>
+     AWS Athenaでドットが含まれたJSONキーをパースする 
   </h1>
 </header>
 
@@ -199,7 +199,7 @@
 <li>ネストしたJSONのキーは<code>json_extract(body, '$.log.request.method')</code>のようにアクセスする</li>
 <li><code>span.id</code>のようなキーは<code>json_extract_scalar(log, '$[&quot;span.id&quot;]')</code>と書けばアクセスできる</li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#719e07">SELECT</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#719e07">SELECT</span>
 json_extract(log, <span style="color:#2aa198">&#39;$.http.request.method&#39;</span>) <span style="color:#719e07">as</span> req_method,
 json_extract(log, <span style="color:#2aa198">&#39;$.http.request.path&#39;</span>) <span style="color:#719e07">as</span> req_path,
 json_extract(log, <span style="color:#2aa198">&#39;$.http.response.status&#39;</span>) <span style="color:#719e07">as</span> rsp_status,
@@ -212,14 +212,14 @@ json_extract_scalar(log, <span style="color:#2aa198">&#39;$[&#34;span.id&#34;]&#
 普段はNew Relicでログを見ているのだが、New Relic上には1か月分のログしかないため昔のログデータについてはAthenaを経由してS3上でのログを確認したかった。</p>
 <div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://dev.classmethod.jp/articles/athena-json/" data-iframely-url="//cdn.iframe.ly/qbfaw5o"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
 <p>今回確認したいログは次のようなJSON形式のログだ。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
   <span style="color:#268bd2">&#34;container_name&#34;</span>: <span style="color:#2aa198">&#34;my_app&#34;</span>,
   <span style="color:#268bd2">&#34;ecs_cluster&#34;</span>: <span style="color:#2aa198">&#34;prd-cluster&#34;</span>,
   <span style="color:#268bd2">&#34;ecs_task_arn&#34;</span>: <span style="color:#2aa198">&#34;arn:aws:ecs:ap-northeast-1:3...&#34;</span>,
   <span style="color:#268bd2">&#34;log&#34;</span>: <span style="color:#2aa198">&#34;{\&#34;level\&#34;:\&#34;info\&#34;,\&#34;http\&#34;:{\&#34;request\&#34;:{\&#34;hostname\&#34;:\&#34;example.com\&#34;,\&#34;method\&#34;:\&#34;GET\&#34;,\&#34;path\&#34;:\&#34;/users\&#34;},\&#34;response\&#34;:{\&#34;status\&#34;:200}},\&#34;trace.id\&#34;:\&#34;9a....\&#34;,\&#34;span.id\&#34;:\&#34;h34....\&#34;}&#34;</span>
 }
 </code></pre></div><p><code>log</code>部分の文字列は次のようなJSON文字列になる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">
 {
   <span style="color:#268bd2">&#34;level&#34;</span>: <span style="color:#2aa198">&#34;info&#34;</span>,
   <span style="color:#268bd2">&#34;http&#34;</span>: {
@@ -241,7 +241,7 @@ json_extract_scalar(log, <span style="color:#2aa198">&#39;$[&#34;span.id&#34;]&#
 <div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://docs.aws.amazon.com/athena/latest/ug/creating-tables.html" data-iframely-url="//cdn.iframe.ly/Vij1ANI"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
 <p>今回のアプリケーションログは次のようなテーブルを使って検索する。</p>
 <h2 id="テーブル定義">テーブル定義</h2>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#719e07">CREATE</span> <span style="color:#719e07">EXTERNAL</span> <span style="color:#719e07">TABLE</span> <span style="color:#719e07">IF</span> <span style="color:#719e07">NOT</span> <span style="color:#719e07">EXISTS</span> app_logs (
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#719e07">CREATE</span> <span style="color:#719e07">EXTERNAL</span> <span style="color:#719e07">TABLE</span> <span style="color:#719e07">IF</span> <span style="color:#719e07">NOT</span> <span style="color:#719e07">EXISTS</span> app_logs (
     container_name string,
     ecs_cluster string,
     ecs_task_arn string,
@@ -256,7 +256,7 @@ json_extract_scalar(log, <span style="color:#2aa198">&#39;$[&#34;span.id&#34;]&#
 上記のようなテーブル定義では<code>log</code>フィールドはただの文字列だ。しかし、AWS Athenaでは文字列内のJSONの構造を利用してクエリを書くができる。</p>
 <div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://docs.aws.amazon.com/athena/latest/ug/extracting-data-from-JSON.html" data-iframely-url="//cdn.iframe.ly/N0Xy4PR"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
 <p><code>log</code>フィールドは有効なJSON文字列なのでネストしたその中身も<code>json_extract</code>または<code>json_extract_scalar</code>でアクセスすることができる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#719e07">SELECT</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#719e07">SELECT</span>
 json_extract(log, <span style="color:#2aa198">&#39;$.http.request.method&#39;</span>) <span style="color:#719e07">as</span> req_method,
 json_extract(log, <span style="color:#2aa198">&#39;$.http.request.path&#39;</span>) <span style="color:#719e07">as</span> req_path,
 json_extract(log, <span style="color:#2aa198">&#39;$.http.response.status&#39;</span>) <span style="color:#719e07">as</span> rsp_status,
@@ -267,7 +267,7 @@ json_extract_scalar(log, <span style="color:#2aa198">&#39;$.trace.id&#39;</span>
 <strong><code>$.trace.id</code>はネストしているJSON構造と判断され、値が取得できない。</strong></p>
 <h1 id="spanidのようなキーはjson_extract_scalarlog-spanidと書けばアクセスできる"><code>span.id</code>のようなキーは<code>json_extract_scalar(log, '$[&quot;span.id&quot;]')</code>と書けばアクセスできる</h1>
 <p>このようなドットを含むJSONキーは<code>'$[&quot;span.id&quot;]'</code>と書けばAthenaがパースしてくれる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#719e07">SELECT</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#719e07">SELECT</span>
 json_extract_scalar(log, <span style="color:#2aa198">&#39;$[&#34;trace.id&#34;]&#39;</span>) <span style="color:#719e07">as</span> trace_id,
 json_extract_scalar(log, <span style="color:#2aa198">&#39;$[&#34;span.id&#34;]&#39;</span>) <span style="color:#719e07">as</span> span_id,
 <span style="color:#719e07">FROM</span> app_logs
@@ -472,10 +472,16 @@ json_extract_scalar(log, <span style="color:#2aa198">&#39;$[&#34;span.id&#34;]&#
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -487,12 +493,6 @@ json_extract_scalar(log, <span style="color:#2aa198">&#39;$[&#34;span.id&#34;]&#
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

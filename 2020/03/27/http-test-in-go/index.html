@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -202,7 +202,7 @@
 </ul>
 <blockquote class="twitter-tweet"><p lang="ja" dir="ltr">モック多用の自作自演テストやレイヤ間のテスト範囲重複を好まないので（個人の意見）、テストを内側と外側に寄せます。Railsの場合はRequest spec(HTTPレベルのテスト、E2Eより安定していてかつ粗粒度) とModel spec（ドメインロジックのテストを厚く書く）を基本的に書き、Controllerは例外系のみ。</p>&mdash; Takuto Wada (@t_wada) <a href="https://twitter.com/t_wada/status/1237200607045251073?ref_src=twsrc%5Etfw">March 10, 2020</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 <p>今まで、<code>httptest.ResponseRecorder</code>などを利用したハンドラーレベルのテストは実施していた。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">handler <span style="color:#719e07">:=</span> <span style="color:#268bd2">func</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">handler <span style="color:#719e07">:=</span> <span style="color:#268bd2">func</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
     io.<span style="color:#268bd2">WriteString</span>(w, <span style="color:#2aa198">&#34;&lt;html&gt;&lt;body&gt;Hello World!&lt;/body&gt;&lt;/html&gt;&#34;</span>)
 }
 
@@ -216,7 +216,7 @@ w <span style="color:#719e07">:=</span> httptest.<span style="color:#268bd2">New
 <span style="color:#586e75">// Assert
 </span></code></pre></div><p>が、サーバを起動してそのサーバに対してHTTPリクエストを飛ばして挙動を確認するところまでやりたいなと思った。<br>
 もう少し具体的に書くと、自身が作っているWebアプリに対して、次のようなテストシナリオをGoのテストコードとして書きたい。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestAPIServer</span>(t <span style="color:#719e07">*</span>testing.T) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestAPIServer</span>(t <span style="color:#719e07">*</span>testing.T) {
     <span style="color:#586e75">// テスト対象のWebアプリサーバが依存する各種サービスのフェイクサーバを起動する（このブログ記事では触れない）
 </span><span style="color:#586e75"></span>    <span style="color:#586e75">// テスト対象のWebアプリサーバを起動する
 </span><span style="color:#586e75"></span>    <span style="color:#586e75">// テスト対象のサーバに対してHTTPリクエストを送信する
@@ -228,7 +228,7 @@ w <span style="color:#719e07">:=</span> httptest.<span style="color:#268bd2">New
 <ul>
 <li><a href="https://play.golang.org/p/K68LHrm_IE8">https://play.golang.org/p/K68LHrm_IE8</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestStartServer</span>(t <span style="color:#719e07">*</span>testing.T) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestStartServer</span>(t <span style="color:#719e07">*</span>testing.T) {
     want <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;Hello, world!\n&#34;</span>
     mux <span style="color:#719e07">:=</span> http.<span style="color:#268bd2">NewServeMux</span>()
     mux.<span style="color:#268bd2">HandleFunc</span>(<span style="color:#2aa198">&#34;/&#34;</span>, <span style="color:#268bd2">func</span>(w http.ResponseWriter, req <span style="color:#719e07">*</span>http.Request) {
@@ -276,7 +276,7 @@ w <span style="color:#719e07">:=</span> httptest.<span style="color:#268bd2">New
 <ul>
 <li><a href="https://play.golang.org/p/hg-lNU7JFIP">https://play.golang.org/p/hg-lNU7JFIP</a></li>
 </ul>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
     <span style="color:#2aa198">&#34;context&#34;</span>
@@ -548,10 +548,16 @@ w <span style="color:#719e07">:=</span> httptest.<span style="color:#268bd2">New
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -563,12 +569,6 @@ w <span style="color:#719e07">:=</span> httptest.<span style="color:#268bd2">New
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

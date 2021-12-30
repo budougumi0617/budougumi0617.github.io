@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -206,7 +206,7 @@ if condition1 {
 </nav>
           
           <p>GitHub Actions上でこんな感じにステップの実行を制御する方法をまとめておく。</p>
-<pre><code>if condition1 {
+<pre tabindex="0"><code>if condition1 {
   step1 実行
 } else if condition2 {
   step2 実行
@@ -228,28 +228,28 @@ if condition1 {
 <li>これらを組み合わせて擬似的にifelseのような操作を実現できる</li>
 </ul>
 <p>検証したActionsの定義は次の通り。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">name</span>: ifelse pattern
-<span style="color:#719e07">on</span>:
-  <span style="color:#719e07">push</span>:
-    <span style="color:#719e07">branches</span>:
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">name</span>: ifelse pattern
+<span style="color:#268bd2">on</span>:
+  <span style="color:#268bd2">push</span>:
+    <span style="color:#268bd2">branches</span>:
       - master
-<span style="color:#719e07">jobs</span>:
-  <span style="color:#719e07">ifelse-pattern</span>:
-    <span style="color:#719e07">runs-on</span>: ubuntu-latest
-    <span style="color:#719e07">steps</span>:
-      - <span style="color:#719e07">name</span>: Check out codes
-        <span style="color:#719e07">uses</span>: actions/checkout@v2
-      - <span style="color:#719e07">name</span>: foo
-        <span style="color:#719e07">id</span>: foo
-        <span style="color:#719e07">if</span>: contains(toJSON(github.event.commits.<span style="color:#719e07">*.message),</span> <span style="color:#2aa198">&#39;foo&#39;</span>)
-        <span style="color:#719e07">run</span>:  echo <span style="color:#2aa198">&#39;if step!&#39;</span>
-      - <span style="color:#719e07">name</span>: bar
-        <span style="color:#719e07">id</span>: bar
-        <span style="color:#719e07">if</span>: steps.foo.conclusion == <span style="color:#2aa198">&#39;skipped&#39;</span>  <span style="color:#719e07">&amp;&amp;</span> contains(toJSON(github.event.commits.<span style="color:#719e07">*.message),</span> <span style="color:#2aa198">&#39;bar&#39;</span>)
-        <span style="color:#719e07">run</span>:  echo <span style="color:#2aa198">&#39;elseif step!&#39;</span>
-      - <span style="color:#719e07">name</span>: other
-        <span style="color:#719e07">if</span>: <span style="color:#2aa198">&#34;!(steps.foo.conclusion == &#39;success&#39; || steps.bar.conclusion == &#39;success&#39;)&#34;</span>
-        <span style="color:#719e07">run</span>:  echo <span style="color:#2aa198">&#39;else step!&#39;</span>
+<span style="color:#268bd2">jobs</span>:
+  <span style="color:#268bd2">ifelse-pattern</span>:
+    <span style="color:#268bd2">runs-on</span>: ubuntu-latest
+    <span style="color:#268bd2">steps</span>:
+      - <span style="color:#268bd2">name</span>: Check out codes
+        <span style="color:#268bd2">uses</span>: actions/checkout@v2
+      - <span style="color:#268bd2">name</span>: foo
+        <span style="color:#268bd2">id</span>: foo
+        <span style="color:#268bd2">if</span>: contains(toJSON(github.event.commits.*.message), &#39;foo&#39;)
+        <span style="color:#268bd2">run</span>:  echo &#39;if step!&#39;
+      - <span style="color:#268bd2">name</span>: bar
+        <span style="color:#268bd2">id</span>: bar
+        <span style="color:#268bd2">if</span>: steps.foo.conclusion == &#39;skipped&#39;  &amp;&amp; contains(toJSON(github.event.commits.*.message), &#39;bar&#39;)
+        <span style="color:#268bd2">run</span>:  echo &#39;elseif step!&#39;
+      - <span style="color:#268bd2">name</span>: other
+        <span style="color:#268bd2">if</span>: <span style="color:#2aa198">&#34;!(steps.foo.conclusion == &#39;success&#39; || steps.bar.conclusion == &#39;success&#39;)&#34;</span>
+        <span style="color:#268bd2">run</span>:  echo &#39;else step!&#39;
 </code></pre></div><p>サンプルリポジトリは次のとおり。</p>
 <ul>
 <li><a href="https://github.com/budougumi0617/actions-sandbox">https://github.com/budougumi0617/actions-sandbox</a></li>
@@ -261,7 +261,7 @@ if condition1 {
 <p>今回はActionsのワークフローでいくつか定義したステップを場合によって使い分けたいシーンが出てきた。<br>
 そこで、if-elseのようにしてステップを使い分ける方法を調べてみた。<br>
 擬似コードを書くと次のように感じで、定義したstepのどれかひとつだけを実行したい。</p>
-<pre><code>if condition1 {
+<pre tabindex="0"><code>if condition1 {
   step1 実行
 } else if condition2 {
   step2 実行
@@ -303,28 +303,28 @@ if condition1 {
 また、関連する他のステップがすべて成功しなかったときにステップを実行すれば、<code>else</code>的なステップ実行ができる。</p>
 <h2 id="サンプルコード">サンプルコード</h2>
 <p>実際に作成したActionsのサンプルコードが次になる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#719e07">name</span>: ifelse pattern
-<span style="color:#719e07">on</span>:
-  <span style="color:#719e07">push</span>:
-    <span style="color:#719e07">branches</span>:
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">name</span>: ifelse pattern
+<span style="color:#268bd2">on</span>:
+  <span style="color:#268bd2">push</span>:
+    <span style="color:#268bd2">branches</span>:
       - master
-<span style="color:#719e07">jobs</span>:
-  <span style="color:#719e07">ifelse-pattern</span>:
-    <span style="color:#719e07">runs-on</span>: ubuntu-latest
-    <span style="color:#719e07">steps</span>:
-      - <span style="color:#719e07">name</span>: Check out codes
-        <span style="color:#719e07">uses</span>: actions/checkout@v2
-      - <span style="color:#719e07">name</span>: foo
-        <span style="color:#719e07">id</span>: foo
-        <span style="color:#719e07">if</span>: contains(toJSON(github.event.commits.<span style="color:#719e07">*.message),</span> <span style="color:#2aa198">&#39;foo&#39;</span>)
-        <span style="color:#719e07">run</span>:  echo <span style="color:#2aa198">&#39;if step!&#39;</span>
-      - <span style="color:#719e07">name</span>: bar
-        <span style="color:#719e07">id</span>: bar
-        <span style="color:#719e07">if</span>: steps.foo.conclusion == <span style="color:#2aa198">&#39;skipped&#39;</span>  <span style="color:#719e07">&amp;&amp;</span> contains(toJSON(github.event.commits.<span style="color:#719e07">*.message),</span> <span style="color:#2aa198">&#39;bar&#39;</span>)
-        <span style="color:#719e07">run</span>:  echo <span style="color:#2aa198">&#39;elseif step!&#39;</span>
-      - <span style="color:#719e07">name</span>: other
-        <span style="color:#719e07">if</span>: <span style="color:#2aa198">&#34;!(steps.foo.conclusion == &#39;success&#39; || steps.bar.conclusion == &#39;success&#39;)&#34;</span>
-        <span style="color:#719e07">run</span>:  echo <span style="color:#2aa198">&#39;else step!&#39;</span>
+<span style="color:#268bd2">jobs</span>:
+  <span style="color:#268bd2">ifelse-pattern</span>:
+    <span style="color:#268bd2">runs-on</span>: ubuntu-latest
+    <span style="color:#268bd2">steps</span>:
+      - <span style="color:#268bd2">name</span>: Check out codes
+        <span style="color:#268bd2">uses</span>: actions/checkout@v2
+      - <span style="color:#268bd2">name</span>: foo
+        <span style="color:#268bd2">id</span>: foo
+        <span style="color:#268bd2">if</span>: contains(toJSON(github.event.commits.*.message), &#39;foo&#39;)
+        <span style="color:#268bd2">run</span>:  echo &#39;if step!&#39;
+      - <span style="color:#268bd2">name</span>: bar
+        <span style="color:#268bd2">id</span>: bar
+        <span style="color:#268bd2">if</span>: steps.foo.conclusion == &#39;skipped&#39;  &amp;&amp; contains(toJSON(github.event.commits.*.message), &#39;bar&#39;)
+        <span style="color:#268bd2">run</span>:  echo &#39;elseif step!&#39;
+      - <span style="color:#268bd2">name</span>: other
+        <span style="color:#268bd2">if</span>: <span style="color:#2aa198">&#34;!(steps.foo.conclusion == &#39;success&#39; || steps.bar.conclusion == &#39;success&#39;)&#34;</span>
+        <span style="color:#268bd2">run</span>:  echo &#39;else step!&#39;
 </code></pre></div><p><code>contains(toJSON(github.event.commits.*.message), 'foo')</code>は「プッシュされたコミットのコミットメッセージにfooが含まれているか」を評価するおまじないだ。
 なので、上記のActionsは次のような制御フローを実現している。</p>
 <ul>
@@ -544,10 +544,16 @@ if condition1 {
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -559,12 +565,6 @@ if condition1 {
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -175,7 +175,7 @@ Kayenataを有効化することで、カナリーリリースの自動スコア
 <a href="https://cloudplatform.googleblog.com/2018/04/introducing-Kayenta-an-open-automated-canary-analysis-tool-from-Google-and-Netflix.html">https://cloudplatform.googleblog.com/2018/04/introducing-Kayenta-an-open-automated-canary-analysis-tool-from-Google-and-Netflix.html</a></p>
 <p>しかし2018/06/13現在、少なくともv1.7.0ではCanary Analytics(Kayenta)はデフォルトで無効化されている。</p>
 <p>今回はSpinnakerのKayentaを有効化する途中、GCP用の設定をしようとして以下のエラーが出たときのメモ。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">budougumi0617@budougumi0617-halyard:~$ hal config canary google account add my-google-account <span style="color:#cb4b16">\
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">budougumi0617@budougumi0617-halyard:~$ hal config canary google account add my-google-account <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>&gt;   --project budougumi0617-spinnaker6 <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>&gt;   --json-path ~/.gcp/gcp.json
 + Get current deployment
@@ -216,7 +216,7 @@ Problems in default.canary:
 <p><strong>Set up canary support</strong><br>
 <a href="https://www.spinnaker.io/setup/canary/">https://www.spinnaker.io/setup/canary/</a></p>
 <p>しかし、Stack Driverなどのログ閲覧用のアカウントを作成する途中以下のようなエラーが出てしまった。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">budougumi0617@budougumi0617-halyard:~$ hal config canary google account add my-google-account <span style="color:#cb4b16">\
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">budougumi0617@budougumi0617-halyard:~$ hal config canary google account add my-google-account <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>&gt;   --project budougumi0617-spinnaker6 <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>&gt;   --json-path ~/.gcp/gcp.json
 + Get current deployment
@@ -251,7 +251,7 @@ Problems in default.canary:
 <a href="https://cloud.google.com/compute/docs/access/iam">https://cloud.google.com/compute/docs/access/iam</a></p>
 <p>そうすると、どうやら<a href="https://cloud.google.com/compute/docs/access/iam#compute_viewer_role">roles/compute.viewer</a>が最小権限のロールなので、これを利用することにする。</p>
 <p>自分はHalyardサーバにIAMの編集権限をつけていなかったのでローカルPCで以下の操作を行った。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#268bd2">GCS_SA</span><span style="color:#719e07">=</span>gcs-service-account
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#268bd2">GCS_SA</span><span style="color:#719e07">=</span>gcs-service-account
 <span style="color:#268bd2">GCS_SA_EMAIL</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>gcloud iam service-accounts list <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>    --filter<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;displayName:</span><span style="color:#268bd2">$GCS_SA</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>    --format<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;value(email)&#39;</span><span style="color:#719e07">)</span>
@@ -260,7 +260,7 @@ gcloud projects add-iam-policy-binding budougumi0617-spinnaker6 <span style="col
 </span><span style="color:#cb4b16"></span>    --member serviceAccount:<span style="color:#268bd2">$GCS_SA_EMAIL</span> <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>    --role roles/compute.viewer
 </code></pre></div><p>上記の操作を行ったあと、再び<code>hal</code>コマンドを実行すると以下のようにCanary(Kayenta)用のGCPアカウントを作成できた。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">budougumi0617@budougumi0617-halyard:~$ hal config canary google account add my-google-account <span style="color:#cb4b16">\
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">budougumi0617@budougumi0617-halyard:~$ hal config canary google account add my-google-account <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  --project budougumi0617-spinnaker6  <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  --json-path ~/.gcp/gcp.json
 + Get current deployment
@@ -456,10 +456,16 @@ gcloud projects add-iam-policy-binding budougumi0617-spinnaker6 <span style="col
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -471,12 +477,6 @@ gcloud projects add-iam-policy-binding budougumi0617-spinnaker6 <span style="col
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

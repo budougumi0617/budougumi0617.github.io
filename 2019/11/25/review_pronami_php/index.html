@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -242,10 +242,10 @@ ECサイトの基本的な機能を実装しながら一通り読み終わった
 <h2 id="型宣言を利用する">型宣言を利用する</h2>
 <p>たとえば、私はPHP7.3ベースで勉強したので、なるべく処理を関数に抽出し、引数・戻り値に型宣言を追加した。
 極力<code>declare(strict_types=1);</code>も付与している。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">function validate(string $name, string $pass, string $pass2): bool
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#719e07">function</span> <span style="color:#268bd2">validate</span>(string <span style="color:#268bd2">$name</span>, string <span style="color:#268bd2">$pass</span>, string <span style="color:#268bd2">$pass2</span>)<span style="color:#719e07">:</span> bool
 {
-    // do validating...
-}
+    <span style="color:#586e75">// do validating...
+</span><span style="color:#586e75"></span>}
 </code></pre></div><h2 id="docker-composeとマイグレーションツールを使って勉強する">Docker Composeとマイグレーションツールを使って勉強する</h2>
 <p>本書では環境構築方法としてXAMPP環境の構築手順が記載されている。<br>
 XAMPPを使うモチベーションはなかったのでDocker Composeなどを使って環境構築を行なった。</p>
@@ -271,9 +271,9 @@ PHPのデファクトはわかっていないが、CakePHPでも使われてい�
 </li>
 </ul>
 <p><code>Phinx</code>は依存管理の練習がてら<code>Composer</code>を使ってインストールした。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker-compose run --rm php-cli composer --dev require robmorgan/phinx
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker-compose run --rm php-cli composer --dev require robmorgan/phinx
 </code></pre></div><p>Phinx自体は決まりに則ってPHPのクラスメソッドにテーブル構造を記載すればよい。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#719e07">&lt;?php</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#719e07">&lt;?</span>php
 <span style="color:#719e07">use</span> Phinx\Migration\AbstractMigration;
 <span style="color:#719e07">class</span> <span style="color:#268bd2">CreateStaffTable</span> <span style="color:#719e07">extends</span> AbstractMigration
 {
@@ -289,7 +289,7 @@ PHPのデファクトはわかっていないが、CakePHPでも使われてい�
     }
 }
 </code></pre></div><p>あとはマイグレーションコマンドを実行すればDBに新しいテーブルができる。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ vendor/bin/phinx migrate
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ vendor/bin/phinx migrate
 </code></pre></div><h2 id="脆弱性まわりの実装について">脆弱性まわりの実装について</h2>
 <p>本書の内容だと、<code>htmlspecialchars</code>関数を使ったXSS対策やプレースホルダを使ったSQLインジェクション対策程度はされているのだが、メール送信機能などまでは脆弱性対策がされていない。<br>
 そのような危険なコードに関して、WEBセキュリティ（脆弱性）で有名な<a href="http://amazon.jp/dp/B07DVY4H3M">体系的に学ぶ 安全なWebアプリケーションの作り方</a>（通称徳丸本）の著者である徳丸氏の助言が記載されている。<br>
@@ -298,29 +298,29 @@ PHPのデファクトはわかっていないが、CakePHPでも使われてい�
 <p>初心者用の書籍なので冗長な処理などはあっても良いと思うが、完全に動かないところがあったり、気になったところがあったので書いておく。</p>
 <h2 id="mysql57を使っているとテーブルのロックが不十分で動かない">MySQL5.7を使っているとテーブルのロックが不十分で動かない</h2>
 <p>「P261 7-5 もっと安全にしよう！」ではDB操作時にロックを取得するように変更を行なう。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">$<span style="color:#719e07">sql</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;LOCK TABLES dat_sales WRITE, dat_sales_product WRITE&#39;</span>;
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">$<span style="color:#719e07">sql</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;LOCK TABLES dat_sales WRITE, dat_sales_product WRITE&#39;</span>;
 </code></pre></div><p>しかし、MySQL5.7のコンテナを使ってDBを用意していたせいか、書籍に書いてあるとおりにRDBに対してロックを取得するとエラーが出た。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">/app/shop/shop_form_done.php:89:
-object(PDOException)[2]
-  protected &#39;message&#39; =&gt; string &#39;SQLSTATE[HY000]: General error: 1100 Table &#39;mst_product&#39; was not locked with LOCK TABLES&#39; (length=88)
-  private &#39;string&#39; (Exception) =&gt; string &#39;&#39; (length=0)
-  protected &#39;code&#39; =&gt; string &#39;HY000&#39; (length=5)
-  protected &#39;file&#39; =&gt; string &#39;/app/shop/shop_form_done.php&#39; (length=28)
-  ...
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#719e07">/</span>app<span style="color:#719e07">/</span>shop<span style="color:#719e07">/</span>shop_form_done<span style="color:#719e07">.</span>php<span style="color:#719e07">:</span><span style="color:#2aa198">89</span><span style="color:#719e07">:</span>
+object(PDOException)[<span style="color:#2aa198">2</span>]
+  <span style="color:#719e07">protected</span> <span style="color:#2aa198">&#39;message&#39;</span> <span style="color:#719e07">=&gt;</span> string <span style="color:#2aa198">&#39;SQLSTATE[HY000]: General error: 1100 Table &#39;</span>mst_product<span style="color:#2aa198">&#39; was not locked with LOCK TABLES&#39;</span> (length<span style="color:#719e07">=</span><span style="color:#2aa198">88</span>)
+  <span style="color:#719e07">private</span> <span style="color:#2aa198">&#39;string&#39;</span> (Exception) <span style="color:#719e07">=&gt;</span> string <span style="color:#2aa198">&#39;&#39;</span> (length<span style="color:#719e07">=</span><span style="color:#2aa198">0</span>)
+  <span style="color:#719e07">protected</span> <span style="color:#2aa198">&#39;code&#39;</span> <span style="color:#719e07">=&gt;</span> string <span style="color:#2aa198">&#39;HY000&#39;</span> (length<span style="color:#719e07">=</span><span style="color:#2aa198">5</span>)
+  <span style="color:#719e07">protected</span> <span style="color:#2aa198">&#39;file&#39;</span> <span style="color:#719e07">=&gt;</span> string <span style="color:#2aa198">&#39;/app/shop/shop_form_done.php&#39;</span> (length<span style="color:#719e07">=</span><span style="color:#2aa198">28</span>)
+  <span style="color:#719e07">...</span>
 </code></pre></div><p>これはロックするテーブルが不足しているためだった。MySQL5.7ではロック中READ操作のみのテーブルに対してもロック操作が必要だった。</p>
 <p><a href="https://dev.mysql.com/doc/refman/5.6/ja/lock-tables.html">https://dev.mysql.com/doc/refman/5.6/ja/lock-tables.html</a></p>
 <blockquote>
 <p>ロックが必要なセッションは、必要なすべてのロックを 1 つの LOCK TABLES ステートメントで取得する必要があります。このように取得されたロックが保持されている間、このセッションは、ロックされたテーブルにのみアクセスできます。</p>
 </blockquote>
 <p>エラー内容の通り、ロックのSQL文にテーブルを追加することで解決した。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">$<span style="color:#719e07">sql</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;LOCK TABLES dat_sales WRITE, dat_sales_product WRITE, mst_product READ&#39;</span>;
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">$<span style="color:#719e07">sql</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;LOCK TABLES dat_sales WRITE, dat_sales_product WRITE, mst_product READ&#39;</span>;
 </code></pre></div><h2 id="例外をすべて握りつぶしている">例外をすべて握りつぶしている</h2>
 <p>書籍中のサンプルコードの例外処理はすべて以下のような<code>try-catch</code>構文になっている。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">try {
-    // do anything...
-} catch (Exception $e) {
-    echo &#39;ただいま障害により大変ご迷惑をおかけしております。&#39;;
-    exit();
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#719e07">try</span> {
+    <span style="color:#586e75">// do anything...
+</span><span style="color:#586e75"></span>} <span style="color:#719e07">catch</span> (Exception <span style="color:#268bd2">$e</span>) {
+    <span style="color:#719e07">echo</span> <span style="color:#2aa198">&#39;ただいま障害により大変ご迷惑をおかけしております。&#39;</span>;
+    <span style="color:#719e07">exit</span>();
 }
 </code></pre></div><p>例外でコードが動かなかったら、タイポしていないかよく確認しろというスタンスだ。<br>
 が、これでは上記のように書籍の通り書いていてエラーが発生したとき、途方にくれてしまうだろう。
@@ -515,10 +515,16 @@ object(PDOException)[2]
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -530,12 +536,6 @@ object(PDOException)[2]
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           

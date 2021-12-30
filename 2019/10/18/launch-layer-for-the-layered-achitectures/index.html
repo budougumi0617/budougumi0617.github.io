@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.66.0" />
+  <meta name="generator" content="Hugo 0.91.2" />
 
   
   
@@ -241,7 +241,7 @@ https://github.com/budougumi0617/layer
 <p>パッケージ間の層の関係は実行時にJSON配列で渡すことで利用者独自の階層構造を読み込めるようにした。
 例えば、クリーンアーキテクチャの記事に記載されている階層構造は以下のようになる。
 単純に同じ層のパッケージ名を羅列し、内包する層がある場合は内部にJSON配列をまた定義すればよい。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">[
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">[
   <span style="color:#2aa198">&#34;externalinterfaces&#34;</span>,
   <span style="color:#2aa198">&#34;web&#34;</span>,
   <span style="color:#2aa198">&#34;devices&#34;</span>,
@@ -261,7 +261,7 @@ https://github.com/budougumi0617/layer
 ]
 </code></pre></div><p>（<code>&quot;</code>のエスケープがめんどくさいが、）Go1.12以上の実行環境ならば、このJSON配列を<code>-jsonlayer</code>フラグで渡すことで実行できる。
 例えば以下の実行例は、<code>web</code>パッケージから<code>controllers</code>などの一つ下の層を使わずに直接2つ下の<code>usecases</code>パッケージを参照していたときに出力されるエラーだ。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go vet -vettool<span style="color:#719e07">=</span><span style="color:#719e07">$(</span>which layer<span style="color:#719e07">)</span> -layer.jsonlayer <span style="color:#2aa198">&#34;[\&#34;externalinterfaces\&#34;, \
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go vet -vettool<span style="color:#719e07">=</span><span style="color:#719e07">$(</span>which layer<span style="color:#719e07">)</span> -layer.jsonlayer <span style="color:#2aa198">&#34;[\&#34;externalinterfaces\&#34;, \
 </span><span style="color:#2aa198">  \&#34;web\&#34;, \&#34;devices\&#34;, \&#34;db\&#34;, \&#34;ui\&#34;, [ \&#34;controllers\&#34;, \&#34;gateways\&#34;, \&#34;presenters\&#34;, \
 </span><span style="color:#2aa198">  [ \&#34;usecases\&#34;, [ \&#34;entity\&#34; ] ] ] ]&#34;</span> ./...
 <span style="color:#586e75"># github.com/budougumi0617/clean_architecture/web</span>
@@ -274,7 +274,7 @@ web/delete_handler.go:7:2: github.com/budougumi0617/clean_architecture/web must 
 <p>階層構造を定義するための<code>-jsonlayer</code>フラグの引数は、YAMLで表現するとコマンドライン引数として定義を渡しにくいと思い、JSONにしてある。
 キーもいらないと思い、JSON配列にしたが、JSON配列を<code>unmarshal</code>すると<code>[]interface{}</code>配列になる。
 そのため、独自の<code>UnmarshalJSON</code>を実装して構造体に詰めている。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// Layer expresses Layer architecture.
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// Layer expresses Layer architecture.
 </span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> Layer <span style="color:#268bd2">struct</span> {
 	Packages []<span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;Packages&#34;`</span>
 	Inside   <span style="color:#719e07">*</span>Layer   <span style="color:#2aa198">`json:&#34;Inside&#34;`</span>
@@ -324,7 +324,7 @@ web/delete_handler.go:7:2: github.com/budougumi0617/clean_architecture/web must 
 <h2 id="フラグの渡し方">フラグの渡し方</h2>
 <p><code>-vettool</code>オプション用のツールにしたとき、どうやってフラグの情報を渡していいのか迷った。
 順を追って実行すればわかるのだが<code>${Analyzerの名前}.${flagの名前}</code>で該当のAnalyzerに値を渡すことができるらしい。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go vet -vettool<span style="color:#719e07">=</span><span style="color:#719e07">$(</span>which layer<span style="color:#719e07">)</span> -h
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go vet -vettool<span style="color:#719e07">=</span><span style="color:#719e07">$(</span>which layer<span style="color:#719e07">)</span> -h
 usage: go vet <span style="color:#719e07">[</span>-n<span style="color:#719e07">]</span> <span style="color:#719e07">[</span>-x<span style="color:#719e07">]</span> <span style="color:#719e07">[</span>-vettool prog<span style="color:#719e07">]</span> <span style="color:#719e07">[</span>build flags<span style="color:#719e07">]</span> <span style="color:#719e07">[</span>vet flags<span style="color:#719e07">]</span> <span style="color:#719e07">[</span>packages<span style="color:#719e07">]</span>
 Run <span style="color:#2aa198">&#39;go help vet&#39;</span> <span style="color:#719e07">for</span> details.
 Run <span style="color:#2aa198">&#39;/Users/budougumi0617/go/bin/layer -help&#39;</span> <span style="color:#719e07">for</span> the vet tool&#39;s flags.
@@ -540,10 +540,16 @@ Analyzer flags:
           
             
               <li class="post">
-                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+                <a href="/2021/12/30/retrospective-2021/">2021年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a>
+              </li>
             
           
             
@@ -555,12 +561,6 @@ Analyzer flags:
             
               <li class="post">
                 <a href="/2021/12/17/review_aposd/">[書評] A Philosophy of Software Design を読んだ。複雑性を理解し、戦う術を身につけた</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a>
               </li>
             
           
