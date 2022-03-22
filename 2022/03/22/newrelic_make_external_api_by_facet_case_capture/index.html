@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="newrelic,facet,case,capture">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.91.2" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/newrelic.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/newrelic.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2022/03/22/newrelic_make_external_api_by_facet_case_capture/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する - My External Storage"/>
+  <meta property="og:description" content="New Relicを使って外部サービスのエンドポイント別のレスポンスタイムを可視化した。
+IDのようなパスパラメータを含むエンドポイントがあるときはFACET CASE句とcapture関数を使うとよい。"/>
+  
+  <meta name="twitter:title" content="[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する - My External Storage"/>
+  <meta name="twitter:description" content="New Relicを使って外部サービスのエンドポイント別のレスポンスタイムを可視化した。
+IDのようなパスパラメータを含むエンドポイントがあるときはFACET CASE句とcapture関数を使うとよい。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Mar 22, 2022
+     - 6 minute read 
+     - <a href="https://budougumi0617.github.io/2022/03/22/newrelic_make_external_api_by_facet_case_capture/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/newrelic/">newrelic </a>
+    
+  </p>
+  <h1 class="entry-title">
+     [New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#new-relic-oneで外部apiのレスポンスタイムを計測したい">New Relic Oneで外部APIのレスポンスタイムを計測したい</a></li>
+    <li><a href="#metricではなくspanを使う"><code>Metric</code>ではなく<code>Span</code>を使う</a>
+      <ul>
+        <li><a href="#goアプリケーションで外部webサービスへのリクエストのメトリクスを取得する方法">Goアプリケーションで外部Webサービスへのリクエストのメトリクスを取得する方法</a></li>
+      </ul>
+    </li>
+    <li><a href="#単純なfacet句だとusersuser_idのようなパスパラメータを含むエンドポイントの計測を集約できない">単純な<code>FACET</code>句だと<code>/users/${USER_ID}</code>のようなパスパラメータを含むエンドポイントの計測を集約できない。</a></li>
+    <li><a href="#パスパラメータを含むエンドポイントはfacet-case句を使って結果をまとめる">パスパラメータを含むエンドポイントは<code>FACET CASE</code>句を使って結果をまとめる</a></li>
+    <li><a href="#その他のエンドポイントはcapture関数を使って表示をスッキリする">その他のエンドポイントはcapture関数を使って表示をスッキリする。</a></li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>New Relicを使って外部サービスのエンドポイント別のレスポンスタイムを可視化した。<br>
+IDのようなパスパラメータを含むエンドポイントがあるときは<code>FACET CASE</code>句と<code>capture</code>関数を使うとよい。</p>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>New Relicで外部APIのレスポンスタイムを計測するときは<code>FROM Span WHERE category = 'http'</code>という条件でNRQLを書く。</li>
+<li>単純な<code>FACET</code>句だと<code>/users/${USER_ID}</code>のようなパスパラメータを含むエンドポイントの計測を集約できない。</li>
+<li>パスパラメータを含むエンドポイントは<code>FACET CASE</code>句を使って結果をまとめる</li>
+<li>その他のエンドポイントはcapture関数を使って結果を分類する。</li>
+</ul>
+<p>次のサンプルNRQLは<code>https://example.com/external_api</code>という外部サービスのエンドポイント別レスポンスタイムの中央値を時系列データとして可視化するグラフ。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#719e07">SELECT</span> percentile(duration, <span style="color:#2aa198">50</span>)
+<span style="color:#719e07">FROM</span> Span
+<span style="color:#719e07">WHERE</span> category <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;http&#39;</span> <span style="color:#719e07">AND</span> appName <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;my-application&#39;</span>
+<span style="color:#719e07">AND</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;https://example.com/external_api%&#39;</span>
+FACET http.<span style="color:#719e07">method</span>, CASES(
+    <span style="color:#586e75">-- https://example.com/external_api/users/${USER_ID}/icon を想定
+</span><span style="color:#586e75"></span>    <span style="color:#719e07">WHERE</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;%icon&#39;</span> <span style="color:#719e07">AS</span> <span style="color:#2aa198">&#39;/users/${USER_ID}/icon&#39;</span>, 
+    <span style="color:#586e75">-- https://example.com/external_api/users/${USER_ID} を想定
+</span><span style="color:#586e75"></span>    <span style="color:#719e07">WHERE</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;%users/%&#39;</span> <span style="color:#719e07">AS</span> <span style="color:#2aa198">&#39;/users/${USER_ID}&#39;</span>
+  <span style="color:#586e75">-- その他のパスパラメータを含まないエンドポイント
+</span><span style="color:#586e75"></span>) <span style="color:#719e07">OR</span> capture(http.url, r<span style="color:#2aa198">&#39;https://example.com/external_api(?P&lt;path&gt;.*)&#39;</span>)
+SINCE <span style="color:#2aa198">10</span> <span style="color:#719e07">day</span> ago TIMESERIES AUTO
+</code></pre></div><p>HTTPメソッドとURLを使ってたとえば次のようなプロットで時系列データをグラフにできる。</p>
+<ol>
+<li><code>PUT /users/${USER_ID}</code></li>
+<li><code>GET /users/${USER_ID}</code></li>
+<li><code>GET /users/${USER_ID}/icon</code></li>
+<li><code>GET /auth</code></li>
+<li><code>GET /health</code></li>
+</ol>
+<h1 id="new-relic-oneで外部apiのレスポンスタイムを計測したい">New Relic Oneで外部APIのレスポンスタイムを計測したい</h1>
+<p>New Relic Oneを導入し、分散トレースも確認できる状態のアプリケーションがある。
+このアプリケーションが依存している外部APIのレスポンスタイムをエンドポイント別に確認したかった。<br>
+本記事では外部APIは以下のようなエンドポイントを持っている前提で記載する。</p>
+<ul>
+<li>GET <a href="https://example.com/external_api/users/$%7BUSER_ID%7D">https://example.com/external_api/users/${USER_ID}</a>
+<ul>
+<li>指定されたIDのユーザー情報を返すエンドポイント</li>
+</ul>
+</li>
+<li>GET <a href="https://example.com/external_api/users/$%7BUSER_ID%7D/icon">https://example.com/external_api/users/${USER_ID}/icon</a>
+<ul>
+<li>指定されたIDのユーザーアイコン画像を返すエンドポイント</li>
+</ul>
+</li>
+<li>その他パスパラメータを含まないエンドポイント</li>
+</ul>
+<p>IDによってレスポンスタイムに大きな違いはないので、「指定されたIDのユーザー情報を返すエンドポイント」としてのレスポンスタイムの集計データを確認したかった。</p>
+<h1 id="metricではなくspanを使う"><code>Metric</code>ではなく<code>Span</code>を使う</h1>
+<p>New Relic One上で書くサービスのサマリーページを見ると「Web transactions time」という<code>Metric</code>を使ったグラフがあり「Web external」の情報も確認できる。</p>
+<p><img src="/2022/03/22_web_transaction_time.png" alt="Web transactions time"><br>
+<a href="https://discuss.newrelic.com/t/menu-shortcut-to-add-to-dashboard-for-web-transactions-time-chart/128486">（参考画像はNew Relic Explorers HubのTopicから拝借）</a></p>
+<p>ここを見るとこのグラフの元データとなる<code>Metric</code>からやりたいことができそうだが、<code>Metric</code>はプロパティがわかりづらく、NRQLが試行錯誤できなかった。</p>
+<p>そこで今回はトランザクショントレースの<code>Span</code>からグラフを作成する。
+とうぜんアプリケーションでAPMが取得できていて外部Webサービスへのリクエストのメトリクスも取得できている必要がある。</p>
+<h2 id="goアプリケーションで外部webサービスへのリクエストのメトリクスを取得する方法">Goアプリケーションで外部Webサービスへのリクエストのメトリクスを取得する方法</h2>
+<p>Goで該当メトリクスを取得するにはNew Relic Go Agentの<code>newrelic.NewRoundTripper</code>を使う。</p>
+<ul>
+<li><a href="https://pkg.go.dev/github.com/newrelic/go-agent/v3/newrelic#NewRoundTripper">https://pkg.go.dev/github.com/newrelic/go-agent/v3/newrelic#NewRoundTripper</a></li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">import</span> (
+  <span style="color:#2aa198">&#34;net/http&#34;</span>
+  <span style="color:#2aa198">&#34;time&#34;</span>
+
+  <span style="color:#2aa198">&#34;github.com/newrelic/go-agent/v3/newrelic&#34;</span>
+)
+
+<span style="color:#268bd2">type</span> roundTripperFunc <span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>http.Request) (<span style="color:#719e07">*</span>http.Response, <span style="color:#dc322f">error</span>)
+
+<span style="color:#268bd2">func</span> (f roundTripperFunc) <span style="color:#268bd2">RoundTrip</span>(r <span style="color:#719e07">*</span>http.Request) (<span style="color:#719e07">*</span>http.Response, <span style="color:#dc322f">error</span>) {
+  <span style="color:#719e07">return</span> <span style="color:#268bd2">f</span>(r)
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">HttpClient</span>() <span style="color:#719e07">*</span>http.Client {
+  cli <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>http.Client{
+    Timeout:   <span style="color:#2aa198">5</span> <span style="color:#719e07">*</span> time.Second,
+  }
+
+  cli.Transport = <span style="color:#268bd2">func</span>(rt http.RoundTripper) http.RoundTripper {
+    <span style="color:#719e07">return</span> <span style="color:#268bd2">roundTripperFunc</span>(<span style="color:#268bd2">func</span>(req <span style="color:#719e07">*</span>http.Request) (<span style="color:#719e07">*</span>http.Response, <span style="color:#dc322f">error</span>) {
+      nrt <span style="color:#719e07">:=</span> newrelic.<span style="color:#268bd2">NewRoundTripper</span>(rt)
+      nreq <span style="color:#719e07">:=</span> newrelic.<span style="color:#268bd2">RequestWithTransactionContext</span>(req, newrelic.<span style="color:#268bd2">FromContext</span>(req.<span style="color:#268bd2">Context</span>()))
+      <span style="color:#719e07">return</span> nrt.<span style="color:#268bd2">RoundTrip</span>(nreq)
+    })
+  }(cli.Transport)
+
+  <span style="color:#719e07">return</span> cli
+}
+</code></pre></div><p>このように作った<code>http.Client</code>から外部サービスへリクエストを送信すると、NRQLで<code>FROM Span WHERE category = 'http'</code>という条件で外部サービスとの通信結果のメトリクスが取得できる。</p>
+<h1 id="単純なfacet句だとusersuser_idのようなパスパラメータを含むエンドポイントの計測を集約できない">単純な<code>FACET</code>句だと<code>/users/${USER_ID}</code>のようなパスパラメータを含むエンドポイントの計測を集約できない。</h1>
+<p>このメトリクスを使ってエンドポイント別のグラフを作る。単純に考えるとNRQL上の<code>GROUP BY</code>である<code>FACET</code>句を使うことになるだろう。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://docs.newrelic.com/jp/docs/query-your-data/nrql-new-relic-query-language/get-started/nrql-syntax-clauses-functions/" data-iframely-url="//iframely.net/XlR7q7v"></a></div></div><script async src="//iframely.net/embed.js" charset="utf-8"></script>
+<p>NRQLは次のようになる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#719e07">SELECT</span> percentile(duration, <span style="color:#2aa198">50</span>)
+<span style="color:#719e07">FROM</span> Span <span style="color:#719e07">WHERE</span> category <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;http&#39;</span> <span style="color:#719e07">AND</span> appName <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;my-application&#39;</span>
+<span style="color:#719e07">AND</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;https://example.com/external_api%&#39;</span>
+<span style="color:#586e75">-- HTTPメソッドとURL別にレスポンスタイムを集約する。
+</span><span style="color:#586e75"></span>FACET http.<span style="color:#719e07">method</span>, http.url
+SINCE <span style="color:#2aa198">10</span> <span style="color:#719e07">day</span> ago TIMESERIES AUTO
+</code></pre></div><p>しかし、これでは集計に失敗する。<br>
+<code>FACET</code>句だけだと、次のようにパスパラメータとして<code>ID</code>などが含まれるエンドポイントが<code>ID</code>別に集計されてしまう。</p>
+<ol>
+<li><code>PUT https://example.com/external_api/users/123</code></li>
+<li><code>GET https://example.com/external_api/users/123</code></li>
+<li><code>GET https://example.com/external_api/users/567</code></li>
+<li><code>GET https://example.com/external_api/users/333/icon</code></li>
+<li><code>GET https://example.com/external_api/auth</code></li>
+<li><code>GET https://example.com/external_api/health</code></li>
+</ol>
+<p>これではIDの数だけグラフにプロットされてしまうので意味があるグラフではなくなる。</p>
+<h1 id="パスパラメータを含むエンドポイントはfacet-case句を使って結果をまとめる">パスパラメータを含むエンドポイントは<code>FACET CASE</code>句を使って結果をまとめる</h1>
+<p>このようなときは<code>FACET CASE</code>句を使うとパスパラメータを集約できる。</p>
+<ul>
+<li><a href="https://docs.newrelic.com/jp/docs/query-your-data/nrql-new-relic-query-language/get-started/nrql-syntax-clauses-functions/#sel-facet-cases">https://docs.newrelic.com/jp/docs/query-your-data/nrql-new-relic-query-language/get-started/nrql-syntax-clauses-functions/#sel-facet-cases</a></li>
+</ul>
+<p>パスパラメータを含むエンドポイントは<code>FACET CASE</code>句の中で<code>WHERE LIKE</code>を使って集約する。
+順番にパターンマッチングされているはずなので、一度<code>WHERE</code>条件にかかったデータは後続の<code>WHERE</code>にはマッチしない。
+パスパラメータを含むエンドポイントは<code>FACET CASE</code>句に<code>OR</code>でつなげるとよい。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#719e07">SELECT</span> percentile(duration, <span style="color:#2aa198">50</span>)
+<span style="color:#719e07">FROM</span> Span
+<span style="color:#719e07">WHERE</span> category <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;http&#39;</span> <span style="color:#719e07">AND</span> appName <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;my-application&#39;</span>
+<span style="color:#719e07">AND</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;https://example.com/external_api%&#39;</span>
+FACET http.<span style="color:#719e07">method</span>, CASES(
+    <span style="color:#586e75">-- https://example.com/external_api/users/${USER_ID}/icon を想定
+</span><span style="color:#586e75"></span>    <span style="color:#719e07">WHERE</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;%icon&#39;</span> <span style="color:#719e07">AS</span> <span style="color:#2aa198">&#39;/users/${USER_ID}/icon&#39;</span>, 
+    <span style="color:#586e75">-- https://example.com/external_api/users/${USER_ID} を想定
+</span><span style="color:#586e75"></span>    <span style="color:#719e07">WHERE</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;%users/%&#39;</span> <span style="color:#719e07">AS</span> <span style="color:#2aa198">&#39;/users/${USER_ID}&#39;</span>
+  <span style="color:#586e75">-- その他のパスパラメータを含まないエンドポイント
+</span><span style="color:#586e75"></span>) <span style="color:#719e07">OR</span> http.url
+SINCE <span style="color:#2aa198">10</span> <span style="color:#719e07">day</span> ago TIMESERIES AUTO
+</code></pre></div><p>こうすると次のような集約結果になる。</p>
+<ol>
+<li><code>PUT /users/${USER_ID}</code></li>
+<li><code>GET /users/${USER_ID}</code></li>
+<li><code>GET /users/${USER_ID}/icon</code></li>
+<li><code>GET https://example.com/external_api/auth</code></li>
+<li><code>GET https://example.com/external_api/health</code></li>
+</ol>
+<h1 id="その他のエンドポイントはcapture関数を使って表示をスッキリする">その他のエンドポイントはcapture関数を使って表示をスッキリする。</h1>
+<p><code>capture</code>関数を使うとグラフ表示時のラベルをスッキリさせることができる。
+正規表現はGoなどと同じRe2形式が使える。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">capture(http.url, r<span style="color:#2aa198">&#39;https://example.com/external_api(?P&lt;path&gt;.*)&#39;</span>)
+</code></pre></div><p><code>capture</code>関数も使うとNRQLは次のようになる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#719e07">SELECT</span> percentile(duration, <span style="color:#2aa198">50</span>)
+<span style="color:#719e07">FROM</span> Span
+<span style="color:#719e07">WHERE</span> category <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;http&#39;</span> <span style="color:#719e07">AND</span> appName <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;my-application&#39;</span>
+<span style="color:#719e07">AND</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;https://example.com/external_api%&#39;</span>
+FACET http.<span style="color:#719e07">method</span>, CASES(
+    <span style="color:#586e75">-- https://example.com/external_api/users/${USER_ID}/icon を想定
+</span><span style="color:#586e75"></span>    <span style="color:#719e07">WHERE</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;%icon&#39;</span> <span style="color:#719e07">AS</span> <span style="color:#2aa198">&#39;/users/${USER_ID}/icon&#39;</span>, 
+    <span style="color:#586e75">-- https://example.com/external_api/users/${USER_ID} を想定
+</span><span style="color:#586e75"></span>    <span style="color:#719e07">WHERE</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;%users/%&#39;</span> <span style="color:#719e07">AS</span> <span style="color:#2aa198">&#39;/users/${USER_ID}&#39;</span>
+  <span style="color:#586e75">-- その他のパスパラメータを含まないエンドポイント
+</span><span style="color:#586e75"></span>) <span style="color:#719e07">OR</span> capture(http.url, r<span style="color:#2aa198">&#39;https://example.com/external_api(?P&lt;path&gt;.*)&#39;</span>)
+SINCE <span style="color:#2aa198">10</span> <span style="color:#719e07">day</span> ago TIMESERIES AUTO
+</code></pre></div><p>こうすると次のようなグラフのプロットが完成する。</p>
+<ol>
+<li><code>PUT /users/${USER_ID}</code></li>
+<li><code>GET /users/${USER_ID}</code></li>
+<li><code>GET /users/${USER_ID}/icon</code></li>
+<li><code>GET /auth</code></li>
+<li><code>GET /health</code></li>
+</ol>
+<h1 id="終わりに">終わりに</h1>
+<p>New Relic実践入門という書籍も所持しているのだが、今回のやりかたは載っていないような気がしたので記事にした。<br>
+外部サービスのレスポンスタイムのレスポンスタイムを可視化することができたので、「なんとなく遅くなってません？」などと定性的な話ではなく、定量的に外部連携先と調整をしたり、
+レスポンスタイムの悪化の原因部分をより詳細に把握できるようになった。</p>
+<p>ちなみにAPMを導入しているサービス自体のエンドポイント別のデータを集計したいときはパスパラメータが入っていてもNRQLが提供するプレースホルダーのような機能で簡単に集約できる。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://docs.newrelic.com/docs/data-apis/understand-data/metric-data/query-apm-metric-timeslice-data-nrql/" data-iframely-url="//iframely.net/H4sqV0s"></a></div></div><script async src="//iframely.net/embed.js" charset="utf-8"></script>
+<h1 id="参考">参考</h1>
+<ul>
+<li>New Relic Go agent v3
+<ul>
+<li><a href="https://pkg.go.dev/github.com/newrelic/go-agent/v3/newrelic">https://pkg.go.dev/github.com/newrelic/go-agent/v3/newrelic</a></li>
+</ul>
+</li>
+<li>NRQL syntax, clauses, and functions
+<ul>
+<li><a href="https://docs.newrelic.com/docs/query-your-data/nrql-new-relic-query-language/get-started/nrql-syntax-clauses-functions/">https://docs.newrelic.com/docs/query-your-data/nrql-new-relic-query-language/get-started/nrql-syntax-clauses-functions/</a></li>
+</ul>
+</li>
+<li>Query APM metric timeslice data with NRQL
+<ul>
+<li><a href="https://docs.newrelic.com/docs/data-apis/understand-data/metric-data/query-apm-metric-timeslice-data-nrql/">https://docs.newrelic.com/docs/data-apis/understand-data/metric-data/query-apm-metric-timeslice-data-nrql/</a></li>
+</ul>
+</li>
+</ul>
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=B08WWHBF1J&linkId=4eaab438f5ed5fd02ec41ef70a2b4da9"></iframe>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2021/01/17/release_nrseg/">GoのアプリにNew Relic APMを導入する時とても便利なCLIを作った</a></li>
+  
+  <li><a href="/2021/08/24/isucon11q/">ISUCON11予選に参加した（最終スコア47,995点 79位） #isucon</a></li>
+  
+  <li><a href="/2021/12/12/publish_base_blog/">GitHub ActionsでER図を自動生成する話とNew Relicでデプロイ頻度をグラフにする話を寄稿した</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Mar 22, 2022</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/newrelic">newrelic</a>  <a class="category" href="https://budougumi0617.github.io/tags/apm">apm</a>  <a class="category" href="https://budougumi0617.github.io/tags/facet">facet</a>  <a class="category" href="https://budougumi0617.github.io/tags/nrql">nrql</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2022/02/27/review_culture_code/" title="[書評]]THE CULTURE CODE 最強チームをつくる方法 | 何が良いチームをつくるのか？">[書評]]THE CULTURE CODE 最強チームをつくる方法 | 何が良いチームをつくるのか？</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/gotips/" title="意外と知らないGoのTIPS" >意外と知らないGoのTIPS</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2022/02/27/review_culture_code/">[書評]]THE CULTURE CODE 最強チームをつくる方法 | 何が良いチームをつくるのか？</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2022/02/16/review_netflix_no_rules/">[書評] NO RULES 世界一「自由」な会社、NETFLIX | コントロールではなくコンテキストを</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2022/01/30/notion_size_up_font_on_mac_app/">[Notion] Mac Appでフォントのサイズが大きくならない</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
