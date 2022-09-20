@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する） - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="生産性,github cli,GitHub,GitHub issue">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.91.2" />
+
+  
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/logos/github.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/logos/github.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2022/09/20/closed-stale-github-issue-by-manual/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する） - My External Storage"/>
+  <meta property="og:description" content="業務のタスク管理としてGitHub Project（Issue）を使っている。
+Issueの棚卸しとして、古いIssueを一括closeしたときの操作をまとめる。
+GitHub GraphQL API v4を用いてやろうと思ったが、GitHub CLIを利用する方法が一番カンタンだった。
+"/>
+  
+  <meta name="twitter:title" content="GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する） - My External Storage"/>
+  <meta name="twitter:description" content="業務のタスク管理としてGitHub Project（Issue）を使っている。
+Issueの棚卸しとして、古いIssueを一括closeしたときの操作をまとめる。
+GitHub GraphQL API v4を用いてやろうと思ったが、GitHub CLIを利用する方法が一番カンタンだった。
+"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-EQ83WN36ER"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-EQ83WN36ER');
+  </script>
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Sep 20, 2022
+     - 7 minute read 
+     - <a href="https://budougumi0617.github.io/2022/09/20/closed-stale-github-issue-by-manual/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/github/">github </a><a class="label" href="https://budougumi0617.github.io/categories/project/">project </a>
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://budougumi0617.github.io/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#githubのissueをまとめて操作したいcloseしたい">GitHubのissueをまとめて操作したい（closeしたい）</a></li>
+    <li><a href="#github-clighコマンドでgithubのissueを整理する">GitHub CLI（<code>gh</code>コマンド）でGitHubのissueを整理する</a></li>
+    <li><a href="#記録用に一括closeするgithub-issueをリストにしておく">記録用に一括closeするGitHub Issueをリストにしておく</a>
+      <ul>
+        <li><a href="#github-cliでissueを検索するときの条件">GitHub CLIでIssueを検索するときの条件</a></li>
+        <li><a href="#一括closeするgithub-issueのリストをmarkdownで作る">一括closeするGitHub IssueのリストをMarkdownで作る。</a></li>
+      </ul>
+    </li>
+    <li><a href="#github-issueを一括closeする">GitHub Issueを一括closeする</a>
+      <ul>
+        <li><a href="#github-issueをcloseしていくghコマンドのワンライナー">GitHub Issueをcloseしていく<code>gh</code>コマンドのワンライナー</a></li>
+        <li><a href="#apiのレートリミットに注意すること">APIのレートリミットに注意すること</a></li>
+      </ul>
+    </li>
+    <li><a href="#いちど整理をしたらstalek-actionsを設定する">いちど整理をしたらstalek Actionsを設定する</a></li>
+    <li><a href="#終わりに">終わりに</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>業務のタスク管理としてGitHub Project（Issue）を使っている。<br>
+Issueの棚卸しとして、古いIssueを一括closeしたときの操作をまとめる。<br>
+<a href="https://docs.github.com/ja/graphql">GitHub GraphQL API v4</a>を用いてやろうと思ったが、GitHub CLIを利用する方法が一番カンタンだった。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://cli.github.com/" data-iframely-url="//iframely.net/Yqle0ig?card=small"></a></div></div><script async src="//iframely.net/embed.js"></script>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>古いGitHub Issueを一括closeしたくなった。</li>
+<li>GitHub CLIを使うとページングなどを考えずにissue検索をWeb UI同様にできる
+<ul>
+<li><a href="https://cli.github.com">https://cli.github.com</a></li>
+</ul>
+</li>
+<li>closeしたいissueのURLを取得したら<code>gh issue xxx</code>コマンドを使って任意の操作ができる</li>
+<li>APIリミットには注意する</li>
+<li>いちど整理したら<code>actions/stale Action</code>を使えばよい
+<ul>
+<li><a href="https://docs.github.com/en/actions/managing-issues-and-pull-requests/closing-inactive-issues">https://docs.github.com/en/actions/managing-issues-and-pull-requests/closing-inactive-issues</a></li>
+</ul>
+</li>
+</ul>
+<p>なお、この記事で利用しているGitHub CLIのバージョンは次の通り。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ gh version
+gh version 2.15.0 <span style="color:#719e07">(</span>2022-09-06<span style="color:#719e07">)</span>
+https://github.com/cli/cli/releases/tag/v2.15.0
+</code></pre></div><h1 id="githubのissueをまとめて操作したいcloseしたい">GitHubのissueをまとめて操作したい（closeしたい）</h1>
+<p>業務ではタスク管理にGitHub Project（Issue）を使っている。<br>
+「とりあえず起票しておくか」で結局着手していないIssueが溜まってきていたので古いissueを一括でcloseすることにした。<br>
+後述する<code>actions/stale Action</code>を設定して待つのも良いのだが、まず一括closeするissueのリストを作っておきたかったのでGitHub CLIを使うことにした。</p>
+<h1 id="github-clighコマンドでgithubのissueを整理する">GitHub CLI（<code>gh</code>コマンド）でGitHubのissueを整理する</h1>
+<p>issueを整理するにはGitHub CLIがとても便利だった。最初「GitHub API v4（GraphQL）でやるか、わからんな」と思っていたが、GitHub CLIならばローカルでもトライアンドエラーがしやすく、すぐできた。<br>
+GitHub CLIは各GitHubの操作を行える<code>hub</code>コマンドの後進で、実際にCLIから利用するときは<code>gh</code>コマンドとなる。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://cli.github.com/" data-iframely-url="//iframely.net/Yqle0ig?card=small"></a></div></div><script async src="//iframely.net/embed.js"></script>
+<p>やることの流れは以下のとおりだ。</p>
+<ul>
+<li><code>gh issue list</code>コマンドで記録用に一括closeするGitHub Issueをリストにしておく
+<ul>
+<li><code>--jq</code> オプションを使えばMarkdownのリストもすぐつくれる</li>
+</ul>
+</li>
+<li>該当のGitHub IssueのURL一覧を取得する</li>
+<li>GitHub IssueのURLを使って<code>gh issue close</code>コマンドで1つ1つissueをcloseしていく。</li>
+</ul>
+<p>GitHub CLIの<code>gh issue</code>コマンドでできる操作ならば、close以外の一括操作も可能だ。
+<a href="https://cli.github.com/manual/gh_issue">https://cli.github.com/manual/gh_issue</a></p>
+<p>なお、ここから実行する<code>gh</code>コマンドはすべてローカルにcloneした該当のリポジトリのディレクトリ内で実行するものとする。</p>
+<h1 id="記録用に一括closeするgithub-issueをリストにしておく">記録用に一括closeするGitHub Issueをリストにしておく</h1>
+<p>正当な理由でcloseされたGitHub Issueと区別するため、まずは一括closeするGitHub Issueのリストを作っておく。</p>
+<h2 id="github-cliでissueを検索するときの条件">GitHub CLIでIssueを検索するときの条件</h2>
+<p>GitHub CLIで一括closeしたいGitHub Issueを検索（フィルター）しないといけない。<br>
+<code>gh</code>コマンドでGitHub Issueを検索するときは、Web UIと同じ条件でフィルターすることができる。
+まずはWeb UI上で一括closeしたいGitHub Issueを検索する。</p>
+<p><a href="https://github.com/$%7BORG_NAME%7D/$%7BREPO_NAME%7D/issues">https://github.com/${ORG_NAME}/${REPO_NAME}/issues</a></p>
+<p>私は「今年に入って1度も更新されていないGitHub Issue」を一括closeしようと思ったので次のフィルター条件になった。</p>
+<pre tabindex="0"><code>is:issue is:open sort:update-asc updated:&lt;2022-01-01
+</code></pre><h2 id="一括closeするgithub-issueのリストをmarkdownで作る">一括closeするGitHub IssueのリストをMarkdownで作る。</h2>
+<p>フィルター条件がわかったらそれを使って記録用の一覧を作る。<br>
+一覧はMarkdownで作るので、<code>gh</code>コマンドの出力もMarkdown形式で出力する。<code>gh</code>コマンドは単独で<code>--jq</code>オプションを使って出力を加工できるのでこれを使えばMarkdownの表に利用できる出力が得られる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#586e75"># 実行零では--limit 3にしている。見込まれるissueの数で--limitオプションも調整する。</span>
+$ gh issue list --limit <span style="color:#2aa198">3</span> --json number,title,url,author <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>--jq <span style="color:#2aa198">&#39;.[] | &#34;| [#&#34; + (.number|tostring) + &#34; &#34; + .title + &#34; by &#34; + .author.login + &#34;](&#34;
+</span><span style="color:#2aa198"> + .url + &#34;)|&#34;&#39;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>--search <span style="color:#2aa198">&#34;is:issue is:open sort:update-asc updated:&lt;2022-01-01&#34;</span>
+
+| <span style="color:#719e07">[</span><span style="color:#586e75">#2 20210423 Gophers Code Reading Party by budougumi0617](https://github.com/basebank/gophers-code-reading-party/issues/2)|</span>
+| <span style="color:#719e07">[</span><span style="color:#586e75">#3 20210513 Gophers Code Reading Party by budougumi0617](https://github.com/basebank/gophers-code-reading-party/issues/3)|</span>
+| <span style="color:#719e07">[</span><span style="color:#586e75">#1 20210405 Gophers Code Reading Party by hgsgtk](https://github.com/basebank/gophers-code-reading-party/issues/1)|</span>
+</code></pre></div><p>表のヘッダーとなるMarkdownの下にコピペすれば次のような一覧が作成できる。</p>
+<table>
+<thead>
+<tr>
+<th>一括closeリスト</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/basebank/gophers-code-reading-party/issues/2">#2 20210423 Gophers Code Reading Party by budougumi0617</a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/basebank/gophers-code-reading-party/issues/3">#3 20210513 Gophers Code Reading Party by budougumi0617</a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/basebank/gophers-code-reading-party/issues/1">#1 20210405 Gophers Code Reading Party by hgsgtk</a></td>
+</tr>
+</tbody>
+</table>
+<p>一括closeする前にチームメンバーへ一覧を共有してcloseしていいか確認しておくとよいだろう。</p>
+<h1 id="github-issueを一括closeする">GitHub Issueを一括closeする</h1>
+<p>close候補のGitHub Issueの一覧を共有し、チームで合意がとれたら実際にcloseする。</p>
+<h2 id="github-issueをcloseしていくghコマンドのワンライナー">GitHub Issueをcloseしていく<code>gh</code>コマンドのワンライナー</h2>
+<p><code>gh</code>コマンドを利用するとSQLでいうN+1のAPIコールになってしまうが次のコマンドで愚直に一括closeできる。
+正確にいうと逐次closeだが…。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ gh issue list --limit <span style="color:#2aa198">500</span> --json number,title,url,author <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>--jq <span style="color:#2aa198">&#39;.[] | .url&#39;</span> --search <span style="color:#2aa198">&#34;is:issue is:open sort:update-asc updated:&lt;2022-01-01&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span> | <span style="color:#719e07">while</span> <span style="color:#b58900">read</span> URL; <span style="color:#719e07">do</span>
+  gh issue close <span style="color:#2aa198">${</span><span style="color:#268bd2">URL</span><span style="color:#2aa198">}</span> -c <span style="color:#2aa198">&#34;2022年issue棚卸し ref: </span><span style="color:#2aa198">${</span><span style="color:#268bd2">作成した一覧のURL</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
+<span style="color:#719e07">done</span>
+</code></pre></div><p>やっていることは、<code>gh issue list</code>コマンドとフィルター条件で出力したcloseしたいGitHub IssueのURLを出力している。<br>
+その後、そのGitHub Issueの各URLに対して<code>gh issue close</code>コマンドを使ってcloseするAPIを実行しているだけだ。<br>
+GitHub Issueをcloseする際にコメントを残すことができるので、未解決のまま一括closeされたことをわかりやすくするためのコメントを残している。
+各GitHub Issueに対してAPIを実行し続けるので数によってはターミナルを開きっぱなしにして他の作業をして待機することになる。</p>
+<p>いきなりcloseさせるのが怖い場合は<code>gh issue view</code>コマンドなどで一度動作確認しておくとよい。<br>
+なお、SlackなどにGitHub Issueの変更情報を通知している場合は一時的にオフにしておかないと大量の「closeしました」「コメントがありました」の通知が流れることになる。</p>
+<h2 id="apiのレートリミットに注意すること">APIのレートリミットに注意すること</h2>
+<p>GitHub CLIも結局はGitHub APIのラッパーでしかないのでAPIコールのレートリミットに気をつける必要がある。
+あまりに大量のissueをcloseすることになりそうなときは事前に確認し、必要に応じてsleepコマンドなどをはさみながら実行すること。</p>
+<p>GitHub APIのレートリミットを確認するには次のコマンドを実行すればよい。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ gh api rate_limit --jq <span style="color:#2aa198">&#39;.resources.core&#39;</span>
+<span style="color:#719e07">{</span><span style="color:#2aa198">&#34;limit&#34;</span>:5000,<span style="color:#2aa198">&#34;remaining&#34;</span>:4979,<span style="color:#2aa198">&#34;reset&#34;</span>:1662484504,<span style="color:#2aa198">&#34;used&#34;</span>:21<span style="color:#719e07">}</span>
+
+$ date -r <span style="color:#2aa198">&#34;</span><span style="color:#719e07">$(</span>gh api rate_limit --jq <span style="color:#2aa198">&#39;.resources.core.reset&#39;</span><span style="color:#719e07">)</span><span style="color:#2aa198">&#34;</span>
+Wed Sep  <span style="color:#2aa198">7</span> 02:15:04 JST <span style="color:#2aa198">2022</span>
+</code></pre></div><p>以下のzennを参考にしたが、macOSでは少し<code>date</code>コマンドのオプションが異なるようだ。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://zenn.dev/hankei6km/scraps/4f02c89052a62c" data-iframely-url="//iframely.net/38Y5JG7"></a></div></div><script async src="//iframely.net/embed.js"></script>
+<h1 id="いちど整理をしたらstalek-actionsを設定する">いちど整理をしたらstalek Actionsを設定する</h1>
+<p>定期的にこのような操作を行なうより、<code>actions/stale Action</code>を設定するほうが効率的だ。<br>
+一度GitHub Issueの整理ができたらあとは<code>actions/stale Action</code>を利用して一定期間未更新のGitHub Issueは自動closeするようにしておこう。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/marketplace/actions/close-stale-issues" data-iframely-url="//iframely.net/yyyfTVO"></a></div></div><script async src="//iframely.net/embed.js"></script>
+<p>使い方はGitHubの公式ドキュメントを読むと良いだろう。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://ghdocs-prod.azurewebsites.net/en/actions/managing-issues-and-pull-requests/closing-inactive-issues" data-iframely-url="//iframely.net/aR2nDS9"></a></div></div><script async src="//iframely.net/embed.js"></script>
+<h1 id="終わりに">終わりに</h1>
+<p>最初は「GitHub API v4使うことになりそうだしまずはGraphQL調べるところかな」なんて思って手が進んでいなかったが、GitHub CLIを利用すればすぐ終わった。<br>
+「ずっと放置されているけれど、やるかやらないで言ったら絶対やったほうがよい」タスクを今回思い切って全部closeした。<br>
+GitHub Issue（GitHub Issue）以外だったらもっとめんどくさかったかもしれないので、普段から慣れ親しんでいるGitHubでタスク管理していてよかった。<br>
+今後は<code>actions/stale Action</code>もいい感じに設定して活用していきたい。</p>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a href="https://cli.github.com">https://cli.github.com</a>
+<ul>
+<li><a href="https://cli.github.com/manual/gh_issue_close">https://cli.github.com/manual/gh_issue_close</a></li>
+<li><a href="https://cli.github.com/manual/gh_issue_list">https://cli.github.com/manual/gh_issue_list</a></li>
+</ul>
+</li>
+<li><a href="https://docs.github.com/en/actions/managing-issues-and-pull-requests/closing-inactive-issues">https://docs.github.com/en/actions/managing-issues-and-pull-requests/closing-inactive-issues</a></li>
+<li><a href="https://github.com/marketplace/actions/close-stale-issues">https://github.com/marketplace/actions/close-stale-issues</a></li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2021/12/26/retrospective-on-github-2021/">2021年振り返り（GitHub編）</a></li>
+  
+  <li><a href="/2021/05/31/cannot_get_pull_request_diff/">GitHub API v3でPrivateリポジトリのPull Requestのdiffを取得する</a></li>
+  
+  <li><a href="/2021/05/07/reelase_action-pr-size-checker/">テストコードなどは除外してからPRのサイズを警告するActionsを作った</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Sep 20, 2022</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/github">github</a>  <a class="category" href="https://budougumi0617.github.io/tags/cli">cli</a>  <a class="category" href="https://budougumi0617.github.io/tags/issue">issue</a>  <a class="category" href="https://budougumi0617.github.io/tags/project-management">project management</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2022/07/22/release_go_web_application_book/" title="「詳解Go言語Webアプリケーション開発」という本を発売しました">「詳解Go言語Webアプリケーション開発」という本を発売しました</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+      
+      
+      
+      if (window.location.hostname == "localhost")
+          return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'http-budougumi0617-github-io';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。
+</br>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+      
+      
+      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+      
+         
+      
+      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/gotips/" title="意外と知らないGoのTIPS" >意外と知らないGoのTIPS</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
+            
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2022/07/22/release_go_web_application_book/">「詳解Go言語Webアプリケーション開発」という本を発売しました</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2022/04/25/gocon2022spring/">Go Conferrence 2022 Springで登壇した #gocon</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+      <script>
+        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+    
+  </body>
+</html>
+
