@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -224,14 +224,14 @@ type Event struct {
           <p>GoではJSONを扱うときでもしっかり型定義に当てはめて利用するのが一般的だ。<br>
 しかし、外部から受け取ったJSONデータは型に当てはめつつ併せて生データも保存しておきたいときがある。<br>
 <code>Defind Type</code>をうまく使うとシンプルな<code>UnmarshalJSON(data []byte)</code>メソッドを定義できる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Event <span style="color:#268bd2">struct</span> {
-    ID   <span style="color:#dc322f">string</span>          <span style="color:#2aa198">`json:&#34;id&#34;`</span>
-    Type <span style="color:#dc322f">string</span>          <span style="color:#2aa198">`json:&#34;type&#34;`</span>
-    Payload Payload      <span style="color:#2aa198">`json:&#34;pyload&#34;`</span>
-    <span style="color:#586e75">// 構造体にマッピングする前のJSONを保存しておきたい
-</span><span style="color:#586e75"></span>    Raw  json.RawMessage <span style="color:#2aa198">`json:&#34;-&#34;`</span>
-}
-</code></pre></div><h1 id="tldr">TL;DR</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> Event <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>    ID   <span style="color:#dc322f">string</span>          <span style="color:#2aa198">`json:&#34;id&#34;`</span>
+</span></span><span style="display:flex;"><span>    Type <span style="color:#dc322f">string</span>          <span style="color:#2aa198">`json:&#34;type&#34;`</span>
+</span></span><span style="display:flex;"><span>    Payload Payload      <span style="color:#2aa198">`json:&#34;pyload&#34;`</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// 構造体にマッピングする前のJSONを保存しておきたい
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    Raw  json.RawMessage <span style="color:#2aa198">`json:&#34;-&#34;`</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h1 id="tldr">TL;DR</h1>
 <ul>
 <li>外部から受け取るJSONは構造が不意に変わることを想定したいときがある</li>
 <li><code>UnmarshalJSON(data []byte)</code>メソッドを使うと独自のJSONパースができる</li>
@@ -240,25 +240,25 @@ type Event struct {
 <li><code>Defind Type</code>で名前を変えると独自定義した<code>UnmarshalJSON(data []byte)</code>メソッドを呼ばなくなる</li>
 </ul>
 <p><a href="https://play.golang.org/p/n7qvO3vTiV0">https://play.golang.org/p/n7qvO3vTiV0</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Event <span style="color:#268bd2">struct</span> {
-    ID   <span style="color:#dc322f">string</span>          <span style="color:#2aa198">`json:&#34;id&#34;`</span>
-    Type <span style="color:#dc322f">string</span>          <span style="color:#2aa198">`json:&#34;type&#34;`</span>
-    Payload Payload      <span style="color:#2aa198">`json:&#34;pyload&#34;`</span>
-    Raw  json.RawMessage <span style="color:#2aa198">`json:&#34;-&#34;`</span>
-}
-
-<span style="color:#268bd2">func</span> (e <span style="color:#719e07">*</span>Event) <span style="color:#268bd2">UnmarshalJSON</span>(data []<span style="color:#dc322f">byte</span>) <span style="color:#dc322f">error</span> {
-  <span style="color:#268bd2">type</span> event Event
-  <span style="color:#268bd2">var</span> ee event
-  err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmarshal</span>(data, <span style="color:#719e07">&amp;</span>ee)
-  <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-    <span style="color:#719e07">return</span> err
-  }
-  <span style="color:#719e07">*</span>e = (Event)(ee)
-  e.Raw = data
-  <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
-}
-</code></pre></div><h1 id="goでjsonを扱うとき">GoでJSONを扱うとき</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> Event <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>    ID   <span style="color:#dc322f">string</span>          <span style="color:#2aa198">`json:&#34;id&#34;`</span>
+</span></span><span style="display:flex;"><span>    Type <span style="color:#dc322f">string</span>          <span style="color:#2aa198">`json:&#34;type&#34;`</span>
+</span></span><span style="display:flex;"><span>    Payload Payload      <span style="color:#2aa198">`json:&#34;pyload&#34;`</span>
+</span></span><span style="display:flex;"><span>    Raw  json.RawMessage <span style="color:#2aa198">`json:&#34;-&#34;`</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (e <span style="color:#719e07">*</span>Event) <span style="color:#268bd2">UnmarshalJSON</span>(data []<span style="color:#dc322f">byte</span>) <span style="color:#dc322f">error</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">type</span> event Event
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">var</span> ee event
+</span></span><span style="display:flex;"><span>  err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmarshal</span>(data, <span style="color:#719e07">&amp;</span>ee)
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> err
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">*</span>e = (Event)(ee)
+</span></span><span style="display:flex;"><span>  e.Raw = data
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h1 id="goでjsonを扱うとき">GoでJSONを扱うとき</h1>
 <p>GoではJSONを使うときもしっかり型を意識して取り扱う。
 受け取ったJSONデータは<code>encoding/json</code>パッケージを使ってデコードして構造体にマッピングする。</p>
 <p><a href="https://pkg.go.dev/encoding/json">https://pkg.go.dev/encoding/json</a></p>
@@ -291,30 +291,30 @@ type Event struct {
 そのため構造体にマッピングしつつJSON生データの保存するロジックを書きたい時がある。</p>
 <h2 id="生データを保存する独自unmarshaljsondata-byteメソッド">生データを保存する独自<code>UnmarshalJSON(data []byte)</code>メソッド</h2>
 <p>実装の完成形を先に書くと、このような<code>UnmarshalJSON(data []byte)</code>メソッドを書けばよい。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Event <span style="color:#268bd2">struct</span> {
-    <span style="color:#586e75">// もろもろのJSON構造の定義
-</span><span style="color:#586e75"></span>
-    <span style="color:#586e75">// 構造体にマッピングする前のJSONを保存する場所
-</span><span style="color:#586e75"></span>    Raw  json.RawMessage <span style="color:#2aa198">`json:&#34;-&#34;`</span>
-}
-
-<span style="color:#268bd2">func</span> (e <span style="color:#719e07">*</span>Event) <span style="color:#268bd2">UnmarshalJSON</span>(data []<span style="color:#dc322f">byte</span>) <span style="color:#dc322f">error</span> {
-  <span style="color:#268bd2">type</span> event Event
-  <span style="color:#268bd2">var</span> ee event
-  err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmarshal</span>(data, <span style="color:#719e07">&amp;</span>ee)
-  <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-    <span style="color:#719e07">return</span> err
-  }
-  <span style="color:#719e07">*</span>e = (Event)(ee)
-  e.Raw = data
-  <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
-}
-</code></pre></div><p>やっていることは単純でアンマーシャルしたあと元データを<code>json.RawMessage</code>フィールドで参照しているだけだ。
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> Event <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// もろもろのJSON構造の定義
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// 構造体にマッピングする前のJSONを保存する場所
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    Raw  json.RawMessage <span style="color:#2aa198">`json:&#34;-&#34;`</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (e <span style="color:#719e07">*</span>Event) <span style="color:#268bd2">UnmarshalJSON</span>(data []<span style="color:#dc322f">byte</span>) <span style="color:#dc322f">error</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">type</span> event Event
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">var</span> ee event
+</span></span><span style="display:flex;"><span>  err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmarshal</span>(data, <span style="color:#719e07">&amp;</span>ee)
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> err
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">*</span>e = (Event)(ee)
+</span></span><span style="display:flex;"><span>  e.Raw = data
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>やっていることは単純でアンマーシャルしたあと元データを<code>json.RawMessage</code>フィールドで参照しているだけだ。
 ただ型を定義しなおしてからアンマーシャルしているのがポイントとなる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> event Event
-<span style="color:#268bd2">var</span> ee event
-err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmarshal</span>(data, <span style="color:#719e07">&amp;</span>ee)
-</code></pre></div><h2 id="defind-typeで名前を変えると独自定義したunmarshaljsondata-byteメソッドを呼ばなくなる"><code>Defind Type</code>で名前を変えると独自定義した<code>UnmarshalJSON(data []byte)</code>メソッドを呼ばなくなる</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> event Event
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">var</span> ee event
+</span></span><span style="display:flex;"><span>err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmarshal</span>(data, <span style="color:#719e07">&amp;</span>ee)
+</span></span></code></pre></div><h2 id="defind-typeで名前を変えると独自定義したunmarshaljsondata-byteメソッドを呼ばなくなる"><code>Defind Type</code>で名前を変えると独自定義した<code>UnmarshalJSON(data []byte)</code>メソッドを呼ばなくなる</h2>
 <p>型を定義しなおす理由は2つある。</p>
 <p>最初の理由は「型を定義しなおさないといけない理由」で、同じ型のまま<code>json.Unmarshal</code>関数を使うと<code>(e *Event) UnmarshalJSON(data []byte)</code>が再帰的に呼び出されるだけになってしまうからだ。
 別定義した<code>event</code>型には<code>(e *event) UnmarshalJSON(data []byte)</code>メソッドは定義されていない。そのため、通常のアンマーシャルが行われるだけになる。</p>
@@ -507,10 +507,16 @@ err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmar
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -525,12 +531,6 @@ err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmar
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -541,7 +541,7 @@ err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmar
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

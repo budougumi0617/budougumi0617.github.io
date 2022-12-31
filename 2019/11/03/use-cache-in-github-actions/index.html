@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -221,27 +221,27 @@ Windowsコンテナでジョブを実行していると少しハマる感じだ�
 </ul>
 <p>自分のGoのリポジトリでGitHub Actionsのキャッシュを使う変更をしたPRは以下の通り。</p>
 <div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/layer/pull/5" data-iframely-url="//cdn.iframe.ly/dlanAo4"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">    - <span style="color:#268bd2">name</span>: Use Cache(on Windows)
-      <span style="color:#268bd2">if</span>: runner.os == &#39;Windows&#39;
-      <span style="color:#268bd2">uses</span>: actions/cache@preview
-      <span style="color:#268bd2">with</span>:
-        <span style="color:#268bd2">path</span>: ~/go/pkg/mod
-        <span style="color:#586e75"># 2019/11/03現在、Windowsの場合PATHを変えないと失敗する</span>
-        <span style="color:#268bd2">key</span>: ${{ runner.os }}-go-${{ hashFiles(&#39;**\go.sum&#39;) }}
-        <span style="color:#268bd2">restore-keys</span>: |<span style="color:#2aa198">
-</span><span style="color:#2aa198">          </span>          ${{ runner.os }}-go-
-    - <span style="color:#268bd2">name</span>: Use Cache
-      <span style="color:#268bd2">if</span>: runner.os != &#39;Windows&#39;
-      <span style="color:#268bd2">uses</span>: actions/cache@preview
-      <span style="color:#268bd2">with</span>:
-        <span style="color:#268bd2">path</span>: ~/go/pkg/mod
-        <span style="color:#268bd2">key</span>: ${{ runner.os }}-go-${{ hashFiles(&#39;**/go.sum&#39;) }}
-        <span style="color:#268bd2">restore-keys</span>: |<span style="color:#2aa198">
-</span><span style="color:#2aa198">          </span>          ${{ runner.os }}-go-
-    - <span style="color:#268bd2">name</span>: Download Modules
-      <span style="color:#268bd2">if</span>: steps.cache.outputs.cache-hit != &#39;true&#39;
-      <span style="color:#268bd2">run</span>: go mod download
-</code></pre></div><h1 id="github-actionsでキャッシュが使えるようになった">GitHub Actionsでキャッシュが使えるようになった</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>    - <span style="color:#268bd2">name</span>: Use Cache(on Windows)
+</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">if</span>: runner.os == &#39;Windows&#39;
+</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">uses</span>: actions/cache@preview
+</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">with</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">path</span>: ~/go/pkg/mod
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75"># 2019/11/03現在、Windowsの場合PATHを変えないと失敗する</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">key</span>: ${{ runner.os }}-go-${{ hashFiles(&#39;**\go.sum&#39;) }}
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">restore-keys</span>: |<span style="color:#2aa198">
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">          </span>          ${{ runner.os }}-go-
+</span></span><span style="display:flex;"><span>    - <span style="color:#268bd2">name</span>: Use Cache
+</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">if</span>: runner.os != &#39;Windows&#39;
+</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">uses</span>: actions/cache@preview
+</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">with</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">path</span>: ~/go/pkg/mod
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">key</span>: ${{ runner.os }}-go-${{ hashFiles(&#39;**/go.sum&#39;) }}
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">restore-keys</span>: |<span style="color:#2aa198">
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">          </span>          ${{ runner.os }}-go-
+</span></span><span style="display:flex;"><span>    - <span style="color:#268bd2">name</span>: Download Modules
+</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">if</span>: steps.cache.outputs.cache-hit != &#39;true&#39;
+</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">run</span>: go mod download
+</span></span></code></pre></div><h1 id="github-actionsでキャッシュが使えるようになった">GitHub Actionsでキャッシュが使えるようになった</h1>
 <p>2019年11月ほどからGitHub Actionsでキャッシュが利用できるようになった。</p>
 <div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/actions/cache" data-iframely-url="//cdn.iframe.ly/vNWhS6o"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
 <p>キャッシュは前回のジョブの実行で取得した依存ライブラリなどを次回以降のジョブでも再利用できる機能だ。
@@ -265,35 +265,34 @@ CircleCIでは以前からこのキャッシュ機能が利用可能だった。
 </li>
 </ul>
 <p>Goの場合は以下のようになるだろう。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">    - <span style="color:#268bd2">name</span>: Use Cache
-      <span style="color:#268bd2">if</span>: runner.os != &#39;Windows&#39;
-      <span style="color:#268bd2">uses</span>: actions/cache@preview
-      <span style="color:#268bd2">with</span>:
-        <span style="color:#268bd2">path</span>: ~/go/pkg/mod
-        <span style="color:#268bd2">key</span>: ${{ runner.os }}-go-${{ hashFiles(&#39;**/go.sum&#39;) }}
-        <span style="color:#268bd2">restore-keys</span>: |<span style="color:#2aa198">
-</span><span style="color:#2aa198">          </span>          ${{ runner.os }}-go-
-    - <span style="color:#268bd2">name</span>: Download Modules
-      <span style="color:#268bd2">if</span>: steps.cache.outputs.cache-hit != &#39;true&#39;
-      <span style="color:#268bd2">run</span>: go mod download
-</code></pre></div><h1 id="windows上で実行した際にちゃんと動かない">Windows上で実行した際にちゃんと動かない</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>    - <span style="color:#268bd2">name</span>: Use Cache
+</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">if</span>: runner.os != &#39;Windows&#39;
+</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">uses</span>: actions/cache@preview
+</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">with</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">path</span>: ~/go/pkg/mod
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">key</span>: ${{ runner.os }}-go-${{ hashFiles(&#39;**/go.sum&#39;) }}
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">restore-keys</span>: |<span style="color:#2aa198">
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">          </span>          ${{ runner.os }}-go-
+</span></span><span style="display:flex;"><span>    - <span style="color:#268bd2">name</span>: Download Modules
+</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">if</span>: steps.cache.outputs.cache-hit != &#39;true&#39;
+</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">run</span>: go mod download
+</span></span></code></pre></div><h1 id="windows上で実行した際にちゃんと動かない">Windows上で実行した際にちゃんと動かない</h1>
 <p>MacOSやLinuxコンテナ上でジョブを実行している場合は上記で定義は完了する。ただ、Windowsコンテナでジョブを実行している場合は一工夫必要だった。
 サンプルコードの定義だと、以下のIssueのように、ファイルを探索する際のPATHがWindows上では正しく解釈できないようだ。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75">##[error]The template is not valid. &#39;hashFiles(**/go.sum)&#39; failed. \</span>
-Search pattern <span style="color:#2aa198">&#39;**/go.sum&#39;</span> doesn<span style="color:#2aa198">&#39;t match any file under &#39;</span>d:<span style="color:#cb4b16">\a\l</span>ayer<span style="color:#cb4b16">\l</span>ayer&#39;
-
-</code></pre></div><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/actions/cache/issues/39" data-iframely-url="//cdn.iframe.ly/dqojS6a"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75">##[error]The template is not valid. &#39;hashFiles(**/go.sum)&#39; failed. \</span>
+</span></span><span style="display:flex;"><span>Search pattern <span style="color:#2aa198">&#39;**/go.sum&#39;</span> doesn<span style="color:#2aa198">&#39;t match any file under &#39;</span>d:<span style="color:#cb4b16">\a\l</span>ayer<span style="color:#cb4b16">\l</span>ayer&#39;
+</span></span></code></pre></div><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/actions/cache/issues/39" data-iframely-url="//cdn.iframe.ly/dqojS6a"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
 <p>Windows用の定義は以下のようになる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">    - <span style="color:#268bd2">name</span>: Use Cache(on Windows)
-      <span style="color:#268bd2">if</span>: runner.os == &#39;Windows&#39;
-      <span style="color:#268bd2">uses</span>: actions/cache@preview
-      <span style="color:#268bd2">with</span>:
-        <span style="color:#268bd2">path</span>: ~/go/pkg/mod
-        <span style="color:#586e75"># 2019/11/03現在、Windowsの場合PATHを変えないと失敗する</span>
-        <span style="color:#268bd2">key</span>: ${{ runner.os }}-go-${{ hashFiles(&#39;**\go.sum&#39;) }}
-        <span style="color:#268bd2">restore-keys</span>: |<span style="color:#2aa198">
-</span><span style="color:#2aa198">          </span>          ${{ runner.os }}-go-
-</code></pre></div><h1 id="キャッシュを使ってみて">キャッシュを使ってみて</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>    - <span style="color:#268bd2">name</span>: Use Cache(on Windows)
+</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">if</span>: runner.os == &#39;Windows&#39;
+</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">uses</span>: actions/cache@preview
+</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">with</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">path</span>: ~/go/pkg/mod
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75"># 2019/11/03現在、Windowsの場合PATHを変えないと失敗する</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">key</span>: ${{ runner.os }}-go-${{ hashFiles(&#39;**\go.sum&#39;) }}
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">restore-keys</span>: |<span style="color:#2aa198">
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">          </span>          ${{ runner.os }}-go-
+</span></span></code></pre></div><h1 id="キャッシュを使ってみて">キャッシュを使ってみて</h1>
 <p>実際に自分のGoのリポジトリでGitHub Actionsのキャッシュを使ってみた。
 変更の差分は以下のPRにまとまっている。</p>
 <div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/layer/pull/5" data-iframely-url="//cdn.iframe.ly/dlanAo4"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
@@ -301,18 +300,18 @@ Search pattern <span style="color:#2aa198">&#39;**/go.sum&#39;</span> doesn<span
 <ul>
 <li><a href="https://github.com/budougumi0617/layer/commit/ce8304ed1b233a7d9c2fb2b400bc246d7ca39372/checks?check_suite_id=293461218">キャッシュなしで実行したActions</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">Download Modules 14s
-go: finding golang.org/x/sys v0.0.0-20190215142949-d0b11bdaac8a
-Run go mod download
-go: finding github.com/google/go-cmp v0.3.1
-go: finding golang.org/x/tools v0.0.0-20191014205221-18e3458ac98b
-go: finding golang.org/x/net v0.0.0-20190620200207-3b0461eec859
-go: finding golang.org/x/sync v0.0.0-20190423024810-112230192c58
-go: finding golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7
-go: finding golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
-go: finding golang.org/x/text v0.3.0
-go: finding golang.org/x/sys v0.0.0-20190215142949-d0b11bdaac8a
-</code></pre></div><p>キャッシュありのビルド出力は以下になった。キャッシュが効いているので<code>go mod download</code>の時間は0秒になっている。
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Download Modules 14s
+</span></span><span style="display:flex;"><span>go: finding golang.org/x/sys v0.0.0-20190215142949-d0b11bdaac8a
+</span></span><span style="display:flex;"><span>Run go mod download
+</span></span><span style="display:flex;"><span>go: finding github.com/google/go-cmp v0.3.1
+</span></span><span style="display:flex;"><span>go: finding golang.org/x/tools v0.0.0-20191014205221-18e3458ac98b
+</span></span><span style="display:flex;"><span>go: finding golang.org/x/net v0.0.0-20190620200207-3b0461eec859
+</span></span><span style="display:flex;"><span>go: finding golang.org/x/sync v0.0.0-20190423024810-112230192c58
+</span></span><span style="display:flex;"><span>go: finding golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7
+</span></span><span style="display:flex;"><span>go: finding golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
+</span></span><span style="display:flex;"><span>go: finding golang.org/x/text v0.3.0
+</span></span><span style="display:flex;"><span>go: finding golang.org/x/sys v0.0.0-20190215142949-d0b11bdaac8a
+</span></span></code></pre></div><p>キャッシュありのビルド出力は以下になった。キャッシュが効いているので<code>go mod download</code>の時間は0秒になっている。
 ビルド全体の実行時間も26秒になった。今回試したライブラリの依存先は大した量ではないので、もっと業務で利用するようなリポジトリでは大幅な時間短縮も見込めそうだ。</p>
 <ul>
 <li><a href="https://github.com/budougumi0617/layer/commit/567ee885708004e31f0cadc1b657e369139ecad9/checks?check_suite_id=293465615">キャッシュありで実行したActions</a></li>
@@ -520,10 +519,16 @@ Run go mod download
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -538,12 +543,6 @@ Run go mod download
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -554,7 +553,7 @@ Run go mod download
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

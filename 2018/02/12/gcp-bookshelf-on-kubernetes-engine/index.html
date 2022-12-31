@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -193,29 +193,29 @@
 <p>チュートリアルの「始める前に」の途中にリンクしてあるgcloudのインストールページは最新版の<code>gcloud</code>へのリンクではない。<br>
 （<code>180.0.0</code>のtarが書いてあるが、2018/02/12時点で最新は<code>188.0.0</code>）<br>
 以下のコマンドで最新版の<code>gcloud</code>コマンドが取得できる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ curl https://sdk.cloud.google.com | bash
-</code></pre></div><h1 id="depコマンドなどは使わずgo-get--u-で依存パッケージを取得する"><code>dep</code>コマンドなどは使わず、<code>go get -u ./...</code>で依存パッケージを取得する</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ curl https://sdk.cloud.google.com | bash
+</span></span></code></pre></div><h1 id="depコマンドなどは使わずgo-get--u-で依存パッケージを取得する"><code>dep</code>コマンドなどは使わず、<code>go get -u ./...</code>で依存パッケージを取得する</h1>
 <p>チュートリアル用の<code>golang-samples</code>リポジトリは<code>glide</code>や<code>dep</code>のような依存管理ツールの設定がされていない。<br>
 逆にいうと、常に最新の依存ライブラリに依存している。<br>
 2018/02/12現在<code>dep</code>コマンドで依存関係を解決すると、<code>satori/go.uuid</code>リポジトリなどの破壊的変更が取り込めないので、<br>
 ビルドエラーになってしまう。(Dockerでビルドしてもvendorディレクトリが取り込まれてしまうためエラーになる）<br>
 ローカルで依存関係を解決したいときは<code>go get</code>コマンドで行うこと。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">cd</span> <span style="color:#268bd2">$GOPATH</span>/src/github.com/GoogleCloudPlatform/golang-samples/getting-started/bookshelf
-$ go get -u ./...
-</code></pre></div><h1 id="クラスターを作成するときは--cluster-versionでk8sのバージョンを最新にしておく">クラスターを作成するときは<code>--cluster-version</code>でk8sのバージョンを最新にしておく</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ <span style="color:#b58900">cd</span> <span style="color:#268bd2">$GOPATH</span>/src/github.com/GoogleCloudPlatform/golang-samples/getting-started/bookshelf
+</span></span><span style="display:flex;"><span>$ go get -u ./...
+</span></span></code></pre></div><h1 id="クラスターを作成するときは--cluster-versionでk8sのバージョンを最新にしておく">クラスターを作成するときは<code>--cluster-version</code>でk8sのバージョンを最新にしておく</h1>
 <p>以下のコマンドで利用できるk8sのバージョンとデフォルトが確認できる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ gcloud container get-server-config
-</code></pre></div><p>もしここで<code>defaultClusterVersion: 1.7.XX-gke.1</code>と表示されたなら、変更するほうがよい。<br>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ gcloud container get-server-config
+</span></span></code></pre></div><p>もしここで<code>defaultClusterVersion: 1.7.XX-gke.1</code>と表示されたなら、変更するほうがよい。<br>
 2018/02/12現在以下の問題があり、1.7.X系はStackDriver周りでエラーが出るので変更しておく必要がある。</p>
 <p><strong>Error while sending request to Stackdriver &hellip; unsupported protocol scheme</strong><br>
 <a href="https://github.com/GoogleCloudPlatform/k8s-stackdriver/issues/92">https://github.com/GoogleCloudPlatform/k8s-stackdriver/issues/92</a></p>
 <p>チュートリアルの「Container Engine クラスタの作成」に書いてある<code>gcloud container clusters create</code>コマンドに<br>
 クラスターバージョンを指定するオプションをつけてクラスターを作成する。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ gcloud container clusters create bookshelf <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>  --scopes <span style="color:#2aa198">&#34;cloud-platform&#34;</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>  --num-nodes <span style="color:#2aa198">2</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>  --cluster-version 1.9.2-gke.1
-</code></pre></div><p>指定できるバージョンは<code>gcloud container get-server-config</code>コマンドでも確認できたが、ドキュメント的には以下に記載してある。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ gcloud container clusters create bookshelf <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  --scopes <span style="color:#2aa198">&#34;cloud-platform&#34;</span> <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  --num-nodes <span style="color:#2aa198">2</span> <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  --cluster-version 1.9.2-gke.1
+</span></span></code></pre></div><p>指定できるバージョンは<code>gcloud container get-server-config</code>コマンドでも確認できたが、ドキュメント的には以下に記載してある。</p>
 <p><strong>Versioning and Upgrades</strong><br>
 <a href="https://cloud.google.com/kubernetes-engine/versioning-and-upgrades">https://cloud.google.com/kubernetes-engine/versioning-and-upgrades</a></p>
 <h1 id="終わりに">終わりに</h1>
@@ -414,10 +414,16 @@ PRチャンスかと思ってPRを出し、CIの結果を見て自分が間違�
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -432,12 +438,6 @@ PRチャンスかと思ってPRを出し、CIの結果を見て自分が間違�
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -448,7 +448,7 @@ PRチャンスかと思ってPRを出し、CIの結果を見て自分が間違�
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

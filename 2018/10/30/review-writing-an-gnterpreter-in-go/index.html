@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -263,24 +263,24 @@
 </ul>
 <h2 id="終始動くものを小さく作るを一貫して最後まで続ける">終始「動くものを小さく作る」を一貫して最後まで続ける</h2>
 <p>本書のインタプリタではASTのノードを全て<code>Node</code>インターフェースで表現する。与えられたテキストは自作する字句解析器によって<code>Token</code>に分解されたあと、<code>Statement</code>あるいは<code>Expression</code>インタフェースを満たす<code>Node</code>の派生オブジェクトとしてパースされていく。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// Node is base of AST.
-</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> Node <span style="color:#268bd2">interface</span> {
-	<span style="color:#268bd2">TokenLiteral</span>() <span style="color:#dc322f">string</span>
-	<span style="color:#268bd2">String</span>() <span style="color:#dc322f">string</span>
-}
-
-<span style="color:#586e75">// Statement is base statement.
-</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> Statement <span style="color:#268bd2">interface</span> {
-	Node
-	<span style="color:#268bd2">statementNode</span>()
-}
-
-<span style="color:#586e75">// Expression is base expression.
-</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> Expression <span style="color:#268bd2">interface</span> {
-	Node
-	<span style="color:#268bd2">expressionNode</span>()
-}
-</code></pre></div><p>本書の構成のすごいところは1章でREPLを作成しコンソールで触りながら実装を進められるところだ。節の実装をひとつ終えるたびにインタプリタ（REPL）に新しい機能が「動かせる状態」で追加されていく。普段の開発で例えるならスプリントが終わるたびに必ず「新機能のデモができる」ような進め方で章が進んでいく。つまり「今は作らないけど今後の拡張を考慮しておく」アプローチについても学習することができる。前半でパーサーのコアロジックまで実装したあとは新しいトークンリテラルを追加して条件分岐に処理を追加していくだけだ。このような優れた設計・抽象化は一度実装したあと（全部一度見通したあと）のリファクタリングで得られるものなのかもしれないが、コア部分の設計が大きく開発に影響することを感じることができた。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// Node is base of AST.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> Node <span style="color:#268bd2">interface</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#268bd2">TokenLiteral</span>() <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#268bd2">String</span>() <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Statement is base statement.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> Statement <span style="color:#268bd2">interface</span> {
+</span></span><span style="display:flex;"><span>	Node
+</span></span><span style="display:flex;"><span>	<span style="color:#268bd2">statementNode</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Expression is base expression.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> Expression <span style="color:#268bd2">interface</span> {
+</span></span><span style="display:flex;"><span>	Node
+</span></span><span style="display:flex;"><span>	<span style="color:#268bd2">expressionNode</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>本書の構成のすごいところは1章でREPLを作成しコンソールで触りながら実装を進められるところだ。節の実装をひとつ終えるたびにインタプリタ（REPL）に新しい機能が「動かせる状態」で追加されていく。普段の開発で例えるならスプリントが終わるたびに必ず「新機能のデモができる」ような進め方で章が進んでいく。つまり「今は作らないけど今後の拡張を考慮しておく」アプローチについても学習することができる。前半でパーサーのコアロジックまで実装したあとは新しいトークンリテラルを追加して条件分岐に処理を追加していくだけだ。このような優れた設計・抽象化は一度実装したあと（全部一度見通したあと）のリファクタリングで得られるものなのかもしれないが、コア部分の設計が大きく開発に影響することを感じることができた。</p>
 <h2 id="テスト駆動開発tddで機能を着実に実装していく">テスト駆動開発（TDD）で機能を着実に実装していく</h2>
 <p>本書が良いと感じた2点目の理由は最初から最後まで一貫してテスト駆動開発で実装が進むところだ。本書の各節は以下の流れで進む。</p>
 <ol>
@@ -289,33 +289,33 @@
 <li>テストレッドを確認したあと実装を行う</li>
 </ol>
 <p>特にテストコードの作成では簡単な確認のテスト以外ではすべてテーブル駆動テストで実装される。そのためテストも文字列と期待値のテストケースを数行（数ケース＿加えるだけですぐ実装が開始できる。例えば以下のテストケースにコメントアウト部分のテストケースを足せばもう<code>==</code>と<code>!=</code>の実装を開始することができる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	infixTests <span style="color:#719e07">:=</span> []<span style="color:#268bd2">struct</span> {
-		input      <span style="color:#dc322f">string</span>
-		leftValue  <span style="color:#268bd2">interface</span>{}
-		operator   <span style="color:#dc322f">string</span>
-		rightValue <span style="color:#268bd2">interface</span>{}
-	}{
-		{<span style="color:#2aa198">&#34;5 + 5;&#34;</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">&#34;+&#34;</span>, <span style="color:#2aa198">5</span>},
-		{<span style="color:#2aa198">&#34;5 - 5;&#34;</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">&#34;-&#34;</span>, <span style="color:#2aa198">5</span>},
-		{<span style="color:#2aa198">&#34;5 * 5;&#34;</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">&#34;*&#34;</span>, <span style="color:#2aa198">5</span>},
-		{<span style="color:#2aa198">&#34;5 / 5;&#34;</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">&#34;/&#34;</span>, <span style="color:#2aa198">5</span>},
-		{<span style="color:#2aa198">&#34;5 &gt; 5;&#34;</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">&#34;&gt;&#34;</span>, <span style="color:#2aa198">5</span>},
-		{<span style="color:#2aa198">&#34;5 &lt; 5;&#34;</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">&#34;&lt;&#34;</span>, <span style="color:#2aa198">5</span>},
-		{<span style="color:#2aa198">&#34;5 == 5;&#34;</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">&#34;==&#34;</span>, <span style="color:#2aa198">5</span>},
-		{<span style="color:#2aa198">&#34;5 != 5;&#34;</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">&#34;!=&#34;</span>, <span style="color:#2aa198">5</span>},
-		{<span style="color:#2aa198">&#34;foobar + barfoo;&#34;</span>, <span style="color:#2aa198">&#34;foobar&#34;</span>, <span style="color:#2aa198">&#34;+&#34;</span>, <span style="color:#2aa198">&#34;barfoo&#34;</span>},
-		{<span style="color:#2aa198">&#34;foobar - barfoo;&#34;</span>, <span style="color:#2aa198">&#34;foobar&#34;</span>, <span style="color:#2aa198">&#34;-&#34;</span>, <span style="color:#2aa198">&#34;barfoo&#34;</span>},
-		{<span style="color:#2aa198">&#34;foobar * barfoo;&#34;</span>, <span style="color:#2aa198">&#34;foobar&#34;</span>, <span style="color:#2aa198">&#34;*&#34;</span>, <span style="color:#2aa198">&#34;barfoo&#34;</span>},
-		{<span style="color:#2aa198">&#34;foobar / barfoo;&#34;</span>, <span style="color:#2aa198">&#34;foobar&#34;</span>, <span style="color:#2aa198">&#34;/&#34;</span>, <span style="color:#2aa198">&#34;barfoo&#34;</span>},
-		{<span style="color:#2aa198">&#34;foobar &gt; barfoo;&#34;</span>, <span style="color:#2aa198">&#34;foobar&#34;</span>, <span style="color:#2aa198">&#34;&gt;&#34;</span>, <span style="color:#2aa198">&#34;barfoo&#34;</span>},
-		{<span style="color:#2aa198">&#34;foobar &lt; barfoo;&#34;</span>, <span style="color:#2aa198">&#34;foobar&#34;</span>, <span style="color:#2aa198">&#34;&lt;&#34;</span>, <span style="color:#2aa198">&#34;barfoo&#34;</span>},
-<span style="color:#586e75">//	{&#34;foobar == barfoo;&#34;, &#34;foobar&#34;, &#34;==&#34;, &#34;barfoo&#34;},
-</span><span style="color:#586e75">//	{&#34;foobar != barfoo;&#34;, &#34;foobar&#34;, &#34;!=&#34;, &#34;barfoo&#34;},
-</span><span style="color:#586e75">//	{&#34;true == true&#34;, true, &#34;==&#34;, true},
-</span><span style="color:#586e75">//  {&#34;true != false&#34;, true, &#34;!=&#34;, false},
-</span><span style="color:#586e75">//  {&#34;false == false&#34;, false, &#34;==&#34;, false},
-</span><span style="color:#586e75"></span>	}
-</code></pre></div><p>テストを回しながらリグレッションテストを繰り返すだけで「実装の完了」を明確に確認できる。「デグレなく実装できたか」、「今どこまで実装できているのか（どの構文まで対応できているのか）」を確かめながら新たな実装に進むことができるので、テスト駆動開発の強さを体感しながら読み進めることができた。「課題」として取り組みたい人はテストケースを実装したところで本を閉じ、自分で考えて実装するという進め方もできるだろう。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>	infixTests <span style="color:#719e07">:=</span> []<span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>		input      <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>		leftValue  <span style="color:#268bd2">interface</span>{}
+</span></span><span style="display:flex;"><span>		operator   <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>		rightValue <span style="color:#268bd2">interface</span>{}
+</span></span><span style="display:flex;"><span>	}{
+</span></span><span style="display:flex;"><span>		{<span style="color:#2aa198">&#34;5 + 5;&#34;</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">&#34;+&#34;</span>, <span style="color:#2aa198">5</span>},
+</span></span><span style="display:flex;"><span>		{<span style="color:#2aa198">&#34;5 - 5;&#34;</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">&#34;-&#34;</span>, <span style="color:#2aa198">5</span>},
+</span></span><span style="display:flex;"><span>		{<span style="color:#2aa198">&#34;5 * 5;&#34;</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">&#34;*&#34;</span>, <span style="color:#2aa198">5</span>},
+</span></span><span style="display:flex;"><span>		{<span style="color:#2aa198">&#34;5 / 5;&#34;</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">&#34;/&#34;</span>, <span style="color:#2aa198">5</span>},
+</span></span><span style="display:flex;"><span>		{<span style="color:#2aa198">&#34;5 &gt; 5;&#34;</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">&#34;&gt;&#34;</span>, <span style="color:#2aa198">5</span>},
+</span></span><span style="display:flex;"><span>		{<span style="color:#2aa198">&#34;5 &lt; 5;&#34;</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">&#34;&lt;&#34;</span>, <span style="color:#2aa198">5</span>},
+</span></span><span style="display:flex;"><span>		{<span style="color:#2aa198">&#34;5 == 5;&#34;</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">&#34;==&#34;</span>, <span style="color:#2aa198">5</span>},
+</span></span><span style="display:flex;"><span>		{<span style="color:#2aa198">&#34;5 != 5;&#34;</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">&#34;!=&#34;</span>, <span style="color:#2aa198">5</span>},
+</span></span><span style="display:flex;"><span>		{<span style="color:#2aa198">&#34;foobar + barfoo;&#34;</span>, <span style="color:#2aa198">&#34;foobar&#34;</span>, <span style="color:#2aa198">&#34;+&#34;</span>, <span style="color:#2aa198">&#34;barfoo&#34;</span>},
+</span></span><span style="display:flex;"><span>		{<span style="color:#2aa198">&#34;foobar - barfoo;&#34;</span>, <span style="color:#2aa198">&#34;foobar&#34;</span>, <span style="color:#2aa198">&#34;-&#34;</span>, <span style="color:#2aa198">&#34;barfoo&#34;</span>},
+</span></span><span style="display:flex;"><span>		{<span style="color:#2aa198">&#34;foobar * barfoo;&#34;</span>, <span style="color:#2aa198">&#34;foobar&#34;</span>, <span style="color:#2aa198">&#34;*&#34;</span>, <span style="color:#2aa198">&#34;barfoo&#34;</span>},
+</span></span><span style="display:flex;"><span>		{<span style="color:#2aa198">&#34;foobar / barfoo;&#34;</span>, <span style="color:#2aa198">&#34;foobar&#34;</span>, <span style="color:#2aa198">&#34;/&#34;</span>, <span style="color:#2aa198">&#34;barfoo&#34;</span>},
+</span></span><span style="display:flex;"><span>		{<span style="color:#2aa198">&#34;foobar &gt; barfoo;&#34;</span>, <span style="color:#2aa198">&#34;foobar&#34;</span>, <span style="color:#2aa198">&#34;&gt;&#34;</span>, <span style="color:#2aa198">&#34;barfoo&#34;</span>},
+</span></span><span style="display:flex;"><span>		{<span style="color:#2aa198">&#34;foobar &lt; barfoo;&#34;</span>, <span style="color:#2aa198">&#34;foobar&#34;</span>, <span style="color:#2aa198">&#34;&lt;&#34;</span>, <span style="color:#2aa198">&#34;barfoo&#34;</span>},
+</span></span><span style="display:flex;"><span><span style="color:#586e75">//	{&#34;foobar == barfoo;&#34;, &#34;foobar&#34;, &#34;==&#34;, &#34;barfoo&#34;},
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75">//	{&#34;foobar != barfoo;&#34;, &#34;foobar&#34;, &#34;!=&#34;, &#34;barfoo&#34;},
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75">//	{&#34;true == true&#34;, true, &#34;==&#34;, true},
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75">//  {&#34;true != false&#34;, true, &#34;!=&#34;, false},
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75">//  {&#34;false == false&#34;, false, &#34;==&#34;, false},
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	}
+</span></span></code></pre></div><p>テストを回しながらリグレッションテストを繰り返すだけで「実装の完了」を明確に確認できる。「デグレなく実装できたか」、「今どこまで実装できているのか（どの構文まで対応できているのか）」を確かめながら新たな実装に進むことができるので、テスト駆動開発の強さを体感しながら読み進めることができた。「課題」として取り組みたい人はテストケースを実装したところで本を閉じ、自分で考えて実装するという進め方もできるだろう。</p>
 <ul>
 <li>TableDrivenTests
 <ul>
@@ -514,10 +514,16 @@
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -532,12 +538,6 @@
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -548,7 +548,7 @@
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

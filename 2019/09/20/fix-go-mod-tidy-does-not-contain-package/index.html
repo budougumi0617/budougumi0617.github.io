@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -208,14 +208,14 @@ github.com/budougumi0617/til/go/tui/promptui imports
 </nav>
           
           <p><code>go mod tidy</code>が次のようなのエラーで失敗するとき、エラーを解決するメモ。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go mod tidy
-github.com/budougumi0617/til/go/tui/promptui imports
-        github.com/manifoldco/promptui imports
-        github.com/alecthomas/gometalinter imports
-        gopkg.in/alecthomas/kingpin.v3-unstable imports
-        github.com/nicksnyder/go-i18n/i18n: module github.com/nicksnyder/go-i18n@latest <span style="color:#719e07">(</span>v2.0.2+incompatible<span style="color:#719e07">)</span> found, but does not contain package github.com/nicksnyder/go-i18n/i18n
- 
-</code></pre></div><h1 id="tldr">TL;DR</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ go mod tidy
+</span></span><span style="display:flex;"><span>github.com/budougumi0617/til/go/tui/promptui imports
+</span></span><span style="display:flex;"><span>        github.com/manifoldco/promptui imports
+</span></span><span style="display:flex;"><span>        github.com/alecthomas/gometalinter imports
+</span></span><span style="display:flex;"><span>        gopkg.in/alecthomas/kingpin.v3-unstable imports
+</span></span><span style="display:flex;"><span>        github.com/nicksnyder/go-i18n/i18n: module github.com/nicksnyder/go-i18n@latest <span style="color:#719e07">(</span>v2.0.2+incompatible<span style="color:#719e07">)</span> found, but does not contain package github.com/nicksnyder/go-i18n/i18n
+</span></span><span style="display:flex;"><span> 
+</span></span></code></pre></div><h1 id="tldr">TL;DR</h1>
 <ul>
 <li><code>go mod tidy</code>コマンドが次のエラーで失敗するようになってしまった。
 <ul>
@@ -226,22 +226,22 @@ github.com/budougumi0617/til/go/tui/promptui imports
 <li><code>go.mod</code>ファイル内で明示的に<code>v1</code>系のバージョンを指定すればばよい。</li>
 </ul>
 <p>なお、実行環境は以下。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go version
-go version go1.13 darwin/amd64
-</code></pre></div><h1 id="エラー">エラー</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ go version
+</span></span><span style="display:flex;"><span>go version go1.13 darwin/amd64
+</span></span></code></pre></div><h1 id="エラー">エラー</h1>
 <p>以下のような<code>main.go</code>ファイルと、<code>go.mod</code>ファイルを用意する。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
-
-<span style="color:#719e07">import</span> (
-        <span style="color:#2aa198">&#34;fmt&#34;</span>
-
-        <span style="color:#2aa198">&#34;github.com/manifoldco/promptui&#34;</span>
-)
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-        fmt.<span style="color:#268bd2">Println</span>(promptui.KeyEnter)
-}
-</code></pre></div><pre tabindex="0"><code>module github.com/budougumi0617/til/go/tui/promptui
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
+</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;github.com/manifoldco/promptui&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+</span></span><span style="display:flex;"><span>        fmt.<span style="color:#268bd2">Println</span>(promptui.KeyEnter)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><pre tabindex="0"><code>module github.com/budougumi0617/til/go/tui/promptui
 
 go 1.13
 
@@ -253,78 +253,78 @@ require (
 )
  
 </code></pre><p>このふたつのファイルは（あまり意味のある結果ではないが、）次のように実行できる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run main.go
-<span style="color:#2aa198">13</span>
-</code></pre></div><p>ただし、<code>go mod tidy</code>をして<code>go.mod</code>ファイルと<code>go.sum</code>ファイルを整理しようとすると、以下のエラーが発生して<code>go mod tidy</code>が完了しない。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go mod tidy
-github.com/budougumi0617/til/go/tui/promptui imports
-        github.com/manifoldco/promptui imports
-        github.com/alecthomas/gometalinter imports
-        gopkg.in/alecthomas/kingpin.v3-unstable imports
-        github.com/nicksnyder/go-i18n/i18n: module github.com/nicksnyder/go-i18n@latest <span style="color:#719e07">(</span>v2.0.2+incompatible<span style="color:#719e07">)</span> found, but does not contain package github.com/nicksnyder/go-i18n/i18n
- 
-</code></pre></div><h1 id="does-not-contain-packageの原因"><code>does not contain package</code>の原因</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ go run main.go
+</span></span><span style="display:flex;"><span><span style="color:#2aa198">13</span>
+</span></span></code></pre></div><p>ただし、<code>go mod tidy</code>をして<code>go.mod</code>ファイルと<code>go.sum</code>ファイルを整理しようとすると、以下のエラーが発生して<code>go mod tidy</code>が完了しない。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ go mod tidy
+</span></span><span style="display:flex;"><span>github.com/budougumi0617/til/go/tui/promptui imports
+</span></span><span style="display:flex;"><span>        github.com/manifoldco/promptui imports
+</span></span><span style="display:flex;"><span>        github.com/alecthomas/gometalinter imports
+</span></span><span style="display:flex;"><span>        gopkg.in/alecthomas/kingpin.v3-unstable imports
+</span></span><span style="display:flex;"><span>        github.com/nicksnyder/go-i18n/i18n: module github.com/nicksnyder/go-i18n@latest <span style="color:#719e07">(</span>v2.0.2+incompatible<span style="color:#719e07">)</span> found, but does not contain package github.com/nicksnyder/go-i18n/i18n
+</span></span><span style="display:flex;"><span> 
+</span></span></code></pre></div><h1 id="does-not-contain-packageの原因"><code>does not contain package</code>の原因</h1>
 <p>エラーの発生原因となる<code>github.com/nicksnyder/go-i18n</code>パッケージのコードを確認してみる。</p>
 <div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/nicksnyder/go-i18n" data-iframely-url="//cdn.iframe.ly/g6KJCX6"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
 <p>GitHubで確認すればわかるとおり、2019/09/20現在、上記のパッケージの<code>lateset</code>は<code>v2</code>ディレクトリ構成になっており、<code>go.mod</code>ファイルがなくなっている。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">tree -L <span style="color:#2aa198">1</span> <span style="color:#268bd2">$GOPATH</span>/src/github.com/nicksnyder/go-i18n
-/Users/budougumi0617/go/src/github.com/nicksnyder/go-i18n
-├── CHANGELOG.md
-├── LICENSE
-├── README.md
-├── dev.md
-└── v2
-
-<span style="color:#2aa198">1</span> directory, <span style="color:#2aa198">4</span> files
-</code></pre></div><p>そのため、「latestには該当パッケージがない」というエラーメッセージが発生する。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>tree -L <span style="color:#2aa198">1</span> <span style="color:#268bd2">$GOPATH</span>/src/github.com/nicksnyder/go-i18n
+</span></span><span style="display:flex;"><span>/Users/budougumi0617/go/src/github.com/nicksnyder/go-i18n
+</span></span><span style="display:flex;"><span>├── CHANGELOG.md
+</span></span><span style="display:flex;"><span>├── LICENSE
+</span></span><span style="display:flex;"><span>├── README.md
+</span></span><span style="display:flex;"><span>├── dev.md
+</span></span><span style="display:flex;"><span>└── v2
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#2aa198">1</span> directory, <span style="color:#2aa198">4</span> files
+</span></span></code></pre></div><p>そのため、「latestには該当パッケージがない」というエラーメッセージが発生する。</p>
 <h1 id="明示的に解決に失敗するモジュールのバージョンを指定する">明示的に解決に失敗するモジュールのバージョンを指定する</h1>
 <p>これを解決するには、<code>v2</code>以降前のバージョンを明示的に指定してあげればよい。</p>
 <p>該当パッケージの<code>v1</code>系の最後のバージョンを確認する。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">git tag -l <span style="color:#2aa198">&#34;v1.*&#34;</span>
-v1.0.0
-v1.1.0
-v1.10.0
-v1.10.1
-v1.2.0
-v1.3.0
-v1.4.0
-v1.5.0
-v1.6.0
-v1.7.0
-v1.8.0
-v1.8.1
-v1.9.0
-</code></pre></div><p><code>v1.10.1</code>が最新だったので、これを<code>go.mod</code>ファイル内で指定する。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go mod edit -require github.com/nicksnyder/go-i18n@v1.10.1
-$ cat go.mod
-module github.com/budougumi0617/til/go/tui/promptui
-
-go 1.13
-
-require <span style="color:#719e07">(</span>
-        github.com/BurntSushi/toml v0.3.1 // indirect
-        github.com/alecthomas/units v0.0.0-20190910110746-680d30ca3117 // indirect
-        github.com/manifoldco/promptui v0.3.2
-        github.com/nicksnyder/go-i18n v1.10.1
-        gopkg.in/alecthomas/kingpin.v3-unstable v3.0.0-20180810215634-df19058c872c // indirect
-<span style="color:#719e07">)</span>
- 
-</code></pre></div><p>こうして明示的にバージョンを指定すると、<code>go mod tidy</code>コマンドが成功するようになる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go mod tidy
-$ cat go.mod
-module github.com/budougumi0617/til/go/tui/promptui
-
-go 1.13
-
-require <span style="color:#719e07">(</span>
-        github.com/BurntSushi/toml v0.3.1 // indirect
-        github.com/alecthomas/units v0.0.0-20190910110746-680d30ca3117 // indirect
-        github.com/manifoldco/promptui v0.3.2
-        github.com/nicksnyder/go-i18n v1.10.1 // indirect
-        gopkg.in/alecthomas/kingpin.v3-unstable v3.0.0-20180810215634-df19058c872c // indirect
-<span style="color:#719e07">)</span>
- 
-</code></pre></div><h1 id="終わりに">終わりに</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>git tag -l <span style="color:#2aa198">&#34;v1.*&#34;</span>
+</span></span><span style="display:flex;"><span>v1.0.0
+</span></span><span style="display:flex;"><span>v1.1.0
+</span></span><span style="display:flex;"><span>v1.10.0
+</span></span><span style="display:flex;"><span>v1.10.1
+</span></span><span style="display:flex;"><span>v1.2.0
+</span></span><span style="display:flex;"><span>v1.3.0
+</span></span><span style="display:flex;"><span>v1.4.0
+</span></span><span style="display:flex;"><span>v1.5.0
+</span></span><span style="display:flex;"><span>v1.6.0
+</span></span><span style="display:flex;"><span>v1.7.0
+</span></span><span style="display:flex;"><span>v1.8.0
+</span></span><span style="display:flex;"><span>v1.8.1
+</span></span><span style="display:flex;"><span>v1.9.0
+</span></span></code></pre></div><p><code>v1.10.1</code>が最新だったので、これを<code>go.mod</code>ファイル内で指定する。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ go mod edit -require github.com/nicksnyder/go-i18n@v1.10.1
+</span></span><span style="display:flex;"><span>$ cat go.mod
+</span></span><span style="display:flex;"><span>module github.com/budougumi0617/til/go/tui/promptui
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>go 1.13
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>require <span style="color:#719e07">(</span>
+</span></span><span style="display:flex;"><span>        github.com/BurntSushi/toml v0.3.1 // indirect
+</span></span><span style="display:flex;"><span>        github.com/alecthomas/units v0.0.0-20190910110746-680d30ca3117 // indirect
+</span></span><span style="display:flex;"><span>        github.com/manifoldco/promptui v0.3.2
+</span></span><span style="display:flex;"><span>        github.com/nicksnyder/go-i18n v1.10.1
+</span></span><span style="display:flex;"><span>        gopkg.in/alecthomas/kingpin.v3-unstable v3.0.0-20180810215634-df19058c872c // indirect
+</span></span><span style="display:flex;"><span><span style="color:#719e07">)</span>
+</span></span><span style="display:flex;"><span> 
+</span></span></code></pre></div><p>こうして明示的にバージョンを指定すると、<code>go mod tidy</code>コマンドが成功するようになる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ go mod tidy
+</span></span><span style="display:flex;"><span>$ cat go.mod
+</span></span><span style="display:flex;"><span>module github.com/budougumi0617/til/go/tui/promptui
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>go 1.13
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>require <span style="color:#719e07">(</span>
+</span></span><span style="display:flex;"><span>        github.com/BurntSushi/toml v0.3.1 // indirect
+</span></span><span style="display:flex;"><span>        github.com/alecthomas/units v0.0.0-20190910110746-680d30ca3117 // indirect
+</span></span><span style="display:flex;"><span>        github.com/manifoldco/promptui v0.3.2
+</span></span><span style="display:flex;"><span>        github.com/nicksnyder/go-i18n v1.10.1 // indirect
+</span></span><span style="display:flex;"><span>        gopkg.in/alecthomas/kingpin.v3-unstable v3.0.0-20180810215634-df19058c872c // indirect
+</span></span><span style="display:flex;"><span><span style="color:#719e07">)</span>
+</span></span><span style="display:flex;"><span> 
+</span></span></code></pre></div><h1 id="終わりに">終わりに</h1>
 <p>いつもエディタで直接編集してしまうが、<code>go mod edit</code>コマンドを始めて使った。<br>
 直接編集もそんなに苦労しないので、これは覚えなくてもいいかな…</p>
 <p>また、<code>replace</code>を使って該当パッケージを<code>v2</code>の方へ向けると<code>go mod tidy</code>コマンドのせいでビルドが失敗する<code>go.mod</code>ファイルができるようになるので、これはissueを立ててみようと思う（不適切な<code>replace</code>ならばエラーで終わってほしい）。</p>
@@ -501,10 +501,16 @@ require <span style="color:#719e07">(</span>
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -519,12 +525,6 @@ require <span style="color:#719e07">(</span>
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -535,7 +535,7 @@ require <span style="color:#719e07">(</span>
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

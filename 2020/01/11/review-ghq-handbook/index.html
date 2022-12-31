@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -231,18 +231,18 @@ macOSならば<code>brew upgrade ghq</code>コマンドで簡単にバージョ�
 最近仕事用と私用のディレクトリ（<code>ghq root</code>）を分けて<code>ghq</code>コマンドを使おうと思っていたのだが、うまく設定できていなかった。
 本書で無事解決することが出来た。<br>
 さっそく自分のdotfilesの<code>ghq</code>関連の設定を更新した。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#719e07">function</span> peco-src <span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
-    <span style="color:#b58900">local</span> <span style="color:#268bd2">repo</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>ghq list | peco --query <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$LBUFFER</span><span style="color:#2aa198">&#34;</span> --initial-filter<span style="color:#719e07">=</span>Fuzzy<span style="color:#719e07">)</span>
-    <span style="color:#719e07">if</span> <span style="color:#719e07">[</span> -n <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$repo</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">]</span>; <span style="color:#719e07">then</span>
-        <span style="color:#268bd2">repo</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>ghq list --full-path --exact <span style="color:#268bd2">$repo</span><span style="color:#719e07">)</span>
-        <span style="color:#268bd2">BUFFER</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;cd </span><span style="color:#2aa198">${</span><span style="color:#268bd2">repo</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
-        zle accept-line
-    <span style="color:#719e07">fi</span>
-    zle clear-screen
-<span style="color:#719e07">}</span>
-zle -N peco-src
-bindkey <span style="color:#2aa198">&#39;^]&#39;</span> peco-src
-</code></pre></div><h2 id="ghq-lookghq-get---lookコマンドの誤った使い方">ghq look（ghq get &ndash;look）コマンドの誤った使い方</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#719e07">function</span> peco-src <span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#b58900">local</span> <span style="color:#268bd2">repo</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>ghq list | peco --query <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$LBUFFER</span><span style="color:#2aa198">&#34;</span> --initial-filter<span style="color:#719e07">=</span>Fuzzy<span style="color:#719e07">)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> <span style="color:#719e07">[</span> -n <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$repo</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">]</span>; <span style="color:#719e07">then</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">repo</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>ghq list --full-path --exact <span style="color:#268bd2">$repo</span><span style="color:#719e07">)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">BUFFER</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;cd </span><span style="color:#2aa198">${</span><span style="color:#268bd2">repo</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
+</span></span><span style="display:flex;"><span>        zle accept-line
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">fi</span>
+</span></span><span style="display:flex;"><span>    zle clear-screen
+</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
+</span></span><span style="display:flex;"><span>zle -N peco-src
+</span></span><span style="display:flex;"><span>bindkey <span style="color:#2aa198">&#39;^]&#39;</span> peco-src
+</span></span></code></pre></div><h2 id="ghq-lookghq-get---lookコマンドの誤った使い方">ghq look（ghq get &ndash;look）コマンドの誤った使い方</h2>
 <p>本を読むまで、「<code>look</code>コマンドはシェルを改めて起動するから嫌な感じだなあ」と思っていたのだが、単にユースケースを間違えていただけだった（今まで<code>ghq look</code>コマンドを使った間違ったディレクトリ移動方法を使っていただけだった）。なお、v1バージョンの<code>ghq</code>コマンドでは<code>ghq look</code>コマンドは廃止されている。<br>
 v1では<code>ghq get --look</code>コマンドのみになっているので、<code>ghq look</code>コマンドを使った誤った移動を<code>rc</code>ファイルに記載している人は動かなくなっているだろう。</p>
 <p>その他でも、自分のリポジトリを取得するとき（会社のPCで取得するなど、意外と頻度がある）、<code>ownername</code>（username）を省略できるのは知らなかった。
@@ -439,10 +439,16 @@ v1では<code>ghq get --look</code>コマンドのみになっているので、
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -457,12 +463,6 @@ v1では<code>ghq get --look</code>コマンドのみになっているので、
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -473,7 +473,7 @@ v1では<code>ghq get --look</code>コマンドのみになっているので、
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

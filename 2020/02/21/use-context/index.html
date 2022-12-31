@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -252,23 +252,23 @@
 最初は引数に<code>context.Context</code>を含めるだけから始めればよいだろう。慣例的に、<code>context.Context</code>は第一引数にする。
 （<code>context.Contextが第一引数になっていない</code>と警告するlinterも存在する）</p>
 <p>ここは単純にメソッドの引数を変更していくだけだ。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"> // CompanyRepository is the repository to get company resource.
- type CompanyRepository interface {
-<span style="color:#dc322f">-       Get(CompanyID) (domain.Company, error)
-</span><span style="color:#dc322f"></span><span style="color:#719e07">+       Get(context.Context, CompanyID) (domain.Company, error)
-</span><span style="color:#719e07"></span> }
-</code></pre></div><p>API呼び出し(<code>http.Request</code>構造体)や<code>database/sql</code>パッケージを使ったDB操作を行なっている場合は、その生成、呼び出しも<code>context.Context</code>に対応させると良いだろう。<br>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span> // CompanyRepository is the repository to get company resource.
+</span></span><span style="display:flex;"><span> type CompanyRepository interface {
+</span></span><span style="display:flex;"><span><span style="color:#dc322f">-       Get(CompanyID) (domain.Company, error)
+</span></span></span><span style="display:flex;"><span><span style="color:#dc322f"></span><span style="color:#719e07">+       Get(context.Context, CompanyID) (domain.Company, error)
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span> }
+</span></span></code></pre></div><p>API呼び出し(<code>http.Request</code>構造体)や<code>database/sql</code>パッケージを使ったDB操作を行なっている場合は、その生成、呼び出しも<code>context.Context</code>に対応させると良いだろう。<br>
 <code>context.Context</code>を新しく引数に加えても、（呼び出し時に与えた<code>context.Context</code>のキャンセル処理などを実施しなければ、）何も挙動に影響を与えない。<br>
 一通り修正を終えた後に実際に<code>context.Context</code>を使ったログ生成や、キャンセル処理の実装を加えていけばよいだろう。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="color:#dc322f">-func (c *CompanyServiceClient) Get(cid CompanyID) (domain.Company, error) {
-</span><span style="color:#dc322f"></span><span style="color:#719e07">+func (c *CompanyServiceClient) Get(ctx context.Context, cid CompanyID) (domain.Company, error) {
-</span><span style="color:#719e07"></span>        url := c.URL + &#34;/companies&#34;
-
-<span style="color:#dc322f">-       req, err := http.NewRequest(&#34;GET&#34;, url, nil)
-</span><span style="color:#dc322f"></span><span style="color:#719e07">+       req, err := http.NewRequestWithContext(ctx, &#34;GET&#34;, url, nil)
-</span><span style="color:#719e07"></span>        if err != nil {
-                // ...
-</code></pre></div><p>Go1.13からは<code>http.Request</code>を生成する際に、<code>context.Context</code>を含んだ<code>NewRequestWithContext</code>関数を利用できるようになっている。<br>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span><span style="color:#dc322f">-func (c *CompanyServiceClient) Get(cid CompanyID) (domain.Company, error) {
+</span></span></span><span style="display:flex;"><span><span style="color:#dc322f"></span><span style="color:#719e07">+func (c *CompanyServiceClient) Get(ctx context.Context, cid CompanyID) (domain.Company, error) {
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span>        url := c.URL + &#34;/companies&#34;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#dc322f">-       req, err := http.NewRequest(&#34;GET&#34;, url, nil)
+</span></span></span><span style="display:flex;"><span><span style="color:#dc322f"></span><span style="color:#719e07">+       req, err := http.NewRequestWithContext(ctx, &#34;GET&#34;, url, nil)
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span>        if err != nil {
+</span></span><span style="display:flex;"><span>                // ...
+</span></span></code></pre></div><p>Go1.13からは<code>http.Request</code>を生成する際に、<code>context.Context</code>を含んだ<code>NewRequestWithContext</code>関数を利用できるようになっている。<br>
 <code>database/sql</code>パッケージもGo1.8から<code>Query</code>メソッドの引数に<code>context.Context</code>を含んだ<code>QueryConntext</code>メソッドなどが用意されている。</p>
 <ul>
 <li><code>http.NewRequestWithContext</code>
@@ -294,13 +294,12 @@
 </li>
 </ul>
 <p>しかし、<code>context</code>パッケージにはこのようなときのために利用する、<code>context.TODO()</code>関数が用意されている。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"> // ListEmployees gets employees in comapany.
- func (e *EmployeesService) ListEmployees(cid CompanyID) (domain.Company, *ErrorResult) {
-<span style="color:#dc322f">-       company, err := s.CompanyRepository.Get(cid CompanyID)
-</span><span style="color:#dc322f"></span><span style="color:#719e07">+       company, err := s.CompanyRepository.Get(context.TODO(), cid CompanyID)
-</span><span style="color:#719e07"></span>        if err != nil {
-
-</code></pre></div><p><code>context.TODO()</code>で生成される<code>context.Context</code>は関数名のとおり、一時的な<code>context.Context</code>である。
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span> // ListEmployees gets employees in comapany.
+</span></span><span style="display:flex;"><span> func (e *EmployeesService) ListEmployees(cid CompanyID) (domain.Company, *ErrorResult) {
+</span></span><span style="display:flex;"><span><span style="color:#dc322f">-       company, err := s.CompanyRepository.Get(cid CompanyID)
+</span></span></span><span style="display:flex;"><span><span style="color:#dc322f"></span><span style="color:#719e07">+       company, err := s.CompanyRepository.Get(context.TODO(), cid CompanyID)
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span>        if err != nil {
+</span></span></code></pre></div><p><code>context.TODO()</code>で生成される<code>context.Context</code>は関数名のとおり、一時的な<code>context.Context</code>である。
 GoDocにも「どの<code>context.Context</code>を使うかわからないとき、他の関数が対応していなくて<code>context.Context</code>が用意できないときに使ってね。」のように記載されている。</p>
 <ul>
 <li><code>context.TODO()</code>
@@ -497,10 +496,16 @@ GoDocにも「どの<code>context.Context</code>を使うかわからないと�
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -515,12 +520,6 @@ GoDocにも「どの<code>context.Context</code>を使うかわからないと�
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -531,7 +530,7 @@ GoDocにも「どの<code>context.Context</code>を使うかわからないと�
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

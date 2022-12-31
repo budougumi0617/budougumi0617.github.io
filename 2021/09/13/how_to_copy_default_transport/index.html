@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -221,45 +221,45 @@ https://pkg.go.dev/net/http#Transport.Clone"/>
 </ul>
 <p>サンプルコードは次の通り。</p>
 <p><a href="https://play.golang.org/p/niRAgxrIv8V">https://play.golang.org/p/niRAgxrIv8V</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
-
-<span style="color:#719e07">import</span> (
-  <span style="color:#2aa198">&#34;net&#34;</span>
-  <span style="color:#2aa198">&#34;net/http&#34;</span>
-  <span style="color:#2aa198">&#34;time&#34;</span>
-)
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-  t <span style="color:#719e07">:=</span> <span style="color:#268bd2">defaultTransport</span>()
-  t.MaxIdleConnsPerHost = <span style="color:#2aa198">100</span>
-  cli <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>http.Client{
-    Transport: t,
-    Timeout:   <span style="color:#2aa198">3</span> <span style="color:#719e07">*</span> time.Second,
-  }
-  _, _ = cli.<span style="color:#268bd2">Get</span>(<span style="color:#2aa198">&#34;https://example.com&#34;</span>)
-}
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">defaultTransport</span>() <span style="color:#719e07">*</span>http.Transport {
-  dt <span style="color:#719e07">:=</span> http.DefaultTransport
-  <span style="color:#719e07">if</span> t, ok <span style="color:#719e07">:=</span> dt.(<span style="color:#719e07">*</span>http.Transport); ok {
-    <span style="color:#719e07">return</span> t.<span style="color:#268bd2">Clone</span>()
-  }
-  <span style="color:#586e75">// 何らか悪されてていた時。
-</span><span style="color:#586e75"></span>  <span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>http.Transport{
-    Proxy: http.ProxyFromEnvironment,
-    DialContext: (<span style="color:#719e07">&amp;</span>net.Dialer{
-      Timeout:   <span style="color:#2aa198">30</span> <span style="color:#719e07">*</span> time.Second,
-      KeepAlive: <span style="color:#2aa198">30</span> <span style="color:#719e07">*</span> time.Second,
-    }).DialContext,
-    ForceAttemptHTTP2:     <span style="color:#cb4b16">true</span>,
-    MaxIdleConns:          <span style="color:#2aa198">100</span>,
-    MaxIdleConnsPerHost:   <span style="color:#2aa198">100</span>,
-    IdleConnTimeout:       <span style="color:#2aa198">90</span> <span style="color:#719e07">*</span> time.Second,
-    TLSHandshakeTimeout:   <span style="color:#2aa198">10</span> <span style="color:#719e07">*</span> time.Second,
-    ExpectContinueTimeout: <span style="color:#2aa198">1</span> <span style="color:#719e07">*</span> time.Second,
-  }
-}
-</code></pre></div><h1 id="httpclientオブジェクトは再利用したほうがよい"><code>*http.Client</code>オブジェクトは再利用したほうがよい</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
+</span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;net&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;net/http&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;time&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+</span></span><span style="display:flex;"><span>  t <span style="color:#719e07">:=</span> <span style="color:#268bd2">defaultTransport</span>()
+</span></span><span style="display:flex;"><span>  t.MaxIdleConnsPerHost = <span style="color:#2aa198">100</span>
+</span></span><span style="display:flex;"><span>  cli <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>http.Client{
+</span></span><span style="display:flex;"><span>    Transport: t,
+</span></span><span style="display:flex;"><span>    Timeout:   <span style="color:#2aa198">3</span> <span style="color:#719e07">*</span> time.Second,
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  _, _ = cli.<span style="color:#268bd2">Get</span>(<span style="color:#2aa198">&#34;https://example.com&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">defaultTransport</span>() <span style="color:#719e07">*</span>http.Transport {
+</span></span><span style="display:flex;"><span>  dt <span style="color:#719e07">:=</span> http.DefaultTransport
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">if</span> t, ok <span style="color:#719e07">:=</span> dt.(<span style="color:#719e07">*</span>http.Transport); ok {
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> t.<span style="color:#268bd2">Clone</span>()
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// 何らか悪されてていた時。
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  <span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>http.Transport{
+</span></span><span style="display:flex;"><span>    Proxy: http.ProxyFromEnvironment,
+</span></span><span style="display:flex;"><span>    DialContext: (<span style="color:#719e07">&amp;</span>net.Dialer{
+</span></span><span style="display:flex;"><span>      Timeout:   <span style="color:#2aa198">30</span> <span style="color:#719e07">*</span> time.Second,
+</span></span><span style="display:flex;"><span>      KeepAlive: <span style="color:#2aa198">30</span> <span style="color:#719e07">*</span> time.Second,
+</span></span><span style="display:flex;"><span>    }).DialContext,
+</span></span><span style="display:flex;"><span>    ForceAttemptHTTP2:     <span style="color:#cb4b16">true</span>,
+</span></span><span style="display:flex;"><span>    MaxIdleConns:          <span style="color:#2aa198">100</span>,
+</span></span><span style="display:flex;"><span>    MaxIdleConnsPerHost:   <span style="color:#2aa198">100</span>,
+</span></span><span style="display:flex;"><span>    IdleConnTimeout:       <span style="color:#2aa198">90</span> <span style="color:#719e07">*</span> time.Second,
+</span></span><span style="display:flex;"><span>    TLSHandshakeTimeout:   <span style="color:#2aa198">10</span> <span style="color:#719e07">*</span> time.Second,
+</span></span><span style="display:flex;"><span>    ExpectContinueTimeout: <span style="color:#2aa198">1</span> <span style="color:#719e07">*</span> time.Second,
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h1 id="httpclientオブジェクトは再利用したほうがよい"><code>*http.Client</code>オブジェクトは再利用したほうがよい</h1>
 <p>Goで何かしらのHTTPリクエストを送信したいならば、<code>*http.Client</code>オブジェクトを使う。
 Webアプリケーションのサーバを書いているときでも外部サービスや他のバックエンドサービスへ通信をするために多用する。</p>
 <ul>
@@ -273,62 +273,62 @@ Webアプリケーションのサーバを書いているときでも外部サ�
 <h1 id="httpdefaultclientはタイムアウトの設定がされていないので独自定義するのが一般的"><code>http.DefaultClient</code>はタイムアウトの設定がされていないので独自定義するのが一般的</h1>
 <p>他方、<code>*http.Client</code>オブジェクトは<code>net/http</code>パッケージに宣言済みの<code>http.DefaultClient</code>変数が存在する。これを使うことは基本的に避ける。
 なぜならば、この<code>http.DefaultClient</code>はタイムアウトの設定がされていないためだ。そのため、<code>*http.Client</code>オブジェクトを用意するときは次のように宣言したりする。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">cli <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>http.Client{
-    <span style="color:#586e75">// Transport: 未初期化の場合はhttp.DefaultTransportが呼ばれる。
-</span><span style="color:#586e75"></span>    Timeout:   <span style="color:#2aa198">3</span> <span style="color:#719e07">*</span> time.Second,
-}
-</code></pre></div><p>ここで、<code>*http.Client.Transport</code>フィールドも独自定義の設定に変えたい時がある。
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>cli <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>http.Client{
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// Transport: 未初期化の場合はhttp.DefaultTransportが呼ばれる。
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    Timeout:   <span style="color:#2aa198">3</span> <span style="color:#719e07">*</span> time.Second,
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>ここで、<code>*http.Client.Transport</code>フィールドも独自定義の設定に変えたい時がある。
 <code>*http.Client.Transport</code>フィールドは未初期化状態だった場合、<code>http.DefaultTransport</code>が呼ばれる。</p>
 <h1 id="httptransportオブジェクトも独自定義する"><code>*http.Transport</code>オブジェクトも独自定義する</h1>
 <p><code>http.Transport</code>型には<code>MaxIdleConnsPerHost</code>というフィールドがある。名前の通り、ホストごとのアイドルするコネクションの最大値を制御する設定だ。
 未初期化だと<code>http.DefaultMaxIdleConnsPerHost</code>が利用される。Go1.17時点で<code>http.DefaultMaxIdleConnsPerHost</code>は<code>2</code>だ。
 マイクロサービス構成のバックエンドサーバなどで<code>*http.Client</code>オブジェクトを利用するシーンでは外部サービスや別のマイクロサービスサーバなど接続先ホストがいくつかに限定されることが多いだろう。限定された接続先にスループットの数だけ並列リクエストが飛ぶことを考慮すると<code>MaxIdleConnsPerHost</code>を<code>2</code>以上に設定したくなる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">transport <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>http.Transport{
-        DefaultMaxIdleConnsPerHost: <span style="color:#2aa198">100</span>,
-  }
-</code></pre></div><p>しかし上記のような宣言では<code>MaxIdleConnsPerHost</code>フィールド以外のフィールドがゼロ値になってしまうため、よくない宣言だ。
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>transport <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>http.Transport{
+</span></span><span style="display:flex;"><span>        DefaultMaxIdleConnsPerHost: <span style="color:#2aa198">100</span>,
+</span></span><span style="display:flex;"><span>  }
+</span></span></code></pre></div><p>しかし上記のような宣言では<code>MaxIdleConnsPerHost</code>フィールド以外のフィールドがゼロ値になってしまうため、よくない宣言だ。
 ではどのように<code>*http.Transport</code>オブジェクトを初期化すればよいのだろうか？一番イージーなのは<code>http.DefaultTransport</code>変数の宣言をコピペだろう。
 Go1.17時点の<code>http.DefaultTransport</code>変数の宣言は次のような設定値で初期化されている。</p>
 <p><a href="https://github.com/golang/go/blob/go1.17.1/src/net/http/transport.go#L38-L54">https://github.com/golang/go/blob/go1.17.1/src/net/http/transport.go#L38-L54</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">transport  <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>http.Transport{
-  Proxy: ProxyFromEnvironment,
-  DialContext: (<span style="color:#719e07">&amp;</span>net.Dialer{
-    Timeout:   <span style="color:#2aa198">30</span> <span style="color:#719e07">*</span> time.Second,
-    KeepAlive: <span style="color:#2aa198">30</span> <span style="color:#719e07">*</span> time.Second,
-  }).DialContext,
-  ForceAttemptHTTP2:     <span style="color:#cb4b16">true</span>,
-  MaxIdleConns:          <span style="color:#2aa198">100</span>,
-  IdleConnTimeout:       <span style="color:#2aa198">90</span> <span style="color:#719e07">*</span> time.Second,
-  TLSHandshakeTimeout:   <span style="color:#2aa198">10</span> <span style="color:#719e07">*</span> time.Second,
-  ExpectContinueTimeout: <span style="color:#2aa198">1</span> <span style="color:#719e07">*</span> time.Second,
-}
-</code></pre></div><p>しかしこれをコピペして利用するのはリスクがある。Go1.18以降では設定値が変更されるかもしれないし、<code>http.Transport</code>型に新たにフィールドが増えた場合未初期化になってしまう。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>transport  <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>http.Transport{
+</span></span><span style="display:flex;"><span>  Proxy: ProxyFromEnvironment,
+</span></span><span style="display:flex;"><span>  DialContext: (<span style="color:#719e07">&amp;</span>net.Dialer{
+</span></span><span style="display:flex;"><span>    Timeout:   <span style="color:#2aa198">30</span> <span style="color:#719e07">*</span> time.Second,
+</span></span><span style="display:flex;"><span>    KeepAlive: <span style="color:#2aa198">30</span> <span style="color:#719e07">*</span> time.Second,
+</span></span><span style="display:flex;"><span>  }).DialContext,
+</span></span><span style="display:flex;"><span>  ForceAttemptHTTP2:     <span style="color:#cb4b16">true</span>,
+</span></span><span style="display:flex;"><span>  MaxIdleConns:          <span style="color:#2aa198">100</span>,
+</span></span><span style="display:flex;"><span>  IdleConnTimeout:       <span style="color:#2aa198">90</span> <span style="color:#719e07">*</span> time.Second,
+</span></span><span style="display:flex;"><span>  TLSHandshakeTimeout:   <span style="color:#2aa198">10</span> <span style="color:#719e07">*</span> time.Second,
+</span></span><span style="display:flex;"><span>  ExpectContinueTimeout: <span style="color:#2aa198">1</span> <span style="color:#719e07">*</span> time.Second,
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>しかしこれをコピペして利用するのはリスクがある。Go1.18以降では設定値が変更されるかもしれないし、<code>http.Transport</code>型に新たにフィールドが増えた場合未初期化になってしまう。</p>
 <h1 id="httpdefaulttransportから少しだけ設定値を変更したオブジェクトを作るにはcloneメソッドを使う"><code>http.DefaultTransport</code>から少しだけ設定値を変更したオブジェクトを作るには<code>Clone</code>メソッドを使う。</h1>
 <p><code>http.Transport</code>型には<code>Clone</code>メソッドというオブジェクトをディープコピーしてくれるメソッドが存在する。
 <code>Clone</code>メソッドを利用するのが正しい設定のコピーの仕方だろう。この方法ならば、中身が変わったときでもメンテ無しで追従できる。
 この手法を利用しているのが、Google APIのGoクライアントだ。
 こちらも接続先がGoogle API用のホストに限定されるからか<code>MaxIdleConnsPerHost</code>を100に設定している。</p>
 <p><a href="https://github.com/googleapis/google-api-go-client/blob/v0.56.0/transport/http/default_transport_go113.go#L12-L21">https://github.com/googleapis/google-api-go-client/blob/v0.56.0/transport/http/default_transport_go113.go#L12-L21</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// clonedTransport returns the given RoundTripper as a cloned *http.Transport.
-</span><span style="color:#586e75">// It returns nil if the RoundTripper can&#39;t be cloned or coerced to
-</span><span style="color:#586e75">// *http.Transport.
-</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">clonedTransport</span>(rt http.RoundTripper) <span style="color:#719e07">*</span>http.Transport {
-  t, ok <span style="color:#719e07">:=</span> rt.(<span style="color:#719e07">*</span>http.Transport)
-  <span style="color:#719e07">if</span> !ok {
-    <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
-  }
-  <span style="color:#719e07">return</span> t.<span style="color:#268bd2">Clone</span>()
-}
-</code></pre></div><p><a href="https://github.com/googleapis/google-api-go-client/blob/v0.56.0/transport/http/dial.go#L163-L171">https://github.com/googleapis/google-api-go-client/blob/v0.56.0/transport/http/dial.go#L163-L171</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  <span style="color:#586e75">// Copy http.DefaultTransport except for MaxIdleConnsPerHost setting,
-</span><span style="color:#586e75"></span>  <span style="color:#586e75">// which is increased due to reported performance issues under load in the GCS
-</span><span style="color:#586e75"></span>  <span style="color:#586e75">// client. Transport.Clone is only available in Go 1.13 and up.
-</span><span style="color:#586e75"></span>  trans <span style="color:#719e07">:=</span> <span style="color:#268bd2">clonedTransport</span>(http.DefaultTransport)
-  <span style="color:#719e07">if</span> trans <span style="color:#719e07">==</span> <span style="color:#cb4b16">nil</span> {
-    trans = <span style="color:#268bd2">fallbackBaseTransport</span>()
-  }
-  trans.MaxIdleConnsPerHost = <span style="color:#2aa198">100</span>
-</code></pre></div><h1 id="終わりに">終わりに</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// clonedTransport returns the given RoundTripper as a cloned *http.Transport.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// It returns nil if the RoundTripper can&#39;t be cloned or coerced to
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// *http.Transport.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">clonedTransport</span>(rt http.RoundTripper) <span style="color:#719e07">*</span>http.Transport {
+</span></span><span style="display:flex;"><span>  t, ok <span style="color:#719e07">:=</span> rt.(<span style="color:#719e07">*</span>http.Transport)
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">if</span> !ok {
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">return</span> t.<span style="color:#268bd2">Clone</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><a href="https://github.com/googleapis/google-api-go-client/blob/v0.56.0/transport/http/dial.go#L163-L171">https://github.com/googleapis/google-api-go-client/blob/v0.56.0/transport/http/dial.go#L163-L171</a></p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>  <span style="color:#586e75">// Copy http.DefaultTransport except for MaxIdleConnsPerHost setting,
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  <span style="color:#586e75">// which is increased due to reported performance issues under load in the GCS
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  <span style="color:#586e75">// client. Transport.Clone is only available in Go 1.13 and up.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  trans <span style="color:#719e07">:=</span> <span style="color:#268bd2">clonedTransport</span>(http.DefaultTransport)
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">if</span> trans <span style="color:#719e07">==</span> <span style="color:#cb4b16">nil</span> {
+</span></span><span style="display:flex;"><span>    trans = <span style="color:#268bd2">fallbackBaseTransport</span>()
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  trans.MaxIdleConnsPerHost = <span style="color:#2aa198">100</span>
+</span></span></code></pre></div><h1 id="終わりに">終わりに</h1>
 <p><code>github.com/googleapis/google-api-go-client</code> の例は<a href="https://github.com/basebank/gophers-code-reading-party">Goコードリーディングパーティ</a>で<a href="https://twitter.com/dice_zu">@dice_zu</a>さんから教えてもらった。<br>
 普段からいろいろなOSSを見ているであろう<a href="https://twitter.com/dice_zu">@dice_zu</a>さん流石だと思った。見習わなければ。</p>
 <h1 id="参考">参考</h1>
@@ -513,10 +513,16 @@ Go1.17時点の<code>http.DefaultTransport</code>変数の宣言は次のよう�
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -531,12 +537,6 @@ Go1.17時点の<code>http.DefaultTransport</code>変数の宣言は次のよう�
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -547,7 +547,7 @@ Go1.17時点の<code>http.DefaultTransport</code>変数の宣言は次のよう�
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

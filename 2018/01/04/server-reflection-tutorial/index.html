@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -193,42 +193,42 @@
 <a href="https://github.com/grpc/grpc-go/blob/master/Documentation/server-reflection-tutorial.md">https://github.com/grpc/grpc-go/blob/master/Documentation/server-reflection-tutorial.md</a></p>
 <h2 id="grpc_cliのビルド">grpc_cliのビルド</h2>
 <p>サーバ側の<code>Server Reflection</code>情報を確認するためのクライアントツールを用意する。実装は<code>c++</code>のみ提供されているようだ。<code>grpc/grpc</code>リポジトリを取得してクライアントツールをビルドする。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git clone https://github.com/grpc/grpc
-$ <span style="color:#b58900">cd</span> grpc
-$ make grpc_cli
-</code></pre></div><p>サーバーリフレクションのチュートリアルにはこれしか書かれていないが、依存ライブラリがあるのでそちらのインストールもする。<br>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ git clone https://github.com/grpc/grpc
+</span></span><span style="display:flex;"><span>$ <span style="color:#b58900">cd</span> grpc
+</span></span><span style="display:flex;"><span>$ make grpc_cli
+</span></span></code></pre></div><p>サーバーリフレクションのチュートリアルにはこれしか書かれていないが、依存ライブラリがあるのでそちらのインストールもする。<br>
 自分の場合はMacOSなので以下を行ったあとビルドできた。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git submodule update --init
-$ brew install autoconf automake libtool shtool
-$ brew install gflags
-</code></pre></div><p>もし動かなかったり、他のOS環境の場合は、<code>make run_dep_checks</code>コマンドでビルド環境が整っているか確認する。または、以下のページで他に依存しているものが無いか確認する。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ git submodule update --init
+</span></span><span style="display:flex;"><span>$ brew install autoconf automake libtool shtool
+</span></span><span style="display:flex;"><span>$ brew install gflags
+</span></span></code></pre></div><p>もし動かなかったり、他のOS環境の場合は、<code>make run_dep_checks</code>コマンドでビルド環境が整っているか確認する。または、以下のページで他に依存しているものが無いか確認する。</p>
 <p><a href="https://github.com/grpc/grpc/blob/master/INSTALL.md">https://github.com/grpc/grpc/blob/master/INSTALL.md</a></p>
 <h2 id="サーバーに対してgprc_cliを使ってみる">サーバーに対してgprc_cliを使ってみる</h2>
 <p><code>grpc_cli</code>のビルドが終わったり<code>google.golang.org/grpc</code>リポジトリで、サンプルのhelloworldサーバーを立ち上げておく。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run examples/helloworld/greeter_server/main.go
-</code></pre></div><p>helloworldサーバーは<code>git clone</code>した直後でも、<code>reflection.Register</code>が既に呼ばれている。（以下の実行結果はクイックスタートのチュートリアルを行ったあとのサーバのコードなので、<code>SayHelloAgain</code>メソッドが追加されている)</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">s <span style="color:#719e07">:=</span> grpc.<span style="color:#268bd2">NewServer</span>()
-pb.<span style="color:#268bd2">RegisterGreeterServer</span>(s, <span style="color:#719e07">&amp;</span>server{})
-<span style="color:#586e75">// Register reflection service on gRPC server.
-</span><span style="color:#586e75"></span>reflection.<span style="color:#268bd2">Register</span>(s)
-</code></pre></div><p>あとは立ち上げたサーバーに向けて<code>grpc_cli ls</code>コマンドを実行すると、プロトコルバッファーが取得できる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">./bins/opt/grpc_cli ls localhost:50051 -l
-filename: helloworld.proto
-package: helloworld;
-service Greeter <span style="color:#719e07">{</span>
-  rpc SayHello<span style="color:#719e07">(</span>helloworld.HelloRequest<span style="color:#719e07">)</span> returns <span style="color:#719e07">(</span>helloworld.HelloReply<span style="color:#719e07">)</span> <span style="color:#719e07">{}</span>
-  rpc SayHelloAgain<span style="color:#719e07">(</span>helloworld.HelloRequest<span style="color:#719e07">)</span> returns <span style="color:#719e07">(</span>helloworld.HelloReply<span style="color:#719e07">)</span> <span style="color:#719e07">{}</span>
-<span style="color:#719e07">}</span>
-
-filename: grpc_reflection_v1alpha/reflection.proto
-package: grpc.reflection.v1alpha;
-service ServerReflection <span style="color:#719e07">{</span>
-  rpc ServerReflectionInfo<span style="color:#719e07">(</span>stream grpc.reflection.v1alpha.ServerReflectionRequest<span style="color:#719e07">)</span> returns <span style="color:#719e07">(</span>stream grpc.reflection.v1alpha.ServerReflectionResponse<span style="color:#719e07">)</span> <span style="color:#719e07">{}</span>
-<span style="color:#719e07">}</span>
-</code></pre></div><p><code>call</code>オプションでメソッドを実行させることもできた。</p>
-<pre tabindex="0"><code>$ ./bins/opt/grpc_cli call localhost:50051 SayHelloAgain &quot;name: 'gRPC CLI'&quot;
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ go run examples/helloworld/greeter_server/main.go
+</span></span></code></pre></div><p>helloworldサーバーは<code>git clone</code>した直後でも、<code>reflection.Register</code>が既に呼ばれている。（以下の実行結果はクイックスタートのチュートリアルを行ったあとのサーバのコードなので、<code>SayHelloAgain</code>メソッドが追加されている)</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>s <span style="color:#719e07">:=</span> grpc.<span style="color:#268bd2">NewServer</span>()
+</span></span><span style="display:flex;"><span>pb.<span style="color:#268bd2">RegisterGreeterServer</span>(s, <span style="color:#719e07">&amp;</span>server{})
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Register reflection service on gRPC server.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>reflection.<span style="color:#268bd2">Register</span>(s)
+</span></span></code></pre></div><p>あとは立ち上げたサーバーに向けて<code>grpc_cli ls</code>コマンドを実行すると、プロトコルバッファーが取得できる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>./bins/opt/grpc_cli ls localhost:50051 -l
+</span></span><span style="display:flex;"><span>filename: helloworld.proto
+</span></span><span style="display:flex;"><span>package: helloworld;
+</span></span><span style="display:flex;"><span>service Greeter <span style="color:#719e07">{</span>
+</span></span><span style="display:flex;"><span>  rpc SayHello<span style="color:#719e07">(</span>helloworld.HelloRequest<span style="color:#719e07">)</span> returns <span style="color:#719e07">(</span>helloworld.HelloReply<span style="color:#719e07">)</span> <span style="color:#719e07">{}</span>
+</span></span><span style="display:flex;"><span>  rpc SayHelloAgain<span style="color:#719e07">(</span>helloworld.HelloRequest<span style="color:#719e07">)</span> returns <span style="color:#719e07">(</span>helloworld.HelloReply<span style="color:#719e07">)</span> <span style="color:#719e07">{}</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>filename: grpc_reflection_v1alpha/reflection.proto
+</span></span><span style="display:flex;"><span>package: grpc.reflection.v1alpha;
+</span></span><span style="display:flex;"><span>service ServerReflection <span style="color:#719e07">{</span>
+</span></span><span style="display:flex;"><span>  rpc ServerReflectionInfo<span style="color:#719e07">(</span>stream grpc.reflection.v1alpha.ServerReflectionRequest<span style="color:#719e07">)</span> returns <span style="color:#719e07">(</span>stream grpc.reflection.v1alpha.ServerReflectionResponse<span style="color:#719e07">)</span> <span style="color:#719e07">{}</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
+</span></span></code></pre></div><p><code>call</code>オプションでメソッドを実行させることもできた。</p>
+<pre tabindex="0"><code>$ ./bins/opt/grpc_cli call localhost:50051 SayHelloAgain &#34;name: &#39;gRPC CLI&#39;&#34;
 connecting to localhost:50051
-message: &quot;Hello again gRPC CLI&quot;
+message: &#34;Hello again gRPC CLI&#34;
 
 Rpc succeeded with OK status
 </code></pre><h2 id="チュートリアルを終えて">チュートリアルを終えて</h2>
@@ -237,21 +237,21 @@ Rpc succeeded with OK status
 <p>現状<code>Go</code>のコードで直接リフレクションデータを取得できるようにはなっていないっぽいが、<code>grpc_reflection_v1alpha</code>にリフレクション結果の構造体定義がもろもろされている（<code>grpc_cli ls</code>コマンドの結果にも含まれている）。後々<code>Go</code>のコードからでも扱えるようになるのかな？</p>
 <p><a href="https://godoc.org/google.golang.org/grpc/reflection/grpc_reflection_v1alpha">https://godoc.org/google.golang.org/grpc/reflection/grpc_reflection_v1alpha</a></p>
 <p><code>grpc_cli</code>のコマンドのusageでオプションを見ると、もろもろの認証情報も付加できるようなので、本番用に構築したgRPCサーバでも利用できそう。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">./bins/opt/grpc_cli ls
-
-Wrong number of arguments <span style="color:#719e07">for</span> ls
-
-List services
-  grpc_cli ls &lt;address&gt; <span style="color:#719e07">[</span>&lt;service&gt;<span style="color:#719e07">[</span>/&lt;method&gt;<span style="color:#719e07">]]</span>
-    &lt;address&gt;                ; host:port
-    &lt;service&gt;                ; Exported service name
-    &lt;method&gt;                 ; Method name
-    --l                      ; Use a long listing format
-    --outfile                ; Output filename <span style="color:#719e07">(</span>defaults to stdout<span style="color:#719e07">)</span>
-    --enable_ssl             ; Set whether to use tls
-    --use_auth               ; Set whether to create default google credentials
-    --access_token           ; Set the access token in metadata, overrides --use_auth
-</code></pre></div><h1 id="参考url">参考URL</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>./bins/opt/grpc_cli ls
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Wrong number of arguments <span style="color:#719e07">for</span> ls
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>List services
+</span></span><span style="display:flex;"><span>  grpc_cli ls &lt;address&gt; <span style="color:#719e07">[</span>&lt;service&gt;<span style="color:#719e07">[</span>/&lt;method&gt;<span style="color:#719e07">]]</span>
+</span></span><span style="display:flex;"><span>    &lt;address&gt;                ; host:port
+</span></span><span style="display:flex;"><span>    &lt;service&gt;                ; Exported service name
+</span></span><span style="display:flex;"><span>    &lt;method&gt;                 ; Method name
+</span></span><span style="display:flex;"><span>    --l                      ; Use a long listing format
+</span></span><span style="display:flex;"><span>    --outfile                ; Output filename <span style="color:#719e07">(</span>defaults to stdout<span style="color:#719e07">)</span>
+</span></span><span style="display:flex;"><span>    --enable_ssl             ; Set whether to use tls
+</span></span><span style="display:flex;"><span>    --use_auth               ; Set whether to create default google credentials
+</span></span><span style="display:flex;"><span>    --access_token           ; Set the access token in metadata, overrides --use_auth
+</span></span></code></pre></div><h1 id="参考url">参考URL</h1>
 <p><strong>GRPC Server Reflection Protocol</strong><br>
 <a href="https://github.com/grpc/grpc/blob/master/doc/server-reflection.md">https://github.com/grpc/grpc/blob/master/doc/server-reflection.md</a></p>
 <p><strong>gRPC Server Reflection Tutorial</strong><br>
@@ -443,10 +443,16 @@ List services
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -461,12 +467,6 @@ List services
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -477,7 +477,7 @@ List services
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

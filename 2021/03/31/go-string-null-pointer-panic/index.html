@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -217,21 +217,21 @@
 </ul>
 <p>サンプルコードは以下。</p>
 <p><a href="https://play.golang.org/p/lD5-kBCwET4">https://play.golang.org/p/lD5-kBCwET4</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-        <span style="color:#268bd2">hello</span>()
-}
-
-<span style="color:#268bd2">var</span> a <span style="color:#dc322f">string</span>
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">hello</span>() {
-        <span style="color:#719e07">go</span> <span style="color:#268bd2">func</span>() { a = <span style="color:#2aa198">&#34;hello&#34;</span> }()
-        <span style="color:#719e07">for</span> a <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;hello&#34;</span> {
-        }
-        <span style="color:#b58900">print</span>(a)
-}
-</code></pre></div><p>play ground上でも何回か実行すると実際に文字列<code>a</code>変数を<code>a != &quot;hello&quot;</code>と比較しているところで以下のような結果が得られる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">hello</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">var</span> a <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">hello</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#719e07">go</span> <span style="color:#268bd2">func</span>() { a = <span style="color:#2aa198">&#34;hello&#34;</span> }()
+</span></span><span style="display:flex;"><span>        <span style="color:#719e07">for</span> a <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;hello&#34;</span> {
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#b58900">print</span>(a)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>play ground上でも何回か実行すると実際に文字列<code>a</code>変数を<code>a != &quot;hello&quot;</code>と比較しているところで以下のような結果が得られる。</p>
 <pre tabindex="0"><code>panic: runtime error: invalid memory address or nil pointer dereference
 [signal SIGSEGV: segmentation violation code=0x1 addr=0x0 pc=0x45eb46]
 
@@ -276,43 +276,43 @@ main.main()
 <ul>
 <li><a href="https://github.com/golang/go/blob/go1.16.2/src/runtime/string.go#L228-L231">https://github.com/golang/go/blob/go1.16.2/src/runtime/string.go#L228-L231</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> stringStruct <span style="color:#268bd2">struct</span> {
-	str unsafe.Pointer
-	len <span style="color:#dc322f">int</span>
-}
-</code></pre></div><p>この構造体の動きは<code>reflect#StringHeader</code>で確認することができる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> stringStruct <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>	str unsafe.Pointer
+</span></span><span style="display:flex;"><span>	len <span style="color:#dc322f">int</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>この構造体の動きは<code>reflect#StringHeader</code>で確認することができる。</p>
 <ul>
 <li><a href="https://golang.org/pkg/reflect/#StringHeader">https://golang.org/pkg/reflect/#StringHeader</a></li>
 </ul>
 <p>先述のコードに<code>reflect#StringHeader</code>を使って<code>stringStruct</code>の状態を出力しつづけるようにしたのが次のコードだ。</p>
 <p><a href="https://play.golang.org/p/1oCesyqPjh-">https://play.golang.org/p/1oCesyqPjh-</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
-
-<span style="color:#719e07">import</span> (
-	<span style="color:#2aa198">&#34;fmt&#34;</span>
-	<span style="color:#2aa198">&#34;reflect&#34;</span>
-	<span style="color:#2aa198">&#34;unsafe&#34;</span>
-)
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-	<span style="color:#268bd2">hello</span>()
-}
-
-<span style="color:#268bd2">var</span> a <span style="color:#dc322f">string</span>
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">hello</span>() {
-	sh <span style="color:#719e07">:=</span> (<span style="color:#719e07">*</span>reflect.StringHeader)(unsafe.<span style="color:#268bd2">Pointer</span>(<span style="color:#719e07">&amp;</span>a))
-	<span style="color:#719e07">go</span> <span style="color:#268bd2">func</span>() {
-		<span style="color:#719e07">for</span> ;a <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;hello?&#34;</span> ;{
-			fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%#v\n&#34;</span>, sh)
-		}
-	}()
-	<span style="color:#719e07">go</span> <span style="color:#268bd2">func</span>() { a = <span style="color:#2aa198">&#34;hello&#34;</span> }()
-	<span style="color:#719e07">for</span> a <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;hello&#34;</span> {
-	}
-	<span style="color:#b58900">print</span>(a)
-}
-</code></pre></div><p>このコードは何も排他制御をしていないため、<code>hello</code>関数内のゴルーチンが<code>a = &quot;hello&quot;</code>と<code>stringStruct</code>を操作している。
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;reflect&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;unsafe&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#268bd2">hello</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">var</span> a <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">hello</span>() {
+</span></span><span style="display:flex;"><span>	sh <span style="color:#719e07">:=</span> (<span style="color:#719e07">*</span>reflect.StringHeader)(unsafe.<span style="color:#268bd2">Pointer</span>(<span style="color:#719e07">&amp;</span>a))
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">go</span> <span style="color:#268bd2">func</span>() {
+</span></span><span style="display:flex;"><span>		<span style="color:#719e07">for</span> ;a <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;hello?&#34;</span> ;{
+</span></span><span style="display:flex;"><span>			fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%#v\n&#34;</span>, sh)
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>	}()
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">go</span> <span style="color:#268bd2">func</span>() { a = <span style="color:#2aa198">&#34;hello&#34;</span> }()
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">for</span> a <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;hello&#34;</span> {
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#b58900">print</span>(a)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>このコードは何も排他制御をしていないため、<code>hello</code>関数内のゴルーチンが<code>a = &quot;hello&quot;</code>と<code>stringStruct</code>を操作している。
 そして、その結果が正しくメモリへ反映されるかされていないかにかかわらず <code>a != &quot;hello&quot;</code> といった参照を行う。その結果<code>stringStruct.len</code>の長さが<code>!0</code>なのに<code>stringStruct.str</code>が<code>nil</code>の状態が発生していると考えられる。</p>
 <p>出力としては <code>&amp;reflect.StringHeader{Data:0x4bcccf, Len:5}</code> というデータも取れているが、
 実際はメモリ上で<code>Len != 0</code>の状態でも<code>Data</code>フィールドは<code>nil</code>の状態になってしまったのだと思われる。</p>
@@ -352,17 +352,17 @@ Don&rsquo;t be clever.</p>
 <li><a href="https://nipponkaigi.net/wiki/Re-order_buffer">https://nipponkaigi.net/wiki/Re-order_buffer</a></li>
 <li><a href="https://nipponkaigi.net/wiki/Out-of-order_execution">https://nipponkaigi.net/wiki/Out-of-order_execution</a></li>
 </ul>
-<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4621300253&linkId=99796994abe7cc79c1929dc3446c61b7"></iframe><section class="footnotes" role="doc-endnotes">
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4621300253&linkId=99796994abe7cc79c1929dc3446c61b7"></iframe><div class="footnotes" role="doc-endnotes">
 <hr>
 <ol>
-<li id="fn:1" role="doc-endnote">
+<li id="fn:1">
 <p>RDBでトランザクションを貼る状況をイメージすればよい&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
-<li id="fn:2" role="doc-endnote">
+<li id="fn:2">
 <p>こんなところまで見ないといけないバグには遭遇したくないが&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 </ol>
-</section>
+</div>
         </div>
         
 
@@ -536,10 +536,16 @@ Don&rsquo;t be clever.</p>
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -554,12 +560,6 @@ Don&rsquo;t be clever.</p>
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -570,7 +570,7 @@ Don&rsquo;t be clever.</p>
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

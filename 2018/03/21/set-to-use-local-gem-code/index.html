@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -189,22 +189,22 @@
 <p>変更した<code>Gemfile</code>をコミットしないように注意できるならば<code>Gemfile</code>を直接変更する。<br>
 ローカルのコードを参照するには<code>Gemfile</code>内の対象の<code>gem</code>のインストール定義に<code>path:</code>を追加してファイルパスを与えるだけ。<br>
 <code>git:</code>でリポジトリを明示的に参照している場合はその参照は消しておく。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"># Gemfile内にあるローカルのコードを参照してほしいgemの定義
-<span style="color:#dc322f">-  gem &#39;target_gem&#39;, git: &#39;ssh://git@github.com/USER/target_gem.git&#39;
-</span><span style="color:#dc322f"></span><span style="color:#719e07">+  gem &#39;target_gem&#39;, path: &#39;/path/to/target_gem&#39;
-</span></code></pre></div><p>あとは通常通りにgemを再取得する。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ bundle clean
-$ bundle install --path vendor/bundle
-</code></pre></div><h1 id="やりかた-その2-bundlerの設定を変更しておく">やりかた その2 bundlerの設定を変更しておく</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span># Gemfile内にあるローカルのコードを参照してほしいgemの定義
+</span></span><span style="display:flex;"><span><span style="color:#dc322f">-  gem &#39;target_gem&#39;, git: &#39;ssh://git@github.com/USER/target_gem.git&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#dc322f"></span><span style="color:#719e07">+  gem &#39;target_gem&#39;, path: &#39;/path/to/target_gem&#39;
+</span></span></span></code></pre></div><p>あとは通常通りにgemを再取得する。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ bundle clean
+</span></span><span style="display:flex;"><span>$ bundle install --path vendor/bundle
+</span></span></code></pre></div><h1 id="やりかた-その2-bundlerの設定を変更しておく">やりかた その2 bundlerの設定を変更しておく</h1>
 <p>bundlerの設定で、ローカルのコードを見るようにしておくことができる。<br>
 <code>Gemfile</code>があるディレクトリで以下のように行う。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ bundle config --local local.target_gem  /path/to/target_gem
-</code></pre></div><p><code>gem</code>のコードの編集状態のチェックが有効になっているとめんどくさいのでoffにする。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ bundle config --local disable_local_branch_check <span style="color:#b58900">true</span>
-</code></pre></div><p>あとは「その1」同様に通常通りにgemを再取得する。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ bundle clean
-$ bundle install --path vendor/bundle
-</code></pre></div><p>こちらの場合、用がすんだらbunderの設定を元にもどすこと</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ bundle config --local local.target_gem  /path/to/target_gem
+</span></span></code></pre></div><p><code>gem</code>のコードの編集状態のチェックが有効になっているとめんどくさいのでoffにする。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ bundle config --local disable_local_branch_check <span style="color:#b58900">true</span>
+</span></span></code></pre></div><p>あとは「その1」同様に通常通りにgemを再取得する。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ bundle clean
+</span></span><span style="display:flex;"><span>$ bundle install --path vendor/bundle
+</span></span></code></pre></div><p>こちらの場合、用がすんだらbunderの設定を元にもどすこと</p>
 <pre tabindex="0"><code>$ bundle config --delete local.target_gem
 $ bundle config --delete disable_local_branch_check
 </code></pre><h1 id="終わりに">終わりに</h1>
@@ -393,10 +393,16 @@ Executing bundle config --delete &lt;name&gt; will delete the configuration in b
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -411,12 +417,6 @@ Executing bundle config --delete &lt;name&gt; will delete the configuration in b
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -427,7 +427,7 @@ Executing bundle config --delete &lt;name&gt; will delete the configuration in b
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

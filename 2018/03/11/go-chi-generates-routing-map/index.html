@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -205,22 +205,22 @@ Swagger定義ではないが、ルーティングの設定をMarkdownやJSONで�
 <h1 id="自動生成のやり方">自動生成のやり方</h1>
 <h2 id="go-chichiでhttpルーティングを設定したchirouterを作成する"><code>go-chi/chi</code>でHTTPルーティングを設定した<code>chi.Router</code>を作成する。</h2>
 <p>HTTPルーティングの設定（<code>chi.Router</code>にハンドラなどを定義していく）に特に追加で行う設定はない。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">GetTodoRouter</span>() chi.Router {
-	router <span style="color:#719e07">:=</span> chi.<span style="color:#268bd2">NewRouter</span>()
-	<span style="color:#586e75">// Set output for logging.
-</span><span style="color:#586e75"></span>	middleware.DefaultLogger = middleware.<span style="color:#268bd2">RequestLogger</span>(
-		<span style="color:#719e07">&amp;</span>middleware.DefaultLogFormatter{
-			Logger: <span style="color:#268bd2">newLogger</span>(),
-		},
-	)
-	router.<span style="color:#268bd2">Use</span>(middleware.Logger)
-	router.<span style="color:#268bd2">HandleFunc</span>(<span style="color:#2aa198">&#34;/*&#34;</span>, Index) <span style="color:#586e75">// WildCard.
-</span><span style="color:#586e75"></span>	router.<span style="color:#268bd2">HandleFunc</span>(<span style="color:#2aa198">&#34;/todos&#34;</span>, TodoIndex)
-	router.<span style="color:#268bd2">HandleFunc</span>(<span style="color:#2aa198">&#34;/todos/{todoID}&#34;</span>, TodoShow)
-	router.<span style="color:#268bd2">Post</span>(<span style="color:#2aa198">&#34;/todos&#34;</span>, TodoCreate)
-	<span style="color:#719e07">return</span> router
-}
-</code></pre></div><h2 id="routerからmarkdownを生成する">RouterからMarkdownを生成する</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">GetTodoRouter</span>() chi.Router {
+</span></span><span style="display:flex;"><span>	router <span style="color:#719e07">:=</span> chi.<span style="color:#268bd2">NewRouter</span>()
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// Set output for logging.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	middleware.DefaultLogger = middleware.<span style="color:#268bd2">RequestLogger</span>(
+</span></span><span style="display:flex;"><span>		<span style="color:#719e07">&amp;</span>middleware.DefaultLogFormatter{
+</span></span><span style="display:flex;"><span>			Logger: <span style="color:#268bd2">newLogger</span>(),
+</span></span><span style="display:flex;"><span>		},
+</span></span><span style="display:flex;"><span>	)
+</span></span><span style="display:flex;"><span>	router.<span style="color:#268bd2">Use</span>(middleware.Logger)
+</span></span><span style="display:flex;"><span>	router.<span style="color:#268bd2">HandleFunc</span>(<span style="color:#2aa198">&#34;/*&#34;</span>, Index) <span style="color:#586e75">// WildCard.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	router.<span style="color:#268bd2">HandleFunc</span>(<span style="color:#2aa198">&#34;/todos&#34;</span>, TodoIndex)
+</span></span><span style="display:flex;"><span>	router.<span style="color:#268bd2">HandleFunc</span>(<span style="color:#2aa198">&#34;/todos/{todoID}&#34;</span>, TodoShow)
+</span></span><span style="display:flex;"><span>	router.<span style="color:#268bd2">Post</span>(<span style="color:#2aa198">&#34;/todos&#34;</span>, TodoCreate)
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">return</span> router
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="routerからmarkdownを生成する">RouterからMarkdownを生成する</h2>
 <p>Markdownを生成する場合はオプションを指定しておく必要がある。<br>
 <a href="https://github.com/go-chi/docgen/blob/ac43d9a63f3b58b1e82922411d2de365d896ee72/markdown.go#L22-L37">https://github.com/go-chi/docgen/blob/ac43d9a63f3b58b1e82922411d2de365d896ee72/markdown.go#L22-L37</a></p>
 <pre tabindex="0"><code>type MarkdownOpts struct {
@@ -230,32 +230,32 @@ Swagger定義ではないが、ルーティングの設定をMarkdownやJSONで�
 	// Intro text included at the top of the generated markdown file.
 	Intro string
 
-	// ForceRelativeLinks to be relative even if they're not on github
+	// ForceRelativeLinks to be relative even if they&#39;re not on github
 	ForceRelativeLinks bool
 
 	// URLMap allows specifying a map of package import paths to their link sources
 	// Used for mapping vendored dependencies to their upstream sources
 	// For example:
-	// map[string]string{&quot;github.com/my/package/vendor/go-chi/chi/&quot;: &quot;https://github.com/go-chi/chi/blob/master/&quot;}
+	// map[string]string{&#34;github.com/my/package/vendor/go-chi/chi/&#34;: &#34;https://github.com/go-chi/chi/blob/master/&#34;}
 	URLMap map[string]string
 }
 </code></pre><p><code>MarkdownOpts</code>を生成したあとは<code>docgen.MarkdownRoutesDoc(r chi.Router, opts docgen.MarkdownOpts) string</code>を呼ぶだけだ。
 以下のようなMarkdown文字列が得られる</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-markdown" data-lang="markdown"><span style="color:#cb4b16"># github.com/budougumi0617/simple-json-api-by-chi
-</span><span style="color:#cb4b16"></span>
-Sample JSON API server by go-chi.
-
-<span style="color:#268bd2">## Routes
-</span><span style="color:#268bd2"></span>
-&lt;<span style="color:#268bd2">details</span>&gt;
-&lt;<span style="color:#268bd2">summary</span>&gt;`/*`&lt;/<span style="color:#268bd2">summary</span>&gt;
-
-<span style="color:#719e07">-</span> [<span style="color:#268bd2">Logger</span>](https://github.com/go-chi/chi/blob/master/middleware/logger.go#L30)
-<span style="color:#719e07">-</span> **/***
-	<span style="color:#719e07">-</span> _*_
-		<span style="color:#719e07">-</span> [<span style="color:#268bd2">main.Index</span>](/handler.go#L16)
-...
-</code></pre></div><p>実際に使うと以下のようになる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-markdown" data-lang="markdown"><span style="display:flex;"><span><span style="color:#cb4b16"># github.com/budougumi0617/simple-json-api-by-chi
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>
+</span></span><span style="display:flex;"><span>Sample JSON API server by go-chi.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">## Routes
+</span></span></span><span style="display:flex;"><span><span style="color:#268bd2"></span>
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#268bd2">details</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#268bd2">summary</span>&gt;`/*`&lt;/<span style="color:#268bd2">summary</span>&gt;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">-</span> [<span style="color:#268bd2">Logger</span>](https://github.com/go-chi/chi/blob/master/middleware/logger.go#L30)
+</span></span><span style="display:flex;"><span><span style="color:#719e07">-</span> **/***
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">-</span> _*_
+</span></span><span style="display:flex;"><span>		<span style="color:#719e07">-</span> [<span style="color:#268bd2">main.Index</span>](/handler.go#L16)
+</span></span><span style="display:flex;"><span>...
+</span></span></code></pre></div><p>実際に使うと以下のようになる。</p>
 <hr>
 <h1 id="githubcombudougumi0617simple-json-api-by-chi">github.com/budougumi0617/simple-json-api-by-chi</h1>
 <p>Sample JSON API server by go-chi.</p>
@@ -317,33 +317,33 @@ Sample JSON API server by go-chi.
 GitHubのREADMEなどに貼ると、各ハンドラ定義の実装へのリンクがちゃんと貼れるのは良い感じ。(<code>main.TodoShow</code>など)</p>
 <h1 id="routerからjsonを生成する">RouterからJSONを生成する</h1>
 <p>JSONの場合は<code>docgen.JSONRoutesDoc(r chi.Router) string</code>を呼ぶだけで以下のようなJSON文字列が出力される。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">  <span style="color:#2aa198">&#34;router&#34;</span>: {
-    <span style="color:#268bd2">&#34;middlewares&#34;</span>: [
-      {
-        <span style="color:#268bd2">&#34;pkg&#34;</span>: <span style="color:#2aa198">&#34;github.com/budougumi0617/simple-json-api-by-chi/vendor/github.com/go-chi/chi/middleware&#34;</span>,
-        <span style="color:#268bd2">&#34;func&#34;</span>: <span style="color:#2aa198">&#34;Logger&#34;</span>,
-        <span style="color:#268bd2">&#34;comment&#34;</span>: <span style="color:#2aa198">&#34;Logger is a mi...ware pkg.\n&#34;</span>,
-        <span style="color:#268bd2">&#34;file&#34;</span>: <span style="color:#2aa198">&#34;github.com/budougumi0617/simple-json-api-by-chi/vendor/github.com/go-chi/chi/middleware/logger.go&#34;</span>,
-        <span style="color:#268bd2">&#34;line&#34;</span>: <span style="color:#2aa198">30</span>
-      }
-    ],
-    <span style="color:#268bd2">&#34;routes&#34;</span>: {
-      <span style="color:#268bd2">&#34;/*&#34;</span>: {
-        <span style="color:#268bd2">&#34;handlers&#34;</span>: {
-          <span style="color:#268bd2">&#34;*&#34;</span>: {
-            <span style="color:#268bd2">&#34;middlewares&#34;</span>: [],
-            <span style="color:#268bd2">&#34;method&#34;</span>: <span style="color:#2aa198">&#34;*&#34;</span>,
-            <span style="color:#268bd2">&#34;pkg&#34;</span>: <span style="color:#2aa198">&#34;&#34;</span>,
-            <span style="color:#268bd2">&#34;func&#34;</span>: <span style="color:#2aa198">&#34;main.Index&#34;</span>,
-            <span style="color:#268bd2">&#34;comment&#34;</span>: <span style="color:#2aa198">&#34;Index returns simple response.\n&#34;</span>,
-            <span style="color:#268bd2">&#34;file&#34;</span>: <span style="color:#2aa198">&#34;github.com/budougumi0617/simple-json-api-by-chi/handler.go&#34;</span>,
-            <span style="color:#268bd2">&#34;line&#34;</span>: <span style="color:#2aa198">16</span>
-          }
-        }
-      },
-      <span style="color:#268bd2">&#34;/todos&#34;</span>: {
-        ...
-</code></pre></div><p>vendorディレクトリに入っているmiddlewareを使った場合、pkgがそのままvendorのPATHになってしまっている。<br>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;router&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;middlewares&#34;</span>: [
+</span></span><span style="display:flex;"><span>      {
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">&#34;pkg&#34;</span>: <span style="color:#2aa198">&#34;github.com/budougumi0617/simple-json-api-by-chi/vendor/github.com/go-chi/chi/middleware&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">&#34;func&#34;</span>: <span style="color:#2aa198">&#34;Logger&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">&#34;comment&#34;</span>: <span style="color:#2aa198">&#34;Logger is a mi...ware pkg.\n&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">&#34;file&#34;</span>: <span style="color:#2aa198">&#34;github.com/budougumi0617/simple-json-api-by-chi/vendor/github.com/go-chi/chi/middleware/logger.go&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">&#34;line&#34;</span>: <span style="color:#2aa198">30</span>
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    ],
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;routes&#34;</span>: {
+</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">&#34;/*&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">&#34;handlers&#34;</span>: {
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">&#34;*&#34;</span>: {
+</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">&#34;middlewares&#34;</span>: [],
+</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">&#34;method&#34;</span>: <span style="color:#2aa198">&#34;*&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">&#34;pkg&#34;</span>: <span style="color:#2aa198">&#34;&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">&#34;func&#34;</span>: <span style="color:#2aa198">&#34;main.Index&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">&#34;comment&#34;</span>: <span style="color:#2aa198">&#34;Index returns simple response.\n&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">&#34;file&#34;</span>: <span style="color:#2aa198">&#34;github.com/budougumi0617/simple-json-api-by-chi/handler.go&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">&#34;line&#34;</span>: <span style="color:#2aa198">16</span>
+</span></span><span style="display:flex;"><span>          }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>      },
+</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">&#34;/todos&#34;</span>: {
+</span></span><span style="display:flex;"><span>        ...
+</span></span></code></pre></div><p>vendorディレクトリに入っているmiddlewareを使った場合、pkgがそのままvendorのPATHになってしまっている。<br>
 （Markdownの場合はオプションでマッピングすることができる。）</p>
 <h1 id="終わりに">終わりに</h1>
 <p>今回のサンプルコードは以下のリポジトリにある。</p>
@@ -525,10 +525,16 @@ GitHubのREADMEなどに貼ると、各ハンドラ定義の実装へのリン�
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -543,12 +549,6 @@ GitHubのREADMEなどに貼ると、各ハンドラ定義の実装へのリン�
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -559,7 +559,7 @@ GitHubのREADMEなどに貼ると、各ハンドラ定義の実装へのリン�
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

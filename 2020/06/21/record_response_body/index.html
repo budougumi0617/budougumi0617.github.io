@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -211,41 +211,41 @@ Middlewareを作成して、HTTPレスポンスをLoggerに出力するやり方
 <li>レスポンスをloggerに出力するHTTP Middlewareのサンプルを作った。</li>
 </ul>
 <p>サンプルコードの主旨は以下。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> rwWrapper <span style="color:#268bd2">struct</span> {
-	rw http.ResponseWriter
-	mw io.Writer
-}
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">NewRwWrapper</span>(rw http.ResponseWriter, buf io.Writer) <span style="color:#719e07">*</span>rwWrapper {
-	<span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>rwWrapper{
-		rw: rw,
-		mw: io.<span style="color:#268bd2">MultiWriter</span>(rw, buf),
-	}
-}
-
-<span style="color:#268bd2">func</span> (r <span style="color:#719e07">*</span>rwWrapper) <span style="color:#268bd2">Header</span>() http.Header {
-	<span style="color:#719e07">return</span> r.rw.<span style="color:#268bd2">Header</span>()
-}
-
-<span style="color:#268bd2">func</span> (r <span style="color:#719e07">*</span>rwWrapper) <span style="color:#268bd2">Write</span>(i []<span style="color:#dc322f">byte</span>) (<span style="color:#dc322f">int</span>, <span style="color:#dc322f">error</span>) {
-	<span style="color:#719e07">return</span> r.mw.<span style="color:#268bd2">Write</span>(i)
-}
-
-<span style="color:#268bd2">func</span> (r <span style="color:#719e07">*</span>rwWrapper) <span style="color:#268bd2">WriteHeader</span>(statusCode <span style="color:#dc322f">int</span>) {
-	r.rw.<span style="color:#268bd2">WriteHeader</span>(statusCode)
-}
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">NewLogger</span>(l <span style="color:#719e07">*</span>log.Logger) <span style="color:#268bd2">func</span>(http.Handler) http.Handler {
-	<span style="color:#719e07">return</span> <span style="color:#268bd2">func</span>(next http.Handler) http.Handler {
-		<span style="color:#719e07">return</span> http.<span style="color:#268bd2">HandlerFunc</span>(<span style="color:#268bd2">func</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
-			buf <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>bytes.Buffer{}
-			rww <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewRwWrapper</span>(w, buf)
-			next.<span style="color:#268bd2">ServeHTTP</span>(rww, r)
-			l.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s&#34;</span>, buf)
-		})
-	}
-}
-</code></pre></div><h1 id="レスポンスボディをログに残したい">レスポンスボディをログに残したい</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> rwWrapper <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>	rw http.ResponseWriter
+</span></span><span style="display:flex;"><span>	mw io.Writer
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewRwWrapper</span>(rw http.ResponseWriter, buf io.Writer) <span style="color:#719e07">*</span>rwWrapper {
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>rwWrapper{
+</span></span><span style="display:flex;"><span>		rw: rw,
+</span></span><span style="display:flex;"><span>		mw: io.<span style="color:#268bd2">MultiWriter</span>(rw, buf),
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (r <span style="color:#719e07">*</span>rwWrapper) <span style="color:#268bd2">Header</span>() http.Header {
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">return</span> r.rw.<span style="color:#268bd2">Header</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (r <span style="color:#719e07">*</span>rwWrapper) <span style="color:#268bd2">Write</span>(i []<span style="color:#dc322f">byte</span>) (<span style="color:#dc322f">int</span>, <span style="color:#dc322f">error</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">return</span> r.mw.<span style="color:#268bd2">Write</span>(i)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (r <span style="color:#719e07">*</span>rwWrapper) <span style="color:#268bd2">WriteHeader</span>(statusCode <span style="color:#dc322f">int</span>) {
+</span></span><span style="display:flex;"><span>	r.rw.<span style="color:#268bd2">WriteHeader</span>(statusCode)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewLogger</span>(l <span style="color:#719e07">*</span>log.Logger) <span style="color:#268bd2">func</span>(http.Handler) http.Handler {
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">return</span> <span style="color:#268bd2">func</span>(next http.Handler) http.Handler {
+</span></span><span style="display:flex;"><span>		<span style="color:#719e07">return</span> http.<span style="color:#268bd2">HandlerFunc</span>(<span style="color:#268bd2">func</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
+</span></span><span style="display:flex;"><span>			buf <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>bytes.Buffer{}
+</span></span><span style="display:flex;"><span>			rww <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewRwWrapper</span>(w, buf)
+</span></span><span style="display:flex;"><span>			next.<span style="color:#268bd2">ServeHTTP</span>(rww, r)
+</span></span><span style="display:flex;"><span>			l.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s&#34;</span>, buf)
+</span></span><span style="display:flex;"><span>		})
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h1 id="レスポンスボディをログに残したい">レスポンスボディをログに残したい</h1>
 <p>HTTPサーバを作るとき、リクエストやレスポンスをログとして記録したくなるときがある。</p>
 <ul>
 <li>Pattern: Audit logging
@@ -264,132 +264,132 @@ Middlewareを作成して、HTTPレスポンスをLoggerに出力するやり方
 <ul>
 <li><a href="https://golang.org/pkg/io/#MultiWriter">https://golang.org/pkg/io/#MultiWriter</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">MultiWriter</span>(writers <span style="color:#719e07">...</span>Writer) Writer
-</code></pre></div><p><code>io.MultiWriter</code>関数の戻り値として得られる<code>io.Writer</code>オブジェクトは引数の<code>writers</code>の<code>io.Writer</code>オブジェクトに同じ内容を書き込む。
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">MultiWriter</span>(writers <span style="color:#719e07">...</span>Writer) Writer
+</span></span></code></pre></div><p><code>io.MultiWriter</code>関数の戻り値として得られる<code>io.Writer</code>オブジェクトは引数の<code>writers</code>の<code>io.Writer</code>オブジェクトに同じ内容を書き込む。
 これを使ってレスポンスとロガー（で記録するバッファ）に同じ内容を書き込むようなラッパー構造体を作成する。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// http.ResponseWriterインターフェースを満たすためにHeaderとWriteHeaderメソッドも実装する
-</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> rwWrapper <span style="color:#268bd2">struct</span> {
-	rw http.ResponseWriter
-	mw io.Writer
-}
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">NewRwWrapper</span>(rw http.ResponseWriter, buf io.Writer) <span style="color:#719e07">*</span>rwWrapper {
-	<span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>rwWrapper{
-		rw: rw,
-		mw: io.<span style="color:#268bd2">MultiWriter</span>(rw, buf),
-	}
-}
-
-<span style="color:#268bd2">func</span> (r <span style="color:#719e07">*</span>rwWrapper) <span style="color:#268bd2">Write</span>(i []<span style="color:#dc322f">byte</span>) (<span style="color:#dc322f">int</span>, <span style="color:#dc322f">error</span>) {
-	<span style="color:#719e07">return</span> r.mw.<span style="color:#268bd2">Write</span>(i)
-}
-</code></pre></div><p><code>rwWrapper</code>構造体は<code>NewRwWrapper</code>関数で受け取った<code>http.ResponseWriter</code>の薄いラッパー構造体だ。
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// http.ResponseWriterインターフェースを満たすためにHeaderとWriteHeaderメソッドも実装する
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> rwWrapper <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>	rw http.ResponseWriter
+</span></span><span style="display:flex;"><span>	mw io.Writer
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewRwWrapper</span>(rw http.ResponseWriter, buf io.Writer) <span style="color:#719e07">*</span>rwWrapper {
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>rwWrapper{
+</span></span><span style="display:flex;"><span>		rw: rw,
+</span></span><span style="display:flex;"><span>		mw: io.<span style="color:#268bd2">MultiWriter</span>(rw, buf),
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (r <span style="color:#719e07">*</span>rwWrapper) <span style="color:#268bd2">Write</span>(i []<span style="color:#dc322f">byte</span>) (<span style="color:#dc322f">int</span>, <span style="color:#dc322f">error</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">return</span> r.mw.<span style="color:#268bd2">Write</span>(i)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>rwWrapper</code>構造体は<code>NewRwWrapper</code>関数で受け取った<code>http.ResponseWriter</code>の薄いラッパー構造体だ。
 レスポンスボディへの書き込みが行われるとき、<code>io.Writer</code>を使って<code>buf</code>オブジェクトにその内容を横流しする。</p>
 <p>あとは実際のハンドラーにわたす<code>http.ResponseWriter</code>オブジェクトをすげ替えるMiddlewareを作成する。
 実際のハンドラーの処理がおわったあとにバッファからレスポンスを読み出せばよい。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// ロガーをDIしてmiddlewareを返す
-</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewLogger</span>(l <span style="color:#719e07">*</span>log.Logger) <span style="color:#268bd2">func</span>(http.Handler) http.Handler {
-    <span style="color:#586e75">// nextハンドラーのレスポンスをロガーに出力するmiddleware
-</span><span style="color:#586e75"></span>	<span style="color:#719e07">return</span> <span style="color:#268bd2">func</span>(next http.Handler) http.Handler {
-		<span style="color:#719e07">return</span> http.<span style="color:#268bd2">HandlerFunc</span>(<span style="color:#268bd2">func</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
-			buf <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>bytes.Buffer{}
-			rww <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewRwWrapper</span>(w, buf)
-			next.<span style="color:#268bd2">ServeHTTP</span>(rww, r)
-			l.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s&#34;</span>, buf)
-		})
-	}
-}
-</code></pre></div><h1 id="動作確認テストコード">動作確認（テストコード）</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ロガーをDIしてmiddlewareを返す
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewLogger</span>(l <span style="color:#719e07">*</span>log.Logger) <span style="color:#268bd2">func</span>(http.Handler) http.Handler {
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// nextハンドラーのレスポンスをロガーに出力するmiddleware
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#719e07">return</span> <span style="color:#268bd2">func</span>(next http.Handler) http.Handler {
+</span></span><span style="display:flex;"><span>		<span style="color:#719e07">return</span> http.<span style="color:#268bd2">HandlerFunc</span>(<span style="color:#268bd2">func</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
+</span></span><span style="display:flex;"><span>			buf <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>bytes.Buffer{}
+</span></span><span style="display:flex;"><span>			rww <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewRwWrapper</span>(w, buf)
+</span></span><span style="display:flex;"><span>			next.<span style="color:#268bd2">ServeHTTP</span>(rww, r)
+</span></span><span style="display:flex;"><span>			l.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s&#34;</span>, buf)
+</span></span><span style="display:flex;"><span>		})
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h1 id="動作確認テストコード">動作確認（テストコード）</h1>
 <p>作成したHTTP Middlewareのテストコードを書いてみる。
 クライアントとMiddelewareを呼び出すサーバを作り、クライアントが受信したデータとロガーに流し込まれたデータを比較する。</p>
 <ul>
 <li><a href="https://play.golang.org/p/2JoamybGQzn">https://play.golang.org/p/2JoamybGQzn</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
-
-<span style="color:#719e07">import</span> (
-	<span style="color:#2aa198">&#34;bytes&#34;</span>
-	<span style="color:#2aa198">&#34;context&#34;</span>
-	<span style="color:#2aa198">&#34;fmt&#34;</span>
-	<span style="color:#2aa198">&#34;io&#34;</span>
-	<span style="color:#2aa198">&#34;io/ioutil&#34;</span>
-	<span style="color:#2aa198">&#34;log&#34;</span>
-	<span style="color:#2aa198">&#34;net/http&#34;</span>
-	<span style="color:#2aa198">&#34;net/http/httptest&#34;</span>
-	<span style="color:#2aa198">&#34;strings&#34;</span>
-	<span style="color:#2aa198">&#34;testing&#34;</span>
-	<span style="color:#2aa198">&#34;time&#34;</span>
-)
-
-<span style="color:#268bd2">type</span> rwWrapper <span style="color:#268bd2">struct</span> {
-	rw http.ResponseWriter
-	mw io.Writer
-}
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">NewRwWrapper</span>(rw http.ResponseWriter, buf io.Writer) <span style="color:#719e07">*</span>rwWrapper {
-	<span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>rwWrapper{
-		rw: rw,
-		mw: io.<span style="color:#268bd2">MultiWriter</span>(rw, buf),
-	}
-}
-
-<span style="color:#268bd2">func</span> (r <span style="color:#719e07">*</span>rwWrapper) <span style="color:#268bd2">Header</span>() http.Header {
-	<span style="color:#719e07">return</span> r.rw.<span style="color:#268bd2">Header</span>()
-}
-
-<span style="color:#268bd2">func</span> (r <span style="color:#719e07">*</span>rwWrapper) <span style="color:#268bd2">Write</span>(i []<span style="color:#dc322f">byte</span>) (<span style="color:#dc322f">int</span>, <span style="color:#dc322f">error</span>) {
-	<span style="color:#719e07">return</span> r.mw.<span style="color:#268bd2">Write</span>(i)
-}
-
-<span style="color:#268bd2">func</span> (r <span style="color:#719e07">*</span>rwWrapper) <span style="color:#268bd2">WriteHeader</span>(statusCode <span style="color:#dc322f">int</span>) {
-	r.rw.<span style="color:#268bd2">WriteHeader</span>(statusCode)
-}
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">NewLogger</span>(l <span style="color:#719e07">*</span>log.Logger) <span style="color:#268bd2">func</span>(http.Handler) http.Handler {
-	<span style="color:#719e07">return</span> <span style="color:#268bd2">func</span>(next http.Handler) http.Handler {
-		<span style="color:#719e07">return</span> http.<span style="color:#268bd2">HandlerFunc</span>(<span style="color:#268bd2">func</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
-			buf <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>bytes.Buffer{}
-			rww <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewRwWrapper</span>(w, buf)
-			next.<span style="color:#268bd2">ServeHTTP</span>(rww, r)
-			l.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s&#34;</span>, buf)
-		})
-	}
-}
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">TestLogger</span>(t <span style="color:#719e07">*</span>testing.T) {
-	h <span style="color:#719e07">:=</span> http.<span style="color:#268bd2">HandlerFunc</span>(<span style="color:#268bd2">func</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
-		_, _ = fmt.<span style="color:#268bd2">Fprint</span>(w, <span style="color:#2aa198">&#34;Hello, client&#34;</span>)
-	})
-	buf <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>bytes.Buffer{}
-	l <span style="color:#719e07">:=</span> log.<span style="color:#268bd2">New</span>(buf, <span style="color:#2aa198">&#34;&#34;</span>, <span style="color:#2aa198">0</span>)
-	ts <span style="color:#719e07">:=</span> httptest.<span style="color:#268bd2">NewServer</span>(<span style="color:#268bd2">NewLogger</span>(l)(h))
-	t.<span style="color:#268bd2">Cleanup</span>(ts.Close)
-
-	cli <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>http.Client{
-		Timeout: <span style="color:#2aa198">2</span> <span style="color:#719e07">*</span> time.Second,
-	}
-	req, err <span style="color:#719e07">:=</span> http.<span style="color:#268bd2">NewRequestWithContext</span>(context.<span style="color:#268bd2">TODO</span>(), <span style="color:#2aa198">&#34;GET&#34;</span>, ts.URL, <span style="color:#cb4b16">nil</span>)
-	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		t.<span style="color:#268bd2">Fatal</span>(err)
-	}
-
-	resp, err <span style="color:#719e07">:=</span> cli.<span style="color:#268bd2">Do</span>(req)
-	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		t.<span style="color:#268bd2">Fatal</span>(err)
-	}
-
-	<span style="color:#586e75">// compare logging data and client received value.
-</span><span style="color:#586e75"></span>	want, err <span style="color:#719e07">:=</span> ioutil.<span style="color:#268bd2">ReadAll</span>(resp.Body)
-	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		t.<span style="color:#268bd2">Fatal</span>(err)
-	}
-	_ = resp.Body.<span style="color:#268bd2">Close</span>()
-	<span style="color:#586e75">// \nが混ざっているので、完全一致にはならない
-</span><span style="color:#586e75"></span>	<span style="color:#719e07">if</span> !strings.<span style="color:#268bd2">Contains</span>(buf.<span style="color:#268bd2">String</span>(), <span style="color:#b58900">string</span>(want)) {
-		t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;want %q, but %q&#34;</span>, want, buf)
-	}
-}
-</code></pre></div><p>実際に動かすとロガーにレスポンスボディが流れていることを確認できた。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;bytes&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;context&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;io&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;io/ioutil&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;log&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;net/http&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;net/http/httptest&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;strings&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;testing&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;time&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> rwWrapper <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>	rw http.ResponseWriter
+</span></span><span style="display:flex;"><span>	mw io.Writer
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewRwWrapper</span>(rw http.ResponseWriter, buf io.Writer) <span style="color:#719e07">*</span>rwWrapper {
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>rwWrapper{
+</span></span><span style="display:flex;"><span>		rw: rw,
+</span></span><span style="display:flex;"><span>		mw: io.<span style="color:#268bd2">MultiWriter</span>(rw, buf),
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (r <span style="color:#719e07">*</span>rwWrapper) <span style="color:#268bd2">Header</span>() http.Header {
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">return</span> r.rw.<span style="color:#268bd2">Header</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (r <span style="color:#719e07">*</span>rwWrapper) <span style="color:#268bd2">Write</span>(i []<span style="color:#dc322f">byte</span>) (<span style="color:#dc322f">int</span>, <span style="color:#dc322f">error</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">return</span> r.mw.<span style="color:#268bd2">Write</span>(i)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (r <span style="color:#719e07">*</span>rwWrapper) <span style="color:#268bd2">WriteHeader</span>(statusCode <span style="color:#dc322f">int</span>) {
+</span></span><span style="display:flex;"><span>	r.rw.<span style="color:#268bd2">WriteHeader</span>(statusCode)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewLogger</span>(l <span style="color:#719e07">*</span>log.Logger) <span style="color:#268bd2">func</span>(http.Handler) http.Handler {
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">return</span> <span style="color:#268bd2">func</span>(next http.Handler) http.Handler {
+</span></span><span style="display:flex;"><span>		<span style="color:#719e07">return</span> http.<span style="color:#268bd2">HandlerFunc</span>(<span style="color:#268bd2">func</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
+</span></span><span style="display:flex;"><span>			buf <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>bytes.Buffer{}
+</span></span><span style="display:flex;"><span>			rww <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewRwWrapper</span>(w, buf)
+</span></span><span style="display:flex;"><span>			next.<span style="color:#268bd2">ServeHTTP</span>(rww, r)
+</span></span><span style="display:flex;"><span>			l.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s&#34;</span>, buf)
+</span></span><span style="display:flex;"><span>		})
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestLogger</span>(t <span style="color:#719e07">*</span>testing.T) {
+</span></span><span style="display:flex;"><span>	h <span style="color:#719e07">:=</span> http.<span style="color:#268bd2">HandlerFunc</span>(<span style="color:#268bd2">func</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
+</span></span><span style="display:flex;"><span>		_, _ = fmt.<span style="color:#268bd2">Fprint</span>(w, <span style="color:#2aa198">&#34;Hello, client&#34;</span>)
+</span></span><span style="display:flex;"><span>	})
+</span></span><span style="display:flex;"><span>	buf <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>bytes.Buffer{}
+</span></span><span style="display:flex;"><span>	l <span style="color:#719e07">:=</span> log.<span style="color:#268bd2">New</span>(buf, <span style="color:#2aa198">&#34;&#34;</span>, <span style="color:#2aa198">0</span>)
+</span></span><span style="display:flex;"><span>	ts <span style="color:#719e07">:=</span> httptest.<span style="color:#268bd2">NewServer</span>(<span style="color:#268bd2">NewLogger</span>(l)(h))
+</span></span><span style="display:flex;"><span>	t.<span style="color:#268bd2">Cleanup</span>(ts.Close)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	cli <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>http.Client{
+</span></span><span style="display:flex;"><span>		Timeout: <span style="color:#2aa198">2</span> <span style="color:#719e07">*</span> time.Second,
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	req, err <span style="color:#719e07">:=</span> http.<span style="color:#268bd2">NewRequestWithContext</span>(context.<span style="color:#268bd2">TODO</span>(), <span style="color:#2aa198">&#34;GET&#34;</span>, ts.URL, <span style="color:#cb4b16">nil</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+</span></span><span style="display:flex;"><span>		t.<span style="color:#268bd2">Fatal</span>(err)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	resp, err <span style="color:#719e07">:=</span> cli.<span style="color:#268bd2">Do</span>(req)
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+</span></span><span style="display:flex;"><span>		t.<span style="color:#268bd2">Fatal</span>(err)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// compare logging data and client received value.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	want, err <span style="color:#719e07">:=</span> ioutil.<span style="color:#268bd2">ReadAll</span>(resp.Body)
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+</span></span><span style="display:flex;"><span>		t.<span style="color:#268bd2">Fatal</span>(err)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	_ = resp.Body.<span style="color:#268bd2">Close</span>()
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// \nが混ざっているので、完全一致にはならない
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#719e07">if</span> !strings.<span style="color:#268bd2">Contains</span>(buf.<span style="color:#268bd2">String</span>(), <span style="color:#b58900">string</span>(want)) {
+</span></span><span style="display:flex;"><span>		t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;want %q, but %q&#34;</span>, want, buf)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>実際に動かすとロガーにレスポンスボディが流れていることを確認できた。</p>
 <h1 id="終わりに">終わりに</h1>
 <p>実際に使うときは標準pkgのロガーではなくOSSのロガーを使うだろうが大体同じ構造になるはずだ。
 ただし、レスポンスにはセンシティブな情報が含まれる場合もある。必要に応じてマスキングなどの作り込みが必要だろう。</p>
@@ -573,10 +573,16 @@ Middlewareを作成して、HTTPレスポンスをLoggerに出力するやり方
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -591,12 +597,6 @@ Middlewareを作成して、HTTPレスポンスをLoggerに出力するやり方
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -607,7 +607,7 @@ Middlewareを作成して、HTTPレスポンスをLoggerに出力するやり方
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

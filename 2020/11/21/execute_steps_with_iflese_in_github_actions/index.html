@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -236,29 +236,29 @@ if condition1 {
 <li>これらを組み合わせて擬似的にifelseのような操作を実現できる</li>
 </ul>
 <p>検証したActionsの定義は次の通り。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">name</span>: ifelse pattern
-<span style="color:#268bd2">on</span>:
-  <span style="color:#268bd2">push</span>:
-    <span style="color:#268bd2">branches</span>:
-      - master
-<span style="color:#268bd2">jobs</span>:
-  <span style="color:#268bd2">ifelse-pattern</span>:
-    <span style="color:#268bd2">runs-on</span>: ubuntu-latest
-    <span style="color:#268bd2">steps</span>:
-      - <span style="color:#268bd2">name</span>: Check out codes
-        <span style="color:#268bd2">uses</span>: actions/checkout@v2
-      - <span style="color:#268bd2">name</span>: foo
-        <span style="color:#268bd2">id</span>: foo
-        <span style="color:#268bd2">if</span>: contains(toJSON(github.event.commits.*.message), &#39;foo&#39;)
-        <span style="color:#268bd2">run</span>:  echo &#39;if step!&#39;
-      - <span style="color:#268bd2">name</span>: bar
-        <span style="color:#268bd2">id</span>: bar
-        <span style="color:#268bd2">if</span>: steps.foo.conclusion == &#39;skipped&#39;  &amp;&amp; contains(toJSON(github.event.commits.*.message), &#39;bar&#39;)
-        <span style="color:#268bd2">run</span>:  echo &#39;elseif step!&#39;
-      - <span style="color:#268bd2">name</span>: other
-        <span style="color:#268bd2">if</span>: <span style="color:#2aa198">&#34;!(steps.foo.conclusion == &#39;success&#39; || steps.bar.conclusion == &#39;success&#39;)&#34;</span>
-        <span style="color:#268bd2">run</span>:  echo &#39;else step!&#39;
-</code></pre></div><p>サンプルリポジトリは次のとおり。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">name</span>: ifelse pattern
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">on</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">push</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">branches</span>:
+</span></span><span style="display:flex;"><span>      - master
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">jobs</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">ifelse-pattern</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">runs-on</span>: ubuntu-latest
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">steps</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">name</span>: Check out codes
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">uses</span>: actions/checkout@v2
+</span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">name</span>: foo
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">id</span>: foo
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">if</span>: contains(toJSON(github.event.commits.*.message), &#39;foo&#39;)
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">run</span>:  echo &#39;if step!&#39;
+</span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">name</span>: bar
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">id</span>: bar
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">if</span>: steps.foo.conclusion == &#39;skipped&#39;  &amp;&amp; contains(toJSON(github.event.commits.*.message), &#39;bar&#39;)
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">run</span>:  echo &#39;elseif step!&#39;
+</span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">name</span>: other
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">if</span>: <span style="color:#2aa198">&#34;!(steps.foo.conclusion == &#39;success&#39; || steps.bar.conclusion == &#39;success&#39;)&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">run</span>:  echo &#39;else step!&#39;
+</span></span></code></pre></div><p>サンプルリポジトリは次のとおり。</p>
 <ul>
 <li><a href="https://github.com/budougumi0617/actions-sandbox">https://github.com/budougumi0617/actions-sandbox</a></li>
 </ul>
@@ -311,33 +311,33 @@ if condition1 {
 また、関連する他のステップがすべて成功しなかったときにステップを実行すれば、<code>else</code>的なステップ実行ができる。</p>
 <h2 id="サンプルコード">サンプルコード</h2>
 <p>実際に作成したActionsのサンプルコードが次になる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">name</span>: ifelse pattern
-<span style="color:#268bd2">on</span>:
-  <span style="color:#268bd2">push</span>:
-    <span style="color:#268bd2">branches</span>:
-      - master
-<span style="color:#268bd2">jobs</span>:
-  <span style="color:#268bd2">ifelse-pattern</span>:
-    <span style="color:#268bd2">runs-on</span>: ubuntu-latest
-    <span style="color:#268bd2">steps</span>:
-      - <span style="color:#268bd2">name</span>: Check out codes
-        <span style="color:#268bd2">uses</span>: actions/checkout@v2
-      - <span style="color:#268bd2">name</span>: foo
-        <span style="color:#268bd2">id</span>: foo
-        <span style="color:#268bd2">if</span>: contains(toJSON(github.event.commits.*.message), &#39;foo&#39;)
-        <span style="color:#268bd2">run</span>:  echo &#39;if step!&#39;
-      - <span style="color:#268bd2">name</span>: bar
-        <span style="color:#268bd2">id</span>: bar
-        <span style="color:#268bd2">if</span>: steps.foo.conclusion == &#39;skipped&#39;  &amp;&amp; contains(toJSON(github.event.commits.*.message), &#39;bar&#39;)
-        <span style="color:#268bd2">run</span>:  echo &#39;elseif step!&#39;
-      - <span style="color:#268bd2">name</span>: other
-        <span style="color:#268bd2">if</span>: <span style="color:#2aa198">&#34;!(steps.foo.conclusion == &#39;success&#39; || steps.bar.conclusion == &#39;success&#39;)&#34;</span>
-        <span style="color:#268bd2">run</span>:  echo &#39;else step!&#39;
-</code></pre></div><p><code>contains(toJSON(github.event.commits.*.message), 'foo')</code>は「プッシュされたコミットのコミットメッセージにfooが含まれているか」を評価するおまじないだ。
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">name</span>: ifelse pattern
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">on</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">push</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">branches</span>:
+</span></span><span style="display:flex;"><span>      - master
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">jobs</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">ifelse-pattern</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">runs-on</span>: ubuntu-latest
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">steps</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">name</span>: Check out codes
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">uses</span>: actions/checkout@v2
+</span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">name</span>: foo
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">id</span>: foo
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">if</span>: contains(toJSON(github.event.commits.*.message), &#39;foo&#39;)
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">run</span>:  echo &#39;if step!&#39;
+</span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">name</span>: bar
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">id</span>: bar
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">if</span>: steps.foo.conclusion == &#39;skipped&#39;  &amp;&amp; contains(toJSON(github.event.commits.*.message), &#39;bar&#39;)
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">run</span>:  echo &#39;elseif step!&#39;
+</span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">name</span>: other
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">if</span>: <span style="color:#2aa198">&#34;!(steps.foo.conclusion == &#39;success&#39; || steps.bar.conclusion == &#39;success&#39;)&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">run</span>:  echo &#39;else step!&#39;
+</span></span></code></pre></div><p><code>contains(toJSON(github.event.commits.*.message), 'foo')</code>は「プッシュされたコミットのコミットメッセージにfooが含まれているか」を評価するおまじないだ。
 なので、上記のActionsは次のような制御フローを実現している。</p>
 <ul>
 <li>コミットメッセージに「foo」が含まれていたら、fooステップの`echo &lsquo;if step!&lsquo;を実行する</li>
-<li>コミットメッセージに「bar」が含まれていたら、barステップの`echo &lsquo;elseif step!&lsquo;を実行する
+<li>コミットメッセージに「bar」が含まれていたら、barステップの`echo &rsquo;elseif step!&lsquo;を実行する
 <ul>
 <li>foobarと書かれていたらfooステップが一度だけ実行される</li>
 </ul>
@@ -552,10 +552,16 @@ if condition1 {
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -570,12 +576,6 @@ if condition1 {
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -586,7 +586,7 @@ if condition1 {
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

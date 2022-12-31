@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -273,22 +273,22 @@ golintのフォーマットは後述する方法で簡単に実装できる。</
 <ul>
 <li><a href="https://github.com/budougumi0617/action-newrelic-segment-lint/blob/master/script.sh">https://github.com/budougumi0617/action-newrelic-segment-lint/blob/master/script.sh</a></li>
 </ul>
-<pre tabindex="0"><code class="language-baash" data-lang="baash">TEMP_PATH=&quot;$(mktemp -d)&quot;
-PATH=&quot;${TEMP_PATH}:$PATH&quot;
+<pre tabindex="0"><code class="language-baash" data-lang="baash">TEMP_PATH=&#34;$(mktemp -d)&#34;
+PATH=&#34;${TEMP_PATH}:$PATH&#34;
 
-curl -L &quot;$(curl -Ls https://api.github.com/repos/budougumi0617/nrseg/releases/latest | grep -o -E &quot;https://.+?_Linux_x86_64.tar.gz&quot;)&quot; -o nrseg.tar.gz
-tar -zxvf nrseg.tar.gz -C &quot;${TEMP_PATH}&quot;
+curl -L &#34;$(curl -Ls https://api.github.com/repos/budougumi0617/nrseg/releases/latest | grep -o -E &#34;https://.+?_Linux_x86_64.tar.gz&#34;)&#34; -o nrseg.tar.gz
+tar -zxvf nrseg.tar.gz -C &#34;${TEMP_PATH}&#34;
 rm nrseg.tar.gz
 </code></pre><p>あとはGitHubトークンを設定してreviewdogと一緒に実行すればよい。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">nrseg inspect <span style="color:#2aa198">${</span><span style="color:#268bd2">INPUT_NRSEG_FLAGS</span><span style="color:#2aa198">}</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>  | reviewdog -f<span style="color:#719e07">=</span>golint <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>      -name<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">INPUT_TOOL_NAME</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>      -reporter<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">INPUT_REPORTER</span><span style="color:#719e07">:-</span><span style="color:#268bd2">github</span>-pr-check<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>      -filter-mode<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">INPUT_FILTER_MODE</span><span style="color:#719e07">:-</span><span style="color:#268bd2">added</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>      -fail-on-error<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">INPUT_FAIL_ON_ERROR</span><span style="color:#719e07">:-</span><span style="color:#268bd2">false</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>      -level<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">INPUT_LEVEL</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>      <span style="color:#2aa198">${</span><span style="color:#268bd2">INPUT_REVIEWDOG_FLAGS</span><span style="color:#2aa198">}</span>
-</code></pre></div><p>これと設定ファイルであるaction.ymlを清書すれば終わりだ。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>nrseg inspect <span style="color:#2aa198">${</span><span style="color:#268bd2">INPUT_NRSEG_FLAGS</span><span style="color:#2aa198">}</span> <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  | reviewdog -f<span style="color:#719e07">=</span>golint <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>      -name<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">INPUT_TOOL_NAME</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>      -reporter<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">INPUT_REPORTER</span><span style="color:#719e07">:-</span><span style="color:#268bd2">github</span>-pr-check<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>      -filter-mode<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">INPUT_FILTER_MODE</span><span style="color:#719e07">:-</span><span style="color:#268bd2">added</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>      -fail-on-error<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">INPUT_FAIL_ON_ERROR</span><span style="color:#719e07">:-</span><span style="color:#268bd2">false</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>      -level<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">INPUT_LEVEL</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>      <span style="color:#2aa198">${</span><span style="color:#268bd2">INPUT_REVIEWDOG_FLAGS</span><span style="color:#2aa198">}</span>
+</span></span></code></pre></div><p>これと設定ファイルであるaction.ymlを清書すれば終わりだ。</p>
 <ul>
 <li><a href="https://github.com/budougumi0617/action-newrelic-segment-lint/blob/master/action.yml">https://github.com/budougumi0617/action-newrelic-segment-lint/blob/master/action.yml</a></li>
 </ul>
@@ -299,9 +299,9 @@ rm nrseg.tar.gz
 </ul>
 <h1 id="reviewdogでパースできるlint結果の作り方">reviewdogでパースできるlint結果の作り方</h1>
 <p>reviewdogでPRに含まれるコードの特定行にコメントを残すにはlintエラーに位置情報を付与して出力する必要がある。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># main.goの24行目にlint errorを発見したとき出力</span>
-main.go:24:1: Server.Shutdown no insert segment
-</code></pre></div><p>Goの場合、reviewdogが<code>-f=golint</code>オプションでパースできる情報を簡単に作ることができる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># main.goの24行目にlint errorを発見したとき出力</span>
+</span></span><span style="display:flex;"><span>main.go:24:1: Server.Shutdown no insert segment
+</span></span></code></pre></div><p>Goの場合、reviewdogが<code>-f=golint</code>オプションでパースできる情報を簡単に作ることができる。</p>
 <h2 id="golangorgxtoolsgoanalysis-pkgを利用する">golang.org/x/tools/go/analysis pkgを利用する</h2>
 <p>golang.org/x/tools/go/analysis pkgを利用して作成されたlinterはgolintなどと同じフォーマットでエラーを出力する。</p>
 <div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/golang/tools" data-iframely-url="//cdn.iframe.ly/T71XGV2"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
@@ -309,25 +309,25 @@ main.go:24:1: Server.Shutdown no insert segment
 <ul>
 <li><a href="/2019/02/01/how-to-use-analisys-package/">golang.org/x/tools/go/analysisでLinterツールを自作する #gounco #golang</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">go vet -vettool<span style="color:#719e07">=</span><span style="color:#719e07">$(</span>which regexponce<span style="color:#719e07">)</span> ./testdata/src/a
-<span style="color:#586e75"># github.com/budougumi0617/regexponce/testdata/src/a</span>
-testdata/src/a/a.go:16:30: regexp.Compile must be called only once at initialize
-testdata/src/a/a.go:21:34: regexp.MustCompile must be called only once at initialize
-testdata/src/a/a.go:27:6: regexp.MustCompile must be called only once at initialize
-testdata/src/a/a.go:31:34: regexp.MustCompile must be called only once at initialize
-testdata/src/a/a.go:36:31: regexp.MustCompile must be called only once at initialize
-testdata/src/a/a.go:38:32: regexp.MustCompile must be called only once at initialize
-testdata/src/a/a.go:43:31: regexp.MustCompile must be called only once at initialize
-testdata/src/a/a.go:45:32: regexp.MustCompile must be called only once at initialize
-</code></pre></div><h2 id="tokenpositionを使う">token.Positionを使う</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>go vet -vettool<span style="color:#719e07">=</span><span style="color:#719e07">$(</span>which regexponce<span style="color:#719e07">)</span> ./testdata/src/a
+</span></span><span style="display:flex;"><span><span style="color:#586e75"># github.com/budougumi0617/regexponce/testdata/src/a</span>
+</span></span><span style="display:flex;"><span>testdata/src/a/a.go:16:30: regexp.Compile must be called only once at initialize
+</span></span><span style="display:flex;"><span>testdata/src/a/a.go:21:34: regexp.MustCompile must be called only once at initialize
+</span></span><span style="display:flex;"><span>testdata/src/a/a.go:27:6: regexp.MustCompile must be called only once at initialize
+</span></span><span style="display:flex;"><span>testdata/src/a/a.go:31:34: regexp.MustCompile must be called only once at initialize
+</span></span><span style="display:flex;"><span>testdata/src/a/a.go:36:31: regexp.MustCompile must be called only once at initialize
+</span></span><span style="display:flex;"><span>testdata/src/a/a.go:38:32: regexp.MustCompile must be called only once at initialize
+</span></span><span style="display:flex;"><span>testdata/src/a/a.go:43:31: regexp.MustCompile must be called only once at initialize
+</span></span><span style="display:flex;"><span>testdata/src/a/a.go:45:32: regexp.MustCompile must be called only once at initialize
+</span></span></code></pre></div><h2 id="tokenpositionを使う">token.Positionを使う</h2>
 <ul>
 <li><a href="https://pkg.go.dev/go/token#Position">https://pkg.go.dev/go/token#Position</a></li>
 </ul>
 <p>golang.org/x/tools/go/analysis pkgを利用していなくても、 <code>*token.FileSet</code> と <code>token.Pos</code> オブジェクトがあれば同様の出力を簡単に取得することができる。<br>
 静的解析をしていれば上記の情報は簡単にとれるのでこれを組み合わせると必要情報を所定フォーマットで出力できる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">p <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">File</span>(pos).<span style="color:#268bd2">Position</span>(pos)
-fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s:%d:%d: lint error message\n&#34;</span>, p.Filename, p.Line, p.Column)
-</code></pre></div><h1 id="その他">その他</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>p <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">File</span>(pos).<span style="color:#268bd2">Position</span>(pos)
+</span></span><span style="display:flex;"><span>fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s:%d:%d: lint error message\n&#34;</span>, p.Filename, p.Line, p.Column)
+</span></span></code></pre></div><h1 id="その他">その他</h1>
 <ul>
 <li><a href="https://github.com/reviewdog/action-template/tree/master/.github/workflows">https://github.com/reviewdog/action-template/tree/master/.github/workflows</a></li>
 </ul>
@@ -521,10 +521,16 @@ fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -539,12 +545,6 @@ fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -555,7 +555,7 @@ fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

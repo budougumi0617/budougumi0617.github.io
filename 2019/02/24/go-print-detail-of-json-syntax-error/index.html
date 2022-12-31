@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -205,115 +205,115 @@
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 <p><code>json.SyntaxError</code>の定義は以下の通りだ。</p>
 <p><a href="https://golang.org/pkg/encoding/json/#SyntaxError">https://golang.org/pkg/encoding/json/#SyntaxError</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> SyntaxError <span style="color:#268bd2">struct</span> {
-        Offset <span style="color:#dc322f">int64</span> <span style="color:#586e75">// error occurred after reading Offset bytes
-</span><span style="color:#586e75"></span>        <span style="color:#586e75">// contains filtered or unexported fields
-</span><span style="color:#586e75"></span>}
-</code></pre></div><p>オフセット情報を含んだ<code>error</code>インターフェースを満たす構造体らしい。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> SyntaxError <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>        Offset <span style="color:#dc322f">int64</span> <span style="color:#586e75">// error occurred after reading Offset bytes
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        <span style="color:#586e75">// contains filtered or unexported fields
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span></code></pre></div><p>オフセット情報を含んだ<code>error</code>インターフェースを満たす構造体らしい。</p>
 <h1 id="jsonunmarshalで失敗したときのエラー出力を確認する">json.Unmarshalで失敗したときのエラー出力を確認する</h1>
 <p>まずTweetのような<code>json.Unmarshal</code>を失敗する簡単なサンプルコードを用意した。</p>
 <p><a href="https://play.golang.org/p/PgLmO9fo0nX">https://play.golang.org/p/PgLmO9fo0nX</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
-
-<span style="color:#719e07">import</span> (
-	<span style="color:#2aa198">&#34;encoding/json&#34;</span>
-	<span style="color:#2aa198">&#34;fmt&#34;</span>
-	<span style="color:#2aa198">&#34;log&#34;</span>
-)
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-	bd <span style="color:#719e07">:=</span> []<span style="color:#b58900">byte</span>(data)
-	<span style="color:#268bd2">var</span> v <span style="color:#268bd2">struct</span> {
-		Timestamp    <span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;timestamp&#34;`</span>
-		ParentTotals <span style="color:#268bd2">struct</span> {
-			C <span style="color:#dc322f">int</span> <span style="color:#2aa198">`json:&#34;C&#34;`</span>
-		} <span style="color:#2aa198">`json:&#34;parent_totals&#34;`</span>
-	}
-	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmarshal</span>(bd, <span style="color:#719e07">&amp;</span>v); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		<span style="color:#586e75">// 2009/11/10 23:00:00 invalid character &#39;&#34;&#39; after object key:value pair
-</span><span style="color:#586e75"></span>		log.<span style="color:#268bd2">Fatal</span>(err)
-	}
-	fmt.<span style="color:#268bd2">Println</span>(v)
-}
-
-<span style="color:#586e75">// &#34;c&#34;: 52.57732&#34;, の部分に「&#34;」が足りないためinvalidなJSON文字列。
-</span><span style="color:#586e75"></span><span style="color:#268bd2">const</span> data = <span style="color:#2aa198">`
-</span><span style="color:#2aa198">{
-</span><span style="color:#2aa198">      &#34;timestamp&#34;: &#34;2019-02-24 07:07:03&#34;,
-</span><span style="color:#2aa198">      &#34;parent_totals&#34;: {
-</span><span style="color:#2aa198">        &#34;C&#34;: 0,
-</span><span style="color:#2aa198">        &#34;b&#34;: 0,
-</span><span style="color:#2aa198">        &#34;d&#34;: 0,
-</span><span style="color:#2aa198">        &#34;f&#34;: 9,
-</span><span style="color:#2aa198">        &#34;h&#34;: 102,
-</span><span style="color:#2aa198">        &#34;M&#34;: 0,
-</span><span style="color:#2aa198">        &#34;c&#34;: 52.57732&#34;,
-</span><span style="color:#2aa198">        &#34;N&#34;: 0,
-</span><span style="color:#2aa198">        &#34;p&#34;: 34,
-</span><span style="color:#2aa198">        &#34;m&#34;: 58,
-</span><span style="color:#2aa198">        &#34;diff&#34;: null,
-</span><span style="color:#2aa198">        &#34;s&#34;: 1,
-</span><span style="color:#2aa198">        &#34;n&#34;: 194
-</span><span style="color:#2aa198">      }
-</span><span style="color:#2aa198">}`</span>
-</code></pre></div><p><code>data</code>文字列は<code>52.57732&quot;,</code>部分が不正なのでUnmarshalに失敗する。
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;encoding/json&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;log&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+</span></span><span style="display:flex;"><span>	bd <span style="color:#719e07">:=</span> []<span style="color:#b58900">byte</span>(data)
+</span></span><span style="display:flex;"><span>	<span style="color:#268bd2">var</span> v <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>		Timestamp    <span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;timestamp&#34;`</span>
+</span></span><span style="display:flex;"><span>		ParentTotals <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>			C <span style="color:#dc322f">int</span> <span style="color:#2aa198">`json:&#34;C&#34;`</span>
+</span></span><span style="display:flex;"><span>		} <span style="color:#2aa198">`json:&#34;parent_totals&#34;`</span>
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmarshal</span>(bd, <span style="color:#719e07">&amp;</span>v); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#586e75">// 2009/11/10 23:00:00 invalid character &#39;&#34;&#39; after object key:value pair
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>		log.<span style="color:#268bd2">Fatal</span>(err)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	fmt.<span style="color:#268bd2">Println</span>(v)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// &#34;c&#34;: 52.57732&#34;, の部分に「&#34;」が足りないためinvalidなJSON文字列。
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">const</span> data = <span style="color:#2aa198">`
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">{
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">      &#34;timestamp&#34;: &#34;2019-02-24 07:07:03&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">      &#34;parent_totals&#34;: {
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        &#34;C&#34;: 0,
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        &#34;b&#34;: 0,
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        &#34;d&#34;: 0,
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        &#34;f&#34;: 9,
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        &#34;h&#34;: 102,
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        &#34;M&#34;: 0,
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        &#34;c&#34;: 52.57732&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        &#34;N&#34;: 0,
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        &#34;p&#34;: 34,
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        &#34;m&#34;: 58,
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        &#34;diff&#34;: null,
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        &#34;s&#34;: 1,
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        &#34;n&#34;: 194
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">      }
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">}`</span>
+</span></span></code></pre></div><p><code>data</code>文字列は<code>52.57732&quot;,</code>部分が不正なのでUnmarshalに失敗する。
 出力される<code>log.Fatal</code>の結果は以下だ。取得された<code>error</code>オブジェクトの<code>Error()</code>から取得できる文字列だけだと正直どこが問題だったのかわかりにくい。</p>
-<pre tabindex="0"><code>invalid character '&quot;' after object key:value pair
+<pre tabindex="0"><code>invalid character &#39;&#34;&#39; after object key:value pair
 </code></pre><h1 id="jsonsyntaxerrorを使ってもう少し情報を入手する">json.SyntaxErrorを使ってもう少し情報を入手する</h1>
 <p><code>SyntaxError.Offset</code>と元データの文字列を使うともう少しエラーに関係する部分の情報が取得できる。試し先程のコードのエラーハンドリング部分を<code>SyntaxError.Offset</code>から前後15文字の情報も出力するようにしてみる。</p>
 <p><a href="https://play.golang.org/p/axUQ1WnMhvV">https://play.golang.org/p/axUQ1WnMhvV</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmarshal</span>(bd, <span style="color:#719e07">&amp;</span>v); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		<span style="color:#719e07">if</span> err, ok <span style="color:#719e07">:=</span> err.(<span style="color:#719e07">*</span>json.SyntaxError); ok {
-			fmt.<span style="color:#268bd2">Println</span>(<span style="color:#b58900">string</span>(bd[err.Offset<span style="color:#719e07">-</span><span style="color:#2aa198">15</span>:err.Offset<span style="color:#719e07">+</span><span style="color:#2aa198">15</span>]))
-		}
-		log.<span style="color:#268bd2">Fatal</span>(err)
-	}
-</code></pre></div><p>以下の情報が出力された。これくらいの情報があると、すぐエラーの位置がわかりやすそうだ。</p>
-<pre tabindex="0"><code> &quot;c&quot;: 52.57732&quot;,
-        &quot;N&quot;:
-2009/11/10 23:00:00 invalid character '&quot;' after object key:value pair
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmarshal</span>(bd, <span style="color:#719e07">&amp;</span>v); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#719e07">if</span> err, ok <span style="color:#719e07">:=</span> err.(<span style="color:#719e07">*</span>json.SyntaxError); ok {
+</span></span><span style="display:flex;"><span>			fmt.<span style="color:#268bd2">Println</span>(<span style="color:#b58900">string</span>(bd[err.Offset<span style="color:#719e07">-</span><span style="color:#2aa198">15</span>:err.Offset<span style="color:#719e07">+</span><span style="color:#2aa198">15</span>]))
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>		log.<span style="color:#268bd2">Fatal</span>(err)
+</span></span><span style="display:flex;"><span>	}
+</span></span></code></pre></div><p>以下の情報が出力された。これくらいの情報があると、すぐエラーの位置がわかりやすそうだ。</p>
+<pre tabindex="0"><code> &#34;c&#34;: 52.57732&#34;,
+        &#34;N&#34;:
+2009/11/10 23:00:00 invalid character &#39;&#34;&#39; after object key:value pair
 </code></pre><h1 id="終わりに">終わりに</h1>
 <p>他にも少しいじってみたところ、構造体定義が問題のときは<code>json.SyntaxError</code>は取得できなかった。
 あくまでも文字列がJSONとして読めないときにのみしか発生しないようだ。</p>
 <p><a href="https://play.golang.org/p/J6P03WyIwhw">https://play.golang.org/p/J6P03WyIwhw</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
-
-<span style="color:#719e07">import</span> (
-	<span style="color:#2aa198">&#34;encoding/json&#34;</span>
-	<span style="color:#2aa198">&#34;fmt&#34;</span>
-	<span style="color:#2aa198">&#34;log&#34;</span>
-)
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-	bd <span style="color:#719e07">:=</span> []<span style="color:#b58900">byte</span>(data)
-	<span style="color:#268bd2">var</span> v <span style="color:#268bd2">struct</span> {
-		Timestamp    <span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;timestamp&#34;`</span>
-		ParentTotals <span style="color:#268bd2">struct</span> {
-			C <span style="color:#dc322f">int</span> <span style="color:#2aa198">`json:&#34;C&#34;`</span>
-		} <span style="color:#2aa198">`json:&#34;parent_totals&#34;`</span>
-	}
-
-	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmarshal</span>(bd, <span style="color:#719e07">&amp;</span>v); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		<span style="color:#586e75">// 真にはならない
-</span><span style="color:#586e75"></span>		<span style="color:#719e07">if</span> err, ok <span style="color:#719e07">:=</span> err.(<span style="color:#719e07">*</span>json.SyntaxError); ok {
-			fmt.<span style="color:#268bd2">Println</span>(<span style="color:#b58900">string</span>(bd[err.Offset<span style="color:#719e07">-</span><span style="color:#2aa198">1</span>:]))
-		}
-		<span style="color:#586e75">// 2009/11/10 23:00:00 json: cannot unmarshal string into Go struct field .C of type int
-</span><span style="color:#586e75"></span>		log.<span style="color:#268bd2">Fatal</span>(err)
-	}
-	fmt.<span style="color:#268bd2">Println</span>(v)
-}
-
-<span style="color:#586e75">// `json:&#34;C&#34;と`json:&#34;c&#34;が宣言されていない構造体でUnmarshalしようとすると失敗する正しいJSONシンタックスの文字列。
-</span><span style="color:#586e75"></span><span style="color:#268bd2">const</span> data = <span style="color:#2aa198">`
-</span><span style="color:#2aa198">{
-</span><span style="color:#2aa198">      &#34;timestamp&#34;: &#34;2019-02-24 07:07:03&#34;,
-</span><span style="color:#2aa198">      &#34;parent_totals&#34;: {
-</span><span style="color:#2aa198">        &#34;C&#34;: 0,
-</span><span style="color:#2aa198">        &#34;c&#34;: &#34;52.57732&#34;
-</span><span style="color:#2aa198">      }
-</span><span style="color:#2aa198">}`</span>
-</code></pre></div><h1 id="参考">参考</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;encoding/json&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;log&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+</span></span><span style="display:flex;"><span>	bd <span style="color:#719e07">:=</span> []<span style="color:#b58900">byte</span>(data)
+</span></span><span style="display:flex;"><span>	<span style="color:#268bd2">var</span> v <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>		Timestamp    <span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;timestamp&#34;`</span>
+</span></span><span style="display:flex;"><span>		ParentTotals <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>			C <span style="color:#dc322f">int</span> <span style="color:#2aa198">`json:&#34;C&#34;`</span>
+</span></span><span style="display:flex;"><span>		} <span style="color:#2aa198">`json:&#34;parent_totals&#34;`</span>
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmarshal</span>(bd, <span style="color:#719e07">&amp;</span>v); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#586e75">// 真にはならない
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>		<span style="color:#719e07">if</span> err, ok <span style="color:#719e07">:=</span> err.(<span style="color:#719e07">*</span>json.SyntaxError); ok {
+</span></span><span style="display:flex;"><span>			fmt.<span style="color:#268bd2">Println</span>(<span style="color:#b58900">string</span>(bd[err.Offset<span style="color:#719e07">-</span><span style="color:#2aa198">1</span>:]))
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>		<span style="color:#586e75">// 2009/11/10 23:00:00 json: cannot unmarshal string into Go struct field .C of type int
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>		log.<span style="color:#268bd2">Fatal</span>(err)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	fmt.<span style="color:#268bd2">Println</span>(v)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// `json:&#34;C&#34;と`json:&#34;c&#34;が宣言されていない構造体でUnmarshalしようとすると失敗する正しいJSONシンタックスの文字列。
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">const</span> data = <span style="color:#2aa198">`
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">{
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">      &#34;timestamp&#34;: &#34;2019-02-24 07:07:03&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">      &#34;parent_totals&#34;: {
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        &#34;C&#34;: 0,
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        &#34;c&#34;: &#34;52.57732&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">      }
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">}`</span>
+</span></span></code></pre></div><h1 id="参考">参考</h1>
 <ul>
 <li><a href="https://golang.org/pkg/encoding/json/#SyntaxError">https://golang.org/pkg/encoding/json/#SyntaxError</a></li>
 </ul>
@@ -490,10 +490,16 @@
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -508,12 +514,6 @@
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -524,7 +524,7 @@
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

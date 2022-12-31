@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -220,19 +220,19 @@
 </li>
 <li>ユニットテストを書けば動作確認も簡単にできるので開発がはかどる！</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// schema.Resource.ReadContextに設定する関数のテスト
-</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Test_dataSourceYourObjectRead</span>(t <span style="color:#719e07">*</span>testing.T) {
-  <span style="color:#586e75">// *schema.ProviderData.ConfigureContextFuncの戻り値にしているオブジェクト
-</span><span style="color:#586e75"></span>  m <span style="color:#719e07">:=</span> providerConfigureReturnedObject
-  <span style="color:#586e75">// *schema.Provider.DataSourcesMapに設定するResource
-</span><span style="color:#586e75"></span>  d <span style="color:#719e07">:=</span> <span style="color:#268bd2">dataSourceYourObject</span>().<span style="color:#268bd2">TestResourceData</span>()
-
-  got <span style="color:#719e07">:=</span> <span style="color:#268bd2">dataSourceYourObjectRead</span>(context.<span style="color:#268bd2">TODO</span>(), d, m)
-  <span style="color:#719e07">if</span> diff <span style="color:#719e07">:=</span> cmp.<span style="color:#268bd2">Diff</span>(got, tt.want); diff <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;&#34;</span> {
-    t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;dataSourceYourObjectRead: (-got +want)\n%s&#34;</span>, diff)
-  }
-}
-</code></pre></div><h1 id="terraform-providerの概要">Terraform Providerの概要</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// schema.Resource.ReadContextに設定する関数のテスト
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Test_dataSourceYourObjectRead</span>(t <span style="color:#719e07">*</span>testing.T) {
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// *schema.ProviderData.ConfigureContextFuncの戻り値にしているオブジェクト
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  m <span style="color:#719e07">:=</span> providerConfigureReturnedObject
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// *schema.Provider.DataSourcesMapに設定するResource
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  d <span style="color:#719e07">:=</span> <span style="color:#268bd2">dataSourceYourObject</span>().<span style="color:#268bd2">TestResourceData</span>()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  got <span style="color:#719e07">:=</span> <span style="color:#268bd2">dataSourceYourObjectRead</span>(context.<span style="color:#268bd2">TODO</span>(), d, m)
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">if</span> diff <span style="color:#719e07">:=</span> cmp.<span style="color:#268bd2">Diff</span>(got, tt.want); diff <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;&#34;</span> {
+</span></span><span style="display:flex;"><span>    t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;dataSourceYourObjectRead: (-got +want)\n%s&#34;</span>, diff)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h1 id="terraform-providerの概要">Terraform Providerの概要</h1>
 <p>Terraformはプロパイダーを経由して各種リソースを操作する。
 AWSプロパイダーやGCPプロパイダー経由でマネージドサービスを管理している方も多いだろう。</p>
 <div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/hashicorp/terraform-provider-aws" data-iframely-url="//cdn.iframe.ly/W3cxksd"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
@@ -254,19 +254,19 @@ Providerは<code>terraform</code>コマンドが呼び出すサププロセス�
 <ul>
 <li><a href="https://learn.hashicorp.com/tutorials/terraform/provider-setup?in=terraform/providers#test-the-provider">https://learn.hashicorp.com/tutorials/terraform/provider-setup?in=terraform/providers#test-the-provider</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">pwd</span>
-/Users/budougumi0617/go/src/github.com/budougumi0617/terraform-provider-hashicups
-<span style="color:#586e75"># 一度ビルドする</span>
-$ make install
-go build -o terraform-provider-hashicups
-mv terraform-provider-hashicups ~/.terraform.d/plugins/hashicorp.com/edu/hashicups/0.2/darwin_amd64
-<span style="color:#586e75"># tfファイルを用意したディレクトリに移動する</span>
-$ <span style="color:#b58900">cd</span> examples
-<span style="color:#586e75"># ビルドしたら必ずinitしないといけない</span>
-$ terraform init
-<span style="color:#586e75"># ここまでやってやっとapplyして動作確認ができる</span>
-$ terraform apply --auto-approve
-</code></pre></div><p>この方法だと毎回ビルドをしたあと異なるディレクトリで<code>terraform init &amp;&amp; terraform apply</code>をする必要があり時間もかかる。<br>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ <span style="color:#b58900">pwd</span>
+</span></span><span style="display:flex;"><span>/Users/budougumi0617/go/src/github.com/budougumi0617/terraform-provider-hashicups
+</span></span><span style="display:flex;"><span><span style="color:#586e75"># 一度ビルドする</span>
+</span></span><span style="display:flex;"><span>$ make install
+</span></span><span style="display:flex;"><span>go build -o terraform-provider-hashicups
+</span></span><span style="display:flex;"><span>mv terraform-provider-hashicups ~/.terraform.d/plugins/hashicorp.com/edu/hashicups/0.2/darwin_amd64
+</span></span><span style="display:flex;"><span><span style="color:#586e75"># tfファイルを用意したディレクトリに移動する</span>
+</span></span><span style="display:flex;"><span>$ <span style="color:#b58900">cd</span> examples
+</span></span><span style="display:flex;"><span><span style="color:#586e75"># ビルドしたら必ずinitしないといけない</span>
+</span></span><span style="display:flex;"><span>$ terraform init
+</span></span><span style="display:flex;"><span><span style="color:#586e75"># ここまでやってやっとapplyして動作確認ができる</span>
+</span></span><span style="display:flex;"><span>$ terraform apply --auto-approve
+</span></span></code></pre></div><p>この方法だと毎回ビルドをしたあと異なるディレクトリで<code>terraform init &amp;&amp; terraform apply</code>をする必要があり時間もかかる。<br>
 また、デバッガのアタッチも難しい。そのためユニットテストで動作確認をしたい。</p>
 <h1 id="自作providerのユニットテストを書く">自作Providerのユニットテストを書く</h1>
 <h2 id="自作providerの実装構造">自作Providerの実装構造</h2>
@@ -279,90 +279,90 @@ $ terraform apply --auto-approve
 <ul>
 <li><a href="https://github.com/hashicorp/terraform-plugin-sdk/blob/6e57e60d8383a26ab179b1b142b3f6ca452229c0/helper/schema/resource.go#L226-L236">github.com/hashicorp/terraform-plugin-sdk/helper/schema/resource.go</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// See Resource documentation.
-</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> CreateContextFunc <span style="color:#268bd2">func</span>(context.Context, <span style="color:#719e07">*</span>ResourceData, <span style="color:#268bd2">interface</span>{}) diag.Diagnostics
-
-<span style="color:#586e75">// See Resource documentation.
-</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> ReadContextFunc <span style="color:#268bd2">func</span>(context.Context, <span style="color:#719e07">*</span>ResourceData, <span style="color:#268bd2">interface</span>{}) diag.Diagnostics
-
-<span style="color:#586e75">// See Resource documentation.
-</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> UpdateContextFunc <span style="color:#268bd2">func</span>(context.Context, <span style="color:#719e07">*</span>ResourceData, <span style="color:#268bd2">interface</span>{}) diag.Diagnostics
-
-<span style="color:#586e75">// See Resource documentation.
-</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> DeleteContextFunc <span style="color:#268bd2">func</span>(context.Context, <span style="color:#719e07">*</span>ResourceData, <span style="color:#268bd2">interface</span>{}) diag.Diagnostics
-</code></pre></div><p>（つまり同じシグネチャなのだが、）この関数の引数にわたすオブジェクトを用意すれば各<code>XxxxContextFunc</code>に対応するCRUD操作のユニットテストが実行できる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// See Resource documentation.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> CreateContextFunc <span style="color:#268bd2">func</span>(context.Context, <span style="color:#719e07">*</span>ResourceData, <span style="color:#268bd2">interface</span>{}) diag.Diagnostics
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// See Resource documentation.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> ReadContextFunc <span style="color:#268bd2">func</span>(context.Context, <span style="color:#719e07">*</span>ResourceData, <span style="color:#268bd2">interface</span>{}) diag.Diagnostics
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// See Resource documentation.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> UpdateContextFunc <span style="color:#268bd2">func</span>(context.Context, <span style="color:#719e07">*</span>ResourceData, <span style="color:#268bd2">interface</span>{}) diag.Diagnostics
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// See Resource documentation.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> DeleteContextFunc <span style="color:#268bd2">func</span>(context.Context, <span style="color:#719e07">*</span>ResourceData, <span style="color:#268bd2">interface</span>{}) diag.Diagnostics
+</span></span></code></pre></div><p>（つまり同じシグネチャなのだが、）この関数の引数にわたすオブジェクトを用意すれば各<code>XxxxContextFunc</code>に対応するCRUD操作のユニットテストが実行できる。</p>
 <h2 id="テスト対象の自作データの定義">テスト対象の自作データの定義</h2>
 <p>今回テストの対象になるデータリソースの定義を確認する。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">import</span> (
-  <span style="color:#2aa198">&#34;context&#34;</span>
-  <span style="color:#2aa198">&#34;fmt&#34;</span>
-
-  pixela <span style="color:#2aa198">&#34;github.com/ebc-2in2crc/pixela4go&#34;</span>
-
-  <span style="color:#2aa198">&#34;github.com/hashicorp/terraform-plugin-sdk/v2/diag&#34;</span>
-  <span style="color:#2aa198">&#34;github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema&#34;</span>
-)
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">dataSourceGraphs</span>() <span style="color:#719e07">*</span>schema.Resource {
-  <span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>schema.Resource{
-    ReadContext: dataSourceGraphsRead,
-    Schema: <span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]<span style="color:#719e07">*</span>schema.Schema{
-      <span style="color:#2aa198">&#34;graphs&#34;</span>: {
-        Type:     schema.TypeList,
-        Computed: <span style="color:#cb4b16">true</span>,
-        Elem: <span style="color:#719e07">&amp;</span>schema.Resource{
-          Schema: <span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]<span style="color:#719e07">*</span>schema.Schema{
-            <span style="color:#2aa198">&#34;id&#34;</span>: {
-              Type:     schema.TypeString,
-              Computed: <span style="color:#cb4b16">true</span>,
-            },
-            <span style="color:#2aa198">&#34;name&#34;</span>: {
-              Type:     schema.TypeString,
-              Computed: <span style="color:#cb4b16">true</span>,
-            },
-            <span style="color:#586e75">// ...
-</span><span style="color:#586e75"></span>          },
-        },
-      },
-    },
-  }
-}
-
-<span style="color:#586e75">// この関数をテストしたい
-</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">dataSourceGraphsRead</span>(
-  ctx context.Context, d <span style="color:#719e07">*</span>schema.ResourceData, m <span style="color:#268bd2">interface</span>{},
-  ) diag.Diagnostics {
-  client <span style="color:#719e07">:=</span> m.(<span style="color:#719e07">*</span>pixela.Client)
-  <span style="color:#268bd2">var</span> diags diag.Diagnostics
-  <span style="color:#586e75">// Do anything...
-</span><span style="color:#586e75"></span>  <span style="color:#719e07">return</span> diags
-}
-</code></pre></div><p>また、Providerの<code>ConfigureContextFunc</code>に登録している関数は次の通り。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">import</span> (
-  <span style="color:#2aa198">&#34;context&#34;</span>
-  <span style="color:#2aa198">&#34;fmt&#34;</span>
-
-  pixela <span style="color:#2aa198">&#34;github.com/ebc-2in2crc/pixela4go&#34;</span>
-  <span style="color:#2aa198">&#34;github.com/hashicorp/terraform-plugin-sdk/v2/diag&#34;</span>
-  <span style="color:#2aa198">&#34;github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema&#34;</span>
-)
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">providerConfigure</span>(
-  _ context.Context, d <span style="color:#719e07">*</span>schema.ResourceData,
-  ) (<span style="color:#268bd2">interface</span>{}, diag.Diagnostics) {
-  un <span style="color:#719e07">:=</span> d.<span style="color:#268bd2">Get</span>(<span style="color:#2aa198">&#34;username&#34;</span>).(<span style="color:#dc322f">string</span>)
-  <span style="color:#719e07">if</span> un <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;&#34;</span> {
-    <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>, diag.<span style="color:#268bd2">FromErr</span>(fmt.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;not find username&#34;</span>))
-  }
-
-  token <span style="color:#719e07">:=</span> d.<span style="color:#268bd2">Get</span>(<span style="color:#2aa198">&#34;token&#34;</span>).(<span style="color:#dc322f">string</span>)
-  <span style="color:#719e07">if</span> token <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;&#34;</span> {
-    <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>, diag.<span style="color:#268bd2">FromErr</span>(fmt.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;not find token&#34;</span>))
-  }
-
-  <span style="color:#719e07">return</span> pixela.<span style="color:#268bd2">New</span>(un, token), diag.Diagnostics{}
-}
-</code></pre></div><p><code>dataSourceGraphsRead</code>関数をテストするには、<code>*schema.ResourceData</code>オブジェクトを入手する必要がある。<br>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">import</span> (
+</span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;context&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  pixela <span style="color:#2aa198">&#34;github.com/ebc-2in2crc/pixela4go&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;github.com/hashicorp/terraform-plugin-sdk/v2/diag&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">dataSourceGraphs</span>() <span style="color:#719e07">*</span>schema.Resource {
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>schema.Resource{
+</span></span><span style="display:flex;"><span>    ReadContext: dataSourceGraphsRead,
+</span></span><span style="display:flex;"><span>    Schema: <span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]<span style="color:#719e07">*</span>schema.Schema{
+</span></span><span style="display:flex;"><span>      <span style="color:#2aa198">&#34;graphs&#34;</span>: {
+</span></span><span style="display:flex;"><span>        Type:     schema.TypeList,
+</span></span><span style="display:flex;"><span>        Computed: <span style="color:#cb4b16">true</span>,
+</span></span><span style="display:flex;"><span>        Elem: <span style="color:#719e07">&amp;</span>schema.Resource{
+</span></span><span style="display:flex;"><span>          Schema: <span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]<span style="color:#719e07">*</span>schema.Schema{
+</span></span><span style="display:flex;"><span>            <span style="color:#2aa198">&#34;id&#34;</span>: {
+</span></span><span style="display:flex;"><span>              Type:     schema.TypeString,
+</span></span><span style="display:flex;"><span>              Computed: <span style="color:#cb4b16">true</span>,
+</span></span><span style="display:flex;"><span>            },
+</span></span><span style="display:flex;"><span>            <span style="color:#2aa198">&#34;name&#34;</span>: {
+</span></span><span style="display:flex;"><span>              Type:     schema.TypeString,
+</span></span><span style="display:flex;"><span>              Computed: <span style="color:#cb4b16">true</span>,
+</span></span><span style="display:flex;"><span>            },
+</span></span><span style="display:flex;"><span>            <span style="color:#586e75">// ...
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>          },
+</span></span><span style="display:flex;"><span>        },
+</span></span><span style="display:flex;"><span>      },
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// この関数をテストしたい
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">dataSourceGraphsRead</span>(
+</span></span><span style="display:flex;"><span>  ctx context.Context, d <span style="color:#719e07">*</span>schema.ResourceData, m <span style="color:#268bd2">interface</span>{},
+</span></span><span style="display:flex;"><span>  ) diag.Diagnostics {
+</span></span><span style="display:flex;"><span>  client <span style="color:#719e07">:=</span> m.(<span style="color:#719e07">*</span>pixela.Client)
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">var</span> diags diag.Diagnostics
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// Do anything...
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  <span style="color:#719e07">return</span> diags
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>また、Providerの<code>ConfigureContextFunc</code>に登録している関数は次の通り。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">import</span> (
+</span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;context&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  pixela <span style="color:#2aa198">&#34;github.com/ebc-2in2crc/pixela4go&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;github.com/hashicorp/terraform-plugin-sdk/v2/diag&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">providerConfigure</span>(
+</span></span><span style="display:flex;"><span>  _ context.Context, d <span style="color:#719e07">*</span>schema.ResourceData,
+</span></span><span style="display:flex;"><span>  ) (<span style="color:#268bd2">interface</span>{}, diag.Diagnostics) {
+</span></span><span style="display:flex;"><span>  un <span style="color:#719e07">:=</span> d.<span style="color:#268bd2">Get</span>(<span style="color:#2aa198">&#34;username&#34;</span>).(<span style="color:#dc322f">string</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">if</span> un <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;&#34;</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>, diag.<span style="color:#268bd2">FromErr</span>(fmt.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;not find username&#34;</span>))
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  token <span style="color:#719e07">:=</span> d.<span style="color:#268bd2">Get</span>(<span style="color:#2aa198">&#34;token&#34;</span>).(<span style="color:#dc322f">string</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">if</span> token <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;&#34;</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>, diag.<span style="color:#268bd2">FromErr</span>(fmt.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;not find token&#34;</span>))
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">return</span> pixela.<span style="color:#268bd2">New</span>(un, token), diag.Diagnostics{}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>dataSourceGraphsRead</code>関数をテストするには、<code>*schema.ResourceData</code>オブジェクトを入手する必要がある。<br>
 <code>*schema.ResourceData</code>オブジェクトは、<code>dataSourceGraphs</code>関数の戻り値である<code>*schema.Resource</code>オブジェクトから入手することができる。</p>
 <ul>
 <li><a href="https://pkg.go.dev/github.com/hashicorp/terraform-plugin-sdk/v2@v2.2.0/helper/schema#Resource.TestResourceData">schema.Resource#TestResourceData</a></li>
@@ -376,45 +376,45 @@ TestResourceData Yields a ResourceData filled with this resource&rsquo;s schema 
 <p>第1引数のcontextは適当なcontextでよく、第3引数は<code>ConfigureContextFunc</code>に登録する<code>providerConfigure</code>関数の戻り値で良い。<br>
 今回の場合だと第3引数は<code>providerConfigure</code>関数が返す<code>*pixela.Client</code>オブジェクトになる。</p>
 <p>これらを踏まえると、次のようにtestを書くことができる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> pixela
-
-<span style="color:#719e07">import</span> (
-  <span style="color:#2aa198">&#34;context&#34;</span>
-  <span style="color:#2aa198">&#34;os&#34;</span>
-  <span style="color:#2aa198">&#34;testing&#34;</span>
-
-  pixela <span style="color:#2aa198">&#34;github.com/ebc-2in2crc/pixela4go&#34;</span>
-  <span style="color:#2aa198">&#34;github.com/google/go-cmp/cmp&#34;</span>
-  <span style="color:#2aa198">&#34;github.com/hashicorp/terraform-plugin-sdk/v2/diag&#34;</span>
-)
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">Test_dataSourceGraphsRead</span>(t <span style="color:#719e07">*</span>testing.T) {
-  tests <span style="color:#719e07">:=</span> [<span style="color:#719e07">...</span>]<span style="color:#268bd2">struct</span> {
-    name <span style="color:#dc322f">string</span>
-    want diag.Diagnostics
-  }{
-    {
-      name: <span style="color:#2aa198">&#34;confirmClientResponse&#34;</span>,
-      want: <span style="color:#cb4b16">nil</span>,
-    },
-  }
-  <span style="color:#719e07">for</span> _, tt <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> tests {
-    usename <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;PIXELA_USERNAME&#34;</span>)
-    token <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;PIXELA_TOKEN&#34;</span>)
-    <span style="color:#719e07">if</span> usename <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;&#34;</span> <span style="color:#719e07">||</span> token <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;&#34;</span> {
-      t.<span style="color:#268bd2">SkipNow</span>()
-    }
-    t.<span style="color:#268bd2">Run</span>(tt.name, <span style="color:#268bd2">func</span>(t <span style="color:#719e07">*</span>testing.T) {
-      m <span style="color:#719e07">:=</span> pixela.<span style="color:#268bd2">New</span>(usename, token)
-      d <span style="color:#719e07">:=</span> <span style="color:#268bd2">dataSourceGraphs</span>().<span style="color:#268bd2">TestResourceData</span>()
-      got <span style="color:#719e07">:=</span> <span style="color:#268bd2">dataSourceGraphsRead</span>(context.<span style="color:#268bd2">TODO</span>(), d, m)
-      <span style="color:#719e07">if</span> diff <span style="color:#719e07">:=</span> cmp.<span style="color:#268bd2">Diff</span>(got, tt.want); diff <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;&#34;</span> {
-        t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;dataSourceGraphsRead: (-got +want)\n%s&#34;</span>, diff)
-      }
-    })
-  }
-}
-</code></pre></div><p>これでunittestとして動作確認ができるようになった。
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> pixela
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
+</span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;context&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;os&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;testing&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  pixela <span style="color:#2aa198">&#34;github.com/ebc-2in2crc/pixela4go&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;github.com/google/go-cmp/cmp&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;github.com/hashicorp/terraform-plugin-sdk/v2/diag&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Test_dataSourceGraphsRead</span>(t <span style="color:#719e07">*</span>testing.T) {
+</span></span><span style="display:flex;"><span>  tests <span style="color:#719e07">:=</span> [<span style="color:#719e07">...</span>]<span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>    name <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>    want diag.Diagnostics
+</span></span><span style="display:flex;"><span>  }{
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      name: <span style="color:#2aa198">&#34;confirmClientResponse&#34;</span>,
+</span></span><span style="display:flex;"><span>      want: <span style="color:#cb4b16">nil</span>,
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">for</span> _, tt <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> tests {
+</span></span><span style="display:flex;"><span>    usename <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;PIXELA_USERNAME&#34;</span>)
+</span></span><span style="display:flex;"><span>    token <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;PIXELA_TOKEN&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> usename <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;&#34;</span> <span style="color:#719e07">||</span> token <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;&#34;</span> {
+</span></span><span style="display:flex;"><span>      t.<span style="color:#268bd2">SkipNow</span>()
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    t.<span style="color:#268bd2">Run</span>(tt.name, <span style="color:#268bd2">func</span>(t <span style="color:#719e07">*</span>testing.T) {
+</span></span><span style="display:flex;"><span>      m <span style="color:#719e07">:=</span> pixela.<span style="color:#268bd2">New</span>(usename, token)
+</span></span><span style="display:flex;"><span>      d <span style="color:#719e07">:=</span> <span style="color:#268bd2">dataSourceGraphs</span>().<span style="color:#268bd2">TestResourceData</span>()
+</span></span><span style="display:flex;"><span>      got <span style="color:#719e07">:=</span> <span style="color:#268bd2">dataSourceGraphsRead</span>(context.<span style="color:#268bd2">TODO</span>(), d, m)
+</span></span><span style="display:flex;"><span>      <span style="color:#719e07">if</span> diff <span style="color:#719e07">:=</span> cmp.<span style="color:#268bd2">Diff</span>(got, tt.want); diff <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;&#34;</span> {
+</span></span><span style="display:flex;"><span>        t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;dataSourceGraphsRead: (-got +want)\n%s&#34;</span>, diff)
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    })
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>これでunittestとして動作確認ができるようになった。
 また、デバッガを接続して動作確認もできるので、データの流れ方も確認することができる。</p>
 <h1 id="終わりに">終わりに</h1>
 <p>前提知識の補足をほとんど書いていないが、terraformのProviderのユニットテストを書く方法をまとめた。<br>
@@ -608,10 +608,16 @@ terraform-provider-awsなどを確認すると、もっとテスト用の関数�
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -626,12 +632,6 @@ terraform-provider-awsなどを確認すると、もっとテスト用の関数�
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -642,7 +642,7 @@ terraform-provider-awsなどを確認すると、もっとテスト用の関数�
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

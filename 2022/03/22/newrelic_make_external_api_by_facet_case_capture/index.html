@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -210,19 +210,19 @@ IDのようなパスパラメータを含むエンドポイントがあるとき
 <li>その他のエンドポイントはcapture関数を使って結果を分類する。</li>
 </ul>
 <p>次のサンプルNRQLは<code>https://example.com/external_api</code>という外部サービスのエンドポイント別レスポンスタイムの中央値を時系列データとして可視化するグラフ。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#719e07">SELECT</span> percentile(duration, <span style="color:#2aa198">50</span>)
-<span style="color:#719e07">FROM</span> Span
-<span style="color:#719e07">WHERE</span> category <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;http&#39;</span> <span style="color:#719e07">AND</span> appName <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;my-application&#39;</span>
-<span style="color:#719e07">AND</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;https://example.com/external_api%&#39;</span>
-FACET http.<span style="color:#719e07">method</span>, CASES(
-    <span style="color:#586e75">-- https://example.com/external_api/users/${USER_ID}/icon を想定
-</span><span style="color:#586e75"></span>    <span style="color:#719e07">WHERE</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;%icon&#39;</span> <span style="color:#719e07">AS</span> <span style="color:#2aa198">&#39;/users/${USER_ID}/icon&#39;</span>, 
-    <span style="color:#586e75">-- https://example.com/external_api/users/${USER_ID} を想定
-</span><span style="color:#586e75"></span>    <span style="color:#719e07">WHERE</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;%users/%&#39;</span> <span style="color:#719e07">AS</span> <span style="color:#2aa198">&#39;/users/${USER_ID}&#39;</span>
-  <span style="color:#586e75">-- その他のパスパラメータを含まないエンドポイント
-</span><span style="color:#586e75"></span>) <span style="color:#719e07">OR</span> capture(http.url, r<span style="color:#2aa198">&#39;https://example.com/external_api(?P&lt;path&gt;.*)&#39;</span>)
-SINCE <span style="color:#2aa198">10</span> <span style="color:#719e07">day</span> ago TIMESERIES AUTO
-</code></pre></div><p>HTTPメソッドとURLを使ってたとえば次のようなプロットで時系列データをグラフにできる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#719e07">SELECT</span> percentile(duration, <span style="color:#2aa198">50</span>)
+</span></span><span style="display:flex;"><span><span style="color:#719e07">FROM</span> Span
+</span></span><span style="display:flex;"><span><span style="color:#719e07">WHERE</span> category <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;http&#39;</span> <span style="color:#719e07">AND</span> appName <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;my-application&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">AND</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;https://example.com/external_api%&#39;</span>
+</span></span><span style="display:flex;"><span>FACET http.<span style="color:#719e07">method</span>, CASES(
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">-- https://example.com/external_api/users/${USER_ID}/icon を想定
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#719e07">WHERE</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;%icon&#39;</span> <span style="color:#719e07">AS</span> <span style="color:#2aa198">&#39;/users/${USER_ID}/icon&#39;</span>, 
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">-- https://example.com/external_api/users/${USER_ID} を想定
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#719e07">WHERE</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;%users/%&#39;</span> <span style="color:#719e07">AS</span> <span style="color:#2aa198">&#39;/users/${USER_ID}&#39;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">-- その他のパスパラメータを含まないエンドポイント
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>) <span style="color:#719e07">OR</span> capture(http.url, r<span style="color:#2aa198">&#39;https://example.com/external_api(?P&lt;path&gt;.*)&#39;</span>)
+</span></span><span style="display:flex;"><span>SINCE <span style="color:#2aa198">10</span> <span style="color:#719e07">day</span> ago TIMESERIES AUTO
+</span></span></code></pre></div><p>HTTPメソッドとURLを使ってたとえば次のようなプロットで時系列データをグラフにできる。</p>
 <ol>
 <li><code>PUT /users/${USER_ID}</code></li>
 <li><code>GET /users/${USER_ID}</code></li>
@@ -260,46 +260,46 @@ SINCE <span style="color:#2aa198">10</span> <span style="color:#719e07">day</spa
 <ul>
 <li><a href="https://pkg.go.dev/github.com/newrelic/go-agent/v3/newrelic#NewRoundTripper">https://pkg.go.dev/github.com/newrelic/go-agent/v3/newrelic#NewRoundTripper</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">import</span> (
-  <span style="color:#2aa198">&#34;net/http&#34;</span>
-  <span style="color:#2aa198">&#34;time&#34;</span>
-
-  <span style="color:#2aa198">&#34;github.com/newrelic/go-agent/v3/newrelic&#34;</span>
-)
-
-<span style="color:#268bd2">type</span> roundTripperFunc <span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>http.Request) (<span style="color:#719e07">*</span>http.Response, <span style="color:#dc322f">error</span>)
-
-<span style="color:#268bd2">func</span> (f roundTripperFunc) <span style="color:#268bd2">RoundTrip</span>(r <span style="color:#719e07">*</span>http.Request) (<span style="color:#719e07">*</span>http.Response, <span style="color:#dc322f">error</span>) {
-  <span style="color:#719e07">return</span> <span style="color:#268bd2">f</span>(r)
-}
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">HttpClient</span>() <span style="color:#719e07">*</span>http.Client {
-  cli <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>http.Client{
-    Timeout:   <span style="color:#2aa198">5</span> <span style="color:#719e07">*</span> time.Second,
-  }
-
-  cli.Transport = <span style="color:#268bd2">func</span>(rt http.RoundTripper) http.RoundTripper {
-    <span style="color:#719e07">return</span> <span style="color:#268bd2">roundTripperFunc</span>(<span style="color:#268bd2">func</span>(req <span style="color:#719e07">*</span>http.Request) (<span style="color:#719e07">*</span>http.Response, <span style="color:#dc322f">error</span>) {
-      nrt <span style="color:#719e07">:=</span> newrelic.<span style="color:#268bd2">NewRoundTripper</span>(rt)
-      nreq <span style="color:#719e07">:=</span> newrelic.<span style="color:#268bd2">RequestWithTransactionContext</span>(req, newrelic.<span style="color:#268bd2">FromContext</span>(req.<span style="color:#268bd2">Context</span>()))
-      <span style="color:#719e07">return</span> nrt.<span style="color:#268bd2">RoundTrip</span>(nreq)
-    })
-  }(cli.Transport)
-
-  <span style="color:#719e07">return</span> cli
-}
-</code></pre></div><p>このように作った<code>http.Client</code>から外部サービスへリクエストを送信すると、NRQLで<code>FROM Span WHERE category = 'http'</code>という条件で外部サービスとの通信結果のメトリクスが取得できる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">import</span> (
+</span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;net/http&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;time&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;github.com/newrelic/go-agent/v3/newrelic&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> roundTripperFunc <span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>http.Request) (<span style="color:#719e07">*</span>http.Response, <span style="color:#dc322f">error</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (f roundTripperFunc) <span style="color:#268bd2">RoundTrip</span>(r <span style="color:#719e07">*</span>http.Request) (<span style="color:#719e07">*</span>http.Response, <span style="color:#dc322f">error</span>) {
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">return</span> <span style="color:#268bd2">f</span>(r)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">HttpClient</span>() <span style="color:#719e07">*</span>http.Client {
+</span></span><span style="display:flex;"><span>  cli <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>http.Client{
+</span></span><span style="display:flex;"><span>    Timeout:   <span style="color:#2aa198">5</span> <span style="color:#719e07">*</span> time.Second,
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  cli.Transport = <span style="color:#268bd2">func</span>(rt http.RoundTripper) http.RoundTripper {
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> <span style="color:#268bd2">roundTripperFunc</span>(<span style="color:#268bd2">func</span>(req <span style="color:#719e07">*</span>http.Request) (<span style="color:#719e07">*</span>http.Response, <span style="color:#dc322f">error</span>) {
+</span></span><span style="display:flex;"><span>      nrt <span style="color:#719e07">:=</span> newrelic.<span style="color:#268bd2">NewRoundTripper</span>(rt)
+</span></span><span style="display:flex;"><span>      nreq <span style="color:#719e07">:=</span> newrelic.<span style="color:#268bd2">RequestWithTransactionContext</span>(req, newrelic.<span style="color:#268bd2">FromContext</span>(req.<span style="color:#268bd2">Context</span>()))
+</span></span><span style="display:flex;"><span>      <span style="color:#719e07">return</span> nrt.<span style="color:#268bd2">RoundTrip</span>(nreq)
+</span></span><span style="display:flex;"><span>    })
+</span></span><span style="display:flex;"><span>  }(cli.Transport)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">return</span> cli
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>このように作った<code>http.Client</code>から外部サービスへリクエストを送信すると、NRQLで<code>FROM Span WHERE category = 'http'</code>という条件で外部サービスとの通信結果のメトリクスが取得できる。</p>
 <h1 id="単純なfacet句だとusersuser_idのようなパスパラメータを含むエンドポイントの計測を集約できない">単純な<code>FACET</code>句だと<code>/users/${USER_ID}</code>のようなパスパラメータを含むエンドポイントの計測を集約できない。</h1>
 <p>このメトリクスを使ってエンドポイント別のグラフを作る。単純に考えるとNRQL上の<code>GROUP BY</code>である<code>FACET</code>句を使うことになるだろう。</p>
 <div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://docs.newrelic.com/jp/docs/query-your-data/nrql-new-relic-query-language/get-started/nrql-syntax-clauses-functions/" data-iframely-url="//iframely.net/XlR7q7v"></a></div></div><script async src="//iframely.net/embed.js" charset="utf-8"></script>
 <p>NRQLは次のようになる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#719e07">SELECT</span> percentile(duration, <span style="color:#2aa198">50</span>)
-<span style="color:#719e07">FROM</span> Span <span style="color:#719e07">WHERE</span> category <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;http&#39;</span> <span style="color:#719e07">AND</span> appName <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;my-application&#39;</span>
-<span style="color:#719e07">AND</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;https://example.com/external_api%&#39;</span>
-<span style="color:#586e75">-- HTTPメソッドとURL別にレスポンスタイムを集約する。
-</span><span style="color:#586e75"></span>FACET http.<span style="color:#719e07">method</span>, http.url
-SINCE <span style="color:#2aa198">10</span> <span style="color:#719e07">day</span> ago TIMESERIES AUTO
-</code></pre></div><p>しかし、これでは集計に失敗する。<br>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#719e07">SELECT</span> percentile(duration, <span style="color:#2aa198">50</span>)
+</span></span><span style="display:flex;"><span><span style="color:#719e07">FROM</span> Span <span style="color:#719e07">WHERE</span> category <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;http&#39;</span> <span style="color:#719e07">AND</span> appName <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;my-application&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">AND</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;https://example.com/external_api%&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">-- HTTPメソッドとURL別にレスポンスタイムを集約する。
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>FACET http.<span style="color:#719e07">method</span>, http.url
+</span></span><span style="display:flex;"><span>SINCE <span style="color:#2aa198">10</span> <span style="color:#719e07">day</span> ago TIMESERIES AUTO
+</span></span></code></pre></div><p>しかし、これでは集計に失敗する。<br>
 <code>FACET</code>句だけだと、次のようにパスパラメータとして<code>ID</code>などが含まれるエンドポイントが<code>ID</code>別に集計されてしまう。</p>
 <ol>
 <li><code>PUT https://example.com/external_api/users/123</code></li>
@@ -318,19 +318,19 @@ SINCE <span style="color:#2aa198">10</span> <span style="color:#719e07">day</spa
 <p>パスパラメータを含むエンドポイントは<code>FACET CASE</code>句の中で<code>WHERE LIKE</code>を使って集約する。
 順番にパターンマッチングされているはずなので、一度<code>WHERE</code>条件にかかったデータは後続の<code>WHERE</code>にはマッチしない。
 パスパラメータを含むエンドポイントは<code>FACET CASE</code>句に<code>OR</code>でつなげるとよい。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#719e07">SELECT</span> percentile(duration, <span style="color:#2aa198">50</span>)
-<span style="color:#719e07">FROM</span> Span
-<span style="color:#719e07">WHERE</span> category <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;http&#39;</span> <span style="color:#719e07">AND</span> appName <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;my-application&#39;</span>
-<span style="color:#719e07">AND</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;https://example.com/external_api%&#39;</span>
-FACET http.<span style="color:#719e07">method</span>, CASES(
-    <span style="color:#586e75">-- https://example.com/external_api/users/${USER_ID}/icon を想定
-</span><span style="color:#586e75"></span>    <span style="color:#719e07">WHERE</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;%icon&#39;</span> <span style="color:#719e07">AS</span> <span style="color:#2aa198">&#39;/users/${USER_ID}/icon&#39;</span>, 
-    <span style="color:#586e75">-- https://example.com/external_api/users/${USER_ID} を想定
-</span><span style="color:#586e75"></span>    <span style="color:#719e07">WHERE</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;%users/%&#39;</span> <span style="color:#719e07">AS</span> <span style="color:#2aa198">&#39;/users/${USER_ID}&#39;</span>
-  <span style="color:#586e75">-- その他のパスパラメータを含まないエンドポイント
-</span><span style="color:#586e75"></span>) <span style="color:#719e07">OR</span> http.url
-SINCE <span style="color:#2aa198">10</span> <span style="color:#719e07">day</span> ago TIMESERIES AUTO
-</code></pre></div><p>こうすると次のような集約結果になる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#719e07">SELECT</span> percentile(duration, <span style="color:#2aa198">50</span>)
+</span></span><span style="display:flex;"><span><span style="color:#719e07">FROM</span> Span
+</span></span><span style="display:flex;"><span><span style="color:#719e07">WHERE</span> category <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;http&#39;</span> <span style="color:#719e07">AND</span> appName <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;my-application&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">AND</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;https://example.com/external_api%&#39;</span>
+</span></span><span style="display:flex;"><span>FACET http.<span style="color:#719e07">method</span>, CASES(
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">-- https://example.com/external_api/users/${USER_ID}/icon を想定
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#719e07">WHERE</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;%icon&#39;</span> <span style="color:#719e07">AS</span> <span style="color:#2aa198">&#39;/users/${USER_ID}/icon&#39;</span>, 
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">-- https://example.com/external_api/users/${USER_ID} を想定
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#719e07">WHERE</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;%users/%&#39;</span> <span style="color:#719e07">AS</span> <span style="color:#2aa198">&#39;/users/${USER_ID}&#39;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">-- その他のパスパラメータを含まないエンドポイント
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>) <span style="color:#719e07">OR</span> http.url
+</span></span><span style="display:flex;"><span>SINCE <span style="color:#2aa198">10</span> <span style="color:#719e07">day</span> ago TIMESERIES AUTO
+</span></span></code></pre></div><p>こうすると次のような集約結果になる。</p>
 <ol>
 <li><code>PUT /users/${USER_ID}</code></li>
 <li><code>GET /users/${USER_ID}</code></li>
@@ -341,21 +341,21 @@ SINCE <span style="color:#2aa198">10</span> <span style="color:#719e07">day</spa
 <h1 id="その他のエンドポイントはcapture関数を使って表示をスッキリする">その他のエンドポイントはcapture関数を使って表示をスッキリする。</h1>
 <p><code>capture</code>関数を使うとグラフ表示時のラベルをスッキリさせることができる。
 正規表現はGoなどと同じRe2形式が使える。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">capture(http.url, r<span style="color:#2aa198">&#39;https://example.com/external_api(?P&lt;path&gt;.*)&#39;</span>)
-</code></pre></div><p><code>capture</code>関数も使うとNRQLは次のようになる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#719e07">SELECT</span> percentile(duration, <span style="color:#2aa198">50</span>)
-<span style="color:#719e07">FROM</span> Span
-<span style="color:#719e07">WHERE</span> category <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;http&#39;</span> <span style="color:#719e07">AND</span> appName <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;my-application&#39;</span>
-<span style="color:#719e07">AND</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;https://example.com/external_api%&#39;</span>
-FACET http.<span style="color:#719e07">method</span>, CASES(
-    <span style="color:#586e75">-- https://example.com/external_api/users/${USER_ID}/icon を想定
-</span><span style="color:#586e75"></span>    <span style="color:#719e07">WHERE</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;%icon&#39;</span> <span style="color:#719e07">AS</span> <span style="color:#2aa198">&#39;/users/${USER_ID}/icon&#39;</span>, 
-    <span style="color:#586e75">-- https://example.com/external_api/users/${USER_ID} を想定
-</span><span style="color:#586e75"></span>    <span style="color:#719e07">WHERE</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;%users/%&#39;</span> <span style="color:#719e07">AS</span> <span style="color:#2aa198">&#39;/users/${USER_ID}&#39;</span>
-  <span style="color:#586e75">-- その他のパスパラメータを含まないエンドポイント
-</span><span style="color:#586e75"></span>) <span style="color:#719e07">OR</span> capture(http.url, r<span style="color:#2aa198">&#39;https://example.com/external_api(?P&lt;path&gt;.*)&#39;</span>)
-SINCE <span style="color:#2aa198">10</span> <span style="color:#719e07">day</span> ago TIMESERIES AUTO
-</code></pre></div><p>こうすると次のようなグラフのプロットが完成する。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span>capture(http.url, r<span style="color:#2aa198">&#39;https://example.com/external_api(?P&lt;path&gt;.*)&#39;</span>)
+</span></span></code></pre></div><p><code>capture</code>関数も使うとNRQLは次のようになる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#719e07">SELECT</span> percentile(duration, <span style="color:#2aa198">50</span>)
+</span></span><span style="display:flex;"><span><span style="color:#719e07">FROM</span> Span
+</span></span><span style="display:flex;"><span><span style="color:#719e07">WHERE</span> category <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;http&#39;</span> <span style="color:#719e07">AND</span> appName <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;my-application&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">AND</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;https://example.com/external_api%&#39;</span>
+</span></span><span style="display:flex;"><span>FACET http.<span style="color:#719e07">method</span>, CASES(
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">-- https://example.com/external_api/users/${USER_ID}/icon を想定
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#719e07">WHERE</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;%icon&#39;</span> <span style="color:#719e07">AS</span> <span style="color:#2aa198">&#39;/users/${USER_ID}/icon&#39;</span>, 
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">-- https://example.com/external_api/users/${USER_ID} を想定
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#719e07">WHERE</span> http.url <span style="color:#719e07">LIKE</span> <span style="color:#2aa198">&#39;%users/%&#39;</span> <span style="color:#719e07">AS</span> <span style="color:#2aa198">&#39;/users/${USER_ID}&#39;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">-- その他のパスパラメータを含まないエンドポイント
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>) <span style="color:#719e07">OR</span> capture(http.url, r<span style="color:#2aa198">&#39;https://example.com/external_api(?P&lt;path&gt;.*)&#39;</span>)
+</span></span><span style="display:flex;"><span>SINCE <span style="color:#2aa198">10</span> <span style="color:#719e07">day</span> ago TIMESERIES AUTO
+</span></span></code></pre></div><p>こうすると次のようなグラフのプロットが完成する。</p>
 <ol>
 <li><code>PUT /users/${USER_ID}</code></li>
 <li><code>GET /users/${USER_ID}</code></li>
@@ -561,10 +561,16 @@ SINCE <span style="color:#2aa198">10</span> <span style="color:#719e07">day</spa
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -579,12 +585,6 @@ SINCE <span style="color:#2aa198">10</span> <span style="color:#719e07">day</spa
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -595,7 +595,7 @@ SINCE <span style="color:#2aa198">10</span> <span style="color:#719e07">day</spa
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

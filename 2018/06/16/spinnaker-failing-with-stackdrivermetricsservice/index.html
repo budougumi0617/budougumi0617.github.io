@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -207,22 +207,22 @@
 自分は「Kubernetesクラスタ」のログを見ていて（別の場所を見ていて）「エラーログがない」と勘違いしていた。</p>
 <p>ログを確認してみると、以下のようなエラーが繰り返し出続けていた。</p>
 <pre tabindex="0"><code>2018-06-16 03:31:44.000 JST
-18:31:44 Caught &lt;HttpError 403 when requesting https://monitoring.googleapis.com/v3/projects/PROJECT_ID/timeSeries?alt=json returned &quot;User is not authorized to access the project monitoring records: Requires permission monitoring.timeSeries.create&quot;&gt;
+18:31:44 Caught &lt;HttpError 403 when requesting https://monitoring.googleapis.com/v3/projects/PROJECT_ID/timeSeries?alt=json returned &#34;User is not authorized to access the project monitoring records: Requires permission monitoring.timeSeries.create&#34;&gt;
 </code></pre><pre tabindex="0"><code>2018-06-16 03:35:59.000 JST
-18:35:59 Caught &lt;HttpError 400 when requesting https://monitoring.googleapis.com/v3/projects/PROJECT_ID/timeSeries?alt=json returned &quot;Field timeSeries[106].metricKind had an invalid value of &quot;GAUGE&quot;: Metric kind for metric custom.googleapis.com/spinnaker/clouddriver/redis.command.payloadSize.eval must be CUMULATIVE.&quot;&gt;
+18:35:59 Caught &lt;HttpError 400 when requesting https://monitoring.googleapis.com/v3/projects/PROJECT_ID/timeSeries?alt=json returned &#34;Field timeSeries[106].metricKind had an invalid value of &#34;GAUGE&#34;: Metric kind for metric custom.googleapis.com/spinnaker/clouddriver/redis.command.payloadSize.eval must be CUMULATIVE.&#34;&gt;
 </code></pre><p>エラーを見ればなんのことはない、結局サービスアカウントの権限不足だった。<br>
 ログをもう少し漁ると、以下のようなログも見つかるはずだ。</p>
 <pre tabindex="0"><code>2018-06-16 04:50:11.000 JST
-19:50:11 Using Stackdriver Credentials from &quot;/home/USER/.hal/default/staging/dependencies/926556552-gcp.json&quot;
+19:50:11 Using Stackdriver Credentials from &#34;/home/USER/.hal/default/staging/dependencies/926556552-gcp.json&#34;
 </code></pre><h1 id="iamロールを修正してspinnakerを再起動する">IAMロールを修正してSpinnakerを再起動する</h1>
 <p>上記のjsonの中をみると紐付いているサービスアカウントのメールアドレスがわかるので、</p>
 <pre tabindex="0"><code>cat .hal/default/staging/dependencies/926556552-gcp.json
 {
-  &quot;type&quot;: &quot;service_account&quot;,
-  &quot;project_id&quot;: &quot;PROJECT_ID&quot;,
-  &quot;private_key_id&quot;: &quot;9...&quot;,
-  &quot;private_key&quot;: &quot;-----BEGIN PRIVATE KEY-----\nMII...
-  &quot;client_email&quot;: &quot;gcs-service-account@???.iam.gserviceaccount.com&quot;,
+  &#34;type&#34;: &#34;service_account&#34;,
+  &#34;project_id&#34;: &#34;PROJECT_ID&#34;,
+  &#34;private_key_id&#34;: &#34;9...&#34;,
+  &#34;private_key&#34;: &#34;-----BEGIN PRIVATE KEY-----\nMII...
+  &#34;client_email&#34;: &#34;gcs-service-account@???.iam.gserviceaccount.com&#34;,
   ....
 }
 </code></pre><p>上記のサービスアカウントにモニタリング周りのIAMロールを追加で付与することでエラーは解決した。</p>
@@ -416,10 +416,16 @@
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -434,12 +440,6 @@
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -450,7 +450,7 @@
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

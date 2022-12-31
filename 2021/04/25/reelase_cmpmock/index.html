@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -212,9 +212,9 @@ mrepo.EXPECT().Save(ctx, cmpmock.DiffEq(wantUser)).Return(nil)
           <p><code>gomock</code>（<code>github.com/golang/mock</code>）のモックメソッドの引数をいい感じに設定できるカスタムマッチャーを作った。</p>
 <div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/cmpmock" data-iframely-url="//cdn.iframe.ly/TTjYmqy?iframe=card-small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
 <br>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">
-mrepo.<span style="color:#268bd2">EXPECT</span>().<span style="color:#268bd2">Save</span>(ctx, cmpmock.<span style="color:#268bd2">DiffEq</span>(wantUser)).<span style="color:#268bd2">Return</span>(<span style="color:#cb4b16">nil</span>)
-</code></pre></div><h1 id="tldr">TL;DR</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>mrepo.<span style="color:#268bd2">EXPECT</span>().<span style="color:#268bd2">Save</span>(ctx, cmpmock.<span style="color:#268bd2">DiffEq</span>(wantUser)).<span style="color:#268bd2">Return</span>(<span style="color:#cb4b16">nil</span>)
+</span></span></code></pre></div><h1 id="tldr">TL;DR</h1>
 <ul>
 <li>Goのテストでモックを使いたいときのデファクトスタンダードはgomock
 <ul>
@@ -241,14 +241,14 @@ mrepo.<span style="color:#268bd2">EXPECT</span>().<span style="color:#268bd2">Sa
 </li>
 </ul>
 <p>使い方はこんな感じ。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> UserRepo <span style="color:#268bd2">interface</span> {
-  <span style="color:#268bd2">Save</span>(context.Context, <span style="color:#719e07">*</span>User) <span style="color:#dc322f">error</span>
-}
-
-wantUser <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>User{}
-mrepo <span style="color:#719e07">:=</span> mock.<span style="color:#268bd2">NewMockUserRepo</span>(ctrl)
-mrepo.<span style="color:#268bd2">EXPECT</span>().<span style="color:#268bd2">Save</span>(ctx, cmpmock.<span style="color:#268bd2">DiffEq</span>(wantUser)).<span style="color:#268bd2">Return</span>(<span style="color:#cb4b16">nil</span>)
-</code></pre></div><h1 id="goのテストでモックを使う">Goのテストでモックを使う</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> UserRepo <span style="color:#268bd2">interface</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">Save</span>(context.Context, <span style="color:#719e07">*</span>User) <span style="color:#dc322f">error</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>wantUser <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>User{}
+</span></span><span style="display:flex;"><span>mrepo <span style="color:#719e07">:=</span> mock.<span style="color:#268bd2">NewMockUserRepo</span>(ctrl)
+</span></span><span style="display:flex;"><span>mrepo.<span style="color:#268bd2">EXPECT</span>().<span style="color:#268bd2">Save</span>(ctx, cmpmock.<span style="color:#268bd2">DiffEq</span>(wantUser)).<span style="color:#268bd2">Return</span>(<span style="color:#cb4b16">nil</span>)
+</span></span></code></pre></div><h1 id="goのテストでモックを使う">Goのテストでモックを使う</h1>
 <ul>
 <li><a href="https://github.com/golang/mock">https://github.com/golang/mock</a></li>
 </ul>
@@ -267,15 +267,15 @@ mrepo.<span style="color:#268bd2">EXPECT</span>().<span style="color:#268bd2">Sa
 </ul>
 <p>また、指定できていたとしても期待値と異なる値がモックメソッドに指定されたとき「どこか期待と異なるのか」が非常にわかりにくい。</p>
 <p>たとえば、モックメソッドの引数が次の<code>User</code>構造体の場合をみてみる、</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> User <span style="color:#268bd2">struct</span> {
-  Name, Address <span style="color:#dc322f">string</span>
-  CreateAt      time.Time
-}
-</code></pre></div><p>期待値と異なった場合、テスト実行時に以下が出力されるのだが、どこに差異があるのかわかるだろうか？</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">expected call at /Users/budougumi0617/go/src/github.com/budougumi0617/cmpmock/_example/repo_test.go:26 doesn&#39;t match the argument at index 1.
-Got: &amp;<span style="color:#719e07">{</span>John Due Tokyo 2021-04-23 02:46:58.145696 +0900 JST <span style="color:#268bd2">m</span><span style="color:#719e07">=</span>+0.000595005<span style="color:#719e07">}</span>
-Want: is equal to &amp;<span style="color:#719e07">{</span>John Due Tokyo 2021-04-23 02:46:48.145646 +0900 JST <span style="color:#268bd2">m</span><span style="color:#719e07">=</span>-9.999455563<span style="color:#719e07">}</span>
-</code></pre></div><h2 id="gomock用にカスタムマッチャーを作った">gomock用にカスタムマッチャーを作った</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> User <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>  Name, Address <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>  CreateAt      time.Time
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>期待値と異なった場合、テスト実行時に以下が出力されるのだが、どこに差異があるのかわかるだろうか？</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>expected call at /Users/budougumi0617/go/src/github.com/budougumi0617/cmpmock/_example/repo_test.go:26 doesn&#39;t match the argument at index 1.
+</span></span><span style="display:flex;"><span>Got: &amp;<span style="color:#719e07">{</span>John Due Tokyo 2021-04-23 02:46:58.145696 +0900 JST <span style="color:#268bd2">m</span><span style="color:#719e07">=</span>+0.000595005<span style="color:#719e07">}</span>
+</span></span><span style="display:flex;"><span>Want: is equal to &amp;<span style="color:#719e07">{</span>John Due Tokyo 2021-04-23 02:46:48.145646 +0900 JST <span style="color:#268bd2">m</span><span style="color:#719e07">=</span>-9.999455563<span style="color:#719e07">}</span>
+</span></span></code></pre></div><h2 id="gomock用にカスタムマッチャーを作った">gomock用にカスタムマッチャーを作った</h2>
 <ul>
 <li><a href="https://github.com/budougumi0617/cmpmock">https://github.com/budougumi0617/cmpmock</a></li>
 </ul>
@@ -286,21 +286,21 @@ Want: is equal to &amp;<span style="color:#719e07">{</span>John Due Tokyo 2021-0
 <li><a href="https://pkg.go.dev/github.com/golang/mock@v1.5.0/gomock#Matcher">https://pkg.go.dev/github.com/golang/mock@v1.5.0/gomock#Matcher</a></li>
 </ul>
 <p>使い方は次のように使う。「いい感じに比較してほしい」モックメソッドの期待値を指定するときに<code>cmpmock.DiffEq</code>メソッドでラップして指定すればよい。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> UserRepo <span style="color:#268bd2">interface</span> {
-  <span style="color:#268bd2">Save</span>(context.Context, <span style="color:#719e07">*</span>User) <span style="color:#dc322f">error</span>
-}
-
-wantUser <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>User{}
-mrepo <span style="color:#719e07">:=</span> mock.<span style="color:#268bd2">NewMockUserRepo</span>(ctrl)
-mrepo.<span style="color:#268bd2">EXPECT</span>().<span style="color:#268bd2">Save</span>(ctx, cmpmock.<span style="color:#268bd2">DiffEq</span>(wantUser)).<span style="color:#268bd2">Return</span>(<span style="color:#cb4b16">nil</span>)
-</code></pre></div><p>期待結果と異なると、以下のような出力が得られる。</p>
-<pre tabindex="0"><code>expected call at /Users/budougumi0617/go/src/github.com/budougumi0617/cmpmock/_example/repo_test.go:27 doesn't match the argument at index 1.
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> UserRepo <span style="color:#268bd2">interface</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">Save</span>(context.Context, <span style="color:#719e07">*</span>User) <span style="color:#dc322f">error</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>wantUser <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>User{}
+</span></span><span style="display:flex;"><span>mrepo <span style="color:#719e07">:=</span> mock.<span style="color:#268bd2">NewMockUserRepo</span>(ctrl)
+</span></span><span style="display:flex;"><span>mrepo.<span style="color:#268bd2">EXPECT</span>().<span style="color:#268bd2">Save</span>(ctx, cmpmock.<span style="color:#268bd2">DiffEq</span>(wantUser)).<span style="color:#268bd2">Return</span>(<span style="color:#cb4b16">nil</span>)
+</span></span></code></pre></div><p>期待結果と異なると、以下のような出力が得られる。</p>
+<pre tabindex="0"><code>expected call at /Users/budougumi0617/go/src/github.com/budougumi0617/cmpmock/_example/repo_test.go:27 doesn&#39;t match the argument at index 1.
 Got: &amp;{John Due Tokyo 2021-04-23 02:46:33.290458 +0900 JST m=+0.001035665}
 Want: diff(-got +want) is   &amp;_example.User{
-  Name:     &quot;John Due&quot;,
-  Address:  &quot;Tokyo&quot;,
--   CreateAt: s&quot;2021-04-23 02:46:33.290458 +0900 JST m=+0.001035665&quot;,
-+   CreateAt: s&quot;2021-04-23 02:46:23.290383 +0900 JST m=-9.999039004&quot;,
+  Name:     &#34;John Due&#34;,
+  Address:  &#34;Tokyo&#34;,
+-   CreateAt: s&#34;2021-04-23 02:46:33.290458 +0900 JST m=+0.001035665&#34;,
++   CreateAt: s&#34;2021-04-23 02:46:23.290383 +0900 JST m=-9.999039004&#34;,
 }
 </code></pre><p>前述の出力結果と比較してだいぶわかりやすい。</p>
 <h1 id="内部でgooglego-cmpを使っているだけ">内部で<code>google/go-cmp</code>を使っているだけ</h1>
@@ -312,19 +312,19 @@ Want: diff(-got +want) is   &amp;_example.User{
 なので正直OSSというより、既存のOSSを組み合わせただけのスニペットである。</p>
 <h2 id="挙動はgo-cmpのcmpoptsなどで変更できる">挙動はgo-cmpのcmpoptsなどで変更できる</h2>
 <p><code>DiffEq</code>関数はシグネチャとして<code>cmp.Option</code>を受け取るので、<code>go-cmp</code>を使いなれているひとならば柔軟に比較方法を変更できる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">DiffEq</span>(v <span style="color:#268bd2">interface</span>{}, opts <span style="color:#719e07">...</span>cmp.Option) gomock.Matcher
-</code></pre></div><p>何も指定しない場合は<code>time.Time</code>の差が1秒未満だった場合無視するようにしている。<br>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">DiffEq</span>(v <span style="color:#268bd2">interface</span>{}, opts <span style="color:#719e07">...</span>cmp.Option) gomock.Matcher
+</span></span></code></pre></div><p>何も指定しない場合は<code>time.Time</code>の差が1秒未満だった場合無視するようにしている。<br>
 テストでそこまで厳密な時刻の比較は必要にないと思っている（というより、これが原因で比較を諦めることが大半…）。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">DiffEq</span>(v <span style="color:#268bd2">interface</span>{}, opts <span style="color:#719e07">...</span>cmp.Option) gomock.Matcher {
-  <span style="color:#268bd2">var</span> lopts cmp.Options
-  <span style="color:#719e07">if</span> <span style="color:#b58900">len</span>(opts) <span style="color:#719e07">==</span> <span style="color:#2aa198">0</span> {
-    lopts = <span style="color:#b58900">append</span>(lopts, cmpopts.<span style="color:#268bd2">EquateApproxTime</span>(<span style="color:#2aa198">1</span><span style="color:#719e07">*</span>time.Second))
-  } <span style="color:#719e07">else</span> {
-    lopts = <span style="color:#b58900">append</span>(lopts, opts<span style="color:#719e07">...</span>)
-  }
-  <span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>diffMatcher{want: v, opts: lopts}
-}
-</code></pre></div><h1 id="終わりに">終わりに</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">DiffEq</span>(v <span style="color:#268bd2">interface</span>{}, opts <span style="color:#719e07">...</span>cmp.Option) gomock.Matcher {
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">var</span> lopts cmp.Options
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">if</span> <span style="color:#b58900">len</span>(opts) <span style="color:#719e07">==</span> <span style="color:#2aa198">0</span> {
+</span></span><span style="display:flex;"><span>    lopts = <span style="color:#b58900">append</span>(lopts, cmpopts.<span style="color:#268bd2">EquateApproxTime</span>(<span style="color:#2aa198">1</span><span style="color:#719e07">*</span>time.Second))
+</span></span><span style="display:flex;"><span>  } <span style="color:#719e07">else</span> {
+</span></span><span style="display:flex;"><span>    lopts = <span style="color:#b58900">append</span>(lopts, opts<span style="color:#719e07">...</span>)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>diffMatcher{want: v, opts: lopts}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h1 id="終わりに">終わりに</h1>
 <p>モックの設定に時間を書けるのは非常にストレスなのでいい感じにモック引数を設定できる<code>DiffEq</code>関数を作った。<br>
 既存のOSSを組み合わせただけだが、コスパよく便利なマッチャーを作れた気がする。<br>
 これでもっとテストが書けるぞ！！</p>
@@ -501,10 +501,16 @@ Want: diff(-got +want) is   &amp;_example.User{
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -519,12 +525,6 @@ Want: diff(-got +want) is   &amp;_example.User{
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -535,7 +535,7 @@ Want: diff(-got +want) is   &amp;_example.User{
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

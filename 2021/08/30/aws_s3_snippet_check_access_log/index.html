@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -208,10 +208,10 @@ $ aws s3 ls s3://${ALB_LOG_BUCKET}/AWSLogs/${ACCOUNT_ID}/elasticloadbalancing/ap
 </nav>
           
           <p>AWS ALBのログを漁って疎通確認をするときにちょっとラクするためのスニペットメモ。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ aws s3 ls s3://<span style="color:#2aa198">${</span><span style="color:#268bd2">ALB_LOG_BUCKET</span><span style="color:#2aa198">}</span>/AWSLogs/<span style="color:#2aa198">${</span><span style="color:#268bd2">ACCOUNT_ID</span><span style="color:#2aa198">}</span>/elasticloadbalancing/ap-northeast-1/2021/08/30/ <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>| awk <span style="color:#2aa198">&#39;{print &#34; s3://${ALB_LOG_BUCKET}/AWSLogs/${ACCOUNT_ID}/elasticloadbalancing/ap-northeast-1/2021/08/30/&#34;$4}&#39;</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>| xargs -IS3URL aws s3 cp S3URL - | zcat
-</code></pre></div><h1 id="tldr">TL;DR</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ aws s3 ls s3://<span style="color:#2aa198">${</span><span style="color:#268bd2">ALB_LOG_BUCKET</span><span style="color:#2aa198">}</span>/AWSLogs/<span style="color:#2aa198">${</span><span style="color:#268bd2">ACCOUNT_ID</span><span style="color:#2aa198">}</span>/elasticloadbalancing/ap-northeast-1/2021/08/30/ <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>| awk <span style="color:#2aa198">&#39;{print &#34; s3://${ALB_LOG_BUCKET}/AWSLogs/${ACCOUNT_ID}/elasticloadbalancing/ap-northeast-1/2021/08/30/&#34;$4}&#39;</span> <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>| xargs -IS3URL aws s3 cp S3URL - | zcat
+</span></span></code></pre></div><h1 id="tldr">TL;DR</h1>
 <ul>
 <li>ALBのアクセスログはS3バケットに圧縮ファイルとして保存される</li>
 <li>ログを確認したいとき、以下の手順を毎回踏むのがめんどくさい
@@ -227,10 +227,10 @@ $ aws s3 ls s3://${ALB_LOG_BUCKET}/AWSLogs/${ACCOUNT_ID}/elasticloadbalancing/ap
 <li>以下のコマンドを実行すれば圧縮ファイルをダウンロードしなくてもログを確認することができる</li>
 <li>該当日のすべての圧縮ファイルをGETするため、本番環境の利用時は課金など注意すること</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ aws s3 ls s3://<span style="color:#2aa198">${</span><span style="color:#268bd2">ALB_LOG_BUCKET</span><span style="color:#2aa198">}</span>/AWSLogs/<span style="color:#2aa198">${</span><span style="color:#268bd2">ACCOUNT_ID</span><span style="color:#2aa198">}</span>/elasticloadbalancing/ap-northeast-1/2021/08/30/ <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>| awk <span style="color:#2aa198">&#39;{print &#34; s3://${ALB_LOG_BUCKET}/AWSLogs/${ACCOUNT_ID}/elasticloadbalancing/ap-northeast-1/2021/08/30/&#34;$4}&#39;</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>| xargs -IS3URL aws s3 cp S3URL - | zcat
-</code></pre></div><h1 id="aws-albのログを漁りたい">AWS ALBのログを漁りたい</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ aws s3 ls s3://<span style="color:#2aa198">${</span><span style="color:#268bd2">ALB_LOG_BUCKET</span><span style="color:#2aa198">}</span>/AWSLogs/<span style="color:#2aa198">${</span><span style="color:#268bd2">ACCOUNT_ID</span><span style="color:#2aa198">}</span>/elasticloadbalancing/ap-northeast-1/2021/08/30/ <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>| awk <span style="color:#2aa198">&#39;{print &#34; s3://${ALB_LOG_BUCKET}/AWSLogs/${ACCOUNT_ID}/elasticloadbalancing/ap-northeast-1/2021/08/30/&#34;$4}&#39;</span> <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>| xargs -IS3URL aws s3 cp S3URL - | zcat
+</span></span></code></pre></div><h1 id="aws-albのログを漁りたい">AWS ALBのログを漁りたい</h1>
 <p>開発中にインフラ構築をしていたり外部との疎通確認にアクセスログを確認したいときが度々ある。
 AWS ALBのアクセスログの取得は結構簡単で、次のドキュメント通りに設定すればよい。</p>
 <ul>
@@ -255,10 +255,10 @@ AWS ALBのアクセスログの取得は結構簡単で、次のドキュメン�
 また、圧縮ファイルをローカルに保存する（本番環境のバケットの中身を保存する）のがルール的にまずい組織もあるだろう。</p>
 <h1 id="awsコマンドを使ってログを標準出力に流すワンライナー">awsコマンドを使ってログを標準出力に流すワンライナー</h1>
 <p>どうにかラクできないか？と思って書いたワンライナーが以下になる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ aws s3 ls s3://<span style="color:#2aa198">${</span><span style="color:#268bd2">ALB_LOG_BUCKET</span><span style="color:#2aa198">}</span>/AWSLogs/<span style="color:#2aa198">${</span><span style="color:#268bd2">ACCOUNT_ID</span><span style="color:#2aa198">}</span>/elasticloadbalancing/ap-northeast-1/2021/08/30/ <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>| awk <span style="color:#2aa198">&#39;{print &#34; s3://${ALB_LOG_BUCKET}/AWSLogs/${ACCOUNT_ID}/elasticloadbalancing/ap-northeast-1/2021/08/30/&#34;$4}&#39;</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>| xargs -IS3URL aws s3 cp S3URL - | zcat
-</code></pre></div><h2 id="利用するコマンド">利用するコマンド</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ aws s3 ls s3://<span style="color:#2aa198">${</span><span style="color:#268bd2">ALB_LOG_BUCKET</span><span style="color:#2aa198">}</span>/AWSLogs/<span style="color:#2aa198">${</span><span style="color:#268bd2">ACCOUNT_ID</span><span style="color:#2aa198">}</span>/elasticloadbalancing/ap-northeast-1/2021/08/30/ <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>| awk <span style="color:#2aa198">&#39;{print &#34; s3://${ALB_LOG_BUCKET}/AWSLogs/${ACCOUNT_ID}/elasticloadbalancing/ap-northeast-1/2021/08/30/&#34;$4}&#39;</span> <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>| xargs -IS3URL aws s3 cp S3URL - | zcat
+</span></span></code></pre></div><h2 id="利用するコマンド">利用するコマンド</h2>
 <p>パイプでつないで各々のコマンドを使う意図は次の通り。</p>
 <ul>
 <li><code>aws s3 ls</code>
@@ -494,10 +494,16 @@ ALBのアクセスログの場合のプレフィックスは次の通り。</p>
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -512,12 +518,6 @@ ALBのアクセスログの場合のプレフィックスは次の通り。</p>
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -528,7 +528,7 @@ ALBのアクセスログの場合のプレフィックスは次の通り。</p>
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

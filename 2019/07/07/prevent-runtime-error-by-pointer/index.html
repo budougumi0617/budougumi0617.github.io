@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -231,19 +231,19 @@ interfaceがそのような型（フィールドにそのような型を持っ�
 <p>この<code>comparable</code>性については構造体にも影響する。
 構造体が<code>not comparable</code>な型のフィールドを持つとき、その構造体も<code>not comparable</code>になる。<br>
 明示的に<code>not comparable</code>な構造体を比較しているときはビルド時にエラーになるので気づく。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"> a1 <span style="color:#719e07">:=</span> <span style="color:#268bd2">struct</span> {
- 	Slice []<span style="color:#dc322f">string</span>
- }{
- 	[]<span style="color:#dc322f">string</span>{
- 		<span style="color:#2aa198">&#34;hoge&#34;</span>,
- 	},
- }
- 
- <span style="color:#586e75">// invalid operation: a1 == a1 (struct containing []string cannot be compared)
-</span><span style="color:#586e75"></span> <span style="color:#719e07">if</span> a1 <span style="color:#719e07">==</span> a1 {
- 	fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Same article&#34;</span>)
- }
-</code></pre></div><p>問題は<code>interface</code>でそのような構造体を指していたときだ。<br>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span> a1 <span style="color:#719e07">:=</span> <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span> 	Slice []<span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span> }{
+</span></span><span style="display:flex;"><span> 	[]<span style="color:#dc322f">string</span>{
+</span></span><span style="display:flex;"><span> 		<span style="color:#2aa198">&#34;hoge&#34;</span>,
+</span></span><span style="display:flex;"><span> 	},
+</span></span><span style="display:flex;"><span> }
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span> <span style="color:#586e75">// invalid operation: a1 == a1 (struct containing []string cannot be compared)
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span> <span style="color:#719e07">if</span> a1 <span style="color:#719e07">==</span> a1 {
+</span></span><span style="display:flex;"><span> 	fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Same article&#34;</span>)
+</span></span><span style="display:flex;"><span> }
+</span></span></code></pre></div><p>問題は<code>interface</code>でそのような構造体を指していたときだ。<br>
 <code>not comparable</code>な値を指した状態の<code>interface</code>値を等価演算子で比較すると、<code>runtime error</code>が発生する旨が仕様に記載されている（記載場所は上記リンクと同じ）。</p>
 <blockquote>
 <p>A comparison of two interface values with identical dynamic types causes a run-time panic if values of that type are not comparable. This behavior applies not only to direct interface value comparisons but also when comparing arrays of interface values or structs with interface-valued fields.</p>
@@ -253,40 +253,40 @@ interfaceがそのような型（フィールドにそのような型を持っ�
 <ul>
 <li><a href="https://play.golang.org/p/FO_vwjsT7TY">https://play.golang.org/p/FO_vwjsT7TY</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://play.golang.org/p/FO_vwjsT7TY
-</span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
-
-<span style="color:#719e07">import</span> (
-	<span style="color:#2aa198">&#34;fmt&#34;</span>
-)
-
-<span style="color:#268bd2">type</span> Article <span style="color:#268bd2">struct</span> {
-	Title <span style="color:#dc322f">string</span>
-	Tag   []<span style="color:#dc322f">string</span>
-}
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-	<span style="color:#268bd2">var</span> a1 <span style="color:#268bd2">interface</span>{} = Article{
-		Title: <span style="color:#2aa198">&#34;Content Title&#34;</span>,
-		Tag: []<span style="color:#dc322f">string</span>{
-			<span style="color:#2aa198">&#34;go&#34;</span>,
-			<span style="color:#2aa198">&#34;slice&#34;</span>,
-		},
-	}
-
-	<span style="color:#268bd2">var</span> a2 <span style="color:#268bd2">interface</span>{} = Article{
-		Title: <span style="color:#2aa198">&#34;Content Title&#34;</span>,
-		Tag: []<span style="color:#dc322f">string</span>{
-			<span style="color:#2aa198">&#34;go&#34;</span>,
-			<span style="color:#2aa198">&#34;slice&#34;</span>,
-		},
-	}
-	<span style="color:#586e75">// panic: runtime error: comparing uncomparable type main.Article
-</span><span style="color:#586e75"></span>	<span style="color:#719e07">if</span> a1 <span style="color:#719e07">==</span> a2 {
-		fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Same article&#34;</span>)
-	}
-}
-</code></pre></div><p>サンプルコードでは<code>not comparable</code>な値が入っているのは自明だが、関数やメソッドの引数を<code>interface</code>としていたとき、渡ってきた具象型が<code>comparable</code>かどうかわざわざ検証しないだろう。
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://play.golang.org/p/FO_vwjsT7TY
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> Article <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>	Title <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>	Tag   []<span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#268bd2">var</span> a1 <span style="color:#268bd2">interface</span>{} = Article{
+</span></span><span style="display:flex;"><span>		Title: <span style="color:#2aa198">&#34;Content Title&#34;</span>,
+</span></span><span style="display:flex;"><span>		Tag: []<span style="color:#dc322f">string</span>{
+</span></span><span style="display:flex;"><span>			<span style="color:#2aa198">&#34;go&#34;</span>,
+</span></span><span style="display:flex;"><span>			<span style="color:#2aa198">&#34;slice&#34;</span>,
+</span></span><span style="display:flex;"><span>		},
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#268bd2">var</span> a2 <span style="color:#268bd2">interface</span>{} = Article{
+</span></span><span style="display:flex;"><span>		Title: <span style="color:#2aa198">&#34;Content Title&#34;</span>,
+</span></span><span style="display:flex;"><span>		Tag: []<span style="color:#dc322f">string</span>{
+</span></span><span style="display:flex;"><span>			<span style="color:#2aa198">&#34;go&#34;</span>,
+</span></span><span style="display:flex;"><span>			<span style="color:#2aa198">&#34;slice&#34;</span>,
+</span></span><span style="display:flex;"><span>		},
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// panic: runtime error: comparing uncomparable type main.Article
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#719e07">if</span> a1 <span style="color:#719e07">==</span> a2 {
+</span></span><span style="display:flex;"><span>		fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Same article&#34;</span>)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>サンプルコードでは<code>not comparable</code>な値が入っているのは自明だが、関数やメソッドの引数を<code>interface</code>としていたとき、渡ってきた具象型が<code>comparable</code>かどうかわざわざ検証しないだろう。
 <code>error</code>インターフェースなど、具象型を意識しないでで取り扱う構造体は<code>comparable</code>な構造体にしておきたい。</p>
 <h1 id="構造体をcomparableにしてruntime-errorを回避するにはポインタを使ってフィールドを定義する">構造体をcomparableにしてruntime errorを回避するにはポインタを使ってフィールドを定義する</h1>
 <p>では具体的にどのように回避すればよいかというと、ポインタを利用することでSliceを内部で持っていたまま<code>comparable</code>な構造体にできる（Sliceの場合は配列にしてもよい）。
@@ -294,41 +294,41 @@ interfaceがそのような型（フィールドにそのような型を持っ�
 <ul>
 <li><a href="https://play.golang.org/p/6RGzUoPFrjW">https://play.golang.org/p/6RGzUoPFrjW</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://play.golang.org/p/6RGzUoPFrjW
-</span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
-
-<span style="color:#719e07">import</span> (
-	<span style="color:#2aa198">&#34;fmt&#34;</span>
-)
-
-<span style="color:#268bd2">type</span> Tags <span style="color:#719e07">*</span>[]<span style="color:#dc322f">string</span>
-
-<span style="color:#268bd2">type</span> Article <span style="color:#268bd2">struct</span> {
-	Title <span style="color:#dc322f">string</span>
-	Tag   Tags
-}
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-	<span style="color:#268bd2">var</span> a1 <span style="color:#268bd2">interface</span>{} = Article{
-		Title: <span style="color:#2aa198">&#34;Content Title&#34;</span>,
-		Tag: <span style="color:#719e07">&amp;</span>[]<span style="color:#dc322f">string</span>{
-			<span style="color:#2aa198">&#34;go&#34;</span>,
-			<span style="color:#2aa198">&#34;slice&#34;</span>,
-		},
-	}
-
-	<span style="color:#268bd2">var</span> a2 <span style="color:#268bd2">interface</span>{} = Article{
-		Title: <span style="color:#2aa198">&#34;Content Title&#34;</span>,
-		Tag: <span style="color:#719e07">&amp;</span>[]<span style="color:#dc322f">string</span>{
-			<span style="color:#2aa198">&#34;go&#34;</span>,
-			<span style="color:#2aa198">&#34;slice&#34;</span>,
-		},
-	}
-	<span style="color:#719e07">if</span> a1 <span style="color:#719e07">==</span> a2 {
-		fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Same article&#34;</span>)
-	}
-}
-</code></pre></div><p><code>[]string</code>ではなく、<code>*[]string</code>にした構造体を宣言すると<code>runtime error</code>は解消された。<br>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://play.golang.org/p/6RGzUoPFrjW
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> Tags <span style="color:#719e07">*</span>[]<span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> Article <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>	Title <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>	Tag   Tags
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#268bd2">var</span> a1 <span style="color:#268bd2">interface</span>{} = Article{
+</span></span><span style="display:flex;"><span>		Title: <span style="color:#2aa198">&#34;Content Title&#34;</span>,
+</span></span><span style="display:flex;"><span>		Tag: <span style="color:#719e07">&amp;</span>[]<span style="color:#dc322f">string</span>{
+</span></span><span style="display:flex;"><span>			<span style="color:#2aa198">&#34;go&#34;</span>,
+</span></span><span style="display:flex;"><span>			<span style="color:#2aa198">&#34;slice&#34;</span>,
+</span></span><span style="display:flex;"><span>		},
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#268bd2">var</span> a2 <span style="color:#268bd2">interface</span>{} = Article{
+</span></span><span style="display:flex;"><span>		Title: <span style="color:#2aa198">&#34;Content Title&#34;</span>,
+</span></span><span style="display:flex;"><span>		Tag: <span style="color:#719e07">&amp;</span>[]<span style="color:#dc322f">string</span>{
+</span></span><span style="display:flex;"><span>			<span style="color:#2aa198">&#34;go&#34;</span>,
+</span></span><span style="display:flex;"><span>			<span style="color:#2aa198">&#34;slice&#34;</span>,
+</span></span><span style="display:flex;"><span>		},
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> a1 <span style="color:#719e07">==</span> a2 {
+</span></span><span style="display:flex;"><span>		fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Same article&#34;</span>)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>[]string</code>ではなく、<code>*[]string</code>にした構造体を宣言すると<code>runtime error</code>は解消された。<br>
 ただ、当然ポインタで比較されるようになるのでそこは注意する。
 なので、サンプルコードの<code>a1</code>と<code>a2</code>は直感的には「等価」だが、ポインタの指すSliceは別物なので「等値」ではなく<code>!=</code>になる。
 あくまで何も知らないで<code>interface</code>を経由して利用される場合の<code>runtime error</code>回避のためのテクニックなので、構造体の中身の詳細を知っているコードでは<code>reflect.DeepEqual</code>などを利用する必要がある。</p>
@@ -336,13 +336,13 @@ interfaceがそのような型（フィールドにそのような型を持っ�
 <p>業務で実際に<code>runtime error</code>が発生する可能性があったので、どうしたら回避できるのか調べたのが今回の記事になる。<br>
 「そういえば<code>pkg/errors</code>はSliceで<code>StackFrame</code>持っているはずだけど同じエラーが発生しないな？」と調べたらポインタを使っていた。<br>
 著名なOSSのコードはやはり勉強になるので使うだけでなくちゃんと読んでみないとなと改めて思った。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://github.com/pkg/errors/blob/27936f6d90f9c8e1145f11ed52ffffbfdb9e0af7/errors.go#L119-L123
-</span><span style="color:#586e75">// fundamental is an error that has a message and a stack, but no caller.
-</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> fundamental <span style="color:#268bd2">struct</span> {
-	msg <span style="color:#dc322f">string</span>
-	<span style="color:#719e07">*</span>stack <span style="color:#586e75">// type stack []uintptr
-</span><span style="color:#586e75"></span>}
-</code></pre></div><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/pkg/errors" data-iframely-url="//cdn.iframe.ly/awcJrVL"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://github.com/pkg/errors/blob/27936f6d90f9c8e1145f11ed52ffffbfdb9e0af7/errors.go#L119-L123
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// fundamental is an error that has a message and a stack, but no caller.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> fundamental <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>	msg <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">*</span>stack <span style="color:#586e75">// type stack []uintptr
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span></code></pre></div><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/pkg/errors" data-iframely-url="//cdn.iframe.ly/awcJrVL"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
 <h1 id="追記">追記</h1>
 <p>比較する2つのオブジェクトが違う型ならば<code>runtime error</code>が発生するnot comparableなフィールドを触る前に比較が終わるので<code>runtime error</code>は発生しない。
 なので、比較可能な具象型をどちらかに置いて比較演算子を書けば<code>runtime error</code>が出ないことは保証される（<code>interface == interface</code>と比較するケースはあまりないだろう）。</p>
@@ -350,31 +350,31 @@ interfaceがそのような型（フィールドにそのような型を持っ�
 <ul>
 <li><a href="https://play.golang.org/p/Ygi0f5GQIV3">https://play.golang.org/p/Ygi0f5GQIV3</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://play.golang.org/p/Ygi0f5GQIV3
-</span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
-
-<span style="color:#719e07">import</span> (
-	<span style="color:#2aa198">&#34;fmt&#34;</span>
-)
-
-<span style="color:#268bd2">type</span> NotCompareble []<span style="color:#dc322f">string</span>
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-	<span style="color:#268bd2">var</span> a <span style="color:#268bd2">interface</span>{} = []<span style="color:#dc322f">string</span>{
-		<span style="color:#2aa198">&#34;go&#34;</span>,
-		<span style="color:#2aa198">&#34;slice&#34;</span>,
-	}
-
-	<span style="color:#268bd2">var</span> b <span style="color:#268bd2">interface</span>{} = NotCompareble{
-		<span style="color:#2aa198">&#34;go&#34;</span>,
-		<span style="color:#2aa198">&#34;slice&#34;</span>,
-	}
-	<span style="color:#586e75">// not runtime error, even if each type are not comparable, because a, b are different type.
-</span><span style="color:#586e75"></span>	<span style="color:#719e07">if</span> a <span style="color:#719e07">!=</span> b {
-		fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;different object&#34;</span>)
-	}
-}
-</code></pre></div>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://play.golang.org/p/Ygi0f5GQIV3
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> NotCompareble []<span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#268bd2">var</span> a <span style="color:#268bd2">interface</span>{} = []<span style="color:#dc322f">string</span>{
+</span></span><span style="display:flex;"><span>		<span style="color:#2aa198">&#34;go&#34;</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#2aa198">&#34;slice&#34;</span>,
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#268bd2">var</span> b <span style="color:#268bd2">interface</span>{} = NotCompareble{
+</span></span><span style="display:flex;"><span>		<span style="color:#2aa198">&#34;go&#34;</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#2aa198">&#34;slice&#34;</span>,
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// not runtime error, even if each type are not comparable, because a, b are different type.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#719e07">if</span> a <span style="color:#719e07">!=</span> b {
+</span></span><span style="display:flex;"><span>		fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;different object&#34;</span>)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div>
         </div>
         
 
@@ -548,10 +548,16 @@ interfaceがそのような型（フィールドにそのような型を持っ�
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -566,12 +572,6 @@ interfaceがそのような型（フィールドにそのような型を持っ�
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -582,7 +582,7 @@ interfaceがそのような型（フィールドにそのような型を持っ�
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

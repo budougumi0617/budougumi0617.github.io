@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -278,12 +278,12 @@ MySQLで公開されているサンプルデータには<code>world database</co
 </ul>
 <p>ただ、<code>/docker-entrypoint-initdb.d</code>ディレクトリに複数SQLファイルがあった場合、SQLの実行順序はファイル名によって決まる。
 そのため、テーブルを作成するSQL文が先に実行されるようにリネームしてコピーしている。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-dockerfile" data-lang="dockerfile"><span style="color:#719e07">FROM</span><span style="color:#2aa198"> mysql:8.0</span>
-
-<span style="color:#719e07">COPY</span> sakila-db/sakila-schema.sql /docker-entrypoint-initdb.d/00_sakila-schema.sql
-<span style="color:#719e07">COPY</span> sakila-db/sakila-data.sql /docker-entrypoint-initdb.d/01_sakila-data.sql
-<span style="color:#719e07">COPY</span> sakila-db/sakila.mwb /docker-entrypoint-initdb.d/sakila.mwb
-</code></pre></div><p>上記のDockerfileと配置するSQLファイルをGitHubに公開しておく。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dockerfile" data-lang="dockerfile"><span style="display:flex;"><span><span style="color:#719e07">FROM</span><span style="color:#2aa198"> mysql:8.0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">COPY</span> sakila-db/sakila-schema.sql /docker-entrypoint-initdb.d/00_sakila-schema.sql
+</span></span><span style="display:flex;"><span><span style="color:#719e07">COPY</span> sakila-db/sakila-data.sql /docker-entrypoint-initdb.d/01_sakila-data.sql
+</span></span><span style="display:flex;"><span><span style="color:#719e07">COPY</span> sakila-db/sakila.mwb /docker-entrypoint-initdb.d/sakila.mwb
+</span></span></code></pre></div><p>上記のDockerfileと配置するSQLファイルをGitHubに公開しておく。</p>
 <div class="iframely-embed"><div class="iframely-responsive" style="height: 168px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/mysql-sakila" data-iframely-url="//cdn.iframe.ly/Jt5MoLf"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
 <p>(リポジトリにはMySQLのバージョンを変えた2つのDockerfileが公開されている)</p>
 <h1 id="docker-hubに登録しておく">Docker Hubに登録しておく</h1>
@@ -296,37 +296,37 @@ MySQLで公開されているサンプルデータには<code>world database</co
 <p><img src="/2019/03/20_hub_setting.png" alt="build settings"></p>
 <p>これでGitHubの更新に合わせて、常に最新のDockerイメージを自動でビルドしてくれる。</p>
 <p>最低限のコマンドオプションで良ければ、以下のコマンドでDocker Hubで公開されたイメージを利用する事ができる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker run  -e <span style="color:#268bd2">MYSQL_ALLOW_EMPTY_PASSWORD</span><span style="color:#719e07">=</span>yes budougumi0617/mysql-sakila:5.7
-</code></pre></div><h1 id="コンテナを起動してsqlの練習をするためのmakefileを作成する">コンテナを起動してSQLの練習をするためのMakefileを作成する。</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ docker run  -e <span style="color:#268bd2">MYSQL_ALLOW_EMPTY_PASSWORD</span><span style="color:#719e07">=</span>yes budougumi0617/mysql-sakila:5.7
+</span></span></code></pre></div><h1 id="コンテナを起動してsqlの練習をするためのmakefileを作成する">コンテナを起動してSQLの練習をするためのMakefileを作成する。</h1>
 <p>私はすぐコマンドを忘れて毎回ググっていたため、ローカルで実行するときのためにメモ代わりのMakefileも作成しておいた。</p>
 <div class="iframely-embed"><div class="iframely-responsive" style="height: 168px; padding-bottom: 0;"><a href="https://github.com/budougumi0617/til/blob/master/sql/Makefile" data-iframely-url="//cdn.iframe.ly/koYdP8y"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-makefile" data-lang="makefile"><span style="color:#268bd2">.PHONY</span><span style="color:#719e07">:</span> help start stop mysql exec run
-
-<span style="color:#586e75"># 引数がないときはusageを表示する
-</span><span style="color:#586e75"></span><span style="color:#268bd2">.DEFAULT_GOAL</span> <span style="color:#719e07">:=</span> <span style="color:#b58900">help</span>
-
-<span style="color:#268bd2">start</span><span style="color:#719e07">:</span> <span style="color:#586e75">## Start MySQL Conatainer
-</span><span style="color:#586e75"></span>	docker container run --rm -d -e <span style="color:#268bd2">MYSQL_ALLOW_EMPTY_PASSWORD</span><span style="color:#719e07">=</span>yes <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>		-p 43306:3306 --name mysql_til budougumi0617/mysql-sakila:5.7
-
-<span style="color:#268bd2">stop</span><span style="color:#719e07">:</span> <span style="color:#586e75">## Terminate MySQL Container
-</span><span style="color:#586e75"></span>	docker container stop mysql_til
-
-<span style="color:#268bd2">mysql</span><span style="color:#719e07">:</span> <span style="color:#586e75">## Connect to MySQL
-</span><span style="color:#586e75"></span>	mysql -h 127.0.0.1 --port <span style="color:#2aa198">43306</span> -uroot -D sakila
-
-<span style="color:#268bd2">CMD</span><span style="color:#719e07">=</span>show tables;
-<span style="color:#268bd2">exec</span><span style="color:#719e07">:</span> <span style="color:#586e75">## Execute query on MySQL ex: make exec CMD=&#34;show columns from country&#34;
-</span><span style="color:#586e75"></span>	mysql -h 127.0.0.1 --port <span style="color:#2aa198">43306</span> -uroot -D sakila -e <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">CMD</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
-
-<span style="color:#268bd2">FILE</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;&#39;</span>
-<span style="color:#268bd2">run</span><span style="color:#719e07">:</span> <span style="color:#586e75">## Run quey from file on MySQL ex: make run FILE=./count_city.sql
-</span><span style="color:#586e75"></span>	mysql -h 127.0.0.1 --port <span style="color:#2aa198">43306</span> -uroot -D sakila &lt; <span style="color:#2aa198">${</span><span style="color:#268bd2">FILE</span><span style="color:#2aa198">}</span>
-
-<span style="color:#586e75"># 各コマンドについたコメントを表示する
-</span><span style="color:#586e75"></span><span style="color:#268bd2">help</span><span style="color:#719e07">:</span> <span style="color:#586e75">## Show options
-</span><span style="color:#586e75"></span>	@grep -E <span style="color:#2aa198">&#39;^[a-zA-Z_-]+:.*?## .*$$&#39;</span> <span style="color:#719e07">$(</span>MAKEFILE_LIST<span style="color:#719e07">)</span> | awk <span style="color:#2aa198">&#39;BEGIN {FS = &#34;:.*?## &#34;}; {printf &#34;\033[36m%-15s\033[0m %s\n&#34;, $$1, $$2}&#39;</span>
-</code></pre></div><p><code>3306</code>ポートは開発で利用しているMySQLでふさがっていることが多いので<code>43306</code>ポートで接続するようにしてある。<br>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-makefile" data-lang="makefile"><span style="display:flex;"><span><span style="color:#268bd2">.PHONY</span><span style="color:#719e07">:</span> help start stop mysql exec run
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75"># 引数がないときはusageを表示する
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">.DEFAULT_GOAL</span> <span style="color:#719e07">:=</span> <span style="color:#b58900">help</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">start</span><span style="color:#719e07">:</span> <span style="color:#586e75">## Start MySQL Conatainer
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	docker container run --rm -d -e <span style="color:#268bd2">MYSQL_ALLOW_EMPTY_PASSWORD</span><span style="color:#719e07">=</span>yes <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>		-p 43306:3306 --name mysql_til budougumi0617/mysql-sakila:5.7
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">stop</span><span style="color:#719e07">:</span> <span style="color:#586e75">## Terminate MySQL Container
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	docker container stop mysql_til
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">mysql</span><span style="color:#719e07">:</span> <span style="color:#586e75">## Connect to MySQL
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	mysql -h 127.0.0.1 --port <span style="color:#2aa198">43306</span> -uroot -D sakila
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">CMD</span><span style="color:#719e07">=</span>show tables;
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">exec</span><span style="color:#719e07">:</span> <span style="color:#586e75">## Execute query on MySQL ex: make exec CMD=&#34;show columns from country&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	mysql -h 127.0.0.1 --port <span style="color:#2aa198">43306</span> -uroot -D sakila -e <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">CMD</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">FILE</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">run</span><span style="color:#719e07">:</span> <span style="color:#586e75">## Run quey from file on MySQL ex: make run FILE=./count_city.sql
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	mysql -h 127.0.0.1 --port <span style="color:#2aa198">43306</span> -uroot -D sakila &lt; <span style="color:#2aa198">${</span><span style="color:#268bd2">FILE</span><span style="color:#2aa198">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75"># 各コマンドについたコメントを表示する
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">help</span><span style="color:#719e07">:</span> <span style="color:#586e75">## Show options
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	@grep -E <span style="color:#2aa198">&#39;^[a-zA-Z_-]+:.*?## .*$$&#39;</span> <span style="color:#719e07">$(</span>MAKEFILE_LIST<span style="color:#719e07">)</span> | awk <span style="color:#2aa198">&#39;BEGIN {FS = &#34;:.*?## &#34;}; {printf &#34;\033[36m%-15s\033[0m %s\n&#34;, $$1, $$2}&#39;</span>
+</span></span></code></pre></div><p><code>3306</code>ポートは開発で利用しているMySQLでふさがっていることが多いので<code>43306</code>ポートで接続するようにしてある。<br>
 用意した<code>make</code>コマンドの概要を書くと以下になる。</p>
 <ul>
 <li><code>make start</code> dockerでMySQLを起動する</li>
@@ -344,59 +344,59 @@ MySQLで公開されているサンプルデータには<code>world database</co
 <li><code>make stop</code> コンテナを停止する。</li>
 </ul>
 <p>以下のようにコマンドを使うと一連のSQLの練習ができる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ make start
-docker container run --rm -d -e <span style="color:#268bd2">MYSQL_ALLOW_EMPTY_PASSWORD</span><span style="color:#719e07">=</span>yes <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>		-p 43306:3306 --name mysql_til budougumi0617/mysql-sakila:5.7
-e5bd2a3b9edd512e95f2f7b65d422129be81a5b61808b32cb0c7268af4505f9c
-
-$ make mysql
-mysql -h 127.0.0.1 --port <span style="color:#2aa198">43306</span> -uroot -D sakila
-Reading table information <span style="color:#719e07">for</span> completion of table and column names
-You can turn off this feature to get a quicker startup with -A
-
-Welcome to the MySQL monitor.  Commands end with ; or <span style="color:#cb4b16">\g</span>.
-Your MySQL connection id is <span style="color:#2aa198">2</span>
-Server version: 5.7.25 MySQL Community Server <span style="color:#719e07">(</span>GPL<span style="color:#719e07">)</span>
-
-Copyright <span style="color:#719e07">(</span>c<span style="color:#719e07">)</span> 2000, 2018, Oracle and/or its affiliates. All rights reserved.
-
-Oracle is a registered trademark of Oracle Corporation and/or its
-affiliates. Other names may be trademarks of their respective
-owners.
-
-Type <span style="color:#2aa198">&#39;help;&#39;</span> or <span style="color:#2aa198">&#39;\h&#39;</span> <span style="color:#719e07">for</span> help. Type <span style="color:#2aa198">&#39;\c&#39;</span> to clear the current input statement.
-
-mysql&gt; SELECT MAX<span style="color:#719e07">(</span>country.country<span style="color:#719e07">)</span> AS name, COUNT<span style="color:#719e07">(</span>city.city_id<span style="color:#719e07">)</span> AS count
-    -&gt; FROM country
-    -&gt;   INNER JOIN city
-    -&gt;     ON country.country_id <span style="color:#719e07">=</span> city.country_id
-    -&gt; GROUP BY city.country_id
-    -&gt; ORDER BY count DESC
-    -&gt; LIMIT 10;
-+--------------------+-------+
-| name               | count |
-+--------------------+-------+
-| India              |    <span style="color:#2aa198">60</span> |
-| China              |    <span style="color:#2aa198">53</span> |
-| United States      |    <span style="color:#2aa198">35</span> |
-| Japan              |    <span style="color:#2aa198">31</span> |
-| Mexico             |    <span style="color:#2aa198">30</span> |
-| Russian Federation |    <span style="color:#2aa198">28</span> |
-| Brazil             |    <span style="color:#2aa198">28</span> |
-| Philippines        |    <span style="color:#2aa198">20</span> |
-| Turkey             |    <span style="color:#2aa198">15</span> |
-| Indonesia          |    <span style="color:#2aa198">14</span> |
-+--------------------+-------+
-<span style="color:#2aa198">10</span> rows in <span style="color:#b58900">set</span> <span style="color:#719e07">(</span>0.00 sec<span style="color:#719e07">)</span>
-
-mysql&gt; SELECT COUNT<span style="color:#719e07">(</span>*<span style="color:#719e07">)</span> FROM film_text;
-+----------+
-| COUNT<span style="color:#719e07">(</span>*<span style="color:#719e07">)</span> |
-+----------+
-|     <span style="color:#2aa198">1000</span> |
-+----------+
-<span style="color:#2aa198">1</span> row in <span style="color:#b58900">set</span> <span style="color:#719e07">(</span>0.00 sec<span style="color:#719e07">)</span>
-</code></pre></div><p>これでクエリを作る練習が捗りそうだ。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ make start
+</span></span><span style="display:flex;"><span>docker container run --rm -d -e <span style="color:#268bd2">MYSQL_ALLOW_EMPTY_PASSWORD</span><span style="color:#719e07">=</span>yes <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>		-p 43306:3306 --name mysql_til budougumi0617/mysql-sakila:5.7
+</span></span><span style="display:flex;"><span>e5bd2a3b9edd512e95f2f7b65d422129be81a5b61808b32cb0c7268af4505f9c
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>$ make mysql
+</span></span><span style="display:flex;"><span>mysql -h 127.0.0.1 --port <span style="color:#2aa198">43306</span> -uroot -D sakila
+</span></span><span style="display:flex;"><span>Reading table information <span style="color:#719e07">for</span> completion of table and column names
+</span></span><span style="display:flex;"><span>You can turn off this feature to get a quicker startup with -A
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Welcome to the MySQL monitor.  Commands end with ; or <span style="color:#cb4b16">\g</span>.
+</span></span><span style="display:flex;"><span>Your MySQL connection id is <span style="color:#2aa198">2</span>
+</span></span><span style="display:flex;"><span>Server version: 5.7.25 MySQL Community Server <span style="color:#719e07">(</span>GPL<span style="color:#719e07">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Copyright <span style="color:#719e07">(</span>c<span style="color:#719e07">)</span> 2000, 2018, Oracle and/or its affiliates. All rights reserved.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Oracle is a registered trademark of Oracle Corporation and/or its
+</span></span><span style="display:flex;"><span>affiliates. Other names may be trademarks of their respective
+</span></span><span style="display:flex;"><span>owners.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Type <span style="color:#2aa198">&#39;help;&#39;</span> or <span style="color:#2aa198">&#39;\h&#39;</span> <span style="color:#719e07">for</span> help. Type <span style="color:#2aa198">&#39;\c&#39;</span> to clear the current input statement.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>mysql&gt; SELECT MAX<span style="color:#719e07">(</span>country.country<span style="color:#719e07">)</span> AS name, COUNT<span style="color:#719e07">(</span>city.city_id<span style="color:#719e07">)</span> AS count
+</span></span><span style="display:flex;"><span>    -&gt; FROM country
+</span></span><span style="display:flex;"><span>    -&gt;   INNER JOIN city
+</span></span><span style="display:flex;"><span>    -&gt;     ON country.country_id <span style="color:#719e07">=</span> city.country_id
+</span></span><span style="display:flex;"><span>    -&gt; GROUP BY city.country_id
+</span></span><span style="display:flex;"><span>    -&gt; ORDER BY count DESC
+</span></span><span style="display:flex;"><span>    -&gt; LIMIT 10;
+</span></span><span style="display:flex;"><span>+--------------------+-------+
+</span></span><span style="display:flex;"><span>| name               | count |
+</span></span><span style="display:flex;"><span>+--------------------+-------+
+</span></span><span style="display:flex;"><span>| India              |    <span style="color:#2aa198">60</span> |
+</span></span><span style="display:flex;"><span>| China              |    <span style="color:#2aa198">53</span> |
+</span></span><span style="display:flex;"><span>| United States      |    <span style="color:#2aa198">35</span> |
+</span></span><span style="display:flex;"><span>| Japan              |    <span style="color:#2aa198">31</span> |
+</span></span><span style="display:flex;"><span>| Mexico             |    <span style="color:#2aa198">30</span> |
+</span></span><span style="display:flex;"><span>| Russian Federation |    <span style="color:#2aa198">28</span> |
+</span></span><span style="display:flex;"><span>| Brazil             |    <span style="color:#2aa198">28</span> |
+</span></span><span style="display:flex;"><span>| Philippines        |    <span style="color:#2aa198">20</span> |
+</span></span><span style="display:flex;"><span>| Turkey             |    <span style="color:#2aa198">15</span> |
+</span></span><span style="display:flex;"><span>| Indonesia          |    <span style="color:#2aa198">14</span> |
+</span></span><span style="display:flex;"><span>+--------------------+-------+
+</span></span><span style="display:flex;"><span><span style="color:#2aa198">10</span> rows in <span style="color:#b58900">set</span> <span style="color:#719e07">(</span>0.00 sec<span style="color:#719e07">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>mysql&gt; SELECT COUNT<span style="color:#719e07">(</span>*<span style="color:#719e07">)</span> FROM film_text;
+</span></span><span style="display:flex;"><span>+----------+
+</span></span><span style="display:flex;"><span>| COUNT<span style="color:#719e07">(</span>*<span style="color:#719e07">)</span> |
+</span></span><span style="display:flex;"><span>+----------+
+</span></span><span style="display:flex;"><span>|     <span style="color:#2aa198">1000</span> |
+</span></span><span style="display:flex;"><span>+----------+
+</span></span><span style="display:flex;"><span><span style="color:#2aa198">1</span> row in <span style="color:#b58900">set</span> <span style="color:#719e07">(</span>0.00 sec<span style="color:#719e07">)</span>
+</span></span></code></pre></div><p>これでクエリを作る練習が捗りそうだ。</p>
 <h1 id="終わりに">終わりに</h1>
 <p>今回はSQLの練習用のDockerコンテナを作成し、Docker Hubにも登録した。Makefileで引数を読み込む方法やDocker Hubの使い方の勉強にもなった。<br>
 SQL関係の積読本が溜まっているので、このコンテナを使って勉強を進めたい。</p>
@@ -595,10 +595,16 @@ SQL関係の積読本が溜まっているので、このコンテナを使っ�
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -613,12 +619,6 @@ SQL関係の積読本が溜まっているので、このコンテナを使っ�
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -629,7 +629,7 @@ SQL関係の積読本が溜まっているので、このコンテナを使っ�
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

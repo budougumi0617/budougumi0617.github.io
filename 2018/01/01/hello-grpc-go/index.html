@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -220,10 +220,10 @@
 <a href="https://www.school.ctc-g.co.jp/columns/nakai2/nakai224.html">https://www.school.ctc-g.co.jp/columns/nakai2/nakai224.html</a></p>
 <h1 id="grpcを利用するための準備">gRPCを利用するための準備。</h1>
 <p>Macの場合、<code>protobuf</code>は<code>brew</code>経由でインストールできる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get -u google.golang.org/grpc
-$ brew install protobuf
-$ go get -u github.com/golang/protobuf/protoc-gen-go
-</code></pre></div><p><code>GOPATH</code>に<code>PATH</code>を通していない場合は、<code>$ export PATH=$PATH:$GOPATH/bin</code>もしておく。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ go get -u google.golang.org/grpc
+</span></span><span style="display:flex;"><span>$ brew install protobuf
+</span></span><span style="display:flex;"><span>$ go get -u github.com/golang/protobuf/protoc-gen-go
+</span></span></code></pre></div><p><code>GOPATH</code>に<code>PATH</code>を通していない場合は、<code>$ export PATH=$PATH:$GOPATH/bin</code>もしておく。</p>
 <p><code>google.golang.org/grpc</code>の中にサンプルコードがあるのでカレントディレクトリを移動する。サンプルコードの構成は以下。</p>
 <pre tabindex="0"><code>.
 ├── greeter_client
@@ -251,48 +251,48 @@ $ go run greeter_client/main.go
 2017/12/31 14:11:52 Greeting: Hello world
 </code></pre><h1 id="プロトコルバッファーの更新">プロトコルバッファーの更新</h1>
 <p><code>.proto</code>ファイルに新しいプロトコルをひとつ追加する。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="color:#cb4b16">diff --git a/examples/helloworld/helloworld/helloworld.proto b/examples/helloworld/helloworld/helloworld.proto
-</span><span style="color:#cb4b16">index d79a6a0..becd915 100644
-</span><span style="color:#cb4b16"></span><span style="color:#dc322f">--- a/examples/helloworld/helloworld/helloworld.proto
-</span><span style="color:#dc322f"></span><span style="color:#719e07">+++ b/examples/helloworld/helloworld/helloworld.proto
-</span><span style="color:#719e07"></span><span style="color:#268bd2">@@ -24,6 +24,8 @@ package helloworld;
-</span><span style="color:#268bd2"></span> service Greeter {
-   // Sends a greeting
-   rpc SayHello (HelloRequest) returns (HelloReply) {}
-<span style="color:#719e07">+  // Sends another greeting
-</span><span style="color:#719e07">+  rpc SayHelloAgain (HelloRequest) returns (HelloReply) {}
-</span><span style="color:#719e07"></span> }
-
- // The request message containing the user&#39;s name.
-</code></pre></div><p>その後、<code>protoc</code>コマンドで再コンパイルをする。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ protoc -I helloworld/ helloworld/helloworld.proto --go_out<span style="color:#719e07">=</span><span style="color:#268bd2">plugins</span><span style="color:#719e07">=</span>grpc:helloworld
-</code></pre></div><p>そうすると、<code>.pb.go</code>ファイルが更新され、新しいコードが自動生成される。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff">        SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
-<span style="color:#719e07">+       // Sends another greeting
-</span><span style="color:#719e07">+       SayHelloAgain(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
-</span><span style="color:#719e07"></span> }
-
- type greeterClient struct {
-<span style="color:#268bd2">@@ -104,11 +106,22 @@ func (c *greeterClient) SayHello(ctx context.Context, in *HelloRequest, opts ...
-</span><span style="color:#268bd2"></span>        return out, nil
- }
-
-<span style="color:#719e07">+func (c *greeterClient) SayHelloAgain(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error) {
-</span><span style="color:#719e07">+       out := new(HelloReply)
-</span><span style="color:#719e07">+       err := grpc.Invoke(ctx, &#34;/helloworld.Greeter/SayHelloAgain&#34;, in, out, c.cc, opts...)
-</span><span style="color:#719e07">+       if err != nil {
-</span><span style="color:#719e07">+               return nil, err
-</span><span style="color:#719e07">+       }
-</span><span style="color:#719e07">+       return out, nil
-</span><span style="color:#719e07">+}
-</span><span style="color:#719e07">+
-</span><span style="color:#719e07"></span> // Server API for Greeter service
-...
-</code></pre></div><p><code>greeter_server/main.go</code>と<code>greeter_client/main.go</code>にチュートリアル通りの実装を追加して、実行すると、追加した定義を使った通信ができた。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go run greeter_client/main.go
-2017/12/31 16:35:46 Greeting: Hello world
-2017/12/31 16:35:46 Greeting: Hello again world
-</code></pre></div><h1 id="サンプルコードの実装">サンプルコードの実装</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span><span style="color:#cb4b16">diff --git a/examples/helloworld/helloworld/helloworld.proto b/examples/helloworld/helloworld/helloworld.proto
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16">index d79a6a0..becd915 100644
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span><span style="color:#dc322f">--- a/examples/helloworld/helloworld/helloworld.proto
+</span></span></span><span style="display:flex;"><span><span style="color:#dc322f"></span><span style="color:#719e07">+++ b/examples/helloworld/helloworld/helloworld.proto
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span><span style="color:#268bd2">@@ -24,6 +24,8 @@ package helloworld;
+</span></span></span><span style="display:flex;"><span><span style="color:#268bd2"></span> service Greeter {
+</span></span><span style="display:flex;"><span>   // Sends a greeting
+</span></span><span style="display:flex;"><span>   rpc SayHello (HelloRequest) returns (HelloReply) {}
+</span></span><span style="display:flex;"><span><span style="color:#719e07">+  // Sends another greeting
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07">+  rpc SayHelloAgain (HelloRequest) returns (HelloReply) {}
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span> }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> // The request message containing the user&#39;s name.
+</span></span></code></pre></div><p>その後、<code>protoc</code>コマンドで再コンパイルをする。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ protoc -I helloworld/ helloworld/helloworld.proto --go_out<span style="color:#719e07">=</span><span style="color:#268bd2">plugins</span><span style="color:#719e07">=</span>grpc:helloworld
+</span></span></code></pre></div><p>そうすると、<code>.pb.go</code>ファイルが更新され、新しいコードが自動生成される。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span>        SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
+</span></span><span style="display:flex;"><span><span style="color:#719e07">+       // Sends another greeting
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07">+       SayHelloAgain(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span> }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> type greeterClient struct {
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">@@ -104,11 +106,22 @@ func (c *greeterClient) SayHello(ctx context.Context, in *HelloRequest, opts ...
+</span></span></span><span style="display:flex;"><span><span style="color:#268bd2"></span>        return out, nil
+</span></span><span style="display:flex;"><span> }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">+func (c *greeterClient) SayHelloAgain(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error) {
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07">+       out := new(HelloReply)
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07">+       err := grpc.Invoke(ctx, &#34;/helloworld.Greeter/SayHelloAgain&#34;, in, out, c.cc, opts...)
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07">+       if err != nil {
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07">+               return nil, err
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07">+       }
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07">+       return out, nil
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07">+}
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07">+
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span> // Server API for Greeter service
+</span></span><span style="display:flex;"><span>...
+</span></span></code></pre></div><p><code>greeter_server/main.go</code>と<code>greeter_client/main.go</code>にチュートリアル通りの実装を追加して、実行すると、追加した定義を使った通信ができた。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ go run greeter_client/main.go
+</span></span><span style="display:flex;"><span>2017/12/31 16:35:46 Greeting: Hello world
+</span></span><span style="display:flex;"><span>2017/12/31 16:35:46 Greeting: Hello again world
+</span></span></code></pre></div><h1 id="サンプルコードの実装">サンプルコードの実装</h1>
 <p>動作確認だけではなく、実装についても確認した。</p>
 <h1 id="サーバ側の実装">サーバ側の実装</h1>
 <p><a href="https://github.com/grpc/grpc-go/blob/master/examples/helloworld/greeter_server/main.go">https://github.com/grpc/grpc-go/blob/master/examples/helloworld/greeter_server/main.go</a></p>
@@ -523,10 +523,16 @@ $ go run greeter_client/main.go
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -541,12 +547,6 @@ $ go run greeter_client/main.go
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -557,7 +557,7 @@ $ go run greeter_client/main.go
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

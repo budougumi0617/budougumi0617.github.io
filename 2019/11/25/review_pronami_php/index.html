@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -250,11 +250,11 @@ ECサイトの基本的な機能を実装しながら一通り読み終わった
 <h2 id="型宣言を利用する">型宣言を利用する</h2>
 <p>たとえば、私はPHP7.3ベースで勉強したので、なるべく処理を関数に抽出し、引数・戻り値に型宣言を追加した。
 極力<code>declare(strict_types=1);</code>も付与している。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#719e07">function</span> <span style="color:#268bd2">validate</span>(string <span style="color:#268bd2">$name</span>, string <span style="color:#268bd2">$pass</span>, string <span style="color:#268bd2">$pass2</span>)<span style="color:#719e07">:</span> bool
-{
-    <span style="color:#586e75">// do validating...
-</span><span style="color:#586e75"></span>}
-</code></pre></div><h2 id="docker-composeとマイグレーションツールを使って勉強する">Docker Composeとマイグレーションツールを使って勉強する</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#719e07">function</span> <span style="color:#268bd2">validate</span>(string <span style="color:#268bd2">$name</span>, string <span style="color:#268bd2">$pass</span>, string <span style="color:#268bd2">$pass2</span>)<span style="color:#719e07">:</span> bool
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// do validating...
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span></code></pre></div><h2 id="docker-composeとマイグレーションツールを使って勉強する">Docker Composeとマイグレーションツールを使って勉強する</h2>
 <p>本書では環境構築方法としてXAMPP環境の構築手順が記載されている。<br>
 XAMPPを使うモチベーションはなかったのでDocker Composeなどを使って環境構築を行なった。</p>
 <h3 id="docker-composeを使った環境構築">Docker Composeを使った環境構築</h3>
@@ -279,26 +279,26 @@ PHPのデファクトはわかっていないが、CakePHPでも使われてい�
 </li>
 </ul>
 <p><code>Phinx</code>は依存管理の練習がてら<code>Composer</code>を使ってインストールした。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker-compose run --rm php-cli composer --dev require robmorgan/phinx
-</code></pre></div><p>Phinx自体は決まりに則ってPHPのクラスメソッドにテーブル構造を記載すればよい。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#719e07">&lt;?</span>php
-<span style="color:#719e07">use</span> Phinx\Migration\AbstractMigration;
-<span style="color:#719e07">class</span> <span style="color:#268bd2">CreateStaffTable</span> <span style="color:#719e07">extends</span> AbstractMigration
-{
-    <span style="color:#719e07">public</span> <span style="color:#719e07">function</span> <span style="color:#268bd2">change</span>()
-    {
-        <span style="color:#586e75">// create the table
-</span><span style="color:#586e75"></span>        <span style="color:#586e75">// How to change id from integer to biginteger: https://github.com/cakephp/phinx/issues/519
-</span><span style="color:#586e75"></span>        <span style="color:#268bd2">$table</span> <span style="color:#719e07">=</span> <span style="color:#268bd2">$this</span><span style="color:#719e07">-&gt;</span>table(<span style="color:#2aa198">&#39;mst_staff&#39;</span>, [<span style="color:#2aa198">&#39;id&#39;</span> <span style="color:#719e07">=&gt;</span> <span style="color:#719e07">false</span>, <span style="color:#2aa198">&#39;primary_key&#39;</span> <span style="color:#719e07">=&gt;</span> <span style="color:#2aa198">&#39;id&#39;</span>]);
-        <span style="color:#268bd2">$table</span><span style="color:#719e07">-&gt;</span>addColumn(<span style="color:#2aa198">&#39;id&#39;</span>, <span style="color:#2aa198">&#39;biginteger&#39;</span>, [<span style="color:#2aa198">&#39;identity&#39;</span> <span style="color:#719e07">=&gt;</span> <span style="color:#719e07">true</span>, <span style="color:#2aa198">&#39;signed&#39;</span> <span style="color:#719e07">=&gt;</span> <span style="color:#719e07">false</span>])
-            <span style="color:#719e07">-&gt;</span>addColumn(<span style="color:#2aa198">&#39;name&#39;</span>, <span style="color:#2aa198">&#39;string&#39;</span>, [<span style="color:#2aa198">&#39;limit&#39;</span> <span style="color:#719e07">=&gt;</span> <span style="color:#2aa198">15</span>])
-            <span style="color:#719e07">-&gt;</span>addColumn(<span style="color:#2aa198">&#39;password&#39;</span>, <span style="color:#2aa198">&#39;string&#39;</span>, [<span style="color:#2aa198">&#39;limit&#39;</span> <span style="color:#719e07">=&gt;</span> <span style="color:#2aa198">32</span>])
-            <span style="color:#719e07">-&gt;</span>create();
-    }
-}
-</code></pre></div><p>あとはマイグレーションコマンドを実行すればDBに新しいテーブルができる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ vendor/bin/phinx migrate
-</code></pre></div><h2 id="脆弱性まわりの実装について">脆弱性まわりの実装について</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ docker-compose run --rm php-cli composer --dev require robmorgan/phinx
+</span></span></code></pre></div><p>Phinx自体は決まりに則ってPHPのクラスメソッドにテーブル構造を記載すればよい。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#719e07">&lt;?</span>php
+</span></span><span style="display:flex;"><span><span style="color:#719e07">use</span> Phinx\Migration\AbstractMigration;
+</span></span><span style="display:flex;"><span><span style="color:#719e07">class</span> <span style="color:#268bd2">CreateStaffTable</span> <span style="color:#719e07">extends</span> AbstractMigration
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">public</span> <span style="color:#719e07">function</span> <span style="color:#268bd2">change</span>()
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// create the table
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        <span style="color:#586e75">// How to change id from integer to biginteger: https://github.com/cakephp/phinx/issues/519
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        <span style="color:#268bd2">$table</span> <span style="color:#719e07">=</span> <span style="color:#268bd2">$this</span><span style="color:#719e07">-&gt;</span>table(<span style="color:#2aa198">&#39;mst_staff&#39;</span>, [<span style="color:#2aa198">&#39;id&#39;</span> <span style="color:#719e07">=&gt;</span> <span style="color:#719e07">false</span>, <span style="color:#2aa198">&#39;primary_key&#39;</span> <span style="color:#719e07">=&gt;</span> <span style="color:#2aa198">&#39;id&#39;</span>]);
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">$table</span><span style="color:#719e07">-&gt;</span>addColumn(<span style="color:#2aa198">&#39;id&#39;</span>, <span style="color:#2aa198">&#39;biginteger&#39;</span>, [<span style="color:#2aa198">&#39;identity&#39;</span> <span style="color:#719e07">=&gt;</span> <span style="color:#719e07">true</span>, <span style="color:#2aa198">&#39;signed&#39;</span> <span style="color:#719e07">=&gt;</span> <span style="color:#719e07">false</span>])
+</span></span><span style="display:flex;"><span>            <span style="color:#719e07">-&gt;</span>addColumn(<span style="color:#2aa198">&#39;name&#39;</span>, <span style="color:#2aa198">&#39;string&#39;</span>, [<span style="color:#2aa198">&#39;limit&#39;</span> <span style="color:#719e07">=&gt;</span> <span style="color:#2aa198">15</span>])
+</span></span><span style="display:flex;"><span>            <span style="color:#719e07">-&gt;</span>addColumn(<span style="color:#2aa198">&#39;password&#39;</span>, <span style="color:#2aa198">&#39;string&#39;</span>, [<span style="color:#2aa198">&#39;limit&#39;</span> <span style="color:#719e07">=&gt;</span> <span style="color:#2aa198">32</span>])
+</span></span><span style="display:flex;"><span>            <span style="color:#719e07">-&gt;</span>create();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>あとはマイグレーションコマンドを実行すればDBに新しいテーブルができる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ vendor/bin/phinx migrate
+</span></span></code></pre></div><h2 id="脆弱性まわりの実装について">脆弱性まわりの実装について</h2>
 <p>本書の内容だと、<code>htmlspecialchars</code>関数を使ったXSS対策やプレースホルダを使ったSQLインジェクション対策程度はされているのだが、メール送信機能などまでは脆弱性対策がされていない。<br>
 そのような危険なコードに関して、WEBセキュリティ（脆弱性）で有名な<a href="http://amazon.jp/dp/B07DVY4H3M">体系的に学ぶ 安全なWebアプリケーションの作り方</a>（通称徳丸本）の著者である徳丸氏の助言が記載されている。<br>
 私は徳丸本を未読なのだが、徳丸本もサンプルコードはPHPらしいので、早いうちに読んでおこうと思った。</p>
@@ -306,31 +306,31 @@ PHPのデファクトはわかっていないが、CakePHPでも使われてい�
 <p>初心者用の書籍なので冗長な処理などはあっても良いと思うが、完全に動かないところがあったり、気になったところがあったので書いておく。</p>
 <h2 id="mysql57を使っているとテーブルのロックが不十分で動かない">MySQL5.7を使っているとテーブルのロックが不十分で動かない</h2>
 <p>「P261 7-5 もっと安全にしよう！」ではDB操作時にロックを取得するように変更を行なう。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">$<span style="color:#719e07">sql</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;LOCK TABLES dat_sales WRITE, dat_sales_product WRITE&#39;</span>;
-</code></pre></div><p>しかし、MySQL5.7のコンテナを使ってDBを用意していたせいか、書籍に書いてあるとおりにRDBに対してロックを取得するとエラーが出た。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#719e07">/</span>app<span style="color:#719e07">/</span>shop<span style="color:#719e07">/</span>shop_form_done<span style="color:#719e07">.</span>php<span style="color:#719e07">:</span><span style="color:#2aa198">89</span><span style="color:#719e07">:</span>
-object(PDOException)[<span style="color:#2aa198">2</span>]
-  <span style="color:#719e07">protected</span> <span style="color:#2aa198">&#39;message&#39;</span> <span style="color:#719e07">=&gt;</span> string <span style="color:#2aa198">&#39;SQLSTATE[HY000]: General error: 1100 Table &#39;</span>mst_product<span style="color:#2aa198">&#39; was not locked with LOCK TABLES&#39;</span> (length<span style="color:#719e07">=</span><span style="color:#2aa198">88</span>)
-  <span style="color:#719e07">private</span> <span style="color:#2aa198">&#39;string&#39;</span> (Exception) <span style="color:#719e07">=&gt;</span> string <span style="color:#2aa198">&#39;&#39;</span> (length<span style="color:#719e07">=</span><span style="color:#2aa198">0</span>)
-  <span style="color:#719e07">protected</span> <span style="color:#2aa198">&#39;code&#39;</span> <span style="color:#719e07">=&gt;</span> string <span style="color:#2aa198">&#39;HY000&#39;</span> (length<span style="color:#719e07">=</span><span style="color:#2aa198">5</span>)
-  <span style="color:#719e07">protected</span> <span style="color:#2aa198">&#39;file&#39;</span> <span style="color:#719e07">=&gt;</span> string <span style="color:#2aa198">&#39;/app/shop/shop_form_done.php&#39;</span> (length<span style="color:#719e07">=</span><span style="color:#2aa198">28</span>)
-  <span style="color:#719e07">...</span>
-</code></pre></div><p>これはロックするテーブルが不足しているためだった。MySQL5.7ではロック中READ操作のみのテーブルに対してもロック操作が必要だった。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span>$<span style="color:#719e07">sql</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;LOCK TABLES dat_sales WRITE, dat_sales_product WRITE&#39;</span>;
+</span></span></code></pre></div><p>しかし、MySQL5.7のコンテナを使ってDBを用意していたせいか、書籍に書いてあるとおりにRDBに対してロックを取得するとエラーが出た。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#719e07">/</span>app<span style="color:#719e07">/</span>shop<span style="color:#719e07">/</span>shop_form_done<span style="color:#719e07">.</span>php<span style="color:#719e07">:</span><span style="color:#2aa198">89</span><span style="color:#719e07">:</span>
+</span></span><span style="display:flex;"><span>object(PDOException)[<span style="color:#2aa198">2</span>]
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">protected</span> <span style="color:#2aa198">&#39;message&#39;</span> <span style="color:#719e07">=&gt;</span> string <span style="color:#2aa198">&#39;SQLSTATE[HY000]: General error: 1100 Table &#39;</span>mst_product<span style="color:#2aa198">&#39; was not locked with LOCK TABLES&#39;</span> (length<span style="color:#719e07">=</span><span style="color:#2aa198">88</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">private</span> <span style="color:#2aa198">&#39;string&#39;</span> (Exception) <span style="color:#719e07">=&gt;</span> string <span style="color:#2aa198">&#39;&#39;</span> (length<span style="color:#719e07">=</span><span style="color:#2aa198">0</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">protected</span> <span style="color:#2aa198">&#39;code&#39;</span> <span style="color:#719e07">=&gt;</span> string <span style="color:#2aa198">&#39;HY000&#39;</span> (length<span style="color:#719e07">=</span><span style="color:#2aa198">5</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">protected</span> <span style="color:#2aa198">&#39;file&#39;</span> <span style="color:#719e07">=&gt;</span> string <span style="color:#2aa198">&#39;/app/shop/shop_form_done.php&#39;</span> (length<span style="color:#719e07">=</span><span style="color:#2aa198">28</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">...</span>
+</span></span></code></pre></div><p>これはロックするテーブルが不足しているためだった。MySQL5.7ではロック中READ操作のみのテーブルに対してもロック操作が必要だった。</p>
 <p><a href="https://dev.mysql.com/doc/refman/5.6/ja/lock-tables.html">https://dev.mysql.com/doc/refman/5.6/ja/lock-tables.html</a></p>
 <blockquote>
 <p>ロックが必要なセッションは、必要なすべてのロックを 1 つの LOCK TABLES ステートメントで取得する必要があります。このように取得されたロックが保持されている間、このセッションは、ロックされたテーブルにのみアクセスできます。</p>
 </blockquote>
 <p>エラー内容の通り、ロックのSQL文にテーブルを追加することで解決した。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">$<span style="color:#719e07">sql</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;LOCK TABLES dat_sales WRITE, dat_sales_product WRITE, mst_product READ&#39;</span>;
-</code></pre></div><h2 id="例外をすべて握りつぶしている">例外をすべて握りつぶしている</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span>$<span style="color:#719e07">sql</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;LOCK TABLES dat_sales WRITE, dat_sales_product WRITE, mst_product READ&#39;</span>;
+</span></span></code></pre></div><h2 id="例外をすべて握りつぶしている">例外をすべて握りつぶしている</h2>
 <p>書籍中のサンプルコードの例外処理はすべて以下のような<code>try-catch</code>構文になっている。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#719e07">try</span> {
-    <span style="color:#586e75">// do anything...
-</span><span style="color:#586e75"></span>} <span style="color:#719e07">catch</span> (Exception <span style="color:#268bd2">$e</span>) {
-    <span style="color:#719e07">echo</span> <span style="color:#2aa198">&#39;ただいま障害により大変ご迷惑をおかけしております。&#39;</span>;
-    <span style="color:#719e07">exit</span>();
-}
-</code></pre></div><p>例外でコードが動かなかったら、タイポしていないかよく確認しろというスタンスだ。<br>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#719e07">try</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// do anything...
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>} <span style="color:#719e07">catch</span> (Exception <span style="color:#268bd2">$e</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">echo</span> <span style="color:#2aa198">&#39;ただいま障害により大変ご迷惑をおかけしております。&#39;</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">exit</span>();
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>例外でコードが動かなかったら、タイポしていないかよく確認しろというスタンスだ。<br>
 が、これでは上記のように書籍の通り書いていてエラーが発生したとき、途方にくれてしまうだろう。
 「このままではインターネット上に公開できません」とのただし書きも明記されているので、見た目にこだわらず<code>var_dump($e);</code>を仕込んでおいたほうが、何が問題だったのか原因究明が早くなると思う。</p>
 <h1 id="今後どう活かすのか">今後どう活かすのか</h1>
@@ -523,10 +523,16 @@ object(PDOException)[<span style="color:#2aa198">2</span>]
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -541,12 +547,6 @@ object(PDOException)[<span style="color:#2aa198">2</span>]
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -557,7 +557,7 @@ object(PDOException)[<span style="color:#2aa198">2</span>]
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

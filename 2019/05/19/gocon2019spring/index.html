@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -251,57 +251,56 @@ pospomeさんがBOOTHで販売している<code>pospomeのサーバサイドア�
 <li><a href="https://github.com/golang/go/wiki/SQLInterface">https://github.com/golang/go/wiki/SQLInterface</a></li>
 </ul>
 <p>GoDocサーバの裏でDBは動いていないので実行してもエラーになってしまうが、Examplesにサンプルコードが大量にあるのでそちらを参考にできる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://golang.org/pkg/database/sql/#example_DB_QueryContext
-</span><span style="color:#586e75"></span>
-<span style="color:#719e07">package</span> main
-
-<span style="color:#719e07">import</span> (
-	<span style="color:#2aa198">&#34;context&#34;</span>
-	<span style="color:#2aa198">&#34;database/sql&#34;</span>
-	<span style="color:#2aa198">&#34;fmt&#34;</span>
-	<span style="color:#2aa198">&#34;log&#34;</span>
-	<span style="color:#2aa198">&#34;strings&#34;</span>
-)
-
-<span style="color:#268bd2">var</span> (
-	ctx context.Context
-	db  <span style="color:#719e07">*</span>sql.DB
-)
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-	age <span style="color:#719e07">:=</span> <span style="color:#2aa198">27</span>
-	rows, err <span style="color:#719e07">:=</span> db.<span style="color:#268bd2">QueryContext</span>(ctx, <span style="color:#2aa198">&#34;SELECT name FROM users WHERE age=?&#34;</span>, age)
-	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		log.<span style="color:#268bd2">Fatal</span>(err)
-	}
-	<span style="color:#719e07">defer</span> rows.<span style="color:#268bd2">Close</span>()
-	names <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>([]<span style="color:#dc322f">string</span>, <span style="color:#2aa198">0</span>)
-
-	<span style="color:#719e07">for</span> rows.<span style="color:#268bd2">Next</span>() {
-		<span style="color:#268bd2">var</span> name <span style="color:#dc322f">string</span>
-		<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> rows.<span style="color:#268bd2">Scan</span>(<span style="color:#719e07">&amp;</span>name); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-			<span style="color:#586e75">// Check for a scan error.
-</span><span style="color:#586e75"></span>			<span style="color:#586e75">// Query rows will be closed with defer.
-</span><span style="color:#586e75"></span>			log.<span style="color:#268bd2">Fatal</span>(err)
-		}
-		names = <span style="color:#b58900">append</span>(names, name)
-	}
-	<span style="color:#586e75">// If the database is being written to ensure to check for Close
-</span><span style="color:#586e75"></span>	<span style="color:#586e75">// errors that may be returned from the driver. The query may
-</span><span style="color:#586e75"></span>	<span style="color:#586e75">// encounter an auto-commit error and be forced to rollback changes.
-</span><span style="color:#586e75"></span>	rerr <span style="color:#719e07">:=</span> rows.<span style="color:#268bd2">Close</span>()
-	<span style="color:#719e07">if</span> rerr <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		log.<span style="color:#268bd2">Fatal</span>(err)
-	}
-
-	<span style="color:#586e75">// Rows.Err will report the last error encountered by Rows.Scan.
-</span><span style="color:#586e75"></span>	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> rows.<span style="color:#268bd2">Err</span>(); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		log.<span style="color:#268bd2">Fatal</span>(err)
-	}
-	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s are %d years old&#34;</span>, strings.<span style="color:#268bd2">Join</span>(names, <span style="color:#2aa198">&#34;, &#34;</span>), age)
-}
-
-</code></pre></div><h1 id="テストについて">テストについて</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://golang.org/pkg/database/sql/#example_DB_QueryContext
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">package</span> main
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;context&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;database/sql&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;log&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;strings&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">var</span> (
+</span></span><span style="display:flex;"><span>	ctx context.Context
+</span></span><span style="display:flex;"><span>	db  <span style="color:#719e07">*</span>sql.DB
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+</span></span><span style="display:flex;"><span>	age <span style="color:#719e07">:=</span> <span style="color:#2aa198">27</span>
+</span></span><span style="display:flex;"><span>	rows, err <span style="color:#719e07">:=</span> db.<span style="color:#268bd2">QueryContext</span>(ctx, <span style="color:#2aa198">&#34;SELECT name FROM users WHERE age=?&#34;</span>, age)
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+</span></span><span style="display:flex;"><span>		log.<span style="color:#268bd2">Fatal</span>(err)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">defer</span> rows.<span style="color:#268bd2">Close</span>()
+</span></span><span style="display:flex;"><span>	names <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>([]<span style="color:#dc322f">string</span>, <span style="color:#2aa198">0</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">for</span> rows.<span style="color:#268bd2">Next</span>() {
+</span></span><span style="display:flex;"><span>		<span style="color:#268bd2">var</span> name <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> rows.<span style="color:#268bd2">Scan</span>(<span style="color:#719e07">&amp;</span>name); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+</span></span><span style="display:flex;"><span>			<span style="color:#586e75">// Check for a scan error.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>			<span style="color:#586e75">// Query rows will be closed with defer.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>			log.<span style="color:#268bd2">Fatal</span>(err)
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>		names = <span style="color:#b58900">append</span>(names, name)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// If the database is being written to ensure to check for Close
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#586e75">// errors that may be returned from the driver. The query may
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#586e75">// encounter an auto-commit error and be forced to rollback changes.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	rerr <span style="color:#719e07">:=</span> rows.<span style="color:#268bd2">Close</span>()
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> rerr <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+</span></span><span style="display:flex;"><span>		log.<span style="color:#268bd2">Fatal</span>(err)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// Rows.Err will report the last error encountered by Rows.Scan.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> rows.<span style="color:#268bd2">Err</span>(); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+</span></span><span style="display:flex;"><span>		log.<span style="color:#268bd2">Fatal</span>(err)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s are %d years old&#34;</span>, strings.<span style="color:#268bd2">Join</span>(names, <span style="color:#2aa198">&#34;, &#34;</span>), age)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h1 id="テストについて">テストについて</h1>
 <p>オブジェクトのモックを作るときは<code>go-mock</code>などを利用するだろう。</p>
 <div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/golang/mock" data-iframely-url="//cdn.iframe.ly/RivSfnz"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
 <p><code>sql.DB</code>オブジェクトもmockを作ることができて、<code>sql-mock</code>というライブラリもある。</p>
@@ -530,10 +529,16 @@ KeyNoteを閉じる→開くとファイルが壊れている、ということ�
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -548,12 +553,6 @@ KeyNoteを閉じる→開くとファイルが壊れている、ということ�
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -564,7 +563,7 @@ KeyNoteを閉じる→開くとファイルが壊れている、ということ�
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

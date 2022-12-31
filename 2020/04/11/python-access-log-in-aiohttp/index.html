@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -211,18 +211,18 @@
 <li><code>Application.run_app</code>メソッドの引数として独自の<code>AccessLogger</code>を渡してwebサーバを起動する</li>
 <li><code>logger</code>の設定は忘れずに</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">from</span> aiohttp <span style="color:#719e07">import</span> web
-<span style="color:#719e07">from</span> aiohttp.abc <span style="color:#719e07">import</span> AbstractAccessLogger
-<span style="color:#719e07">from</span> aiohttp.web_app <span style="color:#719e07">import</span> Application
-
-
-<span style="color:#719e07">class</span> <span style="color:#268bd2">CustomAccessLogger</span>(AbstractAccessLogger):
-    <span style="color:#719e07">def</span> <span style="color:#268bd2">log</span>(<span style="color:#268bd2">self</span>, request,response,time: <span style="color:#b58900">float</span>) <span style="color:#719e07">-&gt;</span> <span style="color:#cb4b16">None</span>:
-        <span style="color:#268bd2">self</span><span style="color:#719e07">.</span>logger<span style="color:#719e07">.</span>info(<span style="color:#2aa198">f</span><span style="color:#2aa198">&#39;access_log&#39;</span>)
-
-app: Application <span style="color:#719e07">=</span> web<span style="color:#719e07">.</span>Application()
-web<span style="color:#719e07">.</span>run_app(app, access_log_class<span style="color:#719e07">=</span>CustomAccessLogger)
-</code></pre></div><h2 id="環境">環境</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#719e07">from</span> aiohttp <span style="color:#719e07">import</span> web
+</span></span><span style="display:flex;"><span><span style="color:#719e07">from</span> aiohttp.abc <span style="color:#719e07">import</span> AbstractAccessLogger
+</span></span><span style="display:flex;"><span><span style="color:#719e07">from</span> aiohttp.web_app <span style="color:#719e07">import</span> Application
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">class</span> <span style="color:#268bd2">CustomAccessLogger</span>(AbstractAccessLogger):
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">def</span> <span style="color:#268bd2">log</span>(<span style="color:#268bd2">self</span>, request,response,time: <span style="color:#b58900">float</span>) <span style="color:#719e07">-&gt;</span> <span style="color:#cb4b16">None</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">self</span><span style="color:#719e07">.</span>logger<span style="color:#719e07">.</span>info(<span style="color:#2aa198">f</span><span style="color:#2aa198">&#39;access_log&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>app: Application <span style="color:#719e07">=</span> web<span style="color:#719e07">.</span>Application()
+</span></span><span style="display:flex;"><span>web<span style="color:#719e07">.</span>run_app(app, access_log_class<span style="color:#719e07">=</span>CustomAccessLogger)
+</span></span></code></pre></div><h2 id="環境">環境</h2>
 <ul>
 <li>Python 3.8.0</li>
 <li>aiohttp 3.6.2</li>
@@ -240,22 +240,22 @@ web<span style="color:#719e07">.</span>run_app(app, access_log_class<span style=
 </li>
 </ul>
 <p>基本的にはシグネチャを満たした<code>log</code>メソッドを実装すれば良い。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">from</span> aiohttp.abc <span style="color:#719e07">import</span> BaseRequest, AbstractAccessLogger
-<span style="color:#719e07">from</span> aiohttp.web_response <span style="color:#719e07">import</span> StreamResponse
-
-
-<span style="color:#719e07">class</span> <span style="color:#268bd2">CustomAccessLogger</span>(AbstractAccessLogger):
-    <span style="color:#719e07">def</span> <span style="color:#268bd2">log</span>(<span style="color:#268bd2">self</span>,
-            request: BaseRequest,
-            response: StreamResponse,
-            time: <span style="color:#b58900">float</span>) <span style="color:#719e07">-&gt;</span> <span style="color:#cb4b16">None</span>:
-        <span style="color:#268bd2">self</span><span style="color:#719e07">.</span>logger<span style="color:#719e07">.</span>info(<span style="color:#2aa198">f</span><span style="color:#2aa198">&#39;access_log: </span><span style="color:#2aa198">{</span>request<span style="color:#719e07">.</span>remote<span style="color:#2aa198">}</span><span style="color:#2aa198"> &#39;</span>
-                         <span style="color:#2aa198">f</span><span style="color:#2aa198">&#39;&#34;</span><span style="color:#2aa198">{</span>request<span style="color:#719e07">.</span>method<span style="color:#2aa198">}</span><span style="color:#2aa198"> </span><span style="color:#2aa198">{</span>request<span style="color:#719e07">.</span>path<span style="color:#2aa198">}</span><span style="color:#2aa198"> &#39;</span>
-                         <span style="color:#2aa198">f</span><span style="color:#2aa198">&#39;done in </span><span style="color:#2aa198">{</span>time<span style="color:#2aa198">}</span><span style="color:#2aa198">s: </span><span style="color:#2aa198">{</span>response<span style="color:#719e07">.</span>status<span style="color:#2aa198">}</span><span style="color:#2aa198">&#39;</span>)
-</code></pre></div><p>この自作クラスの型名をwebサーバ起動時に渡せばこれを利用したアクセスログが出力されるようになる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">app: Application <span style="color:#719e07">=</span> web<span style="color:#719e07">.</span>Application()
-web<span style="color:#719e07">.</span>run_app(app, access_log_class<span style="color:#719e07">=</span>CustomAccessLogger)
-</code></pre></div><p>このクラスはサーバ起動時に自動的に初期化されて利用される。
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#719e07">from</span> aiohttp.abc <span style="color:#719e07">import</span> BaseRequest, AbstractAccessLogger
+</span></span><span style="display:flex;"><span><span style="color:#719e07">from</span> aiohttp.web_response <span style="color:#719e07">import</span> StreamResponse
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">class</span> <span style="color:#268bd2">CustomAccessLogger</span>(AbstractAccessLogger):
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">def</span> <span style="color:#268bd2">log</span>(<span style="color:#268bd2">self</span>,
+</span></span><span style="display:flex;"><span>            request: BaseRequest,
+</span></span><span style="display:flex;"><span>            response: StreamResponse,
+</span></span><span style="display:flex;"><span>            time: <span style="color:#b58900">float</span>) <span style="color:#719e07">-&gt;</span> <span style="color:#cb4b16">None</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">self</span><span style="color:#719e07">.</span>logger<span style="color:#719e07">.</span>info(<span style="color:#2aa198">f</span><span style="color:#2aa198">&#39;access_log: </span><span style="color:#2aa198">{</span>request<span style="color:#719e07">.</span>remote<span style="color:#2aa198">}</span><span style="color:#2aa198"> &#39;</span>
+</span></span><span style="display:flex;"><span>                         <span style="color:#2aa198">f</span><span style="color:#2aa198">&#39;&#34;</span><span style="color:#2aa198">{</span>request<span style="color:#719e07">.</span>method<span style="color:#2aa198">}</span><span style="color:#2aa198"> </span><span style="color:#2aa198">{</span>request<span style="color:#719e07">.</span>path<span style="color:#2aa198">}</span><span style="color:#2aa198"> &#39;</span>
+</span></span><span style="display:flex;"><span>                         <span style="color:#2aa198">f</span><span style="color:#2aa198">&#39;done in </span><span style="color:#2aa198">{</span>time<span style="color:#2aa198">}</span><span style="color:#2aa198">s: </span><span style="color:#2aa198">{</span>response<span style="color:#719e07">.</span>status<span style="color:#2aa198">}</span><span style="color:#2aa198">&#39;</span>)
+</span></span></code></pre></div><p>この自作クラスの型名をwebサーバ起動時に渡せばこれを利用したアクセスログが出力されるようになる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>app: Application <span style="color:#719e07">=</span> web<span style="color:#719e07">.</span>Application()
+</span></span><span style="display:flex;"><span>web<span style="color:#719e07">.</span>run_app(app, access_log_class<span style="color:#719e07">=</span>CustomAccessLogger)
+</span></span></code></pre></div><p>このクラスはサーバ起動時に自動的に初期化されて利用される。
 <code>self.logger</code>から呼び出される<code>logger</code>オブジェクトは次のように決まる、</p>
 <ul>
 <li><code>run_app</code>メソッドの引数に<code>access_log</code>として渡した<code>logging.logger</code>オブジェクト</li>
@@ -265,48 +265,48 @@ web<span style="color:#719e07">.</span>run_app(app, access_log_class<span style=
 <p>実際にログ出力される形式、ログレベルは通常の<code>logging</code>パッケージのエコシステムに則る。
 そのため、適切なログレベルや<code>handler</code>を設定しないと出力されない。</p>
 <p><code>33000</code>ポートで起動するwebサーバに独自アクセスログを設定するコードが以下になる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">import</span> logging
-<span style="color:#719e07">from</span> aiohttp <span style="color:#719e07">import</span> web
-<span style="color:#719e07">from</span> aiohttp.abc <span style="color:#719e07">import</span> BaseRequest, AbstractAccessLogger
-<span style="color:#719e07">from</span> aiohttp.web_app <span style="color:#719e07">import</span> Application
-<span style="color:#719e07">from</span> aiohttp.web_request <span style="color:#719e07">import</span> Request
-<span style="color:#719e07">from</span> aiohttp.web_response <span style="color:#719e07">import</span> StreamResponse
-
-
-<span style="color:#719e07">class</span> <span style="color:#268bd2">CustomAccessLogger</span>(AbstractAccessLogger):
-    <span style="color:#719e07">def</span> <span style="color:#268bd2">log</span>(<span style="color:#268bd2">self</span>,
-            request: BaseRequest,
-            response: StreamResponse,
-            time: <span style="color:#b58900">float</span>) <span style="color:#719e07">-&gt;</span> <span style="color:#cb4b16">None</span>:
-        <span style="color:#268bd2">self</span><span style="color:#719e07">.</span>logger<span style="color:#719e07">.</span>info(<span style="color:#2aa198">f</span><span style="color:#2aa198">&#39;access_log: </span><span style="color:#2aa198">{</span>request<span style="color:#719e07">.</span>remote<span style="color:#2aa198">}</span><span style="color:#2aa198"> &#39;</span>
-                         <span style="color:#2aa198">f</span><span style="color:#2aa198">&#39;&#34;</span><span style="color:#2aa198">{</span>request<span style="color:#719e07">.</span>method<span style="color:#2aa198">}</span><span style="color:#2aa198"> </span><span style="color:#2aa198">{</span>request<span style="color:#719e07">.</span>path<span style="color:#2aa198">}</span><span style="color:#2aa198"> &#39;</span>
-                         <span style="color:#2aa198">f</span><span style="color:#2aa198">&#39;done in </span><span style="color:#2aa198">{</span>time<span style="color:#2aa198">}</span><span style="color:#2aa198">s: </span><span style="color:#2aa198">{</span>response<span style="color:#719e07">.</span>status<span style="color:#2aa198">}</span><span style="color:#2aa198">&#39;</span>)
-
-<span style="color:#719e07">async</span> <span style="color:#719e07">def</span> <span style="color:#268bd2">handler</span>(request: Request) <span style="color:#719e07">-&gt;</span> StreamResponse:
-    <span style="color:#719e07">return</span> web<span style="color:#719e07">.</span>Response(text<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;return</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#39;</span>)
-
-
-access_logger <span style="color:#719e07">=</span> logging<span style="color:#719e07">.</span>getLogger(<span style="color:#2aa198">&#39;aiohttp.access&#39;</span>)
-ch <span style="color:#719e07">=</span> logging<span style="color:#719e07">.</span>StreamHandler()
-access_logger<span style="color:#719e07">.</span>setLevel(logging<span style="color:#719e07">.</span>INFO)
-access_logger<span style="color:#719e07">.</span>addHandler(ch)
-
-app: Application <span style="color:#719e07">=</span> web<span style="color:#719e07">.</span>Application()
-app<span style="color:#719e07">.</span>router<span style="color:#719e07">.</span>add_get(<span style="color:#2aa198">&#39;/&#39;</span>, handler)
-
-web<span style="color:#719e07">.</span>run_app(app, port<span style="color:#719e07">=</span><span style="color:#2aa198">33000</span>, access_log_class<span style="color:#719e07">=</span>CustomAccessLogger)
-</code></pre></div><p><code>'aiohttp.access'</code>として登録されている<code>logging.logger</code>に<code>handler</code>としては標準の<code>StreamHandler</code>を付与している。
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#719e07">import</span> logging
+</span></span><span style="display:flex;"><span><span style="color:#719e07">from</span> aiohttp <span style="color:#719e07">import</span> web
+</span></span><span style="display:flex;"><span><span style="color:#719e07">from</span> aiohttp.abc <span style="color:#719e07">import</span> BaseRequest, AbstractAccessLogger
+</span></span><span style="display:flex;"><span><span style="color:#719e07">from</span> aiohttp.web_app <span style="color:#719e07">import</span> Application
+</span></span><span style="display:flex;"><span><span style="color:#719e07">from</span> aiohttp.web_request <span style="color:#719e07">import</span> Request
+</span></span><span style="display:flex;"><span><span style="color:#719e07">from</span> aiohttp.web_response <span style="color:#719e07">import</span> StreamResponse
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">class</span> <span style="color:#268bd2">CustomAccessLogger</span>(AbstractAccessLogger):
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">def</span> <span style="color:#268bd2">log</span>(<span style="color:#268bd2">self</span>,
+</span></span><span style="display:flex;"><span>            request: BaseRequest,
+</span></span><span style="display:flex;"><span>            response: StreamResponse,
+</span></span><span style="display:flex;"><span>            time: <span style="color:#b58900">float</span>) <span style="color:#719e07">-&gt;</span> <span style="color:#cb4b16">None</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">self</span><span style="color:#719e07">.</span>logger<span style="color:#719e07">.</span>info(<span style="color:#2aa198">f</span><span style="color:#2aa198">&#39;access_log: </span><span style="color:#2aa198">{</span>request<span style="color:#719e07">.</span>remote<span style="color:#2aa198">}</span><span style="color:#2aa198"> &#39;</span>
+</span></span><span style="display:flex;"><span>                         <span style="color:#2aa198">f</span><span style="color:#2aa198">&#39;&#34;</span><span style="color:#2aa198">{</span>request<span style="color:#719e07">.</span>method<span style="color:#2aa198">}</span><span style="color:#2aa198"> </span><span style="color:#2aa198">{</span>request<span style="color:#719e07">.</span>path<span style="color:#2aa198">}</span><span style="color:#2aa198"> &#39;</span>
+</span></span><span style="display:flex;"><span>                         <span style="color:#2aa198">f</span><span style="color:#2aa198">&#39;done in </span><span style="color:#2aa198">{</span>time<span style="color:#2aa198">}</span><span style="color:#2aa198">s: </span><span style="color:#2aa198">{</span>response<span style="color:#719e07">.</span>status<span style="color:#2aa198">}</span><span style="color:#2aa198">&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">async</span> <span style="color:#719e07">def</span> <span style="color:#268bd2">handler</span>(request: Request) <span style="color:#719e07">-&gt;</span> StreamResponse:
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> web<span style="color:#719e07">.</span>Response(text<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;return</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>access_logger <span style="color:#719e07">=</span> logging<span style="color:#719e07">.</span>getLogger(<span style="color:#2aa198">&#39;aiohttp.access&#39;</span>)
+</span></span><span style="display:flex;"><span>ch <span style="color:#719e07">=</span> logging<span style="color:#719e07">.</span>StreamHandler()
+</span></span><span style="display:flex;"><span>access_logger<span style="color:#719e07">.</span>setLevel(logging<span style="color:#719e07">.</span>INFO)
+</span></span><span style="display:flex;"><span>access_logger<span style="color:#719e07">.</span>addHandler(ch)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>app: Application <span style="color:#719e07">=</span> web<span style="color:#719e07">.</span>Application()
+</span></span><span style="display:flex;"><span>app<span style="color:#719e07">.</span>router<span style="color:#719e07">.</span>add_get(<span style="color:#2aa198">&#39;/&#39;</span>, handler)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>web<span style="color:#719e07">.</span>run_app(app, port<span style="color:#719e07">=</span><span style="color:#2aa198">33000</span>, access_log_class<span style="color:#719e07">=</span>CustomAccessLogger)
+</span></span></code></pre></div><p><code>'aiohttp.access'</code>として登録されている<code>logging.logger</code>に<code>handler</code>としては標準の<code>StreamHandler</code>を付与している。
 また、上記の例では<code>info</code>メソッドを呼んでいるので、<code>logger</code>自体のログレベルを<code>INFO</code>以上にセットしておかないと<code>handler</code>が呼ばれない。</p>
 <blockquote>
 <p>Access logs are enabled by default. If the debug flag is set, and the default logger &lsquo;aiohttp.access&rsquo; is used, access logs will be output to stderr if no handlers are attached. Furthermore, if the default logger has no log level set, the log level will be set to logging.DEBUG.</p>
 </blockquote>
 <p><a href="https://docs.aiohttp.org/en/stable/logging.html#access-logs">ドキュメント</a>には上記のようにデフォルトなら<code>DEBUG</code>レベルで出力されると書いてあったが、明示的にログレベルなどを設定しないと出力されなかった。</p>
 <p>上記コードを起動し、別ターミナルから<code>curl</code>コマンドでアクセスしたときのログ出力は以下のようになった。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ python -u main.py
-<span style="color:#719e07">========</span> Running on http://0.0.0.0:33000 <span style="color:#719e07">========</span>
-<span style="color:#719e07">(</span>Press CTRL+C to quit<span style="color:#719e07">)</span>
-access_log: 127.0.0.1 <span style="color:#2aa198">&#34;GET / done in 0.0007638730000003591s: 200
-</span></code></pre></div><p>あとは、<code>handler</code>を調整して、<code>JSON</code>形式の出力にするなり、ファイルに出力すればよい。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ python -u main.py
+</span></span><span style="display:flex;"><span><span style="color:#719e07">========</span> Running on http://0.0.0.0:33000 <span style="color:#719e07">========</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">(</span>Press CTRL+C to quit<span style="color:#719e07">)</span>
+</span></span><span style="display:flex;"><span>access_log: 127.0.0.1 <span style="color:#2aa198">&#34;GET / done in 0.0007638730000003591s: 200
+</span></span></span></code></pre></div><p>あとは、<code>handler</code>を調整して、<code>JSON</code>形式の出力にするなり、ファイルに出力すればよい。</p>
 <h1 id="おわりに">おわりに</h1>
 <p>Pythonの<code>logging</code>パッケージの<code>logger</code>、<code>handler</code>まわりのエコシステムの挙動を理解せず、ログが出力できなくてだいぶハマった。
 結局公式ドキュメントを読むことで解決したので、やはり言語仕様はひととおり読まないといけないなと痛感した。</p>
@@ -496,10 +496,16 @@ access_log: 127.0.0.1 <span style="color:#2aa198">&#34;GET / done in 0.000763873
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -514,12 +520,6 @@ access_log: 127.0.0.1 <span style="color:#2aa198">&#34;GET / done in 0.000763873
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -530,7 +530,7 @@ access_log: 127.0.0.1 <span style="color:#2aa198">&#34;GET / done in 0.000763873
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

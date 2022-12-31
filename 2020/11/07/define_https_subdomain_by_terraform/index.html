@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -216,14 +216,14 @@
 <li>ハマりどころを解決できれば少々の定義で構築できた</li>
 </ul>
 <p>なお、本記事で利用しているTerraformとAWS Providerのバージョンは以下となる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">terraform</span> {
-  required_version <span style="color:#719e07">=</span> &#34;&gt;<span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>.<span style="color:#2aa198">13</span>.<span style="color:#2aa198">4</span>&#34;
-}
-
-<span style="color:#719e07">provider</span> <span style="color:#2aa198">&#34;aws&#34;</span> {
-  version <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;~&gt; 3.6.0&#34;</span>
-}
-</code></pre></div><h1 id="https化したサブドメインを作成したい">HTTPS化したサブドメインを作成したい</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-hcl" data-lang="hcl"><span style="display:flex;"><span><span style="color:#719e07">terraform</span> {
+</span></span><span style="display:flex;"><span>  required_version <span style="color:#719e07">=</span> &#34;&gt;<span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>.<span style="color:#2aa198">13</span>.<span style="color:#2aa198">4</span>&#34;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">provider</span> <span style="color:#2aa198">&#34;aws&#34;</span> {
+</span></span><span style="display:flex;"><span>  version <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;~&gt; 3.6.0&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h1 id="https化したサブドメインを作成したい">HTTPS化したサブドメインを作成したい</h1>
 <p>この記事の前提とやりたいことは次の通り。</p>
 <ul>
 <li>前提条件
@@ -246,14 +246,14 @@ ACMはSSL/TLS証明書を管理するサービスで、今回はHTTPS通信に�
 </ul>
 <p>なお、Route53でexample.comを登録済みドメインにしている場合、すでにホストゾーンが作成されているはずである。<br>
 Terraform上では、既成のexample.com（ルートドメイン）に対応するホストゾーンをデータソースで参照する。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">data</span> <span style="color:#719e07">aws_route53_zone</span> <span style="color:#719e07">example_com</span> {
-  name <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;example.com&#34;</span>
-}
-
-<span style="color:#719e07">resource</span> <span style="color:#719e07">aws_route53_zone</span> <span style="color:#719e07">subdomain_example_com</span> {
-  name <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;subdomain.example.com&#34;</span>
-}
-</code></pre></div><p><strong>ルートドメインをTerraformで定義しようとしないこと</strong>。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-hcl" data-lang="hcl"><span style="display:flex;"><span><span style="color:#719e07">data</span> <span style="color:#719e07">aws_route53_zone</span> <span style="color:#719e07">example_com</span> {
+</span></span><span style="display:flex;"><span>  name <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;example.com&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_route53_zone</span> <span style="color:#719e07">subdomain_example_com</span> {
+</span></span><span style="display:flex;"><span>  name <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;subdomain.example.com&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><strong>ルートドメインをTerraformで定義しようとしないこと</strong>。</p>
 <h2 id="ルートドメインのホストゾーンはterraformで作成しないこと">ルートドメインのホストゾーンはTerraformで作成しないこと</h2>
 <p>AWS Provider 3.6.0系でもRoute53の「登録済みドメイン」をTerraformで管理することはできない。<br>
 Terraformでルートドメインを定義した場合、定義したルートドメインに割り当てられるNSコード（ネームサーバ）のIPと、登録済みドメインのネームサーバが一致しなくなるので証明書のDNS認証などができなくなる。</p>
@@ -281,19 +281,19 @@ Terraformでルートドメインを定義した場合、定義したルート�
 <ul>
 <li><a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record">https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_route53_record</span> <span style="color:#719e07">ns_record_for_subdomain</span> {
-  name    <span style="color:#719e07">=</span> <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">name</span>
-  zone_id <span style="color:#719e07">=</span> <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">id</span>
-  records <span style="color:#719e07">=</span> [
-    <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name_servers</span>[<span style="color:#2aa198">0</span>],
-    <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name_servers</span>[<span style="color:#2aa198">1</span>],
-    <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name_servers</span>[<span style="color:#2aa198">2</span>],
-    <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name_servers</span>[<span style="color:#2aa198">3</span>]
-  ]
-  ttl  <span style="color:#719e07">=</span> <span style="color:#2aa198">300</span>
-  type <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;NS&#34;</span>
-}
-</code></pre></div><p>これでリクエストの流れはできた。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-hcl" data-lang="hcl"><span style="display:flex;"><span><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_route53_record</span> <span style="color:#719e07">ns_record_for_subdomain</span> {
+</span></span><span style="display:flex;"><span>  name    <span style="color:#719e07">=</span> <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">name</span>
+</span></span><span style="display:flex;"><span>  zone_id <span style="color:#719e07">=</span> <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">id</span>
+</span></span><span style="display:flex;"><span>  records <span style="color:#719e07">=</span> [
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name_servers</span>[<span style="color:#2aa198">0</span>],
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name_servers</span>[<span style="color:#2aa198">1</span>],
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name_servers</span>[<span style="color:#2aa198">2</span>],
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name_servers</span>[<span style="color:#2aa198">3</span>]
+</span></span><span style="display:flex;"><span>  ]
+</span></span><span style="display:flex;"><span>  ttl  <span style="color:#719e07">=</span> <span style="color:#2aa198">300</span>
+</span></span><span style="display:flex;"><span>  type <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;NS&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>これでリクエストの流れはできた。</p>
 <h1 id="acmでhttps化用のssl証明書を作成する">ACMでHTTPS化用のSSL証明書を作成する</h1>
 <p>次にHTTPS化の準備をする。冒頭で述べた通りACMを使って証明書を発行する。<br>
 AWSでHTTPS用の証明書を発行する場合、DNS認証を使っておけば証明書の自動更新が実現できる。<br>
@@ -316,16 +316,16 @@ AWSでHTTPS用の証明書を発行する場合、DNS認証を使っておけば
 <ul>
 <li><a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate">https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_acm_certificate</span> <span style="color:#719e07">example_com</span> {
-  domain_name               <span style="color:#719e07">=</span> <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">name</span>
-  subject_alternative_names <span style="color:#719e07">=</span> [<span style="color:#719e07">format</span>(<span style="color:#2aa198">&#34;*.%s&#34;</span>, <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">name</span>)]
-  validation_method <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;DNS&#34;</span>
-
-  <span style="color:#719e07">lifecycle</span> {
-    create_before_destroy <span style="color:#719e07">=</span> <span style="color:#dc322f">true</span>
-  }
-}
-</code></pre></div><p><code>format</code>関数はTerraformの標準関数のひとつで、ざっくりいうとGoの<code>fmt.Printf</code>のように文字列を生成できる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-hcl" data-lang="hcl"><span style="display:flex;"><span><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_acm_certificate</span> <span style="color:#719e07">example_com</span> {
+</span></span><span style="display:flex;"><span>  domain_name               <span style="color:#719e07">=</span> <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">name</span>
+</span></span><span style="display:flex;"><span>  subject_alternative_names <span style="color:#719e07">=</span> [<span style="color:#719e07">format</span>(<span style="color:#2aa198">&#34;*.%s&#34;</span>, <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">name</span>)]
+</span></span><span style="display:flex;"><span>  validation_method <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;DNS&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">lifecycle</span> {
+</span></span><span style="display:flex;"><span>    create_before_destroy <span style="color:#719e07">=</span> <span style="color:#dc322f">true</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>format</code>関数はTerraformの標準関数のひとつで、ざっくりいうとGoの<code>fmt.Printf</code>のように文字列を生成できる。</p>
 <ul>
 <li>format Function
 <ul>
@@ -334,30 +334,30 @@ AWSでHTTPS用の証明書を発行する場合、DNS認証を使っておけば
 </li>
 </ul>
 <p>証明書の検証につかうレコードはこのように定義する。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_route53_record</span> <span style="color:#719e07">certificate</span> {
-  for_each <span style="color:#719e07">=</span> {
-    for dvo in aws_acm_certificate.example_com.domain_validation_options : dvo.domain_name <span style="color:#719e07">=</span>&gt; {
-      name   <span style="color:#719e07">=</span> <span style="color:#719e07">dvo</span>.<span style="color:#719e07">resource_record_name</span>
-      record <span style="color:#719e07">=</span> <span style="color:#719e07">dvo</span>.<span style="color:#719e07">resource_record_value</span>
-      type   <span style="color:#719e07">=</span> <span style="color:#719e07">dvo</span>.<span style="color:#719e07">resource_record_type</span>
-    }
-  }
-  name            <span style="color:#719e07">=</span> <span style="color:#719e07">each</span>.<span style="color:#719e07">value</span>.<span style="color:#719e07">name</span>
-  records         <span style="color:#719e07">=</span> [<span style="color:#719e07">each</span>.<span style="color:#719e07">value</span>.<span style="color:#719e07">record</span>]
-  ttl             <span style="color:#719e07">=</span> <span style="color:#2aa198">60</span>
-  type            <span style="color:#719e07">=</span> <span style="color:#719e07">each</span>.<span style="color:#719e07">value</span>.<span style="color:#719e07">type</span>
-  zone_id         <span style="color:#719e07">=</span> <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">id</span>
-  allow_overwrite <span style="color:#719e07">=</span> <span style="color:#dc322f">true</span>
-}
-</code></pre></div><p>最後にapply時SSL証明書の検証が完了するまで待機する設定を書いておく。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-hcl" data-lang="hcl"><span style="display:flex;"><span><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_route53_record</span> <span style="color:#719e07">certificate</span> {
+</span></span><span style="display:flex;"><span>  for_each <span style="color:#719e07">=</span> {
+</span></span><span style="display:flex;"><span>    for dvo in aws_acm_certificate.example_com.domain_validation_options : dvo.domain_name <span style="color:#719e07">=</span>&gt; {
+</span></span><span style="display:flex;"><span>      name   <span style="color:#719e07">=</span> <span style="color:#719e07">dvo</span>.<span style="color:#719e07">resource_record_name</span>
+</span></span><span style="display:flex;"><span>      record <span style="color:#719e07">=</span> <span style="color:#719e07">dvo</span>.<span style="color:#719e07">resource_record_value</span>
+</span></span><span style="display:flex;"><span>      type   <span style="color:#719e07">=</span> <span style="color:#719e07">dvo</span>.<span style="color:#719e07">resource_record_type</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  name            <span style="color:#719e07">=</span> <span style="color:#719e07">each</span>.<span style="color:#719e07">value</span>.<span style="color:#719e07">name</span>
+</span></span><span style="display:flex;"><span>  records         <span style="color:#719e07">=</span> [<span style="color:#719e07">each</span>.<span style="color:#719e07">value</span>.<span style="color:#719e07">record</span>]
+</span></span><span style="display:flex;"><span>  ttl             <span style="color:#719e07">=</span> <span style="color:#2aa198">60</span>
+</span></span><span style="display:flex;"><span>  type            <span style="color:#719e07">=</span> <span style="color:#719e07">each</span>.<span style="color:#719e07">value</span>.<span style="color:#719e07">type</span>
+</span></span><span style="display:flex;"><span>  zone_id         <span style="color:#719e07">=</span> <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">id</span>
+</span></span><span style="display:flex;"><span>  allow_overwrite <span style="color:#719e07">=</span> <span style="color:#dc322f">true</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>最後にapply時SSL証明書の検証が完了するまで待機する設定を書いておく。</p>
 <ul>
 <li><a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate_validation">https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate_validation</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_acm_certificate_validation</span> <span style="color:#719e07">cert</span> {
-  certificate_arn         <span style="color:#719e07">=</span> <span style="color:#719e07">aws_acm_certificate</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">arn</span>
-  validation_record_fqdns <span style="color:#719e07">=</span> [<span style="color:#719e07">for</span> <span style="color:#719e07">record</span> <span style="color:#719e07">in</span> <span style="color:#719e07">aws_route53_record</span>.<span style="color:#719e07">certificate</span> : <span style="color:#719e07">record</span>.<span style="color:#719e07">fqdn</span>]
-}
-</code></pre></div><h2 id="terraform-apply中にtried-to-create-resource-record-setbut-it-already-existsが出て失敗する">terraform apply中に「Tried to create resource record set&hellip;.but it already exists」が出て失敗する</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-hcl" data-lang="hcl"><span style="display:flex;"><span><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_acm_certificate_validation</span> <span style="color:#719e07">cert</span> {
+</span></span><span style="display:flex;"><span>  certificate_arn         <span style="color:#719e07">=</span> <span style="color:#719e07">aws_acm_certificate</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">arn</span>
+</span></span><span style="display:flex;"><span>  validation_record_fqdns <span style="color:#719e07">=</span> [<span style="color:#719e07">for</span> <span style="color:#719e07">record</span> <span style="color:#719e07">in</span> <span style="color:#719e07">aws_route53_record</span>.<span style="color:#719e07">certificate</span> : <span style="color:#719e07">record</span>.<span style="color:#719e07">fqdn</span>]
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="terraform-apply中にtried-to-create-resource-record-setbut-it-already-existsが出て失敗する">terraform apply中に「Tried to create resource record set&hellip;.but it already exists」が出て失敗する</h2>
 <p>ワイルドカードを使った証明書を作成しようとすると、ワイルドカードとルートドメインの検証用レコードが同じ内容になるためエラーが発生する。<br>
 <strong>これを回避するには<code>allow_overwrite</code>を<code>true</code>にしておくのを忘れないこと</strong>。</p>
 <p>本記事に記載した先ほどの<code>aws_route53_record certificate</code>はAWS Provider v3の定義方法だ。<br>
@@ -382,19 +382,19 @@ AWS Provider v2などで同様の現象を回避したい場合は次のブロ�
 </ul>
 <h1 id="albへ通信を流す">ALBへ通信を流す</h1>
 <p>ここまでできればあとはサブドメインのホストゾーンからALBへ通信を流し込むAレコードを作成すればよい。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">resource</span> <span style="color:#2aa198">&#34;aws_route53_record&#34; &#34;subdomain_example_com&#34;</span> {
-  zone_id <span style="color:#719e07">=</span> <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">zone_id</span>
-  name    <span style="color:#719e07">=</span> <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name</span>
-  type    <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;A&#34;</span><span style="color:#586e75">
-</span><span style="color:#586e75">
-</span><span style="color:#586e75">  # 実際に通信をさばくALBの情報
-</span><span style="color:#586e75"></span>  <span style="color:#719e07">alias</span> {
-    name                   <span style="color:#719e07">=</span> <span style="color:#719e07">aws_lb</span>.<span style="color:#719e07">xxx</span>.<span style="color:#719e07">dns_name</span>
-    zone_id                <span style="color:#719e07">=</span> <span style="color:#719e07">aws_lb</span>.<span style="color:#719e07">xxx</span>.<span style="color:#719e07">zone_id</span>
-    evaluate_target_health <span style="color:#719e07">=</span> <span style="color:#dc322f">true</span>
-  }
-}
-</code></pre></div><p>これで、 <code>https://subdomain.example.com</code>の通信がALBへ流し込まれるようになる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-hcl" data-lang="hcl"><span style="display:flex;"><span><span style="color:#719e07">resource</span> <span style="color:#2aa198">&#34;aws_route53_record&#34; &#34;subdomain_example_com&#34;</span> {
+</span></span><span style="display:flex;"><span>  zone_id <span style="color:#719e07">=</span> <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">zone_id</span>
+</span></span><span style="display:flex;"><span>  name    <span style="color:#719e07">=</span> <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name</span>
+</span></span><span style="display:flex;"><span>  type    <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;A&#34;</span><span style="color:#586e75">
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75">
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75">  # 実際に通信をさばくALBの情報
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  <span style="color:#719e07">alias</span> {
+</span></span><span style="display:flex;"><span>    name                   <span style="color:#719e07">=</span> <span style="color:#719e07">aws_lb</span>.<span style="color:#719e07">xxx</span>.<span style="color:#719e07">dns_name</span>
+</span></span><span style="display:flex;"><span>    zone_id                <span style="color:#719e07">=</span> <span style="color:#719e07">aws_lb</span>.<span style="color:#719e07">xxx</span>.<span style="color:#719e07">zone_id</span>
+</span></span><span style="display:flex;"><span>    evaluate_target_health <span style="color:#719e07">=</span> <span style="color:#dc322f">true</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>これで、 <code>https://subdomain.example.com</code>の通信がALBへ流し込まれるようになる。</p>
 <p>AレコードはAWS独自拡張DNSレコードタイプのエイリアスレコードのことだ（よくわかっていないが速いらしい）。</p>
 <ul>
 <li>サポートされる DNS レコードタイプ
@@ -415,79 +415,79 @@ AWS Provider v2などで同様の現象を回避したい場合は次のブロ�
 ただ、アプリケーションを作ってObservabilityの勉強をしたいのが目的なので、ゴール（スタート？）はまだまだ遠い…</p>
 <iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=B07XT7LJLC&linkId=f7b69fcc728d07bb0be7d26f22163b8a"></iframe>
 <p>最後に今回使ったサンプルコードをまとめておく。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#719e07">terraform</span> {
-  required_version <span style="color:#719e07">=</span> &#34;&gt;<span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>.<span style="color:#2aa198">13</span>.<span style="color:#2aa198">4</span>&#34;
-}
-
-<span style="color:#719e07">provider</span> <span style="color:#2aa198">&#34;aws&#34;</span> {
-  version <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;~&gt; 3.6.0&#34;</span>
-}
-
-<span style="color:#719e07">data</span> <span style="color:#719e07">aws_route53_zone</span> <span style="color:#719e07">example_com</span> {
-  name <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;example.com&#34;</span>
-}
-
-<span style="color:#719e07">resource</span> <span style="color:#719e07">aws_route53_zone</span> <span style="color:#719e07">subdomain_example_com</span> {
-  name <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;subdomain.example.com&#34;</span>
-}
-
-<span style="color:#719e07">resource</span> <span style="color:#719e07">aws_route53_record</span> <span style="color:#719e07">ns_record_for_subdomain</span> {
-  name    <span style="color:#719e07">=</span> <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">name</span>
-  zone_id <span style="color:#719e07">=</span> <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">id</span>
-  records <span style="color:#719e07">=</span> [
-    <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name_servers</span>[<span style="color:#2aa198">0</span>],
-    <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name_servers</span>[<span style="color:#2aa198">1</span>],
-    <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name_servers</span>[<span style="color:#2aa198">2</span>],
-    <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name_servers</span>[<span style="color:#2aa198">3</span>]
-  ]
-  ttl  <span style="color:#719e07">=</span> <span style="color:#2aa198">300</span>
-  type <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;NS&#34;</span>
-}
-
-<span style="color:#719e07">resource</span> <span style="color:#719e07">aws_acm_certificate</span> <span style="color:#719e07">example_com</span> {
-  domain_name               <span style="color:#719e07">=</span> <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">name</span>
-  subject_alternative_names <span style="color:#719e07">=</span> [<span style="color:#719e07">format</span>(<span style="color:#2aa198">&#34;*.%s&#34;</span>, <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">name</span>)]
-  validation_method <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;DNS&#34;</span>
-
-  <span style="color:#719e07">lifecycle</span> {
-    create_before_destroy <span style="color:#719e07">=</span> <span style="color:#dc322f">true</span>
-  }
-}
-
-<span style="color:#719e07">resource</span> <span style="color:#719e07">aws_route53_record</span> <span style="color:#719e07">certificate</span> {
-  for_each <span style="color:#719e07">=</span> {
-    for dvo in aws_acm_certificate.example_com.domain_validation_options : dvo.domain_name <span style="color:#719e07">=</span>&gt; {
-      name   <span style="color:#719e07">=</span> <span style="color:#719e07">dvo</span>.<span style="color:#719e07">resource_record_name</span>
-      record <span style="color:#719e07">=</span> <span style="color:#719e07">dvo</span>.<span style="color:#719e07">resource_record_value</span>
-      type   <span style="color:#719e07">=</span> <span style="color:#719e07">dvo</span>.<span style="color:#719e07">resource_record_type</span>
-    }
-  }
-  name            <span style="color:#719e07">=</span> <span style="color:#719e07">each</span>.<span style="color:#719e07">value</span>.<span style="color:#719e07">name</span>
-  records         <span style="color:#719e07">=</span> [<span style="color:#719e07">each</span>.<span style="color:#719e07">value</span>.<span style="color:#719e07">record</span>]
-  ttl             <span style="color:#719e07">=</span> <span style="color:#2aa198">60</span>
-  type            <span style="color:#719e07">=</span> <span style="color:#719e07">each</span>.<span style="color:#719e07">value</span>.<span style="color:#719e07">type</span>
-  zone_id         <span style="color:#719e07">=</span> <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">id</span>
-  allow_overwrite <span style="color:#719e07">=</span> <span style="color:#dc322f">true</span>
-}
-
-<span style="color:#719e07">resource</span> <span style="color:#719e07">aws_acm_certificate_validation</span> <span style="color:#719e07">cert</span> {
-  certificate_arn         <span style="color:#719e07">=</span> <span style="color:#719e07">aws_acm_certificate</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">arn</span>
-  validation_record_fqdns <span style="color:#719e07">=</span> [<span style="color:#719e07">for</span> <span style="color:#719e07">record</span> <span style="color:#719e07">in</span> <span style="color:#719e07">aws_route53_record</span>.<span style="color:#719e07">certificate</span> : <span style="color:#719e07">record</span>.<span style="color:#719e07">fqdn</span>]
-}
-
-<span style="color:#719e07">resource</span> <span style="color:#2aa198">&#34;aws_route53_record&#34; &#34;subdomain_example_com&#34;</span> {
-  zone_id <span style="color:#719e07">=</span> <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">zone_id</span>
-  name    <span style="color:#719e07">=</span> <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name</span>
-  type    <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;A&#34;</span><span style="color:#586e75">
-</span><span style="color:#586e75">
-</span><span style="color:#586e75">  # 実際に通信をさばくALBの情報
-</span><span style="color:#586e75"></span>  <span style="color:#719e07">alias</span> {
-    name                   <span style="color:#719e07">=</span> <span style="color:#719e07">aws_lb</span>.<span style="color:#719e07">xxx</span>.<span style="color:#719e07">dns_name</span>
-    zone_id                <span style="color:#719e07">=</span> <span style="color:#719e07">aws_lb</span>.<span style="color:#719e07">xxx</span>.<span style="color:#719e07">zone_id</span>
-    evaluate_target_health <span style="color:#719e07">=</span> <span style="color:#dc322f">true</span>
-  }
-}
-</code></pre></div><h1 id="参考">参考</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-hcl" data-lang="hcl"><span style="display:flex;"><span><span style="color:#719e07">terraform</span> {
+</span></span><span style="display:flex;"><span>  required_version <span style="color:#719e07">=</span> &#34;&gt;<span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>.<span style="color:#2aa198">13</span>.<span style="color:#2aa198">4</span>&#34;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">provider</span> <span style="color:#2aa198">&#34;aws&#34;</span> {
+</span></span><span style="display:flex;"><span>  version <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;~&gt; 3.6.0&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">data</span> <span style="color:#719e07">aws_route53_zone</span> <span style="color:#719e07">example_com</span> {
+</span></span><span style="display:flex;"><span>  name <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;example.com&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_route53_zone</span> <span style="color:#719e07">subdomain_example_com</span> {
+</span></span><span style="display:flex;"><span>  name <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;subdomain.example.com&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_route53_record</span> <span style="color:#719e07">ns_record_for_subdomain</span> {
+</span></span><span style="display:flex;"><span>  name    <span style="color:#719e07">=</span> <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">name</span>
+</span></span><span style="display:flex;"><span>  zone_id <span style="color:#719e07">=</span> <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">id</span>
+</span></span><span style="display:flex;"><span>  records <span style="color:#719e07">=</span> [
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name_servers</span>[<span style="color:#2aa198">0</span>],
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name_servers</span>[<span style="color:#2aa198">1</span>],
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name_servers</span>[<span style="color:#2aa198">2</span>],
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name_servers</span>[<span style="color:#2aa198">3</span>]
+</span></span><span style="display:flex;"><span>  ]
+</span></span><span style="display:flex;"><span>  ttl  <span style="color:#719e07">=</span> <span style="color:#2aa198">300</span>
+</span></span><span style="display:flex;"><span>  type <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;NS&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_acm_certificate</span> <span style="color:#719e07">example_com</span> {
+</span></span><span style="display:flex;"><span>  domain_name               <span style="color:#719e07">=</span> <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">name</span>
+</span></span><span style="display:flex;"><span>  subject_alternative_names <span style="color:#719e07">=</span> [<span style="color:#719e07">format</span>(<span style="color:#2aa198">&#34;*.%s&#34;</span>, <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">name</span>)]
+</span></span><span style="display:flex;"><span>  validation_method <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;DNS&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">lifecycle</span> {
+</span></span><span style="display:flex;"><span>    create_before_destroy <span style="color:#719e07">=</span> <span style="color:#dc322f">true</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_route53_record</span> <span style="color:#719e07">certificate</span> {
+</span></span><span style="display:flex;"><span>  for_each <span style="color:#719e07">=</span> {
+</span></span><span style="display:flex;"><span>    for dvo in aws_acm_certificate.example_com.domain_validation_options : dvo.domain_name <span style="color:#719e07">=</span>&gt; {
+</span></span><span style="display:flex;"><span>      name   <span style="color:#719e07">=</span> <span style="color:#719e07">dvo</span>.<span style="color:#719e07">resource_record_name</span>
+</span></span><span style="display:flex;"><span>      record <span style="color:#719e07">=</span> <span style="color:#719e07">dvo</span>.<span style="color:#719e07">resource_record_value</span>
+</span></span><span style="display:flex;"><span>      type   <span style="color:#719e07">=</span> <span style="color:#719e07">dvo</span>.<span style="color:#719e07">resource_record_type</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  name            <span style="color:#719e07">=</span> <span style="color:#719e07">each</span>.<span style="color:#719e07">value</span>.<span style="color:#719e07">name</span>
+</span></span><span style="display:flex;"><span>  records         <span style="color:#719e07">=</span> [<span style="color:#719e07">each</span>.<span style="color:#719e07">value</span>.<span style="color:#719e07">record</span>]
+</span></span><span style="display:flex;"><span>  ttl             <span style="color:#719e07">=</span> <span style="color:#2aa198">60</span>
+</span></span><span style="display:flex;"><span>  type            <span style="color:#719e07">=</span> <span style="color:#719e07">each</span>.<span style="color:#719e07">value</span>.<span style="color:#719e07">type</span>
+</span></span><span style="display:flex;"><span>  zone_id         <span style="color:#719e07">=</span> <span style="color:#719e07">data</span>.<span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">id</span>
+</span></span><span style="display:flex;"><span>  allow_overwrite <span style="color:#719e07">=</span> <span style="color:#dc322f">true</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">resource</span> <span style="color:#719e07">aws_acm_certificate_validation</span> <span style="color:#719e07">cert</span> {
+</span></span><span style="display:flex;"><span>  certificate_arn         <span style="color:#719e07">=</span> <span style="color:#719e07">aws_acm_certificate</span>.<span style="color:#719e07">example_com</span>.<span style="color:#719e07">arn</span>
+</span></span><span style="display:flex;"><span>  validation_record_fqdns <span style="color:#719e07">=</span> [<span style="color:#719e07">for</span> <span style="color:#719e07">record</span> <span style="color:#719e07">in</span> <span style="color:#719e07">aws_route53_record</span>.<span style="color:#719e07">certificate</span> : <span style="color:#719e07">record</span>.<span style="color:#719e07">fqdn</span>]
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">resource</span> <span style="color:#2aa198">&#34;aws_route53_record&#34; &#34;subdomain_example_com&#34;</span> {
+</span></span><span style="display:flex;"><span>  zone_id <span style="color:#719e07">=</span> <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">zone_id</span>
+</span></span><span style="display:flex;"><span>  name    <span style="color:#719e07">=</span> <span style="color:#719e07">aws_route53_zone</span>.<span style="color:#719e07">subdomain_example_com</span>.<span style="color:#719e07">name</span>
+</span></span><span style="display:flex;"><span>  type    <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;A&#34;</span><span style="color:#586e75">
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75">
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75">  # 実際に通信をさばくALBの情報
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  <span style="color:#719e07">alias</span> {
+</span></span><span style="display:flex;"><span>    name                   <span style="color:#719e07">=</span> <span style="color:#719e07">aws_lb</span>.<span style="color:#719e07">xxx</span>.<span style="color:#719e07">dns_name</span>
+</span></span><span style="display:flex;"><span>    zone_id                <span style="color:#719e07">=</span> <span style="color:#719e07">aws_lb</span>.<span style="color:#719e07">xxx</span>.<span style="color:#719e07">zone_id</span>
+</span></span><span style="display:flex;"><span>    evaluate_target_health <span style="color:#719e07">=</span> <span style="color:#dc322f">true</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h1 id="参考">参考</h1>
 <ul>
 <li>Amazon Route 53
 <ul>
@@ -738,10 +738,16 @@ AWS Provider v2などで同様の現象を回避したい場合は次のブロ�
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -756,12 +762,6 @@ AWS Provider v2などで同様の現象を回避したい場合は次のブロ�
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -772,7 +772,7 @@ AWS Provider v2などで同様の現象を回避したい場合は次のブロ�
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

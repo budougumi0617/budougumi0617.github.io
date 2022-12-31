@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -272,119 +272,118 @@ Go1.10まではNamed typeと呼ばれていたが、Go1.11から言語仕様上�
 <ul>
 <li><a href="https://play.golang.org/p/cG9o7W10IjF">https://play.golang.org/p/cG9o7W10IjF</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
-
-<span style="color:#719e07">import</span> (
-	<span style="color:#2aa198">&#34;fmt&#34;</span>
-	<span style="color:#2aa198">&#34;net/http&#34;</span>
-)
-
-<span style="color:#268bd2">type</span> MyRequest http.Request
-
-<span style="color:#268bd2">func</span> (mc MyRequest) <span style="color:#268bd2">MyFunc</span>() {
-	fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;in MyFunc&#34;</span>, mc.Host)
-}
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">useMyRequest</span>(mc MyRequest) {
-	mc.<span style="color:#268bd2">MyFunc</span>()
-}
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-	myReq <span style="color:#719e07">:=</span> MyRequest{Host: <span style="color:#2aa198">&#34;http://google.com&#34;</span>}
-	<span style="color:#268bd2">useMyRequest</span>(myReq)
-}
-</code></pre></div><p>Defined typeはプリミティブな型に対しても利用することができる。<br>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;net/http&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> MyRequest http.Request
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (mc MyRequest) <span style="color:#268bd2">MyFunc</span>() {
+</span></span><span style="display:flex;"><span>	fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;in MyFunc&#34;</span>, mc.Host)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">useMyRequest</span>(mc MyRequest) {
+</span></span><span style="display:flex;"><span>	mc.<span style="color:#268bd2">MyFunc</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+</span></span><span style="display:flex;"><span>	myReq <span style="color:#719e07">:=</span> MyRequest{Host: <span style="color:#2aa198">&#34;http://google.com&#34;</span>}
+</span></span><span style="display:flex;"><span>	<span style="color:#268bd2">useMyRequest</span>(myReq)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Defined typeはプリミティブな型に対しても利用することができる。<br>
 Defined typeで宣言した新しい型と元になった型には互換性がないため、Value Object的に利用することができる。</p>
 <p>以下の例では　ユーザー名とメールアドレスの文字列の取り扱いを間違えている。</p>
 <ul>
 <li><a href="https://play.golang.org/p/lX26gpsz21T">https://play.golang.org/p/lX26gpsz21T</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
-
-<span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
-
-<span style="color:#268bd2">type</span> User <span style="color:#268bd2">struct</span> {
-	Name, Email <span style="color:#dc322f">string</span>
-}
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">NewUser</span>(name, email <span style="color:#dc322f">string</span>) User { <span style="color:#719e07">return</span> User{Name: name, Email: email} }
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-	name <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;John Doe&#34;</span>
-	mail <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;example@foo.com&#34;</span>
-	u <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewUser</span>(mail, name) <span style="color:#586e75">// 順番を間違えている。
-</span><span style="color:#586e75"></span>	fmt.<span style="color:#268bd2">Println</span>(u.Name) <span style="color:#586e75">// example@foo.com
-</span><span style="color:#586e75"></span>}
-</code></pre></div><p>Defined typeを使うことで、型チェックを利用して誤った使いかたを防ぐことができる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> User <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>	Name, Email <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewUser</span>(name, email <span style="color:#dc322f">string</span>) User { <span style="color:#719e07">return</span> User{Name: name, Email: email} }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+</span></span><span style="display:flex;"><span>	name <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;John Doe&#34;</span>
+</span></span><span style="display:flex;"><span>	mail <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;example@foo.com&#34;</span>
+</span></span><span style="display:flex;"><span>	u <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewUser</span>(mail, name) <span style="color:#586e75">// 順番を間違えている。
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	fmt.<span style="color:#268bd2">Println</span>(u.Name) <span style="color:#586e75">// example@foo.com
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span></code></pre></div><p>Defined typeを使うことで、型チェックを利用して誤った使いかたを防ぐことができる。</p>
 <ul>
 <li><a href="https://play.golang.org/p/1S7VT6lT69J">https://play.golang.org/p/1S7VT6lT69J</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
-
-<span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
-
-<span style="color:#268bd2">type</span> Name <span style="color:#dc322f">string</span>
-<span style="color:#268bd2">type</span> MailAddress <span style="color:#dc322f">string</span>
-
-<span style="color:#268bd2">type</span> User <span style="color:#268bd2">struct</span> {
-	Name  Name
-	Email MailAddress
-}
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">NewUser</span>(name Name, email MailAddress) User { <span style="color:#719e07">return</span> User{Name: name, Email: email} }
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-	name <span style="color:#719e07">:=</span> <span style="color:#268bd2">Name</span>(<span style="color:#2aa198">&#34;John Doe&#34;</span>)
-	mail <span style="color:#719e07">:=</span> <span style="color:#268bd2">MailAddress</span>(<span style="color:#2aa198">&#34;example@foo.com&#34;</span>)
-	<span style="color:#586e75">// cannot use mail (type MailAddress) as type Name in argument to NewUser
-</span><span style="color:#586e75"></span>	<span style="color:#586e75">// cannot use name (type Name) as type MailAddress in argument to NewUser
-</span><span style="color:#586e75"></span>	u <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewUser</span>(mail, name)
-	fmt.<span style="color:#268bd2">Println</span>(u.Name)
-}
-
-</code></pre></div><p><code>type UserID int</code>、<code>type DocumentID int</code>のようにDefined typeを使っていけば、データベースまわりでIDの取り扱いをして間違えることもなくなる。<br>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> Name <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> MailAddress <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> User <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>	Name  Name
+</span></span><span style="display:flex;"><span>	Email MailAddress
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewUser</span>(name Name, email MailAddress) User { <span style="color:#719e07">return</span> User{Name: name, Email: email} }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+</span></span><span style="display:flex;"><span>	name <span style="color:#719e07">:=</span> <span style="color:#268bd2">Name</span>(<span style="color:#2aa198">&#34;John Doe&#34;</span>)
+</span></span><span style="display:flex;"><span>	mail <span style="color:#719e07">:=</span> <span style="color:#268bd2">MailAddress</span>(<span style="color:#2aa198">&#34;example@foo.com&#34;</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// cannot use mail (type MailAddress) as type Name in argument to NewUser
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#586e75">// cannot use name (type Name) as type MailAddress in argument to NewUser
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	u <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewUser</span>(mail, name)
+</span></span><span style="display:flex;"><span>	fmt.<span style="color:#268bd2">Println</span>(u.Name)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>type UserID int</code>、<code>type DocumentID int</code>のようにDefined typeを使っていけば、データベースまわりでIDの取り扱いをして間違えることもなくなる。<br>
 また、メソッドを追加することもできるので、バリデーションなども追加しておくこともできる。</p>
 <ul>
 <li><a href="https://play.golang.org/p/7e85wA1DPex">https://play.golang.org/p/7e85wA1DPex</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
-
-<span style="color:#719e07">import</span> (
-	<span style="color:#2aa198">&#34;fmt&#34;</span>
-	<span style="color:#2aa198">&#34;log&#34;</span>
-)
-
-<span style="color:#268bd2">type</span> Password <span style="color:#dc322f">string</span>
-
-<span style="color:#268bd2">func</span> (p Password) <span style="color:#268bd2">Validate</span>() <span style="color:#dc322f">error</span> {
-	<span style="color:#719e07">if</span> <span style="color:#b58900">len</span>(p) &lt; <span style="color:#2aa198">16</span> {
-		<span style="color:#719e07">return</span> fmt.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;パスワードは16文字以上&#34;</span>)
-	}
-	<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
-}
-
-<span style="color:#268bd2">type</span> User <span style="color:#268bd2">struct</span> {
-	Name     <span style="color:#dc322f">string</span>
-	Password Password
-}
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">NewUser</span>(n <span style="color:#dc322f">string</span>, pw Password) (<span style="color:#719e07">*</span>User, <span style="color:#dc322f">error</span>) {
-	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> pw.<span style="color:#268bd2">Validate</span>(); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>, err
-	}
-	<span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>User{n, pw}, <span style="color:#cb4b16">nil</span>
-}
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-	n <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;John Doe&#34;</span>
-	pw <span style="color:#719e07">:=</span> <span style="color:#268bd2">Password</span>(<span style="color:#2aa198">&#34;p@ssw0rd&#34;</span>)
-	u, err <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewUser</span>(n, pw)
-	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-		log.<span style="color:#268bd2">Fatal</span>(err) <span style="color:#586e75">// パスワードは16文字以上
-</span><span style="color:#586e75"></span>	}
-	fmt.<span style="color:#268bd2">Println</span>(u.Name)
-}
-</code></pre></div><h1 id="型エイリアスtype-alias">型エイリアス（Type alias）</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;log&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> Password <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (p Password) <span style="color:#268bd2">Validate</span>() <span style="color:#dc322f">error</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> <span style="color:#b58900">len</span>(p) &lt; <span style="color:#2aa198">16</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#719e07">return</span> fmt.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;パスワードは16文字以上&#34;</span>)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> User <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>	Name     <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>	Password Password
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewUser</span>(n <span style="color:#dc322f">string</span>, pw Password) (<span style="color:#719e07">*</span>User, <span style="color:#dc322f">error</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> pw.<span style="color:#268bd2">Validate</span>(); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>, err
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>User{n, pw}, <span style="color:#cb4b16">nil</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+</span></span><span style="display:flex;"><span>	n <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;John Doe&#34;</span>
+</span></span><span style="display:flex;"><span>	pw <span style="color:#719e07">:=</span> <span style="color:#268bd2">Password</span>(<span style="color:#2aa198">&#34;p@ssw0rd&#34;</span>)
+</span></span><span style="display:flex;"><span>	u, err <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewUser</span>(n, pw)
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+</span></span><span style="display:flex;"><span>		log.<span style="color:#268bd2">Fatal</span>(err) <span style="color:#586e75">// パスワードは16文字以上
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	}
+</span></span><span style="display:flex;"><span>	fmt.<span style="color:#268bd2">Println</span>(u.Name)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h1 id="型エイリアスtype-alias">型エイリアス（Type alias）</h1>
 <p>型エイリアスはGo1.9から追加された機能だ。</p>
 <ul>
 <li><a href="https://golang.org/doc/go1.9#language">Changes to the language  | Go 1.9 Release Notes</a></li>
@@ -399,27 +398,27 @@ Defined typeで宣言した新しい型と元になった型には互換性が�
 <ul>
 <li><a href="https://play.golang.org/p/VgpS3x89-bO">https://play.golang.org/p/VgpS3x89-bO</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
-
-<span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
-
-<span style="color:#268bd2">type</span> Name = <span style="color:#dc322f">string</span> <span style="color:#586e75">// type alias
-</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> MailAddress = <span style="color:#dc322f">string</span> <span style="color:#586e75">// type alias
-</span><span style="color:#586e75"></span>
-<span style="color:#268bd2">type</span> User <span style="color:#268bd2">struct</span> {
-	Name  Name
-	Email MailAddress
-}
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">NewUser</span>(name Name, email MailAddress) User { <span style="color:#719e07">return</span> User{Name: name, Email: email} }
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-	name <span style="color:#719e07">:=</span> <span style="color:#268bd2">Name</span>(<span style="color:#2aa198">&#34;John Doe&#34;</span>)
-	mail <span style="color:#719e07">:=</span> <span style="color:#268bd2">MailAddress</span>(<span style="color:#2aa198">&#34;example@foo.com&#34;</span>)
-	u <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewUser</span>(mail, name) <span style="color:#586e75">// 型違いでコンパイルエラーにはならない！！！！！
-</span><span style="color:#586e75"></span>	fmt.<span style="color:#268bd2">Println</span>(u.Name) <span style="color:#586e75">// example@foo.com
-</span><span style="color:#586e75"></span>}
-</code></pre></div><p>正直私は型エイリアスを使ったことがない。サードパーティ製のライブラリを使っていて、どうしても困るときがあったら出番なのかもしれない。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> Name = <span style="color:#dc322f">string</span> <span style="color:#586e75">// type alias
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> MailAddress = <span style="color:#dc322f">string</span> <span style="color:#586e75">// type alias
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> User <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>	Name  Name
+</span></span><span style="display:flex;"><span>	Email MailAddress
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewUser</span>(name Name, email MailAddress) User { <span style="color:#719e07">return</span> User{Name: name, Email: email} }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+</span></span><span style="display:flex;"><span>	name <span style="color:#719e07">:=</span> <span style="color:#268bd2">Name</span>(<span style="color:#2aa198">&#34;John Doe&#34;</span>)
+</span></span><span style="display:flex;"><span>	mail <span style="color:#719e07">:=</span> <span style="color:#268bd2">MailAddress</span>(<span style="color:#2aa198">&#34;example@foo.com&#34;</span>)
+</span></span><span style="display:flex;"><span>	u <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewUser</span>(mail, name) <span style="color:#586e75">// 型違いでコンパイルエラーにはならない！！！！！
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	fmt.<span style="color:#268bd2">Println</span>(u.Name) <span style="color:#586e75">// example@foo.com
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span></code></pre></div><p>正直私は型エイリアスを使ったことがない。サードパーティ製のライブラリを使っていて、どうしても困るときがあったら出番なのかもしれない。</p>
 <p>型エイリアスを使ったリファクタリングや型エイリアスが必要な背景は公式の記事や、 <a href="https://twitter.com/tenntenn">@tenntenn</a> さんのQiitaの記事が詳しい。</p>
 <ul>
 <li><a href="https://talks.golang.org/2016/refactor.article">Codebase Refactoring (with help from Go)</a></li>
@@ -613,10 +612,16 @@ Goは型をうまく使うことで安全なコーディングをすることが
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -631,12 +636,6 @@ Goは型をうまく使うことで安全なコーディングをすることが
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -647,7 +646,7 @@ Goは型をうまく使うことで安全なコーディングをすることが
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

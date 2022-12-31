@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -267,11 +267,11 @@ Goの仕様の1文からその仕様に関係する処理系のコードを探�
 <blockquote>
 <p>Within a composite literal of array, slice, or map type T, elements or map keys that are themselves composite literals may elide the respective literal type if it is identical to the element or key type of T. Similarly, elements or keys that are addresses of composite literals may elide the &amp;T when the element or key type&hellip;</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">[<span style="color:#719e07">...</span>]Point{{<span style="color:#2aa198">1.5</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">3.5</span>}, {<span style="color:#2aa198">0</span>, <span style="color:#2aa198">0</span>}}     <span style="color:#586e75">// same as [...]Point{Point{1.5, -3.5}, Point{0, 0}}
-</span><span style="color:#586e75"></span>[][]<span style="color:#dc322f">int</span>{{<span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>, <span style="color:#2aa198">3</span>}, {<span style="color:#2aa198">4</span>, <span style="color:#2aa198">5</span>}}          <span style="color:#586e75">// same as [][]int{[]int{1, 2, 3}, []int{4, 5}}
-</span><span style="color:#586e75"></span>[][]Point{{{<span style="color:#2aa198">0</span>, <span style="color:#2aa198">1</span>}, {<span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>}}}         <span style="color:#586e75">// same as [][]Point{[]Point{Point{0, 1}, Point{1, 2}}}
-</span><span style="color:#586e75"></span><span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]Point{<span style="color:#2aa198">&#34;orig&#34;</span>: {<span style="color:#2aa198">0</span>, <span style="color:#2aa198">0</span>}}    <span style="color:#586e75">// same as map[string]Point{&#34;orig&#34;: Point{0, 0}}
-</span></code></pre></div><p>必要なものはWebブラウザ、Go本体コードのリポジトリ、<code>git</code>と<code>grep</code>コマンドだけだ。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>[<span style="color:#719e07">...</span>]Point{{<span style="color:#2aa198">1.5</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">3.5</span>}, {<span style="color:#2aa198">0</span>, <span style="color:#2aa198">0</span>}}     <span style="color:#586e75">// same as [...]Point{Point{1.5, -3.5}, Point{0, 0}}
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>[][]<span style="color:#dc322f">int</span>{{<span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>, <span style="color:#2aa198">3</span>}, {<span style="color:#2aa198">4</span>, <span style="color:#2aa198">5</span>}}          <span style="color:#586e75">// same as [][]int{[]int{1, 2, 3}, []int{4, 5}}
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>[][]Point{{{<span style="color:#2aa198">0</span>, <span style="color:#2aa198">1</span>}, {<span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>}}}         <span style="color:#586e75">// same as [][]Point{[]Point{Point{0, 1}, Point{1, 2}}}
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]Point{<span style="color:#2aa198">&#34;orig&#34;</span>: {<span style="color:#2aa198">0</span>, <span style="color:#2aa198">0</span>}}    <span style="color:#586e75">// same as map[string]Point{&#34;orig&#34;: Point{0, 0}}
+</span></span></span></code></pre></div><p>必要なものはWebブラウザ、Go本体コードのリポジトリ、<code>git</code>と<code>grep</code>コマンドだけだ。</p>
 <h1 id="goのlanguage-specificationのhtmlはgoリポジトリのdocディレクトリに入っている">GoのLanguage SpecificationのHTMLはGoリポジトリの<code>doc</code>ディレクトリに入っている</h1>
 <p>GitHubにもミラーされているが、本当（？）のリモートURLからGo本体のリポジトリを取得してくる。</p>
 <ul>
@@ -283,45 +283,45 @@ Goの仕様の1文からその仕様に関係する処理系のコードを探�
 </ul>
 <p>GoのLanguage SpecificationのHTMLはGo本体のリポジトリに一緒に格納されている。</p>
 <p>まず、探したい仕様の行数を<code>grep</code>コマンドで確認する。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ grep -n <span style="color:#2aa198">&#34;Within a composite literal of array, slice&#34;</span> ./doc/go_spec.html
-2569:Within a composite literal of array, slice, or map <span style="color:#b58900">type</span> &lt;code&gt;T&lt;/code&gt;,
-</code></pre></div><p>HTMLでは2569行目にあるらしい。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ grep -n <span style="color:#2aa198">&#34;Within a composite literal of array, slice&#34;</span> ./doc/go_spec.html
+</span></span><span style="display:flex;"><span>2569:Within a composite literal of array, slice, or map <span style="color:#b58900">type</span> &lt;code&gt;T&lt;/code&gt;,
+</span></span></code></pre></div><p>HTMLでは2569行目にあるらしい。</p>
 <ul>
 <li><a href="https://github.com/golang/go/blob/82cf8bca9cf20297bc0edf481cc530c9b3f4bf1e/doc/go_spec.html#L2569">golang/go/doc/go_spec.html#L2569</a></li>
 </ul>
 <p>この周辺のコミットログを探してみると、このコミットで仕様の1文が追加されたようだ。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git log --reverse  -L 2569,2579:./doc/go_spec.html
-commit a12141e5f4e905045dca5dff2669b64d9b93788f
-Author: Robert Griesemer &lt;gri@golang.org&gt;
-Date:   Fri Oct <span style="color:#2aa198">22</span> 08:58:52 <span style="color:#2aa198">2010</span> -0700
-
-    go spec: relaxed syntax <span style="color:#719e07">for</span> array, slice, and map composite literals
-
-    For elements which are themselves composite literals, the <span style="color:#b58900">type</span> may
-    be omitted <span style="color:#719e07">if</span> it is identical to the element <span style="color:#b58900">type</span> of the containing
-    composite literal.
-
-    <span style="color:#268bd2">R</span><span style="color:#719e07">=</span>r, rsc, iant, ken2
-    <span style="color:#268bd2">CC</span><span style="color:#719e07">=</span>golang-dev
-    https://golang.org/cl/2661041
-
-diff --git a/doc/go_spec.html b/doc/go_spec.html
---- a/doc/go_spec.html
-+++ b/doc/go_spec.html
-@@ -2097,0 +2098,8 @@
-+Within a composite literal of array, slice, or map <span style="color:#b58900">type</span> &lt;code&gt;T&lt;/code&gt;,
-+elements that are themselves composite literals may elide the respective
-+literal <span style="color:#b58900">type</span> <span style="color:#719e07">if</span> it is identical to the element <span style="color:#b58900">type</span> of &lt;code&gt;T&lt;/code&gt;.
-+&lt;/p&gt;
-+
-+&lt;pre&gt;
-+<span style="color:#719e07">[</span>...<span style="color:#719e07">]</span>Point<span style="color:#719e07">{{</span>1.5, -3.5<span style="color:#719e07">}</span>, <span style="color:#719e07">{</span>0, 0<span style="color:#719e07">}}</span>  // same as <span style="color:#719e07">[</span>...<span style="color:#719e07">]</span>Point<span style="color:#719e07">{</span>Point<span style="color:#719e07">{</span>1.5, -3.5<span style="color:#719e07">}</span>, Point<span style="color:#719e07">{</span>0, 0<span style="color:#719e07">}}</span>
-+<span style="color:#719e07">[][]</span>int<span style="color:#719e07">{{</span>1, 2, 3<span style="color:#719e07">}</span>, <span style="color:#719e07">{</span>4, 5<span style="color:#719e07">}}</span>       // same as <span style="color:#719e07">[][]</span>int<span style="color:#719e07">{[]</span>int<span style="color:#719e07">{</span>1, 2, 3<span style="color:#719e07">}</span>, <span style="color:#719e07">[]</span>int<span style="color:#719e07">{</span>4, 5<span style="color:#719e07">}}</span>
-
-commit 5f49456465f53f96bee03ac8cbe0d564e31576c2
-Author: Russ Cox &lt;rsc@golang.org&gt;
-Date:   Fri Dec <span style="color:#2aa198">2</span> 14:12:53 <span style="color:#2aa198">2011</span> -0500
-</code></pre></div><p>Goはコミットログ中にあるURLを見れば<code>Gerrit</code>上のレビューの経過も確認できる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ git log --reverse  -L 2569,2579:./doc/go_spec.html
+</span></span><span style="display:flex;"><span>commit a12141e5f4e905045dca5dff2669b64d9b93788f
+</span></span><span style="display:flex;"><span>Author: Robert Griesemer &lt;gri@golang.org&gt;
+</span></span><span style="display:flex;"><span>Date:   Fri Oct <span style="color:#2aa198">22</span> 08:58:52 <span style="color:#2aa198">2010</span> -0700
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    go spec: relaxed syntax <span style="color:#719e07">for</span> array, slice, and map composite literals
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    For elements which are themselves composite literals, the <span style="color:#b58900">type</span> may
+</span></span><span style="display:flex;"><span>    be omitted <span style="color:#719e07">if</span> it is identical to the element <span style="color:#b58900">type</span> of the containing
+</span></span><span style="display:flex;"><span>    composite literal.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">R</span><span style="color:#719e07">=</span>r, rsc, iant, ken2
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">CC</span><span style="color:#719e07">=</span>golang-dev
+</span></span><span style="display:flex;"><span>    https://golang.org/cl/2661041
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>diff --git a/doc/go_spec.html b/doc/go_spec.html
+</span></span><span style="display:flex;"><span>--- a/doc/go_spec.html
+</span></span><span style="display:flex;"><span>+++ b/doc/go_spec.html
+</span></span><span style="display:flex;"><span>@@ -2097,0 +2098,8 @@
+</span></span><span style="display:flex;"><span>+Within a composite literal of array, slice, or map <span style="color:#b58900">type</span> &lt;code&gt;T&lt;/code&gt;,
+</span></span><span style="display:flex;"><span>+elements that are themselves composite literals may elide the respective
+</span></span><span style="display:flex;"><span>+literal <span style="color:#b58900">type</span> <span style="color:#719e07">if</span> it is identical to the element <span style="color:#b58900">type</span> of &lt;code&gt;T&lt;/code&gt;.
+</span></span><span style="display:flex;"><span>+&lt;/p&gt;
+</span></span><span style="display:flex;"><span>+
+</span></span><span style="display:flex;"><span>+&lt;pre&gt;
+</span></span><span style="display:flex;"><span>+<span style="color:#719e07">[</span>...<span style="color:#719e07">]</span>Point<span style="color:#719e07">{{</span>1.5, -3.5<span style="color:#719e07">}</span>, <span style="color:#719e07">{</span>0, 0<span style="color:#719e07">}}</span>  // same as <span style="color:#719e07">[</span>...<span style="color:#719e07">]</span>Point<span style="color:#719e07">{</span>Point<span style="color:#719e07">{</span>1.5, -3.5<span style="color:#719e07">}</span>, Point<span style="color:#719e07">{</span>0, 0<span style="color:#719e07">}}</span>
+</span></span><span style="display:flex;"><span>+<span style="color:#719e07">[][]</span>int<span style="color:#719e07">{{</span>1, 2, 3<span style="color:#719e07">}</span>, <span style="color:#719e07">{</span>4, 5<span style="color:#719e07">}}</span>       // same as <span style="color:#719e07">[][]</span>int<span style="color:#719e07">{[]</span>int<span style="color:#719e07">{</span>1, 2, 3<span style="color:#719e07">}</span>, <span style="color:#719e07">[]</span>int<span style="color:#719e07">{</span>4, 5<span style="color:#719e07">}}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>commit 5f49456465f53f96bee03ac8cbe0d564e31576c2
+</span></span><span style="display:flex;"><span>Author: Russ Cox &lt;rsc@golang.org&gt;
+</span></span><span style="display:flex;"><span>Date:   Fri Dec <span style="color:#2aa198">2</span> 14:12:53 <span style="color:#2aa198">2011</span> -0500
+</span></span></code></pre></div><p>Goはコミットログ中にあるURLを見れば<code>Gerrit</code>上のレビューの経過も確認できる。</p>
 <ul>
 <li>code review 2661041: go spec: relaxed syntax for array, slice, and map compo&hellip;
 <ul>
@@ -332,42 +332,42 @@ Date:   Fri Dec <span style="color:#2aa198">2</span> 14:12:53 <span style="color
 <h1 id="仕様が追加された日の周辺コミットログから実装の追加コミットログを探す">仕様が追加された日の周辺コミットログから実装の追加コミットログを探す</h1>
 <p>仕様が書き足されたのは<code>Fri Dec 2 14:12:53 2011</code>だった。この日付の周辺で実装が追加されたコミットがないか探してみる。
 <code>git log</code>コマンドで日付範囲を指定し、今回の実装に関連しそうな<code>compoiste</code>をキーワードにコミットを探してみる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git log --since<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2010/10/01&#34;</span> --until<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2010/10/31&#34;</span> --grep <span style="color:#2aa198">&#34;composite&#34;</span>
-commit f613015e0eeb9560579bf40dbdb40fac5e371bbc
-Author: Robert Griesemer &lt;gri@golang.org&gt;
-Date:   Fri Oct <span style="color:#2aa198">22</span> 10:03:14 <span style="color:#2aa198">2010</span> -0700
-
-    go ast/parser/printer: permit elision of composite literal types <span style="color:#719e07">for</span> composite literal elements
-    gofmt: added -s flag to simplify composite literal expressions through <span style="color:#b58900">type</span> elision where possible
-
-    <span style="color:#268bd2">R</span><span style="color:#719e07">=</span>rsc
-    <span style="color:#268bd2">CC</span><span style="color:#719e07">=</span>golang-dev
-    https://golang.org/cl/2319041
-
-commit a12141e5f4e905045dca5dff2669b64d9b93788f
-Author: Robert Griesemer &lt;gri@golang.org&gt;
-Date:   Fri Oct <span style="color:#2aa198">22</span> 08:58:52 <span style="color:#2aa198">2010</span> -0700
-
-    go spec: relaxed syntax <span style="color:#719e07">for</span> array, slice, and map composite literals
-
-    For elements which are themselves composite literals, the <span style="color:#b58900">type</span> may
-    be omitted <span style="color:#719e07">if</span> it is identical to the element <span style="color:#b58900">type</span> of the containing
-    composite literal.
-
-    <span style="color:#268bd2">R</span><span style="color:#719e07">=</span>r, rsc, iant, ken2
-    <span style="color:#268bd2">CC</span><span style="color:#719e07">=</span>golang-dev
-    https://golang.org/cl/2661041
-
-commit 8ffc4ec5d0c3d17d633c277ba5102da838834f03
-Author: Russ Cox &lt;rsc@golang.org&gt;
-Date:   Thu Oct <span style="color:#2aa198">21</span> 23:17:20 <span style="color:#2aa198">2010</span> -0400
-
-    gc: implement new composite literal spec
-
-    <span style="color:#268bd2">R</span><span style="color:#719e07">=</span>ken2
-    <span style="color:#268bd2">CC</span><span style="color:#719e07">=</span>golang-dev
-    https://golang.org/cl/2350041
-</code></pre></div><p>それぞれのコミットに書かれているレビュー記録を見てみる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ git log --since<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2010/10/01&#34;</span> --until<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2010/10/31&#34;</span> --grep <span style="color:#2aa198">&#34;composite&#34;</span>
+</span></span><span style="display:flex;"><span>commit f613015e0eeb9560579bf40dbdb40fac5e371bbc
+</span></span><span style="display:flex;"><span>Author: Robert Griesemer &lt;gri@golang.org&gt;
+</span></span><span style="display:flex;"><span>Date:   Fri Oct <span style="color:#2aa198">22</span> 10:03:14 <span style="color:#2aa198">2010</span> -0700
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    go ast/parser/printer: permit elision of composite literal types <span style="color:#719e07">for</span> composite literal elements
+</span></span><span style="display:flex;"><span>    gofmt: added -s flag to simplify composite literal expressions through <span style="color:#b58900">type</span> elision where possible
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">R</span><span style="color:#719e07">=</span>rsc
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">CC</span><span style="color:#719e07">=</span>golang-dev
+</span></span><span style="display:flex;"><span>    https://golang.org/cl/2319041
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>commit a12141e5f4e905045dca5dff2669b64d9b93788f
+</span></span><span style="display:flex;"><span>Author: Robert Griesemer &lt;gri@golang.org&gt;
+</span></span><span style="display:flex;"><span>Date:   Fri Oct <span style="color:#2aa198">22</span> 08:58:52 <span style="color:#2aa198">2010</span> -0700
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    go spec: relaxed syntax <span style="color:#719e07">for</span> array, slice, and map composite literals
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    For elements which are themselves composite literals, the <span style="color:#b58900">type</span> may
+</span></span><span style="display:flex;"><span>    be omitted <span style="color:#719e07">if</span> it is identical to the element <span style="color:#b58900">type</span> of the containing
+</span></span><span style="display:flex;"><span>    composite literal.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">R</span><span style="color:#719e07">=</span>r, rsc, iant, ken2
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">CC</span><span style="color:#719e07">=</span>golang-dev
+</span></span><span style="display:flex;"><span>    https://golang.org/cl/2661041
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>commit 8ffc4ec5d0c3d17d633c277ba5102da838834f03
+</span></span><span style="display:flex;"><span>Author: Russ Cox &lt;rsc@golang.org&gt;
+</span></span><span style="display:flex;"><span>Date:   Thu Oct <span style="color:#2aa198">21</span> 23:17:20 <span style="color:#2aa198">2010</span> -0400
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    gc: implement new composite literal spec
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">R</span><span style="color:#719e07">=</span>ken2
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">CC</span><span style="color:#719e07">=</span>golang-dev
+</span></span><span style="display:flex;"><span>    https://golang.org/cl/2350041
+</span></span></code></pre></div><p>それぞれのコミットに書かれているレビュー記録を見てみる。</p>
 <ul>
 <li>code review 2350041: gc: implement new composite literal spec
 <ul>
@@ -387,18 +387,18 @@ Date:   Thu Oct <span style="color:#2aa198">21</span> 23:17:20 <span style="colo
 <h2 id="masterブランチにもう存在しないファイルのコミットログを見るときは--をつけてgit-log"><code>master</code>ブランチにもう存在しないファイルのコミットログを見るときは<code>--</code>をつけて<code>git log</code></h2>
 <p>現在の実装まで探すときはここからさらにコミットログをたどっていけば良い。<br>
 <code>master</code>ブランチにもう存在しないファイルの<code>src/cmd/gc/typecheck.c</code>に関連するコミットを探したいならば、&ndash;<code>をつけて</code>git log`コマンドを実行する。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git log --oneline -- src/cmd/gc/typecheck.c
-3af0d791be <span style="color:#719e07">[</span>dev.cc<span style="color:#719e07">]</span> cmd/6a, cmd/6g etc: replace C implementations with Go implementations
-5c87cf7608 cmd/gc: minor adjustments <span style="color:#719e07">for</span> C to Go translation
-4b27c9d72e cmd/gc: add .y to error about missing x in x.y
-77a2113925 cmd/gc: evaluate <span style="color:#268bd2">concrete</span> <span style="color:#719e07">==</span> interface without allocating
-eaa872009d cmd/gc: fix capturing by value <span style="color:#719e07">for</span> range statements
-0e80b2e082 cmd/gc: capture variables by value
-b581ca5956 cmd/gc: allow map index expressions in <span style="color:#719e07">for</span> range statements
-a7bb393628 cmd/gc: don&#39;t emit write barriers <span style="color:#719e07">for</span> *tmp <span style="color:#719e07">if</span> <span style="color:#268bd2">tmp</span><span style="color:#719e07">=</span>&amp;PAUTO
-8d44ede0dc cmd/gc: simplify code <span style="color:#719e07">for</span> c2go <span style="color:#719e07">(</span>more<span style="color:#719e07">)</span>
-e82003e750 cmd/gc: simplify code <span style="color:#719e07">for</span> c2go
-</code></pre></div><p>また、GitHubのRESTに慣れているならばアドレス直打ちで同等のコミットログが見れる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ git log --oneline -- src/cmd/gc/typecheck.c
+</span></span><span style="display:flex;"><span>3af0d791be <span style="color:#719e07">[</span>dev.cc<span style="color:#719e07">]</span> cmd/6a, cmd/6g etc: replace C implementations with Go implementations
+</span></span><span style="display:flex;"><span>5c87cf7608 cmd/gc: minor adjustments <span style="color:#719e07">for</span> C to Go translation
+</span></span><span style="display:flex;"><span>4b27c9d72e cmd/gc: add .y to error about missing x in x.y
+</span></span><span style="display:flex;"><span>77a2113925 cmd/gc: evaluate <span style="color:#268bd2">concrete</span> <span style="color:#719e07">==</span> interface without allocating
+</span></span><span style="display:flex;"><span>eaa872009d cmd/gc: fix capturing by value <span style="color:#719e07">for</span> range statements
+</span></span><span style="display:flex;"><span>0e80b2e082 cmd/gc: capture variables by value
+</span></span><span style="display:flex;"><span>b581ca5956 cmd/gc: allow map index expressions in <span style="color:#719e07">for</span> range statements
+</span></span><span style="display:flex;"><span>a7bb393628 cmd/gc: don&#39;t emit write barriers <span style="color:#719e07">for</span> *tmp <span style="color:#719e07">if</span> <span style="color:#268bd2">tmp</span><span style="color:#719e07">=</span>&amp;PAUTO
+</span></span><span style="display:flex;"><span>8d44ede0dc cmd/gc: simplify code <span style="color:#719e07">for</span> c2go <span style="color:#719e07">(</span>more<span style="color:#719e07">)</span>
+</span></span><span style="display:flex;"><span>e82003e750 cmd/gc: simplify code <span style="color:#719e07">for</span> c2go
+</span></span></code></pre></div><p>また、GitHubのRESTに慣れているならばアドレス直打ちで同等のコミットログが見れる。</p>
 <ul>
 <li><a href="https://github.com/golang/go/commits/master/src/cmd/gc/typecheck.c">https://github.com/golang/go/commits/master/src/cmd/gc/typecheck.c</a></li>
 </ul>
@@ -590,10 +590,16 @@ e82003e750 cmd/gc: simplify code <span style="color:#719e07">for</span> c2go
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -608,12 +614,6 @@ e82003e750 cmd/gc: simplify code <span style="color:#719e07">for</span> c2go
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -624,7 +624,7 @@ e82003e750 cmd/gc: simplify code <span style="color:#719e07">for</span> c2go
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

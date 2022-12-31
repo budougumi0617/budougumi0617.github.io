@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -214,16 +214,16 @@
 <h1 id="goにおける構造体の初期化方法">Goにおける構造体の初期化方法</h1>
 <p>Goでは構造体を初期化するときに<code>new</code>(<code>map</code>などの場合は<code>make</code>)を使う他にComposite literalsを使うことができる。<br>
 このとき、フィールド名を指定せずに値を指定していた場合は、構造体のフィールド定義順に初期化されていく。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Person <span style="color:#268bd2">struct</span> {
-    Name <span style="color:#dc322f">string</span>
-    Age  <span style="color:#dc322f">int</span>
-}
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">foo</span>(){
-    p1 <span style="color:#719e07">:=</span> Person{<span style="color:#2aa198">&#34;alice&#34;</span>, <span style="color:#2aa198">10</span>}
-    p2 <span style="color:#719e07">:=</span> Person{Name:<span style="color:#2aa198">&#34;bob&#34;</span>, Age:<span style="color:#2aa198">20</span>}
-}
-</code></pre></div><h1 id="構造体に非公開フィールドを含めることでフィールド名を明示的に指定しないとcomposite-literalsが使えなくなる">構造体に非公開フィールドを含めることでフィールド名を明示的に指定しないとComposite literalsが使えなくなる</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> Person <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>    Name <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>    Age  <span style="color:#dc322f">int</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">foo</span>(){
+</span></span><span style="display:flex;"><span>    p1 <span style="color:#719e07">:=</span> Person{<span style="color:#2aa198">&#34;alice&#34;</span>, <span style="color:#2aa198">10</span>}
+</span></span><span style="display:flex;"><span>    p2 <span style="color:#719e07">:=</span> Person{Name:<span style="color:#2aa198">&#34;bob&#34;</span>, Age:<span style="color:#2aa198">20</span>}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h1 id="構造体に非公開フィールドを含めることでフィールド名を明示的に指定しないとcomposite-literalsが使えなくなる">構造体に非公開フィールドを含めることでフィールド名を明示的に指定しないとComposite literalsが使えなくなる</h1>
 <p><a href="https://golang.org/ref/spec#Composite_literals">Struct literalsに関する仕様</a>は2019/08/17時点では以下のように書かれている。</p>
 <ul>
 <li>A key must be a field name declared in the struct type.</li>
@@ -239,80 +239,79 @@
 <li>パッケージ外で非公開フィールドの値は指定できない</li>
 </ul>
 <p><a href="https://play.golang.org/p/WAynji8JGkt">https://play.golang.org/p/WAynji8JGkt</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">--</span> <span style="color:#719e07">go</span>.mod <span style="color:#719e07">--</span>
-module sample
-
-<span style="color:#719e07">go</span> <span style="color:#2aa198">1.12</span>
-<span style="color:#719e07">--</span> sub<span style="color:#719e07">/</span>sub.<span style="color:#719e07">go</span> <span style="color:#719e07">--</span>
-<span style="color:#719e07">package</span> sub
-
-<span style="color:#268bd2">type</span> MustKey <span style="color:#268bd2">struct</span> {
-	Name   <span style="color:#dc322f">string</span>
-	Second <span style="color:#dc322f">string</span>
-	_hoge  <span style="color:#268bd2">struct</span>{}
-}
-<span style="color:#719e07">--</span> main.<span style="color:#719e07">go</span> <span style="color:#719e07">--</span>
-<span style="color:#719e07">package</span> main
-
-<span style="color:#719e07">import</span> (
-	<span style="color:#2aa198">&#34;fmt&#34;</span>
-	<span style="color:#2aa198">&#34;sample/sub&#34;</span>
-)
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-	<span style="color:#586e75">// mk := sub.MustKey{&#34;hoge&#34;, &#34;bar&#34;} // ./main.go:9:28: too few values in sub.MustKey literal
-</span><span style="color:#586e75"></span>	<span style="color:#586e75">// mk := sub.MustKey{&#34;hoge&#34;, &#34;bar&#34;, struct{}{}} // ./main.go:10:43: implicit assignment of unexported field &#39;_hoge&#39; in sub.MustKey literal
-</span><span style="color:#586e75"></span>	mk <span style="color:#719e07">:=</span> sub.MustKey{}
-	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%v\n&#34;</span>, mk)
-}
-
-</code></pre></div><p>フィールド名を省略していると、非公開フィールド以外を埋めるだけでは値が少ないとエラーになり、
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">--</span> <span style="color:#719e07">go</span>.mod <span style="color:#719e07">--</span>
+</span></span><span style="display:flex;"><span>module sample
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">go</span> <span style="color:#2aa198">1.12</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">--</span> sub<span style="color:#719e07">/</span>sub.<span style="color:#719e07">go</span> <span style="color:#719e07">--</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">package</span> sub
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> MustKey <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>	Name   <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>	Second <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>	_hoge  <span style="color:#268bd2">struct</span>{}
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#719e07">--</span> main.<span style="color:#719e07">go</span> <span style="color:#719e07">--</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">package</span> main
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;sample/sub&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// mk := sub.MustKey{&#34;hoge&#34;, &#34;bar&#34;} // ./main.go:9:28: too few values in sub.MustKey literal
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#586e75">// mk := sub.MustKey{&#34;hoge&#34;, &#34;bar&#34;, struct{}{}} // ./main.go:10:43: implicit assignment of unexported field &#39;_hoge&#39; in sub.MustKey literal
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	mk <span style="color:#719e07">:=</span> sub.MustKey{}
+</span></span><span style="display:flex;"><span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%v\n&#34;</span>, mk)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>フィールド名を省略していると、非公開フィールド以外を埋めるだけでは値が少ないとエラーになり、
 非公開フィールドの初期化も行おうとすると暗黙的に非公開フィールドを初期化しようとしてエラーになる。</p>
 <h1 id="非公開フィールドはsturctを使えばメモリサイズも増えない">非公開フィールドは<code>sturct{}</code>を使えばメモリサイズも増えない</h1>
 <p>このような実装は公式パッケージ内でも行われている。</p>
 <ul>
 <li><a href="https://github.com/golang/go/blob/0212f0410f845815f5327a7f2e705891a9598f3d/src/database/sql/sql.go#L81-L96">database/sql/sql.go#L81-L96</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> NamedArg <span style="color:#268bd2">struct</span> {
-	_Named_Fields_Required <span style="color:#268bd2">struct</span>{}
-
-	<span style="color:#586e75">// Name is the name of the parameter placeholder.
-</span><span style="color:#586e75"></span>	<span style="color:#586e75">//
-</span><span style="color:#586e75"></span>	<span style="color:#586e75">// If empty, the ordinal position in the argument list will be
-</span><span style="color:#586e75"></span>	<span style="color:#586e75">// used.
-</span><span style="color:#586e75"></span>	<span style="color:#586e75">//
-</span><span style="color:#586e75"></span>	<span style="color:#586e75">// Name must omit any symbol prefix.
-</span><span style="color:#586e75"></span>	Name <span style="color:#dc322f">string</span>
-
-	<span style="color:#586e75">// Value is the value of the parameter.
-</span><span style="color:#586e75"></span>	<span style="color:#586e75">// It may be assigned the same value types as the query
-</span><span style="color:#586e75"></span>	<span style="color:#586e75">// arguments.
-</span><span style="color:#586e75"></span>	Value <span style="color:#268bd2">interface</span>{}
-}
-</code></pre></div><p>チャネル利用時でも使われる<code>struct{}</code>型（空構造体）はサイズが<code>0</code>なので、パフォーマンス的にも悪影響はない。
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> NamedArg <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>	_Named_Fields_Required <span style="color:#268bd2">struct</span>{}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// Name is the name of the parameter placeholder.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#586e75">//
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#586e75">// If empty, the ordinal position in the argument list will be
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#586e75">// used.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#586e75">//
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#586e75">// Name must omit any symbol prefix.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	Name <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// Value is the value of the parameter.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#586e75">// It may be assigned the same value types as the query
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#586e75">// arguments.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	Value <span style="color:#268bd2">interface</span>{}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>チャネル利用時でも使われる<code>struct{}</code>型（空構造体）はサイズが<code>0</code>なので、パフォーマンス的にも悪影響はない。
 同パッケージ内では、次のサンプルコードのようにフィールド名を指定せずに初期化できるが、さすがに<code>struct{}{}</code>とまで書いて初期化するならば気づくだろう…</p>
 <ul>
 <li><a href="https://play.golang.org/p/DriUkPxU_EQ">https://play.golang.org/p/DriUkPxU_EQ</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
-
-<span style="color:#719e07">import</span> (
-	<span style="color:#2aa198">&#34;fmt&#34;</span>
-	<span style="color:#2aa198">&#34;reflect&#34;</span>
-)
-
-<span style="color:#268bd2">type</span> MustKey <span style="color:#268bd2">struct</span> {
-	Name   <span style="color:#dc322f">string</span>
-	Second <span style="color:#dc322f">string</span>
-	_hoge  <span style="color:#268bd2">struct</span>{}
-}
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-	mk <span style="color:#719e07">:=</span> MustKey{<span style="color:#2aa198">&#34;hoge&#34;</span>, <span style="color:#2aa198">&#34;bar&#34;</span>, <span style="color:#268bd2">struct</span>{}{}}
-	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%d\n&#34;</span>, reflect.<span style="color:#268bd2">TypeOf</span>(mk).<span style="color:#268bd2">Size</span>()) <span style="color:#586e75">// 20
-</span><span style="color:#586e75"></span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%d\n&#34;</span>, reflect.<span style="color:#268bd2">TypeOf</span>(mk._hoge).<span style="color:#268bd2">Size</span>())  <span style="color:#586e75">// 0
-</span><span style="color:#586e75"></span>}
-</code></pre></div><h1 id="終わりに">終わりに</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;reflect&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> MustKey <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>	Name   <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>	Second <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>	_hoge  <span style="color:#268bd2">struct</span>{}
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+</span></span><span style="display:flex;"><span>	mk <span style="color:#719e07">:=</span> MustKey{<span style="color:#2aa198">&#34;hoge&#34;</span>, <span style="color:#2aa198">&#34;bar&#34;</span>, <span style="color:#268bd2">struct</span>{}{}}
+</span></span><span style="display:flex;"><span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%d\n&#34;</span>, reflect.<span style="color:#268bd2">TypeOf</span>(mk).<span style="color:#268bd2">Size</span>()) <span style="color:#586e75">// 20
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%d\n&#34;</span>, reflect.<span style="color:#268bd2">TypeOf</span>(mk._hoge).<span style="color:#268bd2">Size</span>())  <span style="color:#586e75">// 0
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span></code></pre></div><h1 id="終わりに">終わりに</h1>
 <p>可読性向上・実装ミス軽減につながるので構造体初期化時は必ずフィールド名を指定するようにしている。
 が、永続化データと対応する構造体に非公開フィールドを用意することはないので、コンパイルエラーが出るからしていたわけではなかった。</p>
 <p>（<code>http.Request</code>など、）公式パッケージの構造体を使うときに無意識に使っていたのだろうが、改めて勉強になった。
@@ -491,10 +490,16 @@ module sample
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -509,12 +514,6 @@ module sample
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -525,7 +524,7 @@ module sample
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

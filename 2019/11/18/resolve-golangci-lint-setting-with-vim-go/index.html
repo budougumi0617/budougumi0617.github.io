@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -232,9 +232,9 @@
 </ul>
 <p>起動直後にファイルを保存してエラーが出た状態で<code>:messages</code>コマンドでログをみても以下の通り。</p>
 <pre tabindex="0"><code>Messages maintainer: Bram Moolenaar &lt;Bram@vim.org&gt;
-&quot;main.go&quot; 100L, 2767C
+&#34;main.go&#34; 100L, 2767C
 vim-go: initializing gopls
-&quot;main.go&quot; 100L, 2767C written
+&#34;main.go&#34; 100L, 2767C written
 vim-go: [golangci-lint] dispatched
 vim-go: [golangci-lint] FAIL
 </code></pre><p>ここで、<code>vim-go</code>を利用しているVimでは、<code>:GoMetaLinter</code>コマンドを使うことで、明示的に<code>golangci-lint</code>を実行できる。</p>
@@ -246,33 +246,32 @@ vim-go: [golangci-lint] FAIL
 </li>
 </ul>
 <p><code>:GoMetaLinter</code>コマンドを実行してみたところ、以下のようなエラーメッセージを確認することができた。</p>
-<pre tabindex="0"><code>level=error msg=&quot;Running error: --enable-all and --disable-all options must not be combined&quot;
-
+<pre tabindex="0"><code>level=error msg=&#34;Running error: --enable-all and --disable-all options must not be combined&#34;
 </code></pre><p>どうやら、プロジェクトに配置してある<code>.golangci.yml</code>に記載されている設定と、<code>vim-go</code>で<code>golangci-lint</code>コマンドを呼び出すときのオプションが競合しているのが原因だった。
 <code>vim-go</code>は<code>golangci-lint</code>コマンドを呼び出すとき以下のように実行コマンドを組み立てる。この中で、<code>--disable-all</code>オプションを指定している。</p>
 <ul>
 <li><a href="https://github.com/fatih/vim-go/blob/75fa6fe70c5b9d7f7856bc26972d9ee97d99f7db/autoload/go/lint.vim#L242-L254">https://github.com/fatih/vim-go/blob/75fa6fe70c5b9d7f7856bc26972d9ee97d99f7db/autoload/go/lint.vim#L242-L254</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-vim" data-lang="vim"><span style="color:#719e07">function</span>! s:golangcilintcmd(bin_path)
-  <span style="color:#719e07">let</span> cmd = [a:bin_path]
-  <span style="color:#719e07">let</span> cmd += [<span style="color:#2aa198">&#34;run&#34;</span>]
-  <span style="color:#719e07">let</span> cmd += [<span style="color:#2aa198">&#34;--print-issued-lines=false&#34;</span>]
-  <span style="color:#719e07">let</span> cmd += [<span style="color:#2aa198">&#39;--build-tags&#39;</span>, go#config#BuildTags()]
-  <span style="color:#719e07">let</span> cmd += [<span style="color:#2aa198">&#34;--disable-all&#34;</span>]
-<span style="color:#586e75">  &#34; do not use the default exclude patterns, because doing so causes golint</span>
-<span style="color:#586e75">  &#34; problems about missing doc strings to be ignored and other things that</span>
-<span style="color:#586e75">  &#34; golint identifies.</span>
-  <span style="color:#719e07">let</span> cmd += [<span style="color:#2aa198">&#34;--exclude-use-default=false&#34;</span>]
-
-  return cmd
-<span style="color:#719e07">endfunction</span>
-</code></pre></div><p>今回、プロジェクトで設置してある<code>.golangci.yml</code>ファイルでは<code>enable-all</code>をベースに静的解析の設定を組み立てていため、<code>enable-all</code>と<code>disable-all</code>設定が競合していた。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">linters</span>:
-  <span style="color:#268bd2">enable-all</span>: <span style="color:#cb4b16">true</span>
-  <span style="color:#268bd2">disable</span>:
-    - funlen
-    - dogsled
-</code></pre></div><h1 id="解決方法golangciymlの設定を修正する">解決方法：<code>.golangci.yml</code>の設定を修正する</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-vim" data-lang="vim"><span style="display:flex;"><span><span style="color:#719e07">function</span>! s:golangcilintcmd(bin_path)
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">let</span> cmd = [a:bin_path]
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">let</span> cmd += [<span style="color:#2aa198">&#34;run&#34;</span>]
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">let</span> cmd += [<span style="color:#2aa198">&#34;--print-issued-lines=false&#34;</span>]
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">let</span> cmd += [<span style="color:#2aa198">&#39;--build-tags&#39;</span>, go#config#BuildTags()]
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">let</span> cmd += [<span style="color:#2aa198">&#34;--disable-all&#34;</span>]
+</span></span><span style="display:flex;"><span><span style="color:#586e75">  &#34; do not use the default exclude patterns, because doing so causes golint</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">  &#34; problems about missing doc strings to be ignored and other things that</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">  &#34; golint identifies.</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">let</span> cmd += [<span style="color:#2aa198">&#34;--exclude-use-default=false&#34;</span>]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  return cmd
+</span></span><span style="display:flex;"><span><span style="color:#719e07">endfunction</span>
+</span></span></code></pre></div><p>今回、プロジェクトで設置してある<code>.golangci.yml</code>ファイルでは<code>enable-all</code>をベースに静的解析の設定を組み立てていため、<code>enable-all</code>と<code>disable-all</code>設定が競合していた。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">linters</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">enable-all</span>: <span style="color:#cb4b16">true</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">disable</span>:
+</span></span><span style="display:flex;"><span>    - funlen
+</span></span><span style="display:flex;"><span>    - dogsled
+</span></span></code></pre></div><h1 id="解決方法golangciymlの設定を修正する">解決方法：<code>.golangci.yml</code>の設定を修正する</h1>
 <p>今回は以下の理由により、<code>.golangci.yml</code>側の設定方法を修正することで対応した。</p>
 <ul>
 <li>Vim側の<code>golangci-lint</code>コマンドの呼び出し時の設定を変更する方法がよくわからなかった</li>
@@ -281,18 +280,17 @@ vim-go: [golangci-lint] FAIL
 </ul>
 <p><code>golangci-lint</code>コマンドは<code>golangci-lint linters</code>コマンドでそのプロジェクト上（ディレクトリ上）の静的解析の設定を確認することができる。
 なので、一度<code>enable-all</code>ベースの設定で<code>golangci-lint linters</code>コマンドを実行し、ファイルに出力を保存しておいた。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ golangci-lint linters
-Enabled by your configuration linters:
-bodyclose: checks whether HTTP response body is closed successfully <span style="color:#719e07">[</span>fast: true, auto-fix: false<span style="color:#719e07">]</span>
-deadcode: Finds unused code <span style="color:#719e07">[</span>fast: true, auto-fix: false<span style="color:#719e07">]</span>
-...
-
-Disabled by your configuration linters:
-depguard: Go linter that checks <span style="color:#719e07">if</span> package imports are in a list of acceptable packages <span style="color:#719e07">[</span>fast: true, auto-fix: false<span style="color:#719e07">]</span>
-dogsled: Checks assignments with too many blank identifiers <span style="color:#719e07">(</span>e.g. x, _, _, _, :<span style="color:#719e07">=</span> f<span style="color:#719e07">())</span> <span style="color:#719e07">[</span>fast: true, auto-fix: false<span style="color:#719e07">]</span>
-...
-
-</code></pre></div><p>その後、<code>disable-all</code>ベースの設定に書き直し、<code>golangci-lint linters</code>コマンドの結果が以前と同じであることを確認した。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ golangci-lint linters
+</span></span><span style="display:flex;"><span>Enabled by your configuration linters:
+</span></span><span style="display:flex;"><span>bodyclose: checks whether HTTP response body is closed successfully <span style="color:#719e07">[</span>fast: true, auto-fix: false<span style="color:#719e07">]</span>
+</span></span><span style="display:flex;"><span>deadcode: Finds unused code <span style="color:#719e07">[</span>fast: true, auto-fix: false<span style="color:#719e07">]</span>
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Disabled by your configuration linters:
+</span></span><span style="display:flex;"><span>depguard: Go linter that checks <span style="color:#719e07">if</span> package imports are in a list of acceptable packages <span style="color:#719e07">[</span>fast: true, auto-fix: false<span style="color:#719e07">]</span>
+</span></span><span style="display:flex;"><span>dogsled: Checks assignments with too many blank identifiers <span style="color:#719e07">(</span>e.g. x, _, _, _, :<span style="color:#719e07">=</span> f<span style="color:#719e07">())</span> <span style="color:#719e07">[</span>fast: true, auto-fix: false<span style="color:#719e07">]</span>
+</span></span><span style="display:flex;"><span>...
+</span></span></code></pre></div><p>その後、<code>disable-all</code>ベースの設定に書き直し、<code>golangci-lint linters</code>コマンドの結果が以前と同じであることを確認した。</p>
 <h1 id="終わりに">終わりに</h1>
 <p>私のVimの設定は一応<code>golangci-lint</code>や<code>gopls</code>を利用するように設定しているのだが、一度整理したほうがよいかなと思いつつズルズル使っている。
 <a href="https://mattn.kaoriya.net/software/lang/c/20191112100330.htm">LSP系のプラグイン経由で<code>gopls</code>を実行するほうがいろいろ設定できるらしい</a>ので、一度整理しようかなあ。</p>
@@ -475,10 +473,16 @@ dogsled: Checks assignments with too many blank identifiers <span style="color:#
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -493,12 +497,6 @@ dogsled: Checks assignments with too many blank identifiers <span style="color:#
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -509,7 +507,7 @@ dogsled: Checks assignments with too many blank identifiers <span style="color:#
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

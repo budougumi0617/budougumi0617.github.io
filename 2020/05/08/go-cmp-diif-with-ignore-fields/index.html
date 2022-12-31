@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -213,29 +213,29 @@
 </ul>
 </li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">import</span> (
-  <span style="color:#2aa198">&#34;time&#34;</span>
-  <span style="color:#2aa198">&#34;testing&#34;</span>
-
-  <span style="color:#2aa198">&#34;github.com/google/go-cmp/cmp&#34;</span>
-  <span style="color:#2aa198">&#34;github.com/google/go-cmp/cmp/cmpopts&#34;</span>
-)
-
-<span style="color:#268bd2">type</span> Foo strcut{
-    Name      <span style="color:#dc322f">string</span>
-    Timestamp time.Time
-}
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">TestLogger</span>(t <span style="color:#719e07">*</span>testing.T) {
-  <span style="color:#268bd2">var</span> got Foo
-  <span style="color:#586e75">// Arrange, Action...
-</span><span style="color:#586e75"></span>
-  <span style="color:#586e75">// Assert。TimeStampフィールドは無視して比較する
-</span><span style="color:#586e75"></span>  <span style="color:#719e07">if</span> d <span style="color:#719e07">:=</span> cmp.<span style="color:#268bd2">Diff</span>(got, want, cmpopts.<span style="color:#268bd2">IgnoreFields</span>(got, <span style="color:#2aa198">&#34;TimeStamp&#34;</span>)); <span style="color:#b58900">len</span>(d) <span style="color:#719e07">!=</span> <span style="color:#2aa198">0</span> {
-    t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;differs: (-got +want)\n%s&#34;</span>, d)
-  }
-}
-</code></pre></div><h1 id="構造体の一部を無視して比較したい">構造体の一部を無視して比較したい</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">import</span> (
+</span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;time&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;testing&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;github.com/google/go-cmp/cmp&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;github.com/google/go-cmp/cmp/cmpopts&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> Foo strcut{
+</span></span><span style="display:flex;"><span>    Name      <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>    Timestamp time.Time
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestLogger</span>(t <span style="color:#719e07">*</span>testing.T) {
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">var</span> got Foo
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// Arrange, Action...
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// Assert。TimeStampフィールドは無視して比較する
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  <span style="color:#719e07">if</span> d <span style="color:#719e07">:=</span> cmp.<span style="color:#268bd2">Diff</span>(got, want, cmpopts.<span style="color:#268bd2">IgnoreFields</span>(got, <span style="color:#2aa198">&#34;TimeStamp&#34;</span>)); <span style="color:#b58900">len</span>(d) <span style="color:#719e07">!=</span> <span style="color:#2aa198">0</span> {
+</span></span><span style="display:flex;"><span>    t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;differs: (-got +want)\n%s&#34;</span>, d)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h1 id="構造体の一部を無視して比較したい">構造体の一部を無視して比較したい</h1>
 <p>Goのテストを書いていると、ある構造体が期待通りの値になったか確認したくなるだろう。
 その中で一部の値は無視して期待値と比較をしたくなるときがある。</p>
 <ul>
@@ -244,111 +244,111 @@
 </ul>
 <p>たとえば、次のような構造体をDBから取得するテストを書く場合、<code>ID</code>、<code>CreatedAt</code>、<code>ModifiedAt</code>のフィールドを無視したいだろう。
 大抵の場合、DBで自動採番されたIDやデータの作成時刻などはテストケースで検証すべきことではないからだ。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> SimpleObject <span style="color:#268bd2">struct</span> {
-  ID         <span style="color:#dc322f">int</span>       <span style="color:#2aa198">`json:&#34;id&#34; db:&#34;id&#34;`</span>
-  Name       <span style="color:#dc322f">string</span>    <span style="color:#2aa198">`json:&#34;name&#34; db:&#34;name&#34;`</span>
-  Address    <span style="color:#dc322f">string</span>    <span style="color:#2aa198">`json:&#34;address&#34; db:&#34;address&#34;`</span>
-  CreatedAt  time.Time <span style="color:#2aa198">`json:&#34;created_at&#34; db:&#34;created_at&#34;`</span>
-  ModifiedAt time.Time <span style="color:#2aa198">`json:&#34;modified_at&#34; db:&#34;modified_at&#34;`</span>
-}
-</code></pre></div><p>愚直に書いてしまうと、次のようなコードになってしまう。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestSimple</span>(t <span style="color:#719e07">*</span>testing.T) {
-  <span style="color:#268bd2">var</span> got SimpleObject
-  <span style="color:#268bd2">var</span> want SimpleObject
-  <span style="color:#586e75">// Arrange, Action...
-</span><span style="color:#586e75"></span>
-  <span style="color:#586e75">// Assert ID、CreatedAt、ModifiedAt以外のフィールドの値を検証していく。
-</span><span style="color:#586e75"></span>  <span style="color:#719e07">if</span> got.Name <span style="color:#719e07">!=</span> want.Name {
-    t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;want %v, but got %v&#34;</span>, want.Name, got.Name)
-  }
-  <span style="color:#719e07">if</span> got.Address <span style="color:#719e07">!=</span> want.Address {
-    t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;want %v, but got %v&#34;</span>, want.Address, got.Address)
-  }
-}
-</code></pre></div><p>複雑な構造体ほど比較すべき項目が増えていってしまう。
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> SimpleObject <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>  ID         <span style="color:#dc322f">int</span>       <span style="color:#2aa198">`json:&#34;id&#34; db:&#34;id&#34;`</span>
+</span></span><span style="display:flex;"><span>  Name       <span style="color:#dc322f">string</span>    <span style="color:#2aa198">`json:&#34;name&#34; db:&#34;name&#34;`</span>
+</span></span><span style="display:flex;"><span>  Address    <span style="color:#dc322f">string</span>    <span style="color:#2aa198">`json:&#34;address&#34; db:&#34;address&#34;`</span>
+</span></span><span style="display:flex;"><span>  CreatedAt  time.Time <span style="color:#2aa198">`json:&#34;created_at&#34; db:&#34;created_at&#34;`</span>
+</span></span><span style="display:flex;"><span>  ModifiedAt time.Time <span style="color:#2aa198">`json:&#34;modified_at&#34; db:&#34;modified_at&#34;`</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>愚直に書いてしまうと、次のようなコードになってしまう。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestSimple</span>(t <span style="color:#719e07">*</span>testing.T) {
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">var</span> got SimpleObject
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">var</span> want SimpleObject
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// Arrange, Action...
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// Assert ID、CreatedAt、ModifiedAt以外のフィールドの値を検証していく。
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  <span style="color:#719e07">if</span> got.Name <span style="color:#719e07">!=</span> want.Name {
+</span></span><span style="display:flex;"><span>    t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;want %v, but got %v&#34;</span>, want.Name, got.Name)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">if</span> got.Address <span style="color:#719e07">!=</span> want.Address {
+</span></span><span style="display:flex;"><span>    t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;want %v, but got %v&#34;</span>, want.Address, got.Address)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>複雑な構造体ほど比較すべき項目が増えていってしまう。
 このようなとき、<code>go-cmp</code>ライブラリを使うとすっきりした検証処理を記載できる。</p>
 <h1 id="go-cmpを使うと任意のフィールドを除外して等価性を評価できる">go-cmpを使うと任意のフィールドを除外して等価性を評価できる</h1>
 <p><code>go-cmp</code>は複雑な構造体オブジェクト同士の等価性や差分を取得するためのライブラリだ。</p>
 <div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/google/go-cmp" data-iframely-url="//cdn.iframe.ly/BQ0axoF"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
 <p>次のように<code>Diff</code>関数で構造体を比較を実行する。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">if</span> diff <span style="color:#719e07">:=</span> cmp.<span style="color:#268bd2">Diff</span>(want, got); diff <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;&#34;</span> {
-  t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;MakeGatewayInfo() mismatch (-want +got):\n%s&#34;</span>, diff)
-}
-</code></pre></div><p>構造体の値に差分があった場合、次のような文字列出力が得られる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">MakeGatewayInfo<span style="color:#719e07">()</span> mismatch <span style="color:#719e07">(</span>-want +got<span style="color:#719e07">)</span>:
-  cmp_test.Gateway<span style="color:#719e07">{</span>
-    SSID:      <span style="color:#2aa198">&#34;CoffeeShopWiFi&#34;</span>,
--   IPAddress: <span style="color:#2aa198">&#34;192.168.0.2&#34;</span>,
-+   IPAddress: <span style="color:#2aa198">&#34;192.168.0.1&#34;</span>,
-    NetMask:   net.IPMask<span style="color:#719e07">{</span>0xff, 0xff, 0x00, 0x00<span style="color:#719e07">}</span>,
-    Clients: <span style="color:#719e07">[]</span>cmp_test.Client<span style="color:#719e07">{</span>
-    ...
-</code></pre></div><h2 id="ignorefieldsオプションを使って特定のフィールドを無視する">IgnoreFieldsオプションを使って特定のフィールドを無視する</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">if</span> diff <span style="color:#719e07">:=</span> cmp.<span style="color:#268bd2">Diff</span>(want, got); diff <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;&#34;</span> {
+</span></span><span style="display:flex;"><span>  t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;MakeGatewayInfo() mismatch (-want +got):\n%s&#34;</span>, diff)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>構造体の値に差分があった場合、次のような文字列出力が得られる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>MakeGatewayInfo<span style="color:#719e07">()</span> mismatch <span style="color:#719e07">(</span>-want +got<span style="color:#719e07">)</span>:
+</span></span><span style="display:flex;"><span>  cmp_test.Gateway<span style="color:#719e07">{</span>
+</span></span><span style="display:flex;"><span>    SSID:      <span style="color:#2aa198">&#34;CoffeeShopWiFi&#34;</span>,
+</span></span><span style="display:flex;"><span>-   IPAddress: <span style="color:#2aa198">&#34;192.168.0.2&#34;</span>,
+</span></span><span style="display:flex;"><span>+   IPAddress: <span style="color:#2aa198">&#34;192.168.0.1&#34;</span>,
+</span></span><span style="display:flex;"><span>    NetMask:   net.IPMask<span style="color:#719e07">{</span>0xff, 0xff, 0x00, 0x00<span style="color:#719e07">}</span>,
+</span></span><span style="display:flex;"><span>    Clients: <span style="color:#719e07">[]</span>cmp_test.Client<span style="color:#719e07">{</span>
+</span></span><span style="display:flex;"><span>    ...
+</span></span></code></pre></div><h2 id="ignorefieldsオプションを使って特定のフィールドを無視する">IgnoreFieldsオプションを使って特定のフィールドを無視する</h2>
 <p><code>go-cmp</code>は単純に構造体を比較するだけでなく、オプションを使ってさまざまな比較をすることができる。
 そのなかの1つが<code>IgnoreFields</code>オプションだ。<br>
 <code>IgnoreFields</code>を渡して<code>Diff</code>関数を実行すると、<code>IgnoreFields</code>で指定されたフィールドの値を無視して比較を行なうことができる。</p>
 <p>使い方は簡単で、<code>Diff</code>関数実行時に無視して欲しいフィールド名を渡すだけだ。
 オプションなしで次のようなテストコードを書いてみる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://play.golang.org/p/m0K3Ub5LSPY
-</span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
-
-<span style="color:#719e07">import</span> (
-  <span style="color:#2aa198">&#34;testing&#34;</span>
-
-  <span style="color:#2aa198">&#34;github.com/google/go-cmp/cmp&#34;</span>
-)
-
-<span style="color:#268bd2">type</span> SimpleObject <span style="color:#268bd2">struct</span> {
-  ID        <span style="color:#dc322f">int</span>
-  Name      <span style="color:#dc322f">string</span>    <span style="color:#2aa198">`json:&#34;name&#34; db:&#34;name&#34;`</span>
-  Address   <span style="color:#dc322f">string</span>    <span style="color:#2aa198">`json:&#34;address&#34; db:&#34;address&#34;`</span>
-}
-
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">TestSimple</span>(t <span style="color:#719e07">*</span>testing.T) {
-  got <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>SimpleObject{
-    ID:   <span style="color:#2aa198">100</span>,
-    Name: <span style="color:#2aa198">&#34;same name&#34;</span>,
-  }
-  want <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>SimpleObject{
-    ID:   <span style="color:#2aa198">200</span>,
-    Name: <span style="color:#2aa198">&#34;same name&#34;</span>,
-  }
-
-  <span style="color:#719e07">if</span> d <span style="color:#719e07">:=</span> cmp.<span style="color:#268bd2">Diff</span>(got, want); <span style="color:#b58900">len</span>(d) <span style="color:#719e07">!=</span> <span style="color:#2aa198">0</span> {
-    t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;differs: (-got +want)\n%s&#34;</span>, d)
-  }
-}
-</code></pre></div><p>この場合、<code>ID</code>が異なるので当然結果はエラーになる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="color:#cb4b16">=== RUN   TestSimple
-</span><span style="color:#cb4b16"></span>    TestSimple: prog.go:29: differs: (-got +want)
-          &amp;main.SimpleObject{
-        -   ID:        100,
-        +   ID:        200,
-            Name:      &#34;same name&#34;,
-            Address:   &#34;&#34;,
-            CreatedAt: s&#34;0001-01-01 00:00:00 +0000 UTC&#34;,
-          }
-<span style="color:#dc322f">--- FAIL: TestSimple (0.00s)
-</span><span style="color:#dc322f"></span>FAIL
-</code></pre></div><p>ここで、<code>IgnoreFields</code>を使って<code>ID</code>フィールドを無視する設定を書く。
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://play.golang.org/p/m0K3Ub5LSPY
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
+</span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;testing&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;github.com/google/go-cmp/cmp&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> SimpleObject <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>  ID        <span style="color:#dc322f">int</span>
+</span></span><span style="display:flex;"><span>  Name      <span style="color:#dc322f">string</span>    <span style="color:#2aa198">`json:&#34;name&#34; db:&#34;name&#34;`</span>
+</span></span><span style="display:flex;"><span>  Address   <span style="color:#dc322f">string</span>    <span style="color:#2aa198">`json:&#34;address&#34; db:&#34;address&#34;`</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestSimple</span>(t <span style="color:#719e07">*</span>testing.T) {
+</span></span><span style="display:flex;"><span>  got <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>SimpleObject{
+</span></span><span style="display:flex;"><span>    ID:   <span style="color:#2aa198">100</span>,
+</span></span><span style="display:flex;"><span>    Name: <span style="color:#2aa198">&#34;same name&#34;</span>,
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  want <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>SimpleObject{
+</span></span><span style="display:flex;"><span>    ID:   <span style="color:#2aa198">200</span>,
+</span></span><span style="display:flex;"><span>    Name: <span style="color:#2aa198">&#34;same name&#34;</span>,
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">if</span> d <span style="color:#719e07">:=</span> cmp.<span style="color:#268bd2">Diff</span>(got, want); <span style="color:#b58900">len</span>(d) <span style="color:#719e07">!=</span> <span style="color:#2aa198">0</span> {
+</span></span><span style="display:flex;"><span>    t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;differs: (-got +want)\n%s&#34;</span>, d)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>この場合、<code>ID</code>が異なるので当然結果はエラーになる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span><span style="color:#cb4b16">=== RUN   TestSimple
+</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    TestSimple: prog.go:29: differs: (-got +want)
+</span></span><span style="display:flex;"><span>          &amp;main.SimpleObject{
+</span></span><span style="display:flex;"><span>        -   ID:        100,
+</span></span><span style="display:flex;"><span>        +   ID:        200,
+</span></span><span style="display:flex;"><span>            Name:      &#34;same name&#34;,
+</span></span><span style="display:flex;"><span>            Address:   &#34;&#34;,
+</span></span><span style="display:flex;"><span>            CreatedAt: s&#34;0001-01-01 00:00:00 +0000 UTC&#34;,
+</span></span><span style="display:flex;"><span>          }
+</span></span><span style="display:flex;"><span><span style="color:#dc322f">--- FAIL: TestSimple (0.00s)
+</span></span></span><span style="display:flex;"><span><span style="color:#dc322f"></span>FAIL
+</span></span></code></pre></div><p>ここで、<code>IgnoreFields</code>を使って<code>ID</code>フィールドを無視する設定を書く。
 こうすると、<code>ID</code>フィールド以外は差分がないので、テストがパスするようになる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// https://play.golang.org/p/h1uFWBxUqxc
-</span><span style="color:#586e75"></span><span style="color:#719e07">if</span> d <span style="color:#719e07">:=</span> cmp.<span style="color:#268bd2">Diff</span>(got, want, cmpopts.<span style="color:#268bd2">IgnoreFields</span>(<span style="color:#719e07">*</span>got, <span style="color:#2aa198">&#34;ID&#34;</span>)); <span style="color:#b58900">len</span>(d) <span style="color:#719e07">!=</span> <span style="color:#2aa198">0</span> {
-  t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;differs: (-got +want)\n%s&#34;</span>, d)
-}
-</code></pre></div><p>また、<code>IgnoreFields</code>はネストした構造体のフィールドにも適用できる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Foo <span style="color:#268bd2">struct</span>{
-  Simple <span style="color:#719e07">*</span>SimpleObject
-}
-
-<span style="color:#268bd2">type</span> SimpleObject <span style="color:#268bd2">struct</span> {
-  ID      <span style="color:#dc322f">int</span>
-  Name    <span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;name&#34; db:&#34;name&#34;`</span>
-  Address <span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;address&#34; db:&#34;address&#34;`</span>
-}
-</code></pre></div><p><code>Foo</code>構造体にネストしている<code>*SimpleObject</code>の<code>ID</code>フィールドを無視して<code>Foo</code>オブジェクトを比較したいときは次のようになる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">cmpopts.<span style="color:#268bd2">IgnoreFields</span>(Foo{}, <span style="color:#2aa198">&#34;Simple.ID&#34;</span>)
-</code></pre></div><h1 id="終わりに">終わりに</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://play.golang.org/p/h1uFWBxUqxc
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#719e07">if</span> d <span style="color:#719e07">:=</span> cmp.<span style="color:#268bd2">Diff</span>(got, want, cmpopts.<span style="color:#268bd2">IgnoreFields</span>(<span style="color:#719e07">*</span>got, <span style="color:#2aa198">&#34;ID&#34;</span>)); <span style="color:#b58900">len</span>(d) <span style="color:#719e07">!=</span> <span style="color:#2aa198">0</span> {
+</span></span><span style="display:flex;"><span>  t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;differs: (-got +want)\n%s&#34;</span>, d)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>また、<code>IgnoreFields</code>はネストした構造体のフィールドにも適用できる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> Foo <span style="color:#268bd2">struct</span>{
+</span></span><span style="display:flex;"><span>  Simple <span style="color:#719e07">*</span>SimpleObject
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> SimpleObject <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>  ID      <span style="color:#dc322f">int</span>
+</span></span><span style="display:flex;"><span>  Name    <span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;name&#34; db:&#34;name&#34;`</span>
+</span></span><span style="display:flex;"><span>  Address <span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;address&#34; db:&#34;address&#34;`</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>Foo</code>構造体にネストしている<code>*SimpleObject</code>の<code>ID</code>フィールドを無視して<code>Foo</code>オブジェクトを比較したいときは次のようになる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>cmpopts.<span style="color:#268bd2">IgnoreFields</span>(Foo{}, <span style="color:#2aa198">&#34;Simple.ID&#34;</span>)
+</span></span></code></pre></div><h1 id="終わりに">終わりに</h1>
 <p><code>go-cmp</code>ライブラリ自体は昔から使っていたのだが、先日<code>IgnoreFields</code>オプションをはじめて知った。<br>
 ライブラリのサブパッケージまでちゃんと確認していなかったのが、原因だ。<br>
 思わぬ使い方があったり、または誤用してしまう可能性もあるため、ライブラリのGoDocはひととおり読んで使っていきたい。</p>
@@ -530,10 +530,16 @@
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -548,12 +554,6 @@
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -564,7 +564,7 @@
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

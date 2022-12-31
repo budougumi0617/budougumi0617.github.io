@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -232,43 +232,42 @@ https://helm.sh/
 </li>
 <li><code>range</code>構文と<code>if</code>構文を使うことで定義できた。</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">{{- range $i, $server := .Values.servers -}}
-{{- if ne $i 0 }}
----
-{{- end }}
-<span style="color:#268bd2">apiVersion</span>: v1
-<span style="color:#268bd2">kind</span>: Service
-<span style="color:#268bd2">metadata</span>:
-  <span style="color:#268bd2">name</span>: = {{ $server }}-{{ include &#34;repeated-service.fullname&#34; $ }}
-  <span style="color:#268bd2">labels</span>:
-<span style="color:#586e75"># ...</span>
-</code></pre></div><p>なお、文中で利用しているサンプルコードは以下。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>{{- range $i, $server := .Values.servers -}}
+</span></span><span style="display:flex;"><span>{{- if ne $i 0 }}
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span>{{- end }}
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Service
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">name</span>: = {{ $server }}-{{ include &#34;repeated-service.fullname&#34; $ }}
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">labels</span>:
+</span></span><span style="display:flex;"><span><span style="color:#586e75"># ...</span>
+</span></span></code></pre></div><p>なお、文中で利用しているサンプルコードは以下。</p>
 <ul>
 <li><a href="https://github.com/budougumi0617/til/tree/master/helm/repeated-service">https://github.com/budougumi0617/til/tree/master/helm/repeated-service</a></li>
 </ul>
 <h2 id="環境情報">環境情報</h2>
 <p>本記事で利用しているHelm関連のバージョンは以下の通り。
 helm-tillerを使っているため、k8sクラスタ上にTiller serverは存在しない。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ tiller -version
-v2.14.3
-$ helm version
-Client: &amp;version.Version<span style="color:#719e07">{</span>SemVer:<span style="color:#2aa198">&#34;v2.14.3&#34;</span>, GitCommit:<span style="color:#2aa198">&#34;0e7f3b6637f7af8fcfddb3d2941fcc7cbebb0085&#34;</span>, GitTreeState:<span style="color:#2aa198">&#34;clean&#34;</span><span style="color:#719e07">}</span>
-Error: Get http://localhost:8080/api/v1/namespaces/kube-system/pods?labelSelector<span style="color:#719e07">=</span>app%3Dhelm%2Cname%3Dtiller: dial tcp <span style="color:#719e07">[</span>::1<span style="color:#719e07">]</span>:8080: connect: connection refused
-$ minikube version
-minikube version: v1.2.0
-$ kubectl version
-Client Version: version.Info<span style="color:#719e07">{</span>Major:<span style="color:#2aa198">&#34;1&#34;</span>, Minor:<span style="color:#2aa198">&#34;10&#34;</span>, GitVersion:<span style="color:#2aa198">&#34;v1.10.7&#34;</span>, GitCommit:<span style="color:#2aa198">&#34;0c38c362511b20a098d7cd855f1314dad92c2780&#34;</span>, GitTreeState:<span style="color:#2aa198">&#34;clean&#34;</span>, BuildDate:<span style="color:#2aa198">&#34;2018-08-20T10:09:03Z&#34;</span>, GoVersion:<span style="color:#2aa198">&#34;go1.9.3&#34;</span>, Compiler:<span style="color:#2aa198">&#34;gc&#34;</span>, Platform:<span style="color:#2aa198">&#34;darwin/amd64&#34;</span><span style="color:#719e07">}</span>
-Server Version: version.Info<span style="color:#719e07">{</span>Major:<span style="color:#2aa198">&#34;1&#34;</span>, Minor:<span style="color:#2aa198">&#34;15&#34;</span>, GitVersion:<span style="color:#2aa198">&#34;v1.15.0&#34;</span>, GitCommit:<span style="color:#2aa198">&#34;e8462b5b5dc2584fdcd18e6bcfe9f1e4d970a529&#34;</span>, GitTreeState:<span style="color:#2aa198">&#34;clean&#34;</span>, BuildDate:<span style="color:#2aa198">&#34;2019-06-19T16:32:14Z&#34;</span>, GoVersion:<span style="color:#2aa198">&#34;go1.12.5&#34;</span>, Compiler:<span style="color:#2aa198">&#34;gc&#34;</span>, Platform:<span style="color:#2aa198">&#34;linux/amd64&#34;</span><span style="color:#719e07">}</span>
-
-</code></pre></div><h1 id="背景">背景</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ tiller -version
+</span></span><span style="display:flex;"><span>v2.14.3
+</span></span><span style="display:flex;"><span>$ helm version
+</span></span><span style="display:flex;"><span>Client: &amp;version.Version<span style="color:#719e07">{</span>SemVer:<span style="color:#2aa198">&#34;v2.14.3&#34;</span>, GitCommit:<span style="color:#2aa198">&#34;0e7f3b6637f7af8fcfddb3d2941fcc7cbebb0085&#34;</span>, GitTreeState:<span style="color:#2aa198">&#34;clean&#34;</span><span style="color:#719e07">}</span>
+</span></span><span style="display:flex;"><span>Error: Get http://localhost:8080/api/v1/namespaces/kube-system/pods?labelSelector<span style="color:#719e07">=</span>app%3Dhelm%2Cname%3Dtiller: dial tcp <span style="color:#719e07">[</span>::1<span style="color:#719e07">]</span>:8080: connect: connection refused
+</span></span><span style="display:flex;"><span>$ minikube version
+</span></span><span style="display:flex;"><span>minikube version: v1.2.0
+</span></span><span style="display:flex;"><span>$ kubectl version
+</span></span><span style="display:flex;"><span>Client Version: version.Info<span style="color:#719e07">{</span>Major:<span style="color:#2aa198">&#34;1&#34;</span>, Minor:<span style="color:#2aa198">&#34;10&#34;</span>, GitVersion:<span style="color:#2aa198">&#34;v1.10.7&#34;</span>, GitCommit:<span style="color:#2aa198">&#34;0c38c362511b20a098d7cd855f1314dad92c2780&#34;</span>, GitTreeState:<span style="color:#2aa198">&#34;clean&#34;</span>, BuildDate:<span style="color:#2aa198">&#34;2018-08-20T10:09:03Z&#34;</span>, GoVersion:<span style="color:#2aa198">&#34;go1.9.3&#34;</span>, Compiler:<span style="color:#2aa198">&#34;gc&#34;</span>, Platform:<span style="color:#2aa198">&#34;darwin/amd64&#34;</span><span style="color:#719e07">}</span>
+</span></span><span style="display:flex;"><span>Server Version: version.Info<span style="color:#719e07">{</span>Major:<span style="color:#2aa198">&#34;1&#34;</span>, Minor:<span style="color:#2aa198">&#34;15&#34;</span>, GitVersion:<span style="color:#2aa198">&#34;v1.15.0&#34;</span>, GitCommit:<span style="color:#2aa198">&#34;e8462b5b5dc2584fdcd18e6bcfe9f1e4d970a529&#34;</span>, GitTreeState:<span style="color:#2aa198">&#34;clean&#34;</span>, BuildDate:<span style="color:#2aa198">&#34;2019-06-19T16:32:14Z&#34;</span>, GoVersion:<span style="color:#2aa198">&#34;go1.12.5&#34;</span>, Compiler:<span style="color:#2aa198">&#34;gc&#34;</span>, Platform:<span style="color:#2aa198">&#34;linux/amd64&#34;</span><span style="color:#719e07">}</span>
+</span></span></code></pre></div><h1 id="背景">背景</h1>
 <p>最近k8sの定義も自分が行なうことになり、Helmなどのキャッチアップを始めた。<br>
 ここで、あるコンテナイメージをk8s上で動かしたいのだが、テストの数だけ<code>Service</code>/<code>Deployment</code>を別々にしてコンテナイメージを動かしたくなった。<br>
 このテストの数は今後増えることもあるのでDRYなYAML定義をしたかった。そのため、テスト名の配列を用意して、配列の長さと同じ数だけリソースを繰り返し定義するようなHelm Chartを書きたくなった。</p>
 <h1 id="事前準備">事前準備</h1>
 <h2 id="helm-tillerの準備">helm-tillerの準備</h2>
 <p>必須ではないが、tillerサーバを作らないで済むようにhelm-tillerをインストールしておく。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ helm plugin install https://github.com/rimusz/helm-tiller
-</code></pre></div><h2 id="minikubeを使ってローカルでhelmがdry-runできるようにしておく">minikubeを使ってローカルでHelmがdry-runできるようにしておく</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ helm plugin install https://github.com/rimusz/helm-tiller
+</span></span></code></pre></div><h2 id="minikubeを使ってローカルでhelmがdry-runできるようにしておく">minikubeを使ってローカルでHelmがdry-runできるようにしておく</h2>
 <p>Helmは<code>--dry-run</code>を使うとHelm Chartがどんなマニフェストに展開されるか確認することができる。
 しかし、<code>--dry-run</code>時にもクラスター自体は存在する必要がある。<code>minikube</code>を使うと比較的簡単にk8sクラスターをローカルPC上に作成できる（Dockerの for MacなどでKubernetesを構築しても良いかもしれない。）。</p>
 <ul>
@@ -280,81 +279,80 @@ Server Version: version.Info<span style="color:#719e07">{</span>Major:<span styl
 </ul>
 <h2 id="ベースとなるhelmを準備する">ベースとなるHelmを準備する</h2>
 <p>まずはじめにベースとしてChartを作成しておく。本記事では<code>helm create</code>で作成されるYAMLを例に進める。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ helm create repeated-service
-$ <span style="color:#b58900">cd</span> repeated-service
-</code></pre></div><p><code>helm create</code>で作成される<code>templates/service.yaml</code>の内容は以下の通り。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: v1
-<span style="color:#268bd2">kind</span>: Service
-<span style="color:#268bd2">metadata</span>:
-  <span style="color:#268bd2">name</span>: {{ include &#34;repeated-service.fullname&#34; . }}
-  <span style="color:#268bd2">labels</span>:
-{{ include &#34;repeated-service.labels&#34; . | indent 4 }}
-<span style="color:#268bd2">spec</span>:
-  <span style="color:#268bd2">type</span>: {{ .Values.service.type }}
-  <span style="color:#268bd2">ports</span>:
-    - <span style="color:#268bd2">port</span>: {{ .Values.service.port }}
-      <span style="color:#268bd2">targetPort</span>: http
-      <span style="color:#268bd2">protocol</span>: TCP
-      <span style="color:#268bd2">name</span>: http
-  <span style="color:#268bd2">selector</span>:
-    <span style="color:#268bd2">app.kubernetes.io/name</span>: {{ include &#34;repeated-service.name&#34; . }}
-    <span style="color:#268bd2">app.kubernetes.io/instance</span>: {{ .Release.Name }}
-</code></pre></div><p>このYAMLを使うと、以下のようなリソース定義となる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ helm tiller run -- helm install --debug --dry-run --name sample .
-Installed Helm version v2.14.3
-Installed Tiller version v2.14.3
-
-...
-
-<span style="color:#586e75"># Source: repeated-service/templates/service.yaml</span>
-apiVersion: v1
-kind: Service
-metadata:
-  name: sample-repeated-service
-  labels:
-    app.kubernetes.io/name: repeated-service
-    helm.sh/chart: repeated-service-0.1.0
-    app.kubernetes.io/instance: sample
-    app.kubernetes.io/version: <span style="color:#2aa198">&#34;1.0&#34;</span>
-    app.kubernetes.io/managed-by: Tiller
-spec:
-  type: ClusterIP
-  ports:
-    - port: <span style="color:#2aa198">80</span>
-      targetPort: http
-      protocol: TCP
-      name: http
-  selector:
-    app.kubernetes.io/name: repeated-service
-    app.kubernetes.io/instance: sample
-
-...
-
-</code></pre></div><p>いま、<code>values.yaml</code>に以下のような配列を追加したとする。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#586e75"># values.yaml</span>
-<span style="color:#268bd2">servers</span>:
-  - alice
-  - bob
-  - charlie
-  - dave
-</code></pre></div><p>そして先ほどの<code>repeated-service/templates/service.yaml</code>を修正して、Valuesに定義した配列によって以下のように繰り返しマニフェストが出力される<code>service.yaml</code>を定義してみる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#586e75"># templates/service.yaml 以下のようにserversリストの要素だけServiceを出力するようにしたい。</span>
-<span style="color:#586e75"># servers[0]のalice-sample-repeated-serviceの定義</span>
-<span style="color:#268bd2">apiVersion</span>: v1
-<span style="color:#268bd2">kind</span>: Service
-<span style="color:#268bd2">metadata</span>:
-  <span style="color:#268bd2">name</span>: alice-sample-repeated-service
-<span style="color:#586e75"># ...</span>
----
-<span style="color:#586e75"># servers[1]のbob-sample-repeated-serviceの定義</span>
-<span style="color:#268bd2">apiVersion</span>: v1
-<span style="color:#268bd2">kind</span>: Service
-<span style="color:#268bd2">metadata</span>:
-  <span style="color:#268bd2">name</span>: bob-sample-repeated-service
-<span style="color:#586e75"># ...</span>
----
-<span style="color:#586e75"># ...</span>
-</code></pre></div><h1 id="配列の要素を使って繰り返しリソースを定義する">配列の要素を使って繰り返しリソースを定義する</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ helm create repeated-service
+</span></span><span style="display:flex;"><span>$ <span style="color:#b58900">cd</span> repeated-service
+</span></span></code></pre></div><p><code>helm create</code>で作成される<code>templates/service.yaml</code>の内容は以下の通り。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Service
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">name</span>: {{ include &#34;repeated-service.fullname&#34; . }}
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">labels</span>:
+</span></span><span style="display:flex;"><span>{{ include &#34;repeated-service.labels&#34; . | indent 4 }}
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">type</span>: {{ .Values.service.type }}
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">ports</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#268bd2">port</span>: {{ .Values.service.port }}
+</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">targetPort</span>: http
+</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">protocol</span>: TCP
+</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">name</span>: http
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">selector</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">app.kubernetes.io/name</span>: {{ include &#34;repeated-service.name&#34; . }}
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">app.kubernetes.io/instance</span>: {{ .Release.Name }}
+</span></span></code></pre></div><p>このYAMLを使うと、以下のようなリソース定義となる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ helm tiller run -- helm install --debug --dry-run --name sample .
+</span></span><span style="display:flex;"><span>Installed Helm version v2.14.3
+</span></span><span style="display:flex;"><span>Installed Tiller version v2.14.3
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75"># Source: repeated-service/templates/service.yaml</span>
+</span></span><span style="display:flex;"><span>apiVersion: v1
+</span></span><span style="display:flex;"><span>kind: Service
+</span></span><span style="display:flex;"><span>metadata:
+</span></span><span style="display:flex;"><span>  name: sample-repeated-service
+</span></span><span style="display:flex;"><span>  labels:
+</span></span><span style="display:flex;"><span>    app.kubernetes.io/name: repeated-service
+</span></span><span style="display:flex;"><span>    helm.sh/chart: repeated-service-0.1.0
+</span></span><span style="display:flex;"><span>    app.kubernetes.io/instance: sample
+</span></span><span style="display:flex;"><span>    app.kubernetes.io/version: <span style="color:#2aa198">&#34;1.0&#34;</span>
+</span></span><span style="display:flex;"><span>    app.kubernetes.io/managed-by: Tiller
+</span></span><span style="display:flex;"><span>spec:
+</span></span><span style="display:flex;"><span>  type: ClusterIP
+</span></span><span style="display:flex;"><span>  ports:
+</span></span><span style="display:flex;"><span>    - port: <span style="color:#2aa198">80</span>
+</span></span><span style="display:flex;"><span>      targetPort: http
+</span></span><span style="display:flex;"><span>      protocol: TCP
+</span></span><span style="display:flex;"><span>      name: http
+</span></span><span style="display:flex;"><span>  selector:
+</span></span><span style="display:flex;"><span>    app.kubernetes.io/name: repeated-service
+</span></span><span style="display:flex;"><span>    app.kubernetes.io/instance: sample
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>...
+</span></span></code></pre></div><p>いま、<code>values.yaml</code>に以下のような配列を追加したとする。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#586e75"># values.yaml</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">servers</span>:
+</span></span><span style="display:flex;"><span>  - alice
+</span></span><span style="display:flex;"><span>  - bob
+</span></span><span style="display:flex;"><span>  - charlie
+</span></span><span style="display:flex;"><span>  - dave
+</span></span></code></pre></div><p>そして先ほどの<code>repeated-service/templates/service.yaml</code>を修正して、Valuesに定義した配列によって以下のように繰り返しマニフェストが出力される<code>service.yaml</code>を定義してみる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#586e75"># templates/service.yaml 以下のようにserversリストの要素だけServiceを出力するようにしたい。</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75"># servers[0]のalice-sample-repeated-serviceの定義</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Service
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">name</span>: alice-sample-repeated-service
+</span></span><span style="display:flex;"><span><span style="color:#586e75"># ...</span>
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span><span style="color:#586e75"># servers[1]のbob-sample-repeated-serviceの定義</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Service
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">name</span>: bob-sample-repeated-service
+</span></span><span style="display:flex;"><span><span style="color:#586e75"># ...</span>
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span><span style="color:#586e75"># ...</span>
+</span></span></code></pre></div><h1 id="配列の要素を使って繰り返しリソースを定義する">配列の要素を使って繰り返しリソースを定義する</h1>
 <p>実際に<code>Service</code>を配列分だけ宣言するように修正してみる。</p>
 <h2 id="helmではgoのtexttemplate構文を使える">HelmではGoのtext/template構文を使える</h2>
 <p>修正は変数とループ処理を使って行なう。Helmでループ処理などをYAMLで行なうには以下の記事を参考にする。</p>
@@ -369,101 +367,100 @@ spec:
 </ul>
 <p>なのでこの2つの情報を使ってYAML中にループを含んだりしながら定義できる。</p>
 <p>実際に編集した<code>templates/service.yaml</code>は以下のようになる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="color:#719e07">+{{- range $i, $server := .Values.servers -}}
-</span><span style="color:#719e07">+{{- if ne $i 0 }}
-</span><span style="color:#719e07">+---
-</span><span style="color:#719e07">+{{- end }}
-</span><span style="color:#719e07"></span> apiVersion: v1
- kind: Service
- metadata:
-<span style="color:#dc322f">-  name: {{ include &#34;repeated-service.fullname&#34; . }}
-</span><span style="color:#dc322f"></span><span style="color:#719e07">+  name: = {{ $server }}-{{ include &#34;repeated-service.fullname&#34; $ }}
-</span><span style="color:#719e07"></span>   labels:
-<span style="color:#dc322f">-{{ include &#34;repeated-service.labels&#34; . | indent 4 }}
-</span><span style="color:#dc322f"></span><span style="color:#719e07">+{{ include &#34;repeated-service.labels&#34; $ | indent 4 }}
-</span><span style="color:#719e07"></span> spec:
-<span style="color:#dc322f">-  type: {{ .Values.service.type }}
-</span><span style="color:#dc322f"></span><span style="color:#719e07">+  type: {{ $.Values.service.type }}
-</span><span style="color:#719e07"></span>   ports:
-<span style="color:#dc322f">-    - port: {{ .Values.service.port }}
-</span><span style="color:#dc322f"></span><span style="color:#719e07">+    - port: {{ $.Values.service.port }}
-</span><span style="color:#719e07"></span>       targetPort: http
-       protocol: TCP
-       name: http
-   selector:
-<span style="color:#dc322f">-    app.kubernetes.io/name: {{ include &#34;repeated-service.name&#34; . }}
-</span><span style="color:#dc322f">-    app.kubernetes.io/instance: {{ .Release.Name }}
-</span><span style="color:#dc322f"></span><span style="color:#719e07">+    app.kubernetes.io/name: {{ $server }}-{{ include &#34;repeated-service.name&#34; $ }}
-</span><span style="color:#719e07">+    app.kubernetes.io/instance: {{ $server }}-{{ $.Release.Name }}
-</span><span style="color:#719e07">+{{- end -}}
-</span></code></pre></div><p><code>range</code>構文を使うと、ループ処理が行える。<code>if A == B</code>のような比較文は<code>eq</code>を使って書ける。<br>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span><span style="color:#719e07">+{{- range $i, $server := .Values.servers -}}
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07">+{{- if ne $i 0 }}
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07">+---
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07">+{{- end }}
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span> apiVersion: v1
+</span></span><span style="display:flex;"><span> kind: Service
+</span></span><span style="display:flex;"><span> metadata:
+</span></span><span style="display:flex;"><span><span style="color:#dc322f">-  name: {{ include &#34;repeated-service.fullname&#34; . }}
+</span></span></span><span style="display:flex;"><span><span style="color:#dc322f"></span><span style="color:#719e07">+  name: = {{ $server }}-{{ include &#34;repeated-service.fullname&#34; $ }}
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span>   labels:
+</span></span><span style="display:flex;"><span><span style="color:#dc322f">-{{ include &#34;repeated-service.labels&#34; . | indent 4 }}
+</span></span></span><span style="display:flex;"><span><span style="color:#dc322f"></span><span style="color:#719e07">+{{ include &#34;repeated-service.labels&#34; $ | indent 4 }}
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span> spec:
+</span></span><span style="display:flex;"><span><span style="color:#dc322f">-  type: {{ .Values.service.type }}
+</span></span></span><span style="display:flex;"><span><span style="color:#dc322f"></span><span style="color:#719e07">+  type: {{ $.Values.service.type }}
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span>   ports:
+</span></span><span style="display:flex;"><span><span style="color:#dc322f">-    - port: {{ .Values.service.port }}
+</span></span></span><span style="display:flex;"><span><span style="color:#dc322f"></span><span style="color:#719e07">+    - port: {{ $.Values.service.port }}
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span>       targetPort: http
+</span></span><span style="display:flex;"><span>       protocol: TCP
+</span></span><span style="display:flex;"><span>       name: http
+</span></span><span style="display:flex;"><span>   selector:
+</span></span><span style="display:flex;"><span><span style="color:#dc322f">-    app.kubernetes.io/name: {{ include &#34;repeated-service.name&#34; . }}
+</span></span></span><span style="display:flex;"><span><span style="color:#dc322f">-    app.kubernetes.io/instance: {{ .Release.Name }}
+</span></span></span><span style="display:flex;"><span><span style="color:#dc322f"></span><span style="color:#719e07">+    app.kubernetes.io/name: {{ $server }}-{{ include &#34;repeated-service.name&#34; $ }}
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07">+    app.kubernetes.io/instance: {{ $server }}-{{ $.Release.Name }}
+</span></span></span><span style="display:flex;"><span><span style="color:#719e07">+{{- end -}}
+</span></span></span></code></pre></div><p><code>range</code>構文を使うと、ループ処理が行える。<code>if A == B</code>のような比較文は<code>eq</code>を使って書ける。<br>
 また、ループ処理中はスコープが変わり、<code>.</code>の参照先がループ変数になるので、<code>$</code>を使ってルートコンテキストから<code>Values</code>などを参照している。<br>
 （なお、<code>labels</code>の<code>{{ include &quot;repeated-service.labels&quot; $ | indent 4 }}</code>部分の名前付きテンプレートの利用を止めないとラベルの定義が運用的に問題だが、今回はブログ記事なので省略している）</p>
 <h2 id="名前付きテンプレートにしないのか">名前付きテンプレートにしないのか？</h2>
 <p>名前付きテンプレートを使う場合、<code>include</code>文の引数としてで渡せるオブジェクトが1つしかない。<br>
 そのため、いちいち<code>dict</code>文を使って<code>$server</code>変数、<code>Service</code>、<code>Values</code>などを1つのオブジェクトに詰め直す必要があり、冗長な書き方になるので止めている。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#586e75"># こんな書き方をしないといけなくなってしまう</span>
-{{- include &#34;repeated-service.service&#34; (dict &#34;Bank&#34; $bank &#34;Realease&#34; .Realese &#34;Values&#34; .Values) -}}
- 
-</code></pre></div><h2 id="helm-installの実行結果">helm installの実行結果</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#586e75"># こんな書き方をしないといけなくなってしまう</span>
+</span></span><span style="display:flex;"><span>{{- include &#34;repeated-service.service&#34; (dict &#34;Bank&#34; $bank &#34;Realease&#34; .Realese &#34;Values&#34; .Values) -}}
+</span></span><span style="display:flex;"><span> 
+</span></span></code></pre></div><h2 id="helm-installの実行結果">helm installの実行結果</h2>
 <p>実際にこの定義を使って<code>helm install --dry-run</code>してみた結果が以下。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ helm tiller run -- helm install --debug --dry-run --name sample .
-Installed Helm version v2.14.3
-Installed Tiller version v2.14.3
-Helm and Tiller are the same version!
-Starting Tiller...
-Tiller namespace: kube-system
-Running: helm install --dry-run --name sample .
-
-...
-
-<span style="color:#586e75"># Source: repeated-service/templates/service.yaml</span>
-apiVersion: v1
-kind: Service
-metadata:
-  name: <span style="color:#719e07">=</span> alice-sample-repeated-service
-  labels:
-    app.kubernetes.io/name: repeated-service
-    helm.sh/chart: repeated-service-0.1.0
-    app.kubernetes.io/instance: sample
-    app.kubernetes.io/version: <span style="color:#2aa198">&#34;1.0&#34;</span>
-    app.kubernetes.io/managed-by: Tiller
-spec:
-  type: ClusterIP
-  ports:
-    - port: <span style="color:#2aa198">80</span>
-      targetPort: http
-      protocol: TCP
-      name: http
-  selector:
-    app.kubernetes.io/name: alice-repeated-service
-    app.kubernetes.io/instance: alice-sample
----
-<span style="color:#586e75"># Source: repeated-service/templates/service.yaml</span>
-apiVersion: v1
-kind: Service
-metadata:
-  name: <span style="color:#719e07">=</span> bob-sample-repeated-service
-  labels:
-    app.kubernetes.io/name: repeated-service
-    helm.sh/chart: repeated-service-0.1.0
-    app.kubernetes.io/instance: sample
-    app.kubernetes.io/version: <span style="color:#2aa198">&#34;1.0&#34;</span>
-    app.kubernetes.io/managed-by: Tiller
-spec:
-  type: ClusterIP
-  ports:
-    - port: <span style="color:#2aa198">80</span>
-      targetPort: http
-      protocol: TCP
-      name: http
-  selector:
-    app.kubernetes.io/name: bob-repeated-service
-    app.kubernetes.io/instance: bob-sample
-
-...
-
-</code></pre></div><p>無事<code>.Values.servers</code>の値を使って複数の<code>Service</code>定義が作成されている。<code>Deployment</code>も同様に書き換えることでやりたいことは実現できる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ helm tiller run -- helm install --debug --dry-run --name sample .
+</span></span><span style="display:flex;"><span>Installed Helm version v2.14.3
+</span></span><span style="display:flex;"><span>Installed Tiller version v2.14.3
+</span></span><span style="display:flex;"><span>Helm and Tiller are the same version!
+</span></span><span style="display:flex;"><span>Starting Tiller...
+</span></span><span style="display:flex;"><span>Tiller namespace: kube-system
+</span></span><span style="display:flex;"><span>Running: helm install --dry-run --name sample .
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75"># Source: repeated-service/templates/service.yaml</span>
+</span></span><span style="display:flex;"><span>apiVersion: v1
+</span></span><span style="display:flex;"><span>kind: Service
+</span></span><span style="display:flex;"><span>metadata:
+</span></span><span style="display:flex;"><span>  name: <span style="color:#719e07">=</span> alice-sample-repeated-service
+</span></span><span style="display:flex;"><span>  labels:
+</span></span><span style="display:flex;"><span>    app.kubernetes.io/name: repeated-service
+</span></span><span style="display:flex;"><span>    helm.sh/chart: repeated-service-0.1.0
+</span></span><span style="display:flex;"><span>    app.kubernetes.io/instance: sample
+</span></span><span style="display:flex;"><span>    app.kubernetes.io/version: <span style="color:#2aa198">&#34;1.0&#34;</span>
+</span></span><span style="display:flex;"><span>    app.kubernetes.io/managed-by: Tiller
+</span></span><span style="display:flex;"><span>spec:
+</span></span><span style="display:flex;"><span>  type: ClusterIP
+</span></span><span style="display:flex;"><span>  ports:
+</span></span><span style="display:flex;"><span>    - port: <span style="color:#2aa198">80</span>
+</span></span><span style="display:flex;"><span>      targetPort: http
+</span></span><span style="display:flex;"><span>      protocol: TCP
+</span></span><span style="display:flex;"><span>      name: http
+</span></span><span style="display:flex;"><span>  selector:
+</span></span><span style="display:flex;"><span>    app.kubernetes.io/name: alice-repeated-service
+</span></span><span style="display:flex;"><span>    app.kubernetes.io/instance: alice-sample
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span><span style="color:#586e75"># Source: repeated-service/templates/service.yaml</span>
+</span></span><span style="display:flex;"><span>apiVersion: v1
+</span></span><span style="display:flex;"><span>kind: Service
+</span></span><span style="display:flex;"><span>metadata:
+</span></span><span style="display:flex;"><span>  name: <span style="color:#719e07">=</span> bob-sample-repeated-service
+</span></span><span style="display:flex;"><span>  labels:
+</span></span><span style="display:flex;"><span>    app.kubernetes.io/name: repeated-service
+</span></span><span style="display:flex;"><span>    helm.sh/chart: repeated-service-0.1.0
+</span></span><span style="display:flex;"><span>    app.kubernetes.io/instance: sample
+</span></span><span style="display:flex;"><span>    app.kubernetes.io/version: <span style="color:#2aa198">&#34;1.0&#34;</span>
+</span></span><span style="display:flex;"><span>    app.kubernetes.io/managed-by: Tiller
+</span></span><span style="display:flex;"><span>spec:
+</span></span><span style="display:flex;"><span>  type: ClusterIP
+</span></span><span style="display:flex;"><span>  ports:
+</span></span><span style="display:flex;"><span>    - port: <span style="color:#2aa198">80</span>
+</span></span><span style="display:flex;"><span>      targetPort: http
+</span></span><span style="display:flex;"><span>      protocol: TCP
+</span></span><span style="display:flex;"><span>      name: http
+</span></span><span style="display:flex;"><span>  selector:
+</span></span><span style="display:flex;"><span>    app.kubernetes.io/name: bob-repeated-service
+</span></span><span style="display:flex;"><span>    app.kubernetes.io/instance: bob-sample
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>...
+</span></span></code></pre></div><p>無事<code>.Values.servers</code>の値を使って複数の<code>Service</code>定義が作成されている。<code>Deployment</code>も同様に書き換えることでやりたいことは実現できる。</p>
 <h1 id="終わりに">終わりに</h1>
 <p>最初は名前付きテンプレートで書こうと思って試行錯誤していたのだが、本記事のように書くほうがシンプルだったのでこのようにした
 （実際公式Chartでも名前付きテンプレートへの代入で複雑な変数定義をすることはほとんどないらしい）。<br>
@@ -646,10 +643,16 @@ spec:
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -664,12 +667,6 @@ spec:
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -680,7 +677,7 @@ spec:
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

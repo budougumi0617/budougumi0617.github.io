@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -208,10 +208,10 @@
 </li>
 <li><code>TestMain</code>でしか使ってほしくない関数は<code>*testing.M</code>を引数にすればよいのでは？というアイデア</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">SetupHelper</span>(m <span style="color:#719e07">*</span>testing.M) {
-    <span style="color:#586e75">// そのpkgのテスト全体でで一度しか実行しない処理
-</span><span style="color:#586e75"></span>}
-</code></pre></div><h1 id="共通ライブラリを作っている">共通ライブラリを作っている</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">SetupHelper</span>(m <span style="color:#719e07">*</span>testing.M) {
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// そのpkgのテスト全体でで一度しか実行しない処理
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span></code></pre></div><h1 id="共通ライブラリを作っている">共通ライブラリを作っている</h1>
 <p>業務で複数のGoのサービスを扱うようになり、loggingやhttp middlewareといった汎用性の高いコードを共通ライブラリとして抽出している。<br>
 <a href="https://github.com/go-kit/kit">go-kit</a>のようなOSSとして公開されているものに頼るのもよい。<br>
 しかし組織特有のデータ構造だったり、組織ごとで異なる技術セットに最適化すると自作することになるのが多いのではないか。<br>
@@ -234,8 +234,8 @@
 <p>今回はテストの中で使うヘルパー関数を例に考える。</p>
 <p>Goのテストは<code>func TestXxx(*testing.T)</code>というシグネチャで定義し、<code>*testing.T</code>オブジェクトは一般にテストコードの中にしか出てこない。<br>
 このテストコードの中で利用する関数を定義するときは<code>*testing.T</code>を引数に与える。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">helper</span>(t <span style="color:#719e07">*</span>testing.T)
-</code></pre></div><p><code>*testing.T</code>オブジェクトを引数にする理由は、<code>*testing.T</code>オブジェクトが持つメソッドを利用できるというのが一番の動機だ。<br>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">helper</span>(t <span style="color:#719e07">*</span>testing.T)
+</span></span></code></pre></div><p><code>*testing.T</code>オブジェクトを引数にする理由は、<code>*testing.T</code>オブジェクトが持つメソッドを利用できるというのが一番の動機だ。<br>
 ただ副次的な効果として、「この関数はテストコードの中で利用する関数なんだな」という認識を与えてくれる。</p>
 <p>同様の効果を期待して、<code>TestMain</code>関数の中でしか利用してほしくないテストユーティリティ関数は<code>*testing.M</code>を引数に持たせればよいのではと考えた。</p>
 <h1 id="testingmを使う">*testing.Mを使う</h1>
@@ -243,27 +243,27 @@
 <ul>
 <li><a href="https://golang.org/pkg/testing/#hdr-Main">https://golang.org/pkg/testing/#hdr-Main</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestMain</span>(m <span style="color:#719e07">*</span>testing.M)
-</code></pre></div><p>そのため、DBのセットアップのような事前処理を<code>TestMain</code>関数の中に定義することが多い。<br>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestMain</span>(m <span style="color:#719e07">*</span>testing.M)
+</span></span></code></pre></div><p>そのため、DBのセットアップのような事前処理を<code>TestMain</code>関数の中に定義することが多い。<br>
 逆に言うとここで呼ぶ事前処理はpkg内で複数回呼ばれることを期待しない。</p>
 <p><code>TestMain</code>関数を定義するときは<code>*testing.M</code>オブジェクトを引数にとる必要がある。<br>
 この<code>*testing.M</code>オブジェクトは<code>TestMain</code>関数の中でしか使われることはない。<br>
 つまり、<code>*testing.M</code>オブジェクトを引数にとる関数を定義すれば、それは<code>TestMain</code>関数の中でしか使わない関数とシグネチャで主張することができる<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">SetupHelper</span>(m <span style="color:#719e07">*</span>testing.M)
-</code></pre></div><p><code>*testing.M</code>オブジェクトは<code>*testing.T</code>オブジェクトと違い、ヘルパー関数の中で利用できる便利なメソッドはない。<br>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">SetupHelper</span>(m <span style="color:#719e07">*</span>testing.M)
+</span></span></code></pre></div><p><code>*testing.M</code>オブジェクトは<code>*testing.T</code>オブジェクトと違い、ヘルパー関数の中で利用できる便利なメソッドはない。<br>
 しかし、テスト関数の中で<code>*testing.M</code>オブジェクトが現れることはないため、シグネチャからテスト関数の中で利用することを想定していないことを主張できる。</p>
 <h1 id="終わりに">終わりに</h1>
 <p>昨今DX(Developer Experience)が盛んに叫ばれている。<br>
 流行りだから意識するわけではないが、プラットフォームやライブラリを提供する立場になったときは利用者が如何にストレスなく利用できるかを意識しておきたい。</p>
 <iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=B00LGJTXT8&linkId=f9b63405984cbd477c8b764066dd0670"></iframe>
-<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=B07N1XLQ7D&linkId=322ab4b0cf43c2fbe7cb7e5c742847ff"></iframe><section class="footnotes" role="doc-endnotes">
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=B07N1XLQ7D&linkId=322ab4b0cf43c2fbe7cb7e5c742847ff"></iframe><div class="footnotes" role="doc-endnotes">
 <hr>
 <ol>
-<li id="fn:1" role="doc-endnote">
+<li id="fn:1">
 <p>処理内容を<code>sync.Once</code>で一度しか実行できないようにしておけば更に万全かもしれない。&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 </ol>
-</section>
+</div>
         </div>
         
 
@@ -437,10 +437,16 @@
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -455,12 +461,6 @@
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -471,7 +471,7 @@
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

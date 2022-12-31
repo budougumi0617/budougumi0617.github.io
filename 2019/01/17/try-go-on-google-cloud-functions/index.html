@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -246,35 +246,35 @@
 <ul>
 <li><a href="https://golang.org/pkg/net/http/#HandleFunc">https://golang.org/pkg/net/http/#HandleFunc</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">HandleFunc</span>(pattern <span style="color:#dc322f">string</span>, handler <span style="color:#268bd2">func</span>(ResponseWriter, <span style="color:#719e07">*</span>Request))
-</code></pre></div><h2 id="イベントをトリガーにして実行するbackground-functionsの場合">イベントをトリガーにして実行するBackground Functionsの場合</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">HandleFunc</span>(pattern <span style="color:#dc322f">string</span>, handler <span style="color:#268bd2">func</span>(ResponseWriter, <span style="color:#719e07">*</span>Request))
+</span></span></code></pre></div><h2 id="イベントをトリガーにして実行するbackground-functionsの場合">イベントをトリガーにして実行するBackground Functionsの場合</h2>
 <p>Cloud Storageなどで発生したイベントをトリガーに起動するFunctionsを定義することもできる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> GCSEvent <span style="color:#268bd2">struct</span> {
-  <span style="color:#586e75">// 省略
-</span><span style="color:#586e75"></span>}
-
-<span style="color:#586e75">// HelloGCSInfo はGCSのイベントをトリガーに起動するBackground Functions用の関数
-</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">HelloGCSInfo</span>(ctx context.Context, e GCSEvent) <span style="color:#dc322f">error</span> {
-  <span style="color:#586e75">// Do anything...
-</span><span style="color:#586e75"></span>}
-</code></pre></div><hr>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> GCSEvent <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// 省略
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// HelloGCSInfo はGCSのイベントをトリガーに起動するBackground Functions用の関数
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">HelloGCSInfo</span>(ctx context.Context, e GCSEvent) <span style="color:#dc322f">error</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// Do anything...
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span></code></pre></div><hr>
 <p>今回はリリース記事に記載されていたHTTP Functionsを少し改良した以下のソースコードを利用する。<strong>パッケージ名は<code>main</code>でなければ良い。</strong></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> functions
-
-<span style="color:#719e07">import</span> (
-        <span style="color:#2aa198">&#34;fmt&#34;</span>
-        <span style="color:#2aa198">&#34;log&#34;</span>
-        <span style="color:#2aa198">&#34;net/http&#34;</span>
-)
-
-<span style="color:#586e75">// F is sample functions
-</span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">F</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
-        w.<span style="color:#268bd2">Header</span>().<span style="color:#268bd2">Set</span>(<span style="color:#2aa198">&#34;Content-Type&#34;</span>, <span style="color:#2aa198">&#34;text/plain; charset=utf-8&#34;</span>)
-        fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Hello by fmt pkg&#34;</span>)
-        log.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Hello by log pkg&#34;</span>)
-        w.<span style="color:#268bd2">Write</span>([]<span style="color:#b58900">byte</span>(r.Header.<span style="color:#268bd2">Get</span>(<span style="color:#2aa198">&#34;X-Forwarded-For&#34;</span>)))
-}
-</code></pre></div><h1 id="functionsをデプロイする">Functionsをデプロイする</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> functions
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
+</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;log&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;net/http&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// F is sample functions
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">F</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
+</span></span><span style="display:flex;"><span>        w.<span style="color:#268bd2">Header</span>().<span style="color:#268bd2">Set</span>(<span style="color:#2aa198">&#34;Content-Type&#34;</span>, <span style="color:#2aa198">&#34;text/plain; charset=utf-8&#34;</span>)
+</span></span><span style="display:flex;"><span>        fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Hello by fmt pkg&#34;</span>)
+</span></span><span style="display:flex;"><span>        log.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Hello by log pkg&#34;</span>)
+</span></span><span style="display:flex;"><span>        w.<span style="color:#268bd2">Write</span>([]<span style="color:#b58900">byte</span>(r.Header.<span style="color:#268bd2">Get</span>(<span style="color:#2aa198">&#34;X-Forwarded-For&#34;</span>)))
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h1 id="functionsをデプロイする">Functionsをデプロイする</h1>
 <p>まずは<code>gcloud</code>コマンドで選択中のプロジェクトのCloud FunctionsのAPIを有効化しておく。</p>
 <ul>
 <li>Cloud Functions API | IAM Library
@@ -320,7 +320,7 @@ x-cloud-trace-context: f7bc8c67d13641651434d8b3dc2b2444;o=1
 date: Wed, 16 Jan 2019 23:14:58 GMT
 server: Google Frontend
 content-length: 14
-alt-svc: quic=&quot;:443&quot;; ma=2592000; v=&quot;44,43,39,35&quot;
+alt-svc: quic=&#34;:443&#34;; ma=2592000; v=&#34;44,43,39,35&#34;
 
 XXX.XXX.XXX.82%
 </code></pre><p>先ほどのGoの関数がちゃんと実行された！！</p>
@@ -348,15 +348,15 @@ XXX.XXX.XXX.82%
 </ul>
 <p>2019/01/17現在日本語のガイドには記載がないが、英語のガイドを確認するとGoのサンプルコードがあるので、そこから構造体定義を確認すれば良い。</p>
 <p>下記は<a href="https://cloud.google.com/functions/docs/calling/cloud-firestore">ガイドに記載されている</a>Cloud Firestoreのイベント用の構造体。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#586e75">// FirestoreEvent is the payload of a Firestore event.
-</span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> FirestoreEvent <span style="color:#268bd2">struct</span> {
-        OldValue   FirestoreValue <span style="color:#2aa198">`json:&#34;oldValue&#34;`</span>
-        Value      FirestoreValue <span style="color:#2aa198">`json:&#34;value&#34;`</span>
-        UpdateMask <span style="color:#268bd2">struct</span> {
-                FieldPaths []<span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;fieldPaths&#34;`</span>
-        } <span style="color:#2aa198">`json:&#34;updateMask&#34;`</span>
-}
-</code></pre></div><p><img src="/2019/01/17-sample-code.png" alt="公式ページのキャプチャ"></p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// FirestoreEvent is the payload of a Firestore event.
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> FirestoreEvent <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>        OldValue   FirestoreValue <span style="color:#2aa198">`json:&#34;oldValue&#34;`</span>
+</span></span><span style="display:flex;"><span>        Value      FirestoreValue <span style="color:#2aa198">`json:&#34;value&#34;`</span>
+</span></span><span style="display:flex;"><span>        UpdateMask <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>                FieldPaths []<span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;fieldPaths&#34;`</span>
+</span></span><span style="display:flex;"><span>        } <span style="color:#2aa198">`json:&#34;updateMask&#34;`</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><img src="/2019/01/17-sample-code.png" alt="公式ページのキャプチャ"></p>
 <p><code>Background Functions</code>実行時に受け取る<code>context</code>の中からメタデータを取得する<code>cloud.google.com/go/functions/metadata</code>パッケージは提供されている。</p>
 <ul>
 <li>GoDoc cloud.google.com/go/functions/metadata
@@ -365,17 +365,17 @@ XXX.XXX.XXX.82%
 </ul>
 </li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;cloud.google.com/go/functions/metadata&#34;</span>
-
-<span style="color:#586e75">// ...
-</span><span style="color:#586e75"></span>
-meta, err <span style="color:#719e07">:=</span> metadata.<span style="color:#268bd2">FromContext</span>(ctx)
-<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-   <span style="color:#719e07">return</span> fmt.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;metadata.FromContext: %v&#34;</span>, err)
-}
-log.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;Event ID: %v\n&#34;</span>, meta.EventID)
-<span style="color:#586e75">// ...
-</span></code></pre></div><h1 id="その他">その他</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;cloud.google.com/go/functions/metadata&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ...
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
+</span></span><span style="display:flex;"><span>meta, err <span style="color:#719e07">:=</span> metadata.<span style="color:#268bd2">FromContext</span>(ctx)
+</span></span><span style="display:flex;"><span><span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+</span></span><span style="display:flex;"><span>   <span style="color:#719e07">return</span> fmt.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;metadata.FromContext: %v&#34;</span>, err)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>log.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;Event ID: %v\n&#34;</span>, meta.EventID)
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ...
+</span></span></span></code></pre></div><h1 id="その他">その他</h1>
 <p>go1.11ベースで動くので当然go modulesもサポートされている。また、ドキュメントでは<code>init()</code>関数や<code>sync.Once</code>を利用した実行時の初期化についても触れられていた。</p>
 <ul>
 <li>Specifying dependencies
@@ -591,10 +591,16 @@ log.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;E
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -609,12 +615,6 @@ log.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;E
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -625,7 +625,7 @@ log.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;E
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>

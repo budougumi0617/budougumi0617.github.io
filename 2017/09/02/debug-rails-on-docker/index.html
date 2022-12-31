@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.91.2" />
+  <meta name="generator" content="Hugo 0.108.0">
 
   
   
@@ -191,24 +191,24 @@
 <p>Railsをデバッグ実行するために必要な設定ファイルの準備をする。</p>
 <p>コンテナの標準入出力にアタッチするために、Dockerの設定をしておく。</p>
 <p><a href="https://github.com/budougumi0617/RubyTraining/blob/master/baukis/docker-compose.yml#L18">docker-compose.yml</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">services</span>:
-  <span style="color:#268bd2">rails</span>: <span style="color:#719e07">&amp;app_base</span>
-    <span style="color:#268bd2">tty</span>: <span style="color:#cb4b16">true</span>
-    <span style="color:#268bd2">stdin_open</span>: <span style="color:#cb4b16">true</span>
-</code></pre></div><p>ブレークポイントを貼るための<code>binding.pry</code>をするためのGemを追加する。
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">services</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">rails</span>: <span style="color:#719e07">&amp;app_base</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">tty</span>: <span style="color:#cb4b16">true</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">stdin_open</span>: <span style="color:#cb4b16">true</span>
+</span></span></code></pre></div><p>ブレークポイントを貼るための<code>binding.pry</code>をするためのGemを追加する。
 Gemfileは<code>pry-rails</code>の他に<code>pry-byebug</code>も追加しておくとステップ実行が出来る。</p>
 <p><a href="https://github.com/budougumi0617/RubyTraining/blob/master/baukis/Gemfile#L38">Gemfile</a></p>
 <pre tabindex="0"><code class="language-gemfile" data-lang="gemfile">group :development, :test do
-  gem 'pry-rails'
-  gem 'pry-byebug'
+  gem &#39;pry-rails&#39;
+  gem &#39;pry-byebug&#39;
 end
 </code></pre><p>Railsプロジェクトのrootディレクトリに<code>.pryrc</code>ファイルを配置しておけばデバッグ中に利用できるエイリアスが貼れる。（他のも色の設定とか出来るらしい）</p>
 <p><a href="https://github.com/budougumi0617/RubyTraining/blob/master/baukis/.pryrc">.pryrc</a></p>
 <pre tabindex="0"><code>if defined?(PryByebug)
-  Pry.commands.alias_command 'c', 'continue'
-  Pry.commands.alias_command 's', 'step'
-  Pry.commands.alias_command 'n', 'next'
-  Pry.commands.alias_command 'f', 'finish'
+  Pry.commands.alias_command &#39;c&#39;, &#39;continue&#39;
+  Pry.commands.alias_command &#39;s&#39;, &#39;step&#39;
+  Pry.commands.alias_command &#39;n&#39;, &#39;next&#39;
+  Pry.commands.alias_command &#39;f&#39;, &#39;finish&#39;
 end
 </code></pre><p>デバッグしたいメソッドに<code>binding.pry</code>の記載をして、<code>docker-compose up</code>コマンドでRailsを起動して、該当メソッドが実行される操作を行う。
 出力がこんな状態になれば<code>pry</code>でデバッグが開始できる状態になっている。</p>
@@ -224,9 +224,9 @@ rails_1   |     6: end
 まずアタッチするRailsコンテナを<code>docker ps</code>コマンドで調べる。</p>
 <pre tabindex="0"><code>$ docker ps
 CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                    NAMES
-7fdf3a1fd61c        baukis_rails        &quot;prehook 'ruby -v'...&quot;   5 seconds ago       Up 4 seconds        0.0.0.0:3333-&gt;3000/tcp   baukis_rails_1 # attachしたいのはこれ
-cb68afd353c8        baukis_spring       &quot;prehook 'ruby -v'...&quot;   5 seconds ago       Up 4 seconds                                 baukis_spring_1
-7b86e4f07b20        postgres:9.6.2      &quot;docker-entrypoint...&quot;   6 seconds ago       Up 7 seconds        0.0.0.0:5432-&gt;5432/tcp   baukis_db_1
+7fdf3a1fd61c        baukis_rails        &#34;prehook &#39;ruby -v&#39;...&#34;   5 seconds ago       Up 4 seconds        0.0.0.0:3333-&gt;3000/tcp   baukis_rails_1 # attachしたいのはこれ
+cb68afd353c8        baukis_spring       &#34;prehook &#39;ruby -v&#39;...&#34;   5 seconds ago       Up 4 seconds                                 baukis_spring_1
+7b86e4f07b20        postgres:9.6.2      &#34;docker-entrypoint...&#34;   6 seconds ago       Up 7 seconds        0.0.0.0:5432-&gt;5432/tcp   baukis_db_1
 </code></pre><p>その後、<code>docker attach</code>コマンドでコンテナに接続する。反応が無いように見えるときはエンターキーを押下すれば<code>pry</code>が始まる。</p>
 <pre tabindex="0"><code>$ docker attach baukis_krails_1 # docker psコマンドの結果のNAMEに書いてあった名前
 [1] pry(#&lt;Staff::CustomersController&gt;)&gt;
@@ -402,10 +402,16 @@ cb68afd353c8        baukis_spring       &quot;prehook 'ruby -v'...&quot;   5 sec
           
             
               <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+                <a href="/2023/01/01/retrospective-2022/">2022年振り返り</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
+              </li>
             
           
             
@@ -420,12 +426,6 @@ cb68afd353c8        baukis_spring       &quot;prehook 'ruby -v'...&quot;   5 sec
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/03/22/newrelic_make_external_api_by_facet_case_capture/">[New Relic] FACET CASE句を使って外部サービスのエンドポイントのレスポンスタイムを集計する</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -436,7 +436,7 @@ cb68afd353c8        baukis_spring       &quot;prehook 'ruby -v'...&quot;   5 sec
 </div>
 
     <footer role="contentinfo">
-      <p>Copyright &copy; 2022  - <a href="https://budougumi0617.github.io/license/">License</a> -
+      <p>Copyright &copy; 2023  - <a href="https://budougumi0617.github.io/license/">License</a> -
         <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
       </p>
     </footer>
