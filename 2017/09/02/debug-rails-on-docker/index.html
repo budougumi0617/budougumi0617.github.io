@@ -38,9 +38,8 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.108.0">
+  <meta name="generator" content="Hugo 0.134.2">
 
-  
   
 
   
@@ -58,10 +57,14 @@
   <meta property="og:url" content="https://budougumi0617.github.io/2017/09/02/debug-rails-on-docker/"/>
   <meta property="og:type" content="article"/>
   <meta property="og:title" content="docker-compose上のRailsのデバッグを行う - My External Storage"/>
-  <meta property="og:description" content="Rails本の写経をdocker-composeで行なったときのTips。 TL;DR docker-composeで作ったRubyOnRailsコンテ"/>
+  <meta property="og:description" content="Rails本の写経をdocker-composeで行なったときのTips。
+TL;DR
+docker-composeで作ったRubyOnRailsコンテナでbinding.pryによるデバッグを行えるようにする。"/>
   
   <meta name="twitter:title" content="docker-compose上のRailsのデバッグを行う - My External Storage"/>
-  <meta name="twitter:description" content="Rails本の写経をdocker-composeで行なったときのTips。 TL;DR docker-composeで作ったRubyOnRailsコンテ"/>
+  <meta name="twitter:description" content="Rails本の写経をdocker-composeで行なったときのTips。
+TL;DR
+docker-composeで作ったRubyOnRailsコンテナでbinding.pryによるデバッグを行えるようにする。"/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
   <meta name="twitter:creator" content="@budougumi0617"/>
@@ -129,11 +132,11 @@
     
   
     
-      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank"  rel="noopener noreferrer">About</a></li>
     
   
     
-      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank"  rel="noopener noreferrer">Archives</a></li>
     
   
 </ul>
@@ -141,7 +144,7 @@
 <ul class="subscription">
   
     
-        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS" rel="noopener noreferrer"><i class="fa fa-rss-square fa-lg"></i></a>
     
   
 </ul>
@@ -186,24 +189,28 @@
 <p><code>docker-compose</code>で作ったRubyOnRailsコンテナで<code>binding.pry</code>によるデバッグを行えるようにする。</p>
 <h1 id="前提">前提</h1>
 <p><code>docker-compose</code>でRails、Spring用のコンテナなど、複数コンテナを起動する形のRails環境を構築した。基本構成は以下の記事に習っている。</p>
-<p><a href="http://qiita.com/kawasin73/items/2253523be18e5afd994f">高速に開発できる Docker + Rails開発環境のテンプレートを作った</a></p>
+<p>
+<a href="http://qiita.com/kawasin73/items/2253523be18e5afd994f" target="_blank" rel="noopener">高速に開発できる Docker + Rails開発環境のテンプレートを作った</a></p>
 <h1 id="事前準備">事前準備</h1>
 <p>Railsをデバッグ実行するために必要な設定ファイルの準備をする。</p>
 <p>コンテナの標準入出力にアタッチするために、Dockerの設定をしておく。</p>
-<p><a href="https://github.com/budougumi0617/RubyTraining/blob/master/baukis/docker-compose.yml#L18">docker-compose.yml</a></p>
+<p>
+<a href="https://github.com/budougumi0617/RubyTraining/blob/master/baukis/docker-compose.yml#L18" target="_blank" rel="noopener">docker-compose.yml</a></p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">services</span>:
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">rails</span>: <span style="color:#719e07">&amp;app_base</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">tty</span>: <span style="color:#cb4b16">true</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">stdin_open</span>: <span style="color:#cb4b16">true</span>
 </span></span></code></pre></div><p>ブレークポイントを貼るための<code>binding.pry</code>をするためのGemを追加する。
 Gemfileは<code>pry-rails</code>の他に<code>pry-byebug</code>も追加しておくとステップ実行が出来る。</p>
-<p><a href="https://github.com/budougumi0617/RubyTraining/blob/master/baukis/Gemfile#L38">Gemfile</a></p>
+<p>
+<a href="https://github.com/budougumi0617/RubyTraining/blob/master/baukis/Gemfile#L38" target="_blank" rel="noopener">Gemfile</a></p>
 <pre tabindex="0"><code class="language-gemfile" data-lang="gemfile">group :development, :test do
   gem &#39;pry-rails&#39;
   gem &#39;pry-byebug&#39;
 end
 </code></pre><p>Railsプロジェクトのrootディレクトリに<code>.pryrc</code>ファイルを配置しておけばデバッグ中に利用できるエイリアスが貼れる。（他のも色の設定とか出来るらしい）</p>
-<p><a href="https://github.com/budougumi0617/RubyTraining/blob/master/baukis/.pryrc">.pryrc</a></p>
+<p>
+<a href="https://github.com/budougumi0617/RubyTraining/blob/master/baukis/.pryrc" target="_blank" rel="noopener">.pryrc</a></p>
 <pre tabindex="0"><code>if defined?(PryByebug)
   Pry.commands.alias_command &#39;c&#39;, &#39;continue&#39;
   Pry.commands.alias_command &#39;s&#39;, &#39;step&#39;
@@ -236,9 +243,12 @@ cb68afd353c8        baukis_spring       &#34;prehook &#39;ruby -v&#39;...&#34;  
 <strong><code>Ctrl + C</code>などでdockerの接続を終了すると、コンテナ自体が終了してしまう。</strong>
 デタッチするときは<code>Ctrl-P Ctrl-Q</code>で抜ける。</p>
 <h1 id="参考">参考</h1>
-<p><a href="http://qiita.com/kawasin73/items/2253523be18e5afd994f">高速に開発できる Docker + Rails開発環境のテンプレートを作った</a></p>
-<p><a href="http://tech.withsin.net/2015/09/30/docker-container-detach/">Dockerコンテナからのデタッチ</a></p>
-<p><a href="http://qiita.com/AknYk416/items/6f0bec58712edaf4940e">pry-byebugでrubyをデバッグする</a></p>
+<p>
+<a href="http://qiita.com/kawasin73/items/2253523be18e5afd994f" target="_blank" rel="noopener">高速に開発できる Docker + Rails開発環境のテンプレートを作った</a></p>
+<p>
+<a href="http://tech.withsin.net/2015/09/30/docker-container-detach/" target="_blank" rel="noopener">Dockerコンテナからのデタッチ</a></p>
+<p>
+<a href="http://qiita.com/AknYk416/items/6f0bec58712edaf4940e" target="_blank" rel="noopener">pry-byebugでrubyをデバッグする</a></p>
 
         </div>
         
@@ -283,26 +293,29 @@ cb68afd353c8        baukis_spring       &#34;prehook &#39;ruby -v&#39;...&#34;  
   
     
       <div id="disqus_thread"></div>
-<script type="text/javascript">
-  (function() {
-      
-      
-      
-      if (window.location.hostname == "localhost")
-          return;
-
-      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-      var disqus_shortname = 'http-budougumi0617-github-io';
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-  })();
+<script>
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "http-budougumi0617-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
 </script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     
   
 </footer>
+
 
       </article>
     </div>
@@ -326,30 +339,30 @@ cb68afd353c8        baukis_spring       &#34;prehook &#39;ruby -v&#39;...&#34;  
     </p>
   </section>
 
+  
+  
 
+
+
+<ul class="sidebar-nav">
+  <li class="sidebar-nav-item">
+    <a target="_blank" rel="noopener noreferrer" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+    
+    
+    <a target="_blank" rel="noopener noreferrer" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+    
+    
+    <a target="_blank" rel="noopener noreferrer" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+    
+    
+    
+    
+    
 
   
-  <ul class="sidebar-nav">
-    <li class="sidebar-nav-item">
-      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
-      
-      
-      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
-      
-         
-      
-      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
-      
-      
-      
-      
-      
-      
-
-    
-    
-    </li>
-  </ul>
+  
+  </li>
+</ul>
 
   
 
@@ -403,10 +416,16 @@ cb68afd353c8        baukis_spring       &#34;prehook &#39;ruby -v&#39;...&#34;  
           
             
               <li class="post">
-                <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
+                <a href="/2024/12/30/best_things_i_bought_in_2024/">2024年に買ってよかったもの</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
+              </li>
             
           
             
@@ -421,12 +440,6 @@ cb68afd353c8        baukis_spring       &#34;prehook &#39;ruby -v&#39;...&#34;  
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -438,21 +451,19 @@ cb68afd353c8        baukis_spring       &#34;prehook &#39;ruby -v&#39;...&#34;  
 
     <footer role="contentinfo">
       <p>Copyright &copy; 2024  - <a href="https://budougumi0617.github.io/license/">License</a> -
-        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
       </p>
     </footer>
 
     
     
-    
+
+
 
     
-      <script>
-        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
-        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-        s.parentNode.insertBefore(g,s)}(document,'script'));
-      </script>
+    
+    
+
     
   </body>
 </html>

@@ -38,9 +38,8 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.108.0">
+  <meta name="generator" content="Hugo 0.134.2">
 
-  
   
 
   
@@ -131,11 +130,11 @@
     
   
     
-      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank"  rel="noopener noreferrer">About</a></li>
     
   
     
-      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank"  rel="noopener noreferrer">Archives</a></li>
     
   
 </ul>
@@ -143,7 +142,7 @@
 <ul class="subscription">
   
     
-        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS" rel="noopener noreferrer"><i class="fa fa-rss-square fa-lg"></i></a>
     
   
 </ul>
@@ -206,7 +205,8 @@
 </li>
 <li>runtime上で<code>string</code>は<code>stringStruct</code>型で長さと具体的な値へのポインタを持つ
 <ul>
-<li><a href="https://github.com/golang/go/blob/go1.16.2/src/runtime/string.go#L228-L231">https://github.com/golang/go/blob/go1.16.2/src/runtime/string.go#L228-L231</a></li>
+<li>
+<a href="https://github.com/golang/go/blob/go1.16.2/src/runtime/string.go#L228-L231" target="_blank" rel="noopener">https://github.com/golang/go/blob/go1.16.2/src/runtime/string.go#L228-L231</a></li>
 </ul>
 </li>
 <li>並行処理の実装が誤っていると、長さを有した状態でヌルポインタなオンメモリデータが生成される
@@ -216,7 +216,8 @@
 </li>
 </ul>
 <p>サンプルコードは以下。</p>
-<p><a href="https://play.golang.org/p/lD5-kBCwET4">https://play.golang.org/p/lD5-kBCwET4</a></p>
+<p>
+<a href="https://play.golang.org/p/lD5-kBCwET4" target="_blank" rel="noopener">https://play.golang.org/p/lD5-kBCwET4</a></p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
@@ -245,7 +246,8 @@ main.main()
 <ul>
 <li>The Go Memory Model
 <ul>
-<li><a href="https://golang.org/ref/mem">https://golang.org/ref/mem</a></li>
+<li>
+<a href="https://golang.org/ref/mem" target="_blank" rel="noopener">https://golang.org/ref/mem</a></li>
 </ul>
 </li>
 </ul>
@@ -253,7 +255,8 @@ main.main()
 <p>発端は忘れたが、誤った並行処理のサンプルコードを書いていたら文字列の比較でヌルポが発生してしまった。<br>
 サンプルコードはTL;DRに書いた先の通り。</p>
 <h1 id="メモリモデルと並行処理">メモリモデルと並行処理</h1>
-<p>資料を読む中で柴田（<a href="https://twitter.com/yoshiki_shibata">@yoshiki_shibata</a>)さんから以下の補足があった。</p>
+<p>資料を読む中で柴田（
+<a href="https://twitter.com/yoshiki_shibata" target="_blank" rel="noopener">@yoshiki_shibata</a>)さんから以下の補足があった。</p>
 <blockquote>
 <p>f()を実行するゴルーチンとg()を実行するゴルーチンが、別々のOSスレッド上で実行された場合、コンパイラによる実行命令の入れ替え、あるいはout-of-order CPUのreorder bufferの影響でg()関数内で a をメ モリから読み出したときに、f()関数内でのa = 1の書き込みはメモリに反映されていない可能性があります。</p>
 </blockquote>
@@ -265,8 +268,10 @@ main.main()
 <p>ざっくりいうと、CPUのコアはコアごとにキャッシュやレジスタを持っている。キャッシュやレジスタは個別のコアのみアクセス可能である。<br>
 なので、マルチコアCPUの場合、その下の層のメモリにまでコアの処理結果が反映されてないと他のコアの変更結果が見えない。</p>
 <ul>
-<li><a href="https://nipponkaigi.net/wiki/Re-order_buffer">https://nipponkaigi.net/wiki/Re-order_buffer</a></li>
-<li><a href="https://nipponkaigi.net/wiki/Out-of-order_execution">https://nipponkaigi.net/wiki/Out-of-order_execution</a></li>
+<li>
+<a href="https://nipponkaigi.net/wiki/Re-order_buffer" target="_blank" rel="noopener">https://nipponkaigi.net/wiki/Re-order_buffer</a></li>
+<li>
+<a href="https://nipponkaigi.net/wiki/Out-of-order_execution" target="_blank" rel="noopener">https://nipponkaigi.net/wiki/Out-of-order_execution</a></li>
 </ul>
 <p>ここで、CPUは必ずしも処理の順でメモリに結果を反映するわけではない。<br>
 また、他のゴルーチンがアクセスする際に、メモリへの反映が正しく完了している保証もない<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>。<br>
@@ -274,7 +279,8 @@ main.main()
 <h1 id="runtime上での実体確認">runtime上での実体確認</h1>
 <p>まず、runtime上の<code>string</code>型は<code>stringStruct</code>という長さと参照ポインタをもった構造体として処理される。</p>
 <ul>
-<li><a href="https://github.com/golang/go/blob/go1.16.2/src/runtime/string.go#L228-L231">https://github.com/golang/go/blob/go1.16.2/src/runtime/string.go#L228-L231</a></li>
+<li>
+<a href="https://github.com/golang/go/blob/go1.16.2/src/runtime/string.go#L228-L231" target="_blank" rel="noopener">https://github.com/golang/go/blob/go1.16.2/src/runtime/string.go#L228-L231</a></li>
 </ul>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> stringStruct <span style="color:#268bd2">struct</span> {
 </span></span><span style="display:flex;"><span>	str unsafe.Pointer
@@ -282,10 +288,12 @@ main.main()
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>この構造体の動きは<code>reflect#StringHeader</code>で確認することができる。</p>
 <ul>
-<li><a href="https://golang.org/pkg/reflect/#StringHeader">https://golang.org/pkg/reflect/#StringHeader</a></li>
+<li>
+<a href="https://golang.org/pkg/reflect/#StringHeader" target="_blank" rel="noopener">https://golang.org/pkg/reflect/#StringHeader</a></li>
 </ul>
 <p>先述のコードに<code>reflect#StringHeader</code>を使って<code>stringStruct</code>の状態を出力しつづけるようにしたのが次のコードだ。</p>
-<p><a href="https://play.golang.org/p/1oCesyqPjh-">https://play.golang.org/p/1oCesyqPjh-</a></p>
+<p>
+<a href="https://play.golang.org/p/1oCesyqPjh-" target="_blank" rel="noopener">https://play.golang.org/p/1oCesyqPjh-</a></p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
@@ -347,10 +355,14 @@ Don&rsquo;t be clever.</p>
 </blockquote>
 <h1 id="参考">参考</h1>
 <ul>
-<li><a href="https://yokohama-go-reading.connpass.com/event/206437/">https://yokohama-go-reading.connpass.com/event/206437/</a></li>
-<li><a href="https://golang.org/ref/mem">https://golang.org/ref/mem</a></li>
-<li><a href="https://nipponkaigi.net/wiki/Re-order_buffer">https://nipponkaigi.net/wiki/Re-order_buffer</a></li>
-<li><a href="https://nipponkaigi.net/wiki/Out-of-order_execution">https://nipponkaigi.net/wiki/Out-of-order_execution</a></li>
+<li>
+<a href="https://yokohama-go-reading.connpass.com/event/206437/" target="_blank" rel="noopener">https://yokohama-go-reading.connpass.com/event/206437/</a></li>
+<li>
+<a href="https://golang.org/ref/mem" target="_blank" rel="noopener">https://golang.org/ref/mem</a></li>
+<li>
+<a href="https://nipponkaigi.net/wiki/Re-order_buffer" target="_blank" rel="noopener">https://nipponkaigi.net/wiki/Re-order_buffer</a></li>
+<li>
+<a href="https://nipponkaigi.net/wiki/Out-of-order_execution" target="_blank" rel="noopener">https://nipponkaigi.net/wiki/Out-of-order_execution</a></li>
 </ul>
 <iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4621300253&linkId=99796994abe7cc79c1929dc3446c61b7"></iframe><div class="footnotes" role="doc-endnotes">
 <hr>
@@ -417,26 +429,29 @@ Don&rsquo;t be clever.</p>
   
     
       <div id="disqus_thread"></div>
-<script type="text/javascript">
-  (function() {
-      
-      
-      
-      if (window.location.hostname == "localhost")
-          return;
-
-      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-      var disqus_shortname = 'http-budougumi0617-github-io';
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-  })();
+<script>
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "http-budougumi0617-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
 </script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     
   
 </footer>
+
 
       </article>
     </div>
@@ -460,30 +475,30 @@ Don&rsquo;t be clever.</p>
     </p>
   </section>
 
+  
+  
 
+
+
+<ul class="sidebar-nav">
+  <li class="sidebar-nav-item">
+    <a target="_blank" rel="noopener noreferrer" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+    
+    
+    <a target="_blank" rel="noopener noreferrer" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+    
+    
+    <a target="_blank" rel="noopener noreferrer" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+    
+    
+    
+    
+    
 
   
-  <ul class="sidebar-nav">
-    <li class="sidebar-nav-item">
-      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
-      
-      
-      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
-      
-         
-      
-      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
-      
-      
-      
-      
-      
-      
-
-    
-    
-    </li>
-  </ul>
+  
+  </li>
+</ul>
 
   
 
@@ -537,10 +552,16 @@ Don&rsquo;t be clever.</p>
           
             
               <li class="post">
-                <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
+                <a href="/2024/12/30/best_things_i_bought_in_2024/">2024年に買ってよかったもの</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
+              </li>
             
           
             
@@ -555,12 +576,6 @@ Don&rsquo;t be clever.</p>
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -572,21 +587,19 @@ Don&rsquo;t be clever.</p>
 
     <footer role="contentinfo">
       <p>Copyright &copy; 2024  - <a href="https://budougumi0617.github.io/license/">License</a> -
-        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
       </p>
     </footer>
 
     
     
-    
+
+
 
     
-      <script>
-        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
-        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-        s.parentNode.insertBefore(g,s)}(document,'script'));
-      </script>
+    
+    
+
     
   </body>
 </html>

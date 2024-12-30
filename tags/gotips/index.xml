@@ -1,311 +1,210 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>gotips on My External Storage</title>
+    <title>Gotips on My External Storage</title>
     <link>https://budougumi0617.github.io/tags/gotips/</link>
-    <description>Recent content in gotips on My External Storage</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Gotips on My External Storage</description>
+    <generator>Hugo</generator>
     <language>ja-jp</language>
     <managingEditor>budougumi[at]gmail.com (budougumi0617)</managingEditor>
     <webMaster>budougumi[at]gmail.com (budougumi0617)</webMaster>
-    <lastBuildDate>Mon, 25 Oct 2021 08:00:09 +0900</lastBuildDate><atom:link href="https://budougumi0617.github.io/tags/gotips/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 25 Oct 2021 08:00:09 +0900</lastBuildDate>
+    <atom:link href="https://budougumi0617.github.io/tags/gotips/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>[Go] JSONを構造体にマッピングしつつ生データを保存するUnmarshalJSONの実装方法</title>
       <link>https://budougumi0617.github.io/2021/10/25/smart_saving_json_raw_message/</link>
-      <pubDate>Mon, 25 Oct 2021 08:00:09 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Mon, 25 Oct 2021 08:00:09 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2021/10/25/smart_saving_json_raw_message/</guid>
-      <description>&lt;p&gt;GoではJSONを扱うときでもしっかり型定義に当てはめて利用するのが一般的だ。&lt;br&gt;
-しかし、外部から受け取ったJSONデータは型に当てはめつつ併せて生データも保存しておきたいときがある。&lt;br&gt;
-&lt;code&gt;Defind Type&lt;/code&gt;をうまく使うとシンプルな&lt;code&gt;UnmarshalJSON(data []byte)&lt;/code&gt;メソッドを定義できる。&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;type&lt;/span&gt; Event &lt;span style=&#34;color:#268bd2&#34;&gt;struct&lt;/span&gt; {
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    ID   &lt;span style=&#34;color:#dc322f&#34;&gt;string&lt;/span&gt;          &lt;span style=&#34;color:#2aa198&#34;&gt;`json:&amp;#34;id&amp;#34;`&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    Type &lt;span style=&#34;color:#dc322f&#34;&gt;string&lt;/span&gt;          &lt;span style=&#34;color:#2aa198&#34;&gt;`json:&amp;#34;type&amp;#34;`&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    Payload Payload      &lt;span style=&#34;color:#2aa198&#34;&gt;`json:&amp;#34;pyload&amp;#34;`&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#586e75&#34;&gt;// 構造体にマッピングする前のJSONを保存しておきたい
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;    Raw  json.RawMessage &lt;span style=&#34;color:#2aa198&#34;&gt;`json:&amp;#34;-&amp;#34;`&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+      <description>&lt;p&gt;GoではJSONを扱うときでもしっかり型定義に当てはめて利用するのが一般的だ。&lt;br&gt;&#xA;しかし、外部から受け取ったJSONデータは型に当てはめつつ併せて生データも保存しておきたいときがある。&lt;br&gt;&#xA;&lt;code&gt;Defind Type&lt;/code&gt;をうまく使うとシンプルな&lt;code&gt;UnmarshalJSON(data []byte)&lt;/code&gt;メソッドを定義できる。&lt;/p&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;type&lt;/span&gt; Event &lt;span style=&#34;color:#268bd2&#34;&gt;struct&lt;/span&gt; {&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    ID   &lt;span style=&#34;color:#dc322f&#34;&gt;string&lt;/span&gt;          &lt;span style=&#34;color:#2aa198&#34;&gt;`json:&amp;#34;id&amp;#34;`&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    Type &lt;span style=&#34;color:#dc322f&#34;&gt;string&lt;/span&gt;          &lt;span style=&#34;color:#2aa198&#34;&gt;`json:&amp;#34;type&amp;#34;`&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    Payload Payload      &lt;span style=&#34;color:#2aa198&#34;&gt;`json:&amp;#34;pyload&amp;#34;`&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#586e75&#34;&gt;// 構造体にマッピングする前のJSONを保存しておきたい&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;    Raw  json.RawMessage &lt;span style=&#34;color:#2aa198&#34;&gt;`json:&amp;#34;-&amp;#34;`&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
     </item>
-    
     <item>
       <title>[Go] 前方互換性を保ちながらhttp.DefaultTransportからチューニングしたhttp.Transportをつくる</title>
       <link>https://budougumi0617.github.io/2021/09/13/how_to_copy_default_transport/</link>
-      <pubDate>Mon, 13 Sep 2021 10:00:13 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Mon, 13 Sep 2021 10:00:13 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2021/09/13/how_to_copy_default_transport/</guid>
-      <description>&lt;p&gt;&lt;a href=&#34;https://twitter.com/dice_zu&#34;&gt;@dice_zu&lt;/a&gt;さんから&lt;code&gt;http.DefaultTransport&lt;/code&gt;の正しい（？）コピーのやり方を教えてもらったのでメモしておく。&lt;br&gt;
-結論から言うと&lt;code&gt;http.DefaultTransport&lt;/code&gt;変数にたいして&lt;code&gt;net/http#Transport.Clone&lt;/code&gt;メソッドを使うと良い。
-これなら新しいGoのバージョンで&lt;code&gt;http.Transport&lt;/code&gt;に新しいフィールドが追加されても問題ない。&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;https://pkg.go.dev/net/http#Transport.Clone&#34;&gt;https://pkg.go.dev/net/http#Transport.Clone&lt;/a&gt;&lt;/p&gt;</description>
+      <description>&lt;p&gt;&#xA;&lt;a href=&#34;https://twitter.com/dice_zu&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;@dice_zu&lt;/a&gt;さんから&lt;code&gt;http.DefaultTransport&lt;/code&gt;の正しい（？）コピーのやり方を教えてもらったのでメモしておく。&lt;br&gt;&#xA;結論から言うと&lt;code&gt;http.DefaultTransport&lt;/code&gt;変数にたいして&lt;code&gt;net/http#Transport.Clone&lt;/code&gt;メソッドを使うと良い。&#xA;これなら新しいGoのバージョンで&lt;code&gt;http.Transport&lt;/code&gt;に新しいフィールドが追加されても問題ない。&lt;/p&gt;&#xA;&lt;p&gt;&#xA;&lt;a href=&#34;https://pkg.go.dev/net/http#Transport.Clone&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://pkg.go.dev/net/http#Transport.Clone&lt;/a&gt;&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>[Go]環境変数を使ったテストを書く</title>
       <link>https://budougumi0617.github.io/2021/04/16/setenv_on_test/</link>
-      <pubDate>Fri, 16 Apr 2021 03:38:05 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Fri, 16 Apr 2021 03:38:05 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2021/04/16/setenv_on_test/</guid>
       <description>&lt;p&gt;Goで環境変数を使ってテストを行なうときに便利な関数を作ってみる。&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>[Go] stringの比較でヌルポのpanicが発生する（こともある） #横浜Go読書会</title>
       <link>https://budougumi0617.github.io/2021/03/31/go-string-null-pointer-panic/</link>
-      <pubDate>Wed, 31 Mar 2021 11:00:23 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Wed, 31 Mar 2021 11:00:23 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2021/03/31/go-string-null-pointer-panic/</guid>
-      <description>&lt;p&gt;誤った並行処理の実装をしていると、&lt;code&gt;string&lt;/code&gt;の比較でもヌルポのセグフォが発生する。&lt;br&gt;
-正しく実装していればお目にかかることはないが、とても学びになったのでメモしておく。&lt;/p&gt;</description>
+      <description>&lt;p&gt;誤った並行処理の実装をしていると、&lt;code&gt;string&lt;/code&gt;の比較でもヌルポのセグフォが発生する。&lt;br&gt;&#xA;正しく実装していればお目にかかることはないが、とても学びになったのでメモしておく。&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Go1.16で追加されたio#ReadAll関数から読むストリーミング中のバッファ拡張の仕方</title>
       <link>https://budougumi0617.github.io/2021/02/22/update_capacity/</link>
-      <pubDate>Mon, 22 Feb 2021 08:00:00 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Mon, 22 Feb 2021 08:00:00 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2021/02/22/update_capacity/</guid>
-      <description>&lt;p&gt;実質Futureさんの記事の引用なんだけれど自分用メモ。&lt;/p&gt;
-&lt;div class=&#34;iframely-embed&#34;&gt;&lt;div class=&#34;iframely-responsive&#34; style=&#34;height: 140px; padding-bottom: 0;&#34;&gt;&lt;a href=&#34;https://future-architect.github.io/articles/20210210/index.html&#34; data-iframely-url=&#34;//cdn.iframe.ly/gbhA0jg&#34;&gt;&lt;/a&gt;&lt;/div&gt;&lt;/div&gt;&lt;script async src=&#34;//cdn.iframe.ly/embed.js&#34; charset=&#34;utf-8&#34;&gt;&lt;/script&gt;</description>
+      <description>&lt;p&gt;実質Futureさんの記事の引用なんだけれど自分用メモ。&lt;/p&gt;&#xA;&lt;div class=&#34;iframely-embed&#34;&gt;&lt;div class=&#34;iframely-responsive&#34; style=&#34;height: 140px; padding-bottom: 0;&#34;&gt;&lt;a href=&#34;https://future-architect.github.io/articles/20210210/index.html&#34; data-iframely-url=&#34;//cdn.iframe.ly/gbhA0jg&#34;&gt;&lt;/a&gt;&lt;/div&gt;&lt;/div&gt;&lt;script async src=&#34;//cdn.iframe.ly/embed.js&#34; charset=&#34;utf-8&#34;&gt;&lt;/script&gt;</description>
     </item>
-    
     <item>
       <title>[Go] まだレビュー中のgerrit上のコードパッチをローカルに取得する</title>
       <link>https://budougumi0617.github.io/2021/01/31/pull_cl_from_gerrit/</link>
-      <pubDate>Sun, 31 Jan 2021 15:20:00 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Sun, 31 Jan 2021 15:20:00 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2021/01/31/pull_cl_from_gerrit/</guid>
-      <description>&lt;p&gt;&lt;a href=&#34;https://twitter.com/dice_zu&#34;&gt;@dice_zu&lt;/a&gt;さんに教えてもらったことメモ。&lt;/p&gt;</description>
+      <description>&lt;p&gt;&#xA;&lt;a href=&#34;https://twitter.com/dice_zu&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;@dice_zu&lt;/a&gt;さんに教えてもらったことメモ。&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>[Go] ファイルが自動生成コードか判別したい</title>
       <link>https://budougumi0617.github.io/2021/01/22/detect_autogenerated_file/</link>
-      <pubDate>Fri, 22 Jan 2021 09:39:25 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Fri, 22 Jan 2021 09:39:25 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2021/01/22/detect_autogenerated_file/</guid>
       <description>&lt;p&gt;Goのコードを静的解析するとき、自動生成コードをスキップするためのメモ。&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>[Go] benchstat/go tool traceコマンドをつかったベンチマークの可視化</title>
       <link>https://budougumi0617.github.io/2020/12/04/goroutine_tuning_with_benchmark_benchstat_trace/</link>
-      <pubDate>Fri, 04 Dec 2020 19:00:00 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Fri, 04 Dec 2020 19:00:00 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2020/12/04/goroutine_tuning_with_benchmark_benchstat_trace/</guid>
-      <description>&lt;p&gt;この記事は&lt;a href=&#34;https://qiita.com/advent-calendar/2020/go&#34;&gt;Go Advent Calendar 2020&lt;/a&gt; 4日目の記事となる。&lt;br&gt;
-今回はGoでベンチマークの結果を可視化する方法をまとめる。
-また、可視化した結果を用いてgoroutine最適化のリファクタリングをしてみる。&lt;/p&gt;
-&lt;div class=&#34;iframely-embed&#34;&gt;&lt;div class=&#34;iframely-responsive&#34; style=&#34;height: 140px; padding-bottom: 0;&#34;&gt;&lt;a href=&#34;https://qiita.com/advent-calendar/2020/go&#34; data-iframely-url=&#34;//cdn.iframe.ly/wxnEBTy?iframe=card-small&#34;&gt;&lt;/a&gt;&lt;/div&gt;&lt;/div&gt;&lt;script async src=&#34;//cdn.iframe.ly/embed.js&#34; charset=&#34;utf-8&#34;&gt;&lt;/script&gt;</description>
+      <description>&lt;p&gt;この記事は&#xA;&lt;a href=&#34;https://qiita.com/advent-calendar/2020/go&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Go Advent Calendar 2020&lt;/a&gt; 4日目の記事となる。&lt;br&gt;&#xA;今回はGoでベンチマークの結果を可視化する方法をまとめる。&#xA;また、可視化した結果を用いてgoroutine最適化のリファクタリングをしてみる。&lt;/p&gt;&#xA;&lt;div class=&#34;iframely-embed&#34;&gt;&lt;div class=&#34;iframely-responsive&#34; style=&#34;height: 140px; padding-bottom: 0;&#34;&gt;&lt;a href=&#34;https://qiita.com/advent-calendar/2020/go&#34; data-iframely-url=&#34;//cdn.iframe.ly/wxnEBTy?iframe=card-small&#34;&gt;&lt;/a&gt;&lt;/div&gt;&lt;/div&gt;&lt;script async src=&#34;//cdn.iframe.ly/embed.js&#34; charset=&#34;utf-8&#34;&gt;&lt;/script&gt;</description>
     </item>
-    
     <item>
       <title>[Go] 埋め込みフィールドを使ったラッパー構造体定義</title>
       <link>https://budougumi0617.github.io/2020/11/01/how_to_craete_wrapper/</link>
-      <pubDate>Sun, 01 Nov 2020 17:59:43 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Sun, 01 Nov 2020 17:59:43 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2020/11/01/how_to_craete_wrapper/</guid>
       <description>&lt;p&gt;Goである構造体（例:サードパーティのクライアント）のラッパーを書くときは埋込みフィールドを使うといいよという話。&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>[Go] signal.Notifyを使うときは必ずバッファ付きチャネルで利用すること</title>
       <link>https://budougumi0617.github.io/2020/09/06/why_signal_notify_want_buffered_channel/</link>
-      <pubDate>Sun, 06 Sep 2020 14:42:42 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Sun, 06 Sep 2020 14:42:42 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2020/09/06/why_signal_notify_want_buffered_channel/</guid>
-      <description>&lt;p&gt;Goで&lt;code&gt;singal.Notify&lt;/code&gt;関数を使うときは必ずバッファありチャネルを利用しなくてはいけない。&lt;br&gt;
-なぜバッファなしチャネルを使ってはいけないのかまとめた。&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://godoc.org/os/signal#Notify&#34;&gt;https://godoc.org/os/signal#Notify&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;</description>
+      <description>&lt;p&gt;Goで&lt;code&gt;singal.Notify&lt;/code&gt;関数を使うときは必ずバッファありチャネルを利用しなくてはいけない。&lt;br&gt;&#xA;なぜバッファなしチャネルを使ってはいけないのかまとめた。&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&#xA;&lt;a href=&#34;https://godoc.org/os/signal#Notify&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://godoc.org/os/signal#Notify&lt;/a&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
     </item>
-    
     <item>
       <title>[Go]HTTPレスポンスボディの内容をログに残したい</title>
       <link>https://budougumi0617.github.io/2020/06/21/record_response_body/</link>
-      <pubDate>Sun, 21 Jun 2020 19:13:24 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Sun, 21 Jun 2020 19:13:24 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2020/06/21/record_response_body/</guid>
-      <description>&lt;p&gt;GoでHTTPサーバを作成するとき、アクセスログを収集する文脈でレスポンスを記録したくなるだろう。
-Middlewareを作成して、HTTPレスポンスをLoggerに出力するやり方をまとめる。&lt;/p&gt;</description>
+      <description>&lt;p&gt;GoでHTTPサーバを作成するとき、アクセスログを収集する文脈でレスポンスを記録したくなるだろう。&#xA;Middlewareを作成して、HTTPレスポンスをLoggerに出力するやり方をまとめる。&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Goのパッケージ名は単数形？複数形？</title>
       <link>https://budougumi0617.github.io/2020/05/22/package-name-in-go/</link>
-      <pubDate>Fri, 22 May 2020 09:16:17 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Fri, 22 May 2020 09:16:17 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2020/05/22/package-name-in-go/</guid>
       <description>&lt;p&gt;Goのパッケージ名には複数形の名前はつけないほうがよいというメモ。&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Goでサーバを立ち上げてE2Eテストを実施するCI用のテストコードを書く</title>
       <link>https://budougumi0617.github.io/2020/03/27/http-test-in-go/</link>
-      <pubDate>Fri, 27 Mar 2020 20:00:22 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Fri, 27 Mar 2020 20:00:22 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2020/03/27/http-test-in-go/</guid>
       <description>&lt;p&gt;GoでCIで動かせるE2Eテストコードを書くための下調べをしたのでメモしておく。&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>The Go Playground（play.golang.org）のショートカットキー</title>
       <link>https://budougumi0617.github.io/2020/03/13/shortcut-keys-on-the-go-playground/</link>
-      <pubDate>Fri, 13 Mar 2020 08:32:11 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Fri, 13 Mar 2020 08:32:11 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2020/03/13/shortcut-keys-on-the-go-playground/</guid>
-      <description>&lt;p&gt;ちょっとした動作確認にThe Go Playgroundを多用する。&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://play.golang.org/&#34;&gt;https://play.golang.org/&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;実は、The Go Playgroundにはショートカットキーが存在するので、マウス操作は必要ない。&lt;/p&gt;</description>
+      <description>&lt;p&gt;ちょっとした動作確認にThe Go Playgroundを多用する。&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&#xA;&lt;a href=&#34;https://play.golang.org/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://play.golang.org/&lt;/a&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;実は、The Go Playgroundにはショートカットキーが存在するので、マウス操作は必要ない。&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>[Go] 省略記号（...）を使った配列宣言の仕方</title>
       <link>https://budougumi0617.github.io/2020/03/06/go-array-with-the-ellipsis/</link>
-      <pubDate>Fri, 06 Mar 2020 08:40:26 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Fri, 06 Mar 2020 08:40:26 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2020/03/06/go-array-with-the-ellipsis/</guid>
-      <description>&lt;p&gt;標準パッケージのコードを眺めていたら、珍しい書き方の部分を見つけた。&lt;br&gt;
-以下のように宣言すると、配列サイズを明示的に書かずに配列を宣言できる。&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;s &lt;span style=&#34;color:#719e07&#34;&gt;:=&lt;/span&gt; [&lt;span style=&#34;color:#719e07&#34;&gt;...&lt;/span&gt;]&lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt;{&lt;span style=&#34;color:#2aa198&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;2&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;3&lt;/span&gt;}
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+      <description>&lt;p&gt;標準パッケージのコードを眺めていたら、珍しい書き方の部分を見つけた。&lt;br&gt;&#xA;以下のように宣言すると、配列サイズを明示的に書かずに配列を宣言できる。&lt;/p&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;s &lt;span style=&#34;color:#719e07&#34;&gt;:=&lt;/span&gt; [&lt;span style=&#34;color:#719e07&#34;&gt;...&lt;/span&gt;]&lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt;{&lt;span style=&#34;color:#2aa198&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;2&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;3&lt;/span&gt;}&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
     </item>
-    
     <item>
       <title>[Go] Defined type（Named type）とType aliasを使い分ける</title>
       <link>https://budougumi0617.github.io/2020/02/01/go-named-type-and-type-alias/</link>
-      <pubDate>Sat, 01 Feb 2020 12:31:27 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Sat, 01 Feb 2020 12:31:27 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2020/02/01/go-named-type-and-type-alias/</guid>
-      <description>&lt;p&gt;Goには既存の型に新しい名前をつける方法が2つある。&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;type MyType int&lt;/code&gt;と宣言するDefined type
-&lt;ul&gt;
-&lt;li&gt;以前はNamed typeと言っていたが、Go1.11からDefined typeと呼ぶようになった&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;type MyType = int&lt;/code&gt;と宣言するType alias&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;すでにいろいろ記事はあるものの、最近数回聞かれることがあったので改めてまとめておく。&lt;/p&gt;</description>
+      <description>&lt;p&gt;Goには既存の型に新しい名前をつける方法が2つある。&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;type MyType int&lt;/code&gt;と宣言するDefined type&#xA;&lt;ul&gt;&#xA;&lt;li&gt;以前はNamed typeと言っていたが、Go1.11からDefined typeと呼ぶようになった&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;type MyType = int&lt;/code&gt;と宣言するType alias&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;すでにいろいろ記事はあるものの、最近数回聞かれることがあったので改めてまとめておく。&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>[Go] タグなし switchは switch true {...}と等しい</title>
       <link>https://budougumi0617.github.io/2019/11/10/switch-statement-in-go/</link>
-      <pubDate>Sun, 10 Nov 2019 12:50:18 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Sun, 10 Nov 2019 12:50:18 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2019/11/10/switch-statement-in-go/</guid>
-      <description>&lt;p&gt;先日のgolang.tokyoでは&lt;code&gt;switch&lt;/code&gt;文に関するDevquizが出題された。
-私はわかっていたつもりで乾杯の挨拶中に解説を話したが、間違えた解説だったので改めて仕様を確認した。&lt;/p&gt;</description>
+      <description>&lt;p&gt;先日のgolang.tokyoでは&lt;code&gt;switch&lt;/code&gt;文に関するDevquizが出題された。&#xA;私はわかっていたつもりで乾杯の挨拶中に解説を話したが、間違えた解説だったので改めて仕様を確認した。&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>[Go] 独自型にfmtパッケージのインターフェースを実装して出力を制御する</title>
       <link>https://budougumi0617.github.io/2019/10/12/confirm-print-with-fmt-interfaces/</link>
-      <pubDate>Sat, 12 Oct 2019 15:17:06 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Sat, 12 Oct 2019 15:17:06 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2019/10/12/confirm-print-with-fmt-interfaces/</guid>
-      <description>&lt;p&gt;&lt;code&gt;fmt&lt;/code&gt;パッケージには&lt;code&gt;fmt.Printf&lt;/code&gt;の出力を任意に変更できるインターフェースが定義されている。&lt;br&gt;
-各インターフェースを満たす独自型をフィールドに持つ構造体の出力がどうなるのか確認し、任意の型の出力を制御できるか確認してみた。&lt;/p&gt;</description>
+      <description>&lt;p&gt;&lt;code&gt;fmt&lt;/code&gt;パッケージには&lt;code&gt;fmt.Printf&lt;/code&gt;の出力を任意に変更できるインターフェースが定義されている。&lt;br&gt;&#xA;各インターフェースを満たす独自型をフィールドに持つ構造体の出力がどうなるのか確認し、任意の型の出力を制御できるか確認してみた。&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>[Go] 構造体オブジェクト初期化時にフィールド名を指定することを強制する #golangjp</title>
       <link>https://budougumi0617.github.io/2019/08/17/must-use-key-in-struct-initialize/</link>
-      <pubDate>Sat, 17 Aug 2019 08:53:45 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Sat, 17 Aug 2019 08:53:45 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2019/08/17/must-use-key-in-struct-initialize/</guid>
       <description>&lt;p&gt;静的解析に頼らず、コンパイル時に構造体オブジェクトの初期化でフィールド名の指定を強制するためのTips。&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>[発表資料] 今改めて読み直したい Go基礎情報 その1 #golangtokyo</title>
       <link>https://budougumi0617.github.io/2019/06/20/golangtokyo25-read-again-awesome-go-article/</link>
-      <pubDate>Thu, 20 Jun 2019 07:02:01 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Thu, 20 Jun 2019 07:02:01 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2019/06/20/golangtokyo25-read-again-awesome-go-article/</guid>
-      <description>&lt;p&gt;golang.tokyo #25で過去の優良情報を振り返る発表を行なった。&lt;br&gt;
-この記事は発表で使った資料と口頭で話したことの要約をまとめておく。&lt;/p&gt;</description>
+      <description>&lt;p&gt;golang.tokyo #25で過去の優良情報を振り返る発表を行なった。&lt;br&gt;&#xA;この記事は発表で使った資料と口頭で話したことの要約をまとめておく。&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>[Go] プリミティブ型の配列・スライスを出力するときはその型のverbが使える #golangjp</title>
       <link>https://budougumi0617.github.io/2019/05/26/print-array-and-slice-with-verbs/</link>
-      <pubDate>Sun, 26 May 2019 20:32:20 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Sun, 26 May 2019 20:32:20 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2019/05/26/print-array-and-slice-with-verbs/</guid>
-      <description>&lt;p&gt;柴田さん(&lt;a href=&#34;https://twitter.com/yoshiki_shibata&#34;&gt;@yoshiki_shibata&lt;/a&gt;)に&lt;code&gt;fmt.Printf&lt;/code&gt;について教えてもらったのでメモしておく。&lt;/p&gt;</description>
+      <description>&lt;p&gt;柴田さん(&#xA;&lt;a href=&#34;https://twitter.com/yoshiki_shibata&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;@yoshiki_shibata&lt;/a&gt;)に&lt;code&gt;fmt.Printf&lt;/code&gt;について教えてもらったのでメモしておく。&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>[Go] selectのcase文中でch &lt;- &lt;- chやch &lt;- f()をしない方が良い #golangjp #横浜go読書会</title>
       <link>https://budougumi0617.github.io/2019/03/15/go-strange-result-in-select/</link>
-      <pubDate>Fri, 15 Mar 2019 19:41:58 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Fri, 15 Mar 2019 19:41:58 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2019/03/15/go-strange-result-in-select/</guid>
       <description>&lt;p&gt;簡潔にまとめられなかったので式表現をそのままタイトルに書いてしまったが、分かっていないとエンバグしそうな挙動を見つけたのでメモしておく。&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>GoでJSONのUnmarshalがシンタックスエラーで失敗した時、エラー周辺の文字列を表示する</title>
       <link>https://budougumi0617.github.io/2019/02/24/go-print-detail-of-json-syntax-error/</link>
-      <pubDate>Sun, 24 Feb 2019 21:08:31 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Sun, 24 Feb 2019 21:08:31 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2019/02/24/go-print-detail-of-json-syntax-error/</guid>
       <description>&lt;p&gt;&lt;code&gt;json.Unmarshal&lt;/code&gt;に失敗したとき&lt;code&gt;json.SyntaxError&lt;/code&gt;が取得できた場合は文字列の中のどの位置でパースに失敗したのか知ることができる。&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>[Go]未リリース版のGoの仕様や実際の動きを確認する #golangjp</title>
       <link>https://budougumi0617.github.io/2019/02/14/investigate-go-unreleased-version/</link>
-      <pubDate>Thu, 14 Feb 2019 07:51:53 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Thu, 14 Feb 2019 07:51:53 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2019/02/14/investigate-go-unreleased-version/</guid>
-      <description>&lt;p&gt;未リリース版のGo仕様や実際の動きを確認する。
-今回は2019/02/14現在未リリースのGo1.12の仕様を確認した。&lt;/p&gt;</description>
+      <description>&lt;p&gt;未リリース版のGo仕様や実際の動きを確認する。&#xA;今回は2019/02/14現在未リリースのGo1.12の仕様を確認した。&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>[Go] JSON内の数字や文字列が混じった配列を構造体にUnmarshalする</title>
       <link>https://budougumi0617.github.io/2018/11/23/unmarshal-json-array-in-go/</link>
-      <pubDate>Fri, 23 Nov 2018 23:22:27 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Fri, 23 Nov 2018 23:22:27 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2018/11/23/unmarshal-json-array-in-go/</guid>
-      <description>&lt;p&gt;以下のようなJSONデータはGoではパースしずらい。
-理由は、配列に複数の型が含まれていてGoの配列としては&lt;code&gt;[]interface{}&lt;/code&gt;にするしかないことと、名前(&lt;code&gt;key&lt;/code&gt;)が設定されていないのでマッピングしにくいからだ。
-これを無理やりUnmarshalしたときのメモ。&lt;/p&gt;</description>
+      <description>&lt;p&gt;以下のようなJSONデータはGoではパースしずらい。&#xA;理由は、配列に複数の型が含まれていてGoの配列としては&lt;code&gt;[]interface{}&lt;/code&gt;にするしかないことと、名前(&lt;code&gt;key&lt;/code&gt;)が設定されていないのでマッピングしにくいからだ。&#xA;これを無理やりUnmarshalしたときのメモ。&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>go listで依存パッケージを一覧する。-tagsで依存パッケージを切り替える #go</title>
       <link>https://budougumi0617.github.io/2018/09/21/package-dependencies-with-go-list-and-build-tags/</link>
-      <pubDate>Fri, 21 Sep 2018 09:18:17 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Fri, 21 Sep 2018 09:18:17 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2018/09/21/package-dependencies-with-go-list-and-build-tags/</guid>
-      <description>&lt;p&gt;今更だがGoでビルドタグで依存パッケージをどう制御できるのか確認した。&lt;br&gt;
-また、依存パッケージの一覧を確認するのには&lt;code&gt;go list&lt;/code&gt;コマンドの使い方を調べた。&lt;/p&gt;</description>
+      <description>&lt;p&gt;今更だがGoでビルドタグで依存パッケージをどう制御できるのか確認した。&lt;br&gt;&#xA;また、依存パッケージの一覧を確認するのには&lt;code&gt;go list&lt;/code&gt;コマンドの使い方を調べた。&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>[発表資料]初級者向けGoの落とし穴と解説 #gounco</title>
       <link>https://budougumi0617.github.io/2018/07/26/presentation-gounco-lt3/</link>
-      <pubDate>Thu, 26 Jul 2018 08:00:00 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Thu, 26 Jul 2018 08:00:00 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2018/07/26/presentation-gounco-lt3/</guid>
       <description>&lt;p&gt;Go(Un)Conference（Goあんこ）LT大会 3kgの発表資料と資料中の参考リンク、補足をまとめた。&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>go getで取得されるコードはmasterブランチ(HEAD)がデフォルトではない #golang</title>
       <link>https://budougumi0617.github.io/2018/05/10/go-get-from-go1-tag-or-branch/</link>
-      <pubDate>Thu, 10 May 2018 09:00:17 +0900</pubDate>
-      <author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Thu, 10 May 2018 09:00:17 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
       <guid>https://budougumi0617.github.io/2018/05/10/go-get-from-go1-tag-or-branch/</guid>
-      <description>gocon中の@ymotongpooさんのTweetが気になったので調べた。 前から結構言ってるんだけど、go getで最新取られたくない場合は</description>
+      <description>&lt;p&gt;gocon中の&#xA;&lt;a href=&#34;https://twitter.com/ymotongpoo&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;@ymotongpoo&lt;/a&gt;さんのTweetが気になったので調べた。&lt;/p&gt;&#xA;&lt;blockquote class=&#34;twitter-tweet&#34; data-lang=&#34;ja&#34;&gt;&lt;p lang=&#34;ja&#34; dir=&#34;ltr&#34;&gt;前から結構言ってるんだけど、go getで最新取られたくない場合は go1 というタグを切れば良いです &lt;a href=&#34;https://twitter.com/hashtag/gocon?src=hash&amp;amp;ref_src=twsrc%5Etfw&#34;&gt;#gocon&lt;/a&gt;&lt;/p&gt;&amp;mdash; Yoshifumi Yamaguchi 🇺🇸 (@ymotongpoo) &lt;a href=&#34;https://twitter.com/ymotongpoo/status/985418278288764928?ref_src=twsrc%5Etfw&#34;&gt;2018年4月15日&lt;/a&gt;&lt;/blockquote&gt;&#xA;&lt;script async src=&#34;https://platform.twitter.com/widgets.js&#34; charset=&#34;utf-8&#34;&gt;&lt;/script&gt;&#xA;&lt;h1 id=&#34;tldr&#34;&gt;TL;DR&lt;/h1&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;go 1.Xを使っているとき、&lt;code&gt;go get&lt;/code&gt;で取得されるコードはまず&lt;code&gt;go1&lt;/code&gt; branch or tagから取得される&lt;/li&gt;&#xA;&lt;li&gt;branchにもtagにも&lt;code&gt;go1&lt;/code&gt;が存在しなかったときに&lt;code&gt;master&lt;/code&gt;のコードが取得される&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h1 id=&#34;実際に仕様を見てみる&#34;&gt;実際に仕様を見てみる&lt;/h1&gt;&#xA;&lt;p&gt;golang.orgの&lt;code&gt;go get&lt;/code&gt;コマンドのページを見ると確かに&lt;code&gt;go1&lt;/code&gt;について言及されている。&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

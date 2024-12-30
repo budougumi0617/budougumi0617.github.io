@@ -38,9 +38,8 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.108.0">
+  <meta name="generator" content="Hugo 0.134.2">
 
-  
   
 
   
@@ -54,10 +53,12 @@
   <meta property="og:url" content="https://budougumi0617.github.io/2018/06/13/403-error-when-add-google-account-for-kayenta/"/>
   <meta property="og:type" content="article"/>
   <meta property="og:title" content="hal config canary google account addすると&#34;Required &#39;compute.projects.get&#39; permission for...&#34;で403エラー #spinnaker #kayenta - My External Storage"/>
-  <meta property="og:description" content="SpinnakerはKubenetesクラスターへの継続的デリバリーを可能とするOSSだ。 Kayenataを有効化することで、カナリーリリー"/>
+  <meta property="og:description" content="SpinnakerはKubenetesクラスターへの継続的デリバリーを可能とするOSSだ。
+Kayenataを有効化することで、カナリーリリースの自動スコアリングも可能とする。"/>
   
   <meta name="twitter:title" content="hal config canary google account addすると&#34;Required &#39;compute.projects.get&#39; permission for...&#34;で403エラー #spinnaker #kayenta - My External Storage"/>
-  <meta name="twitter:description" content="SpinnakerはKubenetesクラスターへの継続的デリバリーを可能とするOSSだ。 Kayenataを有効化することで、カナリーリリー"/>
+  <meta name="twitter:description" content="SpinnakerはKubenetesクラスターへの継続的デリバリーを可能とするOSSだ。
+Kayenataを有効化することで、カナリーリリースの自動スコアリングも可能とする。"/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
   <meta name="twitter:creator" content="@budougumi0617"/>
@@ -125,11 +126,11 @@
     
   
     
-      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank"  rel="noopener noreferrer">About</a></li>
     
   
     
-      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank"  rel="noopener noreferrer">Archives</a></li>
     
   
 </ul>
@@ -137,7 +138,7 @@
 <ul class="subscription">
   
     
-        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS" rel="noopener noreferrer"><i class="fa fa-rss-square fa-lg"></i></a>
     
   
 </ul>
@@ -180,7 +181,8 @@
           <p>SpinnakerはKubenetesクラスターへの継続的デリバリーを可能とするOSSだ。<br>
 Kayenataを有効化することで、カナリーリリースの自動スコアリングも可能とする。</p>
 <p><strong>Introducing Kayenta: An open automated canary analysis tool from Google and Netflix</strong><br>
-<a href="https://cloudplatform.googleblog.com/2018/04/introducing-Kayenta-an-open-automated-canary-analysis-tool-from-Google-and-Netflix.html">https://cloudplatform.googleblog.com/2018/04/introducing-Kayenta-an-open-automated-canary-analysis-tool-from-Google-and-Netflix.html</a></p>
+
+<a href="https://cloudplatform.googleblog.com/2018/04/introducing-Kayenta-an-open-automated-canary-analysis-tool-from-Google-and-Netflix.html" target="_blank" rel="noopener">https://cloudplatform.googleblog.com/2018/04/introducing-Kayenta-an-open-automated-canary-analysis-tool-from-Google-and-Netflix.html</a></p>
 <p>しかし2018/06/13現在、少なくともv1.7.0ではCanary Analytics(Kayenta)はデフォルトで無効化されている。</p>
 <p>今回はSpinnakerのKayentaを有効化する途中、GCP用の設定をしようとして以下のエラーが出たときのメモ。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>budougumi0617@budougumi0617-halyard:~$ hal config canary google account add my-google-account <span style="color:#cb4b16">\
@@ -211,18 +213,22 @@ Kayenataを有効化することで、カナリーリリースの自動スコア
 </span></span><span style="display:flex;"><span>  integration Google.
 </span></span></code></pre></div><h1 id="tldr">TL;DR</h1>
 <ul>
-<li><a href="https://www.spinnaker.io/setup/canary/">Set up canary support</a>のQuick start通りにやると403エラーが出る</li>
+<li>
+<a href="https://www.spinnaker.io/setup/canary/" target="_blank" rel="noopener">Set up canary support</a>のQuick start通りにやると403エラーが出る</li>
 <li>Service Account(SA)に<code>roles/compute.viewer</code>ロールを付与すれば解決できる</li>
-<li>似たような権限エラーのときは<a href="https://cloud.google.com/compute/docs/access/iam">IAMロール一覧</a>で必要なロールを探してSAに付与する</li>
+<li>似たような権限エラーのときは
+<a href="https://cloud.google.com/compute/docs/access/iam" target="_blank" rel="noopener">IAMロール一覧</a>で必要なロールを探してSAに付与する</li>
 </ul>
 <h1 id="前提条件">前提条件</h1>
 <p>Google Kubernetes Engine(GKE)上にv1.7.0のSpinnakerを一度起動している。</p>
 <p>Spinnaker自体は以下のquickstart通りにhalyardインスタンスを構成する方法で起動した。</p>
 <p><strong>Try out Halyard on GKE</strong><br>
-<a href="https://www.spinnaker.io/setup/quickstart/halyard-gke/">https://www.spinnaker.io/setup/quickstart/halyard-gke/</a></p>
+
+<a href="https://www.spinnaker.io/setup/quickstart/halyard-gke/" target="_blank" rel="noopener">https://www.spinnaker.io/setup/quickstart/halyard-gke/</a></p>
 <p>Spinnakerを起動できたら、以下の手順に則ってKayentaの設定を有効化する。</p>
 <p><strong>Set up canary support</strong><br>
-<a href="https://www.spinnaker.io/setup/canary/">https://www.spinnaker.io/setup/canary/</a></p>
+
+<a href="https://www.spinnaker.io/setup/canary/" target="_blank" rel="noopener">https://www.spinnaker.io/setup/canary/</a></p>
 <p>しかし、Stack Driverなどのログ閲覧用のアカウントを作成する途中以下のようなエラーが出てしまった。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>budougumi0617@budougumi0617-halyard:~$ hal config canary google account add my-google-account <span style="color:#cb4b16">\
 </span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>&gt;   --project budougumi0617-spinnaker6 <span style="color:#cb4b16">\
@@ -252,12 +258,15 @@ Kayenataを有効化することで、カナリーリリースの自動スコア
 </span></span><span style="display:flex;"><span>  integration Google.
 </span></span></code></pre></div><h1 id="使うservice-account事前にrolescomputeviewerロールを付与しておく">使うService Account事前に<code>roles/compute.viewer</code>ロールを付与しておく</h1>
 <p>エラーは(<code>--json-path</code>オプションで参照している)Service Account(SA)に必要なパーミッションを付与していないのが原因だった。
-<a href="https://www.spinnaker.io/setup/quickstart/halyard-gke/">Try out Halyard on GKE</a>の通りにHalyardサーバーを構成している場合、
+
+<a href="https://www.spinnaker.io/setup/quickstart/halyard-gke/" target="_blank" rel="noopener">Try out Halyard on GKE</a>の通りにHalyardサーバーを構成している場合、
 上記のコマンドで指定しているJSONのSAは<code>gcs-service-account</code>という名前になっているはずなので、それにIAMのロールを付与する。</p>
 <p><code>compute.projects.get</code>パーミッションを持つ最小権限のロールを以下のページから探す。</p>
 <p><strong>Compute Engine IAM Roles</strong><br>
-<a href="https://cloud.google.com/compute/docs/access/iam">https://cloud.google.com/compute/docs/access/iam</a></p>
-<p>そうすると、どうやら<a href="https://cloud.google.com/compute/docs/access/iam#compute_viewer_role">roles/compute.viewer</a>が最小権限のロールなので、これを利用することにする。</p>
+
+<a href="https://cloud.google.com/compute/docs/access/iam" target="_blank" rel="noopener">https://cloud.google.com/compute/docs/access/iam</a></p>
+<p>そうすると、どうやら
+<a href="https://cloud.google.com/compute/docs/access/iam#compute_viewer_role" target="_blank" rel="noopener">roles/compute.viewer</a>が最小権限のロールなので、これを利用することにする。</p>
 <p>自分はHalyardサーバにIAMの編集権限をつけていなかったのでローカルPCで以下の操作を行った。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#268bd2">GCS_SA</span><span style="color:#719e07">=</span>gcs-service-account
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">GCS_SA_EMAIL</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>gcloud iam service-accounts list <span style="color:#cb4b16">\
@@ -285,10 +294,14 @@ Kayenataを有効化することで、カナリーリリースの自動スコア
 とはいえ、技術調査のときは使うService Accountに最初からフルコントロールをつけた状態でやったほうが無駄に消耗しなくてよさそうだ。</p>
 <h1 id="関連">関連</h1>
 <ul>
-<li><a href="/2018/04/22/how-to-start-spinnaker/">Spinnakerの始め方いろいろ</a></li>
-<li><a href="/2018/04/27/spinnaker-introduction/">[発表資料]Spinnaker入門 #cndjp5</a></li>
-<li><a href="/2018/04/24/spinnaker-with-google-kubernetes-engine/">GKEでSpinnakerを使ったKubernetesの継続的デリバリーを試してみた</a></li>
-<li><a href="/2018/06/16/spinnaker-failing-with-stackdrivermetricsservice/">[Spinnaker]GKE上でhal deploy applyするとkayenta failed http://localhost:8090/spectator/metrics with &lt;urlopen error [Errno 111] Connection refused&gt; #spinnaker #kayenta</a></li>
+<li>
+<a href="/2018/04/22/how-to-start-spinnaker/">Spinnakerの始め方いろいろ</a></li>
+<li>
+<a href="/2018/04/27/spinnaker-introduction/">[発表資料]Spinnaker入門 #cndjp5</a></li>
+<li>
+<a href="/2018/04/24/spinnaker-with-google-kubernetes-engine/">GKEでSpinnakerを使ったKubernetesの継続的デリバリーを試してみた</a></li>
+<li>
+<a href="/2018/06/16/spinnaker-failing-with-stackdrivermetricsservice/">[Spinnaker]GKE上でhal deploy applyするとkayenta failed http://localhost:8090/spectator/metrics with &lt;urlopen error [Errno 111] Connection refused&gt; #spinnaker #kayenta</a></li>
 </ul>
 
         </div>
@@ -345,26 +358,29 @@ Kayenataを有効化することで、カナリーリリースの自動スコア
   
     
       <div id="disqus_thread"></div>
-<script type="text/javascript">
-  (function() {
-      
-      
-      
-      if (window.location.hostname == "localhost")
-          return;
-
-      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-      var disqus_shortname = 'http-budougumi0617-github-io';
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-  })();
+<script>
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "http-budougumi0617-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
 </script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     
   
 </footer>
+
 
       </article>
     </div>
@@ -388,30 +404,30 @@ Kayenataを有効化することで、カナリーリリースの自動スコア
     </p>
   </section>
 
+  
+  
 
+
+
+<ul class="sidebar-nav">
+  <li class="sidebar-nav-item">
+    <a target="_blank" rel="noopener noreferrer" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+    
+    
+    <a target="_blank" rel="noopener noreferrer" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+    
+    
+    <a target="_blank" rel="noopener noreferrer" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+    
+    
+    
+    
+    
 
   
-  <ul class="sidebar-nav">
-    <li class="sidebar-nav-item">
-      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
-      
-      
-      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
-      
-         
-      
-      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
-      
-      
-      
-      
-      
-      
-
-    
-    
-    </li>
-  </ul>
+  
+  </li>
+</ul>
 
   
 
@@ -465,10 +481,16 @@ Kayenataを有効化することで、カナリーリリースの自動スコア
           
             
               <li class="post">
-                <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
+                <a href="/2024/12/30/best_things_i_bought_in_2024/">2024年に買ってよかったもの</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
+              </li>
             
           
             
@@ -483,12 +505,6 @@ Kayenataを有効化することで、カナリーリリースの自動スコア
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -500,21 +516,19 @@ Kayenataを有効化することで、カナリーリリースの自動スコア
 
     <footer role="contentinfo">
       <p>Copyright &copy; 2024  - <a href="https://budougumi0617.github.io/license/">License</a> -
-        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
       </p>
     </footer>
 
     
     
-    
+
+
 
     
-      <script>
-        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
-        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-        s.parentNode.insertBefore(g,s)}(document,'script'));
-      </script>
+    
+    
+
     
   </body>
 </html>

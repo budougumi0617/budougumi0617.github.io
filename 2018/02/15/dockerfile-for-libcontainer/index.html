@@ -38,9 +38,8 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.108.0">
+  <meta name="generator" content="Hugo 0.134.2">
 
-  
   
 
   
@@ -54,10 +53,18 @@
   <meta property="og:url" content="https://budougumi0617.github.io/2018/02/15/dockerfile-for-libcontainer/"/>
   <meta property="og:type" content="article"/>
   <meta property="og:title" content="[Goならわかるシステムプログラミング]libcontainerで実装したLinuxコンテナを起動するためのDockerfile - My External Storage"/>
-  <meta property="og:description" content="Goならわかるシステムプログラミング ― 第20回 Go言語とコンテナ http://ascii.jp/elem/000/001/502/1502967/ Goならわかるシステムプログラミングの中で、Goとlibcontainer"/>
+  <meta property="og:description" content="Goならわかるシステムプログラミング ― 第20回 Go言語とコンテナ
+
+http://ascii.jp/elem/000/001/502/1502967/
+Goならわかるシステムプログラミングの中で、GoとlibcontainerライブラリでLinuxコンテナを実装する回があるのだが、
+実装したコンテナはLinux上でしかgo buildできないし、起動もできなかった。VirtualBoxなどでも良いが、Dockerで環境を用意するようにした。"/>
   
   <meta name="twitter:title" content="[Goならわかるシステムプログラミング]libcontainerで実装したLinuxコンテナを起動するためのDockerfile - My External Storage"/>
-  <meta name="twitter:description" content="Goならわかるシステムプログラミング ― 第20回 Go言語とコンテナ http://ascii.jp/elem/000/001/502/1502967/ Goならわかるシステムプログラミングの中で、Goとlibcontainer"/>
+  <meta name="twitter:description" content="Goならわかるシステムプログラミング ― 第20回 Go言語とコンテナ
+
+http://ascii.jp/elem/000/001/502/1502967/
+Goならわかるシステムプログラミングの中で、GoとlibcontainerライブラリでLinuxコンテナを実装する回があるのだが、
+実装したコンテナはLinux上でしかgo buildできないし、起動もできなかった。VirtualBoxなどでも良いが、Dockerで環境を用意するようにした。"/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
   <meta name="twitter:creator" content="@budougumi0617"/>
@@ -125,11 +132,11 @@
     
   
     
-      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank"  rel="noopener noreferrer">About</a></li>
     
   
     
-      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank"  rel="noopener noreferrer">Archives</a></li>
     
   
 </ul>
@@ -137,7 +144,7 @@
 <ul class="subscription">
   
     
-        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS" rel="noopener noreferrer"><i class="fa fa-rss-square fa-lg"></i></a>
     
   
 </ul>
@@ -178,36 +185,44 @@
           
           
           <p><strong>Goならわかるシステムプログラミング ― 第20回 Go言語とコンテナ</strong><br>
-<a href="http://ascii.jp/elem/000/001/502/1502967/">http://ascii.jp/elem/000/001/502/1502967/</a></p>
+
+<a href="http://ascii.jp/elem/000/001/502/1502967/" target="_blank" rel="noopener">http://ascii.jp/elem/000/001/502/1502967/</a></p>
 <p>Goならわかるシステムプログラミングの中で、GoとlibcontainerライブラリでLinuxコンテナを実装する回があるのだが、
 実装したコンテナはLinux上でしか<code>go build</code>できないし、起動もできなかった。VirtualBoxなどでも良いが、Dockerで環境を用意するようにした。</p>
 <p>今回作成したDockerfileなどは以下にある。</p>
 <p><strong>budougumi0617/gsp/ch17/container</strong><br>
-<a href="https://github.com/budougumi0617/gsp/tree/master/ch17/container">https://github.com/budougumi0617/gsp/tree/master/ch17/container</a></p>
+
+<a href="https://github.com/budougumi0617/gsp/tree/master/ch17/container" target="_blank" rel="noopener">https://github.com/budougumi0617/gsp/tree/master/ch17/container</a></p>
 <h1 id="tldr">TL;DR</h1>
 <ul>
 <li>「Goならわかるシステムプログラミング Go言語とコンテナ」のサンプルコードをmacOSやWindowsでも動かせるようにDockerfileを作成した
 <ul>
-<li><a href="https://github.com/budougumi0617/gsp/blob/master/ch17/container/Dockerfile">https://github.com/budougumi0617/gsp/blob/master/ch17/container/Dockerfile</a></li>
+<li>
+<a href="https://github.com/budougumi0617/gsp/blob/master/ch17/container/Dockerfile" target="_blank" rel="noopener">https://github.com/budougumi0617/gsp/blob/master/ch17/container/Dockerfile</a></li>
 </ul>
 </li>
 <li>起動したAlpineコンテナの中でlibcontainerで実装した自作（写経）コンテナを起動できた</li>
 <li><code>docker run</code>するときに<code>--privileged</code>オプションをつけておくこと</li>
 </ul>
 <h1 id="背景">背景</h1>
-<p><a href="https://amazon.jp/dp/4908686033">Goならわかるシステムプログラミング</a>の「第17章 Go言語とコンテナ」では
+<p>
+<a href="https://amazon.jp/dp/4908686033" target="_blank" rel="noopener">Goならわかるシステムプログラミング</a>の「第17章 Go言語とコンテナ」では
 libcontainerライブラリを使ってGoでコンテナを実装し起動する。</p>
 <p><strong>Goならわかるシステムプログラミング</strong><br>
-<a href="https://amazon.jp/dp/4908686033">https://amazon.jp/dp/4908686033</a></p>
+
+<a href="https://amazon.jp/dp/4908686033" target="_blank" rel="noopener">https://amazon.jp/dp/4908686033</a></p>
 <p><strong>opencontainers/runc/libcontainer</strong><br>
-<a href="https://github.com/opencontainers/runc/tree/master/libcontainer">https://github.com/opencontainers/runc/tree/master/libcontainer</a></p>
+
+<a href="https://github.com/opencontainers/runc/tree/master/libcontainer" target="_blank" rel="noopener">https://github.com/opencontainers/runc/tree/master/libcontainer</a></p>
 <p>Web上の連載で言うと第20回になる。</p>
 <p><strong>Goならわかるシステムプログラミング ― 第20回 Go言語とコンテナ</strong><br>
-<a href="http://ascii.jp/elem/000/001/502/1502967/">http://ascii.jp/elem/000/001/502/1502967/</a></p>
+
+<a href="http://ascii.jp/elem/000/001/502/1502967/" target="_blank" rel="noopener">http://ascii.jp/elem/000/001/502/1502967/</a></p>
 <p>ただし、Linux上でしか起動しないコンテナなのでmacOS(Windows)上では<code>go build</code>すらできない。</p>
 <h1 id="本中のサンプルコードを実装する">本中のサンプルコードを実装する</h1>
 <p>Dockerfileをそのまま利用する場合は本（連載）の中のコードを<code>_main.go</code>という名前で写経する。</p>
-<p><a href="https://github.com/budougumi0617/gsp/blob/master/ch17/container/_main.go">https://github.com/budougumi0617/gsp/blob/master/ch17/container/_main.go</a></p>
+<p>
+<a href="https://github.com/budougumi0617/gsp/blob/master/ch17/container/_main.go" target="_blank" rel="noopener">https://github.com/budougumi0617/gsp/blob/master/ch17/container/_main.go</a></p>
 <p>Linux上でそれなりに準備しておかないとビルドに失敗するので、<code>_</code>付きの名前で後で作成するコンテナ内でしかビルドしないようにしておいたほうが良い。<br>
 <code>build constraints</code>で<code>// +build linux</code>もつけているのだが、自分の<code>Circle CI</code>のビルドだとLinux上でのビルドのはずなのに失敗した。</p>
 <h1 id="dockerfileを作成する">Dockerfileを作成する</h1>
@@ -257,17 +272,23 @@ Dockerfile外で行う必要があるので注意。</p>
 去年の今頃Dockerの本一冊読んだのだが、Dockerfileの書き方をすっかり忘れていた。やはり日頃の継続と反復が大事である。</p>
 <h1 id="参考">参考</h1>
 <p><strong>Goならわかるシステムプログラミング</strong><br>
-<a href="https://amazon.jp/dp/4908686033">https://amazon.jp/dp/4908686033</a></p>
+
+<a href="https://amazon.jp/dp/4908686033" target="_blank" rel="noopener">https://amazon.jp/dp/4908686033</a></p>
 <p><strong>Goならわかるシステムプログラミング ― 第20回 Go言語とコンテナ</strong><br>
-<a href="http://ascii.jp/elem/000/001/502/1502967/">http://ascii.jp/elem/000/001/502/1502967/</a></p>
+
+<a href="http://ascii.jp/elem/000/001/502/1502967/" target="_blank" rel="noopener">http://ascii.jp/elem/000/001/502/1502967/</a></p>
 <p><strong>budougumi0617/gsp/ch17/container</strong><br>
-<a href="https://github.com/budougumi0617/gsp/tree/master/ch17/container">https://github.com/budougumi0617/gsp/tree/master/ch17/container</a></p>
+
+<a href="https://github.com/budougumi0617/gsp/tree/master/ch17/container" target="_blank" rel="noopener">https://github.com/budougumi0617/gsp/tree/master/ch17/container</a></p>
 <p><strong>opencontainers/runc/libcontainer</strong><br>
-<a href="https://github.com/opencontainers/runc/tree/master/libcontainer">https://github.com/opencontainers/runc/tree/master/libcontainer</a></p>
+
+<a href="https://github.com/opencontainers/runc/tree/master/libcontainer" target="_blank" rel="noopener">https://github.com/opencontainers/runc/tree/master/libcontainer</a></p>
 <p><strong>GoのBuild Constraintsに関するメモ</strong><br>
-<a href="https://qiita.com/hnw/items/7dd4d10e837158d6156a">https://qiita.com/hnw/items/7dd4d10e837158d6156a</a></p>
+
+<a href="https://qiita.com/hnw/items/7dd4d10e837158d6156a" target="_blank" rel="noopener">https://qiita.com/hnw/items/7dd4d10e837158d6156a</a></p>
 <p><strong>Docker privileged オプションについて</strong><br>
-<a href="https://qiita.com/muddydixon/items/d2982ab0846002bf3ea8">https://qiita.com/muddydixon/items/d2982ab0846002bf3ea8</a></p>
+
+<a href="https://qiita.com/muddydixon/items/d2982ab0846002bf3ea8" target="_blank" rel="noopener">https://qiita.com/muddydixon/items/d2982ab0846002bf3ea8</a></p>
 <iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4908686033&linkId=5b2bafbf1cb17ffa1d3a6d19e3e12e23"></iframe>
 
         </div>
@@ -324,26 +345,29 @@ Dockerfile外で行う必要があるので注意。</p>
   
     
       <div id="disqus_thread"></div>
-<script type="text/javascript">
-  (function() {
-      
-      
-      
-      if (window.location.hostname == "localhost")
-          return;
-
-      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-      var disqus_shortname = 'http-budougumi0617-github-io';
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-  })();
+<script>
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "http-budougumi0617-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
 </script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     
   
 </footer>
+
 
       </article>
     </div>
@@ -367,30 +391,30 @@ Dockerfile外で行う必要があるので注意。</p>
     </p>
   </section>
 
+  
+  
 
+
+
+<ul class="sidebar-nav">
+  <li class="sidebar-nav-item">
+    <a target="_blank" rel="noopener noreferrer" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+    
+    
+    <a target="_blank" rel="noopener noreferrer" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+    
+    
+    <a target="_blank" rel="noopener noreferrer" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+    
+    
+    
+    
+    
 
   
-  <ul class="sidebar-nav">
-    <li class="sidebar-nav-item">
-      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
-      
-      
-      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
-      
-         
-      
-      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
-      
-      
-      
-      
-      
-      
-
-    
-    
-    </li>
-  </ul>
+  
+  </li>
+</ul>
 
   
 
@@ -444,10 +468,16 @@ Dockerfile外で行う必要があるので注意。</p>
           
             
               <li class="post">
-                <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
+                <a href="/2024/12/30/best_things_i_bought_in_2024/">2024年に買ってよかったもの</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
+              </li>
             
           
             
@@ -462,12 +492,6 @@ Dockerfile外で行う必要があるので注意。</p>
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -479,21 +503,19 @@ Dockerfile外で行う必要があるので注意。</p>
 
     <footer role="contentinfo">
       <p>Copyright &copy; 2024  - <a href="https://budougumi0617.github.io/license/">License</a> -
-        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
       </p>
     </footer>
 
     
     
-    
+
+
 
     
-      <script>
-        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
-        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-        s.parentNode.insertBefore(g,s)}(document,'script'));
-      </script>
+    
+    
+
     
   </body>
 </html>

@@ -38,9 +38,8 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.108.0">
+  <meta name="generator" content="Hugo 0.134.2">
 
-  
   
 
   
@@ -58,10 +57,14 @@
   <meta property="og:url" content="https://budougumi0617.github.io/2018/04/24/spinnaker-with-google-kubernetes-engine/"/>
   <meta property="og:type" content="article"/>
   <meta property="og:title" content="GKEでSpinnakerを使ったKubernetesの継続的デリバリーを試してみた - My External Storage"/>
-  <meta property="og:description" content="Google Kubernetes EngineとSpinakerを使ったkubernetesの継続的デリバリーを試してみた。 Spinnakerを始めるにあたってまずGCP"/>
+  <meta property="og:description" content="Google Kubernetes EngineとSpinakerを使ったkubernetesの継続的デリバリーを試してみた。
+Spinnakerを始めるにあたってまずGCPでサンプルの継続的デリバリーを試してみた。
+一通りのコピペでGoogle Kubernetes Engine(GKE)に対するSpinnakerを使った継続的デリバリーを試せる。"/>
   
   <meta name="twitter:title" content="GKEでSpinnakerを使ったKubernetesの継続的デリバリーを試してみた - My External Storage"/>
-  <meta name="twitter:description" content="Google Kubernetes EngineとSpinakerを使ったkubernetesの継続的デリバリーを試してみた。 Spinnakerを始めるにあたってまずGCP"/>
+  <meta name="twitter:description" content="Google Kubernetes EngineとSpinakerを使ったkubernetesの継続的デリバリーを試してみた。
+Spinnakerを始めるにあたってまずGCPでサンプルの継続的デリバリーを試してみた。
+一通りのコピペでGoogle Kubernetes Engine(GKE)に対するSpinnakerを使った継続的デリバリーを試せる。"/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
   <meta name="twitter:creator" content="@budougumi0617"/>
@@ -129,11 +132,11 @@
     
   
     
-      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank"  rel="noopener noreferrer">About</a></li>
     
   
     
-      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank"  rel="noopener noreferrer">Archives</a></li>
     
   
 </ul>
@@ -141,7 +144,7 @@
 <ul class="subscription">
   
     
-        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS" rel="noopener noreferrer"><i class="fa fa-rss-square fa-lg"></i></a>
     
   
 </ul>
@@ -185,18 +188,21 @@
 <p>Spinnakerを始めるにあたってまずGCPでサンプルの継続的デリバリーを試してみた。<br>
 一通りのコピペでGoogle Kubernetes Engine(GKE)に対するSpinnakerを使った継続的デリバリーを試せる。</p>
 <p><strong>Continuous Delivery Pipelines with Spinnaker and Kubernetes Engine</strong><br>
-<a href="https://cloud.google.com/solutions/continuous-delivery-spinnaker-kubernetes-engine">https://cloud.google.com/solutions/continuous-delivery-spinnaker-kubernetes-engine</a></p>
+
+<a href="https://cloud.google.com/solutions/continuous-delivery-spinnaker-kubernetes-engine" target="_blank" rel="noopener">https://cloud.google.com/solutions/continuous-delivery-spinnaker-kubernetes-engine</a></p>
 <p><img src="/2018/04/spinnaker-pipeline.png" alt="Spinnakerのパイプライン"></p>
 <p>なお、日本語のページの手順と英語のページで手順に差分があるので、基本英語のページで見たほうが良さそう。</p>
 <p><strong>Spinnaker と Container Engine を使用した継続的デリバリー パイプライン</strong><br>
-<a href="https://cloud.google.com/solutions/continuous-delivery-spinnaker-container-engine?hl=ja">https://cloud.google.com/solutions/continuous-delivery-spinnaker-container-engine?hl=ja</a></p>
+
+<a href="https://cloud.google.com/solutions/continuous-delivery-spinnaker-container-engine?hl=ja" target="_blank" rel="noopener">https://cloud.google.com/solutions/continuous-delivery-spinnaker-container-engine?hl=ja</a></p>
 <p>日本語版の手順は<code>clusterrolebinding</code>などの設定が抜けているので、
 GKEに1.8系のk8sクラスターを立てているとRBACで疎通できない気がする。</p>
 <h1 id="tldr">TL;DR</h1>
 <ul>
 <li>GCPのハンズオンを使ってSpinnaker + GKEを試した
 <ul>
-<li><a href="https://cloud.google.com/solutions/continuous-delivery-spinnaker-container-engine">https://cloud.google.com/solutions/continuous-delivery-spinnaker-container-engine</a></li>
+<li>
+<a href="https://cloud.google.com/solutions/continuous-delivery-spinnaker-container-engine" target="_blank" rel="noopener">https://cloud.google.com/solutions/continuous-delivery-spinnaker-container-engine</a></li>
 <li>Spinnakerによる継続的デリバリー環境の構築作業</li>
 <li>GKE上にk8sクラスターを作成</li>
 <li>Helmを使ってk8sクラスタ上にSpinnakerをインストール</li>
@@ -240,9 +246,11 @@ Google Source Repositoryで<code>git tag</code>したコードがGoogle Containe
 一連の継続的デリバリーまで体験できるのは非常によかった。
 ただ、この構成だとどうやって<code>Kayenta</code>を有効にするのかわからないので、できたら<code>hal</code>コマンドで構築してみたい。</p>
 <p>なお、ご自分のGCPアカウントで行った場合はもろもろをクリーンアップしないと課金がされ続けるので注意する。</p>
-<p><a href="https://cloud.google.com/solutions/continuous-delivery-spinnaker-container-engine#clean-up">https://cloud.google.com/solutions/continuous-delivery-spinnaker-container-engine#clean-up</a></p>
+<p>
+<a href="https://cloud.google.com/solutions/continuous-delivery-spinnaker-container-engine#clean-up" target="_blank" rel="noopener">https://cloud.google.com/solutions/continuous-delivery-spinnaker-container-engine#clean-up</a></p>
 <h1 id="関連">関連</h1>
-<p><a href="/2018/04/22/how-to-start-spinnaker/">Spinnakerの始め方いろいろ</a></p>
+<p>
+<a href="/2018/04/22/how-to-start-spinnaker/">Spinnakerの始め方いろいろ</a></p>
 
         </div>
         
@@ -298,26 +306,29 @@ Google Source Repositoryで<code>git tag</code>したコードがGoogle Containe
   
     
       <div id="disqus_thread"></div>
-<script type="text/javascript">
-  (function() {
-      
-      
-      
-      if (window.location.hostname == "localhost")
-          return;
-
-      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-      var disqus_shortname = 'http-budougumi0617-github-io';
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-  })();
+<script>
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "http-budougumi0617-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
 </script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     
   
 </footer>
+
 
       </article>
     </div>
@@ -341,30 +352,30 @@ Google Source Repositoryで<code>git tag</code>したコードがGoogle Containe
     </p>
   </section>
 
+  
+  
 
+
+
+<ul class="sidebar-nav">
+  <li class="sidebar-nav-item">
+    <a target="_blank" rel="noopener noreferrer" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+    
+    
+    <a target="_blank" rel="noopener noreferrer" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+    
+    
+    <a target="_blank" rel="noopener noreferrer" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+    
+    
+    
+    
+    
 
   
-  <ul class="sidebar-nav">
-    <li class="sidebar-nav-item">
-      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
-      
-      
-      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
-      
-         
-      
-      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
-      
-      
-      
-      
-      
-      
-
-    
-    
-    </li>
-  </ul>
+  
+  </li>
+</ul>
 
   
 
@@ -418,10 +429,16 @@ Google Source Repositoryで<code>git tag</code>したコードがGoogle Containe
           
             
               <li class="post">
-                <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
+                <a href="/2024/12/30/best_things_i_bought_in_2024/">2024年に買ってよかったもの</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
+              </li>
             
           
             
@@ -436,12 +453,6 @@ Google Source Repositoryで<code>git tag</code>したコードがGoogle Containe
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -453,21 +464,19 @@ Google Source Repositoryで<code>git tag</code>したコードがGoogle Containe
 
     <footer role="contentinfo">
       <p>Copyright &copy; 2024  - <a href="https://budougumi0617.github.io/license/">License</a> -
-        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
       </p>
     </footer>
 
     
     
-    
+
+
 
     
-      <script>
-        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
-        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-        s.parentNode.insertBefore(g,s)}(document,'script'));
-      </script>
+    
+    
+
     
   </body>
 </html>

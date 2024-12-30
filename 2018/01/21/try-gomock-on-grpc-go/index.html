@@ -38,9 +38,8 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.108.0">
+  <meta name="generator" content="Hugo 0.134.2">
 
-  
   
 
   
@@ -54,10 +53,14 @@
   <meta property="og:url" content="https://budougumi0617.github.io/2018/01/21/try-gomock-on-grpc-go/"/>
   <meta property="og:type" content="article"/>
   <meta property="og:title" content="[Go]gomockを使ったgRPCのテスト - My External Storage"/>
-  <meta property="og:description" content="gRPCの勉強というより、gomockの勉強と言ったほうが良いかもしれないが、 protocコマンドで生成したgRPCコードをモックしてテスト"/>
+  <meta property="og:description" content="gRPCの勉強というより、gomockの勉強と言ったほうが良いかもしれないが、
+protocコマンドで生成したgRPCコードをモックしてテストする方法を確かめた。
+せっかくなので今回は自分でProtocol Bufferの定義からやった。"/>
   
   <meta name="twitter:title" content="[Go]gomockを使ったgRPCのテスト - My External Storage"/>
-  <meta name="twitter:description" content="gRPCの勉強というより、gomockの勉強と言ったほうが良いかもしれないが、 protocコマンドで生成したgRPCコードをモックしてテスト"/>
+  <meta name="twitter:description" content="gRPCの勉強というより、gomockの勉強と言ったほうが良いかもしれないが、
+protocコマンドで生成したgRPCコードをモックしてテストする方法を確かめた。
+せっかくなので今回は自分でProtocol Bufferの定義からやった。"/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
   <meta name="twitter:creator" content="@budougumi0617"/>
@@ -125,11 +128,11 @@
     
   
     
-      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank"  rel="noopener noreferrer">About</a></li>
     
   
     
-      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank"  rel="noopener noreferrer">Archives</a></li>
     
   
 </ul>
@@ -137,7 +140,7 @@
 <ul class="subscription">
   
     
-        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS" rel="noopener noreferrer"><i class="fa fa-rss-square fa-lg"></i></a>
     
   
 </ul>
@@ -181,7 +184,8 @@
 <code>protoc</code>コマンドで生成した<code>gRPC</code>コードをモックしてテストする方法を確かめた。
 せっかくなので今回は自分でProtocol Bufferの定義からやった。</p>
 <p><strong>Mocking Service for gRPC</strong><br>
-<a href="https://github.com/grpc/grpc-go/blob/master/Documentation/gomock-example.md">https://github.com/grpc/grpc-go/blob/master/Documentation/gomock-example.md</a></p>
+
+<a href="https://github.com/grpc/grpc-go/blob/master/Documentation/gomock-example.md" target="_blank" rel="noopener">https://github.com/grpc/grpc-go/blob/master/Documentation/gomock-example.md</a></p>
 <h1 id="tldr">TL;DR</h1>
 <ul>
 <li>gRPCで自動生成したGoのAPIのMockを作成する。</li>
@@ -189,7 +193,8 @@
 <li>チュートリアルコードと同じパッケージ構成だとちょっとハマった</li>
 </ul>
 <p>作成したコードは以下のリポジトリにある。</p>
-<p><a href="https://github.com/budougumi0617/sandbox-grpc/tree/master/tasklist">https://github.com/budougumi0617/sandbox-grpc/tree/master/tasklist</a></p>
+<p>
+<a href="https://github.com/budougumi0617/sandbox-grpc/tree/master/tasklist" target="_blank" rel="noopener">https://github.com/budougumi0617/sandbox-grpc/tree/master/tasklist</a></p>
 <p>本文中で言及していないが、サンプルコードのディレクトリ構成は以下のようになっている。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>tasklist
 </span></span><span style="display:flex;"><span>├── client
@@ -202,7 +207,8 @@
 </span></span></code></pre></div><h1 id="事前準備">事前準備</h1>
 <p>gRPC自体の環境構築は以下を参照のこと。</p>
 <ul>
-<li><a href="/2018/01/01/hello-grpc-go/">[Go]gRPCのGo Quick Startをやってみた。</a></li>
+<li>
+<a href="/2018/01/01/hello-grpc-go/">[Go]gRPCのGo Quick Startをやってみた。</a></li>
 </ul>
 <p>また、<code>gomock</code>を利用する準備をする。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ go get github.com/golang/mock/gomock
@@ -251,10 +257,12 @@ message GetTaskRequest {
 <pre tabindex="0"><code>$ mkdir mock_tasklist
 $ mockgen github.com/budougumi0617/sandbox-grpc/tasklist/proto TaskManagerClient,TaskManager_ListTasksClient &gt; mockproto/tl_mock.go
 </code></pre><p>これでモックコードが作成出来たので、テストコードを作る。
-ちなみに、<code>grpc-go</code>リポジトリに入ってる<a href="https://github.com/grpc/grpc-go/tree/master/examples/route_guide">サンプル</a>だと<code>mock_routeguide</code>ディレクトリにテストコードも入っているが、<code>import</code>がちゃんと解決できなくなる気がするので、同じ構成にしないほうがよい。</p>
+ちなみに、<code>grpc-go</code>リポジトリに入ってる
+<a href="https://github.com/grpc/grpc-go/tree/master/examples/route_guide" target="_blank" rel="noopener">サンプル</a>だと<code>mock_routeguide</code>ディレクトリにテストコードも入っているが、<code>import</code>がちゃんと解決できなくなる気がするので、同じ構成にしないほうがよい。</p>
 <h1 id="gomockを利用したテスト">gomockを利用したテスト</h1>
 <p>作成したテストコードは以下。</p>
-<p><a href="https://github.com/budougumi0617/sandbox-grpc/blob/bb92fd1fb4df0dfa64de0e4b4ae9fec8997c4e76/tasklist/client/client_test.go">https://github.com/budougumi0617/sandbox-grpc/blob/master/tasklist/client/client_test.go</a></p>
+<p>
+<a href="https://github.com/budougumi0617/sandbox-grpc/blob/bb92fd1fb4df0dfa64de0e4b4ae9fec8997c4e76/tasklist/client/client_test.go" target="_blank" rel="noopener">https://github.com/budougumi0617/sandbox-grpc/blob/master/tasklist/client/client_test.go</a></p>
 <h2 id="unary-rpcのモックを利用したテスト">Unary RPCのモックを利用したテスト</h2>
 <p><code>GetTask</code>メソッドのモックを利用するテストを書く。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> TaskManagerClient <span style="color:#268bd2">interface</span> {
@@ -370,17 +378,24 @@ $ mockgen github.com/budougumi0617/sandbox-grpc/tasklist/proto TaskManagerClient
 自分でProtocol Buffersの定義をしたのも、gomockを使ったのも始めてだったので、２つとも経験できてよかった。</p>
 <h1 id="参考">参考</h1>
 <p><strong>Mocking Service for gRPC</strong><br>
-<a href="https://github.com/grpc/grpc-go/blob/master/Documentation/gomock-example.md">https://github.com/grpc/grpc-go/blob/master/Documentation/gomock-example.md</a></p>
+
+<a href="https://github.com/grpc/grpc-go/blob/master/Documentation/gomock-example.md" target="_blank" rel="noopener">https://github.com/grpc/grpc-go/blob/master/Documentation/gomock-example.md</a></p>
 <p><strong>GoDoc : gomock</strong><br>
-<a href="https://godoc.org/github.com/golang/mock/gomock">https://godoc.org/github.com/golang/mock/gomock</a></p>
+
+<a href="https://godoc.org/github.com/golang/mock/gomock" target="_blank" rel="noopener">https://godoc.org/github.com/golang/mock/gomock</a></p>
 <p><strong>Go Mockでインタフェースのモックを作ってテストする #golang</strong><br>
-<a href="https://qiita.com/tenntenn/items/24fc34ec0c31f6474e6d">https://qiita.com/tenntenn/items/24fc34ec0c31f6474e6d</a></p>
+
+<a href="https://qiita.com/tenntenn/items/24fc34ec0c31f6474e6d" target="_blank" rel="noopener">https://qiita.com/tenntenn/items/24fc34ec0c31f6474e6d</a></p>
 <h1 id="grpc関連の記事">gRPC関連の記事</h1>
 <ul>
-<li><a href="/2018/01/01/hello-grpc-go/">[Go]gRPCのGo Quick Startをやってみた。</a></li>
-<li><a href="/2018/01/04/server-reflection-tutorial/">[Go][gRPC]Server Reflection Tutorialをやってみた</a></li>
-<li><a href="/2018/01/14/grpc-basics-go/">[Go]gRPC Basics: GoからgRPCのストリーミングRPCを理解する</a></li>
-<li><a href="/2018/02/03/grpc-gateway-for-rest-api">[Go]gRPC GatewayでgRPCに対するREST APIを自動生成する</a></li>
+<li>
+<a href="/2018/01/01/hello-grpc-go/">[Go]gRPCのGo Quick Startをやってみた。</a></li>
+<li>
+<a href="/2018/01/04/server-reflection-tutorial/">[Go][gRPC]Server Reflection Tutorialをやってみた</a></li>
+<li>
+<a href="/2018/01/14/grpc-basics-go/">[Go]gRPC Basics: GoからgRPCのストリーミングRPCを理解する</a></li>
+<li>
+<a href="/2018/02/03/grpc-gateway-for-rest-api">[Go]gRPC GatewayでgRPCに対するREST APIを自動生成する</a></li>
 </ul>
 
         </div>
@@ -437,26 +452,29 @@ $ mockgen github.com/budougumi0617/sandbox-grpc/tasklist/proto TaskManagerClient
   
     
       <div id="disqus_thread"></div>
-<script type="text/javascript">
-  (function() {
-      
-      
-      
-      if (window.location.hostname == "localhost")
-          return;
-
-      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-      var disqus_shortname = 'http-budougumi0617-github-io';
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-  })();
+<script>
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "http-budougumi0617-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
 </script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     
   
 </footer>
+
 
       </article>
     </div>
@@ -480,30 +498,30 @@ $ mockgen github.com/budougumi0617/sandbox-grpc/tasklist/proto TaskManagerClient
     </p>
   </section>
 
+  
+  
 
+
+
+<ul class="sidebar-nav">
+  <li class="sidebar-nav-item">
+    <a target="_blank" rel="noopener noreferrer" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+    
+    
+    <a target="_blank" rel="noopener noreferrer" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+    
+    
+    <a target="_blank" rel="noopener noreferrer" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+    
+    
+    
+    
+    
 
   
-  <ul class="sidebar-nav">
-    <li class="sidebar-nav-item">
-      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
-      
-      
-      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
-      
-         
-      
-      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
-      
-      
-      
-      
-      
-      
-
-    
-    
-    </li>
-  </ul>
+  
+  </li>
+</ul>
 
   
 
@@ -557,10 +575,16 @@ $ mockgen github.com/budougumi0617/sandbox-grpc/tasklist/proto TaskManagerClient
           
             
               <li class="post">
-                <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
+                <a href="/2024/12/30/best_things_i_bought_in_2024/">2024年に買ってよかったもの</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
+              </li>
             
           
             
@@ -575,12 +599,6 @@ $ mockgen github.com/budougumi0617/sandbox-grpc/tasklist/proto TaskManagerClient
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -592,21 +610,19 @@ $ mockgen github.com/budougumi0617/sandbox-grpc/tasklist/proto TaskManagerClient
 
     <footer role="contentinfo">
       <p>Copyright &copy; 2024  - <a href="https://budougumi0617.github.io/license/">License</a> -
-        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
       </p>
     </footer>
 
     
     
-    
+
+
 
     
-      <script>
-        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
-        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-        s.parentNode.insertBefore(g,s)}(document,'script'));
-      </script>
+    
+    
+
     
   </body>
 </html>

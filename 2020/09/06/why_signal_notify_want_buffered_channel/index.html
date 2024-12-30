@@ -38,9 +38,8 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.108.0">
+  <meta name="generator" content="Hugo 0.134.2">
 
-  
   
 
   
@@ -61,12 +60,14 @@
   <meta property="og:description" content="Goでsingal.Notify関数を使うときは必ずバッファありチャネルを利用しなくてはいけない。
 なぜバッファなしチャネルを使ってはいけないのかまとめた。
 
+
 https://godoc.org/os/signal#Notify
 "/>
   
   <meta name="twitter:title" content="[Go] signal.Notifyを使うときは必ずバッファ付きチャネルで利用すること - My External Storage"/>
   <meta name="twitter:description" content="Goでsingal.Notify関数を使うときは必ずバッファありチャネルを利用しなくてはいけない。
 なぜバッファなしチャネルを使ってはいけないのかまとめた。
+
 
 https://godoc.org/os/signal#Notify
 "/>
@@ -137,11 +138,11 @@ https://godoc.org/os/signal#Notify
     
   
     
-      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank"  rel="noopener noreferrer">About</a></li>
     
   
     
-      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank"  rel="noopener noreferrer">Archives</a></li>
     
   
 </ul>
@@ -149,7 +150,7 @@ https://godoc.org/os/signal#Notify
 <ul class="subscription">
   
     
-        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS" rel="noopener noreferrer"><i class="fa fa-rss-square fa-lg"></i></a>
     
   
 </ul>
@@ -208,20 +209,24 @@ https://godoc.org/os/signal#Notify
           <p>Goで<code>singal.Notify</code>関数を使うときは必ずバッファありチャネルを利用しなくてはいけない。<br>
 なぜバッファなしチャネルを使ってはいけないのかまとめた。</p>
 <ul>
-<li><a href="https://godoc.org/os/signal#Notify">https://godoc.org/os/signal#Notify</a></li>
+<li>
+<a href="https://godoc.org/os/signal#Notify" target="_blank" rel="noopener">https://godoc.org/os/signal#Notify</a></li>
 </ul>
 <h1 id="tldr">TL;DR</h1>
 <ul>
 <li><code>singal.Notify</code>関数を使うときは必ずバッファありチャネルを利用しなくてはいけない</li>
 <li>仕様にも明記されている
 <ul>
-<li><a href="https://godoc.org/os/signal#Notify">https://godoc.org/os/signal#Notify</a></li>
+<li>
+<a href="https://godoc.org/os/signal#Notify" target="_blank" rel="noopener">https://godoc.org/os/signal#Notify</a></li>
 </ul>
 </li>
 <li>シグナル処理はWebサービス開発時にも必要
 <ul>
-<li><a href="https://docs.aws.amazon.com/ja_jp/AmazonECS/latest/developerguide/update-service.html">https://docs.aws.amazon.com/ja_jp/AmazonECS/latest/developerguide/update-service.html</a></li>
-<li><a href="https://kubernetes.io/ja/docs/concepts/workloads/pods/pod/">https://kubernetes.io/ja/docs/concepts/workloads/pods/pod/</a></li>
+<li>
+<a href="https://docs.aws.amazon.com/ja_jp/AmazonECS/latest/developerguide/update-service.html" target="_blank" rel="noopener">https://docs.aws.amazon.com/ja_jp/AmazonECS/latest/developerguide/update-service.html</a></li>
+<li>
+<a href="https://kubernetes.io/ja/docs/concepts/workloads/pods/pod/" target="_blank" rel="noopener">https://kubernetes.io/ja/docs/concepts/workloads/pods/pod/</a></li>
 </ul>
 </li>
 <li>バッファなしチャネルを使うと、シグナルを取りこぼす可能性がある</li>
@@ -233,7 +238,8 @@ https://godoc.org/os/signal#Notify
 このときチャネルはバッファありチャネルでないといけない。<br>
 これは<code>singal.Notify</code>関数の仕様に明記されている。</p>
 <ul>
-<li><a href="https://godoc.org/os/signal#Notify">https://godoc.org/os/signal#Notify</a></li>
+<li>
+<a href="https://godoc.org/os/signal#Notify" target="_blank" rel="noopener">https://godoc.org/os/signal#Notify</a></li>
 </ul>
 <blockquote>
 <p>Package signal will not block sending to c: the caller must ensure that c has sufficient buffer space to keep up with the expected signal rate. For a channel used for notification of just one signal value, a buffer of size 1 is sufficient.</p>
@@ -244,8 +250,10 @@ https://godoc.org/os/signal#Notify
 たとえばECSやk8s上で起動するコンテナはコンテナ外部からシグナルを受信したとき適切に終了する必要がある。<br>
 シグナルをハンドリングしてグレースフルシャットダウンをする実装をしていないと、処理の終了を待たずにコンテナが強制遮断されうる。</p>
 <ul>
-<li><a href="https://docs.aws.amazon.com/ja_jp/AmazonECS/latest/developerguide/update-service.html">https://docs.aws.amazon.com/ja_jp/AmazonECS/latest/developerguide/update-service.html</a></li>
-<li><a href="https://kubernetes.io/ja/docs/concepts/workloads/pods/pod/">https://kubernetes.io/ja/docs/concepts/workloads/pods/pod/</a></li>
+<li>
+<a href="https://docs.aws.amazon.com/ja_jp/AmazonECS/latest/developerguide/update-service.html" target="_blank" rel="noopener">https://docs.aws.amazon.com/ja_jp/AmazonECS/latest/developerguide/update-service.html</a></li>
+<li>
+<a href="https://kubernetes.io/ja/docs/concepts/workloads/pods/pod/" target="_blank" rel="noopener">https://kubernetes.io/ja/docs/concepts/workloads/pods/pod/</a></li>
 </ul>
 <h1 id="チャネルの仕様の簡単な確認">チャネルの仕様の簡単な確認</h1>
 <p>Goのチャネルにはバッファありチャネルとバッファなしチャネルが存在する。<br>
@@ -253,7 +261,8 @@ https://godoc.org/os/signal#Notify
 <ul>
 <li>Happens Before | The Go Memory Model
 <ul>
-<li><a href="https://golang.org/ref/mem#tmp_2">https://golang.org/ref/mem#tmp_2</a></li>
+<li>
+<a href="https://golang.org/ref/mem#tmp_2" target="_blank" rel="noopener">https://golang.org/ref/mem#tmp_2</a></li>
 </ul>
 </li>
 </ul>
@@ -269,7 +278,8 @@ https://godoc.org/os/signal#Notify
 <ul>
 <li>Channel types | The Go Programming Language Specification
 <ul>
-<li><a href="https://golang.org/ref/spec#Channel_types">https://golang.org/ref/spec#Channel_types</a></li>
+<li>
+<a href="https://golang.org/ref/spec#Channel_types" target="_blank" rel="noopener">https://golang.org/ref/spec#Channel_types</a></li>
 </ul>
 </li>
 </ul>
@@ -279,7 +289,8 @@ https://godoc.org/os/signal#Notify
 <ul>
 <li>Send statements | The Go Programming Language Specification
 <ul>
-<li><a href="https://golang.org/ref/spec#Send_statements">https://golang.org/ref/spec#Send_statements</a></li>
+<li>
+<a href="https://golang.org/ref/spec#Send_statements" target="_blank" rel="noopener">https://golang.org/ref/spec#Send_statements</a></li>
 </ul>
 </li>
 </ul>
@@ -299,8 +310,10 @@ https://godoc.org/os/signal#Notify
 <p>Package signal will not block sending to c</p>
 </blockquote>
 <p>具体的なコードを見ると、まずsignalパッケージは以下のようなループでシグナルを処理している。
-（<a href="https://github.com/golang/go/blob/a538b59fd2428ba4d13f296d7483febf2fc05f97/src/runtime/sigqueue.go#L122-L125">signal_recv</a>）は私にはちょっとむずかしいので説明省略）</p>
-<p><a href="https://github.com/golang/go/blob/a538b59fd2428ba4d13f296d7483febf2fc05f97/src/os/signal/signal_unix.go#L21-L25">https://github.com/golang/go/blob/a538b59fd2428ba4d13f296d7483febf2fc05f97/src/os/signal/signal_unix.go#L21-L25</a></p>
+（
+<a href="https://github.com/golang/go/blob/a538b59fd2428ba4d13f296d7483febf2fc05f97/src/runtime/sigqueue.go#L122-L125" target="_blank" rel="noopener">signal_recv</a>）は私にはちょっとむずかしいので説明省略）</p>
+<p>
+<a href="https://github.com/golang/go/blob/a538b59fd2428ba4d13f296d7483febf2fc05f97/src/os/signal/signal_unix.go#L21-L25" target="_blank" rel="noopener">https://github.com/golang/go/blob/a538b59fd2428ba4d13f296d7483febf2fc05f97/src/os/signal/signal_unix.go#L21-L25</a></p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">loop</span>() {
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">for</span> {
 </span></span><span style="display:flex;"><span>		<span style="color:#268bd2">process</span>(syscall.<span style="color:#268bd2">Signal</span>(<span style="color:#268bd2">signal_recv</span>()))
@@ -308,7 +321,8 @@ https://godoc.org/os/signal#Notify
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p><code>process</code>関数の中をみてみると、<code>singal.Notify</code>関数で登録されたチャネルそれぞれにシグナルを送信している。<br>
 このとき、チャネルが送信ブロック状態だった場合は<code>default</code>節があるので<strong>そのチャネルを無視して次のチャネルへシグナルを送信する</strong>。</p>
-<p><a href="https://github.com/golang/go/blob/a538b59fd2428ba4d13f296d7483febf2fc05f97/src/os/signal/signal.go#L240-L248">https://github.com/golang/go/blob/a538b59fd2428ba4d13f296d7483febf2fc05f97/src/os/signal/signal.go#L240-L248</a></p>
+<p>
+<a href="https://github.com/golang/go/blob/a538b59fd2428ba4d13f296d7483febf2fc05f97/src/os/signal/signal.go#L240-L248" target="_blank" rel="noopener">https://github.com/golang/go/blob/a538b59fd2428ba4d13f296d7483febf2fc05f97/src/os/signal/signal.go#L240-L248</a></p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>	<span style="color:#719e07">for</span> c, h <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> handlers.m { <span style="color:#586e75">// cがsignal.Notifyの第一引数のチャネル
 </span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>		<span style="color:#719e07">if</span> h.<span style="color:#268bd2">want</span>(n) {
 </span></span><span style="display:flex;"><span>			<span style="color:#586e75">// send but do not block for it
@@ -325,9 +339,12 @@ https://godoc.org/os/signal#Notify
 今回はドキュメントの注意書きを無視した場合どのような懸念事項が発生するのか確認することができた。</p>
 <h1 id="参考">参考</h1>
 <ul>
-<li><a href="https://godoc.org/os/signal#Notify">https://godoc.org/os/signal#Notify</a></li>
-<li><a href="https://golang.org/ref/mem#tmp_2">Happens Before | The Go Memory Model</a></li>
-<li><a href="https://golang.org/ref/spec#Channel_types">Channel types | The Go Programming Language Specification</a></li>
+<li>
+<a href="https://godoc.org/os/signal#Notify" target="_blank" rel="noopener">https://godoc.org/os/signal#Notify</a></li>
+<li>
+<a href="https://golang.org/ref/mem#tmp_2" target="_blank" rel="noopener">Happens Before | The Go Memory Model</a></li>
+<li>
+<a href="https://golang.org/ref/spec#Channel_types" target="_blank" rel="noopener">Channel types | The Go Programming Language Specification</a></li>
 </ul>
 <iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4621300253&linkId=b23c76a9208ccfad7862a4ffc8269211"></iframe>
         </div>
@@ -384,26 +401,29 @@ https://godoc.org/os/signal#Notify
   
     
       <div id="disqus_thread"></div>
-<script type="text/javascript">
-  (function() {
-      
-      
-      
-      if (window.location.hostname == "localhost")
-          return;
-
-      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-      var disqus_shortname = 'http-budougumi0617-github-io';
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-  })();
+<script>
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "http-budougumi0617-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
 </script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     
   
 </footer>
+
 
       </article>
     </div>
@@ -427,30 +447,30 @@ https://godoc.org/os/signal#Notify
     </p>
   </section>
 
+  
+  
 
+
+
+<ul class="sidebar-nav">
+  <li class="sidebar-nav-item">
+    <a target="_blank" rel="noopener noreferrer" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+    
+    
+    <a target="_blank" rel="noopener noreferrer" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+    
+    
+    <a target="_blank" rel="noopener noreferrer" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+    
+    
+    
+    
+    
 
   
-  <ul class="sidebar-nav">
-    <li class="sidebar-nav-item">
-      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
-      
-      
-      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
-      
-         
-      
-      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
-      
-      
-      
-      
-      
-      
-
-    
-    
-    </li>
-  </ul>
+  
+  </li>
+</ul>
 
   
 
@@ -504,10 +524,16 @@ https://godoc.org/os/signal#Notify
           
             
               <li class="post">
-                <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
+                <a href="/2024/12/30/best_things_i_bought_in_2024/">2024年に買ってよかったもの</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
+              </li>
             
           
             
@@ -522,12 +548,6 @@ https://godoc.org/os/signal#Notify
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -539,21 +559,19 @@ https://godoc.org/os/signal#Notify
 
     <footer role="contentinfo">
       <p>Copyright &copy; 2024  - <a href="https://budougumi0617.github.io/license/">License</a> -
-        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
       </p>
     </footer>
 
     
     
-    
+
+
 
     
-      <script>
-        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
-        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-        s.parentNode.insertBefore(g,s)}(document,'script'));
-      </script>
+    
+    
+
     
   </body>
 </html>

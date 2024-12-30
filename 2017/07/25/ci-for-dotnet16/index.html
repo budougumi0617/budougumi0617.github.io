@@ -38,9 +38,8 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.108.0">
+  <meta name="generator" content="Hugo 0.134.2">
 
-  
   
 
   
@@ -54,10 +53,12 @@
   <meta property="og:url" content="https://budougumi0617.github.io/2017/07/25/ci-for-dotnet16/"/>
   <meta property="og:type" content="article"/>
   <meta property="og:title" content=".NET Standard1.6プロジェクトのCI環境を構築する。 - My External Storage"/>
-  <meta property="og:description" content="TL;DR .NET Standard1.6ベースでNugetパッケージを作っています。開発で利用しているCI環境の構築方法です。実際に利用しているリポジトリ"/>
+  <meta property="og:description" content="TL;DR
+.NET Standard1.6ベースでNugetパッケージを作っています。開発で利用しているCI環境の構築方法です。実際に利用しているリポジトリは以下になります。"/>
   
   <meta name="twitter:title" content=".NET Standard1.6プロジェクトのCI環境を構築する。 - My External Storage"/>
-  <meta name="twitter:description" content="TL;DR .NET Standard1.6ベースでNugetパッケージを作っています。開発で利用しているCI環境の構築方法です。実際に利用しているリポジトリ"/>
+  <meta name="twitter:description" content="TL;DR
+.NET Standard1.6ベースでNugetパッケージを作っています。開発で利用しているCI環境の構築方法です。実際に利用しているリポジトリは以下になります。"/>
   <meta name="twitter:site" content="@budougumi0617"/>
   <meta name="twitter:domain" content="budougumi0617.github.io"/>
   <meta name="twitter:creator" content="@budougumi0617"/>
@@ -125,11 +126,11 @@
     
   
     
-      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank" >About</a></li>
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank"  rel="noopener noreferrer">About</a></li>
     
   
     
-      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank" >Archives</a></li>
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank"  rel="noopener noreferrer">Archives</a></li>
     
   
 </ul>
@@ -137,7 +138,7 @@
 <ul class="subscription">
   
     
-        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS"><i class="fa fa-rss-square fa-lg"></i></a>
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS" rel="noopener noreferrer"><i class="fa fa-rss-square fa-lg"></i></a>
     
   
 </ul>
@@ -179,9 +180,12 @@
           
           <h1 id="tldr">TL;DR</h1>
 <p><code>.NET Standard1.6</code>ベースで<code>Nuget</code>パッケージを作っています。開発で利用しているCI環境の構築方法です。実際に利用しているリポジトリは以下になります。</p>
-<p><a href="https://ci.appveyor.com/project/budougumi0617/testable"><img src="https://ci.appveyor.com/api/projects/status/nv8feqr5attxrx5j?svg=true" alt="Build status"></a>
-<a href="https://codecov.io/gh/budougumi0617/Testable"><img src="https://codecov.io/gh/budougumi0617/Testable/branch/master/graph/badge.svg" alt="codecov"></a></p>
-<p><a href="https://github.com/budougumi0617/Testable">https://github.com/budougumi0617/Testable</a></p>
+<p>
+<a href="https://ci.appveyor.com/project/budougumi0617/testable" target="_blank" rel="noopener"><img src="https://ci.appveyor.com/api/projects/status/nv8feqr5attxrx5j?svg=true" alt="Build status"></a>
+
+<a href="https://codecov.io/gh/budougumi0617/Testable" target="_blank" rel="noopener"><img src="https://codecov.io/gh/budougumi0617/Testable/branch/master/graph/badge.svg" alt="codecov"></a></p>
+<p>
+<a href="https://github.com/budougumi0617/Testable" target="_blank" rel="noopener">https://github.com/budougumi0617/Testable</a></p>
 <p>現状出来ているのは以下です。<code>git tag</code>で自動パッケージリリースなども追って対応していきたいなと思っています。</p>
 <ul>
 <li><code>GitHub</code>のリポジトリが更新されたとき、自動でビルドが実施される。</li>
@@ -190,41 +194,44 @@
 <li>バッジでビルド結果とカバレッジ率がわかる。</li>
 </ul>
 <p><code>.NET Standard1.6(VS2017)</code>環境で構築したプロジェクト向けの記事なので、その他の環境の場合はまず公式サイトなどを参考にしてください。</p>
-<p><a href="https://www.appveyor.com/blog/2017/03/17/codecov/">CodeCov Test Coverage Integration</a></p>
-<p><a href="https://yoshinorin.net/2016/09/21/appveyor-codecov-csharp/">AppVeyorとCodecovを使ってC#のコードカバレッジを計測する</a></p>
+<p>
+<a href="https://www.appveyor.com/blog/2017/03/17/codecov/" target="_blank" rel="noopener">CodeCov Test Coverage Integration</a></p>
+<p>
+<a href="https://yoshinorin.net/2016/09/21/appveyor-codecov-csharp/" target="_blank" rel="noopener">AppVeyorとCodecovを使ってC#のコードカバレッジを計測する</a></p>
 <h1 id="構築手順">構築手順</h1>
 <h2 id="利用ツールサービス">利用ツール/サービス</h2>
 <p>基本的に無料のツールで構築していきます。</p>
 <table>
-<thead>
-<tr>
-<th>用途</th>
-<th>ツール名</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>IDE</td>
-<td><code>Visual Studio2017</code>/<code>Visual Studio for Mac</code></td>
-</tr>
-<tr>
-<td>テスト</td>
-<td><code>XUnit</code>/<code>OpenCover</code></td>
-</tr>
-<tr>
-<td>構成管理</td>
-<td><code>GitHub</code></td>
-</tr>
-<tr>
-<td>CI</td>
-<td><code>AppVeyor</code>/<code>Codecov</code></td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th style="text-align: left">用途</th>
+          <th style="text-align: left">ツール名</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left">IDE</td>
+          <td style="text-align: left"><code>Visual Studio2017</code>/<code>Visual Studio for Mac</code></td>
+      </tr>
+      <tr>
+          <td style="text-align: left">テスト</td>
+          <td style="text-align: left"><code>XUnit</code>/<code>OpenCover</code></td>
+      </tr>
+      <tr>
+          <td style="text-align: left">構成管理</td>
+          <td style="text-align: left"><code>GitHub</code></td>
+      </tr>
+      <tr>
+          <td style="text-align: left">CI</td>
+          <td style="text-align: left"><code>AppVeyor</code>/<code>Codecov</code></td>
+      </tr>
+  </tbody>
 </table>
 <p>以降では、GitHubリポジトリに<code>.NET1.6</code>プロジェクトが入った状態のあとの説明です。</p>
 <h2 id="xunitプロジェクトを作成する"><code>XUnit</code>プロジェクトを作成する。</h2>
 <p>まず、以下の記事を参考に、テストプロジェクトを作成してください。</p>
-<p><a href="http://www.nuits.jp/entry/2017/06/11/132339">.NET StandardプロジェクトをxUnitでテストする方法</a></p>
+<p>
+<a href="http://www.nuits.jp/entry/2017/06/11/132339" target="_blank" rel="noopener">.NET StandardプロジェクトをxUnitでテストする方法</a></p>
 <p><code>VS for Mac</code>の場合は、「新しいプロジェクトの追加」から、「<code>xUnit Test Project</code>」を選択することで同等のプロジェクトを作成することができます。<code>.NET1.6</code>プロジェクトを参照するテストプロジェクトを作成する場合は<code>.NET Core</code>プロジェクトで作るのが無難です。</p>
 <p>その後、カバレッジ計測に必要な、<code>xunit.runner.console</code>と<code>OpenCover</code>も<code>Nuget</code>からテストプロジェクトに追加しておいてください。全てを行うと、テストプロジェクトの<code>.csproj</code>ファイルには以下のパッケージが追加されているはずです。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span>  <span style="color:#268bd2">&lt;ItemGroup&gt;</span>
@@ -241,19 +248,25 @@
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&lt;DebugType&gt;</span>full<span style="color:#268bd2">&lt;/DebugType&gt;</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&lt;/PropertyGroup&gt;</span>
 </span></span></code></pre></div><p>詳細については、以下を参照してください。</p>
-<p><a href="https://budougumi0617.github.io/post/2017/07/13/opencover-to-vs2017/">OpenCoverでVS2017でビルドした.NETプロジェクトのカバレッジを測る</a></p>
+<p>
+<a href="https://budougumi0617.github.io/post/2017/07/13/opencover-to-vs2017/" target="_blank" rel="noopener">OpenCoverでVS2017でビルドした.NETプロジェクトのカバレッジを測る</a></p>
 <h2 id="codecovの設定ファイルの作成"><code>Codecov</code>の設定ファイルの作成</h2>
-<p><a href="https://codecov.io/">Codecov</a></p>
+<p>
+<a href="https://codecov.io/" target="_blank" rel="noopener">Codecov</a></p>
 <p>Codecovはカバレッジの結果を可視化してくれるオンラインサービスです。GitHubへの通知なども行えるので、例えば「PRのカバレッジが、コード変更前よりX%下がったとき失敗通知をGitHubへ送る」などと言った設定もできます。
 リポジトリのルートディレクトリに<code>.codecov.yml</code>を配置しておくことで、諸々のしきい値などを設定できます。私はいつもテンプレを使っています。</p>
-<p><a href="https://github.com/budougumi0617/Testable/blob/master/.codecov.yml">Testable/.codecov.yml</a></p>
+<p>
+<a href="https://github.com/budougumi0617/Testable/blob/master/.codecov.yml" target="_blank" rel="noopener">Testable/.codecov.yml</a></p>
 <p>各パラメータの詳細は以下のWikiを参照してください。</p>
-<p><a href="https://github.com/codecov/support/wiki/Codecov-Yaml">Codecov Yaml</a></p>
+<p>
+<a href="https://github.com/codecov/support/wiki/Codecov-Yaml" target="_blank" rel="noopener">Codecov Yaml</a></p>
 <h2 id="appveyorの設定"><code>Appveyor</code>の設定</h2>
-<p><a href="https://ci.appveyor.com/">Appveyor</a></p>
+<p>
+<a href="https://ci.appveyor.com/" target="_blank" rel="noopener">Appveyor</a></p>
 <p>AppveyorはWindowsコンテナで実行できるCIツールです。
 リポジトリのルートディレクトリに、以下の<code>appveyor.yml</code>ファイルを配置します。</p>
-<p><a href="https://github.com/budougumi0617/Testable/blob/master/appveyor.yml">Testable/appveyor.yml</a></p>
+<p>
+<a href="https://github.com/budougumi0617/Testable/blob/master/appveyor.yml" target="_blank" rel="noopener">Testable/appveyor.yml</a></p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span><span style="color:#268bd2">version</span>: <span style="color:#2aa198">0.0</span>.{build}
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">pull_requests</span>:
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">do_not_increment_build_number</span>: <span style="color:#cb4b16">true</span>
@@ -305,41 +318,45 @@
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">on_build_success</span>: <span style="color:#cb4b16">true</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">on_build_failure</span>: <span style="color:#cb4b16">true</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">on_build_status_changed</span>: <span style="color:#cb4b16">true</span>
-</span></span></code></pre></div><p>主要なところを解説しておきます。<code>filter</code>やプロジェクト名の置き換えは<a href="https://github.com/OpenCover/opencover/wiki/Usage">OpenCoverのWiki</a>を参考に行ってください。</p>
+</span></span></code></pre></div><p>主要なところを解説しておきます。<code>filter</code>やプロジェクト名の置き換えは
+<a href="https://github.com/OpenCover/opencover/wiki/Usage" target="_blank" rel="noopener">OpenCoverのWiki</a>を参考に行ってください。</p>
 <table>
-<thead>
-<tr>
-<th><code>yml</code>の記載</th>
-<th>解説</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>image: Visual Studio 2017</code></td>
-<td><code>VS2017</code>が入っているイメージコンテナを使います。</td>
-</tr>
-<tr>
-<td><code>dotnet restore Testable.sln</code></td>
-<td>Nugetの復元は<code>dotnet</code>コマンドで出来ます。</td>
-</tr>
-<tr>
-<td><code>- ps: &gt;-</code></td>
-<td>ここから下が<code>Powershell</code>スクリプトです。 <strong>処理と処理の間に空行を入れないと正しく実行されないので注意してください。</strong></td>
-</tr>
-<tr>
-<td><code>$runner = &quot;dotnet test&quot;</code></td>
-<td>テストも<code>dotnet</code>コマンドで実行します。</td>
-</tr>
-<tr>
-<td><code>pip install codecov</code></td>
-<td>おまじないです。<code>Appveyor</code>/<code>Codecov</code>連携の詳細は<a href="https://www.appveyor.com/blog/2017/03/17/codecov/">この辺</a>を参考に。</td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th style="text-align: left"><code>yml</code>の記載</th>
+          <th style="text-align: left">解説</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left"><code>image: Visual Studio 2017</code></td>
+          <td style="text-align: left"><code>VS2017</code>が入っているイメージコンテナを使います。</td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><code>dotnet restore Testable.sln</code></td>
+          <td style="text-align: left">Nugetの復元は<code>dotnet</code>コマンドで出来ます。</td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><code>- ps: &gt;-</code></td>
+          <td style="text-align: left">ここから下が<code>Powershell</code>スクリプトです。 <strong>処理と処理の間に空行を入れないと正しく実行されないので注意してください。</strong></td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><code>$runner = &quot;dotnet test&quot;</code></td>
+          <td style="text-align: left">テストも<code>dotnet</code>コマンドで実行します。</td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><code>pip install codecov</code></td>
+          <td style="text-align: left">おまじないです。<code>Appveyor</code>/<code>Codecov</code>連携の詳細は
+<a href="https://www.appveyor.com/blog/2017/03/17/codecov/" target="_blank" rel="noopener">この辺</a>を参考に。</td>
+      </tr>
+  </tbody>
 </table>
 <h2 id="バッジを貼る">バッジを貼る</h2>
 <p>あとは各種サービスにログインして、リポジトリに対してサービスをONにしてください。バッジの貼り方など、このへんは既存のやり方と変わらないので省略します。以下の記事などを参考にどうぞ。</p>
-<p><a href="https://www.appveyor.com/blog/2017/03/17/codecov/">CodeCov Test Coverage Integration</a>
-<a href="https://yoshinorin.net/2016/09/21/appveyor-codecov-csharp/">AppVeyorとCodecovを使ってC#のコードカバレッジを計測する</a></p>
+<p>
+<a href="https://www.appveyor.com/blog/2017/03/17/codecov/" target="_blank" rel="noopener">CodeCov Test Coverage Integration</a>
+
+<a href="https://yoshinorin.net/2016/09/21/appveyor-codecov-csharp/" target="_blank" rel="noopener">AppVeyorとCodecovを使ってC#のコードカバレッジを計測する</a></p>
 <h1 id="おしまい">おしまい</h1>
 <p>以上で設定はおしまいです。エラーが出ていないのにカバレッジが取れないときは、</p>
 <ul>
@@ -408,26 +425,29 @@
   
     
       <div id="disqus_thread"></div>
-<script type="text/javascript">
-  (function() {
-      
-      
-      
-      if (window.location.hostname == "localhost")
-          return;
-
-      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-      var disqus_shortname = 'http-budougumi0617-github-io';
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-  })();
+<script>
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "http-budougumi0617-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
 </script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     
   
 </footer>
+
 
       </article>
     </div>
@@ -451,30 +471,30 @@
     </p>
   </section>
 
+  
+  
 
+
+
+<ul class="sidebar-nav">
+  <li class="sidebar-nav-item">
+    <a target="_blank" rel="noopener noreferrer" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+    
+    
+    <a target="_blank" rel="noopener noreferrer" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+    
+    
+    <a target="_blank" rel="noopener noreferrer" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+    
+    
+    
+    
+    
 
   
-  <ul class="sidebar-nav">
-    <li class="sidebar-nav-item">
-      <a target="_blank" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
-      
-      
-      <a target="_blank" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
-      
-         
-      
-      <a target="_blank" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
-      
-      
-      
-      
-      
-      
-
-    
-    
-    </li>
-  </ul>
+  
+  </li>
+</ul>
 
   
 
@@ -528,10 +548,16 @@
           
             
               <li class="post">
-                <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
+                <a href="/2024/12/30/best_things_i_bought_in_2024/">2024年に買ってよかったもの</a>
               </li>
             
           
+            
+          
+            
+              <li class="post">
+                <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
+              </li>
             
           
             
@@ -546,12 +572,6 @@
               </li>
             
           
-            
-              <li class="post">
-                <a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a>
-              </li>
-            
-          
         </ul>
       </section>
     
@@ -563,21 +583,19 @@
 
     <footer role="contentinfo">
       <p>Copyright &copy; 2024  - <a href="https://budougumi0617.github.io/license/">License</a> -
-        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
       </p>
     </footer>
 
     
     
-    
+
+
 
     
-      <script>
-        var _gaq=[['_setAccount','UA-43042615-4'],['_trackPageview']];
-        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-        s.parentNode.insertBefore(g,s)}(document,'script'));
-      </script>
+    
+    
+
     
   </body>
 </html>
