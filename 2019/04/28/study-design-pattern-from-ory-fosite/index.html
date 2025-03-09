@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -272,8 +272,8 @@ ORY自体はドイツの会社で、他にも`ory/hydra`ライブラリなど、
 </ul>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> option <span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>Foo) <span style="color:#268bd2">interface</span>{}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// Verbosity sets Foo&#39;s verbosity level to v.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Verbosity</span>(v <span style="color:#dc322f">int</span>) option {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Verbosity sets Foo&#39;s verbosity level to v.</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Verbosity</span>(v <span style="color:#dc322f">int</span>) option {
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> <span style="color:#268bd2">func</span>(f <span style="color:#719e07">*</span>Foo) <span style="color:#268bd2">interface</span>{} {
 </span></span><span style="display:flex;"><span>        previous <span style="color:#719e07">:=</span> f.verbosity
 </span></span><span style="display:flex;"><span>        f.verbosity = v
@@ -281,9 +281,9 @@ ORY自体はドイツの会社で、他にも`ory/hydra`ライブラリなど、
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// Option sets the options specified.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// It returns the previous value of the last argument.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (f <span style="color:#719e07">*</span>Foo) <span style="color:#268bd2">Option</span>(opts <span style="color:#719e07">...</span>option) (previous <span style="color:#268bd2">interface</span>{}) {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Option sets the options specified.</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// It returns the previous value of the last argument.</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (f <span style="color:#719e07">*</span>Foo) <span style="color:#268bd2">Option</span>(opts <span style="color:#719e07">...</span>option) (previous <span style="color:#268bd2">interface</span>{}) {
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> _, opt <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> opts {
 </span></span><span style="display:flex;"><span>        previous = <span style="color:#268bd2">opt</span>(f)
 </span></span><span style="display:flex;"><span>    }
@@ -296,11 +296,11 @@ ORY自体はドイツの会社で、他にも`ory/hydra`ライブラリなど、
 <p>まず、<code>ory/fosite</code>を使うときの基本操作からデザインパターンを見てみる。ここではStrategyパターンによる実処理の移譲が行われている。<br>
 <code>ory/fosite</code>の利用者が扱う基本的なインターフェースは
 <a href="https://github.com/ory/fosite/blob/v0.29.6/oauth2.go#L42-L161" target="_blank" rel="noopener"><code>fosite.OAuth2Provider</code></a>だ。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/oauth2.go#L42-L161
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// OAuth2Provider is an interface that enables you to write OAuth2 handlers with only a few lines of code.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// Check fosite.Fosite for an implementation of this interface.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> OAuth2Provider <span style="color:#268bd2">interface</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/oauth2.go#L42-L161</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// OAuth2Provider is an interface that enables you to write OAuth2 handlers with only a few lines of code.</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Check fosite.Fosite for an implementation of this interface.</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> OAuth2Provider <span style="color:#268bd2">interface</span> {
 </span></span><span style="display:flex;"><span>	<span style="color:#268bd2">NewAuthorizeRequest</span>(ctx context.Context, req <span style="color:#719e07">*</span>http.Request) (AuthorizeRequester, <span style="color:#dc322f">error</span>)
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>	<span style="color:#268bd2">NewAuthorizeResponse</span>(ctx context.Context, requester AuthorizeRequester, session Session) (AuthorizeResponder, <span style="color:#dc322f">error</span>)
@@ -311,14 +311,14 @@ ORY自体はドイツの会社で、他にも`ory/hydra`ライブラリなど、
 </span></span><span style="display:flex;"><span>	
 </span></span><span style="display:flex;"><span>	<span style="color:#268bd2">NewAccessRequest</span>(ctx context.Context, req <span style="color:#719e07">*</span>http.Request, session Session) (AccessRequester, <span style="color:#dc322f">error</span>)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// ...</span>
+</span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>SDK利用者はHTTPサーバを立ち上げたあと、各HTTPハンドラの中で<code>fosite.OAuth2Provider</code>インターフェースを使って認可コードを発行したり、トークンを払い出したりする処理を実装していく（OAuth2.0についての説明は主旨と異なるのでしない）。</p>
 <p>このインターフェースの具象型は<code>fosite.Fosite</code>型だ。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/fosite.go#L85-L105
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// Fosite implements OAuth2Provider.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> Fosite <span style="color:#268bd2">struct</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/fosite.go#L85-L105</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Fosite implements OAuth2Provider.</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> Fosite <span style="color:#268bd2">struct</span> {
 </span></span><span style="display:flex;"><span>	Store                      Storage
 </span></span><span style="display:flex;"><span>	AuthorizeEndpointHandlers  AuthorizeEndpointHandlers
 </span></span><span style="display:flex;"><span>	TokenEndpointHandlers      TokenEndpointHandlers
@@ -330,28 +330,28 @@ ORY自体はドイツの会社で、他にも`ory/hydra`ライブラリなど、
 </span></span><span style="display:flex;"><span>	JWKSFetcherStrategy        JWKSFetcherStrategy
 </span></span><span style="display:flex;"><span>	HTTPClient                 <span style="color:#719e07">*</span>http.Client
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// TokenURL is the the URL of the Authorization Server&#39;s Token Endpoint.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	TokenURL <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// TokenURL is the the URL of the Authorization Server&#39;s Token Endpoint.</span>
+</span></span><span style="display:flex;"><span>	TokenURL <span style="color:#dc322f">string</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// SendDebugMessagesToClients if set to true, includes error debug messages in response payloads. Be aware that sensitive
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#586e75">// data may be exposed, depending on your implementation of Fosite. Such sensitive data might include database error
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#586e75">// codes or other information. Proceed with caution!
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	SendDebugMessagesToClients <span style="color:#dc322f">bool</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// SendDebugMessagesToClients if set to true, includes error debug messages in response payloads. Be aware that sensitive</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// data may be exposed, depending on your implementation of Fosite. Such sensitive data might include database error</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// codes or other information. Proceed with caution!</span>
+</span></span><span style="display:flex;"><span>	SendDebugMessagesToClients <span style="color:#dc322f">bool</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>内部に複数の<code>FooHandlers</code>を持っている。<code>FooHandlers</code>型は<code>[]FooHandler</code>に名前付けした型だ。<code>fosite.Fosite</code>型は<code>FooHandlers</code>に実処理を移譲している。</p>
 <p>例えば、<code>fosite.OAuth2Provider</code>インターフェースに定義されていて、<code>fosite.Fosite</code>で実装されている<code>NewAccessRequest</code>メソッドの実装をみてみる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/access_request_handler.go#L87-L101
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/access_request_handler.go#L87-L101</span>
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (f <span style="color:#719e07">*</span>Fosite) <span style="color:#268bd2">NewAccessRequest</span>(ctx context.Context, r <span style="color:#719e07">*</span>http.Request, session Session) (AccessRequester, <span style="color:#dc322f">error</span>) {
-</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// 前処理
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// 前処理</span>
+</span></span><span style="display:flex;"><span>	
 </span></span><span style="display:flex;"><span>	<span style="color:#268bd2">var</span> found <span style="color:#dc322f">bool</span> = <span style="color:#cb4b16">false</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">for</span> _, loader <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> f.TokenEndpointHandlers {
 </span></span><span style="display:flex;"><span>		<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> loader.<span style="color:#268bd2">HandleTokenEndpointRequest</span>(ctx, accessRequest); err <span style="color:#719e07">==</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>			found = <span style="color:#cb4b16">true</span>
 </span></span><span style="display:flex;"><span>		} <span style="color:#719e07">else</span> <span style="color:#719e07">if</span> errors.<span style="color:#268bd2">Cause</span>(err).<span style="color:#268bd2">Error</span>() <span style="color:#719e07">==</span> ErrUnknownRequest.<span style="color:#268bd2">Error</span>() {
-</span></span><span style="display:flex;"><span>			<span style="color:#586e75">// do nothing
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>		} <span style="color:#719e07">else</span> <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+</span></span><span style="display:flex;"><span>			<span style="color:#586e75">// do nothing</span>
+</span></span><span style="display:flex;"><span>		} <span style="color:#719e07">else</span> <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>			<span style="color:#719e07">return</span> accessRequest, err
 </span></span><span style="display:flex;"><span>		}
 </span></span><span style="display:flex;"><span>	}
@@ -368,14 +368,14 @@ ORY自体はドイツの会社で、他にも`ory/hydra`ライブラリなど、
 <p>では、次に<code>fosite.Fosite</code>の<code>FooHandlers</code>フィールドに実処理を行なう各<code>Handler</code>を格納する実装を見てみる。</p>
 <h2 id="functional-optionsパターンを利用したstrategyパターンの初期化とfactoryメソッドパターン">Functional Optionsパターンを利用したStrategyパターンの初期化とFactoryメソッドパターン</h2>
 <p><code>fosite.Fosite</code>オブジェクトのフィールドは外部に公開されている。そのため、地道に各オブジェクトを設定していくこともできるが、<code>ory/fosite</code>では初期化用の<code>compose.Compose</code>関数が用意されている。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>https:<span style="color:#586e75">//github.com/ory/fosite/blob/v0.29.6/compose/compose.go#L33-L91
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>https:<span style="color:#586e75">//github.com/ory/fosite/blob/v0.29.6/compose/compose.go#L33-L91</span>
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> Factory <span style="color:#268bd2">func</span>(config <span style="color:#719e07">*</span>Config, storage <span style="color:#268bd2">interface</span>{}, strategy <span style="color:#268bd2">interface</span>{}) <span style="color:#268bd2">interface</span>{}
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// Compose takes a config, a storage, a strategy and handlers to instantiate an OAuth2Provider:
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Compose</span>(config <span style="color:#719e07">*</span>Config, storage <span style="color:#268bd2">interface</span>{}, strategy <span style="color:#268bd2">interface</span>{}, hasher fosite.Hasher, factories <span style="color:#719e07">...</span>Factory) fosite.OAuth2Provider {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Compose takes a config, a storage, a strategy and handlers to instantiate an OAuth2Provider:</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ...</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Compose</span>(config <span style="color:#719e07">*</span>Config, storage <span style="color:#268bd2">interface</span>{}, strategy <span style="color:#268bd2">interface</span>{}, hasher fosite.Hasher, factories <span style="color:#719e07">...</span>Factory) fosite.OAuth2Provider {
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> hasher <span style="color:#719e07">==</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>		hasher = <span style="color:#719e07">&amp;</span>fosite.BCrypt{WorkFactor: config.<span style="color:#268bd2">GetHashCost</span>()}
 </span></span><span style="display:flex;"><span>	}
@@ -416,11 +416,11 @@ ORY自体はドイツの会社で、他にも`ory/hydra`ライブラリなど、
 引数で受けた可変長引数の<code>factories</code>は後述する<code>FooHnadler</code>オブジェクトを初期化する<code>FooFactory</code>関数が満たしている<code>Factory</code>型の関数定義だ。
 Goはダックタイピングなので、<code>Factory</code>が生成した<code>FooHandler</code>オブジェクトの実体を知らずとも利用できる。型アサーションで<code>factory</code>関数から生成されたオブジェクトがどのインターフェースを満たしているか確認し、インターフェースを満たしていれば、<code>fosite.Fosite</code>オブジェクトに登録していく。</p>
 <p><code>factory</code>型を満たすファクトリーメソッド自体は、以下のような関数群が定義されている。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/compose/compose_oauth2.go
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// OAuth2ClientCredentialsGrantFactory creates an OAuth2 client credentials grant handler and registers
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// an access token, refresh token and authorize code validator.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">OAuth2ClientCredentialsGrantFactory</span>(config <span style="color:#719e07">*</span>Config, storage <span style="color:#268bd2">interface</span>{}, strategy <span style="color:#268bd2">interface</span>{}) <span style="color:#268bd2">interface</span>{} {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/compose/compose_oauth2.go</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// OAuth2ClientCredentialsGrantFactory creates an OAuth2 client credentials grant handler and registers</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// an access token, refresh token and authorize code validator.</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">OAuth2ClientCredentialsGrantFactory</span>(config <span style="color:#719e07">*</span>Config, storage <span style="color:#268bd2">interface</span>{}, strategy <span style="color:#268bd2">interface</span>{}) <span style="color:#268bd2">interface</span>{} {
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>oauth2.ClientCredentialsGrantHandler{
 </span></span><span style="display:flex;"><span>		HandleHelper: <span style="color:#719e07">&amp;</span>oauth2.HandleHelper{
 </span></span><span style="display:flex;"><span>			AccessTokenStrategy: strategy.(oauth2.AccessTokenStrategy),
@@ -431,12 +431,12 @@ Goはダックタイピングなので、<code>Factory</code>が生成した<cod
 </span></span><span style="display:flex;"><span>		AudienceMatchingStrategy: config.<span style="color:#268bd2">GetAudienceStrategy</span>(),
 </span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/compose/compose_openid.go
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// OpenIDConnectRefreshFactory creates a handler for refreshing openid connect tokens.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">//
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// **Important note:** You must add this handler *after* you have added an OAuth2 authorize code handler!
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">OpenIDConnectRefreshFactory</span>(config <span style="color:#719e07">*</span>Config, storage <span style="color:#268bd2">interface</span>{}, strategy <span style="color:#268bd2">interface</span>{}) <span style="color:#268bd2">interface</span>{} {
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/compose/compose_openid.go</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// OpenIDConnectRefreshFactory creates a handler for refreshing openid connect tokens.</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">//</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// **Important note:** You must add this handler *after* you have added an OAuth2 authorize code handler!</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">OpenIDConnectRefreshFactory</span>(config <span style="color:#719e07">*</span>Config, storage <span style="color:#268bd2">interface</span>{}, strategy <span style="color:#268bd2">interface</span>{}) <span style="color:#268bd2">interface</span>{} {
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>openid.OpenIDConnectRefreshHandler{
 </span></span><span style="display:flex;"><span>		IDTokenHandleHelper: <span style="color:#719e07">&amp;</span>openid.IDTokenHandleHelper{
 </span></span><span style="display:flex;"><span>			IDTokenStrategy: strategy.(openid.OpenIDConnectTokenStrategy),
@@ -445,10 +445,10 @@ Goはダックタイピングなので、<code>Factory</code>が生成した<cod
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p><code>ory/fosite</code>ユーザは自分が利用したい認証・認可形式のファクトリーメソッドを使って<code>compose.Compose</code>関数を呼び出すことで、任意の実装形式が設定された<code>fosite.Oauth2Providor</code>オブジェクトを取得することができる。</p>
 <p>以下は提供されている全てのFactoryを使って<code>compose.Compose</code>関数を呼び出して<code>fosite.OAuth2Provider</code>の初期化を行なう<code>compose.ComposeAllEnabled</code>の定義だ。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/compose/compose.go#L93-L122
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ComposeAllEnabled returns a fosite instance with all OAuth2 and OpenID Connect handlers enabled.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">ComposeAllEnabled</span>(config <span style="color:#719e07">*</span>Config, storage <span style="color:#268bd2">interface</span>{}, secret []<span style="color:#dc322f">byte</span>, key <span style="color:#719e07">*</span>rsa.PrivateKey) fosite.OAuth2Provider {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://github.com/ory/fosite/blob/v0.29.6/compose/compose.go#L93-L122</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ComposeAllEnabled returns a fosite instance with all OAuth2 and OpenID Connect handlers enabled.</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">ComposeAllEnabled</span>(config <span style="color:#719e07">*</span>Config, storage <span style="color:#268bd2">interface</span>{}, secret []<span style="color:#dc322f">byte</span>, key <span style="color:#719e07">*</span>rsa.PrivateKey) fosite.OAuth2Provider {
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">return</span> <span style="color:#268bd2">Compose</span>(
 </span></span><span style="display:flex;"><span>		config,
 </span></span><span style="display:flex;"><span>		storage,
@@ -710,11 +710,17 @@ Goはダックタイピングなので、<code>Factory</code>が生成した<cod
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -726,12 +732,6 @@ Goはダックタイピングなので、<code>Factory</code>が生成した<cod
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

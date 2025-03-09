@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>tagprとGoReleaserを使ったOSSの自動リリース - My External Storage</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://budougumi0617.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="github,github actions,tagpr,goreleaser">
+  <meta name="author" content="">
+
+  
+  <meta name="generator" content="Hugo 0.145.0">
+
+  
+
+  
+  
+    
+
+  
+  
+    <meta property="og:image" content="https://budougumi0617.github.io/twittercard.png"/>
+  
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image:src" content="https://budougumi0617.github.io/twittercard.png"/>
+  
+  
+  <meta property="og:url" content="https://budougumi0617.github.io/2025/03/09/release_oss_by_tagpr_goreleaser/"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="tagprとGoReleaserを使ったOSSの自動リリース - My External Storage"/>
+  <meta property="og:description" content="去年、3年ぶりくらいに自作のCLIツールをリリースしたけど、どうやってリリースしてたかすっかり忘れていた。
+CIは壊れてたし、せっかくなのでtagprとGoReleaser（とGitHub App）を使って2024年らしいデプロイパイプラインを作り直した。
+リリースPRをマージしたらHomebrewへのバイナリリリースまで自動化できて満足。ちょっと時間が経ってしまったけどメモを残しておく。"/>
+  
+  <meta name="twitter:title" content="tagprとGoReleaserを使ったOSSの自動リリース - My External Storage"/>
+  <meta name="twitter:description" content="去年、3年ぶりくらいに自作のCLIツールをリリースしたけど、どうやってリリースしてたかすっかり忘れていた。
+CIは壊れてたし、せっかくなのでtagprとGoReleaser（とGitHub App）を使って2024年らしいデプロイパイプラインを作り直した。
+リリースPRをマージしたらHomebrewへのバイナリリリースまで自動化できて満足。ちょっと時間が経ってしまったけどメモを残しておく。"/>
+  <meta name="twitter:site" content="@budougumi0617"/>
+  <meta name="twitter:domain" content="budougumi0617.github.io"/>
+  <meta name="twitter:creator" content="@budougumi0617"/>
+
+
+
+  
+
+  
+  <script type="text/javascript">
+    (function(add, cla){window['UserHeatTag']=cla;window[cla]=window[cla]||function(){(window[cla].q=window[cla].q||[]).push(arguments)},window[cla].l=1*new Date();var ul=document.createElement('script');var tag = document.getElementsByTagName('script')[0];ul.async=1;ul.src=add;tag.parentNode.insertBefore(ul,tag);})('//uh.nakanohito.jp/uhj2/uh.js', '_uhtracker');_uhtracker({id:'uhUEw1Gd9C'});
+  </script>
+  
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-7243809090374924",
+      enable_page_level_ads: true
+    });
+  </script>
+  
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-EQ83WN36ER"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-EQ83WN36ER');
+  </script>
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://budougumi0617.github.io/">My External Storage</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+        <option value="https://budougumi0617.github.io/">» Home</option>
+      
+        <option value="https://budougumi0617.github.io/2017/07/11/about-this-site/">» About</option>
+      
+        <option value="https://budougumi0617.github.io/post/">» Archives</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="https://budougumi0617.github.io/" title="Home">Home</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/2017/07/11/about-this-site/" title="About"  target="_blank"  rel="noopener noreferrer">About</a></li>
+    
+  
+    
+      <li><a href="https://budougumi0617.github.io/post/" title="Archives"  target="_blank"  rel="noopener noreferrer">Archives</a></li>
+    
+  
+</ul>
+
+<ul class="subscription">
+  
+    
+        <a href="https://budougumi0617.github.io/index.xml" target="_blank" type="application/rss+xml" title="RSS" rel="noopener noreferrer"><i class="fa fa-rss-square fa-lg"></i></a>
+    
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Mar 9, 2025
+     - 6 minute read 
+     - <a href="https://budougumi0617.github.io/2025/03/09/release_oss_by_tagpr_goreleaser/#disqus_thread">Comments</a>
+
+    
+    
+      - <a class="label" href="https://budougumi0617.github.io/categories/github/">github </a><a class="label" href="https://budougumi0617.github.io/categories/go/">go </a>
+    
+  </p>
+  <h1 class="entry-title">
+     tagprとGoReleaserを使ったOSSの自動リリース 
+  </h1>
+</header>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <div class="entry-content">
+          
+          
+          
+          
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#久しぶりにossをメンテすると何も覚えていない">久しぶりにOSSをメンテすると何も覚えていない</a></li>
+    <li><a href="#自動化の方針">自動化の方針</a></li>
+    <li><a href="#やったこと">やったこと</a>
+      <ul>
+        <li><a href="#github-appで認証情報を管理">GitHub Appで認証情報を管理</a></li>
+        <li><a href="#2-tagprを使ったリリースpr作成の自動化">2. tagprを使ったリリースPR作成の自動化</a></li>
+        <li><a href="#3-goreleaserで自動リリース">3. GoReleaserで自動リリース</a></li>
+        <li><a href="#最終的なgithub-actionsとactionsで作成されるもの">最終的なGitHub ActionsとActionsで作成されるもの</a></li>
+      </ul>
+    </li>
+    <li><a href="#おわりに">おわりに</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+          
+          <p>去年、3年ぶりくらいに自作のCLIツールをリリースしたけど、どうやってリリースしてたかすっかり忘れていた。<br>
+CIは壊れてたし、せっかくなので<code>tagpr</code>と<code>GoReleaser</code>（と<code>GitHub App</code>）を使って2024年らしいデプロイパイプラインを作り直した。<br>
+リリースPRをマージしたらHomebrewへのバイナリリリースまで自動化できて満足。ちょっと時間が経ってしまったけどメモを残しておく。</p>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>GitHub Actionsで複数リポジトリを操作するときはGitHub Appを使った認証を使う
+<ul>
+<li>
+<a href="https://docs.github.com/ja/apps/creating-github-apps/authenticating-with-a-github-app" target="_blank" rel="noopener">https://docs.github.com/ja/apps/creating-github-apps/authenticating-with-a-github-app</a></li>
+</ul>
+</li>
+<li><code>tagpr</code>を使うとGitHubリリース用のPRを作ってくれる
+<ul>
+<li>
+<a href="https://github.com/Songmu/tagpr" target="_blank" rel="noopener">https://github.com/Songmu/tagpr</a></li>
+</ul>
+</li>
+<li><code>tagpr</code>と<code>GoReleaser</code>を使うと、GitHubリリースやHomebrewなどにビルドした結果も自動でリリースできる
+<ul>
+<li>
+<a href="https://goreleaser.com/" target="_blank" rel="noopener">https://goreleaser.com/</a></li>
+</ul>
+</li>
+<li>リリース用のPRをマージすれば、自動でバイナリリリースまでするActionsを作成できた
+<ul>
+<li>
+<a href="https://github.com/budougumi0617/nrseg/blob/v0.0.10/.github/workflows/tag-and-release.yml" target="_blank" rel="noopener">https://github.com/budougumi0617/nrseg/blob/v0.0.10/.github/workflows/tag-and-release.yml</a></li>
+</ul>
+</li>
+</ul>
+<p>なお、この記事では自作ツールをHomebrew-tap対応する方法は触れない。</p>
+<p>また、このあと説明で記載するYAMLは次のリポジトリで使われることを想定している。</p>
+<ul>
+<li>
+<a href="https://github.com/budougumi0617/nrseg" target="_blank" rel="noopener">https://github.com/budougumi0617/nrseg</a></li>
+<li>
+<a href="https://github.com/budougumi0617/homebrew-tap" target="_blank" rel="noopener">https://github.com/budougumi0617/homebrew-tap</a></li>
+</ul>
+<h1 id="久しぶりにossをメンテすると何も覚えていない">久しぶりにOSSをメンテすると何も覚えていない</h1>
+<p>去年、3年ほど放置していた自作OSSのCLIツールを久々にいくつかメンテした。
+ツールのコードのメンテ自体はすぐできたけど、リリース手順を完全に忘れていた。<br>
+放置前からGitHub Actionsを使ったバイナリリリースの設定などはしていたものの、GoReleaserのActionsをアップデートしたら壊れてしまったりしたので、令和のイケてるリリースフローを作るためにしっかり作り直すことにした。</p>
+<h1 id="自動化の方針">自動化の方針</h1>
+<p>最終的に実現した流れは以下の通り。</p>
+<ul>
+<li>メインブランチにPRをマージすると、リリース用のPRが作成される
+<ul>
+<li>次の修正PRをマージすると自動的にリリース用のPRが更新される</li>
+</ul>
+</li>
+<li>メインブランチにリリース用のPRをマージすると、GitHub上でリリースタグが作成される
+<ul>
+<li>CHANGELOGも自動生成する</li>
+</ul>
+</li>
+<li>リリースされたらGoReleasrがバイナリデータを作成し、GitHubとHomebrew-tap用のリポジトリにバイナリをアップロードする。
+<ul>
+<li>具体的には、CLIツールのリポジトリへのバイナリアップロードとhomebrew-tap用のリポジトリを更新する</li>
+</ul>
+</li>
+</ul>
+<h1 id="やったこと">やったこと</h1>
+<p>具体的には次の設定を行った。</p>
+<ul>
+<li>GitHub Appを使った認証トークンの発行準備</li>
+<li><code>tagpr</code>の設定</li>
+<li><code>tagpr</code>と<code>GoReleaser</code>を組み合わせたActionsフローの作成</li>
+</ul>
+<h2 id="github-appで認証情報を管理">GitHub Appで認証情報を管理</h2>
+<p>Actions内で複数のリポジトリを操作するときは認証トークンの発行が必要になる。
+GitHub Appを使えばトークンの有効期限を心配する必要もないようなので、こちらを利用することにした。</p>
+<ul>
+<li>
+<a href="https://docs.github.com/ja/apps/creating-github-apps/authenticating-with-a-github-app" target="_blank" rel="noopener">https://docs.github.com/ja/apps/creating-github-apps/authenticating-with-a-github-app</a></li>
+</ul>
+<p>GitHub Appを作成しておけば、この公式actionでActions内でトークンを利用できる。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/marketplace/actions/create-github-app-token" data-iframely-url="//iframely.net/Cd1w2ci"></a></div></div><script async src="//iframely.net/embed.js"></script>
+<p>具体的な手順は公式の手順書をみればできる。</p>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://docs-internal.github.com/ja/apps/creating-github-apps/authenticating-with-a-github-app/making-authenticated-api-requests-with-a-github-app-in-a-github-actions-workflow" data-iframely-url="//iframely.net/wkvLLVp"></a></div></div><script async src="//iframely.net/embed.js"></script>
+<p>今回実現するフローだと、以下のリソースに対してRead/Write権限が必要になる</p>
+<ul>
+<li>Code
+<ul>
+<li>これはデフォルト有効かも</li>
+</ul>
+</li>
+<li>Pull Requets</li>
+<li>Contents</li>
+<li>Workflows</li>
+</ul>
+<p>これを個人アカウントにインストールしておく。
+あとは該当リポジトリのシークレットに秘密鍵を登録してActionsに<code>create-github-app-token</code>のステップを追加する。
+後続のステップでは<code>steps.app-token.outputs.token</code>を参照することで認証が必要なGitHubの操作が可能になる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">jobs</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">first-job-name</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">runs-on</span>: ubuntu-latest
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">steps</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">uses</span>: actions/create-github-app-token@v1
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">id</span>: app-token
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">app-id</span>: ${{ secrets.APP_ID }}
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">private-key</span>: ${{ secrets.PRIVATE_KEY }}
+</span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">name</span>: Check out source code
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">uses</span>: actions/checkout@v4
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">token</span>: ${{ steps.app-token.outputs.token }}
+</span></span></code></pre></div><h3 id="ハマったところ">ハマったところ</h3>
+<p>GitHub App自体のPermissionを調整した後は、個人アカウント側で更新内容を受け入れる必要がある。</p>
+<p>
+<a href="https://github.com/settings/installations" target="_blank" rel="noopener">https://github.com/settings/installations</a></p>
+<h2 id="2-tagprを使ったリリースpr作成の自動化">2. tagprを使ったリリースPR作成の自動化</h2>
+<p>
+<a href="https://github.com/Songmu/tagpr" target="_blank" rel="noopener">tagpr</a>は、バージョンタグの作成やリリース用のPRを自動で生成してくれるツールだ。</p>
+<ul>
+<li>Pushイベントをトリガーに、次のリリースタグの自動判定・PR作成を実施
+<ul>
+<li>ラベルを使うことでパッチバージョンアップ、メジャーバージョアップなどが可能</li>
+</ul>
+</li>
+<li>リリース用PRマージすることで自動的に新しいリリースタグが設定される</li>
+</ul>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://songmu.jp/riji/entry/2022-09-05-tagpr.html" data-iframely-url="//iframely.net/cAjMAge?card=small"></a></div></div><script async src="//iframely.net/embed.js"></script>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/Songmu/tagpr" data-iframely-url="//iframely.net/f9vV0Y1?card=small"></a></div></div><script async src="//iframely.net/embed.js"></script>
+<p>リポジトリのREADMEを読みながら設定すれば簡単にセットアップできた。ハマったところもなし。
+CHANGELOGの自動生成もしてくれるし、めちゃくちゃ便利。</p>
+<ul>
+<li>
+<a href="https://github.com/budougumi0617/nrseg/blob/v0.0.10/CHANGELOG.md" target="_blank" rel="noopener">https://github.com/budougumi0617/nrseg/blob/v0.0.10/CHANGELOG.md</a></li>
+</ul>
+<p><code>.tagpr</code>、リポジトリに追加した後は次のようなActionsを作成すればよい。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">name</span>: tag-and-release
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">on</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">push</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">branches</span>:
+</span></span><span style="display:flex;"><span>      - master
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">permissions</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">contents</span>: write
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">pull-requests</span>: write
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">jobs</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">tagpr</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">runs-on</span>: ubuntu-latest
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">outputs</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">tagpr-tag</span>: ${{ steps.run-tagpr.outputs.tag }}
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">steps</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">uses</span>: actions/create-github-app-token@v1
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">id</span>: app-token
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">app-id</span>: ${{ secrets.APP_ID }}
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">private-key</span>: ${{ secrets.PRIVATE_KEY }}
+</span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">name</span>: Check out source code
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">uses</span>: actions/checkout@v4
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">token</span>: ${{ steps.app-token.outputs.token }}
+</span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">id</span>: run-tagpr
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">name</span>: Run tagpr
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">uses</span>: Songmu/tagpr@v1
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">env</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">GITHUB_TOKEN</span>: ${{ steps.app-token.outputs.token }}
+</span></span></code></pre></div><p>バイナリを作成する必要がないライブラリ系のリポジトリならばここで終わりでもよい。</p>
+<h2 id="3-goreleaserで自動リリース">3. GoReleaserで自動リリース</h2>
+<p><code>GoReleaser</code>はGo（Rustもできるらしい）で書かれたソフトウェアのリリースプロセスを自動化してくれるツール。</p>
+<ul>
+<li>クロスコンパイル対応もしてくれる</li>
+<li>Homebrewタップへの反映なども自動化できる</li>
+</ul>
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://goreleaser.com/" data-iframely-url="//iframely.net/zkcbliz?card=small"></a></div></div><script async src="//iframely.net/embed.js"></script>
+<p>こちらは<code>.goreleaser.yml</code>を作成したあとは、以下のような<code>job</code>を定義すれば、GitHub Appで取得した認証情報を使ってバイナリをリリースできる。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>  <span style="color:#268bd2">goreleaser</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">needs</span>: tagpr
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">if</span>: needs.tagpr.outputs.tagpr-tag != &#39;&#39;
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">runs-on</span>: ubuntu-latest
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">steps</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">uses</span>: actions/create-github-app-token@v1
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">id</span>: app-token
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">app-id</span>: ${{ secrets.APP_ID }}
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">private-key</span>: ${{ secrets.PRIVATE_KEY }}
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">owner</span>: <span style="color:#2aa198">&#34;budougumi0617&#34;</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">repositories</span>: |<span style="color:#2aa198">
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            nrseg
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            homebrew-tap</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">name</span>: Checkout
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">uses</span>: actions/checkout@v4
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">fetch-depth</span>: <span style="color:#2aa198">0</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">token</span>: ${{ steps.app-token.outputs.token }}
+</span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">name</span>: Set up Go
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">uses</span>: actions/setup-go@v5
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">go-version-file</span>: go.mod
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">cache</span>: <span style="color:#cb4b16">true</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">name</span>: Run GoReleaser
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">uses</span>: goreleaser/goreleaser-action@v6
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">distribution</span>: goreleaser
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">version</span>: <span style="color:#2aa198">&#34;latest&#34;</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">args</span>: release --clean
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">env</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">GITHUB_TOKEN</span>: ${{ steps.app-token.outputs.token }}
+</span></span></code></pre></div><p>年のため、GitHub Appに作業できるリポジトリを明示的に指定している。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>          <span style="color:#268bd2">repositories</span>: |<span style="color:#2aa198">
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            nrseg
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            homebrew-tap</span>
+</span></span></code></pre></div><h3 id="ハマったポイント">ハマったポイント</h3>
+<p>今回メンテしたリポジトリでリリースしたバイナリを使ったActionsを書いていたので、リリースされるファイルパスなどの調整でちょっとハマった。
+まっさらな状態からリリースするならばそんなにハマらないと思う。</p>
+<h2 id="最終的なgithub-actionsとactionsで作成されるもの">最終的なGitHub ActionsとActionsで作成されるもの</h2>
+<p>ここまでの設定をすべてまとめると、次のようなActionsになる。</p>
+<p>
+<a href="https://github.com/budougumi0617/nrseg/blob/v0.0.10/.goreleaser.yml" target="_blank" rel="noopener">https://github.com/budougumi0617/nrseg/blob/v0.0.10/.goreleaser.yml</a></p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">name</span>: tag-and-release
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">on</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">push</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">branches</span>:
+</span></span><span style="display:flex;"><span>      - master
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">permissions</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">contents</span>: write
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">pull-requests</span>: write
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">jobs</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">tagpr</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">runs-on</span>: ubuntu-latest
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">outputs</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">tagpr-tag</span>: ${{ steps.run-tagpr.outputs.tag }}
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">steps</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">uses</span>: actions/create-github-app-token@v1
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">id</span>: app-token
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">app-id</span>: ${{ secrets.APP_ID }}
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">private-key</span>: ${{ secrets.PRIVATE_KEY }}
+</span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">name</span>: Check out source code
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">uses</span>: actions/checkout@v4
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">token</span>: ${{ steps.app-token.outputs.token }}
+</span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">id</span>: run-tagpr
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">name</span>: Run tagpr
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">uses</span>: Songmu/tagpr@v1
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">env</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">GITHUB_TOKEN</span>: ${{ steps.app-token.outputs.token }}
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">goreleaser</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">needs</span>: tagpr
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">if</span>: needs.tagpr.outputs.tagpr-tag != &#39;&#39;
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">runs-on</span>: ubuntu-latest
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">steps</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">uses</span>: actions/create-github-app-token@v1
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">id</span>: app-token
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">app-id</span>: ${{ secrets.APP_ID }}
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">private-key</span>: ${{ secrets.PRIVATE_KEY }}
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">owner</span>: <span style="color:#2aa198">&#34;budougumi0617&#34;</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">repositories</span>: |<span style="color:#2aa198">
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            nrseg
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            homebrew-tap</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">name</span>: Checkout
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">uses</span>: actions/checkout@v4
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">fetch-depth</span>: <span style="color:#2aa198">0</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">token</span>: ${{ steps.app-token.outputs.token }}
+</span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">name</span>: Set up Go
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">uses</span>: actions/setup-go@v5
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">go-version-file</span>: go.mod
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">cache</span>: <span style="color:#cb4b16">true</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">name</span>: Run GoReleaser
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">uses</span>: goreleaser/goreleaser-action@v6
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#586e75"># either &#39;goreleaser&#39; (default) or &#39;goreleaser-pro&#39;</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">distribution</span>: goreleaser
+</span></span><span style="display:flex;"><span>          <span style="color:#586e75"># &#39;latest&#39;, &#39;nightly&#39;, or a semver</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">version</span>: <span style="color:#2aa198">&#34;latest&#34;</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">args</span>: release --clean
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">env</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#586e75"># need to access other repository for brew-tap</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">GITHUB_TOKEN</span>: ${{ steps.app-token.outputs.token }}
+</span></span></code></pre></div><p>このActionsを設定した後、リポジトリで修正PRをマージすると、次のようなリリース用PRが作成される。</p>
+<ul>
+<li>
+<a href="https://github.com/budougumi0617/nrseg/pull/35" target="_blank" rel="noopener">https://github.com/budougumi0617/nrseg/pull/35</a></li>
+</ul>
+<p>このPRをマージすると、リリースタグが作成され、バイナリも配置される</p>
+<ul>
+<li>
+<a href="https://github.com/budougumi0617/nrseg/releases/tag/v0.0.10" target="_blank" rel="noopener">https://github.com/budougumi0617/nrseg/releases/tag/v0.0.10</a></li>
+</ul>
+<p>CHANGELOGも自動生成される。うれしい。</p>
+<ul>
+<li>
+<a href="https://github.com/budougumi0617/nrseg/blob/v0.0.10/CHANGELOG.md" target="_blank" rel="noopener">https://github.com/budougumi0617/nrseg/blob/v0.0.10/CHANGELOG.md</a></li>
+</ul>
+<h1 id="おわりに">おわりに</h1>
+<p>GitHub Actionsを活用することで、リリース作業をほぼ完全に自動化できた。
+自分のOSSを作るときはこれをテンプレにしたい（最近は作れていないけれど…）。<br>
+数年放置していたけれど、<code>go.mod</code>が入った後だったしGoのコードは問題なく動くのも確認できた。よい。<br>
+久しぶりにちゃんとActionsを自分で書いたら認証トークンの払い出し方とか変わっていて、（PAT払い出してシークレットに設定して終わりだった）ちょっと前は放牧的な時代だったんだなーと思った。</p>
+<h1 id="参考">参考</h1>
+<ul>
+<li>GitHub App による認証
+<ul>
+<li>
+<a href="https://docs.github.com/ja/apps/creating-github-apps/authenticating-with-a-github-app" target="_blank" rel="noopener">https://docs.github.com/ja/apps/creating-github-apps/authenticating-with-a-github-app</a></li>
+</ul>
+</li>
+<li>tagpr
+<ul>
+<li>
+<a href="https://github.com/Songmu/tagpr" target="_blank" rel="noopener">https://github.com/Songmu/tagpr</a></li>
+</ul>
+</li>
+<li>GoReleaser
+<ul>
+<li>
+<a href="https://goreleaser.com/" target="_blank" rel="noopener">https://goreleaser.com/</a></li>
+</ul>
+</li>
+<li>GitHub Appsトークン解体新書：GitHub ActionsからPATを駆逐する技術
+<ul>
+<li>
+<a href="https://zenn.dev/tmknom/articles/github-apps-token" target="_blank" rel="noopener">https://zenn.dev/tmknom/articles/github-apps-token</a></li>
+</ul>
+</li>
+<li>tagprで実現するPull Request上で進めるOSSのリリースマネジメント
+<ul>
+<li>
+<a href="https://k1low.hatenablog.com/entry/2022/10/04/083000" target="_blank" rel="noopener">https://k1low.hatenablog.com/entry/2022/10/04/083000</a></li>
+</ul>
+</li>
+</ul>
+        </div>
+        
+
+<h2>関連記事</h2>
+<ul>
+  
+  <li><a href="/2019/01/11/filter-branch-in-github-actions/">GitHub Actionsで特定のブランチのときのみワークフローを実行する #github #actions #ci</a></li>
+  
+  <li><a href="/2021/01/03/release_pixela_library/">PixelaのGo用APIクライアントライブラリを作り始めた #pixela</a></li>
+  
+  <li><a href="/2022/09/20/closed-stale-github-issue-by-manual/">GitHub CLIを使って任意の条件のissueを一括closeする（一括操作する）</a></li>
+  
+</ul>
+
+
+        <div class="addthis_inline_share_toolbox"></div>
+
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c31cf997a7af863" async></script>
+<script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+</script>
+
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn"></span></span>
+    
+    <time>Mar 9, 2025</time>
+    
+      <span class="categories">
+        Tags:
+        
+          <a class="category" href="https://budougumi0617.github.io/tags/github">github</a>  <a class="category" href="https://budougumi0617.github.io/tags/github-actions">github actions</a>  <a class="category" href="https://budougumi0617.github.io/tags/tagpr">tagpr</a>  <a class="category" href="https://budougumi0617.github.io/tags/goreleaser">goreleaser</a>  
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://budougumi0617.github.io/2024/12/31/retrospective-2024/" title="2024年の振り返り">2024年の振り返り</a>
+    
+
+    
+  </p>
+  
+    
+      <div id="disqus_thread"></div>
+<script>
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "http-budougumi0617-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+    
+  
+</footer>
+
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>This blog</h1>
+    
+
+    <p>
+      
+        budougumi0617 の技術ブログです。
+</br>
+主にGoについて書いています。</br>
+このブログはAmazonアソシエイト・プログラムを利用しています。
+</br>
+      
+    </p>
+  </section>
+
+  
+  
+
+
+
+<ul class="sidebar-nav">
+  <li class="sidebar-nav-item">
+    <a target="_blank" rel="noopener noreferrer" href="https://github.com/budougumi0617" title="https://github.com/budougumi0617"><i class="fa fa-github fa-3x"></i></a>
+    
+    
+    <a target="_blank" rel="noopener noreferrer" href="https://twitter.com/budougumi0617" title="https://twitter.com/budougumi0617"><i class="fa fa-twitter fa-3x"></i></a>
+    
+    
+    <a target="_blank" rel="noopener noreferrer" href="https://www.linkedin.com/in/budougumi0617/" title="https://www.linkedin.com/in/budougumi0617/"><i class="fa fa-linkedin fa-3x"></i></a>
+    
+    
+    
+    
+    
+
+  
+  
+  </li>
+</ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>Reccomend Categories</h1>
+        
+        
+          <li>
+            <a href="https://budougumi0617.github.io/tags/gotips/" title="意外と知らないGoのTIPS" >意外と知らないGoのTIPS</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/go/" title="Go" >Go</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/python/" title="Python" >Python</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/presentation/" title="発表資料" >発表資料</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/report/" title="イベントレポート" >イベントレポート</a>
+          </li>
+        
+          <li>
+            <a href="https://budougumi0617.github.io/categories/" title="カテゴリー一覧" >カテゴリー一覧</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+    
+      <section class="even">
+        <h1>Recent Posts</h1>
+        <ul id="recent_posts">
+          
+          
+            
+          
+            
+              <li class="post">
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2024/12/30/best_things_i_bought_in_2024/">2024年に買ってよかったもの</a>
+              </li>
+            
+          
+            
+              <li class="post">
+                <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
+              </li>
+            
+          
+        </ul>
+      </section>
+    
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2025  - <a href="https://budougumi0617.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+
+
+
+    
+    
+    
+
+    
+  </body>
+</html>
+

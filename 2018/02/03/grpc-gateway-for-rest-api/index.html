@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -273,10 +273,10 @@ Usage of /var/folders/sy/ls4cfp216x774g54brzl67yw0000gn/T/go-build442506345/comm
 <h2 id="サーバコードの実装">サーバコードの実装</h2>
 <p>もろもろのコードを自動生成できたので、あとはサーバーのコードを実装する。</p>
 <p>gRPCサーバは適当なデータを返すように実装しておく。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// sandbox-grpc/tasklist-gateway/server/main.go
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// It implements the route guide service whose definition can be found in proto/task_list.proto
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// sandbox-grpc/tasklist-gateway/server/main.go</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// It implements the route guide service whose definition can be found in proto/task_list.proto</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">package</span> main
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
 </span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;context&#34;</span>
@@ -294,8 +294,8 @@ Usage of /var/folders/sy/ls4cfp216x774g54brzl67yw0000gn/T/go-build442506345/comm
 </span></span><span style="display:flex;"><span>	port = <span style="color:#2aa198">&#34;:50051&#34;</span>
 </span></span><span style="display:flex;"><span>)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// server is used to implement sa
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> server <span style="color:#268bd2">struct</span>{}
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// server is used to implement sa</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> server <span style="color:#268bd2">struct</span>{}
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (s <span style="color:#719e07">*</span>server) <span style="color:#268bd2">GetTask</span>(ctx context.Context, req <span style="color:#719e07">*</span>tlpb.GetTaskRequest) (<span style="color:#719e07">*</span>tlpb.Task, <span style="color:#dc322f">error</span>) {
 </span></span><span style="display:flex;"><span>	log.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;GetTask in gPRC server&#34;</span>)
@@ -343,16 +343,16 @@ Usage of /var/folders/sy/ls4cfp216x774g54brzl67yw0000gn/T/go-build442506345/comm
 </span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>	s <span style="color:#719e07">:=</span> grpc.<span style="color:#268bd2">NewServer</span>()
 </span></span><span style="display:flex;"><span>	tlpb.<span style="color:#268bd2">RegisterTaskManagerServer</span>(s, <span style="color:#719e07">&amp;</span>server{})
-</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// Register reflection service on gRPC server.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	reflection.<span style="color:#268bd2">Register</span>(s)
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// Register reflection service on gRPC server.</span>
+</span></span><span style="display:flex;"><span>	reflection.<span style="color:#268bd2">Register</span>(s)
 </span></span><span style="display:flex;"><span>	log.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;gRPC Server started: localhost%s\n&#34;</span>, port)
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> s.<span style="color:#268bd2">Serve</span>(lis); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>		log.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;failed to serve: %v&#34;</span>, err)
 </span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Proxyサーバはサンプルコードの<code>import</code>を変えるだけで良かった。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// sandbox-grpc/tasklist-gateway/gateway/main.go
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// sandbox-grpc/tasklist-gateway/gateway/main.go</span>
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">package</span> main
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
@@ -634,11 +634,17 @@ IssueをたててPR作ったらマージされた。今まではREADMEなどへ�
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -650,12 +656,6 @@ IssueをたててPR作ったらマージされた。今まではREADMEなどへ�
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

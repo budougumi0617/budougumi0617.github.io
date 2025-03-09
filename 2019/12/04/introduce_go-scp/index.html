@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -427,8 +427,8 @@ Goの言語仕様や標準パッケージだからこそ起きる問題にも言
 <a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/cryptographic-practices/pseudo-random-generators.md" target="_blank" rel="noopener">疑似乱数生成の章</a>では、Go特有のSeed問題に触れられている。
 ご存知の通り、GoはSeedを設定せずに
 <a href="https://golang.org/pkg/math/rand/" target="_blank" rel="noopener">math/rand</a>パッケージにある一連の乱数生成関数を使うと毎回同じ値が生成される。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// OWASP/Go-SCP/src/cryptographic-practices/pseudo-random-generators.md より
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// OWASP/Go-SCP/src/cryptographic-practices/pseudo-random-generators.md より</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">package</span> main
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;math/rand&#34;</span>
@@ -437,17 +437,17 @@ Goの言語仕様や標準パッケージだからこそ起きる問題にも言
 </span></span><span style="display:flex;"><span>    fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Random Number: &#34;</span>, rand.<span style="color:#268bd2">Intn</span>(<span style="color:#2aa198">1984</span>))
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// 実行結果は毎回同じになる
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// $ for i in {1..5}; do go run rand.go; done
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// Random Number:  1825
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// Random Number:  1825
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// Random Number:  1825
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// Random Number:  1825
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// Random Number:  1825
-</span></span></span></code></pre></div><p>この章では「<code>math/rand</code>パッケージではなく
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// 実行結果は毎回同じになる</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// $ for i in {1..5}; do go run rand.go; done</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Random Number:  1825</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Random Number:  1825</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Random Number:  1825</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Random Number:  1825</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Random Number:  1825</span>
+</span></span></code></pre></div><p>この章では「<code>math/rand</code>パッケージではなく
 <a href="https://golang.org/pkg/crypto/rand/" target="_blank" rel="noopener">crypto/rand</a>パッケージを使うべき理由」がサンプルコードと一緒にまとめられている。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// OWASP/Go-SCP/src/cryptographic-practices/pseudo-random-generators.md より
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// OWASP/Go-SCP/src/cryptographic-practices/pseudo-random-generators.md より</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">package</span> main
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;math/big&#34;</span>
@@ -462,14 +462,14 @@ Goの言語仕様や標準パッケージだからこそ起きる問題にも言
 </span></span><span style="display:flex;"><span>    fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;Random Number: %d\n&#34;</span>, rand)
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// 毎回異なる結果になる
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// $ for i in {1..5}; do go run rand-safe.go; done
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// Random Number: 277
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// Random Number: 1572
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// Random Number: 1793
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// Random Number: 1328
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// Random Number: 1378
-</span></span></span></code></pre></div><p>また、
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// 毎回異なる結果になる</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// $ for i in {1..5}; do go run rand-safe.go; done</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Random Number: 277</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Random Number: 1572</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Random Number: 1793</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Random Number: 1328</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Random Number: 1378</span>
+</span></span></code></pre></div><p>また、
 <a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/output-encoding/cross-site-scripting.md" target="_blank" rel="noopener">クロスサイトスクリプティング（XSS）の章</a>は次のようなシンプルなWebサーバのコードから始まる。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
 </span></span><span style="display:flex;"><span>
@@ -497,9 +497,9 @@ Goの言語仕様や標準パッケージだからこそ起きる問題にも言
 <a href="https://github.com/OWASP/Go-SCP/blob/v2.5.6/src/general-coding-practices/cross-site-request-forgery.md" target="_blank" rel="noopener">クロスサイトリクエストフォージェリ（CSRF）</a>の説明では
 <a href="https://github.com/gorilla/csrf" target="_blank" rel="noopener">gorilla/csrf</a>パッケージが使われており、
 標準パッケージだけでは対策の実装が難しい問題についてはOSSを利用したベターな解決策も提示されている。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// OWASP/Go-SCP/src/general-coding-practices/cross-site-request-forgery.md より
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// 日本語コメントは私が追加したものである。
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// OWASP/Go-SCP/src/general-coding-practices/cross-site-request-forgery.md より</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// 日本語コメントは私が追加したものである。</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">package</span> main
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
 </span></span><span style="display:flex;"><span>    <span style="color:#2aa198">&#34;net/http&#34;</span>
@@ -511,34 +511,34 @@ Goの言語仕様や標準パッケージだからこそ起きる問題にも言
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 </span></span><span style="display:flex;"><span>    r <span style="color:#719e07">:=</span> mux.<span style="color:#268bd2">NewRouter</span>()
 </span></span><span style="display:flex;"><span>    r.<span style="color:#268bd2">HandleFunc</span>(<span style="color:#2aa198">&#34;/signup&#34;</span>, ShowSignupForm)
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// All POST requests without a valid token will return HTTP 403 Forbidden.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    r.<span style="color:#268bd2">HandleFunc</span>(<span style="color:#2aa198">&#34;/signup/post&#34;</span>, SubmitSignupForm)
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// All POST requests without a valid token will return HTTP 403 Forbidden.</span>
+</span></span><span style="display:flex;"><span>    r.<span style="color:#268bd2">HandleFunc</span>(<span style="color:#2aa198">&#34;/signup/post&#34;</span>, SubmitSignupForm)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// 生成した暗号キーをセットしておくと、gorilla/csrfがPOSTメソッドなどの際にいい感じに検証してくれる。
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// Add the middleware to your router by wrapping it.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    http.<span style="color:#268bd2">ListenAndServe</span>(<span style="color:#2aa198">&#34;:8000&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// 生成した暗号キーをセットしておくと、gorilla/csrfがPOSTメソッドなどの際にいい感じに検証してくれる。</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// Add the middleware to your router by wrapping it.</span>
+</span></span><span style="display:flex;"><span>    http.<span style="color:#268bd2">ListenAndServe</span>(<span style="color:#2aa198">&#34;:8000&#34;</span>,
 </span></span><span style="display:flex;"><span>        csrf.<span style="color:#268bd2">Protect</span>([]<span style="color:#b58900">byte</span>(<span style="color:#2aa198">&#34;32-byte-long-auth-key&#34;</span>))(r))
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// PS: Don&#39;t forget to pass csrf.Secure(false) if you&#39;re developing locally
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// over plain HTTP (just don&#39;t leave it on in production).
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// PS: Don&#39;t forget to pass csrf.Secure(false) if you&#39;re developing locally</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// over plain HTTP (just don&#39;t leave it on in production).</span>
+</span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">ShowSignupForm</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// Formの中にトークンを埋め込んでおく。
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// signup_form.tmpl just needs a {{ .csrfField }} template tag for
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// csrf.TemplateField to inject the CSRF token into. Easy!
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    t.<span style="color:#268bd2">ExecuteTemplate</span>(w, <span style="color:#2aa198">&#34;signup_form.tmpl&#34;</span>, <span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]<span style="color:#268bd2">interface</span>{}{
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// Formの中にトークンを埋め込んでおく。</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// signup_form.tmpl just needs a {{ .csrfField }} template tag for</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// csrf.TemplateField to inject the CSRF token into. Easy!</span>
+</span></span><span style="display:flex;"><span>    t.<span style="color:#268bd2">ExecuteTemplate</span>(w, <span style="color:#2aa198">&#34;signup_form.tmpl&#34;</span>, <span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]<span style="color:#268bd2">interface</span>{}{
 </span></span><span style="display:flex;"><span>        csrf.TemplateTag: csrf.<span style="color:#268bd2">TemplateField</span>(r),
 </span></span><span style="display:flex;"><span>    })
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// We could also retrieve the token directly from csrf.Token(r) and
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// set it in the request header - w.Header.Set(&#34;X-CSRF-Token&#34;, token)
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// This is useful if you&#39;re sending JSON to clients or a front-end JavaScript
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// framework.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// We could also retrieve the token directly from csrf.Token(r) and</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// set it in the request header - w.Header.Set(&#34;X-CSRF-Token&#34;, token)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// This is useful if you&#39;re sending JSON to clients or a front-end JavaScript</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// framework.</span>
+</span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">SubmitSignupForm</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// We can trust that requests making it this far have satisfied
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// our CSRF protection requirements.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// We can trust that requests making it this far have satisfied</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// our CSRF protection requirements.</span>
+</span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>これら以外の章も英語が得意ならばそれぞれ10分もかからず読める量なので、スキマ時間に少しずつ読むこともできるだろう
 （私は英語が苦手なので、得意ならばもっと早く読めるかもしれない）。</p>
 <h1 id="終わりに">終わりに</h1>
@@ -737,11 +737,17 @@ Goの言語仕様や標準パッケージだからこそ起きる問題にも言
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -753,12 +759,6 @@ Goの言語仕様や標準パッケージだからこそ起きる問題にも言
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

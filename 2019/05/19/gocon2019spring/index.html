@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -248,16 +248,15 @@ pospomeさんがBOOTHで販売している<code>pospomeのサーバサイドア�
 <a href="https://golang.org/pkg/database/sql/#Open" target="_blank" rel="noopener">https://golang.org/pkg/database/sql/#Open</a></li>
 </ul>
 <blockquote>
-<p>The returned DB is safe for concurrent use by multiple goroutines and maintains its own pool of idle connections. Thus, the Open function should be called just once. It is rarely necessary to close a DB.</p>
-</blockquote>
+<p>The returned DB is safe for concurrent use by multiple goroutines and maintains its own pool of idle connections. Thus, the Open function should be called just once. It is rarely necessary to close a DB.</p></blockquote>
 <p>ざっくりサマリを読みたいときはGo Wikiに記事がある。</p>
 <ul>
 <li>
 <a href="https://github.com/golang/go/wiki/SQLInterface" target="_blank" rel="noopener">https://github.com/golang/go/wiki/SQLInterface</a></li>
 </ul>
 <p>GoDocサーバの裏でDBは動いていないので実行してもエラーになってしまうが、Examplesにサンプルコードが大量にあるのでそちらを参考にできる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://golang.org/pkg/database/sql/#example_DB_QueryContext
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://golang.org/pkg/database/sql/#example_DB_QueryContext</span>
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">package</span> main
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
@@ -285,22 +284,22 @@ pospomeさんがBOOTHで販売している<code>pospomeのサーバサイドア�
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">for</span> rows.<span style="color:#268bd2">Next</span>() {
 </span></span><span style="display:flex;"><span>		<span style="color:#268bd2">var</span> name <span style="color:#dc322f">string</span>
 </span></span><span style="display:flex;"><span>		<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> rows.<span style="color:#268bd2">Scan</span>(<span style="color:#719e07">&amp;</span>name); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-</span></span><span style="display:flex;"><span>			<span style="color:#586e75">// Check for a scan error.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>			<span style="color:#586e75">// Query rows will be closed with defer.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>			log.<span style="color:#268bd2">Fatal</span>(err)
+</span></span><span style="display:flex;"><span>			<span style="color:#586e75">// Check for a scan error.</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#586e75">// Query rows will be closed with defer.</span>
+</span></span><span style="display:flex;"><span>			log.<span style="color:#268bd2">Fatal</span>(err)
 </span></span><span style="display:flex;"><span>		}
 </span></span><span style="display:flex;"><span>		names = <span style="color:#b58900">append</span>(names, name)
 </span></span><span style="display:flex;"><span>	}
-</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// If the database is being written to ensure to check for Close
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#586e75">// errors that may be returned from the driver. The query may
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#586e75">// encounter an auto-commit error and be forced to rollback changes.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	rerr <span style="color:#719e07">:=</span> rows.<span style="color:#268bd2">Close</span>()
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// If the database is being written to ensure to check for Close</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// errors that may be returned from the driver. The query may</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// encounter an auto-commit error and be forced to rollback changes.</span>
+</span></span><span style="display:flex;"><span>	rerr <span style="color:#719e07">:=</span> rows.<span style="color:#268bd2">Close</span>()
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> rerr <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>		log.<span style="color:#268bd2">Fatal</span>(err)
 </span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// Rows.Err will report the last error encountered by Rows.Scan.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> rows.<span style="color:#268bd2">Err</span>(); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// Rows.Err will report the last error encountered by Rows.Scan.</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> rows.<span style="color:#268bd2">Err</span>(); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>		log.<span style="color:#268bd2">Fatal</span>(err)
 </span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s are %d years old&#34;</span>, strings.<span style="color:#268bd2">Join</span>(names, <span style="color:#2aa198">&#34;, &#34;</span>), age)
@@ -557,11 +556,17 @@ KeyNoteを閉じる→開くとファイルが壊れている、ということ�
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -573,12 +578,6 @@ KeyNoteを閉じる→開くとファイルが壊れている、ということ�
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

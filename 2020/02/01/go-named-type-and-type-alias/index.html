@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -256,8 +256,7 @@ type MyType = intと宣言するType alias
 <a href="https://golang.org/ref/spec#Type_definitions" target="_blank" rel="noopener">https://golang.org/ref/spec#Type_definitions</a></li>
 </ul>
 <blockquote>
-<p>The new type is called a defined type. It is different from any other type, including the type it is created from.</p>
-</blockquote>
+<p>The new type is called a defined type. It is different from any other type, including the type it is created from.</p></blockquote>
 <div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/golang/go/issues/23474" data-iframely-url="//cdn.iframe.ly/cYJBe7x?card=small"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
 <h1 id="defined-type">Defined type</h1>
 <p>Defined typeはGo1.0からある機能だ。（正確な導入時期は知らないが、基本構文でできるので最初からありそうだ）。<br>
@@ -314,9 +313,9 @@ Defined typeで宣言した新しい型と元になった型には互換性が�
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 </span></span><span style="display:flex;"><span>	name <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;John Doe&#34;</span>
 </span></span><span style="display:flex;"><span>	mail <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;example@foo.com&#34;</span>
-</span></span><span style="display:flex;"><span>	u <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewUser</span>(mail, name) <span style="color:#586e75">// 順番を間違えている。
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	fmt.<span style="color:#268bd2">Println</span>(u.Name) <span style="color:#586e75">// example@foo.com
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span><span style="display:flex;"><span>	u <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewUser</span>(mail, name) <span style="color:#586e75">// 順番を間違えている。</span>
+</span></span><span style="display:flex;"><span>	fmt.<span style="color:#268bd2">Println</span>(u.Name) <span style="color:#586e75">// example@foo.com</span>
+</span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Defined typeを使うことで、型チェックを利用して誤った使いかたを防ぐことができる。</p>
 <ul>
 <li>
@@ -339,9 +338,9 @@ Defined typeで宣言した新しい型と元になった型には互換性が�
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 </span></span><span style="display:flex;"><span>	name <span style="color:#719e07">:=</span> <span style="color:#268bd2">Name</span>(<span style="color:#2aa198">&#34;John Doe&#34;</span>)
 </span></span><span style="display:flex;"><span>	mail <span style="color:#719e07">:=</span> <span style="color:#268bd2">MailAddress</span>(<span style="color:#2aa198">&#34;example@foo.com&#34;</span>)
-</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// cannot use mail (type MailAddress) as type Name in argument to NewUser
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#586e75">// cannot use name (type Name) as type MailAddress in argument to NewUser
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	u <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewUser</span>(mail, name)
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// cannot use mail (type MailAddress) as type Name in argument to NewUser</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// cannot use name (type Name) as type MailAddress in argument to NewUser</span>
+</span></span><span style="display:flex;"><span>	u <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewUser</span>(mail, name)
 </span></span><span style="display:flex;"><span>	fmt.<span style="color:#268bd2">Println</span>(u.Name)
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p><code>type UserID int</code>、<code>type DocumentID int</code>のようにDefined typeを使っていけば、データベースまわりでIDの取り扱いをして間違えることもなくなる。<br>
@@ -383,8 +382,8 @@ Defined typeで宣言した新しい型と元になった型には互換性が�
 </span></span><span style="display:flex;"><span>	pw <span style="color:#719e07">:=</span> <span style="color:#268bd2">Password</span>(<span style="color:#2aa198">&#34;p@ssw0rd&#34;</span>)
 </span></span><span style="display:flex;"><span>	u, err <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewUser</span>(n, pw)
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-</span></span><span style="display:flex;"><span>		log.<span style="color:#268bd2">Fatal</span>(err) <span style="color:#586e75">// パスワードは16文字以上
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	}
+</span></span><span style="display:flex;"><span>		log.<span style="color:#268bd2">Fatal</span>(err) <span style="color:#586e75">// パスワードは16文字以上</span>
+</span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>	fmt.<span style="color:#268bd2">Println</span>(u.Name)
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h1 id="型エイリアスtype-alias">型エイリアス（Type alias）</h1>
@@ -408,9 +407,9 @@ Defined typeで宣言した新しい型と元になった型には互換性が�
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> Name = <span style="color:#dc322f">string</span> <span style="color:#586e75">// type alias
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> MailAddress = <span style="color:#dc322f">string</span> <span style="color:#586e75">// type alias
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> Name = <span style="color:#dc322f">string</span> <span style="color:#586e75">// type alias</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> MailAddress = <span style="color:#dc322f">string</span> <span style="color:#586e75">// type alias</span>
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> User <span style="color:#268bd2">struct</span> {
 </span></span><span style="display:flex;"><span>	Name  Name
 </span></span><span style="display:flex;"><span>	Email MailAddress
@@ -421,9 +420,9 @@ Defined typeで宣言した新しい型と元になった型には互換性が�
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 </span></span><span style="display:flex;"><span>	name <span style="color:#719e07">:=</span> <span style="color:#268bd2">Name</span>(<span style="color:#2aa198">&#34;John Doe&#34;</span>)
 </span></span><span style="display:flex;"><span>	mail <span style="color:#719e07">:=</span> <span style="color:#268bd2">MailAddress</span>(<span style="color:#2aa198">&#34;example@foo.com&#34;</span>)
-</span></span><span style="display:flex;"><span>	u <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewUser</span>(mail, name) <span style="color:#586e75">// 型違いでコンパイルエラーにはならない！！！！！
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	fmt.<span style="color:#268bd2">Println</span>(u.Name) <span style="color:#586e75">// example@foo.com
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span><span style="display:flex;"><span>	u <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewUser</span>(mail, name) <span style="color:#586e75">// 型違いでコンパイルエラーにはならない！！！！！</span>
+</span></span><span style="display:flex;"><span>	fmt.<span style="color:#268bd2">Println</span>(u.Name) <span style="color:#586e75">// example@foo.com</span>
+</span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>正直私は型エイリアスを使ったことがない。サードパーティ製のライブラリを使っていて、どうしても困るときがあったら出番なのかもしれない。</p>
 <p>型エイリアスを使ったリファクタリングや型エイリアスが必要な背景は公式の記事や、 
 <a href="https://twitter.com/tenntenn" target="_blank" rel="noopener">@tenntenn</a> さんのQiitaの記事が詳しい。</p>
@@ -630,11 +629,17 @@ Goは型をうまく使うことで安全なコーディングをすることが
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -646,12 +651,6 @@ Goは型をうまく使うことで安全なコーディングをすることが
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

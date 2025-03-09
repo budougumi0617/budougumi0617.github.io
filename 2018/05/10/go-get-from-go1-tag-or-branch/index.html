@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -214,21 +214,20 @@ golang.orgのgo getコマンドのページを見ると確かにgo1について�
 <p>
 <a href="https://golang.org/cmd/go/#hdr-Download_and_install_packages_and_dependencies" target="_blank" rel="noopener">https://golang.org/cmd/go/#hdr-Download_and_install_packages_and_dependencies</a></p>
 <blockquote>
-<p>When checking out or updating a package, get looks for a branch or tag that matches the locally installed version of Go. The most important rule is that if the local installation is running version &ldquo;go1&rdquo;, get searches for a branch or tag named &ldquo;go1&rdquo;. If no such version exists it retrieves the default branch of the package.</p>
-</blockquote>
+<p>When checking out or updating a package, get looks for a branch or tag that matches the locally installed version of Go. The most important rule is that if the local installation is running version &ldquo;go1&rdquo;, get searches for a branch or tag named &ldquo;go1&rdquo;. If no such version exists it retrieves the default branch of the package.</p></blockquote>
 <h1 id="実際にコードを見てみる">実際にコードを見てみる</h1>
 <p><code>go get</code>の実装コードを見てみる。何やら<code>tags</code>というスライスの中から<code>go1</code>を探しているコードがある。</p>
 <p>
 <a href="https://github.com/golang/go/blob/master/src/cmd/go/internal/get/get.go#L513-L528" target="_blank" rel="noopener">https://github.com/golang/go/blob/master/src/cmd/go/internal/get/get.go#L513-L528</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// selectTag returns the closest matching tag for a given version.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// Closest means the latest one that is not after the current release.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// Version &#34;goX&#34; (or &#34;goX.Y&#34; or &#34;goX.Y.Z&#34;) matches tags of the same form.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// Version &#34;release.rN&#34; matches tags of the form &#34;go.rN&#34; (N being a floating-point number).
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// Version &#34;weekly.YYYY-MM-DD&#34; matches tags like &#34;go.weekly.YYYY-MM-DD&#34;.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">//
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// NOTE(rsc): Eventually we will need to decide on some logic here.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// For now, there is only &#34;go1&#34;. This matches the docs in go help get.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">selectTag</span>(goVersion <span style="color:#dc322f">string</span>, tags []<span style="color:#dc322f">string</span>) (match <span style="color:#dc322f">string</span>) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// selectTag returns the closest matching tag for a given version.</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Closest means the latest one that is not after the current release.</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Version &#34;goX&#34; (or &#34;goX.Y&#34; or &#34;goX.Y.Z&#34;) matches tags of the same form.</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Version &#34;release.rN&#34; matches tags of the form &#34;go.rN&#34; (N being a floating-point number).</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Version &#34;weekly.YYYY-MM-DD&#34; matches tags like &#34;go.weekly.YYYY-MM-DD&#34;.</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">//</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// NOTE(rsc): Eventually we will need to decide on some logic here.</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// For now, there is only &#34;go1&#34;. This matches the docs in go help get.</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">selectTag</span>(goVersion <span style="color:#dc322f">string</span>, tags []<span style="color:#dc322f">string</span>) (match <span style="color:#dc322f">string</span>) {
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">for</span> _, t <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> tags {
 </span></span><span style="display:flex;"><span>		<span style="color:#719e07">if</span> t <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;go1&#34;</span> {
 </span></span><span style="display:flex;"><span>			<span style="color:#719e07">return</span> <span style="color:#2aa198">&#34;go1&#34;</span>
@@ -240,12 +239,12 @@ golang.orgのgo getコマンドのページを見ると確かにgo1について�
 <p>上記引数の<code>tags</code>は<code>vcsCmd</code>オブジェクトの<code>tags</code>メソッドで生成される<code>string</code>スライスだ。
 
 <a href="https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/get.go#L497-L498" target="_blank" rel="noopener">https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/get.go#L497-L498</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>	<span style="color:#586e75">// Select and sync to appropriate version of the repository.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	tags, err <span style="color:#719e07">:=</span> vcs.<span style="color:#268bd2">tags</span>(root)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>	<span style="color:#586e75">// Select and sync to appropriate version of the repository.</span>
+</span></span><span style="display:flex;"><span>	tags, err <span style="color:#719e07">:=</span> vcs.<span style="color:#268bd2">tags</span>(root)
 </span></span></code></pre></div><p>
 <a href="https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/vcs.go#L472-L486" target="_blank" rel="noopener">https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/vcs.go#L472-L486</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// tags returns the list of available tags for the repo in dir.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (v <span style="color:#719e07">*</span>vcsCmd) <span style="color:#268bd2">tags</span>(dir <span style="color:#dc322f">string</span>) ([]<span style="color:#dc322f">string</span>, <span style="color:#dc322f">error</span>) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// tags returns the list of available tags for the repo in dir.</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (v <span style="color:#719e07">*</span>vcsCmd) <span style="color:#268bd2">tags</span>(dir <span style="color:#dc322f">string</span>) ([]<span style="color:#dc322f">string</span>, <span style="color:#dc322f">error</span>) {
 </span></span><span style="display:flex;"><span>	<span style="color:#268bd2">var</span> tags []<span style="color:#dc322f">string</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">for</span> _, tc <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> v.tagCmd {
 </span></span><span style="display:flex;"><span>		out, err <span style="color:#719e07">:=</span> v.<span style="color:#268bd2">runOutput</span>(dir, tc.cmd)
@@ -263,9 +262,9 @@ golang.orgのgo getコマンドのページを見ると確かにgo1について�
 <p>
 <a href="https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/vcs.go#L151-L155" target="_blank" rel="noopener">https://github.com/golang/go/blob/814c749c8fa815a8ddf8184bcac8990ef0dea006/src/cmd/go/internal/get/vcs.go#L151-L155</a></p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>	tagCmd: []tagCmd{
-</span></span><span style="display:flex;"><span>		<span style="color:#586e75">// tags/xxx matches a git tag named xxx
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>		<span style="color:#586e75">// origin/xxx matches a git branch named xxx on the default remote repository
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>		{<span style="color:#2aa198">&#34;show-ref&#34;</span>, <span style="color:#2aa198">`(?:tags|origin)/(\S+)$`</span>},
+</span></span><span style="display:flex;"><span>		<span style="color:#586e75">// tags/xxx matches a git tag named xxx</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#586e75">// origin/xxx matches a git branch named xxx on the default remote repository</span>
+</span></span><span style="display:flex;"><span>		{<span style="color:#2aa198">&#34;show-ref&#34;</span>, <span style="color:#2aa198">`(?:tags|origin)/(\S+)$`</span>},
 </span></span><span style="display:flex;"><span>	},
 </span></span></code></pre></div><p>ちなみに<code>git show-ref</code>コマンドの出力はこんな感じ。（自分は使ったことがなかった）</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ git show-ref
@@ -465,11 +464,17 @@ golang.orgのgo getコマンドのページを見ると確かにgo1について�
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -481,12 +486,6 @@ golang.orgのgo getコマンドのページを見ると確かにgo1について�
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

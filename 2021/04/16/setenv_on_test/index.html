@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -214,15 +214,15 @@
 </li>
 </ul>
 <p>現時点のサンプルコードは以下の通り。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// 環境変数名をキー、環境変数値をバリューとするマップ
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">setup</span>(t <span style="color:#719e07">*</span>testing.T, envs <span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]<span style="color:#dc322f">string</span>) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// 環境変数名をキー、環境変数値をバリューとするマップ</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">setup</span>(t <span style="color:#719e07">*</span>testing.T, envs <span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]<span style="color:#dc322f">string</span>) {
 </span></span><span style="display:flex;"><span>  <span style="color:#719e07">for</span> k, v <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> envs {
 </span></span><span style="display:flex;"><span>    prev, ok <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">LookupEnv</span>(k)
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Setenv</span>(k, v); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>      t.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;cannot set environment key: %q&#34;</span>, k)
 </span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    k <span style="color:#719e07">:=</span> k <span style="color:#586e75">// 束縛しておく
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#719e07">if</span> ok {
+</span></span><span style="display:flex;"><span>    k <span style="color:#719e07">:=</span> k <span style="color:#586e75">// 束縛しておく</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> ok {
 </span></span><span style="display:flex;"><span>      t.<span style="color:#268bd2">Cleanup</span>(<span style="color:#268bd2">func</span>() { _ = os.<span style="color:#268bd2">Setenv</span>(k, prev) })
 </span></span><span style="display:flex;"><span>    } <span style="color:#719e07">else</span> {
 </span></span><span style="display:flex;"><span>      t.<span style="color:#268bd2">Cleanup</span>(<span style="color:#268bd2">func</span>() { _ = os.<span style="color:#268bd2">Unsetenv</span>(k) })
@@ -241,8 +241,7 @@
 <a href="https://golang.org/pkg/os/#Getenv" target="_blank" rel="noopener">https://golang.org/pkg/os/#Getenv</a></li>
 </ul>
 <blockquote>
-<p>To distinguish between an empty value and an unset value, use LookupEnv.</p>
-</blockquote>
+<p>To distinguish between an empty value and an unset value, use LookupEnv.</p></blockquote>
 <p>よって、「未定義の環境変数」と「空文字が設定された環境変数」を見分けるには<code>os.LookupEnv</code>関数を利用する。<br>
 <code>os.LookupEnv</code>関数が事前に定義された値を見つければ<code>t.Cleanup</code>メソッドでテスト終了後に元の値をセットする。<br>
 そうでなければ<code>os.UnsetEnv</code>関数で環境変数の設定を削除すればよい。</p>
@@ -257,8 +256,8 @@
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Setenv</span>(k, v); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>      t.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;cannot set environment key: %q&#34;</span>, k)
 </span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    k <span style="color:#719e07">:=</span> k <span style="color:#586e75">// 束縛しておく
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#719e07">if</span> ok {
+</span></span><span style="display:flex;"><span>    k <span style="color:#719e07">:=</span> k <span style="color:#586e75">// 束縛しておく</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> ok {
 </span></span><span style="display:flex;"><span>      t.<span style="color:#268bd2">Cleanup</span>(<span style="color:#268bd2">func</span>() { _ = os.<span style="color:#268bd2">Setenv</span>(k, prev) })
 </span></span><span style="display:flex;"><span>    } <span style="color:#719e07">else</span> {
 </span></span><span style="display:flex;"><span>      t.<span style="color:#268bd2">Cleanup</span>(<span style="color:#268bd2">func</span>() { _ = os.<span style="color:#268bd2">Unsetenv</span>(k) })
@@ -273,12 +272,12 @@
 <li>
 <a href="https://github.com/golang/go/blob/ab02cbd29f9b9c76d8f7af0d625ac56fcf8d4e75/src/testing/testing.go#L1097-L1110" target="_blank" rel="noopener">https://github.com/golang/go/blob/ab02cbd29f9b9c76d8f7af0d625ac56fcf8d4e75/src/testing/testing.go#L1097-L1110</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// Setenv calls os.Setenv(key, value) and uses Cleanup to
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// restore the environment variable to its original value
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// after the test.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">//
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// This cannot be used in parallel tests.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (t <span style="color:#719e07">*</span>T) <span style="color:#268bd2">Setenv</span>(key, value <span style="color:#dc322f">string</span>)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// Setenv calls os.Setenv(key, value) and uses Cleanup to</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// restore the environment variable to its original value</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// after the test.</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">//</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// This cannot be used in parallel tests.</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (t <span style="color:#719e07">*</span>T) <span style="color:#268bd2">Setenv</span>(key, value <span style="color:#dc322f">string</span>)
 </span></span></code></pre></div><p>リストア処理もやってくれるので、Go1.17以降はこのように書き直せる。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>環境変数名をキー、環境変数値をバリューとするマップ
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">setup</span>(t <span style="color:#719e07">*</span>testing.T, envs <span style="color:#268bd2">map</span>[<span style="color:#dc322f">string</span>]<span style="color:#dc322f">string</span>) {
@@ -465,11 +464,17 @@
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -481,12 +486,6 @@
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

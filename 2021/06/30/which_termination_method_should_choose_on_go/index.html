@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -223,8 +223,7 @@
 <ul>
 <li>
 <blockquote>
-<p>Calling Goexit from the main goroutine terminates that goroutine without func main returning.</p>
-</blockquote>
+<p>Calling Goexit from the main goroutine terminates that goroutine without func main returning.</p></blockquote>
 </li>
 <li><code>defer</code>宣言済みの関数に関してはすべて実行してから終了してくれるらしい</li>
 </ul>
@@ -260,8 +259,7 @@
 </ul>
 <p>一番オーソドックスな方法だと思っているが、仕様をみると、<code>defer</code>済みの関数については実行されないと記載があった。</p>
 <blockquote>
-<p>The program terminates immediately; deferred functions are not run.</p>
-</blockquote>
+<p>The program terminates immediately; deferred functions are not run.</p></blockquote>
 <p>なので、<code>main</code>関数で<code>defer</code>文と併用して<code>os#Exit</code>関数を実行すると意図しない挙動をする可能性がある。また、「immediately」なので他のゴルーチンの終了などは待機してくれない。</p>
 <h2 id="panic関数で終了する"><code>panic</code>関数で終了する</h2>
 <ul>
@@ -271,8 +269,7 @@
 <p>調査前は<code>panic</code>関数で終了するほうがめちゃくちゃな終了をすると思っていた。
 しかし仕様を呼んでみると意外と<code>defer</code>済みの関数などはちゃんと呼ばれるようだ。</p>
 <blockquote>
-<p>When a function F calls panic, normal execution of F stops immediately. Any functions whose execution was deferred by F are run in the usual way, and then F returns to its caller.</p>
-</blockquote>
+<p>When a function F calls panic, normal execution of F stops immediately. Any functions whose execution was deferred by F are run in the usual way, and then F returns to its caller.</p></blockquote>
 <p>しかし、終了コードをプログラマが指定することはできない。</p>
 <h2 id="runtimegoexit関数で終了する"><code>runtime#GoExit</code>関数で終了する</h2>
 <ul>
@@ -284,8 +281,7 @@
 <a href="https://github.com/golang/go/blob/go1.16.5/src/testing/testing.go#L710-L742" target="_blank" rel="noopener">https://github.com/golang/go/blob/go1.16.5/src/testing/testing.go#L710-L742</a></p>
 <p>仕様を読むと、<code>main</code>関数で呼ぶ場合、怪しい挙動をするようなのでこれはプログラムを終了させるときに使わないほうがよさそうだ。</p>
 <blockquote>
-<p>Calling Goexit from the main goroutine terminates that goroutine without func main returning. Since func main has not returned, the program continues execution of other goroutines. If all other goroutines exit, the program crashes.</p>
-</blockquote>
+<p>Calling Goexit from the main goroutine terminates that goroutine without func main returning. Since func main has not returned, the program continues execution of other goroutines. If all other goroutines exit, the program crashes.</p></blockquote>
 <h2 id="結論">結論</h2>
 <p><code>defer</code>の利用に注意しながら<code>main</code>関数で<code>os#Exit</code>関数を実行するのがよさそうだった。<br>
 コマンドラインならばたとえばこんな感じでよいのではないだろうか。</p>
@@ -294,8 +290,8 @@
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">run</span>(args []<span style="color:#dc322f">string</span>, inStream io.Reader, outStream, errStream io.Writer) <span style="color:#dc322f">int</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// do anything...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// do anything...</span>
+</span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h1 id="終わりに余談">終わりに（余談）</h1>
 <p><code>panic</code>のような予約語の機能の説明はどこを見ればよいのかわかっていなかった。<br>
 <code>builtin</code>パッケージを見ると<code>panic</code>を始め、<code>cap</code>や<code>append</code>と言ったビルドイン関数の明文化された仕様を読むことができるのを知れてよかった。</p>
@@ -490,11 +486,17 @@
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -506,12 +508,6 @@
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

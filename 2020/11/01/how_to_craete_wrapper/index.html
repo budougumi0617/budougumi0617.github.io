@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -219,15 +219,15 @@
 たとえばサードパーティのクライアントをラップして一部のメソッドの動きだけ少し変えたいときだ。</p>
 <p>今回は次のような構造体をベースに考える。<br>
 <code>OriginClient</code>構造体は<code>Client</code>インターフェイスを満たす構造体だ。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// 満たすべきインターフェイス
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> Client <span style="color:#268bd2">interface</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// 満たすべきインターフェイス</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> Client <span style="color:#268bd2">interface</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">PrintValue</span>()
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">ShowInt</span>(<span style="color:#dc322f">int</span>) <span style="color:#dc322f">error</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">OtherMethod</span>() <span style="color:#dc322f">error</span>
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// interfaceを満たしているか。
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">var</span> _ Client = <span style="color:#719e07">&amp;</span>OriginClient{}
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// interfaceを満たしているか。</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">var</span> _ Client = <span style="color:#719e07">&amp;</span>OriginClient{}
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> OriginClient <span style="color:#268bd2">struct</span>{
 </span></span><span style="display:flex;"><span>    Value <span style="color:#dc322f">int</span>
@@ -254,15 +254,15 @@
 <a href="https://play.golang.org/p/a94bS26PX8A" target="_blank" rel="noopener">https://play.golang.org/p/a94bS26PX8A</a></li>
 </ul>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">var</span> _ Client = <span style="color:#719e07">&amp;</span>MyClient{}
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ShowIntメソッドだけラップしているラッパー
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> MyClient <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ShowIntメソッドだけラップしているラッパー</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> MyClient <span style="color:#268bd2">struct</span> {
 </span></span><span style="display:flex;"><span>	oc <span style="color:#719e07">*</span>OriginClient
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (m <span style="color:#719e07">*</span>MyClient) <span style="color:#268bd2">PrintValue</span>() { m.oc.<span style="color:#268bd2">PrintValue</span>() }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ラップメソッド
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (m <span style="color:#719e07">*</span>MyClient) <span style="color:#268bd2">ShowInt</span>(i <span style="color:#dc322f">int</span>) <span style="color:#dc322f">error</span> {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ラップメソッド</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (m <span style="color:#719e07">*</span>MyClient) <span style="color:#268bd2">ShowInt</span>(i <span style="color:#dc322f">int</span>) <span style="color:#dc322f">error</span> {
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> m.oc.<span style="color:#268bd2">ShowInt</span>(i); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>		log.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;errorが発生したときはログ出力する: %v\n&#34;</span>, err)
 </span></span><span style="display:flex;"><span>		<span style="color:#719e07">return</span> err
@@ -284,13 +284,13 @@
 <a href="https://play.golang.org/p/vzngwQ2pqYG" target="_blank" rel="noopener">https://play.golang.org/p/vzngwQ2pqYG</a></li>
 </ul>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">var</span> _ Client = <span style="color:#719e07">&amp;</span>MyClient{}
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ShowIntメソッドだけラップしているラッパー
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> MyClient <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ShowIntメソッドだけラップしているラッパー</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> MyClient <span style="color:#268bd2">struct</span> {
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">*</span>OriginClient
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ラップメソッド
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (m <span style="color:#719e07">*</span>MyClient) <span style="color:#268bd2">ShowInt</span>(i <span style="color:#dc322f">int</span>) <span style="color:#dc322f">error</span> {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ラップメソッド</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (m <span style="color:#719e07">*</span>MyClient) <span style="color:#268bd2">ShowInt</span>(i <span style="color:#dc322f">int</span>) <span style="color:#dc322f">error</span> {
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> m.OriginClient.<span style="color:#268bd2">ShowInt</span>(i); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>		log.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;errorが発生したときはログ出力する: %v\n&#34;</span>, err)
 </span></span><span style="display:flex;"><span>		<span style="color:#719e07">return</span> err
@@ -304,8 +304,8 @@
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>大きく変わっている定義はここ。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> MyClient <span style="color:#268bd2">struct</span> {
-</span></span><span style="display:flex;"><span>	<span style="color:#719e07">*</span>OriginClient <span style="color:#586e75">// フィールドではない。
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">*</span>OriginClient <span style="color:#586e75">// フィールドではない。</span>
+</span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>埋め込みフィールドを使うと、<code>MyClient</code>構造体で明示的に実装していないメソッドに関しては、<code>OriginClient</code>のメソッドが直接呼ばれる。
 そして<code>MyClient</code>はそれらのメソッドを実装していることになるので、<code>OriginClient</code>構造体が満たすインターフェイスと同じインターフェイスを満たすことができる。</p>
 <ul>
@@ -316,15 +316,14 @@
 <ul>
 <li>If S contains an embedded field T, the method sets of S and *S both include promoted methods with receiver T. The method set of *S also includes promoted methods with receiver *T.</li>
 <li>If S contains an embedded field *T, the method sets of S and *S both include promoted methods with receiver T or *T.</li>
-</ul>
-</blockquote>
+</ul></blockquote>
 <p>構造体フィールドとして宣言しているわけではないが、初期化するときは次のように代入できる。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>mc <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>MyClient{OriginClient: <span style="color:#719e07">&amp;</span>OriginClient{Value: <span style="color:#2aa198">100</span>}}
 </span></span></code></pre></div><p>また、埋め込んだ構造体のメソッドを明示的に呼びたいときは次のように書ける。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> (m <span style="color:#719e07">*</span>MyClient) <span style="color:#268bd2">ShowInt</span>(i <span style="color:#dc322f">int</span>) <span style="color:#dc322f">error</span> {
 </span></span><span style="display:flex;"><span>	m.OriginClient.<span style="color:#268bd2">ShowInt</span>(i)
-</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// do anything...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// do anything...</span>
+</span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h1 id="unexportedな構造体のラッパーを書きたいときは">unexportedな構造体のラッパーを書きたいときは？</h1>
 <p>ライブラリによっては構造体自体が公開されていないこともある。
 たとえば次のようなつくりのライブラリもあるだろう。</p>
@@ -337,8 +336,8 @@
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewClient</span>(value <span style="color:#dc322f">int</span>) Client {
-</span></span><span style="display:flex;"><span>	<span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>originClient{value} <span style="color:#586e75">// このoriginClientのラッパーを書きたい
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>originClient{value} <span style="color:#586e75">// このoriginClientのラッパーを書きたい</span>
+</span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>このような場合もインターフェイスを埋め込むことでラッパーを作成することが可能だ。</p>
 <ul>
 <li>
@@ -348,13 +347,13 @@
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">var</span> _ thirdparty.Client = <span style="color:#719e07">&amp;</span>MyClient{}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ShowIntメソッドだけラップしているラッパー
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> MyClient <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ShowIntメソッドだけラップしているラッパー</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> MyClient <span style="color:#268bd2">struct</span> {
 </span></span><span style="display:flex;"><span>	thirdparty.Client
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ラップメソッド
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (m <span style="color:#719e07">*</span>MyClient) <span style="color:#268bd2">ShowInt</span>(i <span style="color:#dc322f">int</span>) <span style="color:#dc322f">error</span> {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ラップメソッド</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (m <span style="color:#719e07">*</span>MyClient) <span style="color:#268bd2">ShowInt</span>(i <span style="color:#dc322f">int</span>) <span style="color:#dc322f">error</span> {
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> m.Client.<span style="color:#268bd2">ShowInt</span>(i); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>		log.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;errorが発生したときはログ出力する: %v\n&#34;</span>, err)
 </span></span><span style="display:flex;"><span>		<span style="color:#719e07">return</span> err
@@ -369,15 +368,15 @@
 </span></span></code></pre></div><h1 id="ラッパーの初期化に注意すること">ラッパーの初期化に注意すること</h1>
 <p>以上のように埋め込みを使うことで簡単にラッパーメソッドを作成することができる。
 しかし、ポインタやインターフェイスを埋め込んだ場合は明示的に初期化をしないと実行時にパニックが発生する。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// Bメソッドだけラップしているラッパー
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> MyClient <span style="color:#268bd2">struct</span> {
-</span></span><span style="display:flex;"><span>	thirdparty.Client <span style="color:#586e75">// インターフェイス
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// Bメソッドだけラップしているラッパー</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> MyClient <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>	thirdparty.Client <span style="color:#586e75">// インターフェイス</span>
+</span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 </span></span><span style="display:flex;"><span>    mc <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>MyClient{}
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// panic: runtime error: invalid memory address or nil pointer dereference
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	mc.<span style="color:#268bd2">ShowInt</span>(<span style="color:#2aa198">10</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// panic: runtime error: invalid memory address or nil pointer dereference</span>
+</span></span><span style="display:flex;"><span>	mc.<span style="color:#268bd2">ShowInt</span>(<span style="color:#2aa198">10</span>)
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p><code>NewClient</code>関数などの初期化関数を用意しておくとよいだろう。</p>
 <p>
@@ -573,11 +572,17 @@
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -589,12 +594,6 @@
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

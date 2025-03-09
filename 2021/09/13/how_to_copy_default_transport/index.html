@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -252,8 +252,8 @@ https://pkg.go.dev/net/http#Transport.Clone"/>
 </span></span><span style="display:flex;"><span>  <span style="color:#719e07">if</span> t, ok <span style="color:#719e07">:=</span> dt.(<span style="color:#719e07">*</span>http.Transport); ok {
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> t.<span style="color:#268bd2">Clone</span>()
 </span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// 何らか悪されてていた時。
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  <span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>http.Transport{
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// 何らか悪されてていた時。</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>http.Transport{
 </span></span><span style="display:flex;"><span>    Proxy: http.ProxyFromEnvironment,
 </span></span><span style="display:flex;"><span>    DialContext: (<span style="color:#719e07">&amp;</span>net.Dialer{
 </span></span><span style="display:flex;"><span>      Timeout:   <span style="color:#2aa198">30</span> <span style="color:#719e07">*</span> time.Second,
@@ -277,14 +277,13 @@ Webアプリケーションのサーバを書いているときでも外部サ�
 <p>このとき、<code>*http.Client</code>オブジェクトはリクエストのたびに生成してはいけない。可能な限り再利用する必要がある。
 その理由は<code>http.Client</code>の定義に仕様として記載がある通り、<code>*http.Client</code>オブジェクトは内部でTCPコネクションのキャッシュを持つからである。</p>
 <blockquote>
-<p>The Client&rsquo;s Transport typically has internal state (cached TCP connections), so Clients should be reused instead of created as needed. Clients are safe for concurrent use by multiple goroutines.</p>
-</blockquote>
+<p>The Client&rsquo;s Transport typically has internal state (cached TCP connections), so Clients should be reused instead of created as needed. Clients are safe for concurrent use by multiple goroutines.</p></blockquote>
 <h1 id="httpdefaultclientはタイムアウトの設定がされていないので独自定義するのが一般的"><code>http.DefaultClient</code>はタイムアウトの設定がされていないので独自定義するのが一般的</h1>
 <p>他方、<code>*http.Client</code>オブジェクトは<code>net/http</code>パッケージに宣言済みの<code>http.DefaultClient</code>変数が存在する。これを使うことは基本的に避ける。
 なぜならば、この<code>http.DefaultClient</code>はタイムアウトの設定がされていないためだ。そのため、<code>*http.Client</code>オブジェクトを用意するときは次のように宣言したりする。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>cli <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>http.Client{
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// Transport: 未初期化の場合はhttp.DefaultTransportが呼ばれる。
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    Timeout:   <span style="color:#2aa198">3</span> <span style="color:#719e07">*</span> time.Second,
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// Transport: 未初期化の場合はhttp.DefaultTransportが呼ばれる。</span>
+</span></span><span style="display:flex;"><span>    Timeout:   <span style="color:#2aa198">3</span> <span style="color:#719e07">*</span> time.Second,
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>ここで、<code>*http.Client.Transport</code>フィールドも独自定義の設定に変えたい時がある。
 <code>*http.Client.Transport</code>フィールドは未初期化状態だった場合、<code>http.DefaultTransport</code>が呼ばれる。</p>
@@ -320,10 +319,10 @@ Go1.17時点の<code>http.DefaultTransport</code>変数の宣言は次のよう�
 こちらも接続先がGoogle API用のホストに限定されるからか<code>MaxIdleConnsPerHost</code>を100に設定している。</p>
 <p>
 <a href="https://github.com/googleapis/google-api-go-client/blob/v0.56.0/transport/http/default_transport_go113.go#L12-L21" target="_blank" rel="noopener">https://github.com/googleapis/google-api-go-client/blob/v0.56.0/transport/http/default_transport_go113.go#L12-L21</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// clonedTransport returns the given RoundTripper as a cloned *http.Transport.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// It returns nil if the RoundTripper can&#39;t be cloned or coerced to
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// *http.Transport.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">clonedTransport</span>(rt http.RoundTripper) <span style="color:#719e07">*</span>http.Transport {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// clonedTransport returns the given RoundTripper as a cloned *http.Transport.</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// It returns nil if the RoundTripper can&#39;t be cloned or coerced to</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// *http.Transport.</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">clonedTransport</span>(rt http.RoundTripper) <span style="color:#719e07">*</span>http.Transport {
 </span></span><span style="display:flex;"><span>  t, ok <span style="color:#719e07">:=</span> rt.(<span style="color:#719e07">*</span>http.Transport)
 </span></span><span style="display:flex;"><span>  <span style="color:#719e07">if</span> !ok {
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
@@ -332,10 +331,10 @@ Go1.17時点の<code>http.DefaultTransport</code>変数の宣言は次のよう�
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>
 <a href="https://github.com/googleapis/google-api-go-client/blob/v0.56.0/transport/http/dial.go#L163-L171" target="_blank" rel="noopener">https://github.com/googleapis/google-api-go-client/blob/v0.56.0/transport/http/dial.go#L163-L171</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>  <span style="color:#586e75">// Copy http.DefaultTransport except for MaxIdleConnsPerHost setting,
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  <span style="color:#586e75">// which is increased due to reported performance issues under load in the GCS
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  <span style="color:#586e75">// client. Transport.Clone is only available in Go 1.13 and up.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  trans <span style="color:#719e07">:=</span> <span style="color:#268bd2">clonedTransport</span>(http.DefaultTransport)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>  <span style="color:#586e75">// Copy http.DefaultTransport except for MaxIdleConnsPerHost setting,</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// which is increased due to reported performance issues under load in the GCS</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// client. Transport.Clone is only available in Go 1.13 and up.</span>
+</span></span><span style="display:flex;"><span>  trans <span style="color:#719e07">:=</span> <span style="color:#268bd2">clonedTransport</span>(http.DefaultTransport)
 </span></span><span style="display:flex;"><span>  <span style="color:#719e07">if</span> trans <span style="color:#719e07">==</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>    trans = <span style="color:#268bd2">fallbackBaseTransport</span>()
 </span></span><span style="display:flex;"><span>  }
@@ -537,11 +536,17 @@ Go1.17時点の<code>http.DefaultTransport</code>変数の宣言は次のよう�
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -553,12 +558,6 @@ Go1.17時点の<code>http.DefaultTransport</code>変数の宣言は次のよう�
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

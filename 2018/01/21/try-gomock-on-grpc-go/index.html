@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -241,8 +241,8 @@ message GetTaskRequest {
 <p>まず、<code>protoc</code>によってAPIを自動生成する。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ protoc --go_out<span style="color:#719e07">=</span><span style="color:#268bd2">plugins</span><span style="color:#719e07">=</span>grpc:. proto/task_list.proto
 </span></span></code></pre></div><p>クライアント用の<code>interface</code>が以下のように自動生成される。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// Client API for TaskManager service
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// Client API for TaskManager service</span>
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> TaskManagerClient <span style="color:#268bd2">interface</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">GetTask</span>(ctx context.Context, in <span style="color:#719e07">*</span>GetTaskRequest, opts <span style="color:#719e07">...</span>grpc.CallOption) (<span style="color:#719e07">*</span>Task, <span style="color:#dc322f">error</span>)
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">ListTasks</span>(ctx context.Context, in <span style="color:#719e07">*</span>google_protobuf.Empty, opts <span style="color:#719e07">...</span>grpc.CallOption) (TaskManager_ListTasksClient, <span style="color:#dc322f">error</span>)
@@ -270,8 +270,8 @@ $ mockgen github.com/budougumi0617/sandbox-grpc/tasklist/proto TaskManagerClient
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p><code>Id = 1</code>が指定されたときだけ、、<code>Task</code>オブジェクトを戻すモックを設定する。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">import</span> (
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    tlmock <span style="color:#2aa198">&#34;github.com/budougumi0617/sandbox-grpc/tasklist/mockproto&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ...</span>
+</span></span><span style="display:flex;"><span>    tlmock <span style="color:#2aa198">&#34;github.com/budougumi0617/sandbox-grpc/tasklist/mockproto&#34;</span>
 </span></span><span style="display:flex;"><span>    tlpb <span style="color:#2aa198">&#34;github.com/budougumi0617/sandbox-grpc/tasklist/proto&#34;</span>
 </span></span><span style="display:flex;"><span>)
 </span></span><span style="display:flex;"><span>
@@ -321,8 +321,8 @@ $ mockgen github.com/budougumi0617/sandbox-grpc/tasklist/proto TaskManagerClient
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>今回は２つ<code>Task</code>オブジェクトを返して終了するストリームをモックに設定した。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">import</span> (
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    tlmock <span style="color:#2aa198">&#34;github.com/budougumi0617/sandbox-grpc/tasklist/mockproto&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ...</span>
+</span></span><span style="display:flex;"><span>    tlmock <span style="color:#2aa198">&#34;github.com/budougumi0617/sandbox-grpc/tasklist/mockproto&#34;</span>
 </span></span><span style="display:flex;"><span>    tlpb <span style="color:#2aa198">&#34;github.com/budougumi0617/sandbox-grpc/tasklist/proto&#34;</span>
 </span></span><span style="display:flex;"><span>)
 </span></span><span style="display:flex;"><span>
@@ -330,8 +330,8 @@ $ mockgen github.com/budougumi0617/sandbox-grpc/tasklist/proto TaskManagerClient
 </span></span><span style="display:flex;"><span>    ctrl <span style="color:#719e07">:=</span> gomock.<span style="color:#268bd2">NewController</span>(t)
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">defer</span> ctrl.<span style="color:#268bd2">Finish</span>()
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// Create mock for the stream returned by ListTasks
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    stream <span style="color:#719e07">:=</span> tlmock.<span style="color:#268bd2">NewMockTaskManager_ListTasksClient</span>(ctrl)
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// Create mock for the stream returned by ListTasks</span>
+</span></span><span style="display:flex;"><span>    stream <span style="color:#719e07">:=</span> tlmock.<span style="color:#268bd2">NewMockTaskManager_ListTasksClient</span>(ctrl)
 </span></span><span style="display:flex;"><span>    stream.<span style="color:#268bd2">EXPECT</span>().<span style="color:#268bd2">Recv</span>().<span style="color:#268bd2">Return</span>(<span style="color:#719e07">&amp;</span>tlpb.Task{
 </span></span><span style="display:flex;"><span>        Id:     <span style="color:#2aa198">1</span>,
 </span></span><span style="display:flex;"><span>        Title:  <span style="color:#2aa198">&#34;first Task&#34;</span>,
@@ -342,23 +342,23 @@ $ mockgen github.com/budougumi0617/sandbox-grpc/tasklist/proto TaskManagerClient
 </span></span><span style="display:flex;"><span>        Title:  <span style="color:#2aa198">&#34;second Task&#34;</span>,
 </span></span><span style="display:flex;"><span>        Detail: <span style="color:#2aa198">&#34;second Detail&#34;</span>,
 </span></span><span style="display:flex;"><span>    }, <span style="color:#cb4b16">nil</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// io.EOFを戻すと終了したことになる
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    stream.<span style="color:#268bd2">EXPECT</span>().<span style="color:#268bd2">Recv</span>().<span style="color:#268bd2">Return</span>(<span style="color:#cb4b16">nil</span>, io.EOF)
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// Create mock for the client interface.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    mockclient <span style="color:#719e07">:=</span> tlmock.<span style="color:#268bd2">NewMockTaskManagerClient</span>(ctrl)
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// io.EOFを戻すと終了したことになる</span>
+</span></span><span style="display:flex;"><span>    stream.<span style="color:#268bd2">EXPECT</span>().<span style="color:#268bd2">Recv</span>().<span style="color:#268bd2">Return</span>(<span style="color:#cb4b16">nil</span>, io.EOF)
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// Create mock for the client interface.</span>
+</span></span><span style="display:flex;"><span>    mockclient <span style="color:#719e07">:=</span> tlmock.<span style="color:#268bd2">NewMockTaskManagerClient</span>(ctrl)
 </span></span><span style="display:flex;"><span>    mockclient.<span style="color:#268bd2">EXPECT</span>().<span style="color:#268bd2">ListTasks</span>(
-</span></span><span style="display:flex;"><span>        gomock.<span style="color:#268bd2">Any</span>(), <span style="color:#586e75">// 引数は無視する（任意にしておく）
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        gomock.<span style="color:#268bd2">Any</span>(),
+</span></span><span style="display:flex;"><span>        gomock.<span style="color:#268bd2">Any</span>(), <span style="color:#586e75">// 引数は無視する（任意にしておく）</span>
+</span></span><span style="display:flex;"><span>        gomock.<span style="color:#268bd2">Any</span>(),
 </span></span><span style="display:flex;"><span>    ).<span style="color:#268bd2">Return</span>(stream, <span style="color:#cb4b16">nil</span>)
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">testListTasks</span>(t, mockclient)
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">testListTasks</span>(t <span style="color:#719e07">*</span>testing.T, client tlpb.TaskManagerClient) {
 </span></span><span style="display:flex;"><span>    t.<span style="color:#268bd2">Helper</span>()
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ストリームを取得する
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    ltc, _ <span style="color:#719e07">:=</span> client.<span style="color:#268bd2">ListTasks</span>(context.<span style="color:#268bd2">Background</span>(), <span style="color:#cb4b16">nil</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ストリームからオブジェクトを取得する
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    first, err <span style="color:#719e07">:=</span> ltc.<span style="color:#268bd2">Recv</span>()
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ストリームを取得する</span>
+</span></span><span style="display:flex;"><span>    ltc, _ <span style="color:#719e07">:=</span> client.<span style="color:#268bd2">ListTasks</span>(context.<span style="color:#268bd2">Background</span>(), <span style="color:#cb4b16">nil</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ストリームからオブジェクトを取得する</span>
+</span></span><span style="display:flex;"><span>    first, err <span style="color:#719e07">:=</span> ltc.<span style="color:#268bd2">Recv</span>()
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> <span style="color:#719e07">||</span> first.Title <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;first Task&#34;</span> {
 </span></span><span style="display:flex;"><span>        t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;Unexpected task at first response&#34;</span>)
 </span></span><span style="display:flex;"><span>    }
@@ -366,8 +366,8 @@ $ mockgen github.com/budougumi0617/sandbox-grpc/tasklist/proto TaskManagerClient
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> <span style="color:#719e07">||</span> second.Title <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;second Task&#34;</span> {
 </span></span><span style="display:flex;"><span>        t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;Unexpected task at second response&#34;</span>)
 </span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// 最後はio.EOFで終了する
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    _, eof <span style="color:#719e07">:=</span> ltc.<span style="color:#268bd2">Recv</span>()
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// 最後はio.EOFで終了する</span>
+</span></span><span style="display:flex;"><span>    _, eof <span style="color:#719e07">:=</span> ltc.<span style="color:#268bd2">Recv</span>()
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> eof <span style="color:#719e07">!=</span> io.EOF {
 </span></span><span style="display:flex;"><span>        t.<span style="color:#268bd2">Error</span>(eof)
 </span></span><span style="display:flex;"><span>    }
@@ -574,11 +574,17 @@ $ mockgen github.com/budougumi0617/sandbox-grpc/tasklist/proto TaskManagerClient
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -590,12 +596,6 @@ $ mockgen github.com/budougumi0617/sandbox-grpc/tasklist/proto TaskManagerClient
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

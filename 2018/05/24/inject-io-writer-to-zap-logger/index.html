@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -193,17 +193,17 @@ gRPCを用いたMicroservicesを構成する際にも利用されることが多
 この生成方法だと、文字列で出力先を指定するため、一見標準(エラー)出力もしくはファイルにしか出力できないように読める。</p>
 <p>
 <a href="https://godoc.org/go.uber.org/zap#Config" target="_blank" rel="noopener">https://godoc.org/go.uber.org/zap#Config</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>    <span style="color:#586e75">// OutputPaths is a list of paths to write logging output to. See Open for
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// details.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    OutputPaths []<span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;outputPaths&#34; yaml:&#34;outputPaths&#34;`</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>    <span style="color:#586e75">// OutputPaths is a list of paths to write logging output to. See Open for</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// details.</span>
+</span></span><span style="display:flex;"><span>    OutputPaths []<span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;outputPaths&#34; yaml:&#34;outputPaths&#34;`</span>
 </span></span></code></pre></div><p>このログ出力先を<code>bytes.Buffer</code>(<code>io.Writer</code>)に変更する。</p>
 <h1 id="tldr">TL;DR</h1>
 <ul>
 <li><code>zap.Config</code>の<code>Build()</code>メソッドで<code>zap.Logger</code>を生成するとログ出力先を標準(エラー)出力orファイルにしかできない</li>
 <li><code>zap.New</code>関数で<code>zap.Logger</code>を生成すると任意の<code>io.Writer</code>にログを出力できる</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// 引数のbytes.Bufferにログを出力するzap.Loggerを生成する
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">getDummyLogger</span>(buf <span style="color:#719e07">*</span>bytes.Buffer) <span style="color:#719e07">*</span>zap.Logger {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// 引数のbytes.Bufferにログを出力するzap.Loggerを生成する</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">getDummyLogger</span>(buf <span style="color:#719e07">*</span>bytes.Buffer) <span style="color:#719e07">*</span>zap.Logger {
 </span></span><span style="display:flex;"><span>        encoder <span style="color:#719e07">:=</span> zapcore.<span style="color:#268bd2">NewConsoleEncoder</span>(<span style="color:#719e07">...</span>)
 </span></span><span style="display:flex;"><span>        core <span style="color:#719e07">:=</span> zapcore.<span style="color:#268bd2">NewCore</span>(encoder, zapcore.<span style="color:#268bd2">AddSync</span>(buf), zapcore.InfoLevel)
 </span></span><span style="display:flex;"><span>        <span style="color:#719e07">return</span> zap.<span style="color:#268bd2">New</span>(core)
@@ -219,9 +219,9 @@ gRPCを用いたMicroservicesを構成する際にも利用されることが多
 しかし、<code>zap.Config</code>にある<code>zap.Logger</code>を出力先を指定する設定方法は文字列指定であり、<code>stdout</code>(<code>stderr</code>)もしくは出力先のファイルパスしか設定出来ない。</p>
 <p>
 <a href="https://godoc.org/go.uber.org/zap#Config" target="_blank" rel="noopener">https://godoc.org/go.uber.org/zap#Config</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>    <span style="color:#586e75">// OutputPaths is a list of paths to write logging output to. See Open for
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// details.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    OutputPaths []<span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;outputPaths&#34; yaml:&#34;outputPaths&#34;`</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>    <span style="color:#586e75">// OutputPaths is a list of paths to write logging output to. See Open for</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// details.</span>
+</span></span><span style="display:flex;"><span>    OutputPaths []<span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;outputPaths&#34; yaml:&#34;outputPaths&#34;`</span>
 </span></span></code></pre></div><p>なので<code>zapcore</code>パッケージを使う方法で<code>io.Writer</code>へログ出力をする<code>zap.Logger</code>インスタンスを取得する。</p>
 <h1 id="zapnewzapcorenewcoreを使ったzaploggerの生成">zap.New、zapcore.NewCoreを使ったzap.Loggerの生成</h1>
 <p><code>zap.Logger</code>のインスタンスを生成する方法は<code>Config</code>インスタンスの<code>Build()</code>メソッドを利用する他に、<code>zap.New()</code>関数を利用する方法がある。</p>
@@ -244,10 +244,10 @@ gRPCを用いたMicroservicesを構成する際にも利用されることが多
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">AddSync</span>(w io.Writer) WriteSyncer
 </span></span></code></pre></div><p>よって、以下のような手順を踏めば、<code>zapcore.NewCore</code>関数、<code>zap.New</code>関数を経由すれば<code>bytes.Buffer</code>(<code>io.Writer</code>)にログ出力をする<code>zap.Logger</code>を取得できる。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">getDummyLogger</span>(buf <span style="color:#719e07">*</span>bytes.Buffer) <span style="color:#719e07">*</span>zap.Logger {
-</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// ログ出力のフォーマットを指定できる
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        encoder <span style="color:#719e07">:=</span> zapcore.<span style="color:#268bd2">NewConsoleEncoder</span>(zapcore.EncoderConfig{
-</span></span><span style="display:flex;"><span>                <span style="color:#586e75">// TimeKey: &#34;time&#34;, // 時刻情報は期待結果に含めにくいので省略
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>                NameKey:        <span style="color:#2aa198">&#34;name&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// ログ出力のフォーマットを指定できる</span>
+</span></span><span style="display:flex;"><span>        encoder <span style="color:#719e07">:=</span> zapcore.<span style="color:#268bd2">NewConsoleEncoder</span>(zapcore.EncoderConfig{
+</span></span><span style="display:flex;"><span>                <span style="color:#586e75">// TimeKey: &#34;time&#34;, // 時刻情報は期待結果に含めにくいので省略</span>
+</span></span><span style="display:flex;"><span>                NameKey:        <span style="color:#2aa198">&#34;name&#34;</span>,
 </span></span><span style="display:flex;"><span>                EncodeLevel:    zapcore.CapitalLevelEncoder,
 </span></span><span style="display:flex;"><span>                EncodeTime:     zapcore.ISO8601TimeEncoder,
 </span></span><span style="display:flex;"><span>                EncodeDuration: zapcore.StringDurationEncoder,
@@ -436,11 +436,17 @@ gRPCを用いたMicroservicesを構成する際にも利用されることが多
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -452,12 +458,6 @@ gRPCを用いたMicroservicesを構成する際にも利用されることが多
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

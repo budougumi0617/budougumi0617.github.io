@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -283,8 +283,8 @@ Go Advent Calendar 2020 4日目の記事となる。
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">fibonacciTask</span>() <span style="color:#dc322f">int</span> {
-</span></span><span style="display:flex;"><span>  <span style="color:#719e07">return</span> <span style="color:#268bd2">fibonacci</span>(<span style="color:#2aa198">1_000_000</span>) <span style="color:#586e75">// million
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">return</span> <span style="color:#268bd2">fibonacci</span>(<span style="color:#2aa198">1_000_000</span>) <span style="color:#586e75">// million</span>
+</span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>上記の計算量の多い関数を1,000個生成し、<code>execute</code>関数ですべて実行終了するまでの時間を計測する。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> task <span style="color:#268bd2">func</span>() <span style="color:#dc322f">int</span>
 </span></span><span style="display:flex;"><span>
@@ -298,8 +298,8 @@ Go Advent Calendar 2020 4日目の記事となる。
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>ベンチマーク関数は素朴に次のように実装する。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">BenchmarkFibonacci</span>(b <span style="color:#719e07">*</span>testing.B) {
-</span></span><span style="display:flex;"><span>  ts <span style="color:#719e07">:=</span> <span style="color:#268bd2">genTasks</span>() <span style="color:#586e75">// 1,0000個のタスクを用意
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  b.<span style="color:#268bd2">ResetTimer</span>()
+</span></span><span style="display:flex;"><span>  ts <span style="color:#719e07">:=</span> <span style="color:#268bd2">genTasks</span>() <span style="color:#586e75">// 1,0000個のタスクを用意</span>
+</span></span><span style="display:flex;"><span>  b.<span style="color:#268bd2">ResetTimer</span>()
 </span></span><span style="display:flex;"><span>  <span style="color:#719e07">for</span> i <span style="color:#719e07">:=</span> <span style="color:#2aa198">0</span>; i &lt; b.N; i<span style="color:#719e07">++</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">execute</span>(ts)
 </span></span><span style="display:flex;"><span>  }
@@ -534,8 +534,7 @@ Fibonacci-8        0.00        1002.00 ± 0%    1006.90 ± 1%     21.22 ±43%
 ここまでやって何だが、goroutineのメモリ利用量はたかが知れているし、可読性などを考慮すれば大抵の場合は<code>sync.WaitGroup</code>を用いた単純な単純な並行化で十分だろう。</p>
 <p>パイク氏は計測することと一緒に次のようにも述べている。</p>
 <blockquote>
-<p>凝ったアルゴリズムはシンプルなそれよりバグを含みやすく、実装するのも難しい。シンプルなアルゴリズムとシンプルなデータ構造を使うべし。</p>
-</blockquote>
+<p>凝ったアルゴリズムはシンプルなそれよりバグを含みやすく、実装するのも難しい。シンプルなアルゴリズムとシンプルなデータ構造を使うべし。</p></blockquote>
 <p>計測結果とコードがあれば、「やらない」という選択肢も自信をもって取れるだろう。</p>
 <h2 id="おまけ">おまけ</h2>
 <p>Wikipediaよりパイク氏のプログラミング5箇条（6箇条）を全文引用しておく。</p>
@@ -546,8 +545,7 @@ Fibonacci-8        0.00        1002.00 ± 0%    1006.90 ± 1%     21.22 ±43%
 <p>ルール3: 凝った(Fancy)アルゴリズムは{\displaystyle n}nが小さいときには遅く、<code>n</code>はしばしば小さい。凝ったアルゴリズムは大きな定数を持っている。<code>n</code>が頻繁に大きくなることがわかっていないなら、凝ってはいけない<code>n</code>が大きくなるときでさえ、ルール2が最初に適用される）。</p>
 <p>ルール4: 凝ったアルゴリズムはシンプルなそれよりバグを含みやすく、実装するのも難しい。シンプルなアルゴリズムとシンプルなデータ構造を使うべし。</p>
 <p>ルール5: データはすべてを決定づける。もし、正しいデータ構造を選び、ものごとをうまく構成すれば、アルゴリズムはほとんどいつも自明のものになるだろう。プログラミングの中心は、アルゴリズムではなくデータ構造にある。</p>
-<p>ルール6: ルール6は存在しない。</p>
-</blockquote>
+<p>ルール6: ルール6は存在しない。</p></blockquote>
 <h1 id="参考">参考</h1>
 <ul>
 <li>
@@ -747,11 +745,17 @@ Fibonacci-8        0.00        1002.00 ± 0%    1006.90 ± 1%     21.22 ±43%
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -763,12 +767,6 @@ Fibonacci-8        0.00        1002.00 ± 0%    1006.90 ± 1%     21.22 ±43%
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -258,12 +258,10 @@ main.main()
 <p>資料を読む中で柴田（
 <a href="https://twitter.com/yoshiki_shibata" target="_blank" rel="noopener">@yoshiki_shibata</a>)さんから以下の補足があった。</p>
 <blockquote>
-<p>f()を実行するゴルーチンとg()を実行するゴルーチンが、別々のOSスレッド上で実行された場合、コンパイラによる実行命令の入れ替え、あるいはout-of-order CPUのreorder bufferの影響でg()関数内で a をメ モリから読み出したときに、f()関数内でのa = 1の書き込みはメモリに反映されていない可能性があります。</p>
-</blockquote>
+<p>f()を実行するゴルーチンとg()を実行するゴルーチンが、別々のOSスレッド上で実行された場合、コンパイラによる実行命令の入れ替え、あるいはout-of-order CPUのreorder bufferの影響でg()関数内で a をメ モリから読み出したときに、f()関数内でのa = 1の書き込みはメモリに反映されていない可能性があります。</p></blockquote>
 <p>また、メモリモデル本文にも次のような一節がある。</p>
 <blockquote>
-<p>If the channel were buffered (e.g., c = make(chan int, 1)) then the program would not be guaranteed to print &ldquo;hello, world&rdquo;. (It might print the empty string, crash, or do something else.)</p>
-</blockquote>
+<p>If the channel were buffered (e.g., c = make(chan int, 1)) then the program would not be guaranteed to print &ldquo;hello, world&rdquo;. (It might print the empty string, crash, or do something else.)</p></blockquote>
 <p>（チャネル操作を間違えると文字列の値が不定になったりクラッシュする）</p>
 <p>ざっくりいうと、CPUのコアはコアごとにキャッシュやレジスタを持っている。キャッシュやレジスタは個別のコアのみアクセス可能である。<br>
 なので、マルチコアCPUの場合、その下の層のメモリにまでコアの処理結果が反映されてないと他のコアの変更結果が見えない。</p>
@@ -341,8 +339,7 @@ main.main()
 普段Webサービスを作る上でCPU上のデータの挙動やメモリモデルまで気にしないが、いつかなにかのデバッグとかで役に立つかなと思う<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>。</p>
 <p>また、今回のようなサンプルコードを動かしてみてやっと一見当たり前のことしか書いていない事前発生（<em>happens before</em>）の意味がわかってきた気がする。</p>
 <blockquote>
-<p>To specify the requirements of reads and writes, we define happens before, a partial order on the execution of memory operations in a Go program. If event e1 happens before event e2, then we say that e2 happens after e1. Also, if e1 does not happen before e2 and does not happen after e2, then we say that e1 and e2 happen concurrently.</p>
-</blockquote>
+<p>To specify the requirements of reads and writes, we define happens before, a partial order on the execution of memory operations in a Go program. If event e1 happens before event e2, then we say that e2 happens after e1. Also, if e1 does not happen before e2 and does not happen after e2, then we say that e1 and e2 happen concurrently.</p></blockquote>
 <p>詳細は忘れたとしても次の理解だけでもしておくほうがよさそうだ。</p>
 <ul>
 <li>並行処理を書くときは正しく排他制御をしておくこと</li>
@@ -351,8 +348,7 @@ main.main()
 <p>余談だが、メモリモデルの文書の冒頭にも「この文書の理解が必要になる&quot;賢い&quot;プログラミングするな」と注意書きがある（とはいえ書かなくても理解しているのが望ましいだろう）。</p>
 <blockquote>
 <p>If you must read the rest of this document to understand the behavior of your program, you are being too clever.
-Don&rsquo;t be clever.</p>
-</blockquote>
+Don&rsquo;t be clever.</p></blockquote>
 <h1 id="参考">参考</h1>
 <ul>
 <li>
@@ -551,11 +547,17 @@ Don&rsquo;t be clever.</p>
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -567,12 +569,6 @@ Don&rsquo;t be clever.</p>
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

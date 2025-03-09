@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -242,8 +242,7 @@ https://godoc.org/os/signal#Notify
 <a href="https://godoc.org/os/signal#Notify" target="_blank" rel="noopener">https://godoc.org/os/signal#Notify</a></li>
 </ul>
 <blockquote>
-<p>Package signal will not block sending to c: the caller must ensure that c has sufficient buffer space to keep up with the expected signal rate. For a channel used for notification of just one signal value, a buffer of size 1 is sufficient.</p>
-</blockquote>
+<p>Package signal will not block sending to c: the caller must ensure that c has sufficient buffer space to keep up with the expected signal rate. For a channel used for notification of just one signal value, a buffer of size 1 is sufficient.</p></blockquote>
 <h1 id="シグナルハンドリングについて">シグナルハンドリングについて</h1>
 <p>シグナルは身近なところでいうとコマンドラインツールをコントロールCLIなどで終了したり、フリーズしたソフトやプロセスに対してキルコマンドを実行したときに発生する。<br>
 ただ、Webサービスを作る上でもシグナルを意識する必要はある。<br>
@@ -273,8 +272,7 @@ https://godoc.org/os/signal#Notify
 <blockquote class="twitter-tweet"><p lang="ja" dir="ltr">happens beforeですが、バッファなしチャネルの動きを説明するものではなく、変数への更新が別のゴールチーンから見えるか否かに影響を与えるものなので、ブログの説明が少し違っていると思います。</p>&mdash; Yoshiki Shibata/柴田芳樹 (@yoshiki_shibata) <a href="https://twitter.com/yoshiki_shibata/status/1302527258599370752?ref_src=twsrc%5Etfw">September 6, 2020</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 <p>バッファなしチャネルを介した場合、送信は受信側が受信を開始するまで成功しない（処理が完了しない）。</p>
 <blockquote>
-<p>If the capacity is zero or absent, the channel is unbuffered and communication succeeds only when both a sender and receiver are ready.</p>
-</blockquote>
+<p>If the capacity is zero or absent, the channel is unbuffered and communication succeeds only when both a sender and receiver are ready.</p></blockquote>
 <ul>
 <li>Channel types | The Go Programming Language Specification
 <ul>
@@ -284,8 +282,7 @@ https://godoc.org/os/signal#Notify
 </li>
 </ul>
 <blockquote>
-<p>A send on an unbuffered channel can proceed if a receiver is ready.</p>
-</blockquote>
+<p>A send on an unbuffered channel can proceed if a receiver is ready.</p></blockquote>
 <ul>
 <li>Send statements | The Go Programming Language Specification
 <ul>
@@ -298,17 +295,16 @@ https://godoc.org/os/signal#Notify
 <p>言い換えると、受信が完了するまで送信側では送信が行われず処理を再開できない。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>ch <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#dc322f">int</span>)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>ch <span style="color:#719e07">&lt;-</span> <span style="color:#2aa198">10</span> <span style="color:#586e75">// どこかで受信されるまで処理が進まない
-</span></span></span></code></pre></div><h1 id="signalnotifyでバッファありチャネルを使わないといけない理由">signal.Notifyでバッファありチャネルを使わないといけない理由</h1>
+</span></span><span style="display:flex;"><span>ch <span style="color:#719e07">&lt;-</span> <span style="color:#2aa198">10</span> <span style="color:#586e75">// どこかで受信されるまで処理が進まない</span>
+</span></span></code></pre></div><h1 id="signalnotifyでバッファありチャネルを使わないといけない理由">signal.Notifyでバッファありチャネルを使わないといけない理由</h1>
 <p>ある行儀の悪いバッファなしチャネルがシグナルを待機（受信）していたとする。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>c <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> os.Signal) <span style="color:#586e75">// バッファなしの行儀が悪いチャネル
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>signal.<span style="color:#268bd2">Notify</span>(c, os.Interrupt, os.Kill)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>c <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> os.Signal) <span style="color:#586e75">// バッファなしの行儀が悪いチャネル</span>
+</span></span><span style="display:flex;"><span>signal.<span style="color:#268bd2">Notify</span>(c, os.Interrupt, os.Kill)
 </span></span></code></pre></div><p>シグナルが発生したとき、このバッファなしチャネルが受信するまで送信側goroutineの処理が止まってしまってはいけない。<br>
 他のチャネルも受信待機しているかもしれないので適切なシグナルハンドリングができなくなってしまう。<br>
 そのため、<code>signal</code>パッケージのシグナル送信側の処理は冒頭で引用した仕様の通り、ノンブロッキングな送信を行う。</p>
 <blockquote>
-<p>Package signal will not block sending to c</p>
-</blockquote>
+<p>Package signal will not block sending to c</p></blockquote>
 <p>具体的なコードを見ると、まずsignalパッケージは以下のようなループでシグナルを処理している。
 （
 <a href="https://github.com/golang/go/blob/a538b59fd2428ba4d13f296d7483febf2fc05f97/src/runtime/sigqueue.go#L122-L125" target="_blank" rel="noopener">signal_recv</a>）は私にはちょっとむずかしいので説明省略）</p>
@@ -323,10 +319,10 @@ https://godoc.org/os/signal#Notify
 このとき、チャネルが送信ブロック状態だった場合は<code>default</code>節があるので<strong>そのチャネルを無視して次のチャネルへシグナルを送信する</strong>。</p>
 <p>
 <a href="https://github.com/golang/go/blob/a538b59fd2428ba4d13f296d7483febf2fc05f97/src/os/signal/signal.go#L240-L248" target="_blank" rel="noopener">https://github.com/golang/go/blob/a538b59fd2428ba4d13f296d7483febf2fc05f97/src/os/signal/signal.go#L240-L248</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>	<span style="color:#719e07">for</span> c, h <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> handlers.m { <span style="color:#586e75">// cがsignal.Notifyの第一引数のチャネル
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>		<span style="color:#719e07">if</span> h.<span style="color:#268bd2">want</span>(n) {
-</span></span><span style="display:flex;"><span>			<span style="color:#586e75">// send but do not block for it
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>			<span style="color:#719e07">select</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>	<span style="color:#719e07">for</span> c, h <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> handlers.m { <span style="color:#586e75">// cがsignal.Notifyの第一引数のチャネル</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#719e07">if</span> h.<span style="color:#268bd2">want</span>(n) {
+</span></span><span style="display:flex;"><span>			<span style="color:#586e75">// send but do not block for it</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#719e07">select</span> {
 </span></span><span style="display:flex;"><span>			<span style="color:#719e07">case</span> c <span style="color:#719e07">&lt;-</span> sig:
 </span></span><span style="display:flex;"><span>			<span style="color:#719e07">default</span>:
 </span></span><span style="display:flex;"><span>			}
@@ -523,11 +519,17 @@ https://godoc.org/os/signal#Notify
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -539,12 +541,6 @@ https://godoc.org/os/signal#Notify
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -228,29 +228,28 @@
 <p>上記記事の以下の部分が注意点だ。</p>
 <blockquote>
 <p>正規表現オブジェクトのコンパイルはコストのかかる処理であり、これは以下のようにグローバル領域にコンパイル済みの状態で宣言します。
-検査時に随時生成することは推奨されません。</p>
-</blockquote>
+検査時に随時生成することは推奨されません。</p></blockquote>
 <p>たとえば、WebサーバをGoで実装していた場合、リクエストを受け取るたびにコンパイル処理をしているとパフォーマンスが悪い。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">myHandler</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// リクエストを受け取るたびに正規表現のコンパイルが走る。
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    re <span style="color:#719e07">:=</span> regexp.<span style="color:#268bd2">MustCompile</span>(<span style="color:#2aa198">`(gopher){2}`</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// リクエストを受け取るたびに正規表現のコンパイルが走る。</span>
+</span></span><span style="display:flex;"><span>    re <span style="color:#719e07">:=</span> regexp.<span style="color:#268bd2">MustCompile</span>(<span style="color:#2aa198">`(gopher){2}`</span>)
 </span></span><span style="display:flex;"><span>    body, _ <span style="color:#719e07">:=</span> ioutil.<span style="color:#268bd2">ReadAll</span>(resp.Body)
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> re.<span style="color:#268bd2">Match</span>(re) {
-</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// Do anything...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// Do anything...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// Do anything...</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// Do anything...</span>
+</span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>正しくは次のように書かないといけない。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// グローバルスコープならばmain goroutin起動時に一度だけの実行で済む。
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">var</span> re = regexp.<span style="color:#268bd2">MustCompile</span>(<span style="color:#2aa198">`(gopher){2}`</span>)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// グローバルスコープならばmain goroutin起動時に一度だけの実行で済む。</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">var</span> re = regexp.<span style="color:#268bd2">MustCompile</span>(<span style="color:#2aa198">`(gopher){2}`</span>)
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">myHandler</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
 </span></span><span style="display:flex;"><span>    body, _ <span style="color:#719e07">:=</span> ioutil.<span style="color:#268bd2">ReadAll</span>(resp.Body)
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> re.<span style="color:#268bd2">Match</span>(re) {
-</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// Do anything...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// Do anything...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// Do anything...</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// Do anything...</span>
+</span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>このようなことを静的解析で指摘する静的解析ツールを作った。</p>
 <p>と、言っても大部分のロジックは
 <a href="https://twitter.com/tenntenn" target="_blank" rel="noopener">@tenntenn</a>さんのcalled linterを踏襲している。</p>
@@ -263,9 +262,9 @@
 <p>「明らかに一度しか実行されない関数」は正しい利用方法だが、検知できない。 <br>
 そのため誤検知してしまう部分にたいしてはコメントをつけることで無視する機能もつけた（流用させてもらった）。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">f</span>() {
-</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// lint:ignore regexponce allowed
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	validID = regexp.<span style="color:#268bd2">MustCompile</span>(<span style="color:#2aa198">`^[a-z]+\[[0-9]+\]$`</span>) <span style="color:#586e75">// OK because add specified comment.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// lint:ignore regexponce allowed</span>
+</span></span><span style="display:flex;"><span>	validID = regexp.<span style="color:#268bd2">MustCompile</span>(<span style="color:#2aa198">`^[a-z]+\[[0-9]+\]$`</span>) <span style="color:#586e75">// OK because add specified comment.</span>
+</span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>メインのロジックはanalysisyutilパッケージを使い、作り始めはskeletonコマンドでガッと作っている。便利。</p>
 <ul>
 <li>
@@ -485,11 +484,17 @@
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -501,12 +506,6 @@
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

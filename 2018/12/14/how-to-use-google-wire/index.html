@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -295,8 +295,8 @@ https://blog.golang.org/wire
 </span></span><span style="display:flex;"><span>    X <span style="color:#dc322f">int</span>
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ProvideFoo はFoo構造体を提供するNew関数
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">ProvideFoo</span>() Foo {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ProvideFoo はFoo構造体を提供するNew関数</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">ProvideFoo</span>() Foo {
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> Foo{X: <span style="color:#2aa198">42</span>}
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
@@ -304,8 +304,8 @@ https://blog.golang.org/wire
 </span></span><span style="display:flex;"><span>    X <span style="color:#dc322f">int</span>
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ProvideBar はFooを用いてBarを初期化するNew関数
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">ProvideBar</span>(foo Foo) Bar {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ProvideBar はFooを用いてBarを初期化するNew関数</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">ProvideBar</span>(foo Foo) Bar {
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> Bar{X: <span style="color:#719e07">-</span>foo.X}
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
@@ -313,25 +313,25 @@ https://blog.golang.org/wire
 </span></span><span style="display:flex;"><span>    X <span style="color:#dc322f">int</span>
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ProvideBaz はBarを利用してBazを初期化するNew関数
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">ProvideBaz</span>(ctx context.Context, bar Bar) (Baz, <span style="color:#dc322f">error</span>) {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ProvideBaz はBarを利用してBazを初期化するNew関数</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">ProvideBaz</span>(ctx context.Context, bar Bar) (Baz, <span style="color:#dc322f">error</span>) {
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> bar.X <span style="color:#719e07">==</span> <span style="color:#2aa198">0</span> {
 </span></span><span style="display:flex;"><span>        <span style="color:#719e07">return</span> Baz{}, errors.<span style="color:#268bd2">New</span>(<span style="color:#2aa198">&#34;cannot provide baz when bar is zero&#34;</span>)
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> Baz{X: bar.X}, <span style="color:#cb4b16">nil</span>
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// wireを使ってFoo | Bar | Bazを提供するDIセットを定義する。
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// Bazを取得するときは別にcontext.Contextを用意する必要がある。
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">var</span> SuperSet = wire.<span style="color:#268bd2">NewSet</span>(ProvideFoo, ProvideBar, ProvideBaz)
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// wireを使ってFoo | Bar | Bazを提供するDIセットを定義する。</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Bazを取得するときは別にcontext.Contextを用意する必要がある。</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">var</span> SuperSet = wire.<span style="color:#268bd2">NewSet</span>(ProvideFoo, ProvideBar, ProvideBaz)
 </span></span></code></pre></div><p>上記のサンプルコードの最後で定義しているのがWireの仕組み内でProviderと呼ばれるもので、このProviderを複数組み合わせることでDIの初期化をしていく。</p>
 <h2 id="wireを使ったdiの宣言">Wireを使ったDIの宣言</h2>
 <p><code>wire.Build</code>を使って依存性を収入するオブジェクトの構成（Injector）を定義する。</p>
 <p>
 <a href="https://github.com/google/wire/blob/master/docs/guide.md#injectors" target="_blank" rel="noopener">Injectors | Wire User Guide</a>より</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// +build wireinject
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// このコードはgo buildには含まない
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// +build wireinject</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// このコードはgo buildには含まない</span>
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
 </span></span><span style="display:flex;"><span>    <span style="color:#2aa198">&#34;context&#34;</span>
 </span></span><span style="display:flex;"><span>
@@ -339,8 +339,8 @@ https://blog.golang.org/wire
 </span></span><span style="display:flex;"><span>    <span style="color:#2aa198">&#34;example.com/foobarbaz&#34;</span>
 </span></span><span style="display:flex;"><span>)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// SuperSetを使ってDI済みのBazを生成する。
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">initializeBaz</span>(ctx context.Context) (foobarbaz.Baz, <span style="color:#dc322f">error</span>) {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// SuperSetを使ってDI済みのBazを生成する。</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">initializeBaz</span>(ctx context.Context) (foobarbaz.Baz, <span style="color:#dc322f">error</span>) {
 </span></span><span style="display:flex;"><span>    wire.<span style="color:#268bd2">Build</span>(foobarbaz.SuperSet)
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> foobarbaz.Baz{}, <span style="color:#cb4b16">nil</span>
 </span></span><span style="display:flex;"><span>}
@@ -362,11 +362,11 @@ https://blog.golang.org/wire
 <code>wire gen</code>コマンドを使って<code>initializeBaz</code>から自動生成されたコードが以下。</p>
 <p>
 <a href="https://github.com/google/wire/blob/master/docs/guide.md#injectors" target="_blank" rel="noopener">Injectors | Wire User Guide</a>より</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// Code generated by Wire. DO NOT EDIT.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">//go:generate wire
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">//+build !wireinject
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// Code generated by Wire. DO NOT EDIT.</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">//go:generate wire</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">//+build !wireinject</span>
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">package</span> main
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
@@ -398,11 +398,11 @@ https://blog.golang.org/wire
 詳細は説明しないが、<code>Bucket</code>や<code>Cloud SQL</code>、<code>Stackdriver</code>の依存性を注入したWebサーバーオブジェクト(<code>*application</code>）を生成するDIの定義だ。</p>
 <p>
 <a href="https://github.com/google/go-cloud/blob/3c405e2532f18716f030e35b1e99c2dffcb92a6e/samples/guestbook/inject_gcp.go#L37-L50" target="_blank" rel="noopener">/github.com/google/go-cloud/samples/guestbook/inject_gcp.go</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// setupGCP is a Wire injector function that sets up the application using GCP.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">setupGCP</span>(ctx context.Context, flags <span style="color:#719e07">*</span>cliFlags) (<span style="color:#719e07">*</span>application, <span style="color:#268bd2">func</span>(), <span style="color:#dc322f">error</span>) {
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// This will be filled in by Wire with providers from the provider sets in
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// wire.Build.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    wire.<span style="color:#268bd2">Build</span>(
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// setupGCP is a Wire injector function that sets up the application using GCP.</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">setupGCP</span>(ctx context.Context, flags <span style="color:#719e07">*</span>cliFlags) (<span style="color:#719e07">*</span>application, <span style="color:#268bd2">func</span>(), <span style="color:#dc322f">error</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// This will be filled in by Wire with providers from the provider sets in</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// wire.Build.</span>
+</span></span><span style="display:flex;"><span>    wire.<span style="color:#268bd2">Build</span>(
 </span></span><span style="display:flex;"><span>        gcpcloud.GCP,
 </span></span><span style="display:flex;"><span>        cloudmysql.Open,
 </span></span><span style="display:flex;"><span>        applicationSet,
@@ -679,11 +679,17 @@ https://blog.golang.org/wire
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -695,12 +701,6 @@ https://blog.golang.org/wire
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

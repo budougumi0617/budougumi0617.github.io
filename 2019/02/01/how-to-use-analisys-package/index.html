@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -306,20 +306,20 @@ https://speakerdeck.com/budougumi0617/how-to-create-the-static-analysis-tool-for
 <li>
 <a href="https://github.com/golang/tools/blob/master/go/analysis/cmd/vet/vet.go" target="_blank" rel="noopener">https://github.com/golang/tools/blob/master/go/analysis/cmd/vet/vet.go</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://github.com/golang/tools/blob/master/go/analysis/cmd/vet/vet.go
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://github.com/golang/tools/blob/master/go/analysis/cmd/vet/vet.go</span>
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 </span></span><span style="display:flex;"><span>	multichecker.<span style="color:#268bd2">Main</span>(
-</span></span><span style="display:flex;"><span>		<span style="color:#586e75">// the traditional vet suite:
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>		asmdecl.Analyzer,
+</span></span><span style="display:flex;"><span>		<span style="color:#586e75">// the traditional vet suite:</span>
+</span></span><span style="display:flex;"><span>		asmdecl.Analyzer,
 </span></span><span style="display:flex;"><span>		assign.Analyzer,
 </span></span><span style="display:flex;"><span>		atomic.Analyzer,
 </span></span><span style="display:flex;"><span>		atomicalign.Analyzer,
 </span></span><span style="display:flex;"><span>		bools.Analyzer,
 </span></span><span style="display:flex;"><span>		buildtag.Analyzer,
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>		<span style="color:#586e75">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
+</span></span><span style="display:flex;"><span>		<span style="color:#586e75">// ...</span>
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>		nilness.Analyzer,
 </span></span><span style="display:flex;"><span>	)
 </span></span><span style="display:flex;"><span>}
@@ -334,21 +334,21 @@ https://speakerdeck.com/budougumi0617/how-to-create-the-static-analysis-tool-for
 </ul>
 <p>各静的解析のモジュールの実態が<code>Analyzer</code>構造体となる。<code>Analyzer</code>構造体の<code>Run</code>メソッドに静的解析ロジックを実装することで静的解析が実現する。<code>Analyzer</code>では他の<code>Analyzer</code>に解析結果を提供する際の<code>ResultType</code>、依存する他の<code>Analyzer</code>を指定する<code>Requires</code>などのフィールドが存在する。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> Analyzer <span style="color:#268bd2">struct</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ロジック本体。戻り値はなくても良いが、Resultとして他のAnalyzerに結果を渡す場合は返す。
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    Run <span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>Pass) (<span style="color:#268bd2">interface</span>{}, <span style="color:#dc322f">error</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ...</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// このAnalyzerが実行時に利用したい他のAnalyzer
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    Requires []<span style="color:#719e07">*</span>Analyzer
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ロジック本体。戻り値はなくても良いが、Resultとして他のAnalyzerに結果を渡す場合は返す。</span>
+</span></span><span style="display:flex;"><span>    Run <span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>Pass) (<span style="color:#268bd2">interface</span>{}, <span style="color:#dc322f">error</span>)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// このAnalyzerが他のAnalyzerに提供する情報。Runメソッドの戻り値
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    ResultType reflect.Type
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ...</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// 同じAnalyzer内で解析対象のパッケージをまたいで解析情報を利用したい場合はFactという概念を利用してやり取りする
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    FactTypes []Fact
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// このAnalyzerが実行時に利用したい他のAnalyzer</span>
+</span></span><span style="display:flex;"><span>    Requires []<span style="color:#719e07">*</span>Analyzer
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// このAnalyzerが他のAnalyzerに提供する情報。Runメソッドの戻り値</span>
+</span></span><span style="display:flex;"><span>    ResultType reflect.Type
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// 同じAnalyzer内で解析対象のパッケージをまたいで解析情報を利用したい場合はFactという概念を利用してやり取りする</span>
+</span></span><span style="display:flex;"><span>    FactTypes []Fact
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h2 id="pass">Pass</h2>
 <ul>
@@ -358,26 +358,26 @@ https://speakerdeck.com/budougumi0617/how-to-create-the-static-analysis-tool-for
 <p>静的解析は実行時に受け取った解析対象のパッケージに対して<code>Analyzer</code>の<code>Run</code>メソッドを実行していく。
 <code>Run</code>メソッドの引数として解析対象パッケージの情報を持つのが<code>Pass</code>構造体だ。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> Pass <span style="color:#268bd2">struct</span> {
-</span></span><span style="display:flex;"><span>    Analyzer <span style="color:#719e07">*</span>Analyzer <span style="color:#586e75">// the identity of the current analyzer
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// 解析対象パッケージの静的解析用の情報
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    Fset       <span style="color:#719e07">*</span>token.FileSet <span style="color:#586e75">// file position information
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    Files      []<span style="color:#719e07">*</span>ast.File    <span style="color:#586e75">// the abstract syntax tree of each file
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    OtherFiles []<span style="color:#dc322f">string</span>       <span style="color:#586e75">// names of non-Go files of this package
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    Pkg        <span style="color:#719e07">*</span>types.Package <span style="color:#586e75">// type information about the package
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    TypesInfo  <span style="color:#719e07">*</span>types.Info    <span style="color:#586e75">// type information about the syntax trees
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    TypesSizes types.Sizes    <span style="color:#586e75">// function for computing sizes of types
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// 他のAnalyzerのReslutを利用したい場合はこの中から受け取る
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    ResultOf <span style="color:#268bd2">map</span>[<span style="color:#719e07">*</span>Analyzer]<span style="color:#268bd2">interface</span>{}
+</span></span><span style="display:flex;"><span>    Analyzer <span style="color:#719e07">*</span>Analyzer <span style="color:#586e75">// the identity of the current analyzer</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// Factをやりとりするときの関数
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    ImportObjectFact <span style="color:#268bd2">func</span>(obj types.Object, fact Fact) <span style="color:#dc322f">bool</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// 解析対象パッケージの静的解析用の情報</span>
+</span></span><span style="display:flex;"><span>    Fset       <span style="color:#719e07">*</span>token.FileSet <span style="color:#586e75">// file position information</span>
+</span></span><span style="display:flex;"><span>    Files      []<span style="color:#719e07">*</span>ast.File    <span style="color:#586e75">// the abstract syntax tree of each file</span>
+</span></span><span style="display:flex;"><span>    OtherFiles []<span style="color:#dc322f">string</span>       <span style="color:#586e75">// names of non-Go files of this package</span>
+</span></span><span style="display:flex;"><span>    Pkg        <span style="color:#719e07">*</span>types.Package <span style="color:#586e75">// type information about the package</span>
+</span></span><span style="display:flex;"><span>    TypesInfo  <span style="color:#719e07">*</span>types.Info    <span style="color:#586e75">// type information about the syntax trees</span>
+</span></span><span style="display:flex;"><span>    TypesSizes types.Sizes    <span style="color:#586e75">// function for computing sizes of types</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ...</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// 他のAnalyzerのReslutを利用したい場合はこの中から受け取る</span>
+</span></span><span style="display:flex;"><span>    ResultOf <span style="color:#268bd2">map</span>[<span style="color:#719e07">*</span>Analyzer]<span style="color:#268bd2">interface</span>{}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// Factをやりとりするときの関数</span>
+</span></span><span style="display:flex;"><span>    ImportObjectFact <span style="color:#268bd2">func</span>(obj types.Object, fact Fact) <span style="color:#dc322f">bool</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ...</span>
+</span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h2 id="静的解析中に利用するデータ概念">静的解析中に利用するデータ概念</h2>
 <p><code>Analyzer</code>や<code>Pass</code>の説明中に出てきた3種類のデータの概念が以下だ。</p>
 <ul>
@@ -441,11 +441,11 @@ https://speakerdeck.com/budougumi0617/how-to-create-the-static-analysis-tool-for
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">const</span> Doc = <span style="color:#2aa198">&#34;mylinter is ...&#34;</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">run</span>(pass <span style="color:#719e07">*</span>analysis.Pass) (<span style="color:#268bd2">interface</span>{}, <span style="color:#dc322f">error</span>) {
-</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// 省略
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// 省略</span>
+</span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>このまま<code>Analyzer</code>をコマンドとして実行したい場合は以下のような<code>cmd/main.go</code>ファイルを用意すればよいだろう。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// cmd/main.go
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// cmd/main.go</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">package</span> main
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
 </span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;github.com/budougumi0617/mylinter&#34;</span>
@@ -455,8 +455,8 @@ https://speakerdeck.com/budougumi0617/how-to-create-the-static-analysis-tool-for
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 </span></span><span style="display:flex;"><span>        multichecker.<span style="color:#268bd2">Main</span>(
-</span></span><span style="display:flex;"><span>                <span style="color:#586e75">// skeletonで生成したAnalyzerの初期コードの場合はinspect.Analyzerの結果に依存している
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>                inspect.Analyzer,
+</span></span><span style="display:flex;"><span>                <span style="color:#586e75">// skeletonで生成したAnalyzerの初期コードの場合はinspect.Analyzerの結果に依存している</span>
+</span></span><span style="display:flex;"><span>                inspect.Analyzer,
 </span></span><span style="display:flex;"><span>                mylinter.Analyzer,
 </span></span><span style="display:flex;"><span>        )
 </span></span><span style="display:flex;"><span>}
@@ -496,8 +496,8 @@ https://speakerdeck.com/budougumi0617/how-to-create-the-static-analysis-tool-for
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">run</span>(pass <span style="color:#719e07">*</span>analysis.Pass) (<span style="color:#268bd2">interface</span>{}, <span style="color:#dc322f">error</span>) {
 </span></span><span style="display:flex;"><span>        inspect <span style="color:#719e07">:=</span> pass.ResultOf[inspect.Analyzer].(<span style="color:#719e07">*</span>inspector.Inspector)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// 調べたいNodeの型でフィルタリングできる
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        nodeFilter <span style="color:#719e07">:=</span> []ast.Node{
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// 調べたいNodeの型でフィルタリングできる</span>
+</span></span><span style="display:flex;"><span>        nodeFilter <span style="color:#719e07">:=</span> []ast.Node{
 </span></span><span style="display:flex;"><span>                (<span style="color:#719e07">*</span>ast.Ident)(<span style="color:#cb4b16">nil</span>),
 </span></span><span style="display:flex;"><span>        }
 </span></span><span style="display:flex;"><span>
@@ -523,12 +523,12 @@ https://speakerdeck.com/budougumi0617/how-to-create-the-static-analysis-tool-for
 <p><code>analysistest</code>パッケージを使うと、簡単に<code>Analyzer</code>をテストすることができる。
 下記のように静的解析でエラーを出したいテスト用のサンプルコードを準備するだけだ。
 エラーを出したい行に対して、<code>// want </code>と始めて期待出力文字列をコメントしておくだけでよい。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// testdata/src/handler/h.go
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#719e07">package</span> handler
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// testdata/src/handler/h.go</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">package</span> handler
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
-</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;repository&#34;</span> <span style="color:#586e75">// want &#34;handler must not include \&#34;repository\&#34;&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        <span style="color:#2aa198">&#34;service&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;repository&#34;</span> <span style="color:#586e75">// want &#34;handler must not include \&#34;repository\&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;service&#34;</span>
 </span></span><span style="display:flex;"><span>)
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">...</span>
@@ -585,32 +585,32 @@ https://speakerdeck.com/budougumi0617/how-to-create-the-static-analysis-tool-for
 </span></span><span style="display:flex;"><span>    │   └── r.go
 </span></span><span style="display:flex;"><span>    └── service
 </span></span><span style="display:flex;"><span>        └── s.go
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// testdata/src/handler/h.go
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// testdata/src/handler/h.go</span>
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">package</span> handler
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
 </span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;encoding/json&#34;</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;net/http&#34;</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;repository&#34;</span> <span style="color:#586e75">// want &#34;handler must not include \&#34;repository\&#34;&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        <span style="color:#2aa198">&#34;service&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;repository&#34;</span> <span style="color:#586e75">// want &#34;handler must not include \&#34;repository\&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;service&#34;</span>
 </span></span><span style="display:flex;"><span>)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// Do anything...
-</span></span></span></code></pre></div><h2 id="フラグ">フラグ</h2>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Do anything...</span>
+</span></span></code></pre></div><h2 id="フラグ">フラグ</h2>
 <p>CLIツールの場合フラグ処理を入れたくなるのが常だ。<code>analysis</code>パッケージを使った実装した場合、実行時のフラグは<code>Analyzer.Flags</code>に入って渡ってくる。具体的な呼び出し方は
 <a href="https://tech.mercari.com/entry/2018/12/16/150000" target="_blank" rel="noopener">Mercariのブログ</a>を見るとよいだろう。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> Analyzer <span style="color:#268bd2">struct</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// Flags defines any flags accepted by the analyzer.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// The manner in which these flags are exposed to the user
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// depends on the driver which runs the analyzer.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    Flags flag.FlagSet
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ...</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// Flags defines any flags accepted by the analyzer.</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// The manner in which these flags are exposed to the user</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// depends on the driver which runs the analyzer.</span>
+</span></span><span style="display:flex;"><span>    Flags flag.FlagSet
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ...</span>
+</span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h2 id="既存linterツールの移行について">既存Linterツールの移行について</h2>
 <p>すでに<code>golang.org/x/tools/go/analysis</code>パッケージ以前の仕組みでLinterを作成していた方もいるだろう。
 既存Linterツールの移行(マイグレーション)については
@@ -825,11 +825,17 @@ https://speakerdeck.com/budougumi0617/how-to-create-the-static-analysis-tool-for
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -841,12 +847,6 @@ https://speakerdeck.com/budougumi0617/how-to-create-the-static-analysis-tool-for
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -201,12 +201,12 @@
 </ul>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>arr <span style="color:#719e07">:=</span> [<span style="color:#719e07">...</span>]<span style="color:#dc322f">int</span>{<span style="color:#2aa198">0</span>, <span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>, <span style="color:#2aa198">3</span>, <span style="color:#2aa198">4</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">6</span>, <span style="color:#2aa198">7</span>, <span style="color:#2aa198">8</span>, <span style="color:#2aa198">9</span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>s <span style="color:#719e07">:=</span> arr[<span style="color:#2aa198">2</span>:<span style="color:#2aa198">5</span>]           <span style="color:#586e75">// s = [2 3 4] cap(s) = 8
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>s = arr[<span style="color:#2aa198">2</span>:<span style="color:#2aa198">5</span>:<span style="color:#2aa198">7</span>]          <span style="color:#586e75">// s = [2 3 4] cap(s) = 5
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>s = arr[:<span style="color:#2aa198">0</span>]             <span style="color:#586e75">// s = []      cap(s) = 10
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>s = arr[:<span style="color:#2aa198">0</span>:<span style="color:#2aa198">7</span>]           <span style="color:#586e75">// s = []      cap(s) = 7
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>s = <span style="color:#b58900">make</span>([]<span style="color:#dc322f">int</span>, <span style="color:#2aa198">10</span>)[:<span style="color:#2aa198">5</span>] <span style="color:#586e75">// [0 0 0 0 0]  make ([]int, 5, 10)と同じ
-</span></span></span></code></pre></div><p>記事中のサンプルコードをまとめたplaygroundは以下。</p>
+</span></span><span style="display:flex;"><span>s <span style="color:#719e07">:=</span> arr[<span style="color:#2aa198">2</span>:<span style="color:#2aa198">5</span>]           <span style="color:#586e75">// s = [2 3 4] cap(s) = 8</span>
+</span></span><span style="display:flex;"><span>s = arr[<span style="color:#2aa198">2</span>:<span style="color:#2aa198">5</span>:<span style="color:#2aa198">7</span>]          <span style="color:#586e75">// s = [2 3 4] cap(s) = 5</span>
+</span></span><span style="display:flex;"><span>s = arr[:<span style="color:#2aa198">0</span>]             <span style="color:#586e75">// s = []      cap(s) = 10</span>
+</span></span><span style="display:flex;"><span>s = arr[:<span style="color:#2aa198">0</span>:<span style="color:#2aa198">7</span>]           <span style="color:#586e75">// s = []      cap(s) = 7</span>
+</span></span><span style="display:flex;"><span>s = <span style="color:#b58900">make</span>([]<span style="color:#dc322f">int</span>, <span style="color:#2aa198">10</span>)[:<span style="color:#2aa198">5</span>] <span style="color:#586e75">// [0 0 0 0 0]  make ([]int, 5, 10)と同じ</span>
+</span></span></code></pre></div><p>記事中のサンプルコードをまとめたplaygroundは以下。</p>
 <ul>
 <li>
 <a href="https://play.golang.org/p/rS6SU9m5v2F" target="_blank" rel="noopener">https://play.golang.org/p/rS6SU9m5v2F</a></li>
@@ -237,11 +237,11 @@
 <li>容量(<em>capacity</em>)。そのスライスの最大容量。<code>cap</code>関数で取得できる値</li>
 </ul>
 <p>まったく新しいスライスを宣言するときは<code>make</code>などを使う。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#b58900">make</span>([]<span style="color:#dc322f">int</span>, <span style="color:#2aa198">5</span>)       <span style="color:#586e75">// [0 0 0 0 0]
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#b58900">make</span>([]<span style="color:#dc322f">int</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">10</span>)   <span style="color:#586e75">// [0 0 0 0 0] あらかじめ容量が10ある
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>[]<span style="color:#dc322f">int</span>{}              <span style="color:#586e75">// [0 0 0 0 0]
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>[]<span style="color:#dc322f">int</span>{<span style="color:#2aa198">3</span>:<span style="color:#2aa198">2</span>, <span style="color:#2aa198">5</span>:<span style="color:#2aa198">1</span>}      <span style="color:#586e75">// [0 0 0 2 0 1]
-</span></span></span></code></pre></div><p>詳細はプログラミング言語Go 4.2スライスに記載されている（上記も大半が引用）。</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#b58900">make</span>([]<span style="color:#dc322f">int</span>, <span style="color:#2aa198">5</span>)       <span style="color:#586e75">// [0 0 0 0 0]</span>
+</span></span><span style="display:flex;"><span><span style="color:#b58900">make</span>([]<span style="color:#dc322f">int</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">10</span>)   <span style="color:#586e75">// [0 0 0 0 0] あらかじめ容量が10ある</span>
+</span></span><span style="display:flex;"><span>[]<span style="color:#dc322f">int</span>{}              <span style="color:#586e75">// [0 0 0 0 0]</span>
+</span></span><span style="display:flex;"><span>[]<span style="color:#dc322f">int</span>{<span style="color:#2aa198">3</span>:<span style="color:#2aa198">2</span>, <span style="color:#2aa198">5</span>:<span style="color:#2aa198">1</span>}      <span style="color:#586e75">// [0 0 0 2 0 1]</span>
+</span></span></code></pre></div><p>詳細はプログラミング言語Go 4.2スライスに記載されている（上記も大半が引用）。</p>
 <iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//rcm-fe.amazon-adsystem.com/e/cm?lt1=_blank&bc1=000000&IS2=1&bg1=FFFFFF&fc1=000000&lc1=0000FF&t=github.io-22&language=ja_JP&o=9&p=8&l=as4&m=amazon&f=ifr&ref=as_ss_li_til&asins=4621300253&linkId=d133cb0683bd924a3f87eb96c455af48"></iframe>
 <h1 id="スライス演算子slice-operator">スライス演算子(<em>slice operator)</em></h1>
 <p>そしてある配列（あるいは別のスライス）から新たなスライスを生成するのがスライス演算子(<em>slice operator</em>)だ。
@@ -257,10 +257,10 @@
 容量は基底配列（あるいは元のスライス）で決まるので、<code>基底配列の長さ - スライスの開始位置(len(arr) - low))</code>になる。</p>
 <h1 id="スライス演算子の省略記法">スライス演算子の省略記法</h1>
 <p>スライス演算子では<code>low</code>や<code>high</code>を明示的に書かずに省略することができる。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>a[<span style="color:#2aa198">2</span>:]  <span style="color:#586e75">// a[2 : len(a)] と書くのと同じ
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>a[:<span style="color:#2aa198">3</span>]  <span style="color:#586e75">// a[0 : 3] と書くのと同じ
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>a[:]   <span style="color:#586e75">// a[0 : len(a)] と書くのと同じ
-</span></span></span></code></pre></div><h1 id="3-index記法でスライス演算子利用時でも容量を指定する">3-INDEX記法でスライス演算子利用時でも容量を指定する</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>a[<span style="color:#2aa198">2</span>:]  <span style="color:#586e75">// a[2 : len(a)] と書くのと同じ</span>
+</span></span><span style="display:flex;"><span>a[:<span style="color:#2aa198">3</span>]  <span style="color:#586e75">// a[0 : 3] と書くのと同じ</span>
+</span></span><span style="display:flex;"><span>a[:]   <span style="color:#586e75">// a[0 : len(a)] と書くのと同じ</span>
+</span></span></code></pre></div><h1 id="3-index記法でスライス演算子利用時でも容量を指定する">3-INDEX記法でスライス演算子利用時でも容量を指定する</h1>
 <p>あまり見ない気がするが、3つインデックスを指定する方法も存在する。</p>
 <ul>
 <li>Three-index slices | Go 1.2 Release Notes
@@ -281,14 +281,14 @@ fmt.Println(&#34;cap =&#34;, cap(s)) // cap = 5
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>arr <span style="color:#719e07">:=</span> [<span style="color:#719e07">...</span>]<span style="color:#dc322f">int</span>{<span style="color:#2aa198">0</span>, <span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>, <span style="color:#2aa198">3</span>, <span style="color:#2aa198">4</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">6</span>, <span style="color:#2aa198">7</span>, <span style="color:#2aa198">8</span>, <span style="color:#2aa198">9</span>}
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>s = arr[:<span style="color:#2aa198">0</span>:<span style="color:#2aa198">7</span>]
-</span></span><span style="display:flex;"><span>fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;s =&#34;</span>, s)        <span style="color:#586e75">// s = []
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;len =&#34;</span>, <span style="color:#b58900">len</span>(s)) <span style="color:#586e75">// len = 0
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;cap =&#34;</span>, <span style="color:#b58900">cap</span>(s)) <span style="color:#586e75">// cap = 7
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// s = arr[::7]              // middle index required in 3-index slice
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// s = arr[:5:]              // final index required in 3-index slice
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// s = arr[5:7:5]            // invalid slice index: 7 &gt; 5
-</span></span></span></code></pre></div><h1 id="最後に">最後に</h1>
+</span></span><span style="display:flex;"><span>fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;s =&#34;</span>, s)        <span style="color:#586e75">// s = []</span>
+</span></span><span style="display:flex;"><span>fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;len =&#34;</span>, <span style="color:#b58900">len</span>(s)) <span style="color:#586e75">// len = 0</span>
+</span></span><span style="display:flex;"><span>fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;cap =&#34;</span>, <span style="color:#b58900">cap</span>(s)) <span style="color:#586e75">// cap = 7</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// s = arr[::7]              // middle index required in 3-index slice</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// s = arr[:5:]              // final index required in 3-index slice</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// s = arr[5:7:5]            // invalid slice index: 7 &gt; 5</span>
+</span></span></code></pre></div><h1 id="最後に">最後に</h1>
 <p>スライスの宣言について仕様を再確認していたら結構知らなかったことがあったので、まとめた。
 3-INDEX記法はいつから入ったんだ？と思ったが1.2からだったのでほぼ最初から入っていたのに使ったことがなかった。
 普段メモリアロケーションなど細部を気をつけてコーディングできていないので状況に応じては使えるようになった（そんな状況がいつあるか？はちょっと想像できていないが…）。
@@ -493,11 +493,17 @@ make([]int, 10)[:5]
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -509,12 +515,6 @@ make([]int, 10)[:5]
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

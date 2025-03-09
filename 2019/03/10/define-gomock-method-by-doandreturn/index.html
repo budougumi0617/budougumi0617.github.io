@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -248,24 +248,24 @@ gomockでモックメソッドの挙動を宣言するときのTipsをメモし�
 </span></span></code></pre></div><p>実際に生成されたモックコードの宣言の抜粋が以下のコードになる。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> mock
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// MockClient is a mock of Client interface
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> MockClient <span style="color:#268bd2">struct</span> {
-</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ...</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// NewMockClient creates a new mock instance
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewMockClient</span>(ctrl <span style="color:#719e07">*</span>gomock.Controller) <span style="color:#719e07">*</span>MockClient {
-</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// MockClient is a mock of Client interface</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> MockClient <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// ...</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// NewMockClient creates a new mock instance</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewMockClient</span>(ctrl <span style="color:#719e07">*</span>gomock.Controller) <span style="color:#719e07">*</span>MockClient {
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// ...</span>
+</span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h1 id="モックを使ってメソッドの戻り値を返す">モックを使ってメソッドの戻り値を返す</h1>
 <p><code>gomock</code>戻り値を返すメソッドのモックは次のように書く。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// モックオブジェクトを生成
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>m <span style="color:#719e07">:=</span> mock.<span style="color:#268bd2">NewMockClient</span>(gomock.<span style="color:#268bd2">NewController</span>(t)) <span style="color:#586e75">// t *testing.T)
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// Client.Methodメソッドの戻り値を定義する。mock.Any()を使って、引数の値は問わない。
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>m.<span style="color:#268bd2">EXPECT</span>().<span style="color:#268bd2">Method</span>(mock.<span style="color:#268bd2">Any</span>()).<span style="color:#268bd2">Return</span>(<span style="color:#2aa198">&#34;hoge&#34;</span>, <span style="color:#cb4b16">nil</span>)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// モックオブジェクトを生成</span>
+</span></span><span style="display:flex;"><span>m <span style="color:#719e07">:=</span> mock.<span style="color:#268bd2">NewMockClient</span>(gomock.<span style="color:#268bd2">NewController</span>(t)) <span style="color:#586e75">// t *testing.T)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Client.Methodメソッドの戻り値を定義する。mock.Any()を使って、引数の値は問わない。</span>
+</span></span><span style="display:flex;"><span>m.<span style="color:#268bd2">EXPECT</span>().<span style="color:#268bd2">Method</span>(mock.<span style="color:#268bd2">Any</span>()).<span style="color:#268bd2">Return</span>(<span style="color:#2aa198">&#34;hoge&#34;</span>, <span style="color:#cb4b16">nil</span>)
 </span></span></code></pre></div><h1 id="引数によってメソッドの戻り値が変わるようにする">引数によってメソッドの戻り値が変わるようにする</h1>
 <p>テストを書くときは大抵の場合、あるテスト対象の処理に対して複数のテストケースを書くことになる。そのとき、テストケース一つ一つでモックを再定義するのは面倒だ。ひとつのモック定義に対して挙動が異なるモックのロジックを仕込みたくなる。<br>
 ここで、渡ってくる引数によって条件を変えたい場合は<code>DoAndReturn</code>メソッドを使って定義する。<br>
@@ -280,8 +280,8 @@ gomockでモックメソッドの挙動を宣言するときのTipsをメモし�
 </span></span><span style="display:flex;"><span>	mc <span style="color:#719e07">:=</span> mock.<span style="color:#268bd2">NewMockClient</span>(ctrl)
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>	mc.<span style="color:#268bd2">EXPECT</span>().<span style="color:#268bd2">Method</span>(in).<span style="color:#268bd2">DoAndReturn</span>(
-</span></span><span style="display:flex;"><span>	  <span style="color:#586e75">// エラーを返すモックメソッドの実装
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>		<span style="color:#268bd2">func</span>(in <span style="color:#dc322f">string</span>) (<span style="color:#dc322f">string</span>, <span style="color:#dc322f">error</span>) {
+</span></span><span style="display:flex;"><span>	  <span style="color:#586e75">// エラーを返すモックメソッドの実装</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#268bd2">func</span>(in <span style="color:#dc322f">string</span>) (<span style="color:#dc322f">string</span>, <span style="color:#dc322f">error</span>) {
 </span></span><span style="display:flex;"><span>			<span style="color:#719e07">return</span> <span style="color:#2aa198">&#34;&#34;</span>, fmt.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;%s&#34;</span>, in)
 </span></span><span style="display:flex;"><span>		})
 </span></span><span style="display:flex;"><span>
@@ -309,8 +309,8 @@ gomockでモックメソッドの挙動を宣言するときのTipsをメモし�
 </span></span><span style="display:flex;"><span>				<span style="color:#719e07">return</span> <span style="color:#2aa198">&#34;!!!!!&#34;</span>, <span style="color:#cb4b16">nil</span>
 </span></span><span style="display:flex;"><span>			}
 </span></span><span style="display:flex;"><span>			<span style="color:#719e07">return</span> in, <span style="color:#cb4b16">nil</span>
-</span></span><span style="display:flex;"><span>		}).<span style="color:#268bd2">AnyTimes</span>() <span style="color:#586e75">// By default, method is called only once.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
+</span></span><span style="display:flex;"><span>		}).<span style="color:#268bd2">AnyTimes</span>() <span style="color:#586e75">// By default, method is called only once.</span>
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> _, err <span style="color:#719e07">:=</span> mc.<span style="color:#268bd2">Method</span>(errin); err <span style="color:#719e07">==</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>		t.<span style="color:#268bd2">Error</span>(<span style="color:#2aa198">&#34;cannot get error&#34;</span>)
 </span></span><span style="display:flex;"><span>	}
@@ -335,14 +335,14 @@ gomockでモックメソッドの挙動を宣言するときのTipsをメモし�
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestBySubTest</span>(t <span style="color:#719e07">*</span>testing.T) {
 </span></span><span style="display:flex;"><span>	tests <span style="color:#719e07">:=</span> []<span style="color:#268bd2">struct</span> {
 </span></span><span style="display:flex;"><span>		name <span style="color:#dc322f">string</span>
-</span></span><span style="display:flex;"><span>		<span style="color:#586e75">// Inject rule to mock.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>		setClient <span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>mock.MockClient, <span style="color:#dc322f">string</span>)
+</span></span><span style="display:flex;"><span>		<span style="color:#586e75">// Inject rule to mock.</span>
+</span></span><span style="display:flex;"><span>		setClient <span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>mock.MockClient, <span style="color:#dc322f">string</span>)
 </span></span><span style="display:flex;"><span>		in        <span style="color:#dc322f">string</span>
 </span></span><span style="display:flex;"><span>		want      <span style="color:#dc322f">string</span>
 </span></span><span style="display:flex;"><span>		wantErr   <span style="color:#dc322f">bool</span>
 </span></span><span style="display:flex;"><span>	}{
-</span></span><span style="display:flex;"><span>	  <span style="color:#586e75">// モックのセットアップ関数以外の初期化宣言は省略している
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>		{
+</span></span><span style="display:flex;"><span>	  <span style="color:#586e75">// モックのセットアップ関数以外の初期化宣言は省略している</span>
+</span></span><span style="display:flex;"><span>		{
 </span></span><span style="display:flex;"><span>			setClient: <span style="color:#268bd2">func</span>(mc <span style="color:#719e07">*</span>mock.MockClient, in <span style="color:#dc322f">string</span>) {
 </span></span><span style="display:flex;"><span>				mc.<span style="color:#268bd2">EXPECT</span>().<span style="color:#268bd2">Method</span>(in).<span style="color:#268bd2">Return</span>(<span style="color:#2aa198">&#34;hoge&#34;</span>, <span style="color:#cb4b16">nil</span>)
 </span></span><span style="display:flex;"><span>				mc.<span style="color:#268bd2">EXPECT</span>().<span style="color:#268bd2">Method</span>(in).<span style="color:#268bd2">Return</span>(<span style="color:#2aa198">&#34;bar&#34;</span>, <span style="color:#cb4b16">nil</span>)
@@ -373,8 +373,8 @@ gomockでモックメソッドの挙動を宣言するときのTipsをメモし�
 </span></span><span style="display:flex;"><span>			mc <span style="color:#719e07">:=</span> mock.<span style="color:#268bd2">NewMockClient</span>(ctrl)
 </span></span><span style="display:flex;"><span>			tt.<span style="color:#268bd2">setClient</span>(mc, tt.in)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>			<span style="color:#586e75">// テスト内容を書く。
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	}
+</span></span><span style="display:flex;"><span>			<span style="color:#586e75">// テスト内容を書く。</span>
+</span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h1 id="終わりに">終わりに</h1>
@@ -556,11 +556,17 @@ gomockでモックメソッドの挙動を宣言するときのTipsをメモし�
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -572,12 +578,6 @@ gomockでモックメソッドの挙動を宣言するときのTipsをメモし�
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

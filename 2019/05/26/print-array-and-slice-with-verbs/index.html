@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -220,8 +220,8 @@
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 </span></span><span style="display:flex;"><span>	h, p <span style="color:#719e07">:=</span> <span style="color:#2aa198">&#34;Hello&#34;</span>, <span style="color:#2aa198">&#34;playground&#34;</span>
-</span></span><span style="display:flex;"><span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s, %q\n&#34;</span>, h, p) <span style="color:#586e75">// Hello, &#34;playground&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span><span style="display:flex;"><span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s, %q\n&#34;</span>, h, p) <span style="color:#586e75">// Hello, &#34;playground&#34;</span>
+</span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>ここで、配列やスライスを出力したいときはどうするべきだろうか。
 私はいままで<code>%v</code>やループを回して出力することが多かった。</p>
 <p>
@@ -234,10 +234,10 @@
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 </span></span><span style="display:flex;"><span>	sa <span style="color:#719e07">:=</span> []<span style="color:#dc322f">string</span>{<span style="color:#2aa198">&#34;a&#34;</span>, <span style="color:#2aa198">&#34;bc&#34;</span>, <span style="color:#2aa198">&#34;def&#34;</span>}
-</span></span><span style="display:flex;"><span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%v\n&#34;</span>, sa)           <span style="color:#586e75">// [a bc def]
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#719e07">for</span> _, v <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> sa {
-</span></span><span style="display:flex;"><span>		fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s &#34;</span>, v)           <span style="color:#586e75">// a bc def
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	}
+</span></span><span style="display:flex;"><span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%v\n&#34;</span>, sa)           <span style="color:#586e75">// [a bc def]</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">for</span> _, v <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> sa {
+</span></span><span style="display:flex;"><span>		fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s &#34;</span>, v)           <span style="color:#586e75">// a bc def</span>
+</span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h1 id="プリミティブ型の配列スライスならばその配列スライスに対してその型に対応したヴァーブを使うことができる">プリミティブ型の配列・スライスならば、その配列・スライスに対してその型に対応したヴァーブを使うことができる</h1>
 <p>柴田さん(
@@ -255,12 +255,12 @@
 </span></span><span style="display:flex;"><span>	sa <span style="color:#719e07">:=</span> []<span style="color:#dc322f">string</span>{<span style="color:#2aa198">&#34;a&#34;</span>, <span style="color:#2aa198">&#34;bc&#34;</span>, <span style="color:#2aa198">&#34;def&#34;</span>}
 </span></span><span style="display:flex;"><span>	da <span style="color:#719e07">:=</span> []<span style="color:#dc322f">int</span>{<span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>, <span style="color:#2aa198">3</span>, <span style="color:#2aa198">4</span>}
 </span></span><span style="display:flex;"><span>	fa <span style="color:#719e07">:=</span> []<span style="color:#dc322f">float32</span>{<span style="color:#2aa198">1.23</span>, <span style="color:#2aa198">4.5678</span>}
-</span></span><span style="display:flex;"><span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s\n&#34;</span>, sa)           <span style="color:#586e75">// [a bc def]
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%q\n&#34;</span>, sa)           <span style="color:#586e75">// [&#34;a&#34; &#34;bc&#34; &#34;def&#34;]
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%d\n&#34;</span>, da)           <span style="color:#586e75">// [1 2 3 4]
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%f\n&#34;</span>, fa)           <span style="color:#586e75">// [1.230000 4.567800]
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%1.19f\n&#34;</span>, fa)       <span style="color:#586e75">// [1.2300000190734863281 4.5678000450134277344]
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span><span style="display:flex;"><span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%s\n&#34;</span>, sa)           <span style="color:#586e75">// [a bc def]</span>
+</span></span><span style="display:flex;"><span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%q\n&#34;</span>, sa)           <span style="color:#586e75">// [&#34;a&#34; &#34;bc&#34; &#34;def&#34;]</span>
+</span></span><span style="display:flex;"><span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%d\n&#34;</span>, da)           <span style="color:#586e75">// [1 2 3 4]</span>
+</span></span><span style="display:flex;"><span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%f\n&#34;</span>, fa)           <span style="color:#586e75">// [1.230000 4.567800]</span>
+</span></span><span style="display:flex;"><span>	fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;%1.19f\n&#34;</span>, fa)       <span style="color:#586e75">// [1.2300000190734863281 4.5678000450134277344]</span>
+</span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p><code>%1.19f</code>などの指定もきちんと反映されていることがわかる。
 わざわざループを回して表示を整えたりしていたこともあったが、こちらのほうがシンプルに出力できそうだ。</p>
 <h1 id="最後に">最後に</h1>
@@ -449,11 +449,17 @@
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -465,12 +471,6 @@
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

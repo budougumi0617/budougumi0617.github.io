@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -268,8 +268,8 @@ Middlewareを作成して、HTTPレスポンスをLoggerに出力するやり方
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">MultiWriter</span>(writers <span style="color:#719e07">...</span>Writer) Writer
 </span></span></code></pre></div><p><code>io.MultiWriter</code>関数の戻り値として得られる<code>io.Writer</code>オブジェクトは引数の<code>writers</code>の<code>io.Writer</code>オブジェクトに同じ内容を書き込む。
 これを使ってレスポンスとロガー（で記録するバッファ）に同じ内容を書き込むようなラッパー構造体を作成する。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// http.ResponseWriterインターフェースを満たすためにHeaderとWriteHeaderメソッドも実装する
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> rwWrapper <span style="color:#268bd2">struct</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// http.ResponseWriterインターフェースを満たすためにHeaderとWriteHeaderメソッドも実装する</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> rwWrapper <span style="color:#268bd2">struct</span> {
 </span></span><span style="display:flex;"><span>	rw http.ResponseWriter
 </span></span><span style="display:flex;"><span>	mw io.Writer
 </span></span><span style="display:flex;"><span>}
@@ -288,10 +288,10 @@ Middlewareを作成して、HTTPレスポンスをLoggerに出力するやり方
 レスポンスボディへの書き込みが行われるとき、<code>io.Writer</code>を使って<code>buf</code>オブジェクトにその内容を横流しする。</p>
 <p>あとは実際のハンドラーにわたす<code>http.ResponseWriter</code>オブジェクトをすげ替えるMiddlewareを作成する。
 実際のハンドラーの処理がおわったあとにバッファからレスポンスを読み出せばよい。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ロガーをDIしてmiddlewareを返す
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewLogger</span>(l <span style="color:#719e07">*</span>log.Logger) <span style="color:#268bd2">func</span>(http.Handler) http.Handler {
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// nextハンドラーのレスポンスをロガーに出力するmiddleware
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#719e07">return</span> <span style="color:#268bd2">func</span>(next http.Handler) http.Handler {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ロガーをDIしてmiddlewareを返す</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewLogger</span>(l <span style="color:#719e07">*</span>log.Logger) <span style="color:#268bd2">func</span>(http.Handler) http.Handler {
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// nextハンドラーのレスポンスをロガーに出力するmiddleware</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">return</span> <span style="color:#268bd2">func</span>(next http.Handler) http.Handler {
 </span></span><span style="display:flex;"><span>		<span style="color:#719e07">return</span> http.<span style="color:#268bd2">HandlerFunc</span>(<span style="color:#268bd2">func</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
 </span></span><span style="display:flex;"><span>			buf <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>bytes.Buffer{}
 </span></span><span style="display:flex;"><span>			rww <span style="color:#719e07">:=</span> <span style="color:#268bd2">NewRwWrapper</span>(w, buf)
@@ -380,14 +380,14 @@ Middlewareを作成して、HTTPレスポンスをLoggerに出力するやり方
 </span></span><span style="display:flex;"><span>		t.<span style="color:#268bd2">Fatal</span>(err)
 </span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// compare logging data and client received value.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	want, err <span style="color:#719e07">:=</span> ioutil.<span style="color:#268bd2">ReadAll</span>(resp.Body)
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// compare logging data and client received value.</span>
+</span></span><span style="display:flex;"><span>	want, err <span style="color:#719e07">:=</span> ioutil.<span style="color:#268bd2">ReadAll</span>(resp.Body)
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>		t.<span style="color:#268bd2">Fatal</span>(err)
 </span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>	_ = resp.Body.<span style="color:#268bd2">Close</span>()
-</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// \nが混ざっているので、完全一致にはならない
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#719e07">if</span> !strings.<span style="color:#268bd2">Contains</span>(buf.<span style="color:#268bd2">String</span>(), <span style="color:#b58900">string</span>(want)) {
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// \nが混ざっているので、完全一致にはならない</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> !strings.<span style="color:#268bd2">Contains</span>(buf.<span style="color:#268bd2">String</span>(), <span style="color:#b58900">string</span>(want)) {
 </span></span><span style="display:flex;"><span>		t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;want %q, but %q&#34;</span>, want, buf)
 </span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>}
@@ -582,11 +582,17 @@ Middlewareを作成して、HTTPレスポンスをLoggerに出力するやり方
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -598,12 +604,6 @@ Middlewareを作成して、HTTPレスポンスをLoggerに出力するやり方
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

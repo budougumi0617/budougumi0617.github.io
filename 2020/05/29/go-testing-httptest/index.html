@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -292,38 +292,38 @@ https://golang.org/pkg/net/http/httptest/
 <code>httptest.NewRecorder</code>は<code>http.ResponseWriter</code>を満たす<code>*httptest.ResponseRecorder</code>オブジェクトを取得できる。
 このオブジェクトを利用してHTTPハンドラーの戻り値を検証するテストコードを書ける。</p>
 <p>具体的には利用するときは次のようなテストコードになるだろう。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// テスト対象のHTTPハンドラー
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">myHandler</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// テスト対象のHTTPハンドラー</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">myHandler</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
 </span></span><span style="display:flex;"><span>  io.<span style="color:#268bd2">WriteString</span>(w, <span style="color:#2aa198">&#34;Hello from handler!\n&#34;</span>)
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestMyHandler</span>(t <span style="color:#719e07">*</span>testing.T) {
-</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// Arrange
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  reqBody <span style="color:#719e07">:=</span> bytes.<span style="color:#268bd2">NewBufferString</span>(<span style="color:#2aa198">&#34;request body&#34;</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// Arrange</span>
+</span></span><span style="display:flex;"><span>  reqBody <span style="color:#719e07">:=</span> bytes.<span style="color:#268bd2">NewBufferString</span>(<span style="color:#2aa198">&#34;request body&#34;</span>)
 </span></span><span style="display:flex;"><span>  req <span style="color:#719e07">:=</span> httptest.<span style="color:#268bd2">NewRequest</span>(http.MethodGet, <span style="color:#2aa198">&#34;http://dummy.url.com/user&#34;</span>, reqBody)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// 生成後は*http.Requestオブジェクトと同じように扱える
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  q <span style="color:#719e07">:=</span> req.URL.<span style="color:#268bd2">Query</span>()
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// 生成後は*http.Requestオブジェクトと同じように扱える</span>
+</span></span><span style="display:flex;"><span>  q <span style="color:#719e07">:=</span> req.URL.<span style="color:#268bd2">Query</span>()
 </span></span><span style="display:flex;"><span>  q.<span style="color:#268bd2">Add</span>(<span style="color:#2aa198">&#34;&#34;</span>, tt.args.code)
 </span></span><span style="display:flex;"><span>  req.URL.RawQuery = q.<span style="color:#268bd2">Encode</span>()
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// レスポンスを受け止める*httptest.ResponseRecorder
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  got <span style="color:#719e07">:=</span> httptest.<span style="color:#268bd2">NewRecorder</span>()
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// レスポンスを受け止める*httptest.ResponseRecorder</span>
+</span></span><span style="display:flex;"><span>  got <span style="color:#719e07">:=</span> httptest.<span style="color:#268bd2">NewRecorder</span>()
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// Act
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  <span style="color:#268bd2">myHandler</span>(got, req)
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// Act</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">myHandler</span>(got, req)
 </span></span><span style="display:flex;"><span>  
-</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// Assertion
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  <span style="color:#586e75">// http.Clientなどで受け取ったhttp.Responseを検証するときとほぼ変わらない
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  <span style="color:#719e07">if</span> got.Code <span style="color:#719e07">!=</span> http.StatusOk {
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// Assertion</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// http.Clientなどで受け取ったhttp.Responseを検証するときとほぼ変わらない</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">if</span> got.Code <span style="color:#719e07">!=</span> http.StatusOk {
 </span></span><span style="display:flex;"><span>      t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;want %d, but %d&#34;</span>, tt.wantStatus, got.Code)
 </span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// Bodyは*bytes.Buffer型なので文字列の比較は少しラク
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  <span style="color:#719e07">if</span> got <span style="color:#719e07">:=</span> got.Body.<span style="color:#268bd2">String</span>(); got <span style="color:#719e07">!=</span> tt.wantBody {
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// Bodyは*bytes.Buffer型なので文字列の比較は少しラク</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">if</span> got <span style="color:#719e07">:=</span> got.Body.<span style="color:#268bd2">String</span>(); got <span style="color:#719e07">!=</span> tt.wantBody {
 </span></span><span style="display:flex;"><span>    t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;want %s, but %s&#34;</span>, tt.wantBody, got)
 </span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// http.Responseオブジェクトとしても比較できる。
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  <span style="color:#719e07">if</span> resp <span style="color:#719e07">:=</span> got.<span style="color:#268bd2">Result</span>().<span style="color:#268bd2">Cookies</span>(); resp.ContentLength <span style="color:#719e07">==</span> <span style="color:#2aa198">0</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// http.Responseオブジェクトとしても比較できる。</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">if</span> resp <span style="color:#719e07">:=</span> got.<span style="color:#268bd2">Result</span>().<span style="color:#268bd2">Cookies</span>(); resp.ContentLength <span style="color:#719e07">==</span> <span style="color:#2aa198">0</span> {
 </span></span><span style="display:flex;"><span>    t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;resp.ContentLength was 0&#34;</span>)
 </span></span><span style="display:flex;"><span>  }
 </span></span><span style="display:flex;"><span>}
@@ -354,13 +354,13 @@ https://golang.org/pkg/net/http/httptest/
 </ul>
 <p>コレを使ってHTTPクライアントのテストを書くと、goroutineを意識せずにシンプルなテストコードを書くことができる。</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestClient</span>(t <span style="color:#719e07">*</span>testing.T) {
-</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// Arrange
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  <span style="color:#586e75">// ServeMuxオブジェクトなどを用意してルーティングしてもよい
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  h <span style="color:#719e07">:=</span> http.<span style="color:#268bd2">HandlerFunc</span>(<span style="color:#268bd2">func</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// Arrange</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// ServeMuxオブジェクトなどを用意してルーティングしてもよい</span>
+</span></span><span style="display:flex;"><span>  h <span style="color:#719e07">:=</span> http.<span style="color:#268bd2">HandlerFunc</span>(<span style="color:#268bd2">func</span>(w http.ResponseWriter, r <span style="color:#719e07">*</span>http.Request) {
 </span></span><span style="display:flex;"><span>    fmt.<span style="color:#268bd2">Fprintln</span>(w, <span style="color:#2aa198">&#34;Hello, client&#34;</span>)
 </span></span><span style="display:flex;"><span>  })
-</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// 別goroutine上でリッスンが開始される
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  ts <span style="color:#719e07">:=</span> httptest.<span style="color:#268bd2">NewServer</span>(h)
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// 別goroutine上でリッスンが開始される</span>
+</span></span><span style="display:flex;"><span>  ts <span style="color:#719e07">:=</span> httptest.<span style="color:#268bd2">NewServer</span>(h)
 </span></span><span style="display:flex;"><span>  <span style="color:#719e07">defer</span> ts.<span style="color:#268bd2">Close</span>()
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>  cli <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>http.Client{}
@@ -369,14 +369,14 @@ https://golang.org/pkg/net/http/httptest/
 </span></span><span style="display:flex;"><span>    t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;NewRequest failed: %v&#34;</span>, err)
 </span></span><span style="display:flex;"><span>  }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// Act
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  resp, err <span style="color:#719e07">:=</span> cli.<span style="color:#268bd2">Do</span>(req)
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// Act</span>
+</span></span><span style="display:flex;"><span>  resp, err <span style="color:#719e07">:=</span> cli.<span style="color:#268bd2">Do</span>(req)
 </span></span><span style="display:flex;"><span>  <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>    t.<span style="color:#268bd2">Fatal</span>(err)
 </span></span><span style="display:flex;"><span>  }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// Assertion
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  got, err <span style="color:#719e07">:=</span> ioutil.<span style="color:#268bd2">ReadAll</span>(resp.Body)
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// Assertion</span>
+</span></span><span style="display:flex;"><span>  got, err <span style="color:#719e07">:=</span> ioutil.<span style="color:#268bd2">ReadAll</span>(resp.Body)
 </span></span><span style="display:flex;"><span>  <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>    t.<span style="color:#268bd2">Fatal</span>(err)
 </span></span><span style="display:flex;"><span>  }
@@ -587,11 +587,17 @@ https://golang.org/pkg/net/http/httptest/
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -603,12 +609,6 @@ https://golang.org/pkg/net/http/httptest/
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

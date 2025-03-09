@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -224,8 +224,7 @@ interfaceがそのような型（フィールドにそのような型を持っ�
 </li>
 </ul>
 <blockquote>
-<p>Slice, map, and function values are not comparable. However, as a special case, a slice, map, or function value may be compared to the predeclared identifier nil. Comparison of pointer, channel, and interface values to nil is also allowed and follows from the general rules above.</p>
-</blockquote>
+<p>Slice, map, and function values are not comparable. However, as a special case, a slice, map, or function value may be compared to the predeclared identifier nil. Comparison of pointer, channel, and interface values to nil is also allowed and follows from the general rules above.</p></blockquote>
 <p>上記の通り、<code>not comparable</code>な値とはSliceや<code>Map</code>、<code>function</code>への値のことを指す。</p>
 <h1 id="comparableではない値を指すインターフェースに等価演算子を使うとruntime-errorが発生する"><code>comparable</code>ではない値を指すインターフェースに等価演算子を使うと<code>runtime error</code>が発生する</h1>
 <p>この<code>comparable</code>性については構造体にも影響する。
@@ -239,23 +238,22 @@ interfaceがそのような型（フィールドにそのような型を持っ�
 </span></span><span style="display:flex;"><span> 	},
 </span></span><span style="display:flex;"><span> }
 </span></span><span style="display:flex;"><span> 
-</span></span><span style="display:flex;"><span> <span style="color:#586e75">// invalid operation: a1 == a1 (struct containing []string cannot be compared)
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span> <span style="color:#719e07">if</span> a1 <span style="color:#719e07">==</span> a1 {
+</span></span><span style="display:flex;"><span> <span style="color:#586e75">// invalid operation: a1 == a1 (struct containing []string cannot be compared)</span>
+</span></span><span style="display:flex;"><span> <span style="color:#719e07">if</span> a1 <span style="color:#719e07">==</span> a1 {
 </span></span><span style="display:flex;"><span> 	fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Same article&#34;</span>)
 </span></span><span style="display:flex;"><span> }
 </span></span></code></pre></div><p>問題は<code>interface</code>でそのような構造体を指していたときだ。<br>
 <code>not comparable</code>な値を指した状態の<code>interface</code>値を等価演算子で比較すると、<code>runtime error</code>が発生する旨が仕様に記載されている（記載場所は上記リンクと同じ）。</p>
 <blockquote>
-<p>A comparison of two interface values with identical dynamic types causes a run-time panic if values of that type are not comparable. This behavior applies not only to direct interface value comparisons but also when comparing arrays of interface values or structs with interface-valued fields.</p>
-</blockquote>
+<p>A comparison of two interface values with identical dynamic types causes a run-time panic if values of that type are not comparable. This behavior applies not only to direct interface value comparisons but also when comparing arrays of interface values or structs with interface-valued fields.</p></blockquote>
 <p>下記のサンプルコードは<code>interface</code>を介して<code>[]string</code>を内包する構造体を比較してしまう。
 そのため、ビルドには成功するが、実行時に<code>runtime error</code>が発生する。</p>
 <ul>
 <li>
 <a href="https://play.golang.org/p/FO_vwjsT7TY" target="_blank" rel="noopener">https://play.golang.org/p/FO_vwjsT7TY</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://play.golang.org/p/FO_vwjsT7TY
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://play.golang.org/p/FO_vwjsT7TY</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">package</span> main
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
 </span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;fmt&#34;</span>
@@ -282,8 +280,8 @@ interfaceがそのような型（フィールドにそのような型を持っ�
 </span></span><span style="display:flex;"><span>			<span style="color:#2aa198">&#34;slice&#34;</span>,
 </span></span><span style="display:flex;"><span>		},
 </span></span><span style="display:flex;"><span>	}
-</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// panic: runtime error: comparing uncomparable type main.Article
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#719e07">if</span> a1 <span style="color:#719e07">==</span> a2 {
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// panic: runtime error: comparing uncomparable type main.Article</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> a1 <span style="color:#719e07">==</span> a2 {
 </span></span><span style="display:flex;"><span>		fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Same article&#34;</span>)
 </span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>}
@@ -296,8 +294,8 @@ interfaceがそのような型（フィールドにそのような型を持っ�
 <li>
 <a href="https://play.golang.org/p/6RGzUoPFrjW" target="_blank" rel="noopener">https://play.golang.org/p/6RGzUoPFrjW</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://play.golang.org/p/6RGzUoPFrjW
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://play.golang.org/p/6RGzUoPFrjW</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">package</span> main
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
 </span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;fmt&#34;</span>
@@ -338,12 +336,12 @@ interfaceがそのような型（フィールドにそのような型を持っ�
 <p>業務で実際に<code>runtime error</code>が発生する可能性があったので、どうしたら回避できるのか調べたのが今回の記事になる。<br>
 「そういえば<code>pkg/errors</code>はSliceで<code>StackFrame</code>持っているはずだけど同じエラーが発生しないな？」と調べたらポインタを使っていた。<br>
 著名なOSSのコードはやはり勉強になるので使うだけでなくちゃんと読んでみないとなと改めて思った。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://github.com/pkg/errors/blob/27936f6d90f9c8e1145f11ed52ffffbfdb9e0af7/errors.go#L119-L123
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// fundamental is an error that has a message and a stack, but no caller.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> fundamental <span style="color:#268bd2">struct</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://github.com/pkg/errors/blob/27936f6d90f9c8e1145f11ed52ffffbfdb9e0af7/errors.go#L119-L123</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// fundamental is an error that has a message and a stack, but no caller.</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> fundamental <span style="color:#268bd2">struct</span> {
 </span></span><span style="display:flex;"><span>	msg <span style="color:#dc322f">string</span>
-</span></span><span style="display:flex;"><span>	<span style="color:#719e07">*</span>stack <span style="color:#586e75">// type stack []uintptr
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">*</span>stack <span style="color:#586e75">// type stack []uintptr</span>
+</span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/pkg/errors" data-iframely-url="//cdn.iframe.ly/awcJrVL"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
 <h1 id="追記">追記</h1>
 <p>比較する2つのオブジェクトが違う型ならば<code>runtime error</code>が発生するnot comparableなフィールドを触る前に比較が終わるので<code>runtime error</code>は発生しない。
@@ -353,8 +351,8 @@ interfaceがそのような型（フィールドにそのような型を持っ�
 <li>
 <a href="https://play.golang.org/p/Ygi0f5GQIV3" target="_blank" rel="noopener">https://play.golang.org/p/Ygi0f5GQIV3</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://play.golang.org/p/Ygi0f5GQIV3
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// https://play.golang.org/p/Ygi0f5GQIV3</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">package</span> main
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
 </span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;fmt&#34;</span>
@@ -372,8 +370,8 @@ interfaceがそのような型（フィールドにそのような型を持っ�
 </span></span><span style="display:flex;"><span>		<span style="color:#2aa198">&#34;go&#34;</span>,
 </span></span><span style="display:flex;"><span>		<span style="color:#2aa198">&#34;slice&#34;</span>,
 </span></span><span style="display:flex;"><span>	}
-</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// not runtime error, even if each type are not comparable, because a, b are different type.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#719e07">if</span> a <span style="color:#719e07">!=</span> b {
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// not runtime error, even if each type are not comparable, because a, b are different type.</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> a <span style="color:#719e07">!=</span> b {
 </span></span><span style="display:flex;"><span>		fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;different object&#34;</span>)
 </span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>}
@@ -554,11 +552,17 @@ interfaceがそのような型（フィールドにそのような型を持っ�
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -570,12 +574,6 @@ interfaceがそのような型（フィールドにそのような型を持っ�
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

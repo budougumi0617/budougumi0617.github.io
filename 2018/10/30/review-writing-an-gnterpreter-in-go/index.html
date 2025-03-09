@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -271,20 +271,20 @@ Go言語でつくるインタプリタを読んだのでメモ。
 </ul>
 <h2 id="終始動くものを小さく作るを一貫して最後まで続ける">終始「動くものを小さく作る」を一貫して最後まで続ける</h2>
 <p>本書のインタプリタではASTのノードを全て<code>Node</code>インターフェースで表現する。与えられたテキストは自作する字句解析器によって<code>Token</code>に分解されたあと、<code>Statement</code>あるいは<code>Expression</code>インタフェースを満たす<code>Node</code>の派生オブジェクトとしてパースされていく。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// Node is base of AST.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> Node <span style="color:#268bd2">interface</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// Node is base of AST.</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> Node <span style="color:#268bd2">interface</span> {
 </span></span><span style="display:flex;"><span>	<span style="color:#268bd2">TokenLiteral</span>() <span style="color:#dc322f">string</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#268bd2">String</span>() <span style="color:#dc322f">string</span>
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// Statement is base statement.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> Statement <span style="color:#268bd2">interface</span> {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Statement is base statement.</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> Statement <span style="color:#268bd2">interface</span> {
 </span></span><span style="display:flex;"><span>	Node
 </span></span><span style="display:flex;"><span>	<span style="color:#268bd2">statementNode</span>()
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// Expression is base expression.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> Expression <span style="color:#268bd2">interface</span> {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// Expression is base expression.</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> Expression <span style="color:#268bd2">interface</span> {
 </span></span><span style="display:flex;"><span>	Node
 </span></span><span style="display:flex;"><span>	<span style="color:#268bd2">expressionNode</span>()
 </span></span><span style="display:flex;"><span>}
@@ -317,12 +317,12 @@ Go言語でつくるインタプリタを読んだのでメモ。
 </span></span><span style="display:flex;"><span>		{<span style="color:#2aa198">&#34;foobar / barfoo;&#34;</span>, <span style="color:#2aa198">&#34;foobar&#34;</span>, <span style="color:#2aa198">&#34;/&#34;</span>, <span style="color:#2aa198">&#34;barfoo&#34;</span>},
 </span></span><span style="display:flex;"><span>		{<span style="color:#2aa198">&#34;foobar &gt; barfoo;&#34;</span>, <span style="color:#2aa198">&#34;foobar&#34;</span>, <span style="color:#2aa198">&#34;&gt;&#34;</span>, <span style="color:#2aa198">&#34;barfoo&#34;</span>},
 </span></span><span style="display:flex;"><span>		{<span style="color:#2aa198">&#34;foobar &lt; barfoo;&#34;</span>, <span style="color:#2aa198">&#34;foobar&#34;</span>, <span style="color:#2aa198">&#34;&lt;&#34;</span>, <span style="color:#2aa198">&#34;barfoo&#34;</span>},
-</span></span><span style="display:flex;"><span><span style="color:#586e75">//	{&#34;foobar == barfoo;&#34;, &#34;foobar&#34;, &#34;==&#34;, &#34;barfoo&#34;},
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">//	{&#34;foobar != barfoo;&#34;, &#34;foobar&#34;, &#34;!=&#34;, &#34;barfoo&#34;},
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">//	{&#34;true == true&#34;, true, &#34;==&#34;, true},
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">//  {&#34;true != false&#34;, true, &#34;!=&#34;, false},
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">//  {&#34;false == false&#34;, false, &#34;==&#34;, false},
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	}
+</span></span><span style="display:flex;"><span><span style="color:#586e75">//	{&#34;foobar == barfoo;&#34;, &#34;foobar&#34;, &#34;==&#34;, &#34;barfoo&#34;},</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">//	{&#34;foobar != barfoo;&#34;, &#34;foobar&#34;, &#34;!=&#34;, &#34;barfoo&#34;},</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">//	{&#34;true == true&#34;, true, &#34;==&#34;, true},</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">//  {&#34;true != false&#34;, true, &#34;!=&#34;, false},</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">//  {&#34;false == false&#34;, false, &#34;==&#34;, false},</span>
+</span></span><span style="display:flex;"><span>	}
 </span></span></code></pre></div><p>テストを回しながらリグレッションテストを繰り返すだけで「実装の完了」を明確に確認できる。「デグレなく実装できたか」、「今どこまで実装できているのか（どの構文まで対応できているのか）」を確かめながら新たな実装に進むことができるので、テスト駆動開発の強さを体感しながら読み進めることができた。「課題」として取り組みたい人はテストケースを実装したところで本を閉じ、自分で考えて実装するという進め方もできるだろう。</p>
 <ul>
 <li>TableDrivenTests
@@ -529,11 +529,17 @@ Go言語でつくるインタプリタを読んだのでメモ。
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -545,12 +551,6 @@ Go言語でつくるインタプリタを読んだのでメモ。
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

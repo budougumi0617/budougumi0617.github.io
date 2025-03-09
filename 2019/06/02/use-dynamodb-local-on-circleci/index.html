@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -255,9 +255,9 @@ DynamoDBクローンのDockerイメージがあるとのことだったので、
 </ul>
 <p>Goで書かれたテストコードはこちら。テスト対象のコードを実行する前にDynamo DB上にテーブルを作成、作成したテーブルにアイテムを保存しておく。<br>
 また、呼び出しているテスト対象のコード自体はDynamoDB上からアイテムを取得するコードだ。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// コード全体はこちら
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// https://github.com/budougumi0617/lambda-go-dynamodb-local/blob/add-circleci/user/main_test.go
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// コード全体はこちら</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// https://github.com/budougumi0617/lambda-go-dynamodb-local/blob/add-circleci/user/main_test.go</span>
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestGetUser</span>(t <span style="color:#719e07">*</span>testing.T) {
 </span></span><span style="display:flex;"><span>	ep <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;DYNAMODB_ENDPOINT&#34;</span>)
 </span></span><span style="display:flex;"><span>	r <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;AWS_REGION&#34;</span>)
@@ -296,17 +296,17 @@ DynamoDBクローンのDockerイメージがあるとのことだったので、
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">createTestData</span>(db <span style="color:#719e07">*</span>dynamodb.DynamoDB, tn <span style="color:#dc322f">string</span>) <span style="color:#dc322f">error</span> {
 </span></span><span style="display:flex;"><span>	input <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>dynamodb.CreateTableInput{
-</span></span><span style="display:flex;"><span>		<span style="color:#586e75">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	}
+</span></span><span style="display:flex;"><span>		<span style="color:#586e75">// ...</span>
+</span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> _, err <span style="color:#719e07">:=</span> db.<span style="color:#268bd2">CreateTable</span>(input); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>		<span style="color:#719e07">return</span> err
 </span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// PutItem
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	putParams <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>dynamodb.PutItemInput{
-</span></span><span style="display:flex;"><span>		<span style="color:#586e75">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// PutItem</span>
+</span></span><span style="display:flex;"><span>	putParams <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>dynamodb.PutItemInput{
+</span></span><span style="display:flex;"><span>		<span style="color:#586e75">// ...</span>
+</span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> _, err <span style="color:#719e07">:=</span> db.<span style="color:#268bd2">PutItem</span>(putParams); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>		<span style="color:#719e07">return</span> err
@@ -393,12 +393,12 @@ $ DYNAMODB_ENDPOINT=&#34;http://localhost:18000&#34; go test ./...
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">              echo -n .
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">              sleep 1
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            done
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            echo Failed waiting for DyanmoDB Local &amp;&amp; exit 1</span>            
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            echo Failed waiting for DyanmoDB Local &amp;&amp; exit 1</span>
 </span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">run</span>:
 </span></span><span style="display:flex;"><span>          <span style="color:#268bd2">name</span>: Run all unit tests
 </span></span><span style="display:flex;"><span>          <span style="color:#268bd2">command</span>: |<span style="color:#2aa198">
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            trap &#34;go-junit-report &lt;${TEST_RESULTS}/go-test.out &gt; ${TEST_RESULTS}/go-test-report.xml&#34; EXIT
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            go test ./... | tee ${TEST_RESULTS}/go-test.out</span>            
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            go test ./... | tee ${TEST_RESULTS}/go-test.out</span>
 </span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">store_artifacts</span>:
 </span></span><span style="display:flex;"><span>          <span style="color:#268bd2">path</span>: /tmp/test-results
 </span></span><span style="display:flex;"><span>          <span style="color:#268bd2">destination</span>: raw-test-output
@@ -437,7 +437,7 @@ $ DYNAMODB_ENDPOINT=&#34;http://localhost:18000&#34; go test ./...
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">              echo -n .
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">              sleep 1
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            done
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            echo Failed waiting for DyanmoDB Local &amp;&amp; exit 1</span>            
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            echo Failed waiting for DyanmoDB Local &amp;&amp; exit 1</span>
 </span></span></code></pre></div><p>以上の設定を行えば、CircleCI上でDynamoDBを利用したテストを実行できる。</p>
 <ul>
 <li>
@@ -639,11 +639,17 @@ LambdaとDynamoDBの組み合わせは料金もほぼかからない組み合わ
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -655,12 +661,6 @@ LambdaとDynamoDBの組み合わせは料金もほぼかからない組み合わ
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

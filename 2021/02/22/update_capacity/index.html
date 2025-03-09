@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -229,8 +229,8 @@
 Go1.15以前の<code>io/ioutil#ReadAll</code>関数は<code>bytes</code>パッケージに依存していたが、<code>bytes</code>パッケージは<code>io</code>パッケージを<code>import</code>しており循環参照になるため利用できないからだ。</p>
 <p>
 <a href="https://github.com/golang/go/blob/go1.16/src/bytes/buffer.go#L9-L13" target="_blank" rel="noopener">https://github.com/golang/go/blob/go1.16/src/bytes/buffer.go#L9-L13</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// bytes/buffer.go の冒頭
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#719e07">import</span> (
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// bytes/buffer.go の冒頭</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
 </span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;errors&#34;</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;io&#34;</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;unicode/utf8&#34;</span>
@@ -245,16 +245,16 @@ Go1.15以前の<code>io/ioutil#ReadAll</code>関数は<code>bytes</code>パッ�
 <p>該当コードはこちら。</p>
 <p>
 <a href="https://github.com/golang/go/blob/go1.16/src/io/io.go#L622-L642" target="_blank" rel="noopener">https://github.com/golang/go/blob/go1.16/src/io/io.go#L622-L642</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ReadAll reads from r until an error or EOF and returns the data it read.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// A successful call returns err == nil, not err == EOF. Because ReadAll is
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// defined to read from src until EOF, it does not treat an EOF from Read
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// as an error to be reported.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">ReadAll</span>(r Reader) ([]<span style="color:#dc322f">byte</span>, <span style="color:#dc322f">error</span>) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ReadAll reads from r until an error or EOF and returns the data it read.</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// A successful call returns err == nil, not err == EOF. Because ReadAll is</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// defined to read from src until EOF, it does not treat an EOF from Read</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// as an error to be reported.</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">ReadAll</span>(r Reader) ([]<span style="color:#dc322f">byte</span>, <span style="color:#dc322f">error</span>) {
 </span></span><span style="display:flex;"><span>	b <span style="color:#719e07">:=</span> <span style="color:#b58900">make</span>([]<span style="color:#dc322f">byte</span>, <span style="color:#2aa198">0</span>, <span style="color:#2aa198">512</span>)
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">for</span> {
 </span></span><span style="display:flex;"><span>		<span style="color:#719e07">if</span> <span style="color:#b58900">len</span>(b) <span style="color:#719e07">==</span> <span style="color:#b58900">cap</span>(b) {
-</span></span><span style="display:flex;"><span>			<span style="color:#586e75">// Add more capacity (let append pick how much).
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>			b = <span style="color:#b58900">append</span>(b, <span style="color:#2aa198">0</span>)[:<span style="color:#b58900">len</span>(b)]
+</span></span><span style="display:flex;"><span>			<span style="color:#586e75">// Add more capacity (let append pick how much).</span>
+</span></span><span style="display:flex;"><span>			b = <span style="color:#b58900">append</span>(b, <span style="color:#2aa198">0</span>)[:<span style="color:#b58900">len</span>(b)]
 </span></span><span style="display:flex;"><span>		}
 </span></span><span style="display:flex;"><span>		n, err <span style="color:#719e07">:=</span> r.<span style="color:#268bd2">Read</span>(b[<span style="color:#b58900">len</span>(b):<span style="color:#b58900">cap</span>(b)])
 </span></span><span style="display:flex;"><span>		b = b[:<span style="color:#b58900">len</span>(b)<span style="color:#719e07">+</span>n]
@@ -483,11 +483,17 @@ Go1.15以前の<code>io/ioutil#ReadAll</code>関数は<code>bytes</code>パッ�
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -499,12 +505,6 @@ Go1.15以前の<code>io/ioutil#ReadAll</code>関数は<code>bytes</code>パッ�
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

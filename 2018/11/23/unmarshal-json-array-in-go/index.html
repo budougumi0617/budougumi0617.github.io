@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -223,23 +223,23 @@
 </span></span><span style="display:flex;"><span>	<span style="color:#2aa198">&#34;testing&#34;</span>
 </span></span><span style="display:flex;"><span>)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// TotalsArray defined for totals array
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> TotalsArray <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// TotalsArray defined for totals array</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> TotalsArray <span style="color:#268bd2">struct</span> {
 </span></span><span style="display:flex;"><span>	Files         <span style="color:#dc322f">int</span>
 </span></span><span style="display:flex;"><span>	CoverageRatio <span style="color:#dc322f">string</span>
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// UnmarshalJSON 独自定義したUnmarshal方法でUnmarshal時の動きを変える
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (ta <span style="color:#719e07">*</span>TotalsArray) <span style="color:#268bd2">UnmarshalJSON</span>(data []<span style="color:#dc322f">byte</span>) <span style="color:#dc322f">error</span> {
-</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// まず引数のdataとして渡ってきたJSONから`[]interface{}`を取得する
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#268bd2">var</span> row []<span style="color:#268bd2">interface</span>{}
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// UnmarshalJSON 独自定義したUnmarshal方法でUnmarshal時の動きを変える</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (ta <span style="color:#719e07">*</span>TotalsArray) <span style="color:#268bd2">UnmarshalJSON</span>(data []<span style="color:#dc322f">byte</span>) <span style="color:#dc322f">error</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// まず引数のdataとして渡ってきたJSONから`[]interface{}`を取得する</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#268bd2">var</span> row []<span style="color:#268bd2">interface</span>{}
 </span></span><span style="display:flex;"><span>	err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmarshal</span>(data, <span style="color:#719e07">&amp;</span>row)
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>		<span style="color:#719e07">return</span> err
 </span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// 決め打ちで型キャストして取得した情報で構造体の初期化を行なっていく。
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	f, ok <span style="color:#719e07">:=</span> row[<span style="color:#2aa198">0</span>].(<span style="color:#dc322f">float64</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// 決め打ちで型キャストして取得した情報で構造体の初期化を行なっていく。</span>
+</span></span><span style="display:flex;"><span>	f, ok <span style="color:#719e07">:=</span> row[<span style="color:#2aa198">0</span>].(<span style="color:#dc322f">float64</span>)
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> !ok {
 </span></span><span style="display:flex;"><span>		<span style="color:#719e07">return</span> errors.<span style="color:#268bd2">New</span>(<span style="color:#2aa198">&#34;failed type cast f&#34;</span>)
 </span></span><span style="display:flex;"><span>	}
@@ -251,14 +251,14 @@
 </span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>	ta.CoverageRatio = c
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// 他のフィールドは省略
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// 他のフィールドは省略</span>
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">TestTotalsArray_UnmarshalJSON</span>(t <span style="color:#719e07">*</span>testing.T) {
-</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// 複数型が混じった配列を含むJSON配列。Keyがないので個別にUnmarshalできない
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	jsondata <span style="color:#719e07">:=</span> <span style="color:#2aa198">`
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// 複数型が混じった配列を含むJSON配列。Keyがないので個別にUnmarshalできない</span>
+</span></span><span style="display:flex;"><span>	jsondata <span style="color:#719e07">:=</span> <span style="color:#2aa198">`
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">{
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  &#34;totals&#34;: [
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    1,
@@ -268,19 +268,19 @@
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    4
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  ]
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">}`</span>
-</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// 期待するUnmarshal後の構造体の状態
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	want <span style="color:#719e07">:=</span> TotalsArray{
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// 期待するUnmarshal後の構造体の状態</span>
+</span></span><span style="display:flex;"><span>	want <span style="color:#719e07">:=</span> TotalsArray{
 </span></span><span style="display:flex;"><span>		Files:         <span style="color:#2aa198">1</span>,
 </span></span><span style="display:flex;"><span>		CoverageRatio: <span style="color:#2aa198">&#34;42.85714&#34;</span>,
 </span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// &#34;totals&#34; key部分をTotalsArrayとして解釈する構造体
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	<span style="color:#268bd2">var</span> got <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// &#34;totals&#34; key部分をTotalsArrayとして解釈する構造体</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#268bd2">var</span> got <span style="color:#268bd2">struct</span> {
 </span></span><span style="display:flex;"><span>		Totals TotalsArray <span style="color:#2aa198">`json:&#34;totals&#34;`</span>
 </span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>	json.<span style="color:#268bd2">Unmarshal</span>([]<span style="color:#b58900">byte</span>(jsondata), <span style="color:#719e07">&amp;</span>got) <span style="color:#586e75">// {Files:1, CoverageRatio:&#34;42.85714&#34;}
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
+</span></span><span style="display:flex;"><span>	json.<span style="color:#268bd2">Unmarshal</span>([]<span style="color:#b58900">byte</span>(jsondata), <span style="color:#719e07">&amp;</span>got) <span style="color:#586e75">// {Files:1, CoverageRatio:&#34;42.85714&#34;}</span>
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> got.Totals <span style="color:#719e07">!=</span> want {
 </span></span><span style="display:flex;"><span>		t.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;want:\n%+v\nbut, got:\n%#v&#34;</span>, want, got.Totals)
 </span></span><span style="display:flex;"><span>	}
@@ -305,8 +305,8 @@
 そのため別手段で強引に構造体に<code>Unmarshal</code>することにした。</p>
 <h1 id="構造体にunmarshaljsonbyte-errorを定義する">構造体に<code>UnmarshalJSON([]byte) error</code>を定義する</h1>
 <p>まず、最終的に<code>totals</code>配列のデータを格納する構造体を定義する（一部省略）。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// TotalsArray defines totals responses.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> TotalsArray <span style="color:#268bd2">struct</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// TotalsArray defines totals responses.</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> TotalsArray <span style="color:#268bd2">struct</span> {
 </span></span><span style="display:flex;"><span>	Files         <span style="color:#dc322f">int</span>
 </span></span><span style="display:flex;"><span>	CoverageRatio <span style="color:#dc322f">string</span>
 </span></span><span style="display:flex;"><span>}
@@ -337,18 +337,18 @@ string, for JSON strings
 map[string]interface{}, for JSON objects
 nil for JSON null
 </code></pre><p>今回は<code>[]interface{}</code>の何番目がどんなデータかわかっているので、以下のようにタイプキャストして構造体のフィールドに取得した情報を代入していく。</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// UnmarshalJSON はエラーハンドリングを省略した簡易コード
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (ta <span style="color:#719e07">*</span>TotalsArray) <span style="color:#268bd2">UnmarshalJSON</span>(data []<span style="color:#dc322f">byte</span>) <span style="color:#dc322f">error</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// UnmarshalJSON はエラーハンドリングを省略した簡易コード</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (ta <span style="color:#719e07">*</span>TotalsArray) <span style="color:#268bd2">UnmarshalJSON</span>(data []<span style="color:#dc322f">byte</span>) <span style="color:#dc322f">error</span> {
 </span></span><span style="display:flex;"><span>	<span style="color:#268bd2">var</span> arr <span style="color:#268bd2">interface</span>{}
-</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// 引数として&#34;totals&#34;のデータが渡ってくる
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	json.<span style="color:#268bd2">Unmarshal</span>(data, <span style="color:#719e07">&amp;</span>arr)
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// 引数として&#34;totals&#34;のデータが渡ってくる</span>
+</span></span><span style="display:flex;"><span>	json.<span style="color:#268bd2">Unmarshal</span>(data, <span style="color:#719e07">&amp;</span>arr)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// 0番目は数値(float64)であると決め打ち
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	f, _ <span style="color:#719e07">:=</span> arr[<span style="color:#2aa198">0</span>].(<span style="color:#dc322f">float64</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#586e75">// 0番目は数値(float64)であると決め打ち</span>
+</span></span><span style="display:flex;"><span>	f, _ <span style="color:#719e07">:=</span> arr[<span style="color:#2aa198">0</span>].(<span style="color:#dc322f">float64</span>)
 </span></span><span style="display:flex;"><span>	ta.Files = <span style="color:#b58900">int</span>(f)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// 3番目は文字列(string)であると決め打ち
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>	c, _ <span style="color:#719e07">:=</span> arr[<span style="color:#2aa198">3</span>].(<span style="color:#dc322f">string</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">// 3番目は文字列(string)であると決め打ち</span>
+</span></span><span style="display:flex;"><span>	c, _ <span style="color:#719e07">:=</span> arr[<span style="color:#2aa198">3</span>].(<span style="color:#dc322f">string</span>)
 </span></span><span style="display:flex;"><span>	ta.CoverageRatio = c
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
@@ -553,11 +553,17 @@ nil for JSON null
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -569,12 +575,6 @@ nil for JSON null
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

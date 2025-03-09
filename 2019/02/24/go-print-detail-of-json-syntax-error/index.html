@@ -38,7 +38,7 @@
   <meta name="author" content="">
 
   
-  <meta name="generator" content="Hugo 0.134.2">
+  <meta name="generator" content="Hugo 0.145.0">
 
   
 
@@ -206,9 +206,9 @@
 <p>
 <a href="https://golang.org/pkg/encoding/json/#SyntaxError" target="_blank" rel="noopener">https://golang.org/pkg/encoding/json/#SyntaxError</a></p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> SyntaxError <span style="color:#268bd2">struct</span> {
-</span></span><span style="display:flex;"><span>        Offset <span style="color:#dc322f">int64</span> <span style="color:#586e75">// error occurred after reading Offset bytes
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        <span style="color:#586e75">// contains filtered or unexported fields
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span><span style="display:flex;"><span>        Offset <span style="color:#dc322f">int64</span> <span style="color:#586e75">// error occurred after reading Offset bytes</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// contains filtered or unexported fields</span>
+</span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>オフセット情報を含んだ<code>error</code>インターフェースを満たす構造体らしい。</p>
 <h1 id="jsonunmarshalで失敗したときのエラー出力を確認する">json.Unmarshalで失敗したときのエラー出力を確認する</h1>
 <p>まずTweetのような<code>json.Unmarshal</code>を失敗する簡単なサンプルコードを用意した。</p>
@@ -231,14 +231,14 @@
 </span></span><span style="display:flex;"><span>		} <span style="color:#2aa198">`json:&#34;parent_totals&#34;`</span>
 </span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmarshal</span>(bd, <span style="color:#719e07">&amp;</span>v); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-</span></span><span style="display:flex;"><span>		<span style="color:#586e75">// 2009/11/10 23:00:00 invalid character &#39;&#34;&#39; after object key:value pair
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>		log.<span style="color:#268bd2">Fatal</span>(err)
+</span></span><span style="display:flex;"><span>		<span style="color:#586e75">// 2009/11/10 23:00:00 invalid character &#39;&#34;&#39; after object key:value pair</span>
+</span></span><span style="display:flex;"><span>		log.<span style="color:#268bd2">Fatal</span>(err)
 </span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>	fmt.<span style="color:#268bd2">Println</span>(v)
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// &#34;c&#34;: 52.57732&#34;, の部分に「&#34;」が足りないためinvalidなJSON文字列。
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">const</span> data = <span style="color:#2aa198">`
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// &#34;c&#34;: 52.57732&#34;, の部分に「&#34;」が足りないためinvalidなJSON文字列。</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">const</span> data = <span style="color:#2aa198">`
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">{
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">      &#34;timestamp&#34;: &#34;2019-02-24 07:07:03&#34;,
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">      &#34;parent_totals&#34;: {
@@ -297,18 +297,18 @@
 </span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>	<span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> json.<span style="color:#268bd2">Unmarshal</span>(bd, <span style="color:#719e07">&amp;</span>v); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-</span></span><span style="display:flex;"><span>		<span style="color:#586e75">// 真にはならない
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>		<span style="color:#719e07">if</span> err, ok <span style="color:#719e07">:=</span> err.(<span style="color:#719e07">*</span>json.SyntaxError); ok {
+</span></span><span style="display:flex;"><span>		<span style="color:#586e75">// 真にはならない</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#719e07">if</span> err, ok <span style="color:#719e07">:=</span> err.(<span style="color:#719e07">*</span>json.SyntaxError); ok {
 </span></span><span style="display:flex;"><span>			fmt.<span style="color:#268bd2">Println</span>(<span style="color:#b58900">string</span>(bd[err.Offset<span style="color:#719e07">-</span><span style="color:#2aa198">1</span>:]))
 </span></span><span style="display:flex;"><span>		}
-</span></span><span style="display:flex;"><span>		<span style="color:#586e75">// 2009/11/10 23:00:00 json: cannot unmarshal string into Go struct field .C of type int
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>		log.<span style="color:#268bd2">Fatal</span>(err)
+</span></span><span style="display:flex;"><span>		<span style="color:#586e75">// 2009/11/10 23:00:00 json: cannot unmarshal string into Go struct field .C of type int</span>
+</span></span><span style="display:flex;"><span>		log.<span style="color:#268bd2">Fatal</span>(err)
 </span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>	fmt.<span style="color:#268bd2">Println</span>(v)
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// `json:&#34;C&#34;と`json:&#34;c&#34;が宣言されていない構造体でUnmarshalしようとすると失敗する正しいJSONシンタックスの文字列。
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">const</span> data = <span style="color:#2aa198">`
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// `json:&#34;C&#34;と`json:&#34;c&#34;が宣言されていない構造体でUnmarshalしようとすると失敗する正しいJSONシンタックスの文字列。</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">const</span> data = <span style="color:#2aa198">`
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">{
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">      &#34;timestamp&#34;: &#34;2019-02-24 07:07:03&#34;,
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">      &#34;parent_totals&#34;: {
@@ -497,11 +497,17 @@
           
           
             
+          
+            
               <li class="post">
-                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+                <a href="/2025/03/09/release_oss_by_tagpr_goreleaser/">tagprとGoReleaserを使ったOSSの自動リリース</a>
               </li>
             
           
+            
+              <li class="post">
+                <a href="/2024/12/31/retrospective-2024/">2024年の振り返り</a>
+              </li>
             
           
             
@@ -513,12 +519,6 @@
             
               <li class="post">
                 <a href="/2024/01/03/retrospective-2023/">2023年振り返り</a>
-              </li>
-            
-          
-            
-              <li class="post">
-                <a href="/2023/12/31/best_things_i_bought_in_2023/">2023年に買ってよかったもの</a>
               </li>
             
           

@@ -6,28 +6,26 @@
     <description>Recent content in Json on My External Storage</description>
     <generator>Hugo</generator>
     <language>ja-jp</language>
-    <managingEditor>budougumi[at]gmail.com (budougumi0617)</managingEditor>
-    <webMaster>budougumi[at]gmail.com (budougumi0617)</webMaster>
     <lastBuildDate>Mon, 25 Oct 2021 08:00:09 +0900</lastBuildDate>
     <atom:link href="https://budougumi0617.github.io/tags/json/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>[Go] JSONを構造体にマッピングしつつ生データを保存するUnmarshalJSONの実装方法</title>
       <link>https://budougumi0617.github.io/2021/10/25/smart_saving_json_raw_message/</link>
-      <pubDate>Mon, 25 Oct 2021 08:00:09 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Mon, 25 Oct 2021 08:00:09 +0900</pubDate>
       <guid>https://budougumi0617.github.io/2021/10/25/smart_saving_json_raw_message/</guid>
-      <description>&lt;p&gt;GoではJSONを扱うときでもしっかり型定義に当てはめて利用するのが一般的だ。&lt;br&gt;&#xA;しかし、外部から受け取ったJSONデータは型に当てはめつつ併せて生データも保存しておきたいときがある。&lt;br&gt;&#xA;&lt;code&gt;Defind Type&lt;/code&gt;をうまく使うとシンプルな&lt;code&gt;UnmarshalJSON(data []byte)&lt;/code&gt;メソッドを定義できる。&lt;/p&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;type&lt;/span&gt; Event &lt;span style=&#34;color:#268bd2&#34;&gt;struct&lt;/span&gt; {&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    ID   &lt;span style=&#34;color:#dc322f&#34;&gt;string&lt;/span&gt;          &lt;span style=&#34;color:#2aa198&#34;&gt;`json:&amp;#34;id&amp;#34;`&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    Type &lt;span style=&#34;color:#dc322f&#34;&gt;string&lt;/span&gt;          &lt;span style=&#34;color:#2aa198&#34;&gt;`json:&amp;#34;type&amp;#34;`&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    Payload Payload      &lt;span style=&#34;color:#2aa198&#34;&gt;`json:&amp;#34;pyload&amp;#34;`&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#586e75&#34;&gt;// 構造体にマッピングする前のJSONを保存しておきたい&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;    Raw  json.RawMessage &lt;span style=&#34;color:#2aa198&#34;&gt;`json:&amp;#34;-&amp;#34;`&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+      <description>&lt;p&gt;GoではJSONを扱うときでもしっかり型定義に当てはめて利用するのが一般的だ。&lt;br&gt;&#xA;しかし、外部から受け取ったJSONデータは型に当てはめつつ併せて生データも保存しておきたいときがある。&lt;br&gt;&#xA;&lt;code&gt;Defind Type&lt;/code&gt;をうまく使うとシンプルな&lt;code&gt;UnmarshalJSON(data []byte)&lt;/code&gt;メソッドを定義できる。&lt;/p&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;type&lt;/span&gt; Event &lt;span style=&#34;color:#268bd2&#34;&gt;struct&lt;/span&gt; {&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    ID   &lt;span style=&#34;color:#dc322f&#34;&gt;string&lt;/span&gt;          &lt;span style=&#34;color:#2aa198&#34;&gt;`json:&amp;#34;id&amp;#34;`&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    Type &lt;span style=&#34;color:#dc322f&#34;&gt;string&lt;/span&gt;          &lt;span style=&#34;color:#2aa198&#34;&gt;`json:&amp;#34;type&amp;#34;`&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    Payload Payload      &lt;span style=&#34;color:#2aa198&#34;&gt;`json:&amp;#34;pyload&amp;#34;`&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#586e75&#34;&gt;// 構造体にマッピングする前のJSONを保存しておきたい&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    Raw  json.RawMessage &lt;span style=&#34;color:#2aa198&#34;&gt;`json:&amp;#34;-&amp;#34;`&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
     </item>
     <item>
       <title>GoでJSONのUnmarshalがシンタックスエラーで失敗した時、エラー周辺の文字列を表示する</title>
       <link>https://budougumi0617.github.io/2019/02/24/go-print-detail-of-json-syntax-error/</link>
-      <pubDate>Sun, 24 Feb 2019 21:08:31 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Sun, 24 Feb 2019 21:08:31 +0900</pubDate>
       <guid>https://budougumi0617.github.io/2019/02/24/go-print-detail-of-json-syntax-error/</guid>
       <description>&lt;p&gt;&lt;code&gt;json.Unmarshal&lt;/code&gt;に失敗したとき&lt;code&gt;json.SyntaxError&lt;/code&gt;が取得できた場合は文字列の中のどの位置でパースに失敗したのか知ることができる。&lt;/p&gt;</description>
     </item>
     <item>
       <title>[Go] JSON内の数字や文字列が混じった配列を構造体にUnmarshalする</title>
       <link>https://budougumi0617.github.io/2018/11/23/unmarshal-json-array-in-go/</link>
-      <pubDate>Fri, 23 Nov 2018 23:22:27 +0900</pubDate><author>budougumi[at]gmail.com (budougumi0617)</author>
+      <pubDate>Fri, 23 Nov 2018 23:22:27 +0900</pubDate>
       <guid>https://budougumi0617.github.io/2018/11/23/unmarshal-json-array-in-go/</guid>
       <description>&lt;p&gt;以下のようなJSONデータはGoではパースしずらい。&#xA;理由は、配列に複数の型が含まれていてGoの配列としては&lt;code&gt;[]interface{}&lt;/code&gt;にするしかないことと、名前(&lt;code&gt;key&lt;/code&gt;)が設定されていないのでマッピングしにくいからだ。&#xA;これを無理やりUnmarshalしたときのメモ。&lt;/p&gt;</description>
     </item>
